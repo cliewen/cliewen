@@ -17,7 +17,7 @@ code. Serves [G-001](../goals/G-001-verifiable-thread.md).
 
 | ID | Milestone (exit criterion) | Status | Evidence |
 |---|---|---|---|
-| M-001 | The loop closes once, end-to-end: goal in → proposal branch → implement → permanent `/docs` updated → transient files gone → clean merge | `in-progress` | CH-001 (this bootstrap) |
+| M-001 | The loop closes once, end-to-end: goal in → proposal branch → implement → permanent `/docs` updated → transient files gone → clean merge | `done` | CH-001 (merge commit of branch `ch-001-bootstrap`) |
 | M-002 | The thread is machine-checkable: linter fails the build when an AC lacks a test or a test lacks an AC | `todo` | — |
 | M-003 | Brownfield extraction works on model2diagram | `todo` | — |
 
