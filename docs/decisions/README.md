@@ -6,4 +6,5 @@ Architecture Decision Records (MADR format) with two-tier provenance: `inferred`
 - [ADR-001 — Implementation language: Go](ADR-001-implementation-language.md) · `verified`
 - [ADR-002 — The inbox is goals with status: proposed](ADR-002-inbox-is-proposed-goals.md) · `verified`
 - [ADR-003 — Parse frontmatter with gopkg.in/yaml.v3](ADR-003-frontmatter-yaml-library.md) · `inferred` (awaiting human promotion)
+- [ADR-004 — Default test-coverage gate at 80% total](ADR-004-coverage-gate-80-percent.md) · `verified`
 <!-- clue:index:end -->
