@@ -1,11 +1,11 @@
 ---
 id: ADR-009
 type: decision
-status: inferred
+status: verified
 links: [ADR-005, ADR-007, AN-002, CAP-003]
 title: AC IDs are namespaced — criteria declare an ac-prefix
 author: agent
-accepted-by: pending
+accepted-by: Flemming N. Larsen (2026-07-12)
 ---
 
 # ADR-009 — AC ID namespaces

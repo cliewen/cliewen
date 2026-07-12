@@ -1,11 +1,11 @@
 ---
 id: ADR-010
 type: decision
-status: inferred
+status: verified
 links: [AN-002, ADR-008, CAP-003]
 title: Extracted artifacts carry a provenance field, born inferred
 author: agent
-accepted-by: pending
+accepted-by: Flemming N. Larsen (2026-07-12)
 ---
 
 # ADR-010 — The provenance field

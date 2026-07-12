@@ -1,11 +1,11 @@
 ---
 id: ADR-008
 type: decision
-status: inferred
+status: verified
 links: [AN-002, CAP-003, G-001]
 title: Brownfield extraction is one generic skill with per-source mappings
 author: agent
-accepted-by: pending
+accepted-by: Flemming N. Larsen (2026-07-12)
 ---
 
 # ADR-008 — Extraction is a skill, generic with per-source mappings
