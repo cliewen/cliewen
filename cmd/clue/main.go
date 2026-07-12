@@ -62,6 +62,21 @@ func runValidate(args []string) int {
 		fmt.Fprintf(os.Stderr, "clue validate: %d issue(s)\n", len(issues))
 		return 1
 	}
-	fmt.Printf("clue validate: OK (%d artifacts)\n", len(c.Artifacts))
+	if n := inferredCount(c); n > 0 {
+		fmt.Printf("clue validate: OK (%d artifacts, %d born inferred awaiting verification)\n", len(c.Artifacts), n)
+	} else {
+		fmt.Printf("clue validate: OK (%d artifacts)\n", len(c.Artifacts))
+	}
 	return 0
+}
+
+// inferredCount is the visible to-do list of unverified meaning (ADR-010).
+func inferredCount(c *corpus.Corpus) int {
+	n := 0
+	for _, a := range c.Artifacts {
+		if p, _ := a.Fields["provenance"].(string); p == "inferred" {
+			n++
+		}
+	}
+	return n
 }
