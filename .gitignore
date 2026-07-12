@@ -3,3 +3,5 @@
 # build output
 /clue
 /clue.exe
+coverage
+coverage.out
