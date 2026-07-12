@@ -20,19 +20,32 @@ var (
 )
 
 func checkACTests(c *Corpus) []Issue {
-	type decl struct{ path, status string }
+	type decl struct {
+		path, status string
+		retired      bool
+	}
 	declared := map[string]decl{}
+	var issues []Issue
 	for _, a := range c.Artifacts {
 		if a.Type != "criteria" {
 			continue
 		}
-		for _, m := range acTagRe.FindAllStringSubmatch(a.Body, -1) {
-			declared["AC-"+m[1]] = decl{a.Path, a.Status}
+		// Tag lines are read per line: `@AC-012 @retired` on one line is
+		// the tombstone form (ADR-007).
+		for _, line := range strings.Split(a.Body, "\n") {
+			retired := strings.Contains(line, "@retired")
+			for _, m := range acTagRe.FindAllStringSubmatch(line, -1) {
+				ac := "AC-" + m[1]
+				if prev, dup := declared[ac]; dup {
+					issues = append(issues, Issue{a.Path, "duplicate declaration of " + ac + " (already declared in " + prev.path + ")"})
+					continue
+				}
+				declared[ac] = decl{a.Path, a.Status, retired}
+			}
 		}
 	}
 
 	tested := map[string]bool{}
-	var issues []Issue
 	_ = filepath.WalkDir(c.Root, func(p string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return nil
@@ -68,8 +81,11 @@ func checkACTests(c *Corpus) []Issue {
 			if pm[2] != "" { // the AC<digits> purpose
 				ac := "AC-" + pm[2]
 				tested[ac] = true
-				if _, ok := declared[ac]; !ok {
+				d, ok := declared[ac]
+				if !ok {
 					issues = append(issues, Issue{relSlash, "test " + name + " references " + ac + " which no criteria.md declares"})
+				} else if d.retired {
+					issues = append(issues, Issue{relSlash, "test " + name + " references retired " + ac + " — remove the test or re-tag it (ADR-007)"})
 				}
 			}
 		}
@@ -77,7 +93,7 @@ func checkACTests(c *Corpus) []Issue {
 	})
 
 	for ac, d := range declared {
-		if d.status == "active" && !tested[ac] {
+		if d.status == "active" && !d.retired && !tested[ac] {
 			issues = append(issues, Issue{d.path, ac + " has no test (convention per ADR-005: a test named TestAC" + strings.TrimPrefix(ac, "AC-") + "_…)"})
 		}
 	}

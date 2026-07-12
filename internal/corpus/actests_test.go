@@ -40,6 +40,27 @@ func TestAC010_UnknownACReferenceFails(t *testing.T) {
 	assertIssue(t, issues, "pkg/x_test.go")
 }
 
+// AC-012: a retired AC needs no test; a surviving test referencing it fails.
+func TestAC012_RetiredACTombstone(t *testing.T) {
+	files := capFiles("active")
+	files["docs/capabilities/CAP-101-x/criteria.md"] = "---\nid: CAP-101-criteria\ntype: criteria\nstatus: active\nlinks: [CAP-101]\ntitle: X criteria\n---\n\n```gherkin\nFeature: X\n\n  @AC-101 @retired\n  Scenario: it used to work this way\n    Given a thing\n    Then it worked\n```\n"
+	if issues := run(t, files, false); len(issues) != 0 {
+		t.Fatalf("retired AC needs no test; expected no issues, got %v", issues)
+	}
+	files["pkg/x_test.go"] = "package x\n\nfunc TestAC101_Works(t *testing.T) {}\n"
+	issues := run(t, files, false)
+	assertIssue(t, issues, "retired AC-101")
+}
+
+// AC-013: the same AC declared twice fails, naming both files.
+func TestAC013_DuplicateACDeclarationFails(t *testing.T) {
+	files := capFiles("active")
+	files["pkg/x_test.go"] = "package x\n\nfunc TestAC101_Works(t *testing.T) {}\n"
+	files["docs/capabilities/CAP-101-x/criteria.md"] = "---\nid: CAP-101-criteria\ntype: criteria\nstatus: active\nlinks: [CAP-101]\ntitle: X criteria\n---\n\n```gherkin\nFeature: X\n\n  @AC-101\n  Scenario: one\n    Then fine\n\n  @AC-101\n  Scenario: two\n    Then clash\n```\n"
+	issues := run(t, files, false)
+	assertIssue(t, issues, "duplicate declaration of AC-101")
+}
+
 // AC-011: every test declares its purpose; Unit/Sanity/Arch need no AC.
 func TestAC011_UnclassifiedTestFails(t *testing.T) {
 	files := with(validFiles, map[string]string{

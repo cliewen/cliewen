@@ -70,4 +70,18 @@ Feature: clue validate — deterministic corpus judgment
     Then it exits with a non-zero code
     And the output names the test file, the function and the taxonomy
     But tests declaring Unit, Sanity or Arch pass without referencing any AC
+
+  @AC-012
+  Scenario: A retired AC needs no test, and its surviving tests fail
+    Given a criteria.md scenario tagged with an AC and "@retired" on its tag line
+    When the user runs "clue validate"
+    Then the retired AC requires no test
+    But a test still referencing the retired AC exits with a non-zero code
+
+  @AC-013
+  Scenario: Duplicate AC declarations fail
+    Given the same AC ID declared more than once across the corpus
+    When the user runs "clue validate"
+    Then it exits with a non-zero code
+    And the output names both declaring files
 ```
