@@ -1,3 +1,7 @@
+---
+version: 0.1.0
+---
+
 # clue-delta
 
 The change loop. Use for every mutation of `main` — features, fixes, docs, plans.

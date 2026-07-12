@@ -3,6 +3,7 @@ package main
 import (
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/cliewen/cliewen/internal/corpus"
@@ -55,6 +56,49 @@ func TestAC018_InferredArtifactsCountedAndAccepted(t *testing.T) {
 	c, _ := corpus.Scan(root)
 	if n := inferredCount(c); n != 1 {
 		t.Fatalf("expected 1 inferred artifact, got %d", n)
+	}
+}
+
+// AC-019: version reports the stamp injected at build time.
+func TestAC019_VersionCommandReportsStamp(t *testing.T) {
+	old := version
+	version = "9.9.9"
+	defer func() { version = old }()
+	var b strings.Builder
+	if code := runVersion(&b); code != 0 {
+		t.Fatalf("expected exit 0, got %d", code)
+	}
+	if !strings.Contains(b.String(), "9.9.9") {
+		t.Fatalf("version output %q does not report the stamp", b.String())
+	}
+}
+
+// AC-019 (negative): an unstamped source build reports "dev", not a
+// release number.
+func TestAC019_UnstampedBuildReportsDev(t *testing.T) {
+	old := version
+	version = "dev"
+	defer func() { version = old }()
+	var b strings.Builder
+	runVersion(&b)
+	if !strings.Contains(b.String(), "dev") {
+		t.Fatalf("unstamped build should report dev, got %q", b.String())
+	}
+}
+
+// Sanity: the release workflow builds versioned cross-platform binaries.
+// A repo invariant guarding M-004's release pipeline against regression;
+// the operational proof is the first tagged release itself.
+func TestSanity_ReleaseWorkflowIsCrossPlatform(t *testing.T) {
+	data, err := os.ReadFile(filepath.Join("..", "..", ".github", "workflows", "release.yml"))
+	if err != nil {
+		t.Fatalf("release workflow not found: %v", err)
+	}
+	wf := string(data)
+	for _, want := range []string{"main.version", "linux", "darwin", "windows", "arm64", "amd64"} {
+		if !strings.Contains(wf, want) {
+			t.Errorf("release workflow does not mention %q — expected a stamped cross-platform build", want)
+		}
 	}
 }
 

@@ -1,3 +1,7 @@
+---
+version: 0.1.0
+---
+
 # clue-extract
 
 Brownfield adoption: transform an existing repository's spec corpus into a Cliewen `/docs` corpus (ADR-008). Use once per adopted repo; the run is that repo's first change loop (`clue-delta` applies — branch, proposal, digest, PR).

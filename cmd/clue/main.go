@@ -6,24 +6,34 @@ package main
 import (
 	"flag"
 	"fmt"
+	"io"
 	"os"
 
 	"github.com/cliewen/cliewen/internal/corpus"
 )
 
+// version is the release stamp, injected at build time via
+// `-ldflags "-X main.version=<semver>"` (see .github/workflows/release.yml).
+// Local and source builds report "dev" and are exempt from skill-drift
+// checks (ADR-011).
+var version = "dev"
+
 const usage = `clue — a verifiable thread from goal to test
 
 Usage:
   clue validate [--forbid-changes] [path]
+  clue version
 
 Commands:
   validate   Scan docs/ and changes/ under path (default ".") and check
              the frontmatter graph: core fields, unique IDs, link
              resolution, status vocabularies, folder READMEs, index
-             integrity.
+             integrity, and skill version drift (ADR-011).
 
              --forbid-changes  fail when /changes contains files — the
                                digest-before-merge gate used by CI.
+
+  version    Print the release version this clue was built from.
 
 Exit codes: 0 corpus valid · 1 issues found · 2 usage error
 `
@@ -36,6 +46,8 @@ func main() {
 	switch os.Args[1] {
 	case "validate":
 		os.Exit(runValidate(os.Args[2:]))
+	case "version", "--version":
+		os.Exit(runVersion(os.Stdout))
 	case "help", "--help", "-h":
 		fmt.Print(usage)
 	default:
@@ -54,7 +66,7 @@ func runValidate(args []string) int {
 	}
 
 	c, issues := corpus.Scan(root)
-	issues = append(issues, corpus.Validate(c, corpus.Options{ForbidChanges: *forbid})...)
+	issues = append(issues, corpus.Validate(c, corpus.Options{ForbidChanges: *forbid, Version: version})...)
 	if len(issues) > 0 {
 		for _, is := range issues {
 			fmt.Println(is)
@@ -67,6 +79,12 @@ func runValidate(args []string) int {
 	} else {
 		fmt.Printf("clue validate: OK (%d artifacts)\n", len(c.Artifacts))
 	}
+	return 0
+}
+
+// runVersion prints the release stamp (AC-019). "dev" for source builds.
+func runVersion(w io.Writer) int {
+	fmt.Fprintf(w, "clue %s\n", version)
 	return 0
 }
 

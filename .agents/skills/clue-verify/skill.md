@@ -1,3 +1,7 @@
+---
+version: 0.1.0
+---
+
 # clue-verify
 
 Pre-merge checklist. Run before opening or updating any PR. When the `clue` CLI exists, `clue validate` performs the mechanical half; until then, check by hand. **Never fix a failure by weakening the check.**

@@ -1,3 +1,7 @@
+---
+version: 0.1.0
+---
+
 # clue-plan
 
 Use when creating a plan or changing what a plan promises.

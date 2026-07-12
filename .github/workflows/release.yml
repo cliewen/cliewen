@@ -1,0 +1,50 @@
+# clue ships (P-002/M-004): a `vX.Y.Z` tag builds cross-platform binaries,
+# each stamped with the tag's version via ldflags, and publishes them as a
+# GitHub release for `gh release download`. The stamped string is bare
+# semver (the leading `v` is stripped, ADR-011) so it matches the skills'
+# frontmatter version and `clue validate`'s drift check agrees.
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build binaries
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: stable
+
+      - name: Determine version
+        id: version
+        run: echo "v=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+
+      - name: Build cross-platform binaries
+        env:
+          VERSION: ${{ steps.version.outputs.v }}
+        run: |
+          mkdir -p dist
+          for target in linux/amd64 linux/arm64 darwin/amd64 darwin/arm64 windows/amd64 windows/arm64; do
+            os="${target%/*}"; arch="${target#*/}"
+            out="clue-${VERSION}-${os}-${arch}"
+            ext=""; [ "$os" = "windows" ] && ext=".exe"
+            echo "building ${out}${ext}"
+            GOOS="$os" GOARCH="$arch" CGO_ENABLED=0 \
+              go build -trimpath -ldflags "-s -w -X main.version=${VERSION}" \
+              -o "dist/${out}${ext}" ./cmd/clue
+          done
+
+      - name: Publish GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: ${{ github.ref_name }}
+          files: dist/*
+          generate_release_notes: true

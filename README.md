@@ -6,9 +6,23 @@
 
 SDD frameworks document the *change*; Cliewen documents the *system*. Changes are transient deltas digested into the permanent corpus at merge — `git log docs/` is the provenance archive.
 
+## Install
+
+`clue` is a single Go binary. Install from source, or download a stamped prebuilt binary from a release:
+
+```sh
+# From source (reports "dev" as its version):
+go install github.com/cliewen/cliewen/cmd/clue@latest
+
+# A stamped prebuilt binary for your platform (linux/darwin/windows × amd64/arm64):
+gh release download vX.Y.Z --repo cliewen/cliewen --pattern 'clue-*-<os>-<arch>*'
+```
+
+`clue version` reports the release it was built from. A tagged release (`vX.Y.Z`) builds the cross-platform binaries and stamps each with its version; the agent skills carry the same version, and `clue validate` flags drift between them ([CAP-004](docs/capabilities/CAP-004-ship/README.md), [ADR-011](docs/decisions/ADR-011-version-stamping.md)).
+
 ## Status
 
-Elaboration baseline in progress ([P-001](docs/plans/P-001-elaboration-baseline.md)). This repo dogfoods its own conventions from commit one — start reading at [docs/README.md](docs/README.md). Agents: see [AGENTS.md](AGENTS.md).
+Baseline complete ([P-001](docs/plans/P-001-elaboration-baseline.md)); distribution and greenfield bootstrap under way ([P-002](docs/plans/P-002-leaves-home.md)). This repo dogfoods its own conventions from commit one — start reading at [docs/README.md](docs/README.md). Agents: see [AGENTS.md](AGENTS.md).
 
 ## License
 
