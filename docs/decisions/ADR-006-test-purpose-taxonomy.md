@@ -31,3 +31,9 @@ Carried per ADR-005's mechanics: a framework tag where tags exist (`@Tag("AC-004
 ### Rejected: leaving non-AC tests unclassified
 
 The status quo. It makes the AC-010 check one-sided and lets intent-free tests accumulate — the test-suite version of doc-slop.
+
+### Rejected: richer type sets (Integration, Performance, E2E, …)
+
+Considered against the maintainer's earlier ADR-015 pattern, which carries more types. Two reasons to stay small: **Integration/E2E are execution levels, not purposes** — orthogonal metadata with no consumer in `clue`, CI or the skills (§7: a field nobody reads gets removed before it exists). And **Performance is not a purpose class but the QS lane**: a performance test must trace to a specific quality scenario, mirroring how an AC test traces to its AC.
+
+**Door:** a `QS<digits>` purpose class joins the taxonomy when the first QS-verifying test exists, extending `checkACTests` the same way for the thread's second strand.
