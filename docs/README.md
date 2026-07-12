@@ -15,6 +15,8 @@ G-xxx (goal) → P-xxx/M-xxx (plan/milestone) → CH-xxx (change)
 
 Cross-cutting, checked against every proposal: C-xxx (constraints), QS-xxx (quality scenarios).
 
+Two optional fields extend the core, each with `checkACTests`/`checkProvenance` as its consumer: `ac-prefix` on a criteria.md namespaces its AC IDs (`<PREFIX>-<digits>`, default `AC` — ADR-009), and `provenance: inferred|verified` marks agent-extracted artifacts awaiting human verification (absent = human-authored; decisions carry provenance in `status` instead — ADR-010).
+
 ## Status vocabularies
 
 This table mirrors the `statusVocab` map in `internal/corpus/rules.go` — the consumer that enforces it. Change them together.

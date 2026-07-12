@@ -12,7 +12,7 @@ title: The skills layer — process knowledge as versioned artifacts
 
 Skills are the **process-knowledge actor** in the four-actor model ([architecture.md](architecture.md)): they tell the agent what the next right step is, so the CLI only has to judge whether it was done right. Everything that can be convention in a skill is deliberately kept **out of the CLI** — the judge stays boring and finished; the guidance stays editable prose. Skills live in `.agents/skills/` (what agents read), not in `/docs` (what the system is): this file documents *why the set looks like it does*; each skill file is the operational instruction and its own single source of truth for *how*.
 
-## The four skills and how they complement each other
+## The five skills and how they complement each other
 
 The set is not arbitrary — it is the lifecycle (Foundation §10) cut at its phase boundaries, and each skill hands off to the next:
 
@@ -22,6 +22,7 @@ The set is not arbitrary — it is the lifecycle (Foundation §10) cut at its ph
 | `clue-plan` | Campaign layer: create or revise a plan with verifiable milestones | `clue-delta` (every plan mutation is itself a change) |
 | `clue-delta` | The change loop: branch → propose → implement → digest → merge | `clue-verify` (before every PR) |
 | `clue-verify` | The pre-merge checklist — the human-readable twin of `clue validate` | the PR (human verifies meaning; CI verifies form) |
+| `clue-extract` | Brownfield adoption: one-time transform of an existing corpus into `/docs`, everything born `inferred` (ADR-008) | `clue-delta` (the extraction runs as the adopted repo's first change loop) |
 
 Two invariants tie them together: **every path through the skills ends at the same gate** (verify → PR → merge), and **every skill writes artifacts the next one consumes** — findings feed plans, plans frame deltas, deltas produce the corpus that analysis reads next time. A skill whose output nothing consumes gets removed, the same §2 rule that governs corpus artifacts.
 

@@ -19,7 +19,7 @@ title: Task breakdown for CH-004
 - [x] Add the `provenance` vocabulary check and the inferred count in `clue validate` output — AC-018
 - [x] Write positive + negative tests for AC-014…AC-018
 - [x] Write CAP-003-extract README and design.md; update capability index
-- [ ] Write `.agents/skills/clue-extract/skill.md` (target contract + OpenSpec mapping)
-- [ ] Update ARCH-002 (skills architecture) with clue-extract; update docs/README field/status tables for `ac-prefix` and `provenance`
+- [x] Write `.agents/skills/clue-extract/skill.md` (target contract + OpenSpec mapping)
+- [x] Update ARCH-002 (skills architecture) with clue-extract; update docs/README field/status tables for `ac-prefix` and `provenance`
 - [ ] Verify: gofmt, `go test ./...` green, coverage ≥ 80%, `clue validate` clean
 - [ ] Digest: delete `/changes/CH-004-extract/`, open PR, CI green
