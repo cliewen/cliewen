@@ -21,5 +21,5 @@ title: Task breakdown for CH-004
 - [x] Write CAP-003-extract README and design.md; update capability index
 - [x] Write `.agents/skills/clue-extract/skill.md` (target contract + OpenSpec mapping)
 - [x] Update ARCH-002 (skills architecture) with clue-extract; update docs/README field/status tables for `ac-prefix` and `provenance`
-- [ ] Verify: gofmt, `go test ./...` green, coverage ≥ 80%, `clue validate` clean
-- [ ] Digest: delete `/changes/CH-004-extract/`, open PR, CI green
+- [x] Verify: gofmt, `go test ./...` green, coverage 88.9% ≥ 80%, `clue validate` clean (29 artifacts)
+- [x] Digest: delete `/changes/CH-004-extract/`, open PR, CI green
