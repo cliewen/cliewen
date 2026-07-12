@@ -1,12 +1,14 @@
 ---
 id: G-002
 type: goal
-status: proposed
+status: accepted
 links: [G-001]
 title: clue and the skills carry versions
 ---
 
-# G-002 — clue and the skills carry versions (proposed)
+# G-002 — clue and the skills carry versions
+
+> Accepted 2026-07-13 with [P-002](../plans/P-002-leaves-home.md), which carries it as milestone M-004.
 
 **Who wants it:** the maintainer (2026-07-12), prompted by the first real distribution friction — `go install` builds whatever the checkout has, and nothing tells an adopted repo whether its installed skills or binary have drifted behind cliewen's main.
 

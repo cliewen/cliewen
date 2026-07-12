@@ -1,12 +1,14 @@
 ---
 id: P-001
 type: plan
-status: active
+status: completed
 links: [G-001]
 title: Elaboration baseline
 ---
 
 # P-001 — Elaboration baseline
+
+> **Completed 2026-07-13** — all milestones done; frozen immutable. The baseline's lessons live as [ADR-001…ADR-010](../decisions/README.md), distilled continuously as each change landed. Successor: [P-002 — Cliewen leaves home](P-002-leaves-home.md).
 
 A 2–3 week **elaboration baseline** in RUP's sense: a running skeleton that proves the architecture and is built upon, not thrown away. Risk-driven — the milestones retire the biggest risks first, as running code. Serves [G-001](../goals/G-001-verifiable-thread.md).
 
