@@ -54,6 +54,7 @@ func Validate(c *Corpus, opts Options) []Issue {
 	issues = append(issues, checkLinks(c)...)
 	issues = append(issues, checkFolderReadmes(c)...)
 	issues = append(issues, checkIndexes(c)...)
+	issues = append(issues, checkACTests(c)...)
 	if opts.ForbidChanges && c.HasChanges {
 		issues = append(issues, Issue{"changes", "transient workspace present — digest before merge (main must never contain /changes)"})
 	}

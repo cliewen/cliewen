@@ -29,6 +29,10 @@ Where does an idea or bug report live *before* it is a change? The Foundation Do
 
 **Goals with `status: proposed`.** An idea enters the corpus as a goal file with `status: proposed`; promotion to `accepted` is a human decision made through a change/PR, which puts intake on the same provenance chain as everything else. The generated goals index doubles as the backlog view.
 
+### Carrier (added 2026-07-12, per the carrier rule)
+
+The `/docs/goals` README that `clue init` scaffolds: its prose declares the folder the inbox and the `proposed` status the entry state. This repo's own [goals/README.md](../goals/README.md) is the template source.
+
 ### Rejected: GitHub Issues forecourt
 
 Zero-friction intake, but it places the pre-change record outside the corpus and leans on exactly the forge dependency §3 forbids. Issues may still exist socially, but the corpus-native record is the proposed goal, and tickets reference IDs, never the reverse.

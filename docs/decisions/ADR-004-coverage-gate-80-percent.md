@@ -30,6 +30,10 @@ The AC↔test contract is the binding behavioral gate, but code coverage is a se
 
 **80% total statement coverage, enforced in CI, as the default.** Total rather than per-package: thin entry points (process-exit switches in `main`) legitimately resist in-process testing and would force contortions under per-package gates. Code smells and craft quality are not gated by `clue` or CI thresholds — they are the agents' job in each PR and the human's in review (consistent with dot-principles staying orthogonal, Foundation §6).
 
+### Carrier (added 2026-07-12, per the carrier rule)
+
+The CI workflow template `clue init` scaffolds: the coverage-gate step ships with the default workflow, adapted per language profile. This repo's own `.github/workflows/ci.yml` is the template source.
+
 ### Rejected: no gate
 
 Fails the external-tooling reality and lets untested plumbing accumulate silently between AC-covered paths.

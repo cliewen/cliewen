@@ -45,4 +45,43 @@ Feature: clue validate — deterministic corpus judgment
     When CI runs "clue validate --forbid-changes"
     Then it exits with a non-zero code
     And without the flag the same corpus passes
+
+  @AC-009
+  Scenario: An acceptance criterion without a test fails
+    Given a criteria.md with status active containing an @AC tag
+    And no test function whose name references that AC
+    When the user runs "clue validate"
+    Then it exits with a non-zero code
+    And the output names the criteria file and the untested AC
+    But ACs in a criteria.md with status draft are exempt
+
+  @AC-010
+  Scenario: A test referencing an unknown AC fails
+    Given a test function whose name references an AC
+    And no criteria.md anywhere declares that AC
+    When the user runs "clue validate"
+    Then it exits with a non-zero code
+    And the output names the test file and the unknown AC
+
+  @AC-011
+  Scenario: A test without a declared purpose fails
+    Given a test function whose name matches no purpose class
+    When the user runs "clue validate"
+    Then it exits with a non-zero code
+    And the output names the test file, the function and the taxonomy
+    But tests declaring Unit, Sanity or Arch pass without referencing any AC
+
+  @AC-012
+  Scenario: A retired AC needs no test, and its surviving tests fail
+    Given a criteria.md scenario tagged with an AC and "@retired" on its tag line
+    When the user runs "clue validate"
+    Then the retired AC requires no test
+    But a test still referencing the retired AC exits with a non-zero code
+
+  @AC-013
+  Scenario: Duplicate AC declarations fail
+    Given the same AC ID declared more than once across the corpus
+    When the user runs "clue validate"
+    Then it exits with a non-zero code
+    And the output names both declaring files
 ```
