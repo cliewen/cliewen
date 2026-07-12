@@ -36,6 +36,7 @@ Layout: `openspec/config.yaml`, synced truth in `openspec/specs/<capability>/spe
 | Coverage/quality gates in build config | `QS-xxx` quality scenarios referencing the enforcing tool |
 | OpenSpec workflow skills (`openspec-*`) | deleted with the source corpus |
 | JUnit `@Tag("XX_NNN")` | untouched — clue normalizes underscores to hyphens at harvest (ADR-009) |
+| Runner/type tags (`UNIT`, `INTEGRATION`, `E2E`, …) | kept untouched even when no pipeline filters on them yet — they are the runner's namespace, not the methodology's (ADR-006), and the only per-method type carrier where one file mixes test types |
 
 Watch for: the same logical ID written three ways (`[MG-010]`, `` `PG-001` ``, `MG_010`); `## ADDED/MODIFIED Requirements` delta headers in pending changes (apply the delta meaning, don't copy the header); scenario WHEN/THEN bullets mapping to Gherkin When/Then/And.
 
