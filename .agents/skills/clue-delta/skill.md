@@ -9,7 +9,7 @@ The change loop. Use for every mutation of `main` — features, fixes, docs, pla
    - `open-questions.md` — blocking questions. When one appears, write it and **stop**; the human's answer becomes an ADR.
 
    Commit this folder before implementing: the branch is the proposal.
-3. **Implement** against the corpus: capabilities get/update their folder (README / criteria / design), ACs are Gherkin with `@AC-xxx` tags, every AC gets a positive + negative test pair.
+3. **Implement** against the corpus: capabilities get/update their folder (README / criteria / design), ACs are Gherkin with `@AC-xxx` tags, every AC gets a positive + negative test pair. An AC too complex to verify with a focused test pair is too big: split it in `criteria.md` before writing tests — granularity is flexible, the anchor is mandatory. ACs and their tests land in the same change; a capability whose ACs cannot be tested yet stays `draft`.
 4. **Digest** (final commits before PR): update permanent `/docs` (including README index blocks), write ADRs for decisions made, update plan bookkeeping, then **delete `/changes/CH-xxx-slug/`**.
 5. **PR + merge**: the PR is the review gate (human verifies meaning), the merge commit is the acceptance. Run `clue-verify` first. `main` must never contain `/changes/`.
 
