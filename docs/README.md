@@ -27,13 +27,21 @@ QS-xxx (quality scenarios).
 
 ## Status vocabularies
 
+This table mirrors the `statusVocab` map in `internal/corpus/rules.go`
+— the consumer that enforces it. Change them together.
+
 | Type | Statuses |
 |---|---|
 | goal | `proposed` → `accepted` → `retired` (proposed goals ARE the inbox, see ADR-002) |
 | plan | `draft` → `active` → `completed` (completed ⇒ immutable) |
-| capability | `draft` → `active` → `retired` |
+| capability, criteria, design | `draft` → `active` → `retired` |
 | decision | `inferred` → `verified` (human acceptance promotes; rejected ADRs stay `verified`) |
+| constraint | `active` → `retired` |
+| quality | `draft` → `active` → `retired` |
 | analysis | `verified` (findings are historical records) |
+| architecture | `draft` → `verified` |
+| change, tasks (transient) | `open` |
+| open-questions (transient) | `open` → `resolved` |
 
 ## Folders
 

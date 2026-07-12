@@ -10,4 +10,5 @@ answer "who reads it?" does not get in.
 
 <!-- clue:index:start -->
 - [CAP-001 — Onboarding](CAP-001-onboarding/README.md) · `draft`
+- [CAP-002 — clue validate](CAP-002-validate/README.md) · `active`
 <!-- clue:index:end -->

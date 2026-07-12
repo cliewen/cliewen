@@ -1,1 +1,5 @@
 .idea/
+
+# build output
+/clue
+/clue.exe

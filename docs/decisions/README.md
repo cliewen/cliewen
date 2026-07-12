@@ -10,4 +10,5 @@ here too and are never deleted.
 <!-- clue:index:start -->
 - [ADR-001 — Implementation language: Go](ADR-001-implementation-language.md) · `verified`
 - [ADR-002 — The inbox is goals with status: proposed](ADR-002-inbox-is-proposed-goals.md) · `verified`
+- [ADR-003 — Parse frontmatter with gopkg.in/yaml.v3](ADR-003-frontmatter-yaml-library.md) · `inferred` (awaiting human promotion)
 <!-- clue:index:end -->

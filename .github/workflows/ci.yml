@@ -1,0 +1,25 @@
+# The wall (Foundation §2): the same clue binary that runs locally
+# judges every PR and every push to main. Job name `validate` is the
+# required status check once branch protection is enabled.
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  validate:
+    name: validate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: stable
+      - name: Build
+        run: go build ./...
+      - name: Test
+        run: go test ./...
+      - name: Validate corpus (digest-before-merge gate)
+        run: go run ./cmd/clue validate --forbid-changes
