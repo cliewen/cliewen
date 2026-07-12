@@ -32,8 +32,14 @@ Carried per ADR-005's mechanics: a framework tag where tags exist (`@Tag("AC-004
 
 The status quo. It makes the AC-010 check one-sided and lets intent-free tests accumulate — the test-suite version of doc-slop.
 
-### Rejected: richer type sets (Integration, Performance, E2E, …)
+### Purpose tags and runner tags coexist — separate namespaces, same mechanism
 
-Considered against the maintainer's earlier ADR-015 pattern, which carries more types. Two reasons to stay small: **Integration/E2E are execution levels, not purposes** — orthogonal metadata with no consumer in `clue`, CI or the skills (§7: a field nobody reads gets removed before it exists). And **Performance is not a purpose class but the QS lane**: a performance test must trace to a specific quality scenario, mirroring how an AC test traces to its AC.
+An AC may legitimately need verification at several levels — unit, integration, E2E, possibly with different tools. Level answers *how a test runs*, and its consumer is the **runner**, not the methodology: level tags exist so pipelines can filter (fast tests on every PR, slow E2E nightly). The rule that avoids redundancy: a test carries **exactly one purpose tag, which `clue` reads, and any number of runner tags, which `clue` ignores**. `@Tag("AC-022")` and `@Tag("integration")` on the same test is correct and not redundant — each tag has exactly one consumer. In Go, purpose lives in the name prefix and level uses Go's own runner idioms (`//go:build integration`, `testing.Short()`).
+
+An AC requiring several levels gets several tests referencing the same AC, each with its own runner tags. Whether that set covers the criterion *adequately* is meaning, not form — PR review, not lint. (Door, only if real use demands it: a per-AC required-levels annotation in `criteria.md` that `checkACTests` cross-checks; deliberately not built, as it doubles every AC's bookkeeping.)
+
+### Rejected: level and quality classes inside the purpose taxonomy (Integration, Performance, …)
+
+**Integration/E2E are execution levels, not purposes** — runner metadata per the rule above, with no consumer in `clue` (§7: a field nobody reads gets removed before it exists). And **Performance is not a purpose class but the QS lane**: a performance test must trace to a specific quality scenario, mirroring how an AC test traces to its AC.
 
 **Door:** a `QS<digits>` purpose class joins the taxonomy when the first QS-verifying test exists, extending `checkACTests` the same way for the thread's second strand.
