@@ -8,10 +8,7 @@ title: Elaboration baseline
 
 # P-001 — Elaboration baseline
 
-A 2–3 week **elaboration baseline** in RUP's sense: a running skeleton
-that proves the architecture and is built upon, not thrown away.
-Risk-driven — the milestones retire the biggest risks first, as running
-code. Serves [G-001](../goals/G-001-verifiable-thread.md).
+A 2–3 week **elaboration baseline** in RUP's sense: a running skeleton that proves the architecture and is built upon, not thrown away. Risk-driven — the milestones retire the biggest risks first, as running code. Serves [G-001](../goals/G-001-verifiable-thread.md).
 
 ## Milestones
 
@@ -23,16 +20,8 @@ code. Serves [G-001](../goals/G-001-verifiable-thread.md).
 
 ## Explicitly out of the baseline
 
-Multi-agent orchestration; semantic consistency checking of shared docs
-(parked as known edge); plan milestone mechanics beyond one markdown
-file + one linter rule; production feedback loop (V3 door only);
-dot-principles / external catalog integration (door defined via
-constraint `source:`, nothing more); `enforcement:` classes beyond
-`machine`; `clue locate`.
+Multi-agent orchestration; semantic consistency checking of shared docs (parked as known edge); plan milestone mechanics beyond one markdown file + one linter rule; production feedback loop (V3 door only); dot-principles / external catalog integration (door defined via constraint `source:`, nothing more); `enforcement:` classes beyond `machine`; `clue locate`.
 
 ## Mutation rules (lintable)
 
-Status fields in the milestone table may mutate in any merge
-(bookkeeping). Everything else in this file changes only via a change
-that declares itself a plan revision, backed by an ADR — plan
-adjustments ARE decisions.
+Status fields in the milestone table may mutate in any merge (bookkeeping). Everything else in this file changes only via a change that declares itself a plan revision, backed by an ADR — plan adjustments ARE decisions.

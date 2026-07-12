@@ -1,22 +1,14 @@
 # Agent routing hub
 
-This repo runs **Cliewen** — its own methodology, dogfooded from commit
-one. Before doing anything else, read [`docs/README.md`](docs/README.md):
-the `/docs` corpus is the system-of-record and your working memory.
+This repo runs **Cliewen** — its own methodology, dogfooded from commit one. Before doing anything else, read [`docs/README.md`](docs/README.md): the `/docs` corpus is the system-of-record and your working memory.
 
 ## The rules that bind every change
 
-1. **Everything that mutates `main` goes through branch + PR.** The
-   branch is the proposal; transient files live in `/changes/<CH-xxx-slug>/`
-   on the branch only and are deleted in the digest commit before merge.
-   `main` never contains `/changes/`.
-2. **Every proposal declares which plan item it serves** (see
-   [`docs/plans/`](docs/plans/README.md)) or explicitly declares itself
-   plan-less. The merge digest updates plan bookkeeping in the same commit.
-3. **Open questions are artifacts.** When blocked on a decision, write
-   it to `open-questions.md` and stop; human answers become ADRs.
-4. **Machines enforce form; humans verify meaning.** Never weaken a test
-   or a lint rule to make a build pass — surface the conflict instead.
+1. **Everything that mutates `main` goes through branch + PR.** The branch is the proposal; transient files live in `/changes/<CH-xxx-slug>/` on the branch only and are deleted in the digest commit before merge. `main` never contains `/changes/`.
+2. **Every proposal declares which plan item it serves** (see [`docs/plans/`](docs/plans/README.md)) or explicitly declares itself plan-less. The merge digest updates plan bookkeeping in the same commit.
+3. **Open questions are artifacts.** When blocked on a decision, write it to `open-questions.md` and stop; human answers become ADRs.
+4. **Machines enforce form; humans verify meaning.** Never weaken a test or a lint rule to make a build pass — surface the conflict instead.
+5. **Markdown prose is never hard-wrapped.** One line per paragraph and per list item; wrapping is the reader's IDE concern. Line breaks are structural only (headings, lists, tables, code fences).
 
 ## Skills
 

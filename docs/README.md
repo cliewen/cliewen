@@ -1,19 +1,10 @@
 # The Cliewen corpus
 
-This directory is the **system-of-record**: the permanent, durable truth
-about the system. Changes are transient deltas on branches that get
-**digested** into this corpus at merge — `git log docs/` is the audit
-trail. Entry point for humans and agents alike; agents treat this tree
-as working memory on every change.
+This directory is the **system-of-record**: the permanent, durable truth about the system. Changes are transient deltas on branches that get **digested** into this corpus at merge — `git log docs/` is the audit trail. Entry point for humans and agents alike; agents treat this tree as working memory on every change.
 
 ## How the corpus is wired
 
-Every artifact carries YAML frontmatter with a common core —
-`id`, `type`, `status`, `links`, `title` — plus small type-specific
-extensions. **Identity is the ID, the path is only the current
-address**: tooling discovers artifacts by scanning frontmatter, and
-external systems reference IDs, never paths. Status lives in
-frontmatter, never in folder names; status views are generated.
+Every artifact carries YAML frontmatter with a common core — `id`, `type`, `status`, `links`, `title` — plus small type-specific extensions. **Identity is the ID, the path is only the current address**: tooling discovers artifacts by scanning frontmatter, and external systems reference IDs, never paths. Status lives in frontmatter, never in folder names; status views are generated.
 
 The red thread the linter walks:
 
@@ -22,13 +13,11 @@ G-xxx (goal) → P-xxx/M-xxx (plan/milestone) → CH-xxx (change)
   → CAP-xxx (capability) → AC-xxx (acceptance criterion) → test tag
 ```
 
-Cross-cutting, checked against every proposal: C-xxx (constraints),
-QS-xxx (quality scenarios).
+Cross-cutting, checked against every proposal: C-xxx (constraints), QS-xxx (quality scenarios).
 
 ## Status vocabularies
 
-This table mirrors the `statusVocab` map in `internal/corpus/rules.go`
-— the consumer that enforces it. Change them together.
+This table mirrors the `statusVocab` map in `internal/corpus/rules.go` — the consumer that enforces it. Change them together.
 
 | Type | Statuses |
 |---|---|

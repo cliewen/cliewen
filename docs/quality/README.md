@@ -1,7 +1,6 @@
 # Quality scenarios
 
-QS-xxx: NFRs made verifiable — "under X load, respond within Y ms."
-Checked against every proposal.
+QS-xxx: NFRs made verifiable — "under X load, respond within Y ms." Checked against every proposal.
 
 No quality scenarios recorded yet.
 
