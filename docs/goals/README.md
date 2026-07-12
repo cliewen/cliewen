@@ -6,4 +6,5 @@ This folder is also the project's **inbox** (ADR-002): an idea or bug report ent
 
 <!-- clue:index:start -->
 - [G-001 — A verifiable thread from goal to test](G-001-verifiable-thread.md) · `accepted`
+- [G-002 — clue and the skills carry versions](G-002-versioned-clue-and-skills.md) · `proposed`
 <!-- clue:index:end -->
