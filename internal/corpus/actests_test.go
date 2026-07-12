@@ -39,3 +39,18 @@ func TestAC010_UnknownACReferenceFails(t *testing.T) {
 	assertIssue(t, issues, "AC-999")
 	assertIssue(t, issues, "pkg/x_test.go")
 }
+
+// AC-011: every test declares its purpose; Unit/Sanity/Arch need no AC.
+func TestAC011_UnclassifiedTestFails(t *testing.T) {
+	files := with(validFiles, map[string]string{
+		"pkg/x_test.go": "package x\n\nfunc TestSomethingUseful(t *testing.T) {}\n",
+	})
+	issues := run(t, files, false)
+	assertIssue(t, issues, "TestSomethingUseful")
+	assertIssue(t, issues, "declares no purpose")
+
+	files["pkg/x_test.go"] = "package x\n\nfunc TestUnit_Something(t *testing.T) {}\n\nfunc TestSanity_Env(t *testing.T) {}\n\nfunc TestArch_Layering(t *testing.T) {}\n\nfunc TestMain(m *testing.M) {}\n"
+	if issues := run(t, files, false); len(issues) != 0 {
+		t.Fatalf("purpose-classified tests need no AC; expected no issues, got %v", issues)
+	}
+}

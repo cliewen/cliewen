@@ -8,13 +8,15 @@ import (
 	"strings"
 )
 
-// The AC↔test contract (P-001/M-002): every AC declared in an active
-// criteria.md has at least one test, and every test that names an AC
-// points at one that exists. Tests reference ACs through their function
-// names (ADR-005): TestAC004_… references AC-004.
+// The AC↔test contract (P-001/M-002) and the test-purpose taxonomy:
+// every AC declared in an active criteria.md has at least one test, every
+// test that names an AC points at one that exists, and every test declares
+// exactly one purpose (ADR-005, ADR-006). Go carries the declaration in the
+// function name: TestAC004_…, TestUnit_…, TestSanity_…, TestArch_….
 var (
-	acTagRe    = regexp.MustCompile(`@AC-(\d+)\b`)
-	testFuncRe = regexp.MustCompile(`(?m)^func (Test\w*?AC(\d+)\w*)\s*\(`)
+	acTagRe       = regexp.MustCompile(`@AC-(\d+)\b`)
+	testFuncRe    = regexp.MustCompile(`(?m)^func (Test\w*)\s*\(`)
+	testPurposeRe = regexp.MustCompile(`^Test(AC(\d+)|Unit|Sanity|Arch)(_\w*)?$`)
 )
 
 func checkACTests(c *Corpus) []Issue {
@@ -54,10 +56,21 @@ func checkACTests(c *Corpus) []Issue {
 		rel, _ := filepath.Rel(c.Root, p)
 		relSlash := filepath.ToSlash(rel)
 		for _, m := range testFuncRe.FindAllStringSubmatch(string(data), -1) {
-			ac := "AC-" + m[2]
-			tested[ac] = true
-			if _, ok := declared[ac]; !ok {
-				issues = append(issues, Issue{relSlash, "test " + m[1] + " references " + ac + " which no criteria.md declares"})
+			name := m[1]
+			if name == "TestMain" {
+				continue // the harness hook, not a test
+			}
+			pm := testPurposeRe.FindStringSubmatch(name)
+			if pm == nil {
+				issues = append(issues, Issue{relSlash, "test " + name + " declares no purpose (ADR-006: prefix AC<digits>, Unit, Sanity or Arch)"})
+				continue
+			}
+			if pm[2] != "" { // the AC<digits> purpose
+				ac := "AC-" + pm[2]
+				tested[ac] = true
+				if _, ok := declared[ac]; !ok {
+					issues = append(issues, Issue{relSlash, "test " + name + " references " + ac + " which no criteria.md declares"})
+				}
 			}
 		}
 		return nil
@@ -65,7 +78,7 @@ func checkACTests(c *Corpus) []Issue {
 
 	for ac, d := range declared {
 		if d.status == "active" && !tested[ac] {
-			issues = append(issues, Issue{d.path, ac + " has no test (convention per ADR-005: a test function named Test…AC" + strings.TrimPrefix(ac, "AC-") + "…)"})
+			issues = append(issues, Issue{d.path, ac + " has no test (convention per ADR-005: a test named TestAC" + strings.TrimPrefix(ac, "AC-") + "_…)"})
 		}
 	}
 	return issues

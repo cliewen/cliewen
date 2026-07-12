@@ -62,4 +62,12 @@ Feature: clue validate — deterministic corpus judgment
     When the user runs "clue validate"
     Then it exits with a non-zero code
     And the output names the test file and the unknown AC
+
+  @AC-011
+  Scenario: A test without a declared purpose fails
+    Given a test function whose name matches no purpose class
+    When the user runs "clue validate"
+    Then it exits with a non-zero code
+    And the output names the test file, the function and the taxonomy
+    But tests declaring Unit, Sanity or Arch pass without referencing any AC
 ```

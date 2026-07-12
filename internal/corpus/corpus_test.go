@@ -104,7 +104,7 @@ func TestAC006_MilestoneLinksResolveViaPlanBody(t *testing.T) {
 	assertIssue(t, run(t, files, false), "M-999")
 }
 
-func TestDuplicateIDReported(t *testing.T) {
+func TestUnit_DuplicateIDReported(t *testing.T) {
 	files := with(validFiles, map[string]string{
 		"docs/goals/G-001-copy.md": validFiles["docs/goals/G-001-first.md"],
 		"docs/goals/README.md":     "# Goals\n\n<!-- clue:index:start -->\n- [G-001](G-001-first.md)\n- [copy](G-001-copy.md)\n<!-- clue:index:end -->\n",
@@ -112,7 +112,7 @@ func TestDuplicateIDReported(t *testing.T) {
 	assertIssue(t, run(t, files, false), "duplicate id G-001")
 }
 
-func TestStatusVocabEnforced(t *testing.T) {
+func TestUnit_StatusVocabEnforced(t *testing.T) {
 	files := with(validFiles, map[string]string{
 		"docs/goals/G-001-first.md": "---\nid: G-001\ntype: goal\nstatus: wip\nlinks: []\ntitle: First goal\n---\n",
 	})
@@ -122,7 +122,7 @@ func TestStatusVocabEnforced(t *testing.T) {
 	assertIssue(t, run(t, files, false), "unknown type wizard")
 }
 
-func TestFolderWithoutReadmeReported(t *testing.T) {
+func TestUnit_FolderWithoutReadme(t *testing.T) {
 	files := with(validFiles, map[string]string{
 		"docs/quality/QS-001-fast.md": "---\nid: QS-001\ntype: quality\nstatus: active\nlinks: []\ntitle: Fast\n---\n",
 		"docs/README.md":              "# Corpus\n\n<!-- clue:index:start -->\n- [goals/](goals/README.md)\n- [plans/](plans/README.md)\n- [quality/](quality/QS-001-fast.md)\n<!-- clue:index:end -->\n",
@@ -162,7 +162,7 @@ func TestAC008_ForbidChangesGate(t *testing.T) {
 	assertIssue(t, run(t, files, true), "digest before merge")
 }
 
-func TestCRLFFrontmatterParses(t *testing.T) {
+func TestUnit_CRLFFrontmatterParses(t *testing.T) {
 	files := with(validFiles, map[string]string{
 		"docs/goals/G-001-first.md": strings.ReplaceAll(validFiles["docs/goals/G-001-first.md"], "\n", "\r\n"),
 	})
@@ -172,7 +172,7 @@ func TestCRLFFrontmatterParses(t *testing.T) {
 }
 
 // The dogfood test: this repository's own corpus must always be valid.
-func TestRepoCorpusIsValid(t *testing.T) {
+func TestSanity_RepoCorpusIsValid(t *testing.T) {
 	root, err := os.Getwd()
 	if err != nil {
 		t.Fatal(err)
