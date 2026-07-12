@@ -1,17 +1,18 @@
 ---
 id: ADR-006
 type: decision
-status: inferred
+status: verified
 links: [ADR-005, CAP-002]
 title: Every test declares its purpose from a small taxonomy
 author: agent
+accepted-by: Flemming N. Larsen (2026-07-12)
 ---
 
 # ADR-006 — Every test declares its purpose
 
 ## Context and problem statement
 
-Not every test verifies an acceptance criterion: coverage backstops, sanity checks and architectural checks are legitimate craft. The AC↔test contract ([ADR-005](ADR-005-test-reference-convention.md)) says nothing about them, so a test suite can silently accumulate tests whose intent nobody can name. The principle — tag every test so its purpose is clear — comes from the maintainer's Intent Engineering practice; this ADR is the agent's concrete taxonomy design awaiting human promotion.
+Not every test verifies an acceptance criterion: coverage backstops, sanity checks and architectural checks are legitimate craft. The AC↔test contract ([ADR-005](ADR-005-test-reference-convention.md)) says nothing about them, so a test suite can silently accumulate tests whose intent nobody can name. The principle — tag every test so its purpose is clear — comes from the maintainer's Intent Engineering practice; the concrete taxonomy is the agent's design, promoted to `verified` by human acceptance 2026-07-12.
 
 ## Decision outcome
 
