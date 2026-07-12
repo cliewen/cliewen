@@ -5,4 +5,5 @@ One folder per capability — the middle anchor of the red thread. Every capabil
 <!-- clue:index:start -->
 - [CAP-001 — Onboarding](CAP-001-onboarding/README.md) · `draft`
 - [CAP-002 — clue validate](CAP-002-validate/README.md) · `active`
+- [CAP-003 — Brownfield extraction](CAP-003-extract/README.md) · `active`
 <!-- clue:index:end -->

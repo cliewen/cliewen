@@ -4,6 +4,8 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+
+	"github.com/cliewen/cliewen/internal/corpus"
 )
 
 func writeFile(t *testing.T, root, rel, content string) {
@@ -39,6 +41,20 @@ func TestAC005_ExitCodeOneOnBrokenCorpus(t *testing.T) {
 	writeFile(t, root, "docs/goals/G-001-first.md", "---\nid: G-001\ntype: goal\nlinks: []\ntitle: First goal\n---\n")
 	if code := runValidate([]string{root}); code != 1 {
 		t.Fatalf("expected exit 1, got %d", code)
+	}
+}
+
+// AC-018: a valid corpus with inferred artifacts passes and their count
+// feeds the OK line.
+func TestAC018_InferredArtifactsCountedAndAccepted(t *testing.T) {
+	root := validCorpus(t)
+	writeFile(t, root, "docs/goals/G-001-first.md", "---\nid: G-001\ntype: goal\nstatus: accepted\nlinks: []\ntitle: First goal\nprovenance: inferred\n---\n")
+	if code := runValidate([]string{root}); code != 0 {
+		t.Fatalf("inferred provenance is valid; expected exit 0, got %d", code)
+	}
+	c, _ := corpus.Scan(root)
+	if n := inferredCount(c); n != 1 {
+		t.Fatalf("expected 1 inferred artifact, got %d", n)
 	}
 }
 

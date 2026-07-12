@@ -55,6 +55,7 @@ func Validate(c *Corpus, opts Options) []Issue {
 	issues = append(issues, checkFolderReadmes(c)...)
 	issues = append(issues, checkIndexes(c)...)
 	issues = append(issues, checkACTests(c)...)
+	issues = append(issues, checkProvenance(c)...)
 	if opts.ForbidChanges && c.HasChanges {
 		issues = append(issues, Issue{"changes", "transient workspace present — digest before merge (main must never contain /changes)"})
 	}
@@ -64,6 +65,28 @@ func Validate(c *Corpus, opts Options) []Issue {
 		}
 		return issues[i].Msg < issues[j].Msg
 	})
+	return issues
+}
+
+// checkProvenance validates the optional provenance field (ADR-010):
+// extraction mints artifacts born `inferred`; human review promotes them
+// to `verified`. Decisions express provenance in status and must not
+// carry the field.
+func checkProvenance(c *Corpus) []Issue {
+	var issues []Issue
+	for _, a := range c.Artifacts {
+		v, present := a.Fields["provenance"]
+		if !present {
+			continue // absent means human-authored
+		}
+		if a.Type == "decision" {
+			issues = append(issues, Issue{a.Path, "decisions carry provenance in status, not in a provenance field (ADR-010)"})
+			continue
+		}
+		if s, ok := v.(string); !ok || (s != "inferred" && s != "verified") {
+			issues = append(issues, Issue{a.Path, "provenance must be inferred or verified (ADR-010)"})
+		}
+	}
 	return issues
 }
 

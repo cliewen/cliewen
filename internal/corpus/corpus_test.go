@@ -171,6 +171,28 @@ func TestUnit_CRLFFrontmatterParses(t *testing.T) {
 	}
 }
 
+// AC-018: the optional provenance field is linted (ADR-010).
+func TestAC018_ProvenanceVocabularyLinted(t *testing.T) {
+	files := with(validFiles, map[string]string{
+		"docs/goals/G-001-first.md": "---\nid: G-001\ntype: goal\nstatus: accepted\nlinks: []\ntitle: First goal\nprovenance: guessed\n---\n",
+	})
+	assertIssue(t, run(t, files, false), "provenance must be inferred or verified")
+
+	files["docs/goals/G-001-first.md"] = "---\nid: G-001\ntype: goal\nstatus: accepted\nlinks: []\ntitle: First goal\nprovenance: inferred\n---\n"
+	if issues := run(t, files, false); len(issues) != 0 {
+		t.Fatalf("provenance: inferred is valid; expected no issues, got %v", issues)
+	}
+}
+
+func TestAC018_DecisionsMustNotCarryProvenanceField(t *testing.T) {
+	files := with(validFiles, map[string]string{
+		"docs/README.md":              "# Corpus\n\n<!-- clue:index:start -->\n- [goals/](goals/README.md)\n- [plans/](plans/README.md)\n- [decisions/](decisions/README.md)\n<!-- clue:index:end -->\n",
+		"docs/decisions/README.md":    "# Decisions\n\n<!-- clue:index:start -->\n- [ADR-001](ADR-001-x.md)\n<!-- clue:index:end -->\n",
+		"docs/decisions/ADR-001-x.md": "---\nid: ADR-001\ntype: decision\nstatus: inferred\nlinks: []\ntitle: X\nprovenance: inferred\n---\n",
+	})
+	assertIssue(t, run(t, files, false), "decisions carry provenance in status")
+}
+
 // The dogfood test: this repository's own corpus must always be valid.
 func TestSanity_RepoCorpusIsValid(t *testing.T) {
 	root, err := os.Getwd()
