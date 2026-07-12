@@ -16,7 +16,7 @@ A 2–3 week **elaboration baseline** in RUP's sense: a running skeleton that pr
 |---|---|---|---|
 | M-001 | The loop closes once, end-to-end: goal in → proposal branch → implement → permanent `/docs` updated → transient files gone → clean merge | `done` | CH-001 (merge commit of branch `ch-001-bootstrap`) |
 | M-002 | The thread is machine-checkable: linter fails the build when an AC lacks a test or a test lacks an AC | `done` | CH-002 (`clue validate` + CI wall) and CH-003 (AC↔test contract, ADR-005) |
-| M-003 | Brownfield extraction works on model2diagram | `todo` | — |
+| M-003 | Brownfield extraction works on model2diagram | `done` | CH-004 (clue namespaces/JVM harvest/provenance + clue-extract skill) and model2diagram CH-001 (extraction PR, merge commit `8a5a7af`, 2026-07-12) |
 
 ## Explicitly out of the baseline
 
