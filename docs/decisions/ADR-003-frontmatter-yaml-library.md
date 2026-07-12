@@ -1,17 +1,18 @@
 ---
 id: ADR-003
 type: decision
-status: inferred
+status: verified
 links: [CAP-002]
 title: Parse frontmatter with gopkg.in/yaml.v3
 author: agent
+accepted-by: Flemming N. Larsen (2026-07-12)
 ---
 
 # ADR-003 — Parse frontmatter with gopkg.in/yaml.v3
 
 ## Context and problem statement
 
-`clue validate` must parse YAML frontmatter. Hand-rolling a parser keeps the binary dependency-free; a library parses what agents and humans will actually write. (`status: inferred` — agent decision awaiting human promotion to `verified`.)
+`clue validate` must parse YAML frontmatter. Hand-rolling a parser keeps the binary dependency-free; a library parses what agents and humans will actually write. (Agent decision, promoted to `verified` by human acceptance 2026-07-12.)
 
 ## Considered options
 
