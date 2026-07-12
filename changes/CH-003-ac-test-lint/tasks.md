@@ -16,5 +16,5 @@ Ordered by dependency; ticked the moment each completes.
 - [x] Tests for the rule: TestAC009_…, TestAC010_…, draft-exemption case (AC-009, AC-010)
 - [x] Self-check: repo's own corpus passes (CAP-002 active ACs all have tests; CAP-001 draft exempt) — the check itself caught a missing ADR-005 index entry first, which was fixed, not suppressed
 - [x] Update CAP-002 design.md: rule description, pair-enforcement door
-- [ ] Digest: decisions index + M-002 → done in P-001, delete /changes/CH-003-ac-test-lint/
+- [x] Digest: decisions index + M-002 → done in P-001, delete /changes/CH-003-ac-test-lint/
 - [ ] Push, PR, CI green
