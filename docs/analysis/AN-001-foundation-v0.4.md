@@ -6,6 +6,8 @@ links: [G-001]
 title: Cliewen Foundation Document (v0.4, 2026-07-11)
 ---
 
+> **Historical record — frozen.** This document seeded the corpus and is never edited (beyond this banner). The living truth is `/docs` itself: method improvements land as ADR-backed changes to the permanent corpus through the change loop, never as edits here. Where this document and the corpus disagree, the corpus wins — that is the inversion it proposed.
+
 # Cliewen — Foundation Document (v0.4, updated 2026-07-11)
 
 > Cliewen (Old English *cliewen*, "ball of thread" — the word that became *clue*). A methodology and toolchain for agent-driven software development where the documentation corpus is the system-of-record and the thread from goal to test is mechanically enforced. CLI binary: `clue`.

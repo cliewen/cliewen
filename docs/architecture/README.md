@@ -4,4 +4,5 @@ System scope: the whole, the cross-cutting, the expensive-to-change. Per-capabil
 
 <!-- clue:index:start -->
 - [architecture.md](architecture.md) — actors, lifetime classes, the frontmatter graph
+- [skills.md](skills.md) — the skills layer: why the set looks like it does, hand-offs, rules for future skills
 <!-- clue:index:end -->
