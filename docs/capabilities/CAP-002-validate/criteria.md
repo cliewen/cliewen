@@ -45,4 +45,21 @@ Feature: clue validate — deterministic corpus judgment
     When CI runs "clue validate --forbid-changes"
     Then it exits with a non-zero code
     And without the flag the same corpus passes
+
+  @AC-009
+  Scenario: An acceptance criterion without a test fails
+    Given a criteria.md with status active containing an @AC tag
+    And no test function whose name references that AC
+    When the user runs "clue validate"
+    Then it exits with a non-zero code
+    And the output names the criteria file and the untested AC
+    But ACs in a criteria.md with status draft are exempt
+
+  @AC-010
+  Scenario: A test referencing an unknown AC fails
+    Given a test function whose name references an AC
+    And no criteria.md anywhere declares that AC
+    When the user runs "clue validate"
+    Then it exits with a non-zero code
+    And the output names the test file and the unknown AC
 ```
