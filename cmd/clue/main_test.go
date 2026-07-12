@@ -100,6 +100,11 @@ func TestSanity_ReleaseWorkflowIsCrossPlatform(t *testing.T) {
 			t.Errorf("release workflow does not mention %q — expected a stamped cross-platform build", want)
 		}
 	}
+	// A manual dispatch must not publish a branch-named release: the ref
+	// must be guarded to a tag before anything is built.
+	if !strings.Contains(wf, "GITHUB_REF_TYPE") {
+		t.Error("release workflow does not guard GITHUB_REF_TYPE — a branch dispatch could publish a branch-named release")
+	}
 }
 
 // AC-008: the --forbid-changes gate flips the exit code, nothing else.

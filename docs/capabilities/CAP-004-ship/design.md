@@ -24,7 +24,7 @@ Issues sort into the same `path: message` stream as every other rule.
 
 ## Release pipeline
 
-`.github/workflows/release.yml` triggers on `v*` tags (and `workflow_dispatch`). One ubuntu runner cross-compiles Go for linux/darwin/windows × amd64/arm64 with `GOOS`/`GOARCH`, stamping `main.version` from the tag; `softprops/action-gh-release` attaches the binaries. Git tags carry the conventional `v` prefix (Go module tagging); the stamped and skill-frontmatter version is bare semver, so the workflow strips the `v` (`${GITHUB_REF_NAME#v}`) — the drift rule then compares like against like.
+`.github/workflows/release.yml` triggers on `v*` tags (and `workflow_dispatch`, which a guard restricts to tag refs — dispatching from a branch fails before any build, so nothing can stamp binaries as a branch name or publish a branch-named release). One ubuntu runner cross-compiles Go for linux/darwin/windows × amd64/arm64 with `GOOS`/`GOARCH`, stamping `main.version` from the tag; `softprops/action-gh-release` attaches the binaries. Git tags carry the conventional `v` prefix (Go module tagging); the stamped and skill-frontmatter version is bare semver, so the workflow strips the `v` (`${GITHUB_REF_NAME#v}`) — the drift rule then compares like against like.
 
 Distribution targets the private-repo install story (P-002): `go install github.com/cliewen/cliewen/cmd/clue@vX.Y.Z` builds from source (reports `dev` unless the tag is stamped in), and `gh release download vX.Y.Z` fetches a stamped prebuilt binary.
 

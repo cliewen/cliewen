@@ -3,6 +3,10 @@
 # GitHub release for `gh release download`. The stamped string is bare
 # semver (the leading `v` is stripped, ADR-011) so it matches the skills'
 # frontmatter version and `clue validate`'s drift check agrees.
+#
+# workflow_dispatch is allowed only against a tag ref (re-running a release):
+# the guard below rejects any non-tag ref, so dispatching from a branch can
+# never stamp binaries as the branch name or publish a branch-named release.
 name: Release
 
 on:
@@ -22,6 +26,13 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version: stable
+
+      - name: Require a version tag
+        run: |
+          if [ "${GITHUB_REF_TYPE}" != "tag" ] || ! printf '%s' "${GITHUB_REF_NAME}" | grep -Eq '^v[0-9]+\.[0-9]+\.[0-9]+([.-][0-9A-Za-z.-]+)?$'; then
+            echo "Release must run from a vX.Y.Z tag; got ref_type='${GITHUB_REF_TYPE}' ref_name='${GITHUB_REF_NAME}'" >&2
+            exit 1
+          fi
 
       - name: Determine version
         id: version
