@@ -1,11 +1,11 @@
 ---
 id: ADR-014
 type: decision
-status: inferred
+status: verified
 links: [ADR-010, ADR-011, ADR-012]
 title: PR approval is ADR acceptance — the agent performs the clerical promotion
 author: agent
-accepted-by: —
+accepted-by: Flemming N. Larsen (2026-07-13, PR #8)
 ---
 
 # ADR-014 — PR approval promotes the PR's ADRs

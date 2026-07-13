@@ -1,11 +1,11 @@
 ---
 id: ADR-013
 type: decision
-status: inferred
+status: verified
 links: [P-002, ADR-008, ADR-011, ADR-012]
 title: What ships to adopters is generic; AGENTS.md is the repo-local layer
 author: agent
-accepted-by: —
+accepted-by: Flemming N. Larsen (2026-07-13, PR #8)
 ---
 
 # ADR-013 — Ships-generic vs repo-local

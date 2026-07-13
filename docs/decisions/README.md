@@ -21,6 +21,6 @@ Architecture Decision Records (MADR format) with two-tier provenance: `inferred`
 - [ADR-010 — Extracted artifacts carry a provenance field, born inferred](ADR-010-provenance-field.md) · `verified`
 - [ADR-011 — clue and the skills are versioned: tag-stamped binary, per-skill markers, drift is a failure](ADR-011-version-stamping.md) · `verified`
 - [ADR-012 — Release notes are user-facing and come from CHANGELOG.md: extracted verbatim, missing section fails the release](ADR-012-release-notes-from-changelog.md) · `verified`
-- [ADR-013 — What ships to adopters is generic; AGENTS.md is the repo-local layer](ADR-013-ships-generic-vs-repo-local.md) · `inferred`
-- [ADR-014 — PR approval is ADR acceptance; the agent performs the clerical promotion](ADR-014-pr-approval-promotes-adrs.md) · `inferred`
+- [ADR-013 — What ships to adopters is generic; AGENTS.md is the repo-local layer](ADR-013-ships-generic-vs-repo-local.md) · `verified`
+- [ADR-014 — PR approval is ADR acceptance; the agent performs the clerical promotion](ADR-014-pr-approval-promotes-adrs.md) · `verified`
 <!-- clue:index:end -->
