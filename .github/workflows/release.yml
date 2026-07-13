@@ -38,6 +38,24 @@ jobs:
         id: version
         run: echo "v=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
 
+      # The release body is this version's CHANGELOG.md section, extracted
+      # verbatim (ADR-012): a release cannot ship without user-facing notes,
+      # and the published page can never drift from the reviewed file.
+      - name: Extract release notes from CHANGELOG.md
+        env:
+          VERSION: ${{ steps.version.outputs.v }}
+        run: |
+          awk -v ver="$VERSION" '
+            BEGIN { header = "## [" ver "]" }
+            !found { if (index($0, header) == 1) found = 1; next }
+            /^## \[/ { exit }
+            { print }
+          ' CHANGELOG.md > release-notes.md
+          if ! grep -q '[^[:space:]]' release-notes.md; then
+            echo "CHANGELOG.md has no '## [${VERSION}]' section with content; write user-facing notes before tagging (ADR-012)" >&2
+            exit 1
+          fi
+
       # A tag can land on any commit; nothing ships untested.
       - name: Run tests
         run: go test ./...
@@ -67,4 +85,4 @@ jobs:
         with:
           name: ${{ github.ref_name }}
           files: dist/*
-          generate_release_notes: true
+          body_path: release-notes.md

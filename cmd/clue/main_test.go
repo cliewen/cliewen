@@ -155,6 +155,25 @@ func TestSanity_ReleaseWorkflowIsCrossPlatform(t *testing.T) {
 	}
 }
 
+// Sanity: the release body is the tag's CHANGELOG.md section (ADR-012) —
+// user-facing, reviewed prose. GitHub's auto-generated notes (a PR dump
+// with contributor @mentions) must not come back.
+func TestSanity_ReleaseNotesComeFromChangelog(t *testing.T) {
+	data, err := os.ReadFile(filepath.Join("..", "..", ".github", "workflows", "release.yml"))
+	if err != nil {
+		t.Fatalf("release workflow not found: %v", err)
+	}
+	wf := string(data)
+	for _, want := range []string{"CHANGELOG.md", "body_path"} {
+		if !strings.Contains(wf, want) {
+			t.Errorf("release workflow does not mention %q — the release body must be extracted from the changelog", want)
+		}
+	}
+	if strings.Contains(wf, "generate_release_notes") {
+		t.Error("release workflow enables generate_release_notes — release bodies are written for users in the changelog, not auto-generated")
+	}
+}
+
 // docID matches a Cliewen corpus doc-ID reference: ADR-011, G-002, CAP-004,
 // AC-020, P-002, M-004, CH-007, and so on.
 var docID = regexp.MustCompile(`\b(?:ADR|CAP|AC|G|P|M|CH)-\d+\b`)

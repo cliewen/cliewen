@@ -24,7 +24,7 @@ While the repo is private, `go install` additionally needs `GOPRIVATE=github.com
 
 ## Status
 
-Baseline complete ([P-001](docs/plans/P-001-elaboration-baseline.md)); distribution and greenfield bootstrap under way ([P-002](docs/plans/P-002-leaves-home.md)). This repo dogfoods its own conventions from commit one — start reading at [docs/README.md](docs/README.md). Agents: see [AGENTS.md](AGENTS.md).
+Baseline complete ([P-001](docs/plans/P-001-elaboration-baseline.md)); distribution and greenfield bootstrap under way ([P-002](docs/plans/P-002-leaves-home.md)). User-visible history lives in [CHANGELOG.md](CHANGELOG.md); each GitHub release body is its version's section there. This repo dogfoods its own conventions from commit one — start reading at [docs/README.md](docs/README.md). Agents: see [AGENTS.md](AGENTS.md).
 
 ## License
 
