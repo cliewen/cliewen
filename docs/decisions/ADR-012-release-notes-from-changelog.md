@@ -1,11 +1,11 @@
 ---
 id: ADR-012
 type: decision
-status: inferred
+status: verified
 links: [P-002, CAP-004, ADR-011]
 title: Release notes are user-facing and come from CHANGELOG.md — extracted verbatim, missing section fails the release
 author: agent
-accepted-by: —
+accepted-by: Flemming N. Larsen (2026-07-13, PR #7)
 ---
 
 # ADR-012 — Release notes come from CHANGELOG.md
@@ -22,7 +22,7 @@ Release pages are the first thing an adopter of [CAP-004](../capabilities/CAP-00
 - **The 1-1 map is structural.** The workflow publishes the section through `body_path`, so the release page cannot say anything the reviewed file does not. The extraction guard follows the wall philosophy ([ADR-011](ADR-011-version-stamping.md)'s drift rule, applied to prose): no section, no release — a rule that only warned would be ignored.
 - **Auto-generation is banned, and lintably so.** `generate_release_notes` is removed and `TestSanity_ReleaseNotesComeFromChangelog` fails the build if it (or the extraction's absence) reappears in `release.yml`.
 
-**Carrier:** the `release.yml` extraction + guard and the sanity test (machine); AGENTS.md rule 6 (agent — the repo-local convention layer). The skills are **not** a carrier: they ship verbatim to every adopting repo and stay generic, so they reference only "repo-local digest conventions in AGENTS.md", never `CHANGELOG.md` by name — the changelog is this repo's convention, not adopter methodology (the general skills-are-generic principle is recorded as its own follow-up decision). The `clue init` template may offer the convention as a default once M-005 ships (a door, not yet built).
+**Carrier:** the `release.yml` extraction + guard and the sanity test (machine); AGENTS.md rule 6 (agent — the repo-local convention layer). The skills are **not** a carrier: they ship verbatim to every adopting repo and stay generic, so they reference only "repo-local digest conventions in AGENTS.md", never `CHANGELOG.md` by name — the changelog is this repo's convention, not adopter methodology (the general principle is [ADR-013](ADR-013-ships-generic-vs-repo-local.md)). The `clue init` template may offer the convention as a default once M-005 ships (a door, not yet built).
 
 ### Rejected: GitHub's `generate_release_notes`
 
