@@ -15,6 +15,6 @@ title: Task breakdown for CH-008
 - [x] `clue-delta` digest step: record user-visible impact in `[Unreleased]`; `clue-verify`: matching checkbox
 - [x] ADR-012 (release notes from CHANGELOG.md; rejected: auto-generation, per-release files, tag messages)
 - [x] README: one-line pointer to `CHANGELOG.md`
-- [ ] Digest: decisions index (ADR-012), CAP-004 design refresh, delete `changes/CH-008-changelog/`
-- [ ] clue-verify checklist, then PR
-- [ ] After merge: re-sync the v0.1.0 release body to the `[0.1.0]` section verbatim
+- [x] Digest: decisions index (ADR-012), CAP-004 design refresh, delete `changes/CH-008-changelog/` (deletion is the digest commit itself)
+- [x] clue-verify checklist (validate OK, tests green, coverage held), then PR
+- [-] After merge: re-sync the v0.1.0 release body to the `[0.1.0]` section verbatim — outlives the branch by definition; carried in the PR description as the operational follow-up
