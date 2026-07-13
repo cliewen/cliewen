@@ -4,6 +4,7 @@ import (
 	"go/ast"
 	"go/parser"
 	"go/token"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -175,8 +176,9 @@ func TestSanity_ReleaseNotesComeFromChangelog(t *testing.T) {
 }
 
 // docID matches a Cliewen corpus doc-ID reference: ADR-011, G-002, CAP-004,
-// AC-020, P-002, M-004, CH-007, and so on.
-var docID = regexp.MustCompile(`\b(?:ADR|CAP|AC|G|P|M|CH)-\d+\b`)
+// AC-020, P-002, M-004, CH-007, AN-002, QS-001, and so on. Digits are what
+// make it a reference — placeholder forms (CH-xxx, @AC-xxx) don't match.
+var docID = regexp.MustCompile(`\b(?:ADR|CAP|AC|G|P|M|CH|AN|QS)-\d+\b`)
 
 // Sanity: cmd/clue is the shipped CLI — the one package under this module
 // actually exported to a user, unlike internal/corpus which Go itself
@@ -211,6 +213,36 @@ func TestSanity_NoDocIDInUserFacingStrings(t *testing.T) {
 			}
 			return true
 		})
+	}
+}
+
+// Sanity: the skills under .agents/skills ship verbatim to adopting repos,
+// where this repo's corpus doc-IDs resolve to nothing — or to that repo's
+// own unrelated documents. A skill states each rule's content in its own
+// text; the deciding document stays in this repo's corpus. Placeholder
+// forms (CH-xxx, @AC-xxx) stay fine — digits are what make it a reference.
+func TestSanity_SkillsCarryNoDocIDs(t *testing.T) {
+	root := filepath.Join("..", "..", ".agents", "skills")
+	err := filepath.WalkDir(root, func(path string, d fs.DirEntry, walkErr error) error {
+		if walkErr != nil {
+			return walkErr
+		}
+		if d.IsDir() || !strings.HasSuffix(path, ".md") {
+			return nil
+		}
+		data, rerr := os.ReadFile(path)
+		if rerr != nil {
+			return rerr
+		}
+		for i, line := range strings.Split(string(data), "\n") {
+			if ids := docID.FindAllString(line, -1); ids != nil {
+				t.Errorf("%s:%d references corpus doc-ID(s) %v — skills are exported verbatim; state the rule, don't cite the document", path, i+1, ids)
+			}
+		}
+		return nil
+	})
+	if err != nil {
+		t.Fatal(err)
 	}
 }
 

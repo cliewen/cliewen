@@ -1,11 +1,11 @@
 ---
 id: ADR-011
 type: decision
-status: inferred
+status: verified
 links: [G-002, CAP-004, P-002]
 title: clue and the skills are versioned — tag-stamped binary, per-skill markers, drift is a failure
 author: agent
-accepted-by: —
+accepted-by: Flemming N. Larsen (2026-07-13, PR #6)
 ---
 
 # ADR-011 — Version stamping for clue and the skills
@@ -34,4 +34,4 @@ A warning that does not fail CI is invisible the moment logs scroll — exactly 
 
 ### Deferred: skills outside `.agents/skills/`
 
-The drift rule looks only under `.agents/skills/`; an adopter who relocates skills gets no drift check until the path is made configurable. A door noted in CAP-004's design, not part of this decision. (Stamping bare `go install` was originally deferred here too; the build-info fallback closed it — only checkout and pseudo-version builds still report `dev`.)
+The drift rule looks only under `.agents/skills/`; an adopter who relocates skills gets no drift check until the path is made configurable. A door noted in CAP-004's design, not part of this decision. (Tag installs — `go install module@vX.Y.Z` — self-stamp from Go's build info; only checkout and pseudo-version builds report `dev`.)
