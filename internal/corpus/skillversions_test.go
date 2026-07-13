@@ -45,6 +45,35 @@ func TestAC020_SkillWithVersionPasses(t *testing.T) {
 	}
 }
 
+// AC-020 (diagnostics): a non-string version is named as such — YAML
+// reads `version: 1.0` as a number, and the message must not send the
+// user hunting for a stamp that is present.
+func TestAC020_NonStringVersionIsNamedAsSuch(t *testing.T) {
+	root := t.TempDir()
+	writeSkill(t, root, "clue-delta", "---\nversion: 1.0\n---\n")
+	issues := checkSkillVersions(&Corpus{Root: root}, "dev")
+	if !anyMsg(issues, "not a string") {
+		t.Fatalf("expected a not-a-string issue, got %v", issues)
+	}
+	if anyMsg(issues, "no version stamp") {
+		t.Fatal("a present-but-mistyped stamp must not be reported as missing")
+	}
+}
+
+// AC-020 (diagnostics): malformed frontmatter is named as a parse
+// failure, not as a missing stamp.
+func TestAC020_MalformedFrontmatterIsNamedAsSuch(t *testing.T) {
+	root := t.TempDir()
+	writeSkill(t, root, "clue-delta", "---\nversion: [unclosed\n---\n")
+	issues := checkSkillVersions(&Corpus{Root: root}, "dev")
+	if !anyMsg(issues, "does not parse") {
+		t.Fatalf("expected a frontmatter parse issue, got %v", issues)
+	}
+	if anyMsg(issues, "no version stamp") {
+		t.Fatal("unparseable frontmatter must not be reported as a missing stamp")
+	}
+}
+
 // AC-021: skills that disagree on a version fail.
 func TestAC021_DivergentSkillVersionsFail(t *testing.T) {
 	root := t.TempDir()
@@ -62,6 +91,22 @@ func TestAC021_ConsistentSkillVersionsPass(t *testing.T) {
 	writeSkill(t, root, "clue-plan", "---\nversion: 0.1.0\n---\n")
 	if anyMsg(checkSkillVersions(&Corpus{Root: root}, "dev"), "disagrees") {
 		t.Fatal("agreeing skills should not be flagged")
+	}
+}
+
+// AC-021 (diagnostics): the outlier is the skill named, even when it
+// sorts first — the reference is the version the majority carries.
+func TestAC021_OutlierIsNamedEvenWhenSortedFirst(t *testing.T) {
+	root := t.TempDir()
+	writeSkill(t, root, "a-outlier", "---\nversion: 0.9.0\n---\n")
+	writeSkill(t, root, "clue-delta", "---\nversion: 0.1.0\n---\n")
+	writeSkill(t, root, "clue-plan", "---\nversion: 0.1.0\n---\n")
+	issues := checkSkillVersions(&Corpus{Root: root}, "dev")
+	if len(issues) != 1 {
+		t.Fatalf("expected exactly the outlier to be reported, got %v", issues)
+	}
+	if !strings.Contains(issues[0].Path, "a-outlier") || !strings.Contains(issues[0].Msg, "0.9.0") {
+		t.Fatalf("expected a-outlier (0.9.0) to be the skill named, got %v", issues[0])
 	}
 }
 

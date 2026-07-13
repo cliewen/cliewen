@@ -11,14 +11,16 @@ SDD frameworks document the *change*; Cliewen documents the *system*. Changes ar
 `clue` is a single Go binary. Install from source, or download a stamped prebuilt binary from a release:
 
 ```sh
-# From source (reports "dev" as its version):
+# From source — a release install stamps itself from Go's build info:
 go install github.com/cliewen/cliewen/cmd/clue@latest
 
 # A stamped prebuilt binary for your platform (linux/darwin/windows × amd64/arm64):
 gh release download vX.Y.Z --repo cliewen/cliewen --pattern 'clue-*-<os>-<arch>*'
 ```
 
-`clue version` reports the release it was built from. A tagged release (`vX.Y.Z`) builds the cross-platform binaries and stamps each with its version; the agent skills carry the same version, and `clue validate` flags drift between them ([CAP-004](docs/capabilities/CAP-004-ship/README.md), [ADR-011](docs/decisions/ADR-011-version-stamping.md)).
+While the repo is private, `go install` additionally needs `GOPRIVATE=github.com/cliewen` and git authentication for github.com; `gh release download` authenticates through `gh auth login`.
+
+`clue version` reports the release it was built from — a checkout build (`go build ./cmd/clue`) or an install of an untagged commit reports `dev`. A tagged release (`vX.Y.Z`) builds the cross-platform binaries and stamps each with its version; the agent skills carry the same version, and `clue validate` flags drift between them ([CAP-004](docs/capabilities/CAP-004-ship/README.md), [ADR-011](docs/decisions/ADR-011-version-stamping.md)).
 
 ## Status
 

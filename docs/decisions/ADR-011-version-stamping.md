@@ -18,7 +18,7 @@ accepted-by: —
 
 **Versions come from git tags via ldflags; skills carry a per-skill frontmatter `version:` kept consistent as a set; drift is a build failure, with `dev` builds exempt.**
 
-- **Stamping.** Release tags are conventional semver with a `v` prefix (`vX.Y.Z`, as Go module tagging requires). The release workflow strips the `v` and injects the bare semver into `cmd/clue`'s `var version` with `-ldflags "-X main.version=<semver>"`. Source and local builds report `dev`. `clue version` / `clue --version` print it.
+- **Stamping.** Release tags are conventional semver with a `v` prefix (`vX.Y.Z`, as Go module tagging requires). The release workflow strips the `v` and injects the bare semver into `cmd/clue`'s `var version` with `-ldflags "-X main.version=<semver>"`. An unstamped binary falls back to the module version Go embeds in `go install module@vX.Y.Z` builds (`v` trimmed), so tag installs self-stamp; checkout builds and pseudo-version (branch/commit) installs report `dev`. `clue version` / `clue --version` print it.
 - **Granularity: per-skill markers, enforced as a set.** Each `.agents/skills/<name>/skill.md` declares its own `version:`; there is no separate set-file. `clue validate` enforces that every skill carries a stamp and that they all agree — so per-skill markers behave as a set without a second source of truth. Bare-semver strings match the binary's, so the drift comparison is string-equal on both sides.
 - **Drift is a failure, `dev` exempt.** The wall philosophy (Foundation §2): a machine-checkable rule that only warns gets ignored, so a released `clue` whose skills differ from the binary exits non-zero. `dev`/source builds have no release to drift from, so they skip the binary comparison (they still require the stamps and their mutual agreement).
 
@@ -32,6 +32,6 @@ One file is marginally less to edit at release, but it splits "what version is t
 
 A warning that does not fail CI is invisible the moment logs scroll — exactly the "machines enforce form" failure mode the methodology exists to prevent. If a release must ship with a known skill lag, that is a decision to record, not a check to soften.
 
-### Deferred: stamping bare `go install`, and skills outside `.agents/skills/`
+### Deferred: skills outside `.agents/skills/`
 
-ldflags stamping happens in the release job, so `go install` reports `dev`; the stamped provenance lives in the downloadable release artifacts. And the drift rule looks only under `.agents/skills/`. Both are doors noted in CAP-004's design, not part of this decision.
+The drift rule looks only under `.agents/skills/`; an adopter who relocates skills gets no drift check until the path is made configurable. A door noted in CAP-004's design, not part of this decision. (Stamping bare `go install` was originally deferred here too; the build-info fallback closed it — only checkout and pseudo-version builds still report `dev`.)

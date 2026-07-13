@@ -8,15 +8,39 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"regexp"
+	"runtime/debug"
+	"strings"
 
 	"github.com/cliewen/cliewen/internal/corpus"
 )
 
 // version is the release stamp, injected at build time via
 // `-ldflags "-X main.version=<semver>"` (see .github/workflows/release.yml).
-// Local and source builds report "dev" and are exempt from skill-drift
-// checks (ADR-011).
+// When no stamp is injected, main falls back to the module version Go
+// embeds in `go install module@vX.Y.Z` builds; checkout and commit builds
+// report "dev" and are exempt from skill-drift checks (ADR-011).
 var version = "dev"
+
+// pseudoVersion matches Go pseudo-versions (…-yyyymmddhhmmss-abcdefabcdef):
+// a commit, not a release.
+var pseudoVersion = regexp.MustCompile(`[.-][0-9]{14}-[0-9a-f]{12}$`)
+
+// releaseFromModuleVersion maps the module version embedded by
+// `go install module@vX.Y.Z` to a bare-semver release stamp, or "" when it
+// names no release: "(devel)", a pseudo-version (branch/commit install, or
+// the VCS-derived version a checkout build embeds since Go 1.24), or a
+// build with local modifications ("+dirty").
+func releaseFromModuleVersion(v string) string {
+	if v == "" || v == "(devel)" {
+		return ""
+	}
+	base, meta, _ := strings.Cut(v, "+")
+	if meta == "dirty" || pseudoVersion.MatchString(base) {
+		return ""
+	}
+	return strings.TrimPrefix(base, "v")
+}
 
 const usage = `clue — a verifiable thread from goal to test
 
@@ -28,7 +52,7 @@ Commands:
   validate   Scan docs/ and changes/ under path (default ".") and check
              the frontmatter graph: core fields, unique IDs, link
              resolution, status vocabularies, folder READMEs, index
-             integrity, and skill version drift (ADR-011).
+             integrity, and skill version drift.
 
              --forbid-changes  fail when /changes contains files — the
                                digest-before-merge gate used by CI.
@@ -39,6 +63,13 @@ Exit codes: 0 corpus valid · 1 issues found · 2 usage error
 `
 
 func main() {
+	if version == "dev" {
+		if bi, ok := debug.ReadBuildInfo(); ok {
+			if v := releaseFromModuleVersion(bi.Main.Version); v != "" {
+				version = v
+			}
+		}
+	}
 	if len(os.Args) < 2 {
 		fmt.Fprint(os.Stderr, usage)
 		os.Exit(2)

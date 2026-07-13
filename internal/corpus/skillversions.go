@@ -1,6 +1,7 @@
 package corpus
 
 import (
+	"fmt"
 	"os"
 	"path"
 	"path/filepath"
@@ -45,12 +46,26 @@ func checkSkillVersions(c *Corpus, binaryVersion string) []Issue {
 		}
 		text := strings.ReplaceAll(string(data), "\r\n", "\n")
 		fields, _, ok, perr := parseFrontmatter(text)
+		if perr != nil {
+			issues = append(issues, Issue{rel, "skill frontmatter does not parse: " + perr.Error()})
+			continue
+		}
 		v := ""
-		if ok && perr == nil {
-			v, _ = fields["version"].(string)
+		if ok {
+			switch t := fields["version"].(type) {
+			case nil:
+			case string:
+				v = t
+			default:
+				// YAML reads e.g. `version: 1.0` as a number; the stamp
+				// must be a semver string so it compares against the
+				// binary's.
+				issues = append(issues, Issue{rel, fmt.Sprintf("skill version %v is a YAML %T, not a string — stamp bare semver (e.g. 0.1.0)", t, t)})
+				continue
+			}
 		}
 		if v == "" {
-			issues = append(issues, Issue{rel, "skill carries no version stamp (G-002: skills version as a set)"})
+			issues = append(issues, Issue{rel, "skill carries no version stamp"})
 			continue
 		}
 		skills = append(skills, skill{rel, v})
@@ -60,14 +75,25 @@ func checkSkillVersions(c *Corpus, binaryVersion string) []Issue {
 	}
 	sort.Slice(skills, func(i, j int) bool { return skills[i].path < skills[j].path })
 
-	// AC-021: the skills must agree on one version. The first (sorted) is
-	// the reference; report every skill that disagrees with it.
-	ref := skills[0]
-	consistent := true
+	// AC-021: the skills must agree on one version. The reference is the
+	// version most skills carry (ties go to the earliest-sorted holder),
+	// so the report names the actual outlier rather than whichever skill
+	// happens to sort first.
+	count := make(map[string]int, len(skills))
+	for _, s := range skills {
+		count[s.version]++
+	}
+	ref := skills[0].version
 	for _, s := range skills[1:] {
-		if s.version != ref.version {
+		if count[s.version] > count[ref] {
+			ref = s.version
+		}
+	}
+	consistent := true
+	for _, s := range skills {
+		if s.version != ref {
 			consistent = false
-			issues = append(issues, Issue{s.path, "skill version " + s.version + " disagrees with " + ref.path + " (" + ref.version + ") — skills version as a set (ADR-011)"})
+			issues = append(issues, Issue{s.path, "skill version " + s.version + " disagrees with the set's version " + ref})
 		}
 	}
 
@@ -76,7 +102,7 @@ func checkSkillVersions(c *Corpus, binaryVersion string) []Issue {
 	if consistent && binaryVersion != "" && binaryVersion != "dev" {
 		for _, s := range skills {
 			if s.version != binaryVersion {
-				issues = append(issues, Issue{s.path, "skill version " + s.version + " != clue " + binaryVersion + " (drift — reinstall the skills or clue) (ADR-011)"})
+				issues = append(issues, Issue{s.path, "skill version " + s.version + " != clue " + binaryVersion + " (drift — reinstall the skills or clue)"})
 			}
 		}
 	}
