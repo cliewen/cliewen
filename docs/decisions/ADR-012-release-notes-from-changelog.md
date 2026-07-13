@@ -12,13 +12,13 @@ accepted-by: —
 
 ## Context and problem statement
 
-The first tagged release (v0.1.0, [CAP-004](../capabilities/CAP-004-ship/README.md)'s pipeline) published its body via GitHub's `generate_release_notes`: a "What's Changed" list of PR titles with contributor @mentions. That is the repo's internal change history addressed to its own maintainer — a solo one, six times over — not something a user of `clue` can read. Release pages are the first thing an adopter sees; they need what-it-is, how-to-install, what-changed-for-me prose. Where do those words live, who writes them when, and what stops the PR dump from coming back?
+Release pages are the first thing an adopter of [CAP-004](../capabilities/CAP-004-ship/README.md)'s pipeline sees; they need what-it-is, how-to-install, what-changed-for-me prose. GitHub's auto-generated release notes produce the opposite — a "What's Changed" list of PR titles with contributor @mentions: the repo's internal change history, not the product's (the first tagged release shipped exactly that). Where do user-facing release words live, who writes them when, and what stops the PR dump from coming back?
 
 ## Decision outcome
 
 **A root `CHANGELOG.md` ([Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format) is the single source of truth for user-visible history; the release workflow extracts the tag's `## [X.Y.Z]` section verbatim as the release body and fails the release when the section is missing or empty.**
 
-- **Written at merge time, not tag time.** Each change records its user-visible impact in the `[Unreleased]` section during the digest — phrased for a user of the tool, not a reviewer of the repo. Cutting a release renames `[Unreleased]` to the version and tags; the notes were already written and reviewed when the changes were fresh. v0.1.0's PR dump happened precisely because notes did not exist until tag time.
+- **Written at merge time, not tag time.** Each change records its user-visible impact in the `[Unreleased]` section during the digest — phrased for a user of the tool, not a reviewer of the repo. Cutting a release renames `[Unreleased]` to the version and tags; the notes were already written and reviewed when the changes were fresh. Notes that do not exist until tag time get reconstructed from change history — which is the failure this decision removes.
 - **The 1-1 map is structural.** The workflow publishes the section through `body_path`, so the release page cannot say anything the reviewed file does not. The extraction guard follows the wall philosophy ([ADR-011](ADR-011-version-stamping.md)'s drift rule, applied to prose): no section, no release — a rule that only warned would be ignored.
 - **Auto-generation is banned, and lintably so.** `generate_release_notes` is removed and `TestSanity_ReleaseNotesComeFromChangelog` fails the build if it (or the extraction's absence) reappears in `release.yml`.
 
@@ -26,7 +26,7 @@ The first tagged release (v0.1.0, [CAP-004](../capabilities/CAP-004-ship/README.
 
 ### Rejected: GitHub's `generate_release_notes`
 
-It describes PRs, not the product; it @-mentions contributors (noise at solo scale, still change-history at any scale); and it writes the page at tag time from data no human reviewed as release prose.
+It describes PRs, not the product; it @-mentions contributors — internal credit, not product information; and it writes the page at tag time from data no human reviewed as release prose.
 
 ### Rejected: per-release note files (`docs/releases/vX.Y.Z.md`)
 
