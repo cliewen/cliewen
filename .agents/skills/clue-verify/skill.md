@@ -14,6 +14,7 @@ Pre-merge checklist. Run before opening or updating any PR. When the `clue` CLI 
 - [ ] Every AC has a test tag with a positive + negative pair — or the capability is honestly `status: draft` with the gap stated.
 - [ ] Every `/docs/**` folder has README.md; index blocks list every sibling artifact and reference no deleted file.
 - [ ] Change assessed against every constraint in `/docs/constraints/` and every quality scenario in `/docs/quality/`.
+- [ ] `CHANGELOG.md` `[Unreleased]` carries this change's user-visible impact, phrased for users — or the change genuinely has none.
 - [ ] Diagrams are inline Mermaid and readable when rendered.
 - [ ] `/changes/CH-xxx-slug/` is deleted in the digest commit; after merge, `main` contains no `/changes/`.
 - [ ] Decisions made during the change are ADRs (`author: agent` starts `inferred`; only a human promotes to `verified`).

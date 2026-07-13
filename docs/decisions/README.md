@@ -16,4 +16,5 @@ Architecture Decision Records (MADR format) with two-tier provenance: `inferred`
 - [ADR-009 — AC IDs are namespaced: criteria declare an ac-prefix](ADR-009-ac-id-namespaces.md) · `verified`
 - [ADR-010 — Extracted artifacts carry a provenance field, born inferred](ADR-010-provenance-field.md) · `verified`
 - [ADR-011 — clue and the skills are versioned: tag-stamped binary, per-skill markers, drift is a failure](ADR-011-version-stamping.md) · `inferred`
+- [ADR-012 — Release notes are user-facing and come from CHANGELOG.md: extracted verbatim, missing section fails the release](ADR-012-release-notes-from-changelog.md) · `inferred`
 <!-- clue:index:end -->

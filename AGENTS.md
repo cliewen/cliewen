@@ -9,6 +9,7 @@ This repo runs **Cliewen** — its own methodology, dogfooded from commit one. B
 3. **Open questions are artifacts.** When blocked on a decision, write it to `open-questions.md` and stop; human answers become ADRs.
 4. **Machines enforce form; humans verify meaning.** Never weaken a test or a lint rule to make a build pass — surface the conflict instead.
 5. **Markdown prose is never hard-wrapped.** One line per paragraph and per list item; wrapping is the reader's IDE concern. Line breaks are structural only (headings, lists, tables, code fences).
+6. **Release notes are written for users, in [`CHANGELOG.md`](CHANGELOG.md).** A change with user-visible impact adds its entry to the `[Unreleased]` section in the digest — what the change means to a user, never a PR title or commit subject. Cutting a release renames that section to the version; the release workflow publishes the section verbatim as the GitHub release body and fails without it. Auto-generated changelogs, PR lists, and @mentions never appear on a release ([ADR-012](docs/decisions/ADR-012-release-notes-from-changelog.md)).
 
 ## Skills
 
