@@ -1,8 +1,13 @@
 package main
 
 import (
+	"go/ast"
+	"go/parser"
+	"go/token"
 	"os"
 	"path/filepath"
+	"regexp"
+	"strings"
 	"testing"
 
 	"github.com/cliewen/cliewen/internal/corpus"
@@ -55,6 +60,138 @@ func TestAC018_InferredArtifactsCountedAndAccepted(t *testing.T) {
 	c, _ := corpus.Scan(root)
 	if n := inferredCount(c); n != 1 {
 		t.Fatalf("expected 1 inferred artifact, got %d", n)
+	}
+}
+
+// AC-019: version reports the stamp injected at build time.
+func TestAC019_VersionCommandReportsStamp(t *testing.T) {
+	old := version
+	version = "9.9.9"
+	defer func() { version = old }()
+	var b strings.Builder
+	if code := runVersion(&b); code != 0 {
+		t.Fatalf("expected exit 0, got %d", code)
+	}
+	if !strings.Contains(b.String(), "9.9.9") {
+		t.Fatalf("version output %q does not report the stamp", b.String())
+	}
+}
+
+// AC-019 (negative): an unstamped source build reports "dev", not a
+// release number.
+func TestAC019_UnstampedBuildReportsDev(t *testing.T) {
+	old := version
+	version = "dev"
+	defer func() { version = old }()
+	var b strings.Builder
+	runVersion(&b)
+	if !strings.Contains(b.String(), "dev") {
+		t.Fatalf("unstamped build should report dev, got %q", b.String())
+	}
+}
+
+// Unit: the build-info fallback stamps `go install module@vX.Y.Z` builds
+// and nothing else — checkout builds and commit installs stay unstamped
+// (ADR-011: a pseudo-version is a commit, not a release).
+func TestUnit_ReleaseFromModuleVersion(t *testing.T) {
+	cases := map[string]string{
+		"v0.2.0":                               "0.2.0",
+		"v1.2.3-rc.1":                          "1.2.3-rc.1",
+		"":                                     "",
+		"(devel)":                              "",
+		"v0.0.0-20260101120000-abcdef123456":   "",
+		"v0.1.1-0.20260101120000-abcdef1234ab": "",
+		"v0.0.0-20260101120000-abcdef123456+dirty": "",
+		"v0.2.0+dirty": "",
+	}
+	for in, want := range cases {
+		if got := releaseFromModuleVersion(in); got != want {
+			t.Errorf("releaseFromModuleVersion(%q) = %q, want %q", in, got, want)
+		}
+	}
+}
+
+// AC-022 (wiring): runValidate threads the binary's stamp through
+// corpus.Options.Version into the drift rule — a released clue fails
+// against lagging skills, a matching release passes.
+func TestAC022_RunValidateThreadsVersionIntoDriftRule(t *testing.T) {
+	root := validCorpus(t)
+	writeFile(t, root, ".agents/skills/clue-delta/skill.md", "---\nversion: 0.1.0\n---\n\n# clue-delta\n")
+	old := version
+	defer func() { version = old }()
+	version = "0.2.0"
+	if code := runValidate([]string{root}); code != 1 {
+		t.Fatalf("clue 0.2.0 against skills at 0.1.0: expected exit 1 (drift), got %d", code)
+	}
+	version = "0.1.0"
+	if code := runValidate([]string{root}); code != 0 {
+		t.Fatalf("clue 0.1.0 against skills at 0.1.0: expected exit 0, got %d", code)
+	}
+}
+
+// Sanity: the release workflow builds versioned cross-platform binaries.
+// A repo invariant guarding M-004's release pipeline against regression;
+// the operational proof is the first tagged release itself.
+func TestSanity_ReleaseWorkflowIsCrossPlatform(t *testing.T) {
+	data, err := os.ReadFile(filepath.Join("..", "..", ".github", "workflows", "release.yml"))
+	if err != nil {
+		t.Fatalf("release workflow not found: %v", err)
+	}
+	wf := string(data)
+	for _, want := range []string{"main.version", "linux", "darwin", "windows", "arm64", "amd64", "go test", "SHA256SUMS"} {
+		if !strings.Contains(wf, want) {
+			t.Errorf("release workflow does not mention %q — expected a tested, stamped, checksummed cross-platform build", want)
+		}
+	}
+	// A manual dispatch must not publish a branch-named release: the ref
+	// must be guarded to a tag before anything is built.
+	if !strings.Contains(wf, "GITHUB_REF_TYPE") {
+		t.Error("release workflow does not guard GITHUB_REF_TYPE — a branch dispatch could publish a branch-named release")
+	}
+	// The publishing action runs with contents: write; a mutable tag pin
+	// would let a moved tag ship different code into our releases.
+	if pin := regexp.MustCompile(`action-gh-release@[0-9a-f]{40}`); !pin.MatchString(wf) {
+		t.Error("release workflow does not pin action-gh-release by commit SHA")
+	}
+}
+
+// docID matches a Cliewen corpus doc-ID reference: ADR-011, G-002, CAP-004,
+// AC-020, P-002, M-004, CH-007, and so on.
+var docID = regexp.MustCompile(`\b(?:ADR|CAP|AC|G|P|M|CH)-\d+\b`)
+
+// Sanity: cmd/clue is the shipped CLI — the one package under this module
+// actually exported to a user, unlike internal/corpus which Go itself
+// keeps unimportable outside the module. A corpus doc-ID reference leaking
+// into a string literal here means a user sees "(ADR-011)" in --help or
+// command output with no way to know what that is (caught in PR #6 review:
+// the usage string named ADR-011 in a line explaining `clue validate`).
+// AST-based so this only inspects actual string literals, not source
+// comments — comments citing ADR/CAP/AC/G/P/M/CH IDs for future readers of
+// the code remain fine.
+func TestSanity_NoDocIDInUserFacingStrings(t *testing.T) {
+	files, err := filepath.Glob("*.go")
+	if err != nil {
+		t.Fatal(err)
+	}
+	fset := token.NewFileSet()
+	for _, f := range files {
+		if strings.HasSuffix(f, "_test.go") {
+			continue
+		}
+		node, perr := parser.ParseFile(fset, f, nil, 0)
+		if perr != nil {
+			t.Fatalf("parsing %s: %v", f, perr)
+		}
+		ast.Inspect(node, func(n ast.Node) bool {
+			lit, ok := n.(*ast.BasicLit)
+			if !ok || lit.Kind != token.STRING {
+				return true
+			}
+			if m := docID.FindString(lit.Value); m != "" {
+				t.Errorf("%s: string literal mentions %q — cmd/clue is user-facing, a corpus doc-ID means nothing to a CLI user", fset.Position(lit.Pos()), m)
+			}
+			return true
+		})
 	}
 }
 

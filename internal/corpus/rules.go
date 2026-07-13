@@ -16,6 +16,11 @@ type Options struct {
 	// digest-before-merge gate. CI uses it; local runs during a change
 	// loop do not.
 	ForbidChanges bool
+	// Version is the running clue binary's release stamp, used to detect
+	// skill drift (ADR-011). Empty or "dev" exempts the build from the
+	// drift comparison; skill presence and mutual consistency are still
+	// checked.
+	Version string
 }
 
 // statusVocab is the allowed status set per artifact type. The docs/README.md
@@ -56,6 +61,7 @@ func Validate(c *Corpus, opts Options) []Issue {
 	issues = append(issues, checkIndexes(c)...)
 	issues = append(issues, checkACTests(c)...)
 	issues = append(issues, checkProvenance(c)...)
+	issues = append(issues, checkSkillVersions(c, opts.Version)...)
 	if opts.ForbidChanges && c.HasChanges {
 		issues = append(issues, Issue{"changes", "transient workspace present — digest before merge (main must never contain /changes)"})
 	}

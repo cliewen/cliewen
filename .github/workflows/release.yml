@@ -1,0 +1,70 @@
+# clue ships (P-002/M-004): a `vX.Y.Z` tag builds cross-platform binaries,
+# each stamped with the tag's version via ldflags, and publishes them as a
+# GitHub release for `gh release download`. The stamped string is bare
+# semver (the leading `v` is stripped, ADR-011) so it matches the skills'
+# frontmatter version and `clue validate`'s drift check agrees.
+#
+# workflow_dispatch is allowed only against a tag ref (re-running a release):
+# the guard below rejects any non-tag ref, so dispatching from a branch can
+# never stamp binaries as the branch name or publish a branch-named release.
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build binaries
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: stable
+
+      - name: Require a version tag
+        run: |
+          if [ "${GITHUB_REF_TYPE}" != "tag" ] || ! printf '%s' "${GITHUB_REF_NAME}" | grep -Eq '^v[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?(\+[0-9A-Za-z.-]+)?$'; then
+            echo "Release must run from a vX.Y.Z tag; got ref_type='${GITHUB_REF_TYPE}' ref_name='${GITHUB_REF_NAME}'" >&2
+            exit 1
+          fi
+
+      - name: Determine version
+        id: version
+        run: echo "v=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+
+      # A tag can land on any commit; nothing ships untested.
+      - name: Run tests
+        run: go test ./...
+
+      - name: Build cross-platform binaries
+        env:
+          VERSION: ${{ steps.version.outputs.v }}
+        run: |
+          mkdir -p dist
+          for target in linux/amd64 linux/arm64 darwin/amd64 darwin/arm64 windows/amd64 windows/arm64; do
+            os="${target%/*}"; arch="${target#*/}"
+            out="clue-${VERSION}-${os}-${arch}"
+            ext=""; [ "$os" = "windows" ] && ext=".exe"
+            echo "building ${out}${ext}"
+            GOOS="$os" GOARCH="$arch" CGO_ENABLED=0 \
+              go build -trimpath -ldflags "-s -w -X main.version=${VERSION}" \
+              -o "dist/${out}${ext}" ./cmd/clue
+          done
+
+      - name: Checksums
+        run: cd dist && sha256sum * > SHA256SUMS
+
+      # Pinned by commit SHA: this third-party action runs with
+      # contents: write and publishes the artifacts.
+      - name: Publish GitHub release
+        uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65 # v2
+        with:
+          name: ${{ github.ref_name }}
+          files: dist/*
+          generate_release_notes: true
