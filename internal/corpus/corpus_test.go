@@ -122,6 +122,20 @@ func TestUnit_StatusVocabEnforced(t *testing.T) {
 	assertIssue(t, run(t, files, false), "unknown type wizard")
 }
 
+func TestUnit_LogStatusVocab(t *testing.T) {
+	logFiles := map[string]string{
+		"docs/README.md":           "# Corpus\n\n<!-- clue:index:start -->\n- [goals/](goals/README.md)\n- [plans/](plans/README.md)\n- [decisions/](decisions/README.md)\n<!-- clue:index:end -->\n",
+		"docs/decisions/README.md": "# Decisions\n\n<!-- clue:index:start -->\n- [log](log.md)\n<!-- clue:index:end -->\n",
+		"docs/decisions/log.md":    "---\nid: LOG-001\ntype: log\nstatus: active\nlinks: []\ntitle: Decision log\n---\n\n| Date | Decision | Why | Change/PR |\n",
+	}
+	if issues := run(t, with(validFiles, logFiles), false); len(issues) != 0 {
+		t.Fatalf("an active log is valid; expected no issues, got %v", issues)
+	}
+
+	logFiles["docs/decisions/log.md"] = strings.Replace(logFiles["docs/decisions/log.md"], "status: active", "status: open", 1)
+	assertIssue(t, run(t, with(validFiles, logFiles), false), "status open not allowed for type log")
+}
+
 func TestUnit_FolderWithoutReadme(t *testing.T) {
 	files := with(validFiles, map[string]string{
 		"docs/quality/QS-001-fast.md": "---\nid: QS-001\ntype: quality\nstatus: active\nlinks: []\ntitle: Fast\n---\n",

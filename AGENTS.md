@@ -4,7 +4,7 @@ This repo runs **Cliewen** — its own methodology, dogfooded from commit one. B
 
 ## The rules that bind every change
 
-1. **Everything that mutates `main` goes through branch + PR.** The branch is the proposal; transient files live in `/changes/<CH-xxx-slug>/` on the branch only and are deleted in the digest commit before merge. `main` never contains `/changes/`.
+1. **Everything that mutates `main` goes through branch + PR.** The branch is the proposal; transient files live in `/changes/<CH-xxx-slug>/` on the branch only and are deleted in the digest commit before merge. `main` never contains `/changes/`. A **light** change ([ADR-015](docs/decisions/ADR-015-light-change-tier.md)) — no decision, no AC/capability meaning change, no semantic plan mutation, no methodology carrier touched — skips the workspace: the PR description is the proposal.
 2. **Every proposal declares which plan item it serves** (see [`docs/plans/`](docs/plans/README.md)) or explicitly declares itself plan-less. The merge digest updates plan bookkeeping in the same commit.
 3. **Open questions are artifacts.** When blocked on a decision, write it to `open-questions.md` and stop; human answers become ADRs.
 4. **Machines enforce form; humans verify meaning.** Never weaken a test or a lint rule to make a build pass — surface the conflict instead.

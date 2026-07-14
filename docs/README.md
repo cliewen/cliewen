@@ -27,6 +27,7 @@ This table mirrors the `statusVocab` map in `internal/corpus/rules.go` — the c
 | plan | `draft` → `active` → `completed` (completed ⇒ immutable) |
 | capability, criteria, design | `draft` → `active` → `retired` |
 | decision | `inferred` → `verified` (human acceptance promotes; rejected ADRs stay `verified`) |
+| log | `active` (the decision log — one register, rows are its lifecycle, see ADR-016) |
 | constraint | `active` → `retired` |
 | quality | `draft` → `active` → `retired` |
 | analysis | `verified` (findings are historical records) |
