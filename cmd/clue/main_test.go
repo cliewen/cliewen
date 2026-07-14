@@ -64,6 +64,33 @@ func TestAC018_InferredArtifactsCountedAndAccepted(t *testing.T) {
 	}
 }
 
+// AC-023: a valid corpus passes with agent-enforced constraints and their
+// count feeds the OK line as the promotion backlog.
+func TestAC023_AgentConstraintCountReported(t *testing.T) {
+	root := validCorpus(t)
+	writeFile(t, root, "docs/README.md", "# Corpus\n\n<!-- clue:index:start -->\n- [goals/](goals/README.md)\n- [constraints/](constraints/README.md)\n<!-- clue:index:end -->\n")
+	writeFile(t, root, "docs/constraints/README.md", "# Constraints\n\n<!-- clue:index:start -->\n- [C-001](C-001-rule.md)\n<!-- clue:index:end -->\n")
+	writeFile(t, root, "docs/constraints/C-001-rule.md", "---\nid: C-001\ntype: constraint\nstatus: active\nlinks: []\ntitle: A rule\nsource: AGENTS.md\nenforcement: agent\n---\n")
+	if code := runValidate([]string{root}); code != 0 {
+		t.Fatalf("an agent-enforced constraint is valid; expected exit 0, got %d", code)
+	}
+	c, _ := corpus.Scan(root)
+	if n := agentConstraintCount(c); n != 1 {
+		t.Fatalf("expected 1 agent-enforced constraint, got %d", n)
+	}
+}
+
+func TestAC023_MachineConstraintNotInBacklogCount(t *testing.T) {
+	root := validCorpus(t)
+	writeFile(t, root, "docs/README.md", "# Corpus\n\n<!-- clue:index:start -->\n- [goals/](goals/README.md)\n- [constraints/](constraints/README.md)\n<!-- clue:index:end -->\n")
+	writeFile(t, root, "docs/constraints/README.md", "# Constraints\n\n<!-- clue:index:start -->\n- [C-001](C-001-rule.md)\n<!-- clue:index:end -->\n")
+	writeFile(t, root, "docs/constraints/C-001-rule.md", "---\nid: C-001\ntype: constraint\nstatus: active\nlinks: []\ntitle: A rule\nsource: AGENTS.md\nenforcement: machine\n---\n")
+	c, _ := corpus.Scan(root)
+	if n := agentConstraintCount(c); n != 0 {
+		t.Fatalf("machine-enforced constraints are not backlog; expected 0, got %d", n)
+	}
+}
+
 // AC-019: version reports the stamp injected at build time.
 func TestAC019_VersionCommandReportsStamp(t *testing.T) {
 	old := version

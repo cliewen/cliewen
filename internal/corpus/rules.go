@@ -62,6 +62,7 @@ func Validate(c *Corpus, opts Options) []Issue {
 	issues = append(issues, checkIndexes(c)...)
 	issues = append(issues, checkACTests(c)...)
 	issues = append(issues, checkProvenance(c)...)
+	issues = append(issues, checkConstraints(c)...)
 	issues = append(issues, checkSkillVersions(c, opts.Version)...)
 	if opts.ForbidChanges && c.HasChanges {
 		issues = append(issues, Issue{"changes", "transient workspace present — digest before merge (main must never contain /changes)"})
@@ -92,6 +93,30 @@ func checkProvenance(c *Corpus) []Issue {
 		}
 		if s, ok := v.(string); !ok || (s != "inferred" && s != "verified") {
 			issues = append(issues, Issue{a.Path, "provenance must be inferred or verified (ADR-010)"})
+		}
+	}
+	return issues
+}
+
+// checkConstraints enforces the convention register's fields (AC-023):
+// every constraint names its source (the doc or catalog that states the
+// rule) and an enforcement class. `agent` marks the promotion backlog —
+// rules awaiting a machine check; the CLI reports their count.
+func checkConstraints(c *Corpus) []Issue {
+	var issues []Issue
+	for _, a := range c.Artifacts {
+		if a.Type != "constraint" {
+			continue
+		}
+		if s, ok := a.Fields["source"].(string); !ok || s == "" {
+			issues = append(issues, Issue{a.Path, "constraint missing or empty source field"})
+		}
+		switch e, _ := a.Fields["enforcement"].(string); e {
+		case "machine", "agent", "human":
+		case "":
+			issues = append(issues, Issue{a.Path, "constraint missing or empty enforcement field"})
+		default:
+			issues = append(issues, Issue{a.Path, "enforcement " + e + " not allowed (allowed: machine, agent, human)"})
 		}
 	}
 	return issues

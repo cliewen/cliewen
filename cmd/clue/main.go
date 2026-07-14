@@ -105,11 +105,14 @@ func runValidate(args []string) int {
 		fmt.Fprintf(os.Stderr, "clue validate: %d issue(s)\n", len(issues))
 		return 1
 	}
+	notes := ""
 	if n := inferredCount(c); n > 0 {
-		fmt.Printf("clue validate: OK (%d artifacts, %d born inferred awaiting verification)\n", len(c.Artifacts), n)
-	} else {
-		fmt.Printf("clue validate: OK (%d artifacts)\n", len(c.Artifacts))
+		notes += fmt.Sprintf(", %d born inferred awaiting verification", n)
 	}
+	if n := agentConstraintCount(c); n > 0 {
+		notes += fmt.Sprintf(", %d agent-enforced constraint(s) awaiting machine checks", n)
+	}
+	fmt.Printf("clue validate: OK (%d artifacts%s)\n", len(c.Artifacts), notes)
 	return 0
 }
 
@@ -124,6 +127,18 @@ func inferredCount(c *corpus.Corpus) int {
 	n := 0
 	for _, a := range c.Artifacts {
 		if p, _ := a.Fields["provenance"].(string); p == "inferred" {
+			n++
+		}
+	}
+	return n
+}
+
+// agentConstraintCount is the visible promotion backlog of the convention
+// register (AC-023): rules an agent must hold until clue can.
+func agentConstraintCount(c *corpus.Corpus) int {
+	n := 0
+	for _, a := range c.Artifacts {
+		if e, _ := a.Fields["enforcement"].(string); a.Type == "constraint" && e == "agent" {
 			n++
 		}
 	}

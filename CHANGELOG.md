@@ -8,6 +8,7 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 
 - **Light change tier**: a change that decides nothing and changes no meaning (typos, doc clarity, dependency bumps, pure refactors, CI plumbing) no longer needs a `/changes/` workspace — branch, commit, and open a PR whose description is the proposal. The moment a decision, open question, or AC change appears, escalate to the full loop. The `clue-delta` skill carries the qualification test; `clue-verify` starts by checking the tier is right.
 - **Decision log**: ADRs are now reserved for decisions that are expensive to reverse; everything else is a dated row in `docs/decisions/log.md` (litmus test: cheap and local to reverse → log row). `clue validate` lints the new `log` artifact type.
+- **Convention register**: methodology rules that lived only in prose are now constraint artifacts in `docs/constraints/`, each naming its `source` and an `enforcement` class (`machine|agent|human`). `clue validate` requires both fields, checks the vocabulary, and reports the count of agent-enforced constraints on its OK line — the visible backlog of rules awaiting machine checks, each carrying its promotion trigger.
 
 ### Changed
 

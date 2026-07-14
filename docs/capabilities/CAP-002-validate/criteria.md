@@ -84,4 +84,13 @@ Feature: clue validate — deterministic corpus judgment
     When the user runs "clue validate"
     Then it exits with a non-zero code
     And the output names both declaring files
+
+  @AC-023
+  Scenario: Constraint artifacts carry their register fields
+    Given a constraint artifact missing a non-empty source or enforcement field
+    Or carrying an enforcement value outside machine, agent, human
+    When the user runs "clue validate"
+    Then it exits with a non-zero code
+    And the output names the file and the violated field
+    And a valid corpus reports its count of agent-enforced constraints on the OK line
 ```
