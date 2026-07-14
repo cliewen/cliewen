@@ -19,5 +19,5 @@ title: CH-010 task breakdown
 - [x] `.agents/skills/clue-delta/skill.md` — light-tier section + escalation rule; ADR-vs-log routing in digest step
 - [x] `.agents/skills/clue-verify/skill.md` — first checklist item: is this change correctly light / correctly full?
 - [x] `AGENTS.md` rule 1 mentions the light tier
-- [ ] Digest: CHANGELOG `[Unreleased]` entry, delete `/changes/CH-010-light-tier-decision-log/`
-- [ ] Verify: `go test ./...` green, `go run ./cmd/clue validate` green, clue-verify checklist walked
+- [x] Digest: CHANGELOG `[Unreleased]` entry, delete `/changes/CH-010-light-tier-decision-log/`
+- [x] Verify: `go test ./...` green, `go run ./cmd/clue validate` green, clue-verify checklist walked
