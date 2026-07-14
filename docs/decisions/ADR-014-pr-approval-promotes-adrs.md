@@ -10,6 +10,8 @@ accepted-by: Flemming N. Larsen (2026-07-13, PR #8)
 
 # ADR-014 — PR approval promotes the PR's ADRs
 
+> **Superseded by [ADR-018](ADR-018-merge-is-acceptance.md):** the acceptance event moved from the PR approval to the merge itself. The clerical mechanics below survive unchanged.
+
 ## Context and problem statement
 
 Agent-authored decisions are born `status: inferred` and become truth only when a human accepts them ([ADR-010](ADR-010-provenance-field.md)'s two-tier provenance). But the acceptance *mechanics* were a second manual act: after reviewing and approving the PR that introduces an ADR, the human still had to edit `status:` and `accepted-by:` by hand in some later change. The result is friction and lag — decisions the human has plainly accepted (the PR merged on their approval) sit `inferred` indefinitely, and the inferred count stops meaning "unverified" and starts meaning "unbookkept".

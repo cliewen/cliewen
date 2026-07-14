@@ -1,11 +1,11 @@
 ---
 id: ADR-017
 type: decision
-status: inferred
+status: verified
 links: [ADR-013]
 title: Prose conventions register as constraint artifacts with enforcement classes
 author: agent
-accepted-by: —
+accepted-by: Flemming N. Larsen (2026-07-14, PR #10)
 ---
 
 # ADR-017 — Prose conventions register as constraint artifacts

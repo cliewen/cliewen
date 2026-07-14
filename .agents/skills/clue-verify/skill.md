@@ -18,4 +18,5 @@ Pre-merge checklist. Run before opening or updating any PR. When the `clue` CLI 
 - [ ] Repo-local conventions declared in AGENTS.md are honored (e.g. a changelog entry for user-visible impact). AGENTS.md extends the methodology, never overrides it — an AGENTS.md rule conflicting with a skill was surfaced as an open question, not silently obeyed or ignored.
 - [ ] Diagrams are inline Mermaid and readable when rendered.
 - [ ] `/changes/CH-xxx-slug/` is deleted in the digest commit; after merge, `main` contains no `/changes/`.
-- [ ] Decisions made during the change are recorded: expensive-to-reverse ones as ADRs (`author: agent` starts `inferred`; only a human promotes to `verified`), cheap-and-local-to-reverse ones as decision-log rows.
+- [ ] Decisions made during the change are recorded: expensive-to-reverse ones as ADRs (`author: agent` starts `inferred`; only a human merge event promotes to `verified`, and a review objection keeps a decision `inferred` through the merge), cheap-and-local-to-reverse ones as decision-log rows.
+- [ ] Pending clerical flips are performed: decisions accepted by an earlier merge carry `status: verified` and an `accepted-by:` citing the merger, date and PR.

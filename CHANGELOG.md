@@ -12,6 +12,7 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 
 ### Changed
 
+- **Merging accepts decisions**: merging a PR now accepts the decisions (ADRs) it introduces — no separate approval act is needed, which matches how teams actually work. An explicit review objection to a specific decision keeps it unaccepted through the merge. The `clue-delta` and `clue-verify` skills carry the rule.
 - Release pages are now published from this changelog: each GitHub release body is the matching version section of `CHANGELOG.md`, written for users — no more auto-generated PR lists.
 - The agent skills are repo-agnostic: repo-local conventions live in your AGENTS.md, which extends the methodology but never overrides it — a conflict between the two is surfaced as an open question. The OpenSpec extraction mapping moved from `clue-extract`'s skill text to `mappings/openspec.md` under the same skill, and the skills no longer cite cliewen's internal document IDs — every rule is stated in full where you read it.
 
