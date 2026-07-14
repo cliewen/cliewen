@@ -18,5 +18,5 @@ title: CH-011 task breakdown
 - [x] `docs/architecture/architecture.md` — "enforcement classes beyond machine" removed from the deliberately-out list
 - [x] `docs/capabilities/CAP-002-validate/design.md` — constraint rule added to the rules list
 - [x] `AGENTS.md` rules 4/5/6 gain pointers to C-004/C-001/C-002
-- [ ] Digest: CHANGELOG `[Unreleased]` entry, delete `/changes/CH-011-convention-register/`
-- [ ] Verify: `go test ./...` green, `go run ./cmd/clue validate --forbid-changes` green, clue-verify checklist walked
+- [x] Digest: CHANGELOG `[Unreleased]` entry, delete `/changes/CH-011-convention-register/`
+- [x] Verify: `go test ./...` green, `go run ./cmd/clue validate --forbid-changes` green, clue-verify checklist walked
