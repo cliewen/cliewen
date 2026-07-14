@@ -10,7 +10,7 @@ accepted-by: Flemming N. Larsen (2026-07-13, PR #8)
 
 # ADR-014 — PR approval promotes the PR's ADRs
 
-> **Superseded by [ADR-018](ADR-018-merge-is-acceptance.md):** the acceptance event moved from the PR approval to the merge itself. The clerical mechanics below survive unchanged.
+> **Superseded by [ADR-018](ADR-018-merge-binds-approval-signs.md):** acceptance split into two facts — the merge makes a decision binding, and only explicit approval signatures make it `verified`. The clerical mechanics below (the agent performs the flip, citing a human event) survive unchanged.
 
 ## Context and problem statement
 
