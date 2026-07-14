@@ -1,11 +1,11 @@
 ---
 id: ADR-015
 type: decision
-status: inferred
+status: verified
 links: [ADR-016]
 title: A light change tier — the PR description is the proposal
 author: agent
-accepted-by: —
+accepted-by: Flemming N. Larsen (2026-07-14, PR #9)
 ---
 
 # ADR-015 — A light change tier: the PR description is the proposal

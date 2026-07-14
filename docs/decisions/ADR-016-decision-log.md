@@ -1,11 +1,11 @@
 ---
 id: ADR-016
 type: decision
-status: inferred
+status: verified
 links: [ADR-010]
 title: ADRs are for expensive-to-reverse decisions; the rest is a decision log
 author: agent
-accepted-by: —
+accepted-by: Flemming N. Larsen (2026-07-14, PR #9)
 ---
 
 # ADR-016 — ADRs for the expensive-to-reverse; a decision log for the rest

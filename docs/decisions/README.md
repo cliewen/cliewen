@@ -23,7 +23,7 @@ ADRs are MADR format with two-tier provenance: `inferred` (agent-reconstructed, 
 - [ADR-012 — Release notes are user-facing and come from CHANGELOG.md: extracted verbatim, missing section fails the release](ADR-012-release-notes-from-changelog.md) · `verified`
 - [ADR-013 — What ships to adopters is generic; AGENTS.md is the repo-local layer](ADR-013-ships-generic-vs-repo-local.md) · `verified`
 - [ADR-014 — PR approval is ADR acceptance; the agent performs the clerical promotion](ADR-014-pr-approval-promotes-adrs.md) · `verified`
-- [ADR-015 — A light change tier: the PR description is the proposal](ADR-015-light-change-tier.md) · `inferred`
-- [ADR-016 — ADRs for the expensive-to-reverse; a decision log for the rest](ADR-016-decision-log.md) · `inferred`
+- [ADR-015 — A light change tier: the PR description is the proposal](ADR-015-light-change-tier.md) · `verified`
+- [ADR-016 — ADRs for the expensive-to-reverse; a decision log for the rest](ADR-016-decision-log.md) · `verified`
 - [Decision log](log.md) — dated rows for the cheap-to-reverse (ADR-003 and ADR-004 demoted here)
 <!-- clue:index:end -->
