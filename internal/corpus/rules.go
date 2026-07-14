@@ -33,6 +33,7 @@ var statusVocab = map[string][]string{
 	"criteria":       {"draft", "active", "retired"},
 	"design":         {"draft", "active", "retired"},
 	"decision":       {"inferred", "verified"},
+	"log":            {"active"},
 	"constraint":     {"active", "retired"},
 	"quality":        {"draft", "active", "retired"},
 	"analysis":       {"verified"},

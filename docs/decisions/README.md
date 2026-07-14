@@ -1,6 +1,8 @@
 # Decisions
 
-Architecture Decision Records (MADR format) with two-tier provenance: `inferred` (agent-reconstructed, not yet truth) → `verified` (human has accepted — the act that makes provenance auditable). Every ADR carries `author: agent|human` and `accepted-by:`. **Rejected alternatives are half of "why does the system look like this"** — rejected ADRs live here too and are never deleted.
+Two records live here ([ADR-016](ADR-016-decision-log.md)): **ADRs** for decisions that are expensive to reverse — architecture, methodology mechanics, public contracts, AC semantics — and the **[decision log](log.md)** for everything else, one dated row per decision. Litmus test: if reversing it later is cheap and local, it's a log row; if it constrains future changes, it's an ADR.
+
+ADRs are MADR format with two-tier provenance: `inferred` (agent-reconstructed, not yet truth) → `verified` (human has accepted — the act that makes provenance auditable). Every ADR carries `author: agent|human` and `accepted-by:`. **Rejected alternatives are half of "why does the system look like this"** — rejected ADRs live here too. **Decisions are never deleted** — retention applies to the decision, not the file format: an ADR demoted under the litmus test survives as a dated log row, with git history keeping its full text.
 
 **Promotion rides the PR** ([ADR-014](ADR-014-pr-approval-promotes-adrs.md)): approving a PR accepts the ADRs it introduces; the agent then performs the clerical flip — `status: verified`, `accepted-by:` naming the approver, date and PR — before merge or in the next digest. A reviewer who approves the PR but not an ADR in it says so in review, and that ADR stays `inferred`.
 
@@ -11,8 +13,6 @@ Architecture Decision Records (MADR format) with two-tier provenance: `inferred`
 <!-- clue:index:start -->
 - [ADR-001 — Implementation language: Go](ADR-001-implementation-language.md) · `verified`
 - [ADR-002 — The inbox is goals with status: proposed](ADR-002-inbox-is-proposed-goals.md) · `verified`
-- [ADR-003 — Parse frontmatter with gopkg.in/yaml.v3](ADR-003-frontmatter-yaml-library.md) · `verified`
-- [ADR-004 — Default test-coverage gate at 80% total](ADR-004-coverage-gate-80-percent.md) · `verified`
 - [ADR-005 — Tests reference ACs via framework-native tags; names where no tags exist](ADR-005-test-reference-convention.md) · `verified`
 - [ADR-006 — Every test declares its purpose from a small taxonomy](ADR-006-test-purpose-taxonomy.md) · `verified`
 - [ADR-007 — AC lifecycle: meaning-immutable IDs, retirement by tombstone](ADR-007-ac-lifecycle.md) · `verified`
@@ -23,4 +23,7 @@ Architecture Decision Records (MADR format) with two-tier provenance: `inferred`
 - [ADR-012 — Release notes are user-facing and come from CHANGELOG.md: extracted verbatim, missing section fails the release](ADR-012-release-notes-from-changelog.md) · `verified`
 - [ADR-013 — What ships to adopters is generic; AGENTS.md is the repo-local layer](ADR-013-ships-generic-vs-repo-local.md) · `verified`
 - [ADR-014 — PR approval is ADR acceptance; the agent performs the clerical promotion](ADR-014-pr-approval-promotes-adrs.md) · `verified`
+- [ADR-015 — A light change tier: the PR description is the proposal](ADR-015-light-change-tier.md) · `inferred`
+- [ADR-016 — ADRs for the expensive-to-reverse; a decision log for the rest](ADR-016-decision-log.md) · `inferred`
+- [Decision log](log.md) — dated rows for the cheap-to-reverse (ADR-003 and ADR-004 demoted here)
 <!-- clue:index:end -->
