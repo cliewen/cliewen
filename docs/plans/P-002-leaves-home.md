@@ -17,6 +17,7 @@ The baseline ([P-001](P-001-elaboration-baseline.md)) proved the methodology ins
 | M-004 | **clue ships**: a tagged release produces versioned cross-platform binaries; `clue --version` reports the release; the skills carry the same version stamp (G-002); an adopted repo's CI can install and run `clue validate` (the model2diagram door closes) | `wip` | CH-007: `clue version`, per-skill stamps, drift lint (CAP-004, ADR-011), release.yml. Remaining: the adopter-CI proof in model2diagram. |
 | M-005 | **Greenfield in one command**: `clue init` emits the taxonomy, AGENTS.md routing, skills and CI template; CAP-001 (onboarding) goes `active` with its install→first-green-validate-in-30-min criteria tested | `todo` | — |
 | M-006 | **Indexes are generated**: `clue scaffold` regenerates README index blocks from folder contents (prose above markers untouched); `checkIndexes` remains the judge | `todo` | — |
+| M-007 | **Foreign soil**: the skills are trialed on ≥2 external open-source repos (selected by the human; no shared maintainer, not built for the methodology); each trial produces an `AN-xxx` findings doc; at least one methodology adjustment traces back to trial findings. Trials are findings, not adoptions: no PRs against the foreign repos, no new extraction mappings ([ADR-019](../decisions/ADR-019-foreign-soil-trials.md)) | `todo` | — |
 
 ## Explicitly out of this campaign
 
