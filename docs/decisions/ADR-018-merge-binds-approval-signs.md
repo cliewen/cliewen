@@ -1,11 +1,11 @@
 ---
 id: ADR-018
 type: decision
-status: inferred
+status: verified
 links: [ADR-014, ADR-010]
 title: Merge makes a decision binding; approval verifies it — approvers sign, first signature dates it
 author: agent
-accepted-by: —
+accepted-by: Flemming N. Larsen (2026-07-14, PR #11 review)
 ---
 
 # ADR-018 — Merge binds, approval signs
