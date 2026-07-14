@@ -207,6 +207,32 @@ func TestAC018_DecisionsMustNotCarryProvenanceField(t *testing.T) {
 	assertIssue(t, run(t, files, false), "decisions carry provenance in status")
 }
 
+// AC-023: constraints carry a non-empty source and an enforcement class
+// from machine|agent|human.
+func TestAC023_ConstraintRegisterFieldsLinted(t *testing.T) {
+	constraintFiles := func(frontmatter string) map[string]string {
+		return with(validFiles, map[string]string{
+			"docs/README.md":                 "# Corpus\n\n<!-- clue:index:start -->\n- [goals/](goals/README.md)\n- [plans/](plans/README.md)\n- [constraints/](constraints/README.md)\n<!-- clue:index:end -->\n",
+			"docs/constraints/README.md":     "# Constraints\n\n<!-- clue:index:start -->\n- [C-001](C-001-rule.md)\n<!-- clue:index:end -->\n",
+			"docs/constraints/C-001-rule.md": frontmatter,
+		})
+	}
+
+	valid := "---\nid: C-001\ntype: constraint\nstatus: active\nlinks: []\ntitle: A rule\nsource: AGENTS.md rule 5\nenforcement: agent\n---\n"
+	if issues := run(t, constraintFiles(valid), false); len(issues) != 0 {
+		t.Fatalf("a sourced, agent-enforced constraint is valid; expected no issues, got %v", issues)
+	}
+
+	noSource := "---\nid: C-001\ntype: constraint\nstatus: active\nlinks: []\ntitle: A rule\nenforcement: agent\n---\n"
+	assertIssue(t, run(t, constraintFiles(noSource), false), "constraint missing or empty source field")
+
+	noEnforcement := "---\nid: C-001\ntype: constraint\nstatus: active\nlinks: []\ntitle: A rule\nsource: AGENTS.md rule 5\n---\n"
+	assertIssue(t, run(t, constraintFiles(noEnforcement), false), "constraint missing or empty enforcement field")
+
+	badVocab := "---\nid: C-001\ntype: constraint\nstatus: active\nlinks: []\ntitle: A rule\nsource: AGENTS.md rule 5\nenforcement: hope\n---\n"
+	assertIssue(t, run(t, constraintFiles(badVocab), false), "enforcement hope not allowed")
+}
+
 // The dogfood test: this repository's own corpus must always be valid.
 func TestSanity_RepoCorpusIsValid(t *testing.T) {
 	root, err := os.Getwd()
