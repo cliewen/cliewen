@@ -27,5 +27,6 @@ ADRs are MADR format with two-tier provenance: `inferred` (binding once merged, 
 - [ADR-016 — ADRs for the expensive-to-reverse; a decision log for the rest](ADR-016-decision-log.md) · `verified`
 - [ADR-017 — Prose conventions register as constraint artifacts with enforcement classes](ADR-017-conventions-are-constraints.md) · `verified`
 - [ADR-018 — Merge makes a decision binding; approval verifies it](ADR-018-merge-binds-approval-signs.md) · `verified`
+- [ADR-019 — Validation requires foreign soil: trials on external repos, as findings not adoptions](ADR-019-foreign-soil-trials.md) · `inferred`
 - [Decision log](log.md) — dated rows for the cheap-to-reverse (ADR-003 and ADR-004 demoted here)
 <!-- clue:index:end -->
