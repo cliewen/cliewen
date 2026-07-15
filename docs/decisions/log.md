@@ -2,13 +2,13 @@
 id: LOG-001
 type: log
 status: active
-links: [ADR-016]
+links: [PDR-003]
 title: Decision log
 ---
 
 # Decision log
 
-Decisions that are cheap and local to reverse, one row each — newest first. The litmus test and demotion/promotion mechanics are [ADR-016](ADR-016-decision-log.md); decisions that constrain future changes are full ADRs in this folder. Rows are never deleted; a reversed decision gets a new row, and a row that turns out to constrain future changes is promoted to an ADR citing this table. Full text of demoted ADRs lives in git history.
+Decisions that are cheap and local to reverse, one row each — newest first. The litmus test and demotion/promotion mechanics are [PDR-003](PDR-003-decision-log.md); decisions that constrain future changes are full records in this folder — ADRs for architecture, PDRs for project/process ([PDR-006](PDR-006-decision-records-are-typed.md)). Rows are never deleted; a reversed decision gets a new row, and a row that turns out to constrain future changes is promoted to a full record citing this table. Full text of demoted records lives in git history.
 
 | Date | Decision | Why | Change/PR |
 |---|---|---|---|

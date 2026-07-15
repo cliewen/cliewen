@@ -1,5 +1,5 @@
 ---
-id: ADR-016
+id: PDR-003
 type: decision
 status: verified
 links: [ADR-010]
@@ -8,7 +8,9 @@ author: agent
 accepted-by: Flemming N. Larsen (2026-07-14, PR #9)
 ---
 
-# ADR-016 — ADRs for the expensive-to-reverse; a decision log for the rest
+# PDR-003 — ADRs for the expensive-to-reverse; a decision log for the rest
+
+> **Superseded by [PDR-006](PDR-006-decision-records-are-typed.md):** the expensive-to-reverse tier is split by subject — ADRs record architecture only; project/process decisions are PDRs. The litmus test and the log mechanics below survive unchanged.
 
 ## Context and problem statement
 
@@ -32,4 +34,4 @@ Uniformity reads as rigor but costs signal: the folder stops answering "what mus
 
 ### Rejected: a log outside the corpus (wiki, issue labels, PR descriptions)
 
-Decisions scattered across venues are decisions lost; PR descriptions are already the light tier's proposal ([ADR-015](ADR-015-light-change-tier.md)) and do not aggregate. One linted file in the decisions folder keeps the register greppable, versioned, and inside the system-of-record.
+Decisions scattered across venues are decisions lost; PR descriptions are already the light tier's proposal ([PDR-002](PDR-002-light-change-tier.md)) and do not aggregate. One linted file in the decisions folder keeps the register greppable, versioned, and inside the system-of-record.

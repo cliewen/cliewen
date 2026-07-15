@@ -1,14 +1,14 @@
 ---
-id: ADR-015
+id: PDR-002
 type: decision
 status: verified
-links: [ADR-016]
+links: [PDR-003]
 title: A light change tier — the PR description is the proposal
 author: agent
 accepted-by: Flemming N. Larsen (2026-07-14, PR #9)
 ---
 
-# ADR-015 — A light change tier: the PR description is the proposal
+# PDR-002 — A light change tier: the PR description is the proposal
 
 ## Context and problem statement
 
@@ -18,7 +18,7 @@ The change loop requires a `/changes/CH-xxx-slug/` workspace — proposal, tasks
 
 **Two tiers. A change qualifies as *light* when ALL of these hold; otherwise it is a full change:**
 
-- no new decision is needed (no ADR, no decision-log entry — [ADR-016](ADR-016-decision-log.md));
+- no new decision is needed (no ADR, no PDR, no decision-log entry — [PDR-003](PDR-003-decision-log.md));
 - no acceptance criterion or capability meaning is added, changed, or retired;
 - no semantic plan mutation (milestone-status bookkeeping is fine);
 - no methodology carrier is touched (skills, AGENTS.md rules, lint rules).
