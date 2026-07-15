@@ -2,7 +2,7 @@
 
 All notable, user-visible changes to `clue` and the Cliewen skills. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and versions follow semver. Each GitHub release body is this file's matching version section, extracted verbatim by the release workflow — a release with no section here fails.
 
-## [Unreleased]
+## [0.2.0] - 2026-07-15
 
 ### Added
 
@@ -16,6 +16,10 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 - **Merge binds, approval signs**: merging a PR makes the decision records (ADRs and PDRs) it introduces binding — in force immediately, no approval ritual blocks shipping. A decision is marked `verified` only when a human explicitly approves it; each approver signs `accepted-by`, approvals accumulate, and the acceptance date is the first approval. The `inferred` count now honestly means "in force but unapproved". The `clue-delta` and `clue-verify` skills carry the rule.
 - Release pages are now published from this changelog: each GitHub release body is the matching version section of `CHANGELOG.md`, written for users — no more auto-generated PR lists.
 - The agent skills are repo-agnostic: repo-local conventions live in your AGENTS.md, which extends the methodology but never overrides it — a conflict between the two is surfaced as an open question. The OpenSpec extraction mapping moved from `clue-extract`'s skill text to `mappings/openspec.md` under the same skill, and the skills no longer cite cliewen's internal document IDs — every rule is stated in full where you read it.
+
+### Install
+
+`go install github.com/cliewen/cliewen/cmd/clue@v0.2.0`, or download a prebuilt binary for your platform from the release assets (checksums in `SHA256SUMS`). While the repo is private, `go install` needs `GOPRIVATE=github.com/cliewen` and git authentication for github.com; `gh release download` authenticates through `gh auth login`. Update the vendored skills to this release's `.agents/skills/` — the binary fails validation against 0.1.0 skills (drift check).
 
 ## [0.1.0] - 2026-07-13
 
