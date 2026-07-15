@@ -28,6 +28,6 @@ ADRs and PDRs share the MADR format and two-tier provenance: `inferred` (binding
 - [PDR-003 — Records for the expensive-to-reverse; a decision log for the rest](PDR-003-decision-log.md) · `verified` · superseded by PDR-006
 - [PDR-004 — Merge makes a decision binding; approval verifies it](PDR-004-merge-binds-approval-signs.md) · `verified`
 - [PDR-005 — Validation requires foreign soil: trials on external repos, as findings not adoptions](PDR-005-foreign-soil-trials.md) · `verified`
-- [PDR-006 — Decision records are typed: ADRs for architecture, PDRs for project/process](PDR-006-decision-records-are-typed.md) · `inferred`
+- [PDR-006 — Decision records are typed: ADRs for architecture, PDRs for project/process](PDR-006-decision-records-are-typed.md) · `verified`
 - [Decision log](log.md) — dated rows for the cheap-to-reverse (ADR-003 and ADR-004 demoted here)
 <!-- clue:index:end -->

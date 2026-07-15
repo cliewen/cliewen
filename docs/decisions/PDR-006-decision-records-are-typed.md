@@ -1,11 +1,11 @@
 ---
 id: PDR-006
 type: decision
-status: inferred
+status: verified
 links: [PDR-003, ADR-010]
 title: Decision records are typed — ADRs for architecture, PDRs for project/process, log rows for the cheap
 author: agent
-accepted-by: —
+accepted-by: Flemming N. Larsen (2026-07-15, PR #13 approval)
 ---
 
 # PDR-006 — Decision records are typed
