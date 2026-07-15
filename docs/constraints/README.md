@@ -17,4 +17,5 @@ This index is the register table:
 - [C-008 — Completed plans are immutable](C-008-completed-plans-immutable.md) · `agent`
 - [C-009 — Type-specific frontmatter fields are present](C-009-type-specific-frontmatter.md) · `agent`
 - [C-010 — Milestone status values follow one vocabulary](C-010-milestone-status-vocabulary.md) · `agent`
+- [C-011 — Decision records are routed by type: ADR, PDR, or log row](C-011-decision-records-typed.md) · `agent`
 <!-- clue:index:end -->

@@ -1,5 +1,5 @@
 ---
-id: ADR-014
+id: PDR-001
 type: decision
 status: verified
 links: [ADR-010, ADR-011, ADR-012]
@@ -8,9 +8,9 @@ author: agent
 accepted-by: Flemming N. Larsen (2026-07-13, PR #8)
 ---
 
-# ADR-014 — PR approval promotes the PR's ADRs
+# PDR-001 — PR approval promotes the PR's ADRs
 
-> **Superseded by [ADR-018](ADR-018-merge-binds-approval-signs.md):** acceptance split into two facts — the merge makes a decision binding, and only explicit approval signatures make it `verified`. The clerical mechanics below (the agent performs the flip, citing a human event) survive unchanged.
+> **Superseded by [PDR-004](PDR-004-merge-binds-approval-signs.md):** acceptance split into two facts — the merge makes a decision binding, and only explicit approval signatures make it `verified`. The clerical mechanics below (the agent performs the flip, citing a human event) survive unchanged.
 
 ## Context and problem statement
 

@@ -1,18 +1,18 @@
 ---
-id: ADR-018
+id: PDR-004
 type: decision
 status: verified
-links: [ADR-014, ADR-010]
+links: [PDR-001, ADR-010]
 title: Merge makes a decision binding; approval verifies it — approvers sign, first signature dates it
 author: agent
 accepted-by: Flemming N. Larsen (2026-07-14, PR #11 review)
 ---
 
-# ADR-018 — Merge binds, approval signs
+# PDR-004 — Merge binds, approval signs
 
 ## Context and problem statement
 
-[ADR-014](ADR-014-pr-approval-promotes-adrs.md) made PR approval the acceptance event for the ADRs a PR introduces, and the merge was read as implying that approval. But merging and approving are different judgments: a merge says "ship it", a signature says "I stand behind this decision" — and in real teams the explicit per-decision approval is exactly the act that rarely happens, even for human-authored ADRs. Conflating the two either blocks merges on a ritual nobody performs, or silently inflates `verified` until it means "was in a merged PR". The methodology must also be team-first: a solo project can become a team without changing its rules.
+[PDR-001](PDR-001-pr-approval-promotes-adrs.md) made PR approval the acceptance event for the decision records a PR introduces, and the merge was read as implying that approval. But merging and approving are different judgments: a merge says "ship it", a signature says "I stand behind this decision" — and in real teams the explicit per-decision approval is exactly the act that rarely happens, even for human-authored records. Conflating the two either blocks merges on a ritual nobody performs, or silently inflates `verified` until it means "was in a merged PR". The methodology must also be team-first: a solo project can become a team without changing its rules.
 
 ## Decision outcome
 
@@ -30,7 +30,7 @@ accepted-by: Flemming N. Larsen (2026-07-14, PR #11 review)
 
 Destroys what `verified` exists to mean: a human actually read and endorsed this decision. Under auto-flip the corpus lies about how much human judgment it contains — the exact silent decay the two-tier status ([ADR-010](ADR-010-provenance-field.md)) was built to make visible.
 
-### Rejected: requiring explicit approval before merge (ADR-014's trigger, enforced)
+### Rejected: requiring explicit approval before merge (PDR-001's trigger, enforced)
 
 Blocks shipping on the act teams demonstrably skip; decisions would either rot unmerged or the ritual would degrade into rubber-stamping. Binding-on-merge keeps work flowing while the unapproved backlog stays visible instead of fictional.
 

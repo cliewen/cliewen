@@ -1,14 +1,14 @@
 ---
-id: ADR-019
+id: PDR-005
 type: decision
-status: inferred
+status: verified
 links: [P-002]
 title: Validation requires foreign soil — trials on external repos, as findings not adoptions
 author: agent
-accepted-by: —
+accepted-by: Flemming N. Larsen (2026-07-15, PR #12 approval)
 ---
 
-# ADR-019 — Validation requires foreign soil
+# PDR-005 — Validation requires foreign soil
 
 ## Context and problem statement
 

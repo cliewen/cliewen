@@ -26,8 +26,8 @@ This table mirrors the `statusVocab` map in `internal/corpus/rules.go` — the c
 | goal | `proposed` → `accepted` → `retired` (proposed goals ARE the inbox, see ADR-002) |
 | plan | `draft` → `active` → `completed` (completed ⇒ immutable) |
 | capability, criteria, design | `draft` → `active` → `retired` |
-| decision | `inferred` → `verified` (human acceptance promotes; rejected ADRs stay `verified`) |
-| log | `active` (the decision log — one register, rows are its lifecycle, see ADR-016) |
+| decision | `inferred` → `verified` (human acceptance promotes; rejected records stay `verified`) |
+| log | `active` (the decision log — one register, rows are its lifecycle, see PDR-003) |
 | constraint | `active` → `retired` |
 | quality | `draft` → `active` → `retired` |
 | analysis | `verified` (findings are historical records) |
@@ -42,7 +42,7 @@ This table mirrors the `statusVocab` map in `internal/corpus/rules.go` — the c
 - [plans/](plans/README.md) — P-xxx: campaign layer; flat, status in frontmatter
 - [capabilities/](capabilities/README.md) — CAP-xxx: one folder per capability (README / criteria / design)
 - [architecture/](architecture/README.md) — system scope: the whole, the expensive-to-change
-- [decisions/](decisions/README.md) — ADR-xxx: MADR + provenance, including rejected ADRs
+- [decisions/](decisions/README.md) — ADR-xxx (architecture) and PDR-xxx (project/process): MADR + provenance, including rejected records
 - [constraints/](constraints/README.md) — C-xxx: laws, licenses, policies you must not break
 - [quality/](quality/README.md) — QS-xxx: quality scenarios (verifiable NFRs)
 - [analysis/](analysis/README.md) — spike findings, extraction reports
