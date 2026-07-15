@@ -16,5 +16,5 @@ title: CH-014 task breakdown
 - [x] Update cross-references: AGENTS.md, docs/README.md status table, P-002 (M-007 link + mutation rule), CAP-002 design if it cites a moved ID (it doesn't — only ADR-005/006/007/017, all staying); log.md and C-006 updated too
 - [x] Update skill wording: clue-delta, clue-verify, clue-plan, clue-analysis
 - [x] CHANGELOG entry under [Unreleased]
-- [ ] Digest: delete /changes/CH-014-decision-record-taxonomy/
-- [ ] Verify: clue validate green (--forbid-changes at digest), go test ./... green, no stale ADR-01[4-9] references, clue-verify checklist walked
+- [x] Digest: delete /changes/CH-014-decision-record-taxonomy/ (this commit)
+- [x] Verify: clue validate green (--forbid-changes at digest), go test ./... green, no stale ADR-01[4-9] references (remaining hits are ADR-017 which stays, and AN-001's citation of a foreign repo's ADR), clue-verify checklist walked
