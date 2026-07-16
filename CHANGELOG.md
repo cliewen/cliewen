@@ -2,6 +2,13 @@
 
 All notable, user-visible changes to `clue` and the Cliewen skills. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and versions follow semver. Each GitHub release body is this file's matching version section, extracted verbatim by the release workflow — a release with no section here fails.
 
+## [Unreleased]
+
+### Changed
+
+- **The review boundary is now explicit in the change loop.** The skills previously described the PR and merge without defending them, and an autonomous agent could satisfy the letter of the loop while bypassing review entirely — stacking changes on unmerged work, fabricating local merge commits, and pushing straight to `main`. The `clue-delta` skill now states the rules as prohibitions: every change branches from the current tip of `main` (never from unaccepted work), each author takes one change to its PR before starting the next, review fixes stay on the reviewed branch, and the agent never merges its own PR, never creates a merge commit into `main`, and never pushes to `main` — after opening the PR it stops and waits for the human. `clue-verify` gains matching checklist items, including a rebase-and-recheck step when a parallel change merges first. Team parallelism is untouched: any number of changes may be in flight, each rooted at `main` with its own PR.
+- **The digest is never a task in `tasks.md`.** The digest precondition (every task `[x]` or `[-]`-with-reason before the workspace is deleted) applies to the work; a self-referential "digest the change" task could only be ticked falsely or left violating the precondition, so `clue-delta` now forbids it.
+
 ## [0.2.0] - 2026-07-15
 
 ### Added
