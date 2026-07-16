@@ -2,7 +2,7 @@
 id: CH-017
 type: change
 status: open
-links: []
+links: [PDR-007, C-012]
 title: Review-boundary rules — branch from main, one change in flight per author, humans merge
 ---
 
@@ -10,7 +10,7 @@ title: Review-boundary rules — branch from main, one change in flight per auth
 
 ## What
 
-Tighten `clue-delta` and `clue-verify` so the PR review boundary cannot be reinterpreted away: every change branches from the current tip of `main`, each author has one change in flight at a time, agents never merge their own PRs or push to `main`, review fixes stay on the reviewed branch, and stacking on unmerged work is an explicit human decision. Record the decision as a new PDR, register it as a new constraint, and surface the rule in AGENTS.md. The records this change creates will be linked from this proposal's frontmatter once they exist.
+Tighten `clue-delta` and `clue-verify` so the PR review boundary cannot be reinterpreted away: every change branches from the current tip of `main`, each author has one change in flight at a time, agents never merge their own PRs or push to `main`, review fixes stay on the reviewed branch, and stacking on unmerged work is an explicit human decision. Record the decision as PDR-007, register it as constraint C-012, and surface the rule in AGENTS.md (linked from this proposal's frontmatter now that they exist).
 
 ## Why
 
