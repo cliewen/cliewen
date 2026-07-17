@@ -1,0 +1,41 @@
+# The corpus wall: the same clue that judges the corpus locally judges
+# every PR and every push to main. Job name `validate` is the required
+# status check once branch protection is enabled.
+#
+# This workflow expects a clue release binary vendored under
+# .github/tools/ together with the release's SHA256SUMS file:
+#
+#   gh release download v__CLUE_VERSION__ --repo cliewen/cliewen \
+#     --pattern 'clue-__CLUE_VERSION__-linux-amd64' --pattern 'SHA256SUMS' \
+#     --dir .github/tools
+#
+# The checksum is verified before every run, so CI never executes an
+# unverified binary. When the clue repo is public and reachable from CI,
+# you can replace the vendoring with a direct `gh release download` step.
+name: clue
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  validate:
+    name: validate
+    runs-on: ubuntu-latest
+    env:
+      CLUE_VERSION: __CLUE_VERSION__
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify and install vendored clue ${{ env.CLUE_VERSION }}
+        run: |
+          cd .github/tools
+          sha256sum -c --ignore-missing SHA256SUMS
+          install -m 0755 "clue-${CLUE_VERSION}-linux-amd64" /usr/local/bin/clue
+          clue version
+
+      # --forbid-changes is the digest-before-merge gate: main (and any
+      # PR at merge time) must not contain the transient /changes tree.
+      - name: clue validate
+        run: clue validate --forbid-changes

@@ -2,6 +2,13 @@
 
 All notable, user-visible changes to `clue` and the Cliewen skills. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and versions follow semver. Each GitHub release body is this file's matching version section, extracted verbatim by the release workflow — a release with no section here fails.
 
+## [Unreleased]
+
+### Added
+
+- **`clue init` — the whole convention in one command.** Run it in a new or existing repository and it materializes the `docs/` corpus (folder READMEs that explain, in plain language, what each record type is and when a change updates it), an `AGENTS.md` routing hub, the five agent skills (`.agents/skills/` plus a `.claude/skills/` mirror for Claude Code), and a CI workflow template that runs `clue validate`. The scaffolding is embedded in the binary — no network or checkout needed — and `clue validate` is green on the result immediately. `init` is idempotent: re-running regenerates README index blocks from folder contents and touches nothing else, and it never overwrites an existing file (skips are reported), so your own `AGENTS.md` or READMEs survive.
+- **Quickstart.** The README now takes a new user from install through `clue init` to their first change loop and green validate on one page — prerequisites stated up front, skills linked at the moment the first loop needs them.
+
 ## [0.3.0] - 2026-07-17
 
 ### Changed

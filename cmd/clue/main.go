@@ -1,6 +1,6 @@
 // clue is the deterministic judge for a Cliewen corpus: stateless, no
 // AI, no orchestration (Foundation §13). Commands are added only when a
-// linter rule or skill needs them.
+// linter rule, a skill, or an onboarding criterion needs them.
 package main
 
 import (
@@ -45,10 +45,18 @@ func releaseFromModuleVersion(v string) string {
 const usage = `clue — a verifiable thread from goal to test
 
 Usage:
+  clue init [path]
   clue validate [--forbid-changes] [path]
   clue version
 
 Commands:
+  init       Materialize the Cliewen convention under path (default "."):
+             the docs/ taxonomy, AGENTS.md routing hub, agent skills
+             (.agents/skills + .claude/skills mirror), and a CI workflow
+             template. Idempotent: existing files are never overwritten
+             (they are reported and skipped); README index blocks between
+             the clue:index markers are regenerated.
+
   validate   Scan docs/ and changes/ under path (default ".") and check
              the frontmatter graph: core fields, unique IDs, link
              resolution, status vocabularies, folder READMEs, index
@@ -75,6 +83,8 @@ func main() {
 		os.Exit(2)
 	}
 	switch os.Args[1] {
+	case "init":
+		os.Exit(runInit(os.Args[2:], os.Stdout))
 	case "validate":
 		os.Exit(runValidate(os.Args[2:]))
 	case "version", "--version":
