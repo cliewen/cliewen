@@ -21,9 +21,10 @@ ADRs and PDRs share the MADR format and two-tier provenance: `inferred` (binding
 - [ADR-010 — Extracted artifacts carry a provenance field, born inferred](ADR-010-provenance-field.md) · `verified`
 - [ADR-011 — clue and the skills are versioned: tag-stamped binary, per-skill markers, drift is a failure](ADR-011-version-stamping.md) · `verified`
 - [ADR-012 — Release notes are user-facing and come from CHANGELOG.md: extracted verbatim, missing section fails the release](ADR-012-release-notes-from-changelog.md) · `verified`
-- [ADR-013 — What ships to adopters is generic; AGENTS.md is the repo-local layer](ADR-013-ships-generic-vs-repo-local.md) · `verified`
+- [ADR-013 — What ships to adopters is generic; AGENTS.md is the repo-local layer](ADR-013-ships-generic-vs-repo-local.md) · `verified` · index-block clause superseded by ADR-019
 - [ADR-017 — Prose conventions register as constraint artifacts with enforcement classes](ADR-017-conventions-are-constraints.md) · `verified`
 - [ADR-018 — The init scaffolding is embedded in the clue binary](ADR-018-init-templates-embedded.md) · `inferred`
+- [ADR-019 — Index regeneration runs in clue init; ADR-013's emits-empty clause is superseded](ADR-019-init-regenerates-indexes.md) · `inferred`
 - [PDR-001 — PR approval is decision acceptance; the agent performs the clerical promotion](PDR-001-pr-approval-promotes-adrs.md) · `verified` · superseded by PDR-004
 - [PDR-002 — A light change tier: the PR description is the proposal](PDR-002-light-change-tier.md) · `verified`
 - [PDR-003 — Records for the expensive-to-reverse; a decision log for the rest](PDR-003-decision-log.md) · `verified` · superseded by PDR-006

@@ -366,6 +366,62 @@ func TestUnit_MissingFolderReadmeIsReportedNotInvented(t *testing.T) {
 	}
 }
 
+// Unit: a CRLF checkout keeps its line endings — prose outside the
+// markers is byte-for-byte untouched and generated index lines adopt
+// the file's own style (the AC-024 prose promise on Windows).
+func TestUnit_CrlfReadmeKeepsItsLineEndings(t *testing.T) {
+	root, _ := runInto(t)
+	readme := filepath.Join(root, "docs", "goals", "README.md")
+	proseCRLF := "# Goals\r\n\r\nProse that must stay CRLF.\r\n\r\n"
+	crlf := proseCRLF + indexStart + "\r\n" + indexEnd + "\r\n"
+	if err := os.WriteFile(readme, []byte(crlf), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	artifact := "---\nid: G-001\ntype: goal\nstatus: proposed\nlinks: []\ntitle: First goal\n---\n"
+	if err := os.WriteFile(filepath.Join(root, "docs", "goals", "G-001-first.md"), []byte(artifact), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := Run(root); err != nil {
+		t.Fatal(err)
+	}
+	got, err := os.ReadFile(readme)
+	if err != nil {
+		t.Fatal(err)
+	}
+	text := string(got)
+	if !strings.HasPrefix(text, proseCRLF) {
+		t.Fatalf("CRLF prose outside the markers was rewritten:\n%q", text)
+	}
+	if !strings.Contains(text, "](G-001-first.md)\r\n") {
+		t.Fatalf("generated index line does not use the file's CRLF endings:\n%q", text)
+	}
+}
+
+// Unit: missing READMEs are found at every depth, the same recursive
+// reading validate applies — not just at taxonomy level.
+func TestUnit_MissingReadmeIsReportedRecursively(t *testing.T) {
+	root := t.TempDir()
+	if err := os.MkdirAll(filepath.Join(root, "docs", "notes", "sub"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(root, "docs", "notes", "sub", "note.md"), []byte("# A note\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	rep, err := Run(root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	missing := map[string]bool{}
+	for _, p := range rep.MissingReadmes {
+		missing[p] = true
+	}
+	for _, want := range []string{"docs/notes/README.md", "docs/notes/sub/README.md"} {
+		if !missing[want] {
+			t.Fatalf("%s not reported missing: %v", want, rep.MissingReadmes)
+		}
+	}
+}
+
 func snapshot(t *testing.T, root string) map[string]string {
 	t.Helper()
 	files := map[string]string{}

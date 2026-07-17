@@ -150,6 +150,22 @@ func regenIndexes(root string, rep *Report) error {
 	if err != nil {
 		return nil // no docs tree: nothing to index
 	}
+	// Validate requires a README.md in every folder under docs,
+	// recursively. Init does not invent the missing ones, but the report
+	// names every gap so the first validate is not red without warning.
+	_ = filepath.WalkDir(docs, func(p string, d fs.DirEntry, werr error) error {
+		if werr != nil || !d.IsDir() {
+			return nil
+		}
+		if _, serr := os.Stat(filepath.Join(p, "README.md")); serr != nil {
+			if relDir, rerr := filepath.Rel(root, p); rerr == nil {
+				rep.MissingReadmes = append(rep.MissingReadmes, path.Join(filepath.ToSlash(relDir), "README.md"))
+			}
+		}
+		return nil
+	})
+	// Regeneration runs only at taxonomy depth — the same set of READMEs
+	// checkIndexes judges (docs/README.md and docs/<folder>/README.md).
 	readmes := []string{"docs/README.md"}
 	for _, e := range entries {
 		if e.IsDir() {
@@ -158,11 +174,7 @@ func regenIndexes(root string, rep *Report) error {
 	}
 	for _, rel := range readmes {
 		if _, err := os.Stat(filepath.Join(root, filepath.FromSlash(rel))); err != nil {
-			// A pre-existing folder without the README validate requires:
-			// init does not invent one, but the report names the gap so
-			// the first validate is not red without warning.
-			rep.MissingReadmes = append(rep.MissingReadmes, rel)
-			continue
+			continue // already reported by the walk above
 		}
 		changed, err := regenIndex(root, rel)
 		if err != nil {
@@ -181,8 +193,15 @@ func regenIndex(root, rel string) (bool, error) {
 	if err != nil {
 		return false, nil // folder without README: validate reports it, init does not invent one
 	}
-	orig := strings.ReplaceAll(string(raw), "\r\n", "\n")
+	// The file's own line endings are preserved: prose outside the
+	// markers is never rewritten, and generated lines adopt the file's
+	// style (CRLF checkouts stay CRLF).
+	orig := string(raw)
 	text := orig
+	eol := "\n"
+	if strings.Contains(orig, "\r\n") {
+		eol = "\r\n"
+	}
 	start := strings.Index(text, indexStart)
 	end := strings.Index(text, indexEnd)
 	switch {
@@ -192,9 +211,9 @@ func regenIndex(root, rel string) (bool, error) {
 		// contract in existing repos. Append an empty block — prose stays
 		// untouched, the generated entries land between the markers below.
 		if !strings.HasSuffix(text, "\n") {
-			text += "\n"
+			text += eol
 		}
-		text += "\n" + indexStart + "\n" + indexEnd + "\n"
+		text += eol + indexStart + eol + indexEnd + eol
 		start = strings.Index(text, indexStart)
 		end = strings.Index(text, indexEnd)
 	case start < 0 || end < 0 || end < start:
@@ -214,6 +233,7 @@ func regenIndex(root, rel string) (bool, error) {
 	var lines []string
 	covered := map[string]bool{}
 	for _, line := range strings.Split(text[start+len(indexStart):end], "\n") {
+		line = strings.TrimSuffix(line, "\r")
 		if strings.TrimSpace(line) == "" {
 			continue
 		}
@@ -242,9 +262,9 @@ func regenIndex(root, rel string) (bool, error) {
 		lines = append(lines, "- ["+label+"]("+t+")")
 	}
 
-	block := indexStart + "\n"
+	block := indexStart + eol
 	if len(lines) > 0 {
-		block += strings.Join(lines, "\n") + "\n"
+		block += strings.Join(lines, eol) + eol
 	}
 	next := text[:start] + block + text[end:]
 	if next == orig {
