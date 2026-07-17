@@ -276,15 +276,27 @@ func regenIndex(root, rel string) (bool, error) {
 		if strings.TrimSpace(line) == "" {
 			continue
 		}
-		m := indexLinkRe.FindStringSubmatch(line)
-		if m == nil {
+		// Every link on the line counts, exactly as the validator reads
+		// the block — a curated line may cover several entries at once.
+		var covers []string
+		for _, m := range indexLinkRe.FindAllStringSubmatch(line, -1) {
+			if w := coverTarget(path.Clean(m[1])); w != "" {
+				covers = append(covers, w)
+			}
+		}
+		keep := false
+		for _, w := range covers {
+			if !covered[w] {
+				keep = true
+			}
+		}
+		if !keep {
 			continue
 		}
-		w := coverTarget(path.Clean(m[1]))
-		if w != "" && !covered[w] {
+		for _, w := range covers {
 			covered[w] = true
-			lines = append(lines, line)
 		}
+		lines = append(lines, line)
 	}
 	var missing []string
 	for t := range wanted {

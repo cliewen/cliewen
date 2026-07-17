@@ -111,6 +111,47 @@ func TestAC026_CuratedDescendantEntrySurvives(t *testing.T) {
 	}
 }
 
+// AC-026: a curated line carrying several links covers every target it
+// names — no generated duplicate for the later links, and a line whose
+// first link is informational survives on the strength of its second.
+func TestAC026_MultiLinkCuratedLineCoversAllTargets(t *testing.T) {
+	root, _ := runInto(t)
+	for _, a := range []struct{ file, id string }{
+		{"G-001-first.md", "G-001"},
+		{"G-002-second.md", "G-002"},
+	} {
+		content := "---\nid: " + a.id + "\ntype: goal\nstatus: proposed\nlinks: []\ntitle: A goal\n---\n"
+		if err := os.WriteFile(filepath.Join(root, "docs", "goals", a.file), []byte(content), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+	readme := filepath.Join(root, "docs", "goals", "README.md")
+	curated := "- [overview](../README.md): [first](G-001-first.md) and [second](G-002-second.md)"
+	prose := "# Goals\n\n<!-- clue:index:start -->\n" + curated + "\n<!-- clue:index:end -->\n"
+	if err := os.WriteFile(readme, []byte(prose), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := Regen(root); err != nil {
+		t.Fatal(err)
+	}
+	got, err := os.ReadFile(readme)
+	if err != nil {
+		t.Fatal(err)
+	}
+	text := string(got)
+	if !strings.Contains(text, curated) {
+		t.Fatalf("multi-link curated line was replaced:\n%s", text)
+	}
+	for _, target := range []string{"](G-001-first.md)", "](G-002-second.md)"} {
+		if strings.Count(text, target) != 1 {
+			t.Fatalf("generated duplicate for already-covered %s:\n%s", target, text)
+		}
+	}
+	if issues := validateAt(t, root); len(issues) > 0 {
+		t.Fatalf("expected green with the curated line, got: %v", issues)
+	}
+}
+
 // AC-027: Regen touches only the taxonomy READMEs checkIndexes judges —
 // docs/README.md and docs/<folder>/README.md; nothing is created, and a
 // nested README stays byte-identical.
