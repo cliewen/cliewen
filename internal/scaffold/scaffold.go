@@ -96,7 +96,7 @@ func Run(root string) (*Report, error) {
 // the command's entire purpose cannot apply, and clue init is the tool
 // that materializes one.
 func Regen(root string) (*Report, error) {
-	if _, err := os.Stat(filepath.Join(root, "docs")); err != nil {
+	if info, err := os.Stat(filepath.Join(root, "docs")); err != nil || !info.IsDir() {
 		return nil, fmt.Errorf("no docs tree under %q — nothing to regenerate (`clue init` materializes one)", root)
 	}
 	rep := &Report{}
@@ -166,7 +166,10 @@ func regenIndexes(root string, rep *Report) error {
 	docs := filepath.Join(root, "docs")
 	entries, err := os.ReadDir(docs)
 	if err != nil {
-		return nil // no docs tree: nothing to index
+		if os.IsNotExist(err) {
+			return nil // no docs tree: nothing to index
+		}
+		return err // a docs that is not a readable directory is a real failure
 	}
 	// Validate requires a README.md in every folder under docs,
 	// recursively. Init does not invent the missing ones, but the report
@@ -247,7 +250,25 @@ func regenIndex(root, rel string) (bool, error) {
 		return false, err
 	}
 
-	// Keep existing lines that still point at a wanted target, in order.
+	// Keep existing lines that still cover a wanted entry, in order. A
+	// line covers an entry the same way checkIndexes reads it: the exact
+	// target, or — for a wanted subfolder README — any live link into
+	// that subfolder, so a curated descendant entry survives here too.
+	coverTarget := func(t string) string {
+		if wanted[t] {
+			return t
+		}
+		for w := range wanted {
+			if !strings.HasSuffix(w, "/README.md") {
+				continue
+			}
+			sub := path.Dir(w)
+			if (t == sub || strings.HasPrefix(t, sub+"/")) && targetExists(root, path.Dir(rel), t) {
+				return w
+			}
+		}
+		return ""
+	}
 	var lines []string
 	covered := map[string]bool{}
 	for _, line := range strings.Split(text[start+len(indexStart):end], "\n") {
@@ -259,9 +280,9 @@ func regenIndex(root, rel string) (bool, error) {
 		if m == nil {
 			continue
 		}
-		t := path.Clean(m[1])
-		if wanted[t] && !covered[t] {
-			covered[t] = true
+		w := coverTarget(path.Clean(m[1]))
+		if w != "" && !covered[w] {
+			covered[w] = true
 			lines = append(lines, line)
 		}
 	}
@@ -309,6 +330,11 @@ func indexTargets(root, dir string) (map[string]bool, error) {
 		}
 	}
 	return wanted, nil
+}
+
+func targetExists(root, dir, t string) bool {
+	_, err := os.Stat(filepath.Join(root, filepath.FromSlash(path.Join(dir, t))))
+	return err == nil
 }
 
 func dirHasMarkdown(dir string) bool {

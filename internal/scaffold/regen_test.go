@@ -71,12 +71,61 @@ func TestAC026_RegenOnUnchangedTreeIsANoOp(t *testing.T) {
 	}
 }
 
-// AC-027: Regen touches only taxonomy README index blocks — no file is
-// created and no non-README file is modified.
+// AC-026: a curated entry linking a live descendant of a subfolder
+// covers that subfolder for the validator — the regenerator keeps it
+// instead of replacing it with the generated README link.
+func TestAC026_CuratedDescendantEntrySurvives(t *testing.T) {
+	root, _ := runInto(t)
+	artifact := "---\nid: G-001\ntype: goal\nstatus: proposed\nlinks: []\ntitle: First goal\n---\n"
+	if err := os.WriteFile(filepath.Join(root, "docs", "goals", "G-001-first.md"), []byte(artifact), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	rootReadme := filepath.Join(root, "docs", "README.md")
+	raw, err := os.ReadFile(rootReadme)
+	if err != nil {
+		t.Fatal(err)
+	}
+	curated := "- [Goals, curated](goals/G-001-first.md)"
+	text := strings.Replace(string(raw), "- [goals/](goals/README.md) — G-xxx: who wants it, why", curated, 1)
+	if !strings.Contains(text, curated) {
+		t.Fatalf("fixture setup failed — generated goals line not found in:\n%s", raw)
+	}
+	if err := os.WriteFile(rootReadme, []byte(text), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := Regen(root); err != nil {
+		t.Fatal(err)
+	}
+	got, err := os.ReadFile(rootReadme)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(string(got), curated) {
+		t.Fatalf("curated descendant entry was replaced:\n%s", got)
+	}
+	if strings.Contains(string(got), "](goals/README.md)") {
+		t.Fatalf("generated entry was appended although the subfolder is covered:\n%s", got)
+	}
+	if issues := validateAt(t, root); len(issues) > 0 {
+		t.Fatalf("expected green with the curated entry, got: %v", issues)
+	}
+}
+
+// AC-027: Regen touches only the taxonomy READMEs checkIndexes judges —
+// docs/README.md and docs/<folder>/README.md; nothing is created, and a
+// nested README stays byte-identical.
 func TestAC027_RegenTouchesOnlyTaxonomyReadmes(t *testing.T) {
 	root, _ := runInto(t)
 	artifact := "---\nid: G-001\ntype: goal\nstatus: proposed\nlinks: []\ntitle: First goal\n---\n"
 	if err := os.WriteFile(filepath.Join(root, "docs", "goals", "G-001-first.md"), []byte(artifact), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	nested := filepath.Join(root, "docs", "goals", "nested")
+	if err := os.MkdirAll(nested, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	nestedReadme := "# Nested\n\nNot a taxonomy README — must stay byte-identical.\n"
+	if err := os.WriteFile(filepath.Join(nested, "README.md"), []byte(nestedReadme), 0o644); err != nil {
 		t.Fatal(err)
 	}
 	before := snapshot(t, root)
@@ -87,10 +136,29 @@ func TestAC027_RegenTouchesOnlyTaxonomyReadmes(t *testing.T) {
 	if len(before) != len(after) {
 		t.Fatalf("regen created or deleted files: %d -> %d", len(before), len(after))
 	}
+	isTaxonomyReadme := func(p string) bool {
+		parts := strings.Split(p, "/")
+		return p == "docs/README.md" || (len(parts) == 3 && parts[0] == "docs" && parts[2] == "README.md")
+	}
 	for p, b := range before {
-		if after[p] != b && !strings.HasSuffix(p, "README.md") {
-			t.Fatalf("non-README file %s was modified", p)
+		if after[p] != b && !isTaxonomyReadme(p) {
+			t.Fatalf("file outside the taxonomy READMEs was modified: %s", p)
 		}
+	}
+	if after["docs/goals/nested/README.md"] != nestedReadme {
+		t.Fatal("nested README was modified")
+	}
+}
+
+// AC-027 negative: a regular file named docs is not a docs tree — Regen
+// errors instead of succeeding with nothing regenerated.
+func TestAC027_DocsAsRegularFileIsAnError(t *testing.T) {
+	root := t.TempDir()
+	if err := os.WriteFile(filepath.Join(root, "docs"), []byte("not a tree"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := Regen(root); err == nil {
+		t.Fatal("expected an error when docs is a regular file, got none")
 	}
 }
 
