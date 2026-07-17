@@ -1,11 +1,11 @@
 ---
 id: ADR-018
 type: decision
-status: inferred
+status: verified
 links: [P-002, CAP-001, ADR-011, ADR-013]
 title: The init scaffolding is embedded in the clue binary
 author: agent
-accepted-by:
+accepted-by: Flemming N. Larsen (2026-07-18, PR #20 review conversation)
 ---
 
 # ADR-018 — Init templates embed in the binary
