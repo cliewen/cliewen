@@ -19,6 +19,8 @@ The change loop. Use for every mutation of `main` — features, fixes, docs, pla
 
    **Agent boundary — these are prohibitions, not process description.** The agent never merges its own PR. The agent never creates a merge commit into `main` locally — a merge commit the agent fabricates carries no review, no approval, no acceptance. The agent never pushes to `main`. After opening the PR the agent **stops and waits**: the human merges, and until that happens the change is not accepted. Fixes arising from review of this change land on **this** branch and PR — a new CH for follow-up work exists only when a human has accepted this change and explicitly scoped the follow-up.
 
+   **After the merge — orient, don't proceed.** The human reporting the merge is acceptance of *this* change, not an instruction to start the next one. Before any new work, the agent tells the human where things stand: if the plan this change served has steps left, it names the next step and describes in plain language what it is about and why it comes next — IDs are pointers into the corpus, never the description itself — and asks the human whether to start it. If the plan has nothing left (or the change was plan-less), it says so and asks the human what to do next. Silently continuing with the next task skips the scoping that only the human can give.
+
 Keep deltas small — git merges text, not meaning; small deltas plus a post-rebase consistency check are the mitigation. When a parallel change merges first, rebase this branch onto the new `main` tip and re-run `clue-verify` before the PR proceeds.
 
 ## Light tier
