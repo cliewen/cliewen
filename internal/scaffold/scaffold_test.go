@@ -236,7 +236,7 @@ func TestAC025_SkipIsPerFileNotPerRun(t *testing.T) {
 	if _, err := Run(root); err != nil {
 		t.Fatal(err)
 	}
-	for _, rel := range []string{"docs/README.md", ".agents/skills/clue-delta/skill.md", ".claude/skills/clue-delta/SKILL.md", ".github/workflows/clue.yml"} {
+	for _, rel := range []string{"docs/README.md", "docs/constraints/C-001-no-hard-wrapped-markdown.md", ".agents/skills/clue-delta/skill.md", ".claude/skills/clue-delta/SKILL.md", ".github/workflows/clue.yml"} {
 		if _, err := os.Stat(filepath.Join(root, filepath.FromSlash(rel))); err != nil {
 			t.Fatalf("%s was not created: %v", rel, err)
 		}
