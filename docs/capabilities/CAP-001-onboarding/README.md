@@ -1,7 +1,7 @@
 ---
 id: CAP-001
 type: capability
-status: draft
+status: active
 links: [G-001]
 title: Onboarding — install to green validate in under 30 minutes
 goal: G-001
@@ -24,6 +24,4 @@ The layered guide, layers kept strictly separate:
 3. **Skills** — learned during use.
 4. **Book** — the why; depth, secondary.
 
-## Status note
-
-`draft` until the linter exists (P-001/M-002): the acceptance criteria in [criteria.md](criteria.md) cannot carry test tags before there is a binary to test.
+`clue init` exists since CH-020; how the command and the guide realize the layers is [design.md](design.md), the mechanical path is held by the tested criteria in [criteria.md](criteria.md), and the 30-minute end-to-end promise is [QS-002](../../quality/QS-002-onboarding-under-30-minutes.md).
