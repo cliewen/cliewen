@@ -23,6 +23,7 @@ Methodology rules that live only in prose — AGENTS.md rules, README convention
 - The backlog is visible, not archival: `clue validate` reports the count of `agent`-enforced constraints on its OK line, the same way it reports born-`inferred` artifacts awaiting verification.
 - The constraints README index is the register table; there is no second inventory.
 - This deliberately opens the "`enforcement:` classes beyond `machine`" door the architecture had listed as out. Shipped skills stay generic (no repo doc-IDs), so constraint pointers live in repo-local prose only — AGENTS.md and folder READMEs.
+- **Scope in scaffolded repos** (clarified by CH-021): the register a repo starts with holds its own conventions plus the methodology conventions no versioned skill carries — rules the versioned skills do carry are never duplicated into it, because the skills are their carrier and their version. `clue init` seeds accordingly.
 
 **Carrier:** the constraint-field lint and the agent-count report in `clue validate` (machine); the register convention in the constraints folder README, which `clue init` will scaffold (default); the pre-PR checklist item that assesses every change against the constraints folder (agent).
 

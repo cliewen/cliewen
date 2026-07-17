@@ -4,6 +4,10 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 
 ## [Unreleased]
 
+### Changed
+
+- **A declared plan revision may ride with its implementing pull request** (`clue-plan`). The default stays a dedicated plan PR, but a semantic plan revision may travel with the change that implements it when four conditions hold: the PR explicitly declares the revision, a correctly typed decision record backs it, the PR calls it out for deliberate human approval, and an explicit objection reverts the revision — the milestone stays open — without blocking the rest of the change.
+
 ### Added
 
 - **`clue init` — the whole convention in one command.** Run it in a new or existing repository and it materializes the `docs/` corpus (folder READMEs that explain, in plain language, what each record type is and when a change updates it), an `AGENTS.md` routing hub, the five agent skills (`.agents/skills/` plus a `.claude/skills/` mirror for Claude Code), and a CI workflow that runs `clue validate` — passing with a visible warning until you vendor the pinned binary it expects (the arming commands are in its comments), so a fresh repo is never red before its first change. The scaffolding is embedded in the binary — no network or checkout needed — and `clue validate` is green on the result immediately. `init` is idempotent: re-running regenerates README index blocks from folder contents and touches nothing else, and it never replaces an existing file (skips are reported) — your own `AGENTS.md` survives, and a taxonomy README of your own just gains an index block.
