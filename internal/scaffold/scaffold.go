@@ -90,6 +90,24 @@ func Run(root string) (*Report, error) {
 	return rep, nil
 }
 
+// Regen regenerates the taxonomy README index blocks under root without
+// materializing anything (CAP-005) — the standalone exposure of the
+// engine Run uses, per ADR-019. A root without a docs tree is an error:
+// the command's entire purpose cannot apply, and clue init is the tool
+// that materializes one.
+func Regen(root string) (*Report, error) {
+	if _, err := os.Stat(filepath.Join(root, "docs")); err != nil {
+		return nil, fmt.Errorf("no docs tree under %q — nothing to regenerate (`clue init` materializes one)", root)
+	}
+	rep := &Report{}
+	if err := regenIndexes(root, rep); err != nil {
+		return nil, err
+	}
+	sort.Strings(rep.Indexed)
+	sort.Strings(rep.MissingReadmes)
+	return rep, nil
+}
+
 // targetsFor maps a template path to the repo paths it materializes as.
 // Skills go to .agents/skills (canonical) and are mirrored to
 // .claude/skills with the Claude Code SKILL.md spelling; the github/

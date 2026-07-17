@@ -15,7 +15,7 @@ Process cannot drive humans, and agents cheat unless mechanically prevented. The
 | Actor | Role | One-liner |
 |---|---|---|
 | **Skills** (`.agents/skills/clue-*`) | Process knowledge | Tell the agent what the next right step is |
-| **CLI (`clue`)** | Deterministic judge | Tells everyone whether it was done right; also materializes the starting point (`clue init`, [ADR-018](../decisions/ADR-018-init-templates-embedded.md)) |
+| **CLI (`clue`)** | Deterministic judge | Tells everyone whether it was done right; also materializes the starting point (`clue init`, [ADR-018](../decisions/ADR-018-init-templates-embedded.md)) and regenerates the index blocks (`clue scaffold`, [ADR-019](../decisions/ADR-019-init-regenerates-indexes.md)) |
 | **CI** | The wall | Refuses to proceed if not (same binary as local) |
 | **Human** | Decision-maker | Settles what machines cannot check: meaning |
 
