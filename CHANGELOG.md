@@ -2,13 +2,17 @@
 
 All notable, user-visible changes to `clue` and the Cliewen skills. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and versions follow semver. Each GitHub release body is this file's matching version section, extracted verbatim by the release workflow — a release with no section here fails.
 
-## [Unreleased]
+## [0.3.0] - 2026-07-17
 
 ### Changed
 
 - **The review boundary is now explicit in the change loop.** The skills previously described the PR and merge without defending them, and an autonomous agent could satisfy the letter of the loop while bypassing review entirely — stacking changes on unmerged work, fabricating local merge commits, and pushing straight to `main`. The `clue-delta` skill now states the rules as prohibitions: every change branches from the current tip of `main` (never from unaccepted work), each author takes one change to its PR before starting the next, review fixes stay on the reviewed branch, and the agent never merges its own PR, never creates a merge commit into `main`, and never pushes to `main` — after opening the PR it stops and waits for the human. `clue-verify` gains matching checklist items, including a rebase-and-recheck step when a parallel change merges first. Team parallelism is untouched: any number of changes may be in flight, each rooted at `main` with its own PR.
 - **A merged PR is acceptance, not a go signal.** When the human reports that a PR was merged, the agent no longer silently continues with the next task. It first says where the plan stands: the next step described in plain language — what it is about, not just document IDs — followed by the question whether to start it. When the plan has nothing left, the agent says so and asks the human what to do next. The `clue-delta` skill carries the rule.
 - **The digest is never a task in `tasks.md`.** The digest precondition (every task `[x]` or `[-]`-with-reason before the workspace is deleted) applies to the work; a self-referential "digest the change" task could only be ticked falsely or left violating the precondition, so `clue-delta` now forbids it.
+
+### Install
+
+`go install github.com/cliewen/cliewen/cmd/clue@v0.3.0`, or download a prebuilt binary for your platform from the release assets (checksums in `SHA256SUMS`). While the repo is private, `go install` needs `GOPRIVATE=github.com/cliewen` and git authentication for github.com; `gh release download` authenticates through `gh auth login`. Update the vendored skills to this release's `.agents/skills/` — the binary fails validation against 0.2.0 skills (drift check). The `clue` binary itself is unchanged from 0.2.0; this release ships the skill changes, and the version bump keeps the binary+skills pair matched.
 
 ## [0.2.0] - 2026-07-15
 
