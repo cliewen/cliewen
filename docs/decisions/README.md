@@ -23,16 +23,16 @@ ADRs and PDRs share the MADR format and two-tier provenance: `inferred` (binding
 - [ADR-012 — Release notes are user-facing and come from CHANGELOG.md: extracted verbatim, missing section fails the release](ADR-012-release-notes-from-changelog.md) · `verified`
 - [ADR-013 — What ships to adopters is generic; AGENTS.md is the repo-local layer](ADR-013-ships-generic-vs-repo-local.md) · `verified` · index-block clause superseded by ADR-019
 - [ADR-017 — Prose conventions register as constraint artifacts with enforcement classes](ADR-017-conventions-are-constraints.md) · `verified`
-- [ADR-018 — The init scaffolding is embedded in the clue binary](ADR-018-init-templates-embedded.md) · `inferred`
-- [ADR-019 — Index regeneration runs in clue init; ADR-013's emits-empty clause is superseded](ADR-019-init-regenerates-indexes.md) · `inferred`
-- [ADR-020 — The scaffolded register seeds only conventions without a versioned carrier](ADR-020-scaffolded-register-scope.md) · `inferred`
+- [ADR-018 — The init scaffolding is embedded in the clue binary](ADR-018-init-templates-embedded.md) · `verified`
+- [ADR-019 — Index regeneration runs in clue init; ADR-013's emits-empty clause is superseded](ADR-019-init-regenerates-indexes.md) · `verified`
+- [ADR-020 — The scaffolded register seeds only conventions without a versioned carrier](ADR-020-scaffolded-register-scope.md) · `verified`
 - [PDR-001 — PR approval is decision acceptance; the agent performs the clerical promotion](PDR-001-pr-approval-promotes-adrs.md) · `verified` · superseded by PDR-004
 - [PDR-002 — A light change tier: the PR description is the proposal](PDR-002-light-change-tier.md) · `verified`
 - [PDR-003 — Records for the expensive-to-reverse; a decision log for the rest](PDR-003-decision-log.md) · `verified` · superseded by PDR-006
 - [PDR-004 — Merge makes a decision binding; approval verifies it](PDR-004-merge-binds-approval-signs.md) · `verified`
 - [PDR-005 — Validation requires foreign soil: trials on external repos, as findings not adoptions](PDR-005-foreign-soil-trials.md) · `verified`
 - [PDR-006 — Decision records are typed: ADRs for architecture, PDRs for project/process](PDR-006-decision-records-are-typed.md) · `verified`
-- [PDR-007 — The review boundary is real: changes root at main, one in flight per author, humans merge](PDR-007-review-boundary.md) · `inferred`
-- [PDR-008 — A declared plan revision may ride with its implementing change](PDR-008-plan-revisions-may-ride.md) · `inferred`
+- [PDR-007 — The review boundary is real: changes root at main, one in flight per author, humans merge](PDR-007-review-boundary.md) · `verified`
+- [PDR-008 — A declared plan revision may ride with its implementing change](PDR-008-plan-revisions-may-ride.md) · `verified`
 - [Decision log](log.md) — dated rows for the cheap-to-reverse (ADR-003 and ADR-004 demoted here)
 <!-- clue:index:end -->

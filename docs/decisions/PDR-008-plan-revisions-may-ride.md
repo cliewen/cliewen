@@ -1,11 +1,11 @@
 ---
 id: PDR-008
 type: decision
-status: inferred
+status: verified
 links: [P-002, PDR-004, PDR-007]
 title: A declared plan revision may ride with its implementing change
 author: agent
-accepted-by:
+accepted-by: Flemming N. Larsen (2026-07-18, PR #20 review conversation)
 ---
 
 # PDR-008 — A declared plan revision may ride with its implementing change

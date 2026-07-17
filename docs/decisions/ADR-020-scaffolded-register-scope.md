@@ -1,11 +1,11 @@
 ---
 id: ADR-020
 type: decision
-status: inferred
+status: verified
 links: [ADR-013, ADR-017, CAP-001]
 title: The scaffolded register seeds only conventions without a versioned carrier
 author: agent
-accepted-by:
+accepted-by: Flemming N. Larsen (2026-07-18, PR #20 review conversation)
 ---
 
 # ADR-020 — Scope of the scaffolded constraint register

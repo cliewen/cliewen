@@ -1,11 +1,11 @@
 ---
 id: PDR-007
 type: decision
-status: inferred
+status: verified
 links: [PDR-004, C-012]
 title: The review boundary is real — changes root at main, one in flight per author, humans merge
 author: agent
-accepted-by:
+accepted-by: Flemming N. Larsen (2026-07-18, PR #20 review conversation)
 ---
 
 # PDR-007 — The review boundary is real
