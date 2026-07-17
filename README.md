@@ -11,15 +11,16 @@ SDD frameworks document the *change*; Cliewen documents the *system*. Changes ar
 `clue` is a single binary with no runtime dependencies. Either route below ends with `clue` on your `PATH`:
 
 ```sh
-# From source (needs the Go toolchain) — a release install stamps itself from Go's build info:
+# From source (needs the Go toolchain) — installs into "$(go env GOPATH)/bin"; make sure that directory is on your PATH:
 go install github.com/cliewen/cliewen/cmd/clue@latest
 
 # Or a stamped prebuilt binary from the latest release (linux/darwin/windows × amd64/arm64) — e.g. on linux-amd64:
 gh release download --repo cliewen/cliewen --pattern 'clue-*-linux-amd64'
-install -m 0755 clue-*-linux-amd64 ~/.local/bin/clue   # any directory on your PATH
+mkdir -p ~/.local/bin && install -m 0755 clue-*-linux-amd64 ~/.local/bin/clue
+export PATH="$HOME/.local/bin:$PATH"   # skip if ~/.local/bin is already on your PATH; persist it in your shell profile
 ```
 
-On Windows, download the `clue-*-windows-*.exe` asset for your architecture and place it on `PATH` as `clue.exe`. While the repo is private, `go install` additionally needs `GOPRIVATE=github.com/cliewen` and git authentication for github.com; `gh release download` authenticates through `gh auth login`.
+Either route ends with `clue version` working from any directory. On Windows, download the `clue-*-windows-*.exe` asset for your architecture and place it on `PATH` as `clue.exe`. While the repo is private, `go install` additionally needs `GOPRIVATE=github.com/cliewen` and git authentication for github.com; `gh release download` authenticates through `gh auth login`.
 
 `clue version` reports the release it was built from — a checkout build (`go build ./cmd/clue`) or an install of an untagged commit reports `dev`. A tagged release (`vX.Y.Z`) builds the cross-platform binaries and stamps each with its version; the agent skills carry the same version, and `clue validate` flags drift between them ([CAP-004](docs/capabilities/CAP-004-ship/README.md), [ADR-011](docs/decisions/ADR-011-version-stamping.md)).
 
