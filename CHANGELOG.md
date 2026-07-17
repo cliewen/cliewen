@@ -6,7 +6,7 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 
 ### Changed
 
-- **A declared plan revision may ride with its implementing pull request** (`clue-plan`). The default stays a dedicated plan PR, but a semantic plan revision may travel with the change that implements it when four conditions hold: the PR explicitly declares the revision, a correctly typed decision record backs it, the PR calls it out for deliberate human approval, and an explicit objection reverts the revision — the milestone stays open — without blocking the rest of the change.
+- **A declared plan revision may ride with its implementing pull request** (`clue-plan`). The default stays a dedicated plan PR, but a semantic plan revision that surfaced during implementation may travel with the change that implements it when four conditions hold: the PR explicitly declares the revision, a correctly typed decision record backs it, the PR calls it out for deliberate human approval, and an explicit objection reverts the revision — the milestone stays open — without blocking the rest of the change.
 
 ### Added
 

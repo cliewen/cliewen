@@ -25,4 +25,4 @@ Multi-agent orchestration; semantic consistency checking; `clue locate`; product
 
 ## Mutation rules (lintable)
 
-Status fields in the milestone table may mutate in any merge (bookkeeping). Everything else in this file changes only via a change that declares itself a plan revision, backed by a decision record — a PDR for direction and process, an ADR if architectural ([C-011](../constraints/C-011-decision-records-typed.md)). Plan adjustments ARE decisions.
+Status fields in the milestone table may mutate in any merge (bookkeeping). Everything else in this file changes only via a change that declares itself a plan revision, backed by a decision record routed by reversal cost ([C-011](../constraints/C-011-decision-records-typed.md)): a PDR for direction and process, an ADR if architectural, a decision-log row where reversing is cheap and local. Plan adjustments ARE decisions.
