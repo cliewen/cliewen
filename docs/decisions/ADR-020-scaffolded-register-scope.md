@@ -14,6 +14,8 @@ accepted-by:
 
 [ADR-017](ADR-017-conventions-are-constraints.md) makes the constraints folder the register of every prose-only convention. `clue init` scaffolds that register into adopting repos — which raises the scope question there: the methodology arrives with rules of its own, some carried by the versioned skills, some declared only by the generated AGENTS.md. Registering everything duplicates the skills' content into unversioned artifacts; registering nothing leaves prose-only rules uninventoried from the first commit.
 
+The scoping first entered the decision log (row of 2026-07-17) as a template choice judged cheap to reverse. This record promotes that row, citing its date, per the register's promotion practice: the choice turned out to constrain future changes — it fixes what `clue init` may ever seed and how the register doctrine applies in every scaffolded repo, so reversing it is a doctrine change across adopters, not a local template edit.
+
 ## Considered options
 
 1. **Seed a constraint for every methodology rule** — a complete inventory, but each skill-carried rule gains a second, unversioned carrier that drifts the moment a skill upgrade lands.
@@ -26,4 +28,4 @@ accepted-by:
 
 - Seeded constraints are **self-sourced** (`source:` names the Cliewen methodology as scaffolded by `clue init`), so they stand whether the repo keeps the generated AGENTS.md or its own — the register entry is the rule's authoritative declaration either way; the generated AGENTS.md mirrors it as readable prose.
 - The markdown hard-wrap prohibition is such a convention and seeds as the register's first entry.
-- A methodology convention gaining a versioned carrier (a skill, a machine check) is the trigger to drop its seed from the templates — the register never holds what a versioned carrier already holds.
+- Seeded constraints live the ordinary register lifecycle from there (ADR-017): an `agent`-enforced seed states its promotion trigger, promotion flips `enforcement:` to `machine`, and the entry stays in the register as inventory. The seeding boundary governs what `init` emits, never what a repo later registers or promotes.
