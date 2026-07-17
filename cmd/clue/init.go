@@ -12,7 +12,7 @@ import (
 // (CAP-001): docs taxonomy, AGENTS.md, skills, CI workflow template.
 // Idempotent: existing files are reported and skipped, only README
 // index blocks are regenerated.
-func runInit(args []string, out io.Writer) int {
+func runInit(args []string, out, errOut io.Writer) int {
 	fs := flag.NewFlagSet("init", flag.ExitOnError)
 	_ = fs.Parse(args)
 	root := "."
@@ -21,7 +21,7 @@ func runInit(args []string, out io.Writer) int {
 	}
 	rep, err := scaffold.Run(root)
 	if err != nil {
-		fmt.Fprintf(out, "clue init: %v\n", err)
+		fmt.Fprintf(errOut, "clue init: %v\n", err)
 		return 1
 	}
 	for _, p := range rep.Created {
@@ -32,6 +32,9 @@ func runInit(args []string, out io.Writer) int {
 	}
 	for _, p := range rep.Indexed {
 		fmt.Fprintf(out, "indexed  %s\n", p)
+	}
+	for _, p := range rep.MissingReadmes {
+		fmt.Fprintf(out, "missing  %s (folder has no README — `clue validate` requires one; init does not invent it)\n", p)
 	}
 	fmt.Fprintf(out, "clue init: %d created, %d skipped, %d index block(s) regenerated\n", len(rep.Created), len(rep.Skipped), len(rep.Indexed))
 	if len(rep.Created) > 0 {

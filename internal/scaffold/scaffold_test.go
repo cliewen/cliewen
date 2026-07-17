@@ -301,6 +301,71 @@ func TestUnit_WorkflowVersionSubstituted(t *testing.T) {
 	}
 }
 
+// Unit: a lone or reversed index marker is ambiguous — Run refuses with
+// an error naming the file instead of guessing at the block's bounds,
+// and the file is left byte-for-byte untouched (the prose promise).
+func TestUnit_MalformedMarkersErrorAndLeaveFileUntouched(t *testing.T) {
+	cases := map[string]string{
+		"lone end":      "# Goals\n\nProse that must survive.\n\n" + indexEnd + "\n",
+		"lone start":    "# Goals\n\n" + indexStart + "\n\nProse that must survive.\n",
+		"reversed pair": "# Goals\n\n" + indexEnd + "\n\nProse that must survive.\n\n" + indexStart + "\n",
+	}
+	for name, content := range cases {
+		t.Run(name, func(t *testing.T) {
+			root := t.TempDir()
+			readme := filepath.Join(root, "docs", "goals", "README.md")
+			if err := os.MkdirAll(filepath.Dir(readme), 0o755); err != nil {
+				t.Fatal(err)
+			}
+			if err := os.WriteFile(readme, []byte(content), 0o644); err != nil {
+				t.Fatal(err)
+			}
+			_, err := Run(root)
+			if err == nil {
+				t.Fatal("expected an error on malformed markers, got none")
+			}
+			if !strings.Contains(err.Error(), "docs/goals/README.md") {
+				t.Fatalf("error does not name the offending file: %v", err)
+			}
+			got, rerr := os.ReadFile(readme)
+			if rerr != nil {
+				t.Fatal(rerr)
+			}
+			if string(got) != content {
+				t.Fatalf("malformed README was modified:\nbefore: %q\nafter:  %q", content, got)
+			}
+		})
+	}
+}
+
+// Unit: a pre-existing docs folder without the README validate requires
+// is named in the report — init does not invent the file.
+func TestUnit_MissingFolderReadmeIsReportedNotInvented(t *testing.T) {
+	root := t.TempDir()
+	if err := os.MkdirAll(filepath.Join(root, "docs", "notes"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(root, "docs", "notes", "note.md"), []byte("# A note\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	rep, err := Run(root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	found := false
+	for _, p := range rep.MissingReadmes {
+		if p == "docs/notes/README.md" {
+			found = true
+		}
+	}
+	if !found {
+		t.Fatalf("docs/notes/README.md not reported missing: %v", rep.MissingReadmes)
+	}
+	if _, err := os.Stat(filepath.Join(root, "docs", "notes", "README.md")); err == nil {
+		t.Fatal("init invented a README it must not create")
+	}
+}
+
 func snapshot(t *testing.T, root string) map[string]string {
 	t.Helper()
 	files := map[string]string{}

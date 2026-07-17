@@ -84,7 +84,7 @@ func main() {
 	}
 	switch os.Args[1] {
 	case "init":
-		os.Exit(runInit(os.Args[2:], os.Stdout))
+		os.Exit(runInit(os.Args[2:], os.Stdout, os.Stderr))
 	case "validate":
 		os.Exit(runValidate(os.Args[2:]))
 	case "version", "--version":

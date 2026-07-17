@@ -32,9 +32,10 @@ const versionPlaceholder = "__CLUE_VERSION__"
 
 // Report lists what a Run did, repo-relative with forward slashes.
 type Report struct {
-	Created []string
-	Skipped []string // existed already — never overwritten
-	Indexed []string // README index blocks regenerated on this run
+	Created        []string
+	Skipped        []string // existed already — never overwritten
+	Indexed        []string // README index blocks regenerated on this run
+	MissingReadmes []string // pre-existing docs folders without the README validate requires
 }
 
 // PairVersion is the version stamp the embedded skills carry.
@@ -85,6 +86,7 @@ func Run(root string) (*Report, error) {
 	sort.Strings(rep.Created)
 	sort.Strings(rep.Skipped)
 	sort.Strings(rep.Indexed)
+	sort.Strings(rep.MissingReadmes)
 	return rep, nil
 }
 
@@ -130,6 +132,11 @@ func writeIfAbsent(root, target string, data []byte, rep *Report) error {
 // whose targets still exist (hand-written descriptions survive), drops
 // entries whose targets are gone, and appends plain entries for anything
 // missing. Prose outside the markers is never touched.
+//
+// An entry survives only as its single line, and only when its link is
+// one validate's index rule recognizes (no anchor, no continuation
+// lines) — anything else is replaced by a plain generated entry, the
+// same reading checkIndexes applies.
 const (
 	indexStart = "<!-- clue:index:start -->"
 	indexEnd   = "<!-- clue:index:end -->"
@@ -150,6 +157,13 @@ func regenIndexes(root string, rep *Report) error {
 		}
 	}
 	for _, rel := range readmes {
+		if _, err := os.Stat(filepath.Join(root, filepath.FromSlash(rel))); err != nil {
+			// A pre-existing folder without the README validate requires:
+			// init does not invent one, but the report names the gap so
+			// the first validate is not red without warning.
+			rep.MissingReadmes = append(rep.MissingReadmes, rel)
+			continue
+		}
 		changed, err := regenIndex(root, rel)
 		if err != nil {
 			return err
@@ -171,7 +185,8 @@ func regenIndex(root, rel string) (bool, error) {
 	text := orig
 	start := strings.Index(text, indexStart)
 	end := strings.Index(text, indexEnd)
-	if start < 0 || end < 0 || end < start {
+	switch {
+	case start < 0 && end < 0:
 		// A pre-existing taxonomy README without markers would fail
 		// validate ("index markers missing"), breaking the green-after-init
 		// contract in existing repos. Append an empty block — prose stays
@@ -182,6 +197,12 @@ func regenIndex(root, rel string) (bool, error) {
 		text += "\n" + indexStart + "\n" + indexEnd + "\n"
 		start = strings.Index(text, indexStart)
 		end = strings.Index(text, indexEnd)
+	case start < 0 || end < 0 || end < start:
+		// A lone or reversed marker is ambiguous: guessing at the block's
+		// bounds could swallow prose between the stray marker and the end
+		// of the file. Error loudly instead — the user fixes the markers,
+		// init never guesses.
+		return false, fmt.Errorf("%s: index markers malformed (lone or reversed %s … %s) — fix the markers by hand and re-run", rel, indexStart, indexEnd)
 	}
 
 	wanted, err := indexTargets(root, path.Dir(rel))
