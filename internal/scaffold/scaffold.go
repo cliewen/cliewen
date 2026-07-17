@@ -167,11 +167,21 @@ func regenIndex(root, rel string) (bool, error) {
 	if err != nil {
 		return false, nil // folder without README: validate reports it, init does not invent one
 	}
-	text := strings.ReplaceAll(string(raw), "\r\n", "\n")
+	orig := strings.ReplaceAll(string(raw), "\r\n", "\n")
+	text := orig
 	start := strings.Index(text, indexStart)
 	end := strings.Index(text, indexEnd)
 	if start < 0 || end < 0 || end < start {
-		return false, nil // hand-written README without markers is left alone
+		// A pre-existing taxonomy README without markers would fail
+		// validate ("index markers missing"), breaking the green-after-init
+		// contract in existing repos. Append an empty block — prose stays
+		// untouched, the generated entries land between the markers below.
+		if !strings.HasSuffix(text, "\n") {
+			text += "\n"
+		}
+		text += "\n" + indexStart + "\n" + indexEnd + "\n"
+		start = strings.Index(text, indexStart)
+		end = strings.Index(text, indexEnd)
 	}
 
 	wanted, err := indexTargets(root, path.Dir(rel))
@@ -216,7 +226,7 @@ func regenIndex(root, rel string) (bool, error) {
 		block += strings.Join(lines, "\n") + "\n"
 	}
 	next := text[:start] + block + text[end:]
-	if next == text {
+	if next == orig {
 		return false, nil
 	}
 	return true, os.WriteFile(full, []byte(next), 0o644)

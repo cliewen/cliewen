@@ -37,13 +37,14 @@ Feature: Onboarding — install to first green validate
     When the user runs "clue init" again
     Then the folder README's index block references the new artifact
     And prose outside the clue:index markers is unchanged
+    And a pre-existing taxonomy README without markers gains an appended index block, its prose intact
     And a re-run with nothing new to index changes no file
 
   @AC-025
-  Scenario: init never overwrites an existing file
+  Scenario: init never replaces an existing file
     Given a repository that already contains one of the files init emits
     When the user runs "clue init"
-    Then the existing file's content is unchanged
+    Then the existing file is not replaced and its prose outside clue:index markers is unchanged
     And the report names it as skipped
     And every file the existing one did not shadow is still created
 ```

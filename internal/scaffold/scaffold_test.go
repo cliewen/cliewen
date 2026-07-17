@@ -141,6 +141,39 @@ func TestAC024_RerunIndexesNewArtifactAndKeepsProse(t *testing.T) {
 	}
 }
 
+// AC-024: a taxonomy README that predates init and has no markers gains
+// an appended index block — prose intact, validate green afterwards.
+func TestAC024_MarkerlessReadmeGainsAppendedBlock(t *testing.T) {
+	root := t.TempDir()
+	prose := "# My docs\n\nPre-existing prose without any markers.\n"
+	if err := os.MkdirAll(filepath.Join(root, "docs", "goals"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(root, "docs", "README.md"), []byte(prose), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(root, "docs", "goals", "README.md"), []byte("# Goals, my way\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := Run(root); err != nil {
+		t.Fatal(err)
+	}
+	got, err := os.ReadFile(filepath.Join(root, "docs", "README.md"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	text := string(got)
+	if !strings.Contains(text, "Pre-existing prose without any markers.") {
+		t.Fatalf("pre-existing prose was lost:\n%s", text)
+	}
+	if !strings.Contains(text, indexStart) || !strings.Contains(text, indexEnd) {
+		t.Fatalf("no index block was appended:\n%s", text)
+	}
+	if issues := validateAt(t, root); len(issues) > 0 {
+		t.Fatalf("expected green after marker append, got: %v", issues)
+	}
+}
+
 // AC-024 negative: with nothing new to index, a re-run changes no file.
 func TestAC024_RerunOnUnchangedTreeIsANoOp(t *testing.T) {
 	root, _ := runInto(t)
