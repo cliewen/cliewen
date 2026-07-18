@@ -10,6 +10,8 @@ Decision records carry provenance in their status: a record an agent writes duri
 
 A decision that adopts a well-established practice cites it by name and records only the local why.
 
+Decision records are timeless: state what is decided and only the enduring context and rationale needed to understand it. Triggering incidents, chronology, conversations, implementation details, and review history belong in the change workspace, PR, and Git history; include a historical fact only when removing it would make the decision unintelligible.
+
 <!-- clue:index:start -->
 - [log.md](log.md) — the decision log: cheap-to-reverse decisions as dated rows
 <!-- clue:index:end -->

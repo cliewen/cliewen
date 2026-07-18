@@ -5,4 +5,5 @@ Spike findings and extraction reports. **Analysis must leave corpses:** every sp
 <!-- clue:index:start -->
 - [AN-001 — Foundation Document v0.4](AN-001-foundation-v0.4.md) — the founding analysis; origin record of the corpus
 - [AN-002 — Extraction target analysis: model2diagram](AN-002-model2diagram-extraction.md) — the OpenSpec corpus, its AC-ID/tag scheme, and what maps where
+- [AN-003 — Calibration trial: robocode-api-bridge](AN-003-robocode-api-bridge-calibration.md) — a blind brownfield reading compared with maintainer intent
 <!-- clue:index:end -->
