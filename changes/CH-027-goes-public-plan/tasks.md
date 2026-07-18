@@ -14,4 +14,4 @@ title: Tasks for CH-027
 - [x] Promote G-003 to `accepted`, carried by P-003
 - [x] Regenerate the goals, plans, and decisions README indexes with `clue scaffold`
 - [x] Update the root README Status section: P-002 completed, P-003 under way
-- [ ] Run the full pre-merge verification suite
+- [x] Run the full pre-merge verification suite
