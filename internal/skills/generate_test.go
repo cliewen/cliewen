@@ -57,6 +57,12 @@ func TestAC028_DriftIsRejected(t *testing.T) {
 				t.Fatal(err)
 			}
 		},
+		"changed in template tree": func(t *testing.T, root string) {
+			target := filepath.Join(root, "internal", "scaffold", "templates", "skills", "clue-delta", "skill.md")
+			if err := os.WriteFile(target, []byte("edited generated output\n"), 0o644); err != nil {
+				t.Fatal(err)
+			}
+		},
 	}
 
 	for name, mutate := range tests {

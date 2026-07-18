@@ -1,6 +1,6 @@
 {{template "frontmatter" .}}# clue-verify
 
-Run this pre-merge checklist before opening or updating any PR. When the `clue` CLI exists, `clue validate` performs the mechanical half. Never fix a failure by weakening the check.
+Run this pre-merge checklist before opening or updating any PR. When the `clue` CLI exists, `clue validate` performs the mechanical half; until then, check by hand. Never fix a failure by weakening the check.
 
 - [ ] The change uses the correct workspace under **Change tiers** below.
 - [ ] Every artifact touched has frontmatter `id`, `type`, `status`, `links`, and `title`, plus decision `author`/`accepted-by`, constraint `source`/`enforcement`, capability `goal`, and any other type-specific fields.

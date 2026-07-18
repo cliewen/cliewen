@@ -19,3 +19,5 @@ This repo runs **Cliewen** — its own methodology, dogfooded from commit one. B
 | [`clue-plan`](.agents/skills/clue-plan/skill.md) | Creating or revising a plan |
 | [`clue-delta`](.agents/skills/clue-delta/skill.md) | The change loop: branch → implement → digest → merge |
 | [`clue-verify`](.agents/skills/clue-verify/skill.md) | Pre-merge checklist before any PR |
+
+The skill files are generated artifacts ([ADR-021](docs/decisions/ADR-021-generated-standalone-skills.md)): to change a skill, edit `internal/skills/source/` and run `go generate ./internal/skills` — never edit `.agents/skills/` or `internal/scaffold/templates/skills/` directly; the repository tests reject hand-edited generated files.
