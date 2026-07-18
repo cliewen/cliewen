@@ -38,4 +38,12 @@ Feature: clue ships — a versioned binary and versioned skills, drift made lint
     When the user runs "clue validate"
     Then it exits with a non-zero code and reports the drift
     But a "dev" build skips the comparison, and a release matching the skills passes
+
+  @AC-028
+  Scenario: Versioned skills are generated as standalone artifacts
+    Given canonical skill-specific templates and shared instruction fragments
+    When a maintainer runs the repository skill generator
+    Then it deterministically writes complete skills to both the agent and embedded-template trees
+    And corresponding files in both trees are byte-identical
+    But a missing, changed, or unexpected generated file fails the repository tests and names the drift
 ```

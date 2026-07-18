@@ -2,26 +2,49 @@
 version: 0.3.0
 ---
 
+<!-- Generated from Cliewen's canonical skill sources; edit those sources, not this file. -->
+
 # clue-verify
 
-Pre-merge checklist. Run before opening or updating any PR. When the `clue` CLI exists, `clue validate` performs the mechanical half; until then, check by hand. **Never fix a failure by weakening the check.**
+Run this pre-merge checklist before opening or updating any PR. When the `clue` CLI exists, `clue validate` performs the mechanical half; until then, check by hand. Never fix a failure by weakening the check.
 
-- [ ] The change is in the right tier: light only if no decision was made (no ADR, no PDR, no decision-log row), no AC or capability meaning changed, no semantic plan mutation, and no methodology carrier (skills, AGENTS.md rules, lint rules) touched — then the PR description is the proposal and no `/changes/` folder exists. Anything else is a full change with a digested `/changes/CH-xxx-slug/` workspace.
-- [ ] Every artifact touched has frontmatter: `id`, `type`, `status`, `links`, `title` (+ type extensions: decision records (ADRs and PDRs) `author`/`accepted-by`; constraints `source`/`enforcement`; capabilities `goal`).
+- [ ] The change uses the correct workspace under **Change tiers** below.
+- [ ] Every artifact touched has frontmatter `id`, `type`, `status`, `links`, and `title`, plus decision `author`/`accepted-by`, constraint `source`/`enforcement`, capability `goal`, and any other type-specific fields.
 - [ ] Every `links` entry resolves to an existing ID.
-- [ ] The proposal references a real plan item, or is declared plan-less.
-- [ ] Plan bookkeeping updated (milestone statuses reflect this merge).
-- [ ] No completed (`status: completed`) plan was modified.
-- [ ] Every AC has a test tag with a positive + negative pair — or the capability is honestly `status: draft` with the gap stated.
-- [ ] Every `/docs/**` folder has README.md; index blocks list every sibling artifact and reference no deleted file.
-- [ ] Change assessed against every constraint in `/docs/constraints/` and every quality scenario in `/docs/quality/`.
-- [ ] Repo-local conventions declared in AGENTS.md are honored (e.g. a changelog entry for user-visible impact). AGENTS.md extends the methodology, never overrides it — an AGENTS.md rule conflicting with a skill was surfaced as an open question, not silently obeyed or ignored.
+- [ ] The proposal names a real plan item or explicitly declares the change plan-less.
+- [ ] Plan bookkeeping reflects the merge, and no completed plan changed.
+- [ ] Every active acceptance criterion has positive and negative tests, or its capability honestly stays `draft` with the gap stated.
+- [ ] Every `/docs/**` folder has a README; index blocks list every sibling artifact and no deleted file.
+- [ ] The change was assessed against every constraint and quality scenario.
+- [ ] Repository-local conventions satisfy the contract below.
 - [ ] Diagrams are inline Mermaid and readable when rendered.
-- [ ] `/changes/CH-xxx-slug/` is deleted in the digest commit; after merge, `main` contains no `/changes/`.
-- [ ] Decisions made during the change are recorded and correctly routed: expensive-to-reverse ones as ADRs (architecture) or PDRs (project/process) per C-011 (`author: agent` starts `inferred`; merging makes a decision binding but only an explicit human approval promotes it to `verified`, and an explicit objection keeps it `inferred` regardless), cheap-and-local-to-reverse ones as decision-log rows.
-- [ ] Every decision record is timeless: it states what is decided and only the enduring context and rationale needed to understand it; triggering incidents, chronology, conversations, implementation details, and review history remain in the change workspace, PR, and Git history.
-- [ ] Pending clerical signings are performed: every explicit approval given since the last digest is recorded — `status: verified` with each approver signed in `accepted-by:` (date = first approval, venue cited).
-- [ ] The branch roots at the current tip of `main` (`git merge-base HEAD origin/main` after `git fetch` equals `origin/main`) — if a sibling change merged first, rebase onto `main` and re-run this checklist.
-- [ ] The branch was not cut from another change's unmerged work, and no other CH's `/changes/` folder is visible on it.
-- [ ] The author's previous change is merged — this is not a second change in flight; if work had to build on an unmerged change, the human's explicit go-ahead is recorded.
-- [ ] The hosted PR is this change's only route into `main`: after this checklist passes, the agent opens (or updates) it ready for review, never as a draft, and will not merge it, create a local merge commit into `main`, or push to `main` — the merge is the human's act.
+- [ ] The full-change workspace is absent after digest; `main` never contains `/changes/`.
+- [ ] Every decision satisfies **Decision records** below, including routing, timeless content, provenance, objections, and pending approval signatures.
+- [ ] `git merge-base HEAD origin/main` equals `origin/main` after fetching; no other change workspace is visible on this branch.
+- [ ] The branch and hosted PR satisfy the **Review boundary** below.
+
+## Change tiers
+
+A change is light only when all of these hold: no decision is made, no acceptance criterion or capability meaning changes, no semantic plan mutation occurs, and no methodology carrier such as a skill, AGENTS.md rule, or lint rule is touched. Typical light changes: typos, documentation clarity, dependency bumps, pure refactors, CI plumbing. A light change skips the transient workspace; its branch and ready PR remain mandatory, and the PR description is the proposal with a real plan item or an explicit plan-less declaration.
+
+Every other change uses the full loop and a `/changes/CH-xxx-slug/` workspace. Escalate immediately if a decision, open question, meaning change, or methodology-carrier edit appears during work.
+
+## Decision records
+
+Route every decision by reversal cost. A cheap-and-local-to-reverse decision is a dated row in `docs/decisions/log.md` (columns `Date | Decision | Why | Change/PR`); otherwise write an ADR for software or corpus architecture, or a PDR for how the project works. A decision adopting a well-established practice cites it by name and records only the local why.
+
+Agent-authored decisions start `status: inferred` and `author: agent`. Merging makes them binding without changing that status. Only explicit human approval promotes a decision to `verified`; record every approver in `accepted-by:`, use the first approval date, and cite the venue. An explicit objection keeps the decision `inferred` and becomes an open question.
+
+Every decision record is timeless: state what is decided and only the enduring context and rationale needed to understand it. Keep triggering incidents, chronology, conversations, implementation details, and review history in findings, the change workspace, the PR, and Git history.
+
+## Repository-local conventions
+
+Apply the repository-local conventions declared in AGENTS.md, including digest requirements such as a user-facing changelog entry. Local conventions extend the methodology and never override it. If AGENTS.md conflicts with a skill, record the conflict in `open-questions.md` and stop for a human decision; never choose silently.
+
+## Review boundary
+
+Every change branches from the current tip of `main`, never from unaccepted work. Each author takes one change to its PR before starting another; independent authors may work in parallel from `main`. If work must build on an unmerged change, record a blocking open question and stop unless the human explicitly authorizes it. If another change merges first, rebase onto the new `main` tip and repeat verification.
+
+Open the PR ready for review only after verification passes, never as a draft. The PR is the completed proposal's human review gate; unfinished work stays on the branch. An agent never merges its own PR, creates a local merge commit into `main`, or pushes to `main`. After opening the PR an agent stops and waits; it never starts the next change while the previous one is unreviewed. Review fixes stay on the same branch and PR; a follow-up change exists only when a human has accepted this one and explicitly scoped the follow-up.
+
+After a human reports the merge, orient before starting anything else: describe the plan's next unfinished step in plain language and ask whether to start it, or say that the plan has nothing left and ask what comes next.

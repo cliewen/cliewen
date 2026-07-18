@@ -2,13 +2,15 @@
 id: ADR-018
 type: decision
 status: verified
-links: [P-002, CAP-001, ADR-011, ADR-013]
+links: [P-002, CAP-001, ADR-011, ADR-013, ADR-021]
 title: The init scaffolding is embedded in the clue binary
 author: agent
 accepted-by: Flemming N. Larsen (2026-07-18, PR #20 review conversation)
 ---
 
 # ADR-018 — Init templates embed in the binary
+
+> **Skill-copy consequence refined by [ADR-021](ADR-021-generated-standalone-skills.md):** the canonical authoring sources now generate both skill output trees; the embedded tree and binary-delivery decision remain unchanged.
 
 ## Context and problem statement
 
@@ -24,7 +26,7 @@ accepted-by: Flemming N. Larsen (2026-07-18, PR #20 review conversation)
 
 **Option 3.** The template tree lives at `internal/scaffold/templates/` and is compiled in via `go:embed`. Two placement facts follow from the toolchain, not from preference: the Go tool ignores directories whose names start with `.` or `_`, so neither the originally sketched `/.cliewen/templates` nor the canonical `.agents/skills` can be embedded directly. Consequences:
 
-- The **skills are duplicated** into the template tree; a Sanity test holds the copies byte-identical to `.agents/skills/`, so drift between the canonical skills and what `init` emits fails the build.
+- The **skills are duplicated** into the template tree as generated distribution artifacts; a Sanity test holds both trees to their shared canonical render, so drift between the authored sources, canonical skills, and what `init` emits fails the build.
 - The `.github/` workflow template is stored under a `github/` path and mapped to its dotted target at emit time.
 - The CI template's `CLUE_VERSION` pin is substituted from the embedded skills' version stamp — the pair version (ADR-011) has a single carrier.
 - `init` emits the skills twice in the target repo: `.agents/skills/` as the canonical location and a `.claude/skills/` mirror in the Claude Code spelling (`SKILL.md`), matching the layout proven in the first adopter repo.
