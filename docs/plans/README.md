@@ -5,4 +5,5 @@ The campaign layer: P-xxx plans with M-xxx milestones. This folder is **flat** �
 <!-- clue:index:start -->
 - [P-002 — Cliewen leaves home](P-002-leaves-home.md) · `completed` (2026-07-18)
 - [P-001 — Elaboration baseline](P-001-elaboration-baseline.md) · `completed` (2026-07-13)
+- [P-003-goes-public](P-003-goes-public.md)
 <!-- clue:index:end -->

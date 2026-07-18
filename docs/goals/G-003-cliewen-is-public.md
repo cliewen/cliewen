@@ -1,12 +1,14 @@
 ---
 id: G-003
 type: goal
-status: proposed
+status: accepted
 links: [G-001, G-002]
 title: Cliewen is public
 ---
 
 # G-003 — Cliewen is public
+
+> Accepted 2026-07-18 with [P-003](../plans/P-003-goes-public.md), which carries it as milestones M-008…M-012.
 
 **Who wants it:** the maintainer (2026-07-18), on completing P-002 — the methodology, its distribution story, and its foreign-soil validation are done, and every remaining question about adoption needs strangers.
 
