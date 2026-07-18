@@ -139,12 +139,12 @@ func TestUnit_ReleaseFromModuleVersion(t *testing.T) {
 	}
 }
 
-// AC-022 (wiring): runValidate threads the binary's stamp through
+// AC-033 (wiring): runValidate threads the binary's stamp through
 // corpus.Options.Version into the drift rule — a released clue fails
 // against lagging skills, a matching release passes.
-func TestAC022_RunValidateThreadsVersionIntoDriftRule(t *testing.T) {
+func TestAC033_RunValidateThreadsVersionIntoDriftRule(t *testing.T) {
 	root := validCorpus(t)
-	writeFile(t, root, ".agents/skills/clue-delta/skill.md", "---\nversion: 0.1.0\n---\n\n# clue-delta\n")
+	writeFile(t, root, ".agents/skills/clue-delta/skill.md", "---\ncliewen-skill: true\nversion: 0.1.0\n---\n\n# clue-delta\n")
 	old := version
 	defer func() { version = old }()
 	version = "0.2.0"

@@ -37,4 +37,5 @@ ADRs and PDRs share the MADR format and two-tier provenance: `inferred` (binding
 - [PDR-008 — A declared plan revision may ride with its implementing change](PDR-008-plan-revisions-may-ride.md) · `verified`
 - [Decision log](log.md) — dated rows for the cheap-to-reverse (ADR-003 and ADR-004 demoted here)
 - [PDR-009-going-public](PDR-009-going-public.md)
+- [ADR-022-skill-ownership-marker](ADR-022-skill-ownership-marker.md)
 <!-- clue:index:end -->
