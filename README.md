@@ -43,6 +43,17 @@ clue validate
 
 Adopting a repo with an existing spec corpus instead? That is the [`clue-extract`](.agents/skills/clue-extract/skill.md) skill — a one-time transform into `docs/`, run as the repo's first change loop.
 
+## Developing the skills
+
+The five standalone `clue-*` skills are generated from `internal/skills/source/`: shared methodology instructions live under `shared/`, while each lifecycle workflow has its own template under `skills/`. Edit those sources and run:
+
+```sh
+go generate ./internal/skills
+go test ./...
+```
+
+The generator rewrites `.agents/skills/` and the embedded `clue init` copies under `internal/scaffold/templates/skills/`. Tests fail if either generated tree drifts from the canonical rendering.
+
 ## Status
 
 Baseline complete ([P-001](docs/plans/P-001-elaboration-baseline.md)); distribution and greenfield bootstrap under way ([P-002](docs/plans/P-002-leaves-home.md)). User-visible history lives in [CHANGELOG.md](CHANGELOG.md); each GitHub release body is its version's section there. This repo dogfoods its own conventions from commit one — start reading at [docs/README.md](docs/README.md). Agents: see [AGENTS.md](AGENTS.md).

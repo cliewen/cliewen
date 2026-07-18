@@ -2,7 +2,7 @@
 id: CAP-004-design
 type: design
 status: active
-links: [CAP-004, ADR-011, ADR-012]
+links: [CAP-004, ADR-011, ADR-012, ADR-021]
 title: Design for CAP-004 clue ships
 ---
 
@@ -22,6 +22,12 @@ Each skill lives at `.agents/skills/<name>/skill.md` and declares `version:` in 
 
 Issues sort into the same `path: message` stream as every other rule.
 
+## Skill authoring and generation
+
+The complete skill files remain the installed, versioned artifacts described above, but their authoring source is centralized under `internal/skills/source/` ([ADR-021](../../decisions/ADR-021-generated-standalone-skills.md)). Skill-specific templates compose shared instruction fragments at generation time; no generated skill has a runtime dependency on another skill or on the source tree.
+
+`go generate ./internal/skills` writes both `.agents/skills/` and `internal/scaffold/templates/skills/`. The generator owns the five `clue-*` directories in both trees, including `clue-extract` resources, and normalizes output to LF for deterministic bytes. AC-028 tests exercise generation into an empty repository and reject missing, changed, or unexpected files. A Sanity test checks the committed outputs against the same in-memory rendering, so editing a generated skill instead of its source fails the build.
+
 ## Release pipeline
 
 `.github/workflows/release.yml` triggers on `v*` tags (and `workflow_dispatch`, which a guard restricts to tag refs — dispatching from a branch fails before any build, so nothing can stamp binaries as a branch name or publish a branch-named release). The release body is the tag's `## [X.Y.Z]` section of `CHANGELOG.md`, extracted verbatim; a missing or empty section fails the release before anything is built, and `TestSanity_ReleaseNotesComeFromChangelog` keeps auto-generated notes from returning ([ADR-012](../../decisions/ADR-012-release-notes-from-changelog.md)). The job runs `go test ./...` first — a tag can land on any commit, so nothing ships untested. One ubuntu runner then cross-compiles Go for linux/darwin/windows × amd64/arm64 with `GOOS`/`GOARCH`, stamping `main.version` from the tag, writes a `SHA256SUMS` file next to the binaries, and `softprops/action-gh-release` (pinned by commit SHA — it runs with `contents: write`) attaches everything. Git tags carry the conventional `v` prefix (Go module tagging); the stamped and skill-frontmatter version is bare semver, so the workflow strips the `v` (`${GITHUB_REF_NAME#v}`) — the drift rule then compares like against like.
@@ -32,5 +38,5 @@ Distribution targets the private-repo install story (P-002): `go install github.
 
 - **Skills outside `.agents/skills/`** — the rule looks only there. An adopter who relocates skills gets no drift check until the path is made configurable.
 - **Untagged installs report `dev`** — `go install module@vX.Y.Z` self-stamps from Go's build info, but a checkout build or an install of a branch/commit (a pseudo-version) has no release to report and stays `dev`, exempt from drift.
-- **No `clue`-driven bump** — cutting a release edits the five skill frontmatter versions by hand and tags. A `clue bump` command is post-M-004.
+- **No `clue`-driven bump** — cutting a release edits the shared generated-skill frontmatter source, regenerates the five skill artifacts, and tags. A `clue bump` command is post-M-004.
 - **Operational proof of the release** — the cross-platform build is guarded structurally by `TestSanity_ReleaseWorkflowIsCrossPlatform`; the real proof is the first tagged release producing downloadable binaries.

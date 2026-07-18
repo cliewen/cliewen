@@ -243,9 +243,9 @@ func TestAC025_SkipIsPerFileNotPerRun(t *testing.T) {
 	}
 }
 
-// The embedded skill copies must stay byte-identical to the canonical
-// skills in .agents/skills — the duplication go:embed forces (dotted
-// directories are invisible to the Go toolchain) is held by this test.
+// The two generated distribution trees must stay byte-identical. The
+// skill-generator package separately holds both trees to their shared
+// canonical render.
 func TestSanity_EmbeddedSkillsMatchCanonicalSkills(t *testing.T) {
 	canonical := filepath.Join("..", "..", ".agents", "skills")
 	seen := map[string]bool{}
@@ -262,7 +262,7 @@ func TestSanity_EmbeddedSkillsMatchCanonicalSkills(t *testing.T) {
 			return nil
 		}
 		if strings.ReplaceAll(string(disk), "\r\n", "\n") != strings.ReplaceAll(string(embedded), "\r\n", "\n") {
-			t.Errorf("embedded %s differs from .agents/skills — re-copy the skills into internal/scaffold/templates/skills", rel)
+			t.Errorf("embedded %s differs from .agents/skills — run go generate ./internal/skills", rel)
 		}
 		return nil
 	})

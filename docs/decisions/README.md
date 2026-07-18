@@ -35,4 +35,5 @@ ADRs and PDRs share the MADR format and two-tier provenance: `inferred` (binding
 - [PDR-007 — The review boundary is real: changes root at main, one in flight per author, humans merge](PDR-007-review-boundary.md) · `verified`
 - [PDR-008 — A declared plan revision may ride with its implementing change](PDR-008-plan-revisions-may-ride.md) · `verified`
 - [Decision log](log.md) — dated rows for the cheap-to-reverse (ADR-003 and ADR-004 demoted here)
+- [ADR-021 — Skills are generated as standalone artifacts from shared canonical sources](ADR-021-generated-standalone-skills.md) · `verified`
 <!-- clue:index:end -->

@@ -11,7 +11,7 @@ goal: G-002
 
 ## What
 
-`clue` reports a release version (`clue version` / `clue --version`), stamped at build time from the release tag. Every agent skill carries a matching `version:` in its frontmatter, and `clue validate` makes drift between them lintable: a skill without a stamp fails, skills that disagree on a version fail, and a *released* `clue` whose skills differ from the binary fails as drift (a `dev` build skips that last comparison — it has no release to drift from).
+`clue` reports a release version (`clue version` / `clue --version`), stamped at build time from the release tag. Every agent skill carries a matching `version:` in its frontmatter, and `clue validate` makes drift between them lintable: a skill without a stamp fails, skills that disagree on a version fail, and a *released* `clue` whose skills differ from the binary fails as drift (a `dev` build skips that last comparison — it has no release to drift from). The standalone skills are generated from skill-specific templates and shared instruction fragments; repository tests also reject drift between those canonical sources and either distributed skill tree.
 
 A tagged release (`vX.Y.Z`) builds cross-platform binaries — linux/darwin/windows × amd64/arm64 — each stamped with the version, published as a GitHub release for `go install` and `gh release download`.
 

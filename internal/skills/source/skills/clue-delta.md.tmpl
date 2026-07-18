@@ -1,0 +1,19 @@
+{{template "frontmatter" .}}# clue-delta
+
+Use for every mutation of `main`: features, fixes, docs, and plans. Apply the **Change tiers**, **Decision records**, **Repository-local conventions**, and **Review boundary** below throughout the loop.
+
+1. **Branch:** Follow the review boundary and name the branch `ch-xxx-slug`. Take the next free CH number by searching Git history and `/changes/` for the highest used number.
+2. **Propose:** For a full change, create `/changes/CH-xxx-slug/` and commit it before implementation:
+   - `proposal.md` states what and why; its frontmatter `links` names the real plan item it serves or explicitly declares the change plan-less.
+   - `tasks.md` is an ordered `- [ ]` checklist with dependencies first and at most one nested level. Mark `[x]` the moment a task completes. Mark an infeasible task `[-]` with its reason on the same line. A behavior-changing task names the acceptance-criterion IDs it serves; if none exists, add the criterion before implementation. Tests trace to criteria, never transient tasks.
+   - `open-questions.md` records blocking questions. When one appears, write it and stop; the human answer becomes a decision record.
+3. **Implement:** Update the permanent corpus. Capabilities own README, criteria, and design files. Write criteria as Gherkin tagged `@AC-xxx`; every active criterion gets positive and negative tests in the same change, while an untestable capability stays `draft`. Split a criterion that cannot be verified by a focused pair. Every test declares exactly one purpose: the criterion ID, `Unit`, `Sanity`, or `Arch`, using framework tags where available and the test-name prefix in Go. When a criterion's meaning changes, retire it with `@retired`, keep the tombstone, mint a new ID, and remove or retag its tests.
+4. **Digest:** After every task is `[x]` or `[-]` with a reason, update permanent `/docs`, regenerate README indexes, apply repository-local digest conventions, record decisions, and update plan bookkeeping. Delete the change workspace. The digest is never a task in `tasks.md`; deletion is the digest, so a self-referential digest task cannot be completed honestly.
+5. **Verify and propose for acceptance:** Run `clue-verify`, then open the PR under the review boundary. Merging accepts the change; decision provenance follows **Decision records** below.
+
+Keep deltas small: Git merges text, not meaning.
+
+{{template "change-tiers" .}}
+{{template "decision-records" .}}
+{{template "local-conventions" .}}
+{{template "review-boundary" .}}
