@@ -1,7 +1,7 @@
 ---
 id: CH-025-notes
-type: notes
-status: active
+type: analysis
+status: verified
 links: [CH-025]
 title: Hyperfine trial working notes
 ---
