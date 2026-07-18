@@ -14,4 +14,4 @@ title: Tasks for CH-025
 - [x] Apply the Cliewen analysis workflow without adopting Cliewen into the target repository
 - [x] Publish AN-004 with findings, limits, and the methodology-adjustment assessment
 - [x] Implement any narrowly warranted methodology adjustment and update durable documentation
-- [ ] Run the full pre-merge verification suite
+- [x] Run the full pre-merge verification suite
