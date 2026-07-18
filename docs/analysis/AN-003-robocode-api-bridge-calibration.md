@@ -78,6 +78,10 @@ The visible history has direct commits on `main` and no pull requests. `clue-del
 
 Maintainer comparison can reveal whether the blind interpretation is accurate, but it cannot reveal how a maintainer unfamiliar with Cliewen experiences the workflow or whether shared assumptions went unnoticed. This repository is useful as a control case and remains ineligible for M-007's count.
 
+### F7 — A population target needs an explicit eligibility model
+
+The maintainer's working outcome is that more than 90% of legacy bots should run through the bridge and score close to their classic Robocode behavior against the same competitors. Some robots may be unsuitable evidence because they depend on obsolete Java methods, reflection tricks, unsupported runtime behavior, or capabilities deliberately outside the bridge. Excluding such bots informally would make the success rate vulnerable to hindsight and selection bias. The harness needs versioned per-robot metadata, predetermined eligibility rules, recorded exclusion reasons, and both raw and eligible-population results.
+
 ## Candidate methodology adjustments
 
 These are findings, not adopted decisions.
@@ -85,6 +89,7 @@ These are findings, not adopted decisions.
 - Add a trial rubric that separates repository observation, agent inference, and maintainer verification.
 - Require a clean-clone or clean-environment check before treating a build as onboarding evidence.
 - Prompt brownfield analysis to distinguish deterministic acceptance criteria from statistical or population-level quality scenarios.
+- Require a population-level quality target to declare its corpus, eligibility rules, exclusions, sampling method, and uncertainty before using a percentage as evidence.
 - Require trial findings to name governance changes that adoption would introduce.
 
 ## Rejected interpretations
@@ -96,4 +101,28 @@ These are findings, not adopted decisions.
 
 ## Maintainer comparison
 
-Pending. The maintainer should confirm or correct the blind goal, compatibility boundary, current direction, architectural boundaries, and interpretation of the compatibility harness before this calibration is concluded.
+The maintainer compared the blind interpretation with project intent on 2026-07-18.
+
+### Confirmed
+
+- The goal is to run as many legacy Java Robocode robots as practical on Tank Royale without moving legacy compatibility behavior into Tank Royale.
+- "100% identical" means a one-to-one mapping of the legacy API, not behavioral equivalence. Exact behavior is impossible in some cases because the engines differ, including bounding-circle versus bounding-box geometry.
+- Legacy `robocode`/`gl4java` compatibility belongs in the bridge; classic Robocode has already adapted that API on its side and is not the target of this work.
+- The harness's 25% score threshold is diagnostic. Lower divergence is desirable as the bridge improves, but the achievable floor is not yet known.
+- The intended outcome is provisionally that more than 90% of eligible legacy bots run through the bridge and score close to their classic Robocode behavior against the same competitors. The maintainer expects users might prefer 99%, but the absent testing and contribution effort from legacy bot authors makes that an unsupported commitment.
+
+### Clarified
+
+The root `TODO.md` is the closest current plan carrier, but it is a working backlog rather than a formally accepted plan. The maintainer's local edit marks its first item, the event-dispatch redesign and Bot API upgrade, as done. The remaining ordering supports the blind inference that retesting score-gap bots comes next, followed by file-I/O sandboxing, team support, and a fuller sweep.
+
+The locally generated compatibility report is not suitable for setting the percentage target. It contains only 16 robots, reports 8 passes at the 25% threshold, and predates the newest event-dispatch work. It establishes neither that 90% is realistic nor that it is impossible. A representative versioned population and repeated matched battles are needed before the target can graduate from aspiration to a quality scenario.
+
+### Robot inspection constraint
+
+The maintainer is not permitted to reverse-engineer legacy robot binaries and suggested that a coding agent might inspect them instead. This trial does not accept that actor-based exception: an agent acts within the maintainer's authority and must observe the same restriction unless inspection of a particular robot has an independently established legal and licensing basis. No legacy robot binary was inspected during this calibration.
+
+Black-box runtime evidence can still distinguish many bridge failures from robot incompatibilities. Per-robot metadata should record the robot and version, test environment, observed failure, suspected category, evidence, eligibility status, and explicit exclusion reason. Eligibility categories might include obsolete Java dependencies, reflection or runtime tricks incompatible with modern Java, unsupported team behavior, and failures demonstrably present outside the bridge. The categories are proposed analysis output, not adopted policy.
+
+## Calibration result
+
+The blind pass recovered the project's goal, major boundary, current direction, and diagnostic nature of the score threshold with useful accuracy. It missed the explicit population-level success target and had no way to distinguish confirmed intent from plausible inference until the maintainer comparison. The calibration therefore supports F1 and F7: brownfield trials need confidence labels and an explicit eligibility model before their findings can become durable methodology or percentage-based evidence.
