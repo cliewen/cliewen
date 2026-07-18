@@ -12,4 +12,4 @@ title: Tasks for CH-024
 - [x] Implement canonical skill templates, shared fragments, and deterministic generation (AC-028)
 - [x] Generate both distributed skill trees and fail verification on output drift (AC-028)
 - [x] Update the durable skill architecture, capability design, contributor guidance, and user-facing changelog
-- [ ] Run the full pre-merge verification suite
+- [x] Run the full pre-merge verification suite
