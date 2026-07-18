@@ -6,6 +6,7 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 
 ### Changed
 
+- **Analysis now preserves its evidence boundary.** `clue-analysis` asks agents to pin source revisions when possible, record conditions relevant to reproduced results, distinguish observed facts from inferences and unverified intent, and avoid treating repository activity as maintainer intent without explicit evidence.
 - **The five standalone skills are now generated from shared canonical instructions.** Their public names and independent installation stay unchanged, while repeated rules such as decision routing, change tiers, repository-local conventions, and the review boundary are authored once and composed into each complete skill. Repository tests reject changed, missing, or unexpected generated files in either the agent or `clue init` template tree.
 - **Pull requests open ready for review, never as drafts.** The change loop now keeps unfinished work on its branch, runs the verification checklist, and only then opens the PR as the human review gate; `clue-delta`, `clue-extract`, and `clue-verify` carry the rule.
 - **Decision records stay focused and timeless in every workflow.** The analysis, planning, change, extraction, and verification skills now keep triggering incidents, chronology, conversations, implementation details, and review history out of ADRs/PDRs; a decision records its outcome and only the enduring context and rationale needed to understand it, while findings, change workspaces, PRs, and Git retain the history.
