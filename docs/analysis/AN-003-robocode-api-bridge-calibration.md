@@ -90,6 +90,7 @@ These are findings, not adopted decisions.
 - Require a clean-clone or clean-environment check before treating a build as onboarding evidence.
 - Prompt brownfield analysis to distinguish deterministic acceptance criteria from statistical or population-level quality scenarios.
 - Require a population-level quality target to declare its corpus, eligibility rules, exclusions, sampling method, and uncertainty before using a percentage as evidence.
+- Use an inspection ladder for third-party programs: black-box behavior first, intentionally bundled source where its terms permit inspection, and decompilation only with a recorded legal basis, interoperability need, and information boundary.
 - Require trial findings to name governance changes that adoption would introduce.
 
 ## Rejected interpretations
@@ -117,11 +118,17 @@ The root `TODO.md` is the closest current plan carrier, but it is a working back
 
 The locally generated compatibility report is not suitable for setting the percentage target. It contains only 16 robots, reports 8 passes at the 25% threshold, and predates the newest event-dispatch work. It establishes neither that 90% is realistic nor that it is impossible. A representative versioned population and repeated matched battles are needed before the target can graduate from aspiration to a quality scenario.
 
-### Robot inspection constraint
+### Robot inspection boundary
 
-The maintainer is not permitted to reverse-engineer legacy robot binaries and suggested that a coding agent might inspect them instead. This trial does not accept that actor-based exception: an agent acts within the maintainer's authority and must observe the same restriction unless inspection of a particular robot has an independently established legal and licensing basis. No legacy robot binary was inspected during this calibration.
+The initial comparison overstated the boundary by treating reverse engineering as categorically prohibited without author permission. Under [§§ 36–37 of the Danish Copyright Act](https://www.retsinformation.dk/api/pdf/238630), a person entitled to use a program may observe, study, or test it during acts they are entitled to perform, and code reproduction or translation may be permitted without separate author permission when indispensable for interoperability and confined to the statutory conditions. [Articles 5–6 of the EU Software Directive](https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32009L0024) carry the same distinction. This is a jurisdiction-specific research finding, not legal advice.
 
-Black-box runtime evidence can still distinguish many bridge failures from robot incompatibilities. Per-robot metadata should record the robot and version, test environment, observed failure, suspected category, evidence, eligibility status, and explicit exclusion reason. Eligibility categories might include obsolete Java dependencies, reflection or runtime tricks incompatible with modern Java, unsupported team behavior, and failures demonstrably present outside the bridge. The categories are proposed analysis output, not adopted policy.
+A coding agent has no separate exception and creates no new prohibition: it can act on behalf of an entitled user only within the same permission, purpose, and information-use boundaries. The agent's identity is therefore not the deciding factor.
+
+Some Robocode archives intentionally include their source code. Reading that bundled source is source inspection rather than decompilation and is the preferred white-box debugging path when the archive's license and terms permit it. Availability of source does not by itself grant permission to copy, modify, redistribute, or publish the bot's protected expression or algorithm.
+
+Black-box runtime evidence remains the safest default and can distinguish many bridge failures from robot incompatibilities by running the robot in environments the tester is entitled to use, supplying controlled Robot API inputs, and comparing observable calls, events, outputs, errors, timing, and scores. The CJEU's [SAS Institute judgment, C-406/10](https://curia.europa.eu/juris/liste.jsf?num=C-406/10), confirms that software functionality is not itself copyright-protected and that an entitled user may observe, study, and test program behavior without accessing or decompiling its code, provided the user's acts stay within the permitted use and do not copy protected expression.
+
+Per-robot metadata should record the robot and version, test environment, observed failure, suspected category, evidence, eligibility status, explicit exclusion reason, inspection mode (`black-box`, `bundled-source`, or `decompiled`), and the permission or statutory basis for any source-level inspection. Eligibility categories might include obsolete Java dependencies, reflection or runtime tricks incompatible with modern Java, unsupported team behavior, and failures demonstrably present outside the bridge. To respect the community's interest in protecting bot strategies even where functional testing is lawful, findings should expose bridge-facing evidence rather than publish algorithm details. The categories and inspection ladder are proposed analysis output, not adopted policy. No legacy robot binary was decompiled during this calibration.
 
 ## Calibration result
 
