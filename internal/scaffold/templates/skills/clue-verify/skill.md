@@ -19,6 +19,7 @@ Pre-merge checklist. Run before opening or updating any PR. When the `clue` CLI 
 - [ ] Diagrams are inline Mermaid and readable when rendered.
 - [ ] `/changes/CH-xxx-slug/` is deleted in the digest commit; after merge, `main` contains no `/changes/`.
 - [ ] Decisions made during the change are recorded and correctly routed: expensive-to-reverse ones as ADRs (architecture) or PDRs (project/process) per C-011 (`author: agent` starts `inferred`; merging makes a decision binding but only an explicit human approval promotes it to `verified`, and an explicit objection keeps it `inferred` regardless), cheap-and-local-to-reverse ones as decision-log rows.
+- [ ] Every decision record is timeless: it states what is decided and only the enduring context and rationale needed to understand it; triggering incidents, chronology, conversations, implementation details, and review history remain in the change workspace, PR, and Git history.
 - [ ] Pending clerical signings are performed: every explicit approval given since the last digest is recorded — `status: verified` with each approver signed in `accepted-by:` (date = first approval, venue cited).
 - [ ] The branch roots at the current tip of `main` (`git merge-base HEAD origin/main` after `git fetch` equals `origin/main`) — if a sibling change merged first, rebase onto `main` and re-run this checklist.
 - [ ] The branch was not cut from another change's unmerged work, and no other CH's `/changes/` folder is visible on it.

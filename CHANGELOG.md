@@ -6,6 +6,7 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 
 ### Changed
 
+- **Decision records stay focused and timeless in every workflow.** The analysis, planning, change, extraction, and verification skills now keep triggering incidents, chronology, conversations, implementation details, and review history out of ADRs/PDRs; a decision records its outcome and only the enduring context and rationale needed to understand it, while findings, change workspaces, PRs, and Git retain the history.
 - **A declared plan revision may ride with its implementing pull request** (`clue-plan`). The default stays a dedicated plan PR, but a semantic plan revision that surfaced during implementation may travel with the change that implements it when four conditions hold: the PR explicitly declares the revision, a correctly typed decision record backs it, the PR calls it out for deliberate human approval, and an explicit objection reverts the revision — the milestone stays open — without blocking the rest of the change.
 
 ### Added
