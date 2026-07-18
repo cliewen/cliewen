@@ -46,6 +46,7 @@ const usage = `clue — a verifiable thread from goal to test
 
 Usage:
   clue init [path]
+  clue scaffold [path]
   clue validate [--forbid-changes] [path]
   clue version
 
@@ -56,6 +57,13 @@ Commands:
              template. Idempotent: existing files are never overwritten
              (they are reported and skipped); README index blocks between
              the clue:index markers are regenerated.
+
+  scaffold   Regenerate the taxonomy README index blocks under path
+             (default ".") from folder contents: entries whose targets
+             survive keep their hand-written lines, missing entries are
+             appended, prose outside the clue:index markers is never
+             touched. Materializes nothing — missing folder READMEs are
+             reported, and a path without a docs/ tree is an error.
 
   validate   Scan docs/ and changes/ under path (default ".") and check
              the frontmatter graph: core fields, unique IDs, link
@@ -85,6 +93,8 @@ func main() {
 	switch os.Args[1] {
 	case "init":
 		os.Exit(runInit(os.Args[2:], os.Stdout, os.Stderr))
+	case "scaffold":
+		os.Exit(runScaffold(os.Args[2:], os.Stdout, os.Stderr))
 	case "validate":
 		os.Exit(runValidate(os.Args[2:]))
 	case "version", "--version":
