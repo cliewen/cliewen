@@ -24,4 +24,4 @@ Pre-merge checklist. Run before opening or updating any PR. When the `clue` CLI 
 - [ ] The branch roots at the current tip of `main` (`git merge-base HEAD origin/main` after `git fetch` equals `origin/main`) — if a sibling change merged first, rebase onto `main` and re-run this checklist.
 - [ ] The branch was not cut from another change's unmerged work, and no other CH's `/changes/` folder is visible on it.
 - [ ] The author's previous change is merged — this is not a second change in flight; if work had to build on an unmerged change, the human's explicit go-ahead is recorded.
-- [ ] The hosted PR is this change's only route into `main`: the agent opens (or updates) it as the review surface and will not merge it, create a local merge commit into `main`, or push to `main` — the merge is the human's act.
+- [ ] The hosted PR is this change's only route into `main`: after this checklist passes, the agent opens (or updates) it ready for review, never as a draft, and will not merge it, create a local merge commit into `main`, or push to `main` — the merge is the human's act.
