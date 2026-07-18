@@ -9,20 +9,36 @@ import (
 	"strings"
 )
 
-// skillsDir is where a Cliewen repo keeps its agent skills. Each skill.md
-// carries a version stamp in its frontmatter (G-002/M-004); clue compares
-// those stamps to the running binary's release version to make drift
-// lintable (ADR-011).
-const skillsDir = ".agents/skills"
+// skillsDir is where a Cliewen repo keeps its agent skills alongside any
+// unrelated skills the adopter installs. A Cliewen-managed skill declares
+// cliewen-skill: true before its version joins the checked set (ADR-022).
+const (
+	skillsDir          = ".agents/skills"
+	cliewenSkillMarker = "cliewen-skill"
+)
+
+// These names predate ADR-022's ownership marker. Reserving the exact legacy
+// slots lets a new binary fail toward reinstalling old Cliewen skills instead
+// of silently treating a pre-marker installation as an empty managed set.
+var legacyCliewenSkillNames = map[string]bool{
+	"clue-analysis": true,
+	"clue-delta":    true,
+	"clue-extract":  true,
+	"clue-plan":     true,
+	"clue-verify":   true,
+}
 
 // checkSkillVersions enforces, in order of what each build can see:
 //
-//   - every skill carries a version stamp (AC-020);
-//   - the skills agree on one version — "versioned as a set" via per-skill
-//     markers (AC-021);
+//   - only skills marked cliewen-skill: true join the managed set; malformed
+//     markers fail, while unmarked third-party skills are ignored (AC-029);
+//   - an unmarked canonical legacy slot fails toward reinstall (AC-030);
+//   - every managed skill carries a version stamp (AC-031);
+//   - managed skills agree on one version — "versioned as a set" via
+//     per-skill markers (AC-032);
 //   - a released binary (version is neither "" nor "dev") matches the
-//     skills, else the difference is drift (AC-022). dev/source builds skip
-//     this last comparison — they have no release to drift from.
+//     managed skills, else the difference is drift (AC-033). dev/source
+//     builds skip this last comparison — they have no release to drift from.
 //
 // A repo with no skills folder has nothing to check.
 func checkSkillVersions(c *Corpus, binaryVersion string) []Issue {
@@ -46,23 +62,44 @@ func checkSkillVersions(c *Corpus, binaryVersion string) []Issue {
 		}
 		text := strings.ReplaceAll(string(data), "\r\n", "\n")
 		fields, _, ok, perr := parseFrontmatter(text)
+		declaresOwnership := frontmatterDeclares(text, cliewenSkillMarker)
 		if perr != nil {
-			issues = append(issues, Issue{rel, "skill frontmatter does not parse: " + perr.Error()})
+			if legacyCliewenSkillNames[e.Name()] || declaresOwnership {
+				issues = append(issues, Issue{rel, "skill frontmatter does not parse: " + perr.Error()})
+			}
+			continue
+		}
+		if !ok {
+			if declaresOwnership {
+				issues = append(issues, Issue{rel, "skill frontmatter does not parse: ownership marker is inside an unterminated YAML block"})
+			} else if legacyCliewenSkillNames[e.Name()] {
+				issues = append(issues, Issue{rel, "legacy Cliewen skill carries no cliewen-skill: true marker (reinstall the skills from this clue release)"})
+			}
+			continue
+		}
+		marker, marked := fields[cliewenSkillMarker]
+		if !marked {
+			if legacyCliewenSkillNames[e.Name()] {
+				issues = append(issues, Issue{rel, "legacy Cliewen skill carries no cliewen-skill: true marker (reinstall the skills from this clue release)"})
+			}
+			continue
+		}
+		owns, markerIsBool := marker.(bool)
+		if !markerIsBool || !owns {
+			issues = append(issues, Issue{rel, fmt.Sprintf("cliewen-skill marker must be boolean true, got %v (%T)", marker, marker)})
 			continue
 		}
 		v := ""
-		if ok {
-			switch t := fields["version"].(type) {
-			case nil:
-			case string:
-				v = t
-			default:
-				// YAML reads e.g. `version: 1.0` as a number; the stamp
-				// must be a semver string so it compares against the
-				// binary's.
-				issues = append(issues, Issue{rel, fmt.Sprintf("skill version %v is a YAML %T, not a string — stamp bare semver (e.g. 0.1.0)", t, t)})
-				continue
-			}
+		switch t := fields["version"].(type) {
+		case nil:
+		case string:
+			v = t
+		default:
+			// YAML reads e.g. `version: 1.0` as a number; the stamp
+			// must be a semver string so it compares against the
+			// binary's.
+			issues = append(issues, Issue{rel, fmt.Sprintf("skill version %v is a YAML %T, not a string — stamp bare semver (e.g. 0.1.0)", t, t)})
+			continue
 		}
 		if v == "" {
 			issues = append(issues, Issue{rel, "skill carries no version stamp"})
@@ -75,8 +112,8 @@ func checkSkillVersions(c *Corpus, binaryVersion string) []Issue {
 	}
 	sort.Slice(skills, func(i, j int) bool { return skills[i].path < skills[j].path })
 
-	// AC-021: the skills must agree on one version. The reference is the
-	// version most skills carry (ties go to the earliest-sorted holder),
+	// AC-032: the managed skills must agree on one version. The reference is
+	// the version most skills carry (ties go to the earliest-sorted holder),
 	// so the report names the actual outlier rather than whichever skill
 	// happens to sort first.
 	count := make(map[string]int, len(skills))
@@ -97,7 +134,7 @@ func checkSkillVersions(c *Corpus, binaryVersion string) []Issue {
 		}
 	}
 
-	// AC-022: drift against a released binary. Only meaningful once the
+	// AC-033: drift against a released binary. Only meaningful once the
 	// skills agree; otherwise the disagreement above is the finding.
 	if consistent && binaryVersion != "" && binaryVersion != "dev" {
 		for _, s := range skills {
@@ -107,4 +144,28 @@ func checkSkillVersions(c *Corpus, binaryVersion string) []Issue {
 		}
 	}
 	return issues
+}
+
+// frontmatterDeclares is used only when YAML parsing fails: an unparseable
+// third-party skill remains outside Cliewen's scope, but a file that visibly
+// attempts to declare Cliewen ownership must not escape with a broken block.
+func frontmatterDeclares(text, key string) bool {
+	if !strings.HasPrefix(text, "---\n") {
+		return false
+	}
+	rest := text[len("---\n"):]
+	end := strings.Index(rest, "\n---\n")
+	if end < 0 {
+		if strings.HasSuffix(rest, "\n---") {
+			end = len(rest) - len("\n---")
+		} else {
+			end = len(rest)
+		}
+	}
+	for _, line := range strings.Split(rest[:end], "\n") {
+		if strings.HasPrefix(line, key+":") {
+			return true
+		}
+	}
+	return false
 }

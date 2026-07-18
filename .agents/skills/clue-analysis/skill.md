@@ -1,4 +1,5 @@
 ---
+cliewen-skill: true
 version: 0.3.0
 ---
 

@@ -11,13 +11,13 @@ goal: G-002
 
 ## What
 
-`clue` reports a release version (`clue version` / `clue --version`), stamped at build time from the release tag. Every agent skill carries a matching `version:` in its frontmatter, and `clue validate` makes drift between them lintable: a skill without a stamp fails, skills that disagree on a version fail, and a *released* `clue` whose skills differ from the binary fails as drift (a `dev` build skips that last comparison — it has no release to drift from). The standalone skills are generated from skill-specific templates and shared instruction fragments; repository tests also reject drift between those canonical sources and either distributed skill tree.
+`clue` reports a release version (`clue version` / `clue --version`), stamped at build time from the release tag. Every Cliewen agent skill declares `cliewen-skill: true` and carries a matching `version:` in its frontmatter ([ADR-022](../../decisions/ADR-022-skill-ownership-marker.md)); `clue validate` scopes the version set to those marked skills, so unrelated skills can coexist under `.agents/skills/`. A marked skill without a stamp fails, marked skills that disagree on a version fail, and a *released* `clue` whose marked skills differ from the binary fails as drift (a `dev` build skips that last comparison — it has no release to drift from). The standalone skills are generated from skill-specific templates and shared instruction fragments; repository tests also reject drift between those canonical sources and either distributed skill tree.
 
 A tagged release (`vX.Y.Z`) builds cross-platform binaries — linux/darwin/windows × amd64/arm64 — each stamped with the version, published as a GitHub release for `go install` and `gh release download`.
 
 ## Why
 
-Delivers [G-002](../../goals/G-002-versioned-clue-and-skills.md): `go install` builds whatever the checkout has, and nothing told an adopted repo whether its installed skills or binary had drifted behind cliewen's main. A version on the binary plus a version marker in each skill makes drift detectable — and, with the new rule, lintable. The carrier rule ships method decisions as binary rules and skill text; without versions, drift between the judge (`clue`), the guidance (skills), and the corpus conventions is invisible until something breaks.
+Delivers [G-002](../../goals/G-002-versioned-clue-and-skills.md): `go install` builds whatever the checkout has, and nothing told an adopted repo whether its installed skills or binary had drifted behind cliewen's main. Ownership and version markers on each Cliewen skill make the managed set explicit and its drift detectable — and lintable — without absorbing third-party skills that share the standard directory. The carrier rule ships method decisions as binary rules and skill text; without versions, drift between the judge (`clue`), the guidance (skills), and the corpus conventions is invisible until something breaks.
 
 Acceptance criteria: [criteria.md](criteria.md) · design and the release pipeline: [design.md](design.md).
 

@@ -34,6 +34,9 @@ func TestAC028_GenerationProducesMatchingStandaloneSkillTrees(t *testing.T) {
 		if string(agent) != string(embedded) {
 			t.Fatalf("%s differs between generated output trees", file.relativePath)
 		}
+		if filepath.Base(file.relativePath) == "skill.md" && !strings.Contains(string(agent), "\ncliewen-skill: true\n") {
+			t.Fatalf("%s carries no Cliewen ownership marker", file.relativePath)
+		}
 	}
 }
 

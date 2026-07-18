@@ -27,30 +27,107 @@ func anyMsg(issues []Issue, sub string) bool {
 	return false
 }
 
-// AC-020: a skill without a version stamp fails.
-func TestAC020_SkillWithoutVersionFails(t *testing.T) {
+func markedSkill(version string) string {
+	return "---\ncliewen-skill: true\nversion: " + version + "\n---\n"
+}
+
+// AC-029: marked skills join the Cliewen set while an unmarked
+// third-party skill is ignored.
+func TestAC029_OwnershipMarkerScopesValidation(t *testing.T) {
 	root := t.TempDir()
-	writeSkill(t, root, "clue-delta", "# clue-delta\n\nno frontmatter, no stamp\n")
+	writeSkill(t, root, "clue-delta", markedSkill("0.1.0"))
+	writeSkill(t, root, "third-party", "---\nversion: 9.9.9\n---\n")
+	if issues := checkSkillVersions(&Corpus{Root: root}, "0.1.0"); len(issues) != 0 {
+		t.Fatalf("unmarked third-party skill affected validation: %v", issues)
+	}
+}
+
+// AC-029 (negative): a present ownership marker must be boolean true.
+func TestAC029_InvalidOwnershipMarkerFails(t *testing.T) {
+	root := t.TempDir()
+	writeSkill(t, root, "third-party", "---\ncliewen-skill: \"true\"\nversion: 0.1.0\n---\n")
+	issues := checkSkillVersions(&Corpus{Root: root}, "dev")
+	if !anyMsg(issues, "must be boolean true") {
+		t.Fatalf("expected malformed ownership marker issue, got %v", issues)
+	}
+}
+
+// AC-029 (diagnostics): a declared marker inside an unterminated YAML
+// block is not silently treated as an unmarked third-party skill.
+func TestAC029_UnterminatedOwnershipFrontmatterFails(t *testing.T) {
+	root := t.TempDir()
+	writeSkill(t, root, "third-party", "---\ncliewen-skill: true\nversion: 0.1.0\n")
+	issues := checkSkillVersions(&Corpus{Root: root}, "dev")
+	if !anyMsg(issues, "unterminated YAML block") {
+		t.Fatalf("expected unterminated ownership frontmatter issue, got %v", issues)
+	}
+}
+
+// AC-029 (negative): a nested key in malformed third-party
+// frontmatter does not become a top-level ownership declaration.
+func TestAC029_MalformedNestedMarkerDoesNotClaimThirdPartySkill(t *testing.T) {
+	root := t.TempDir()
+	writeSkill(t, root, "third-party", "---\nmetadata:\n  cliewen-skill: true\nbroken: [\n---\n")
+	if issues := checkSkillVersions(&Corpus{Root: root}, "dev"); len(issues) != 0 {
+		t.Fatalf("nested marker claimed an unmarked third-party skill: %v", issues)
+	}
+}
+
+// AC-029 (diagnostics): a delimiter lookalike before a top-level marker
+// does not hide a malformed Cliewen ownership declaration.
+func TestAC029_DelimiterLookalikeDoesNotHideMalformedMarkedSkill(t *testing.T) {
+	root := t.TempDir()
+	writeSkill(t, root, "third-party", "---\nversion: [broken\n---not-a-delimiter\ncliewen-skill: true\n---\n")
+	issues := checkSkillVersions(&Corpus{Root: root}, "dev")
+	if !anyMsg(issues, "does not parse") {
+		t.Fatalf("expected malformed marked frontmatter issue, got %v", issues)
+	}
+}
+
+// AC-030: an unmarked skill in a canonical legacy slot fails toward
+// reinstalling the Cliewen skill set.
+func TestAC030_UnmarkedLegacyCliewenSkillFails(t *testing.T) {
+	root := t.TempDir()
+	writeSkill(t, root, "clue-delta", "---\nversion: 0.3.0\n---\n")
+	issues := checkSkillVersions(&Corpus{Root: root}, "0.4.0")
+	if !anyMsg(issues, "legacy Cliewen skill") || !anyMsg(issues, "reinstall") {
+		t.Fatalf("expected legacy reinstall guidance, got %v", issues)
+	}
+}
+
+// AC-030 (negative): an unmarked skill outside the reserved legacy names
+// remains outside Cliewen's validation scope.
+func TestAC030_UnmarkedNonCliewenSkillPasses(t *testing.T) {
+	root := t.TempDir()
+	writeSkill(t, root, "my-skill", "# no Cliewen frontmatter\n")
+	if issues := checkSkillVersions(&Corpus{Root: root}, "0.4.0"); len(issues) != 0 {
+		t.Fatalf("unmarked non-Cliewen skill should be ignored, got %v", issues)
+	}
+}
+
+// AC-031: a marked Cliewen skill without a version stamp fails.
+func TestAC031_MarkedSkillWithoutVersionFails(t *testing.T) {
+	root := t.TempDir()
+	writeSkill(t, root, "clue-delta", "---\ncliewen-skill: true\n---\n")
 	if !anyMsg(checkSkillVersions(&Corpus{Root: root}, "dev"), "no version stamp") {
 		t.Fatal("expected a missing-version-stamp issue")
 	}
 }
 
-// AC-020 (negative): a stamped skill raises no missing-stamp issue.
-func TestAC020_SkillWithVersionPasses(t *testing.T) {
+// AC-031 (negative): a marked, stamped skill raises no stamp issue.
+func TestAC031_MarkedSkillWithVersionPasses(t *testing.T) {
 	root := t.TempDir()
-	writeSkill(t, root, "clue-delta", "---\nversion: 0.1.0\n---\n\n# clue-delta\n")
-	if anyMsg(checkSkillVersions(&Corpus{Root: root}, "dev"), "no version stamp") {
-		t.Fatal("a stamped skill should not be flagged")
+	writeSkill(t, root, "clue-delta", markedSkill("0.1.0"))
+	if issues := checkSkillVersions(&Corpus{Root: root}, "dev"); len(issues) != 0 {
+		t.Fatalf("marked, stamped skill should pass, got %v", issues)
 	}
 }
 
-// AC-020 (diagnostics): a non-string version is named as such — YAML
-// reads `version: 1.0` as a number, and the message must not send the
-// user hunting for a stamp that is present.
-func TestAC020_NonStringVersionIsNamedAsSuch(t *testing.T) {
+// AC-031 (diagnostics): a non-string version is named as such — YAML
+// reads `version: 1.0` as a number.
+func TestAC031_NonStringVersionIsNamedAsSuch(t *testing.T) {
 	root := t.TempDir()
-	writeSkill(t, root, "clue-delta", "---\nversion: 1.0\n---\n")
+	writeSkill(t, root, "clue-delta", "---\ncliewen-skill: true\nversion: 1.0\n---\n")
 	issues := checkSkillVersions(&Corpus{Root: root}, "dev")
 	if !anyMsg(issues, "not a string") {
 		t.Fatalf("expected a not-a-string issue, got %v", issues)
@@ -60,11 +137,11 @@ func TestAC020_NonStringVersionIsNamedAsSuch(t *testing.T) {
 	}
 }
 
-// AC-020 (diagnostics): malformed frontmatter is named as a parse
-// failure, not as a missing stamp.
-func TestAC020_MalformedFrontmatterIsNamedAsSuch(t *testing.T) {
+// AC-031 (diagnostics): malformed frontmatter that declares Cliewen
+// ownership is a parse failure, not a missing stamp.
+func TestAC031_MalformedMarkedFrontmatterIsNamedAsSuch(t *testing.T) {
 	root := t.TempDir()
-	writeSkill(t, root, "clue-delta", "---\nversion: [unclosed\n---\n")
+	writeSkill(t, root, "custom-cliewen", "---\ncliewen-skill: true\nversion: [unclosed\n---\n")
 	issues := checkSkillVersions(&Corpus{Root: root}, "dev")
 	if !anyMsg(issues, "does not parse") {
 		t.Fatalf("expected a frontmatter parse issue, got %v", issues)
@@ -74,33 +151,35 @@ func TestAC020_MalformedFrontmatterIsNamedAsSuch(t *testing.T) {
 	}
 }
 
-// AC-021: skills that disagree on a version fail.
-func TestAC021_DivergentSkillVersionsFail(t *testing.T) {
+// AC-032: marked skills that disagree on a version fail.
+func TestAC032_DivergentMarkedSkillVersionsFail(t *testing.T) {
 	root := t.TempDir()
-	writeSkill(t, root, "clue-delta", "---\nversion: 0.1.0\n---\n")
-	writeSkill(t, root, "clue-plan", "---\nversion: 0.2.0\n---\n")
+	writeSkill(t, root, "clue-delta", markedSkill("0.1.0"))
+	writeSkill(t, root, "clue-plan", markedSkill("0.2.0"))
 	if !anyMsg(checkSkillVersions(&Corpus{Root: root}, "dev"), "disagrees") {
-		t.Fatal("expected a disagreement issue across skills")
+		t.Fatal("expected a disagreement issue across marked skills")
 	}
 }
 
-// AC-021 (negative): skills that agree pass the set-consistency check.
-func TestAC021_ConsistentSkillVersionsPass(t *testing.T) {
+// AC-032 (negative): marked skills that agree pass, regardless of an
+// unmarked skill's version.
+func TestAC032_ConsistentMarkedSkillVersionsPass(t *testing.T) {
 	root := t.TempDir()
-	writeSkill(t, root, "clue-delta", "---\nversion: 0.1.0\n---\n")
-	writeSkill(t, root, "clue-plan", "---\nversion: 0.1.0\n---\n")
-	if anyMsg(checkSkillVersions(&Corpus{Root: root}, "dev"), "disagrees") {
-		t.Fatal("agreeing skills should not be flagged")
+	writeSkill(t, root, "clue-delta", markedSkill("0.1.0"))
+	writeSkill(t, root, "clue-plan", markedSkill("0.1.0"))
+	writeSkill(t, root, "third-party", "---\nversion: 8.0.0\n---\n")
+	if issues := checkSkillVersions(&Corpus{Root: root}, "dev"); len(issues) != 0 {
+		t.Fatalf("consistent marked skills should pass, got %v", issues)
 	}
 }
 
-// AC-021 (diagnostics): the outlier is the skill named, even when it
-// sorts first — the reference is the version the majority carries.
-func TestAC021_OutlierIsNamedEvenWhenSortedFirst(t *testing.T) {
+// AC-032 (diagnostics): the marked outlier is named even when it sorts
+// first — the reference is the version the majority carries.
+func TestAC032_OutlierIsNamedEvenWhenSortedFirst(t *testing.T) {
 	root := t.TempDir()
-	writeSkill(t, root, "a-outlier", "---\nversion: 0.9.0\n---\n")
-	writeSkill(t, root, "clue-delta", "---\nversion: 0.1.0\n---\n")
-	writeSkill(t, root, "clue-plan", "---\nversion: 0.1.0\n---\n")
+	writeSkill(t, root, "a-outlier", markedSkill("0.9.0"))
+	writeSkill(t, root, "clue-delta", markedSkill("0.1.0"))
+	writeSkill(t, root, "clue-plan", markedSkill("0.1.0"))
 	issues := checkSkillVersions(&Corpus{Root: root}, "dev")
 	if len(issues) != 1 {
 		t.Fatalf("expected exactly the outlier to be reported, got %v", issues)
@@ -110,25 +189,26 @@ func TestAC021_OutlierIsNamedEvenWhenSortedFirst(t *testing.T) {
 	}
 }
 
-// AC-022: a released binary whose skills differ from it reports drift.
-func TestAC022_ReleasedBinaryDriftFails(t *testing.T) {
+// AC-033: a released binary whose marked skills differ reports drift.
+func TestAC033_ReleasedBinaryDriftFails(t *testing.T) {
 	root := t.TempDir()
-	writeSkill(t, root, "clue-delta", "---\nversion: 0.1.0\n---\n")
+	writeSkill(t, root, "clue-delta", markedSkill("0.1.0"))
 	if !anyMsg(checkSkillVersions(&Corpus{Root: root}, "0.2.0"), "drift") {
 		t.Fatal("expected drift against a released binary")
 	}
 }
 
-// AC-022 (negative): a dev build skips the comparison, and a matching
-// release does not drift.
-func TestAC022_DevSkipsDriftAndMatchingReleasePasses(t *testing.T) {
+// AC-033 (negative): a dev build skips comparison, a matching release
+// passes, and unmarked skills do not drift.
+func TestAC033_DevMatchingAndUnmarkedSkillsDoNotDrift(t *testing.T) {
 	root := t.TempDir()
-	writeSkill(t, root, "clue-delta", "---\nversion: 0.1.0\n---\n")
+	writeSkill(t, root, "clue-delta", markedSkill("0.1.0"))
+	writeSkill(t, root, "third-party", "---\nversion: 9.9.9\n---\n")
 	if anyMsg(checkSkillVersions(&Corpus{Root: root}, "dev"), "drift") {
 		t.Fatal("a dev build must not report drift")
 	}
-	if anyMsg(checkSkillVersions(&Corpus{Root: root}, "0.1.0"), "drift") {
-		t.Fatal("a release matching the skills must not drift")
+	if issues := checkSkillVersions(&Corpus{Root: root}, "0.1.0"); len(issues) != 0 {
+		t.Fatalf("matching release with unmarked neighbor should pass, got %v", issues)
 	}
 }
 
