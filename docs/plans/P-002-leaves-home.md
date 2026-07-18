@@ -8,6 +8,8 @@ title: Cliewen leaves home — distribution, greenfield bootstrap, generated ind
 
 # P-002 — Cliewen leaves home
 
+> **Completed 2026-07-18** — all milestones done; frozen immutable. The campaign's durable lessons were distilled continuously into its linked decisions and findings. No successor is designated.
+
 The baseline ([P-001](P-001-elaboration-baseline.md)) proved the methodology inside two repos that share a maintainer and a checkout. This campaign makes Cliewen adoptable without either: a versioned binary anyone can install, a one-command greenfield start, and generated index blocks. Serves [G-001](../goals/G-001-verifiable-thread.md) and [G-002](../goals/G-002-versioned-clue-and-skills.md). Milestone numbering is corpus-global and continues from P-001 (M-001…M-003).
 
 ## Milestones

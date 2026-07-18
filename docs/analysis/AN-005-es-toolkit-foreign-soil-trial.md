@@ -43,9 +43,9 @@ Dependency installation and builds populated ignored outputs and local caches; t
 | es-toolkit is a modern, high-performance JavaScript utility library that emphasizes strong types, small bundles, and zero runtime dependencies | observed | `README.md`, package metadata, root `AGENTS.md` |
 | The main entry point is intentionally strict and optimized for common cases, while `es-toolkit/compat` targets Lodash compatibility and accepts parity fixes rather than new functions | observed | Root `AGENTS.md` |
 | Core utilities, compatibility utilities, types, documentation, packaging, and benchmarks are useful capability boundaries | inferred | Source layout, workspaces, focused tests, and workflows |
-| Current public activity is concentrated on compatibility fixes, documentation, tests, and package-entry-point maintenance | observed activity | Recent commits, pull requests, and issues |
+| Current public activity is concentrated on compatibility fixes, documentation, tests, and package-entry-point maintenance | observed | Recent commits, pull requests, and issues |
 | That activity is an accepted future plan | unverified | No committed roadmap or open GitHub milestone was found; activity alone does not establish intent |
-| Initialization would install Cliewen's routing rules alongside the existing agent instructions | contradicted | Cliewen preserves an existing `AGENTS.md`; the target already has one |
+| Cliewen initialization preserves the target's existing `AGENTS.md` and therefore would not install Cliewen's routing rules there | observed | Cliewen's onboarding contract and the target's existing root `AGENTS.md` |
 
 The inferred goal is: provide a fast, type-safe, compact set of modern JavaScript utilities, with an explicitly separate compatibility surface for users migrating from Lodash.
 
@@ -124,7 +124,7 @@ This is a positive cross-trial result rather than an attempt to manufacture a se
 - **The installed Node.js 24 runtime is close enough to the declared one.** The prepack result changed under the exact pinned 24.13.0 runtime.
 - **One failing Vitest file means the package cannot be built or distributed.** Focused package construction, distribution, type, and bundle checks passed; the demonstrated failure is Windows-specific generated source in one test.
 - **Green changed-file linting means the documented full lint command is green on the clean tree.** The two commands have different scopes, and the full-tree command finds existing tracked errors.
-- **Recent compatibility activity is the plan.** It is observed activity; no accepted milestone sequence was found.
+- **Recent compatibility activity is the plan.** The activity is observed; no accepted milestone sequence was found.
 - **A pre-existing `AGENTS.md` means Cliewen can be initialized without integration work.** Initialization preserves that file and therefore does not install Cliewen's routing hub.
 - **A useful trial must adopt Cliewen into the target.** PDR-005 deliberately separates methodology analysis from adoption mechanics.
 
