@@ -16,10 +16,11 @@ The methodology, its distribution story, and its foreign-soil validation are com
 
 ## Decision outcome
 
-**The repository goes public at the end of a dedicated readiness campaign, in a fixed order: readiness changes land first, one release is cut from them, then visibility flips.**
+**The repository goes public at the end of a dedicated readiness campaign, in a fixed order: readiness changes land first, release v0.4.0 is cut from them, then visibility flips and the guide goes live in the same act.**
 
-- **Readiness precedes the flip.** The corpus must be stranger-safe, the community front door (contribution, conduct, security-reporting paths) must exist, and a human-readable guide must be published. The campaign's milestones are the checklist; the flip is its last act.
-- **The goes-public release is cut last.** The release that strangers first see carries the readiness work and an install story free of private-repo caveats. Earlier releases keep their private-era text as historical record.
+- **Readiness precedes the flip.** The corpus must be stranger-safe, the community front door (contribution, conduct, security-reporting paths) must exist, and a human-readable guide must be **deployment-ready**: built green with dead links failing the build, its deploy pipeline in place but gated, because the host cannot serve a Pages site for a private repository. The campaign's milestones are the checklist.
+- **The flip and the guide going live are one act.** Flipping visibility, ungating the deploy, and verifying the guide live are a single final step; the repository is not announced-by-visibility with the guide dark, and the guide cannot precede the flip.
+- **The goes-public release is v0.4.0, cut last.** It is the release that strangers first see: it carries the readiness work and an install story free of private-repo caveats, and the flip follows it. Earlier releases keep their private-era text as historical record.
 - **The guide is a handwritten site, not a rendered corpus.** A static documentation site (VitePress on GitHub Pages) explains the methodology, the directory taxonomy, the change loop, and the skills in narrative form, and links to the corpus on GitHub as the living example. The corpus is written for practitioners and agents inside the loop; rendering it verbatim would make every corpus convention a site-breakage risk and would not serve a newcomer.
 - **Citation policy: the corpus never cites a private repository's artifacts as normative references.** A reader must be able to resolve every reference the corpus relies on. Historical adopter evidence naming private repos (extraction targets, adopter-CI proofs) stays — evidence is not rewritten — with the analysis index noting that some cited adopter repositories are private.
 
