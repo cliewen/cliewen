@@ -154,12 +154,16 @@ func frontmatterDeclares(text, key string) bool {
 		return false
 	}
 	rest := text[len("---\n"):]
-	end := strings.Index(rest, "\n---")
-	if end >= 0 {
-		rest = rest[:end]
+	end := strings.Index(rest, "\n---\n")
+	if end < 0 {
+		if strings.HasSuffix(rest, "\n---") {
+			end = len(rest) - len("\n---")
+		} else {
+			end = len(rest)
+		}
 	}
-	for _, line := range strings.Split(rest, "\n") {
-		if strings.HasPrefix(strings.TrimSpace(line), key+":") {
+	for _, line := range strings.Split(rest[:end], "\n") {
+		if strings.HasPrefix(line, key+":") {
 			return true
 		}
 	}

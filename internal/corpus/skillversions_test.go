@@ -63,6 +63,27 @@ func TestAC029_UnterminatedOwnershipFrontmatterFails(t *testing.T) {
 	}
 }
 
+// AC-029 (negative): a nested key in malformed third-party
+// frontmatter does not become a top-level ownership declaration.
+func TestAC029_MalformedNestedMarkerDoesNotClaimThirdPartySkill(t *testing.T) {
+	root := t.TempDir()
+	writeSkill(t, root, "third-party", "---\nmetadata:\n  cliewen-skill: true\nbroken: [\n---\n")
+	if issues := checkSkillVersions(&Corpus{Root: root}, "dev"); len(issues) != 0 {
+		t.Fatalf("nested marker claimed an unmarked third-party skill: %v", issues)
+	}
+}
+
+// AC-029 (diagnostics): a delimiter lookalike before a top-level marker
+// does not hide a malformed Cliewen ownership declaration.
+func TestAC029_DelimiterLookalikeDoesNotHideMalformedMarkedSkill(t *testing.T) {
+	root := t.TempDir()
+	writeSkill(t, root, "third-party", "---\nversion: [broken\n---not-a-delimiter\ncliewen-skill: true\n---\n")
+	issues := checkSkillVersions(&Corpus{Root: root}, "dev")
+	if !anyMsg(issues, "does not parse") {
+		t.Fatalf("expected malformed marked frontmatter issue, got %v", issues)
+	}
+}
+
 // AC-030: an unmarked skill in a canonical legacy slot fails toward
 // reinstalling the Cliewen skill set.
 func TestAC030_UnmarkedLegacyCliewenSkillFails(t *testing.T) {
