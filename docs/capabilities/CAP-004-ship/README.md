@@ -23,4 +23,4 @@ Acceptance criteria: [criteria.md](criteria.md) · design and the release pipeli
 
 ## Status note
 
-`active`: `clue version`, the skill stamps, and the drift rule ship with tests carrying the AC-IDs (CH-007). The other half of M-004 — an adopted repo's CI actually installing and running `clue` — closed in model2diagram's CH-003 (its PR #3, merged 2026-07-13): the `validate` job runs a vendored, checksum-verified release binary, so an adopter needs no cross-repo credentials. M-004 is `done`.
+`active`: `clue version`, the skill stamps, release artifacts, and the drift rule ship with tests carrying the AC-IDs. P-002's completed M-004 row preserves the historical adopter-CI evidence; the analysis index identifies the private-repository boundary around that evidence. The capability's normative contract and verification remain entirely in this repository.

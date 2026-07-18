@@ -20,7 +20,7 @@ mkdir -p ~/.local/bin && install -m 0755 clue-*-linux-amd64 ~/.local/bin/clue
 export PATH="$HOME/.local/bin:$PATH"   # skip if ~/.local/bin is already on your PATH; persist it in your shell profile
 ```
 
-Either route ends with `clue version` working from any directory. On Windows, download the `clue-*-windows-*.exe` asset for your architecture and place it on `PATH` as `clue.exe`. While the repo is private, `go install` additionally needs `GOPRIVATE=github.com/cliewen` and git authentication for github.com; `gh release download` authenticates through `gh auth login`.
+Either route ends with `clue version` working from any directory. On Windows, download the `clue-*-windows-*.exe` asset for your architecture and place it on `PATH` as `clue.exe`. The repository is currently private while the [public-release campaign](docs/plans/P-003-goes-public.md) completes: collaborators using `go install` additionally need `GOPRIVATE=github.com/cliewen` and git authentication for github.com, while `gh release download` authenticates through `gh auth login`. Anonymous installation is part of the campaign's final visibility milestone.
 
 `clue version` reports the release it was built from — a checkout build (`go build ./cmd/clue`) or an install of an untagged commit reports `dev`. A tagged release (`vX.Y.Z`) builds the cross-platform binaries and stamps each with its version; the agent skills carry the same version, and `clue validate` flags drift between them ([CAP-004](docs/capabilities/CAP-004-ship/README.md), [ADR-011](docs/decisions/ADR-011-version-stamping.md)).
 
@@ -56,7 +56,7 @@ The generator rewrites `.agents/skills/` and the embedded `clue init` copies und
 
 ## Status
 
-Baseline and distribution complete ([P-001](docs/plans/P-001-elaboration-baseline.md), [P-002](docs/plans/P-002-leaves-home.md)); the public-release campaign is under way ([P-003](docs/plans/P-003-goes-public.md)). User-visible history lives in [CHANGELOG.md](CHANGELOG.md); each GitHub release body is its version's section there. This repo dogfoods its own conventions from commit one — start reading at [docs/README.md](docs/README.md). Agents: see [AGENTS.md](AGENTS.md).
+Baseline and distribution are complete ([P-001](docs/plans/P-001-elaboration-baseline.md), [P-002](docs/plans/P-002-leaves-home.md)). The repository remains private while the public-release campaign completes readiness, community, guide, and release work before the visibility flip ([P-003](docs/plans/P-003-goes-public.md)). User-visible history lives in [CHANGELOG.md](CHANGELOG.md); each GitHub release body is its version's section there. This repo dogfoods its own conventions from commit one — start reading at [docs/README.md](docs/README.md). Agents: see [AGENTS.md](AGENTS.md).
 
 ## License
 
