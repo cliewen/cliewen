@@ -38,4 +38,5 @@ ADRs and PDRs share the MADR format and two-tier provenance: `inferred` (binding
 - [Decision log](log.md) — dated rows for the cheap-to-reverse (ADR-003 and ADR-004 demoted here)
 - [PDR-009-going-public](PDR-009-going-public.md)
 - [ADR-022-skill-ownership-marker](ADR-022-skill-ownership-marker.md)
+- [PDR-010-community-participation](PDR-010-community-participation.md)
 <!-- clue:index:end -->

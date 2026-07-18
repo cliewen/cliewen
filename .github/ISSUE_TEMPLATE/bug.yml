@@ -1,0 +1,82 @@
+name: Report a bug
+description: Report a reproducible problem with Cliewen
+title: "[Bug] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping improve Cliewen. If this may be a security vulnerability, stop and follow [the private security policy](https://github.com/cliewen/cliewen/security/policy) instead of submitting this public form.
+  - type: input
+    id: affected_version
+    attributes:
+      label: Affected version or commit
+      description: Run `clue version` where possible, or provide the commit SHA.
+      placeholder: v0.2.0 or abc1234
+    validations:
+      required: true
+  - type: dropdown
+    id: install_route
+    attributes:
+      label: Installation route
+      options:
+        - Prebuilt release
+        - go install
+        - Source checkout
+        - Other
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      description: Include the operating system, architecture, and relevant tool versions.
+      placeholder: Windows 11, amd64, Go 1.24
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened?
+      description: Describe the problem and its impact.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Reproduction steps
+      description: Provide the smallest sequence that reliably reproduces the problem.
+      placeholder: |
+        1. Run ...
+        2. Open ...
+        3. Observe ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant output
+      description: Paste logs or command output after removing credentials and unrelated sensitive data.
+      render: shell
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Public-report checks
+      options:
+        - label: I searched existing issues and pull requests for this problem.
+          required: true
+        - label: This report does not disclose a suspected security vulnerability or private conduct concern.
+          required: true
+    validations:
+      required: true

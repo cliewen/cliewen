@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Report a security vulnerability
+    url: https://github.com/cliewen/cliewen/security/policy
+    about: Do not report suspected vulnerabilities in public issues.
+  - name: Report a private conduct concern
+    url: https://github.com/cliewen/cliewen/blob/main/CODE_OF_CONDUCT.md
+    about: Use the private route in the Code of Conduct instead of a public issue.
