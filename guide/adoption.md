@@ -44,7 +44,7 @@ Use clue-extract to adopt this repository. Preserve existing IDs and test tracea
 
 Extraction is a meaning-level conversion, not a file copy. Existing evidence is mapped into one Cliewen corpus, and every extracted artifact begins inferred: non-decision artifacts use `provenance: inferred`, while decisions use `status: inferred` and `author: agent`. Human review promotes only the meaning it verifies. The old parallel specification corpus is removed in the same pull request.
 
-One extraction mapping ships today: OpenSpec as extended in [Intent Engineering for Coding Agents](https://intent-engineering-for-coding-agents.github.io/book/) — stock OpenSpec does not tag scenarios with stable IDs, so the mapping expects the book's conventions. Specs become capabilities, scenario IDs survive as acceptance-criterion IDs, so existing test tags keep working, and archived changes remain Git history. If the source format has no extraction mapping yet, writing that mapping is the first extraction task.
+One extraction mapping ships today: OpenSpec as extended in [Intent Engineering for Coding Agents](https://intent-engineering-for-coding-agents.github.io/book/). Stock OpenSpec does not tag scenarios with stable IDs, so the mapping expects the book's conventions. Specs become capabilities, scenario IDs survive as acceptance-criterion IDs, so existing test tags keep working, and archived changes remain Git history. If the source format has no extraction mapping yet, writing that mapping is the first extraction task.
 
 ## When the system spans repositories, wikis, and tickets
 
