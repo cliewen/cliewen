@@ -12,7 +12,7 @@ Security fixes are made for the current development line and the latest publishe
 
 ## Reporting a Vulnerability
 
-Report suspected vulnerabilities privately by emailing [flemming.n.larsen+cliewen-security@gmail.com](mailto:flemming.n.larsen+cliewen-security@gmail.com) with the subject `[Cliewen Security] <short vulnerability summary>`.
+Report suspected vulnerabilities privately through [Cliewen's security-reporting address](mailto:flemming&#46;n&#46;larsen&#43;cliewen-security&#64;gmail&#46;com) with the subject `[Cliewen Security] <short vulnerability summary>`.
 
 Do not open a public issue, pull request, or discussion for a suspected vulnerability.
 

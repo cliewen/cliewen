@@ -5,7 +5,7 @@ Thank you for helping improve Cliewen. Participation is governed by the [Code of
 ## Choose the Right Route
 
 - Suspected security vulnerability: follow the private reporting route in [SECURITY.md](SECURITY.md). Never disclose it in a public issue or pull request.
-- Private conduct concern: email [flemming.n.larsen+cliewen-conduct@gmail.com](mailto:flemming.n.larsen+cliewen-conduct@gmail.com) with the subject `[Cliewen Conduct] <private report>`. Never open a public conduct issue.
+- Private conduct concern: use the [private conduct-reporting address](mailto:flemming&#46;n&#46;larsen&#43;cliewen-conduct&#64;gmail&#46;com) with the subject `[Cliewen Conduct] <private report>`. Never open a public conduct issue.
 - Reproducible defect: open the structured bug form.
 - Desired outcome or unmet need: open the proposed-goal form. A goal issue records demand for consideration; it does not add the goal to Cliewen's accepted plan.
 - Small, obvious correction: a pull request may be enough, but it must still use a branch, declare itself plan-less or name the plan item it serves, and follow the light-change rules below.

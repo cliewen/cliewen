@@ -226,16 +226,23 @@ func TestSanity_CommunityFrontDoorIsWellFormed(t *testing.T) {
 		}
 		return string(data)
 	}
+	const (
+		conductMailto  = "mailto:flemming&#46;n&#46;larsen&#43;cliewen-conduct&#64;gmail&#46;com"
+		securityMailto = "mailto:flemming&#46;n&#46;larsen&#43;cliewen-security&#64;gmail&#46;com"
+	)
 
 	for rel, wants := range map[string][]string{
-		"CONTRIBUTING.md": {"CODE_OF_CONDUCT.md", "SECURITY.md", "human maintainer", "plan-less"},
+		"CONTRIBUTING.md": {"CODE_OF_CONDUCT.md", "SECURITY.md", conductMailto, "human maintainer", "plan-less"},
 		"CODE_OF_CONDUCT.md": {
-			"Contributor Covenant Code of Conduct",
-			"flemming.n.larsen+cliewen-conduct@gmail.com",
+			"Contributor Covenant 3.0 Code of Conduct",
+			"## Encouraged Behaviors",
+			"## Restricted Behaviors",
+			"## Addressing and Repairing Harm",
+			conductMailto,
 			"[Cliewen Conduct]",
 		},
 		"SECURITY.md": {
-			"flemming.n.larsen+cliewen-security@gmail.com",
+			securityMailto,
 			"[Cliewen Security]",
 			"7 calendar days",
 			"14 calendar days",
@@ -254,6 +261,12 @@ func TestSanity_CommunityFrontDoorIsWellFormed(t *testing.T) {
 			if !strings.Contains(content, want) {
 				t.Errorf("%s does not contain required community-front-door text %q", rel, want)
 			}
+		}
+	}
+	plainEmail := regexp.MustCompile(`[[:alnum:]._%+-]+@[[:alnum:].-]+\.[[:alpha:]]{2,}`)
+	for _, rel := range []string{"CONTRIBUTING.md", "CODE_OF_CONDUCT.md", "SECURITY.md", "docs/decisions/PDR-010-community-participation.md"} {
+		if match := plainEmail.FindString(read(rel)); match != "" {
+			t.Errorf("%s exposes plain email address %q instead of an encoded reporting link", rel, match)
 		}
 	}
 
@@ -280,7 +293,7 @@ func TestSanity_CommunityFrontDoorIsWellFormed(t *testing.T) {
 				t.Errorf("%s contains a %s item without an id", rel, item.Type)
 				continue
 			}
-			if ids[item.ID] {
+			if _, exists := ids[item.ID]; exists {
 				t.Errorf("%s contains duplicate id %q", rel, item.ID)
 			}
 			ids[item.ID] = item.Validations["required"]
