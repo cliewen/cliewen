@@ -42,7 +42,9 @@ Use `clue-extract` once when the repository already contains specifications, dec
 Use clue-extract to adopt this repository. Preserve existing IDs and test traceability. Mark every extracted non-decision artifact with provenance: inferred, and every extracted decision with status: inferred and author: agent. Stop when sources conflict.
 ```
 
-Extraction is a meaning-level conversion, not a file copy. Existing evidence is mapped into one Cliewen corpus, and every extracted artifact begins inferred: non-decision artifacts use `provenance: inferred`, while decisions use `status: inferred` and `author: agent`. Human review promotes only the meaning it verifies. The old parallel specification corpus is removed in the same pull request. If the source format has no extraction mapping yet, writing that mapping is the first extraction task.
+Extraction is a meaning-level conversion, not a file copy. Existing evidence is mapped into one Cliewen corpus, and every extracted artifact begins inferred: non-decision artifacts use `provenance: inferred`, while decisions use `status: inferred` and `author: agent`. Human review promotes only the meaning it verifies. The old parallel specification corpus is removed in the same pull request.
+
+One extraction mapping ships today: OpenSpec as extended in [Intent Engineering for Coding Agents](https://intent-engineering-for-coding-agents.github.io/book/) — stock OpenSpec does not tag scenarios with stable IDs, so the mapping expects the book's conventions. Specs become capabilities, scenario IDs survive as acceptance-criterion IDs, so existing test tags keep working, and archived changes remain Git history. If the source format has no extraction mapping yet, writing that mapping is the first extraction task.
 
 ## When the system spans repositories, wikis, and tickets
 
