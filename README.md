@@ -43,6 +43,10 @@ clue validate
 
 Adopting a repo with an existing spec corpus instead? That is the [`clue-extract`](.agents/skills/clue-extract/skill.md) skill — a one-time transform into `docs/`, run as the repo's first change loop.
 
+## Public guide
+
+The handwritten [Cliewen guide](guide/index.md) explains the methodology, corpus taxonomy, change loop, and skills for newcomers who are not yet inside a Cliewen repository. Its VitePress production build and dead-link check run in CI today; GitHub Pages deployment stays gated while the repository is private and becomes eligible at the final visibility flip.
+
 ## Developing the skills
 
 The five standalone `clue-*` skills are generated from `internal/skills/source/`: shared methodology instructions live under `shared/`, while each lifecycle workflow has its own template under `skills/`. Edit those sources and run:
@@ -56,7 +60,7 @@ The generator rewrites `.agents/skills/` and the embedded `clue init` copies und
 
 ## Status
 
-Baseline and distribution are complete ([P-001](docs/plans/P-001-elaboration-baseline.md), [P-002](docs/plans/P-002-leaves-home.md)). The repository remains private while the public-release campaign completes readiness, community, guide, and release work before the visibility flip ([P-003](docs/plans/P-003-goes-public.md)). User-visible history lives in [CHANGELOG.md](CHANGELOG.md); each GitHub release body is its version's section there. This repo dogfoods its own conventions from commit one — start reading at [docs/README.md](docs/README.md). Agents: see [AGENTS.md](AGENTS.md).
+Baseline and distribution are complete ([P-001](docs/plans/P-001-elaboration-baseline.md), [P-002](docs/plans/P-002-leaves-home.md)). Public readiness, the community front door, and the deployment-ready guide are complete; the repository remains private while the public-release campaign cuts v0.4.0 before the visibility flip ([P-003](docs/plans/P-003-goes-public.md)). User-visible history lives in [CHANGELOG.md](CHANGELOG.md); each GitHub release body is its version's section there. This repo dogfoods its own conventions from commit one — start reading at [docs/README.md](docs/README.md). Agents: see [AGENTS.md](AGENTS.md).
 
 ## License
 

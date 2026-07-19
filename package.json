@@ -1,0 +1,23 @@
+{
+  "name": "cliewen-guide",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "guide:dev": "vitepress dev guide",
+    "guide:build": "vitepress build guide",
+    "guide:preview": "vitepress preview guide"
+  },
+  "devDependencies": {
+    "mermaid": "11.16.0",
+    "vitepress": "1.6.4",
+    "vitepress-plugin-mermaid": "2.0.17",
+    "vue": "3.5.40"
+  },
+  "overrides": {
+    "vite": "6.4.3"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "packageManager": "npm@11.18.0"
+}

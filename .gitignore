@@ -5,3 +5,8 @@
 /clue.exe
 coverage
 coverage.out
+
+# public guide build output
+node_modules/
+guide/.vitepress/cache/
+guide/.vitepress/dist/

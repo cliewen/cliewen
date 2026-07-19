@@ -17,6 +17,10 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version: stable
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
       - name: Build
         run: go build ./...
       - name: Test (with coverage)
@@ -26,5 +30,9 @@ jobs:
           total=$(go tool cover -func=coverage.out | awk '/^total:/ {sub(/%/,"",$3); print $3}')
           echo "total statement coverage: ${total}%"
           awk -v t="$total" 'BEGIN { exit !(t >= 80) }' || { echo "FAIL: ${total}% is below the 80% gate (QS-001)"; exit 1; }
+      - name: Build public guide (strict dead-link check)
+        run: |
+          npm ci
+          npm run guide:build
       - name: Validate corpus (digest-before-merge gate)
         run: go run ./cmd/clue validate --forbid-changes
