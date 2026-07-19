@@ -30,6 +30,23 @@ export default defineConfig({
   },
   vite: {
     plugins: [mermaidConfigPlugin],
+    optimizeDeps: {
+      include: [
+        "mermaid",
+        "@braintree/sanitize-url",
+        "dayjs",
+        "cytoscape-cose-bilkent",
+        "cytoscape",
+      ],
+    },
+    resolve: {
+      alias: {
+        "dayjs/plugin/advancedFormat.js": "dayjs/esm/plugin/advancedFormat",
+        "dayjs/plugin/customParseFormat.js": "dayjs/esm/plugin/customParseFormat",
+        "dayjs/plugin/isoWeek.js": "dayjs/esm/plugin/isoWeek",
+        "cytoscape/dist/cytoscape.umd.js": "cytoscape/dist/cytoscape.esm.js",
+      },
+    },
   },
   head: [
     ["meta", { name: "theme-color", content: "#3b5bdb" }],
@@ -46,6 +63,7 @@ export default defineConfig({
         items: [
           { text: "What is Cliewen?", link: "/what-is-cliewen" },
           { text: "Get started", link: "/getting-started" },
+          { text: "Greenfield and brownfield", link: "/adoption" },
         ],
       },
       {
