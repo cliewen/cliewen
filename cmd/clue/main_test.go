@@ -12,6 +12,7 @@ import (
 	"testing"
 
 	"github.com/cliewen/cliewen/internal/corpus"
+	"gopkg.in/yaml.v3"
 )
 
 func writeFile(t *testing.T, root, rel, content string) {
@@ -199,6 +200,131 @@ func TestSanity_ReleaseNotesComeFromChangelog(t *testing.T) {
 	}
 	if strings.Contains(wf, "generate_release_notes") {
 		t.Error("release workflow enables generate_release_notes — release bodies are written for users in the changelog, not auto-generated")
+	}
+}
+
+type communityIssueForm struct {
+	Name        string `yaml:"name"`
+	Description string `yaml:"description"`
+	Body        []struct {
+		Type        string          `yaml:"type"`
+		ID          string          `yaml:"id"`
+		Validations map[string]bool `yaml:"validations"`
+	} `yaml:"body"`
+}
+
+// Sanity: the public community front door remains present, its GitHub
+// configuration parses, and private reports cannot silently lose their
+// routes while the visible templates continue to look complete.
+func TestSanity_CommunityFrontDoorIsWellFormed(t *testing.T) {
+	root := filepath.Join("..", "..")
+	read := func(rel string) string {
+		t.Helper()
+		data, err := os.ReadFile(filepath.Join(root, filepath.FromSlash(rel)))
+		if err != nil {
+			t.Fatalf("%s not found: %v", rel, err)
+		}
+		return string(data)
+	}
+	const (
+		conductMailto  = "mailto:flemming&#46;n&#46;larsen&#43;cliewen-conduct&#64;gmail&#46;com"
+		securityMailto = "mailto:flemming&#46;n&#46;larsen&#43;cliewen-security&#64;gmail&#46;com"
+	)
+
+	for rel, wants := range map[string][]string{
+		"CONTRIBUTING.md": {"CODE_OF_CONDUCT.md", "SECURITY.md", conductMailto, "human maintainer", "plan-less"},
+		"CODE_OF_CONDUCT.md": {
+			"Contributor Covenant 3.0 Code of Conduct",
+			"## Encouraged Behaviors",
+			"## Restricted Behaviors",
+			"## Addressing and Repairing Harm",
+			conductMailto,
+			"[Cliewen Conduct]",
+		},
+		"SECURITY.md": {
+			securityMailto,
+			"[Cliewen Security]",
+			"7 calendar days",
+			"14 calendar days",
+			"Do not open a public issue",
+		},
+		".github/pull_request_template.md": {
+			"Change ID",
+			"Change tier",
+			"Plan item served",
+			"clue validate --forbid-changes",
+			"human review and merge",
+		},
+	} {
+		content := read(rel)
+		for _, want := range wants {
+			if !strings.Contains(content, want) {
+				t.Errorf("%s does not contain required community-front-door text %q", rel, want)
+			}
+		}
+	}
+	plainEmail := regexp.MustCompile(`[[:alnum:]._%+-]+@[[:alnum:].-]+\.[[:alpha:]]{2,}`)
+	for _, rel := range []string{"CONTRIBUTING.md", "CODE_OF_CONDUCT.md", "SECURITY.md", "docs/decisions/PDR-010-community-participation.md"} {
+		if match := plainEmail.FindString(read(rel)); match != "" {
+			t.Errorf("%s exposes plain email address %q instead of an encoded reporting link", rel, match)
+		}
+	}
+
+	for rel, requiredIDs := range map[string][]string{
+		".github/ISSUE_TEMPLATE/bug.yml":  {"affected_version", "install_route", "environment", "description", "steps", "expected", "actual", "checks"},
+		".github/ISSUE_TEMPLATE/goal.yml": {"audience", "need", "success", "checks"},
+	} {
+		var form communityIssueForm
+		if err := yaml.Unmarshal([]byte(read(rel)), &form); err != nil {
+			t.Fatalf("%s is not valid YAML: %v", rel, err)
+		}
+		if form.Name == "" || form.Description == "" || len(form.Body) == 0 {
+			t.Errorf("%s must have a name, description, and body", rel)
+		}
+		ids := make(map[string]bool)
+		for _, item := range form.Body {
+			if item.Type == "" {
+				t.Errorf("%s contains a body item without a type", rel)
+			}
+			if item.Type == "markdown" {
+				continue
+			}
+			if item.ID == "" {
+				t.Errorf("%s contains a %s item without an id", rel, item.Type)
+				continue
+			}
+			if _, exists := ids[item.ID]; exists {
+				t.Errorf("%s contains duplicate id %q", rel, item.ID)
+			}
+			ids[item.ID] = item.Validations["required"]
+		}
+		for _, id := range requiredIDs {
+			if !ids[id] {
+				t.Errorf("%s field %q must exist and be required", rel, id)
+			}
+		}
+	}
+
+	var config struct {
+		BlankIssuesEnabled *bool `yaml:"blank_issues_enabled"`
+		ContactLinks       []struct {
+			URL string `yaml:"url"`
+		} `yaml:"contact_links"`
+	}
+	if err := yaml.Unmarshal([]byte(read(".github/ISSUE_TEMPLATE/config.yml")), &config); err != nil {
+		t.Fatalf("issue-template config is not valid YAML: %v", err)
+	}
+	if config.BlankIssuesEnabled == nil || *config.BlankIssuesEnabled {
+		t.Error("issue-template config must explicitly disable blank issues")
+	}
+	hasSecurityPolicy := false
+	for _, link := range config.ContactLinks {
+		if strings.HasSuffix(link.URL, "/security/policy") {
+			hasSecurityPolicy = true
+		}
+	}
+	if !hasSecurityPolicy {
+		t.Error("issue-template config must route vulnerability reports to the private security policy")
 	}
 }
 

@@ -1,0 +1,50 @@
+name: Propose a goal
+description: Describe an outcome Cliewen should consider pursuing
+title: "[Goal] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        A proposed-goal issue records demand for consideration. It does not add the goal to Cliewen's accepted plan or authorize implementation.
+  - type: textarea
+    id: audience
+    attributes:
+      label: Who needs this outcome?
+      description: Identify the people or repositories affected and the situation they are in.
+    validations:
+      required: true
+  - type: textarea
+    id: need
+    attributes:
+      label: Why does it matter?
+      description: Describe the problem, cost, or opportunity without prescribing a particular implementation.
+    validations:
+      required: true
+  - type: textarea
+    id: success
+    attributes:
+      label: What would success look like?
+      description: State the observable outcome that would show the need has been met.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence
+      description: Link examples, prior attempts, measurements, or related discussions.
+  - type: textarea
+    id: context
+    attributes:
+      label: Constraints or context
+      description: Note compatibility, workflow, policy, or timing constraints that affect the outcome.
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Proposal checks
+      options:
+        - label: I searched existing goals, plans, issues, and pull requests for this outcome.
+          required: true
+        - label: This proposal does not disclose a suspected security vulnerability or private conduct concern.
+          required: true
+    validations:
+      required: true
