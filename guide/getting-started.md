@@ -4,7 +4,11 @@ The shortest path is: install one binary, initialize the convention in your repo
 
 ## Prerequisites
 
-You need Git and either the Go toolchain or a prebuilt `clue` release. An authenticated [GitHub CLI](https://cli.github.com/) is convenient for the pull-request loop, but Cliewen itself works with plain Git and any forge.
+- **Required:** Git (`git`). The next step installs the `clue` binary.
+- **Required for source installation:** the Go toolchain (`go`). You do not need Go when using a prebuilt `clue` release.
+- **Recommended for GitHub:** an authenticated [GitHub CLI](https://cli.github.com/) (`gh`) for the pull-request loop. Cliewen itself works with plain Git and any forge.
+
+Node.js (`node`) and npm (`npm`) are not required to use Cliewen. They are only needed to build this guide or contribute to Cliewen itself.
 
 ## 1. Install `clue`
 
@@ -43,4 +47,3 @@ You do not need to learn the whole corpus before making a change. The [change lo
 The generated CI workflow runs immediately but stays visibly unarmed until you vendor the pinned `clue` binary described in its comments. Once armed, CI runs `clue validate --forbid-changes`; a pull request cannot pass with an undigested `/changes` workspace.
 
 That is your first complete thread: a repository-local intent model, the same deterministic judge on a developer machine and in CI, and a human-controlled merge boundary.
-
