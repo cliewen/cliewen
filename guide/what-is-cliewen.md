@@ -6,15 +6,15 @@ The central idea is simple: the durable documentation describes the system as it
 
 ## Why another workflow?
 
-An agent can produce a convincing patch without understanding why the system exists. It can also update a specification without updating the tests, leave decisions buried in a chat, or quietly reinterpret an old acceptance criterion. More agent autonomy makes those gaps more expensive, not less.
+Coding agents can produce changes faster than people can review them. That moves the bottleneck from writing code to deciding whether a change is correct and safe to merge. A patch can look convincing while missing why the system exists, updating a specification without its tests, leaving a decision in chat, or changing the meaning of an acceptance criterion.
 
-Cliewen gives each kind of truth one durable home and makes the hand-offs explicit:
+Cliewen separates mechanical checks from human judgment. It gives reviewers declared intent and evidence to compare with the implementation:
 
 - The corpus under `/docs` is the system of record.
 - A branch is a proposal, and a pull request is the human review gate.
-- A transient `/changes/CH-xxx-*` workspace holds the delta while it is being built, then disappears before merge.
-- The `clue` CLI enforces structure and traceability.
-- The human reviewer decides whether the change means the right thing.
+- A full change keeps its working delta in `/changes/CH-xxx-*`; the digest deletes that workspace before merge.
+- The `clue` CLI checks structure, links, and test traceability.
+- A human decides whether the intent, implementation, and evidence agree.
 
 ## Born from Intent Engineering and spec-driven development
 
@@ -31,4 +31,3 @@ That combination prevents two common failures of change-centered specifications:
 Cliewen is not an issue tracker, a project-management service, or a way to remove humans from engineering decisions. It is also not a replacement for tests. It depends on them: every active acceptance criterion must have focused positive and negative tests that show the stated intent is met, and `clue validate` fails when that evidence is missing. It is deliberately repo-native: Markdown, Git, the test framework you already use, one small binary, and skills that teach agents the workflow.
 
 Ready to see the pieces? Start with [the verifiable thread](./methodology), or go straight to [installing Cliewen](./getting-started).
-
