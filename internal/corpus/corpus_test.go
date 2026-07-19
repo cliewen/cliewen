@@ -315,10 +315,19 @@ func TestAC035_BOMHiddenSecondFrontmatterReported(t *testing.T) {
 	assertIssue(t, issues, "second frontmatter")
 }
 
-// AC-035 negative: a thematic break later in the body does not trigger.
-func TestAC035_LaterThematicBreakClean(t *testing.T) {
-	files := with(validFiles, map[string]string{
-		"docs/goals/G-001-first.md": "---\nid: G-001\ntype: goal\nstatus: accepted\nlinks: []\ntitle: First goal\n---\n\n# G-001\n\nAbove the break.\n\n---\n\nBelow the break.\n",
-	})
-	assertNoIssue(t, run(t, files, false), "second frontmatter")
+// AC-035 negative: a thematic break without a matching closing fence is
+// not a frontmatter block, whether it opens the body or appears later.
+func TestAC035_ThematicBreaksClean(t *testing.T) {
+	tests := map[string]string{
+		"opens body":    "---\nid: G-001\ntype: goal\nstatus: accepted\nlinks: []\ntitle: First goal\n---\n\n---\n\n# G-001\n",
+		"later in body": "---\nid: G-001\ntype: goal\nstatus: accepted\nlinks: []\ntitle: First goal\n---\n\n# G-001\n\nAbove the break.\n\n---\n\nBelow the break.\n",
+	}
+	for name, content := range tests {
+		t.Run(name, func(t *testing.T) {
+			files := with(validFiles, map[string]string{
+				"docs/goals/G-001-first.md": content,
+			})
+			assertNoIssue(t, run(t, files, false), "second frontmatter")
+		})
+	}
 }

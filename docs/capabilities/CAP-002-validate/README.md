@@ -11,7 +11,7 @@ goal: G-001
 
 ## What
 
-`clue validate [--forbid-changes] [path]` scans `docs/` and `changes/` for frontmatter artifacts and fails (exit 1) on any breach of the corpus rules: missing frontmatter or core fields, duplicate IDs, unresolvable `links` (milestones resolve inside plan files), status values outside the per-type vocabulary, `/docs` folders without README.md, index-block drift, and — with `--forbid-changes` — the presence of a transient workspace (the digest-before-merge gate CI runs).
+`clue validate [--forbid-changes] [path]` scans `docs/` and `changes/` for frontmatter artifacts and fails (exit 1) on any breach of the corpus rules: missing frontmatter or core fields, UTF-8 byte-order marks, leftover second frontmatter blocks, duplicate IDs, unresolvable `links` (milestones resolve inside plan files), status values outside the per-type vocabulary, `/docs` folders without README.md, index-block drift, and — with `--forbid-changes` — the presence of a transient workspace (the digest-before-merge gate CI runs).
 
 ## Why
 

@@ -101,8 +101,9 @@ func checkProvenance(c *Corpus) []Issue {
 
 // checkFrontmatterHygiene guards the file shapes that hide or duplicate
 // frontmatter (AC-034, AC-035): a UTF-8 BOM anywhere in a corpus markdown
-// file conceals a fence from the parser, and an artifact body opening with
-// another fence is a source frontmatter an extraction failed to replace.
+// file conceals a fence from the parser, and a complete frontmatter block
+// opening an artifact body is source frontmatter an extraction failed to
+// replace.
 func checkFrontmatterHygiene(c *Corpus) []Issue {
 	const bom = "\uFEFF"
 	var issues []Issue
@@ -113,11 +114,23 @@ func checkFrontmatterHygiene(c *Corpus) []Issue {
 	}
 	for _, a := range c.Artifacts {
 		body := strings.TrimPrefix(strings.TrimLeft(a.Body, "\n"), bom)
-		if body == "---" || strings.HasPrefix(body, "---\n") {
-			issues = append(issues, Issue{a.Path, "body opens with a second frontmatter fence — a leftover second frontmatter; an artifact carries exactly one frontmatter block"})
+		if hasLeadingFrontmatterBlock(body) {
+			issues = append(issues, Issue{a.Path, "body opens with a complete second frontmatter block — leftover source frontmatter; an artifact carries exactly one frontmatter block"})
 		}
 	}
 	return issues
+}
+
+func hasLeadingFrontmatterBlock(body string) bool {
+	if !strings.HasPrefix(body, "---\n") {
+		return false
+	}
+	for _, line := range strings.Split(body[len("---\n"):], "\n") {
+		if line == "---" {
+			return true
+		}
+	}
+	return false
 }
 
 // checkConstraints enforces the convention register's fields (AC-023):

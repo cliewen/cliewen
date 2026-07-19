@@ -104,9 +104,9 @@ Feature: clue validate — deterministic corpus judgment
 
   @AC-035
   Scenario: A second frontmatter block in an artifact fails
-    Given an artifact whose body opens with another frontmatter fence after the closing one
+    Given an artifact whose body begins with a second frontmatter block after the authoritative closing fence
     When the user runs "clue validate"
     Then it exits with a non-zero code
     And the output names the file and calls the block a leftover second frontmatter
-    But a thematic break later in the body does not trigger the check
+    But a thematic break without a matching closing fence does not trigger the check
 ```
