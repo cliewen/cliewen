@@ -24,7 +24,7 @@ The quickstart page lives in the repo README; the command is the guide's most im
 1. **Command (seconds):** `clue init` — the foundation in one call.
 2. **Quickstart (5 minutes):** README — install, `clue init`, first change loop, watch `validate` go green. Owned by [QS-002](../../quality/QS-002-onboarding-under-30-minutes.md): under 30 minutes, reading nothing beyond the quickstart.
 3. **Skills** — learned during use; the quickstart links each skill at the moment the reader's first change loop needs it (delta when they branch, verify before their first PR), never all four upfront. The system-level "why these skills" story lives in [architecture/skills.md](../../architecture/skills.md).
-4. **Book** — the why; depth, secondary.
+4. **Public guide** — the why and the full working model for newcomers who are not yet inside a Cliewen repository. It is a handwritten VitePress site under `/guide`, kept outside the corpus and deployed by the architecture in [ADR-023](../../decisions/ADR-023-public-guide-architecture.md). The root README remains the shortest mechanical path; the guide adds depth without adding a prerequisite before first green validate.
 
 The generated corpus explains itself: each emitted folder README says in plain language what its record type is and when a change updates it, and the emitted `docs/README.md` carries the map ("what lives where — and when a change updates it"). The guide points into the generated repo instead of duplicating it.
 

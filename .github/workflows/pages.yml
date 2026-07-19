@@ -1,0 +1,56 @@
+# The guide is built on every PR by CI. This workflow owns only the Pages
+# artifact and deployment. Its job-level visibility gate keeps private-era
+# pushes and manual runs green; GitHub's `public` event opens the gate at the
+# visibility flip and deploys the current default-branch commit.
+name: Deploy guide to Pages
+
+on:
+  push:
+    branches: [main]
+  public:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build guide
+    if: github.event.repository.private == false
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - name: Configure Pages
+        uses: actions/configure-pages@v6
+      - name: Install dependencies
+        run: npm ci
+      - name: Build guide
+        run: npm run guide:build
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: guide/.vitepress/dist
+
+  deploy:
+    name: Deploy guide
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to Pages
+        id: deployment
+        uses: actions/deploy-pages@v5
