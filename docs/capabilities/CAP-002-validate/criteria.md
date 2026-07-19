@@ -93,4 +93,20 @@ Feature: clue validate — deterministic corpus judgment
     Then it exits with a non-zero code
     And the output names the file and the violated field
     And a valid corpus reports its count of agent-enforced constraints on the OK line
+
+  @AC-034
+  Scenario: A byte-order mark in a corpus file fails
+    Given a corpus markdown file containing a UTF-8 byte-order mark, at the start or embedded
+    When the user runs "clue validate"
+    Then it exits with a non-zero code
+    And the output names the file and says to strip the byte-order mark
+    But a BOM-free corpus passes
+
+  @AC-035
+  Scenario: A second frontmatter block in an artifact fails
+    Given an artifact whose body opens with another frontmatter fence after the closing one
+    When the user runs "clue validate"
+    Then it exits with a non-zero code
+    And the output names the file and calls the block a leftover second frontmatter
+    But a thematic break later in the body does not trigger the check
 ```

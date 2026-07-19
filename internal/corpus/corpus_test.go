@@ -258,3 +258,67 @@ func TestSanity_RepoCorpusIsValid(t *testing.T) {
 		t.Fatal("expected artifacts in the repo corpus")
 	}
 }
+
+// testBOM is built from the code point so no literal BOM lands in this
+// source file (Go rejects U+FEFF anywhere but byte 0).
+var testBOM = string(rune(0xFEFF))
+
+func assertNoIssue(t *testing.T, issues []Issue, substr string) {
+	t.Helper()
+	for _, i := range issues {
+		if strings.Contains(i.String(), substr) {
+			t.Fatalf("unexpected issue containing %q: %v", substr, i)
+		}
+	}
+}
+
+// AC-034: a UTF-8 BOM at the start of a corpus file is reported by name.
+func TestAC034_BOMAtStartReported(t *testing.T) {
+	files := with(validFiles, map[string]string{
+		"docs/goals/G-001-first.md": testBOM + "---\nid: G-001\ntype: goal\nstatus: accepted\nlinks: []\ntitle: First goal\n---\n\n# G-001\n",
+	})
+	issues := run(t, files, false)
+	assertIssue(t, issues, "G-001-first.md")
+	assertIssue(t, issues, "byte-order mark")
+}
+
+// AC-034: an embedded BOM is reported too.
+func TestAC034_EmbeddedBOMReported(t *testing.T) {
+	files := with(validFiles, map[string]string{
+		"docs/goals/G-001-first.md": "---\nid: G-001\ntype: goal\nstatus: accepted\nlinks: []\ntitle: First goal\n---\n\n# G-001\n\nText" + testBOM + " here.\n",
+	})
+	issues := run(t, files, false)
+	assertIssue(t, issues, "byte-order mark")
+}
+
+// AC-034 negative: a BOM-free corpus raises no byte-order-mark issue.
+func TestAC034_BOMFreeCorpusClean(t *testing.T) {
+	assertNoIssue(t, run(t, validFiles, false), "byte-order mark")
+}
+
+// AC-035: a body opening with another frontmatter fence is a leftover
+// second frontmatter, with or without a BOM hiding it.
+func TestAC035_SecondFrontmatterReported(t *testing.T) {
+	files := with(validFiles, map[string]string{
+		"docs/goals/G-001-first.md": "---\nid: G-001\ntype: goal\nstatus: accepted\nlinks: []\ntitle: First goal\n---\n\n---\nstatus: accepted\ndate: 2026-01-01\n---\n\n# G-001\n",
+	})
+	issues := run(t, files, false)
+	assertIssue(t, issues, "G-001-first.md")
+	assertIssue(t, issues, "second frontmatter")
+}
+
+func TestAC035_BOMHiddenSecondFrontmatterReported(t *testing.T) {
+	files := with(validFiles, map[string]string{
+		"docs/goals/G-001-first.md": "---\nid: G-001\ntype: goal\nstatus: accepted\nlinks: []\ntitle: First goal\n---\n\n" + testBOM + "---\nstatus: accepted\ndate: 2026-01-01\n---\n\n# G-001\n",
+	})
+	issues := run(t, files, false)
+	assertIssue(t, issues, "second frontmatter")
+}
+
+// AC-035 negative: a thematic break later in the body does not trigger.
+func TestAC035_LaterThematicBreakClean(t *testing.T) {
+	files := with(validFiles, map[string]string{
+		"docs/goals/G-001-first.md": "---\nid: G-001\ntype: goal\nstatus: accepted\nlinks: []\ntitle: First goal\n---\n\n# G-001\n\nAbove the break.\n\n---\n\nBelow the break.\n",
+	})
+	assertNoIssue(t, run(t, files, false), "second frontmatter")
+}

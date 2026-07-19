@@ -57,6 +57,7 @@ func Validate(c *Corpus, opts Options) []Issue {
 	issues = append(issues, checkCoreFields(c)...)
 	issues = append(issues, checkDuplicateIDs(c)...)
 	issues = append(issues, checkStatusVocab(c)...)
+	issues = append(issues, checkFrontmatterHygiene(c)...)
 	issues = append(issues, checkLinks(c)...)
 	issues = append(issues, checkFolderReadmes(c)...)
 	issues = append(issues, checkIndexes(c)...)
@@ -93,6 +94,27 @@ func checkProvenance(c *Corpus) []Issue {
 		}
 		if s, ok := v.(string); !ok || (s != "inferred" && s != "verified") {
 			issues = append(issues, Issue{a.Path, "provenance must be inferred or verified (ADR-010)"})
+		}
+	}
+	return issues
+}
+
+// checkFrontmatterHygiene guards the file shapes that hide or duplicate
+// frontmatter (AC-034, AC-035): a UTF-8 BOM anywhere in a corpus markdown
+// file conceals a fence from the parser, and an artifact body opening with
+// another fence is a source frontmatter an extraction failed to replace.
+func checkFrontmatterHygiene(c *Corpus) []Issue {
+	const bom = "\uFEFF"
+	var issues []Issue
+	for _, rel := range c.MDFiles {
+		if strings.Contains(c.Contents[rel], bom) {
+			issues = append(issues, Issue{rel, "file contains a UTF-8 byte-order mark — strip the byte-order mark (it hides frontmatter fences from the parser)"})
+		}
+	}
+	for _, a := range c.Artifacts {
+		body := strings.TrimPrefix(strings.TrimLeft(a.Body, "\n"), bom)
+		if body == "---" || strings.HasPrefix(body, "---\n") {
+			issues = append(issues, Issue{a.Path, "body opens with a second frontmatter fence — a leftover second frontmatter; an artifact carries exactly one frontmatter block"})
 		}
 	}
 	return issues
