@@ -49,7 +49,7 @@ Start with the cost of reversing the decision, then ask what it changes:
 | Decision | Record |
 |---|---|
 | Cheap and local to reverse | A dated row in `docs/decisions/log.md` |
-| Expensive to reverse and about software architecture or the corpus format | An ADR, or Architectural Decision Record |
+| Expensive to reverse and about software architecture or the corpus format, such as frontmatter fields or extraction mappings | An ADR, or Architectural Decision Record |
 | Expensive to reverse and about project workflow or process | A PDR, or Project/Process Decision Record |
 
 The log is for choices that do not need a full argument preserved. ADRs and PDRs use the same decision template because expensive choices need context, alternatives, and rationale; the different names tell readers whether the decision shapes the system or the way the project works.
