@@ -34,7 +34,7 @@ clue validate
 
 `clue init` creates the documentation taxonomy, agent routing file, lifecycle skills, and a CI workflow. It never replaces an existing file. Re-running it refreshes generated index blocks and otherwise leaves your prose alone.
 
-A fresh repository validates immediately. In a repository with existing specifications, use the brownfield `clue-extract` skill to map the existing truth into the corpus as the first change.
+A fresh repository validates immediately. In a repository with existing specifications, use the brownfield `clue-extract` skill to map the existing truth into the corpus as the first change. The [greenfield and brownfield guide](./adoption) has example prompts and explains how to approach systems whose evidence is spread across repositories, wikis, and tickets.
 
 ## 3. Read the result
 

@@ -46,6 +46,7 @@ export default defineConfig({
         items: [
           { text: "What is Cliewen?", link: "/what-is-cliewen" },
           { text: "Get started", link: "/getting-started" },
+          { text: "Greenfield and brownfield", link: "/adoption" },
         ],
       },
       {

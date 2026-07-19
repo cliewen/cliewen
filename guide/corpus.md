@@ -42,9 +42,20 @@ System-wide and expensive-to-change design belongs under `architecture/`. Per-ca
 
 The separation is intentionally strict: a fact with two homes will eventually disagree with itself.
 
+## Choose the right decision record
+
+Start with the cost of reversing the decision, then ask what it changes:
+
+| Decision | Record |
+|---|---|
+| Cheap and local to reverse | A dated row in `docs/decisions/log.md` |
+| Expensive to reverse and about software architecture or the corpus format | An ADR, or Architectural Decision Record |
+| Expensive to reverse and about project workflow or process | A PDR, or Project/Process Decision Record |
+
+The log is for choices that do not need a full argument preserved. ADRs and PDRs use the same decision template because expensive choices need context, alternatives, and rationale; the different names tell readers whether the decision shapes the system or the way the project works.
+
 ## See a living corpus
 
 Cliewen dogfoods the methodology. Browse its [corpus entry point](https://github.com/cliewen/cliewen/blob/main/docs/README.md), [active public campaign](https://github.com/cliewen/cliewen/blob/main/docs/plans/P-003-goes-public.md), or [validator capability](https://github.com/cliewen/cliewen/tree/main/docs/capabilities/CAP-002-validate) to see real artifacts rather than a toy example.
 
 Next, follow one proposal through [the change loop](./change-loop).
-
