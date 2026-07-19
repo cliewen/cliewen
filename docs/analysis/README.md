@@ -10,4 +10,5 @@ Some findings and historical references preserve evidence from adopter repositor
 - [AN-003 — Calibration trial: robocode-api-bridge](AN-003-robocode-api-bridge-calibration.md) — a blind brownfield reading compared with maintainer intent
 - [AN-004 — Foreign-soil trial: hyperfine](AN-004-hyperfine-foreign-soil-trial.md) — confidence-qualified brownfield analysis and the evidence-boundary adjustment
 - [AN-005 — Foreign-soil trial: es-toolkit](AN-005-es-toolkit-foreign-soil-trial.md) — exact-runtime, platform, CI-scope, and adoption-boundary evidence from the second qualifying trial
+- [AN-006 — The light tier still overcharges changes outside Cliewen](AN-006-plain-change-overhead.md) — PR #35 evidence, the remaining light-tier costs, and the boundary consumed by PDR-011
 <!-- clue:index:end -->

@@ -1,10 +1,12 @@
 # The change loop
 
-Every mutation follows the same path from proposal to accepted system truth.
+The change loop applies when work belongs in Cliewen. Before loading the corpus, classify the request: if it changes no product behavior, intent, evidence, decision, plan, policy, command, contract, user workflow, or methodology carrier, use an ordinary branch, relevant checks, a ready pull request, and human merge. That plain route has no CH number, proposal metadata, corpus work, Cliewen verification, plan bookkeeping, or changelog entry.
+
+When meaning may change or classification is uncertain, use this loop.
 
 ## 1. Branch
 
-Create `ch-xxx-your-slug` from the current tip of `main`. One author takes one change to its pull request before starting another, and a change never starts from unaccepted work.
+Create `ch-xxx-your-slug` from the current tip of `main`. One author takes one Cliewen change to its pull request before starting another, and a change never starts from unaccepted work. Plain changes do not consume the Cliewen slot.
 
 ## 2. Propose
 
@@ -20,7 +22,7 @@ Never weaken a test or lint rule to make the build pass. A failing check is evid
 
 ## 4. Digest
 
-Once every implementation task is complete or explicitly infeasible, update durable documentation, decisions, indexes, plan bookkeeping, and user-facing release notes. Then delete the `/changes` workspace.
+Once every implementation task is complete or explicitly infeasible, update durable documentation, decisions, indexes, plan bookkeeping, and release notes for shipped behavior or workflow changes. Then delete the `/changes` workspace.
 
 Deletion is the digest: the proposal has been absorbed into the current system truth, and Git retains the delta. `main` never contains `/changes`.
 
@@ -35,4 +37,3 @@ Open a ready pull request. CI verifies form and the human reviews meaning. Agent
 Review fixes stay on the same branch and pull request. After the human merges, orient on the next unfinished plan milestone and ask before beginning it.
 
 The lifecycle instructions live in [the skills](./skills).
-

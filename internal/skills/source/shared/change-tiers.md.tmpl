@@ -1,6 +1,10 @@
-{{define "change-tiers"}}## Change tiers
+{{define "change-tiers"}}## Change scope and tiers
 
-A change is light only when all of these hold: no decision is made, no acceptance criterion or capability meaning changes, no semantic plan mutation occurs, and no methodology carrier such as a skill, AGENTS.md rule, or lint rule is touched. Typical light changes: typos, documentation clarity, dependency bumps, pure refactors, CI plumbing. A light change skips the transient workspace; its branch and ready PR remain mandatory, and the PR description is the proposal with a real plan item or an explicit plan-less declaration.
+Classify scope before using the Cliewen loop. A change is **plain** only when it has no effect on product behavior, intent, executable evidence, decisions, plans, policy, or methodology. `/docs`, `/changes`, product code, tests, configuration, build and release machinery, security and governance policy, AGENTS.md rules, skills, and lint rules are protected and never plain. Changes to commands, contracts, user workflow, or normative instructions are not editorial. Uncertainty is not plain.
+
+A plain change stays outside this skill: use an ordinary branch from the current tip of `main`, run checks relevant to the changed surface, open a ready PR, and leave merge to a human. Do not assign a CH identity, read the corpus, declare a plan item, create proposal artifacts, run Cliewen verification, update plan bookkeeping, or add a Cliewen-mandated changelog entry. Plain changes do not consume the one-Cliewen-change-in-flight slot and never build on unmerged work.
+
+A change is light only when all of these hold: no decision is made, no acceptance criterion or capability meaning changes, no semantic plan mutation occurs, and no methodology carrier such as a skill, AGENTS.md rule, or lint rule is touched. Typical light changes: typos or documentation clarity on a protected Cliewen surface, dependency bumps, pure refactors, and CI plumbing. A light change skips the transient workspace; its branch and ready PR remain mandatory, and the PR description is the proposal with a real plan item or an explicit plan-less declaration.
 
 Every other change uses the full loop and a `/changes/CH-xxx-slug/` workspace. Escalate immediately if a decision, open question, meaning change, or methodology-carrier edit appears during work.
 {{end}}

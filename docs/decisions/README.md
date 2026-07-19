@@ -28,16 +28,17 @@ ADRs and PDRs share the MADR format and two-tier provenance: `inferred` (binding
 - [ADR-020 — The scaffolded register seeds only conventions without a versioned carrier](ADR-020-scaffolded-register-scope.md) · `verified`
 - [ADR-021 — Skills are generated as standalone artifacts from shared canonical sources](ADR-021-generated-standalone-skills.md) · `verified`
 - [PDR-001 — PR approval is decision acceptance; the agent performs the clerical promotion](PDR-001-pr-approval-promotes-adrs.md) · `verified` · superseded by PDR-004
-- [PDR-002 — A light change tier: the PR description is the proposal](PDR-002-light-change-tier.md) · `verified`
+- [PDR-002 — A light change tier: the PR description is the proposal](PDR-002-light-change-tier.md) · `verified` · the light/full split now applies after the plain-route boundary in PDR-011
 - [PDR-003 — Records for the expensive-to-reverse; a decision log for the rest](PDR-003-decision-log.md) · `verified` · superseded by PDR-006
 - [PDR-004 — Merge makes a decision binding; approval verifies it](PDR-004-merge-binds-approval-signs.md) · `verified`
 - [PDR-005 — Validation requires foreign soil: trials on external repos, as findings not adoptions](PDR-005-foreign-soil-trials.md) · `verified`
 - [PDR-006 — Decision records are typed: ADRs for architecture, PDRs for project/process](PDR-006-decision-records-are-typed.md) · `verified`
-- [PDR-007 — The review boundary is real: changes root at main, one in flight per author, humans merge](PDR-007-review-boundary.md) · `verified`
+- [PDR-007 — The review boundary is real: changes root at main, one in flight per author, humans merge](PDR-007-review-boundary.md) · `verified` · PDR-011 narrows the one-in-flight slot to Cliewen changes
 - [PDR-008 — A declared plan revision may ride with its implementing change](PDR-008-plan-revisions-may-ride.md) · `verified`
 - [Decision log](log.md) — dated rows for the cheap-to-reverse (ADR-003 and ADR-004 demoted here)
 - [PDR-009-going-public](PDR-009-going-public.md)
 - [ADR-022-skill-ownership-marker](ADR-022-skill-ownership-marker.md)
-- [PDR-010-community-participation](PDR-010-community-participation.md)
+- [PDR-010 — Community participation enters through structured intake, private safety channels, and human review](PDR-010-community-participation.md) · `verified` · PDR-011 removes Cliewen fields from plain PRs
 - [ADR-023-public-guide-architecture](ADR-023-public-guide-architecture.md)
+- [PDR-011 — Plain changes stay outside Cliewen while retaining human merge](PDR-011-plain-changes-bypass-cliewen.md) · `verified`
 <!-- clue:index:end -->

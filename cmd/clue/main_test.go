@@ -232,7 +232,7 @@ func TestSanity_CommunityFrontDoorIsWellFormed(t *testing.T) {
 	)
 
 	for rel, wants := range map[string][]string{
-		"CONTRIBUTING.md": {"CODE_OF_CONDUCT.md", "SECURITY.md", conductMailto, "human maintainer", "plan-less"},
+		"CONTRIBUTING.md": {"CODE_OF_CONDUCT.md", "SECURITY.md", conductMailto, "human maintainer", "plan-less", "plain change"},
 		"CODE_OF_CONDUCT.md": {
 			"Contributor Covenant 3.0 Code of Conduct",
 			"## Encouraged Behaviors",
@@ -249,6 +249,7 @@ func TestSanity_CommunityFrontDoorIsWellFormed(t *testing.T) {
 			"Do not open a public issue",
 		},
 		".github/pull_request_template.md": {
+			"plain change",
 			"Change ID",
 			"Change tier",
 			"Plan item served",
@@ -325,6 +326,38 @@ func TestSanity_CommunityFrontDoorIsWellFormed(t *testing.T) {
 	}
 	if !hasSecurityPolicy {
 		t.Error("issue-template config must route vulnerability reports to the private security policy")
+	}
+}
+
+// Sanity: guide-only editorial changes take the focused CI path, while
+// the classifier and workflow retain a fail-closed full path.
+func TestSanity_CIHasFailClosedFocusedGuideScope(t *testing.T) {
+	root := filepath.Join("..", "..")
+	for rel, wants := range map[string][]string{
+		".github/scripts/ci-scope.mjs": {
+			"files.length > 0",
+			`file.startsWith("guide/")`,
+			`file.endsWith(".md")`,
+			"full: !focusedGuide",
+		},
+		".github/workflows/ci.yml": {
+			"Classify changed surface",
+			"full=true",
+			"guide=true",
+			"steps.scope.outputs.full == 'true'",
+			"npm run guide:build",
+			"git diff --check",
+		},
+	} {
+		content, err := os.ReadFile(filepath.Join(root, filepath.FromSlash(rel)))
+		if err != nil {
+			t.Fatalf("%s not found: %v", rel, err)
+		}
+		for _, want := range wants {
+			if !strings.Contains(string(content), want) {
+				t.Errorf("%s does not contain fail-closed CI text %q", rel, want)
+			}
+		}
 	}
 }
 

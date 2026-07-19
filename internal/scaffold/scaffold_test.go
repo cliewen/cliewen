@@ -281,6 +281,30 @@ func TestSanity_EmbeddedSkillsMatchCanonicalSkills(t *testing.T) {
 	})
 }
 
+func TestSanity_ScaffoldedRoutingClassifiesPlainWorkBeforeCorpus(t *testing.T) {
+	root, _ := runInto(t)
+	data, err := os.ReadFile(filepath.Join(root, "AGENTS.md"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	content := string(data)
+	classify := strings.Index(content, "Before loading the corpus, classify the requested work.")
+	readCorpus := strings.Index(content, "For every other change, read [`docs/README.md`]")
+	if classify < 0 || readCorpus < 0 || classify >= readCorpus {
+		t.Fatalf("AGENTS.md does not classify plain work before routing into the corpus:\n%s", content)
+	}
+	for _, want := range []string{
+		"no CH identity",
+		"relevant checks for the changed surface",
+		"Plain changes do not consume the one-Cliewen-change-in-flight slot",
+		"When uncertain, the change is not plain",
+	} {
+		if !strings.Contains(content, want) {
+			t.Errorf("AGENTS.md does not contain plain-change boundary %q", want)
+		}
+	}
+}
+
 // The CI template's version pin comes from the embedded skills' stamp;
 // no placeholder may survive into the emitted workflow.
 func TestUnit_WorkflowVersionSubstituted(t *testing.T) {
@@ -298,6 +322,22 @@ func TestUnit_WorkflowVersionSubstituted(t *testing.T) {
 	}
 	if !strings.Contains(string(data), "CLUE_VERSION: "+version) {
 		t.Fatalf("workflow does not pin CLUE_VERSION to %s", version)
+	}
+	for _, want := range []string{
+		"Detect Cliewen change",
+		"cliewen=false",
+		"cliewen=true",
+		"docs/",
+		"changes/",
+		"grep -Eqv '\\.md$'",
+		"AGENTS\\.md",
+		".agents/",
+		"CHANGELOG\\.md",
+		"steps.scope.outputs.cliewen == 'true'",
+	} {
+		if !strings.Contains(string(data), want) {
+			t.Errorf("workflow does not contain plain-change scope boundary %q", want)
+		}
 	}
 }
 

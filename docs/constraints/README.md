@@ -8,15 +8,15 @@ This index is the register table:
 
 <!-- clue:index:start -->
 - [C-001 — Markdown prose is never hard-wrapped](C-001-no-hard-wrapped-markdown.md) · `agent`
-- [C-002 — Every user-visible change adds a changelog entry](C-002-changelog-per-user-visible-change.md) · `agent`
+- [C-002 — Every release-relevant user-visible change adds a changelog entry](C-002-changelog-per-user-visible-change.md) · `agent`
 - [C-003 — Tasks tick immediately; a skipped task carries its reason](C-003-tasks-tick-immediately.md) · `agent`
 - [C-004 — Never weaken a test or a lint rule](C-004-never-weaken-checks.md) · `agent`
-- [C-005 — Every proposal declares its plan item or plan-less](C-005-proposal-declares-plan-item.md) · `agent`
+- [C-005 — Every Cliewen proposal declares its plan item or plan-less](C-005-proposal-declares-plan-item.md) · `agent`
 - [C-006 — ADRs are timeless prose; method decisions name their carrier](C-006-adrs-timeless-with-carrier.md) · `agent`
 - [C-007 — Diagrams are inline Mermaid](C-007-diagrams-inline-mermaid.md) · `agent`
 - [C-008 — Completed plans are immutable](C-008-completed-plans-immutable.md) · `agent`
 - [C-009 — Type-specific frontmatter fields are present](C-009-type-specific-frontmatter.md) · `agent`
 - [C-010 — Milestone status values follow one vocabulary](C-010-milestone-status-vocabulary.md) · `agent`
 - [C-011 — Decision records are routed by type: ADR, PDR, or log row](C-011-decision-records-typed.md) · `agent`
-- [C-012 — Changes root at main; one in flight per author; agents never merge their own PRs or push to main](C-012-agents-never-merge-own-changes.md) · `agent`
+- [C-012 — Changes root at main; Cliewen work is one in flight; agents never merge or push main](C-012-agents-never-merge-own-changes.md) · `agent`
 <!-- clue:index:end -->

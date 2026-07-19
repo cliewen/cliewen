@@ -1,6 +1,6 @@
 # The corpus
 
-This directory is the **system-of-record**: the permanent, durable truth about the system. Changes are transient deltas on branches that get **digested** into this corpus at merge — `git log docs/` is the audit trail. Entry point for humans and agents alike; agents treat this tree as working memory on every change.
+This directory is the **system-of-record**: the permanent, durable truth about the system. Cliewen changes are transient deltas on branches that get **digested** into this corpus at merge — `git log docs/` is the audit trail. Entry point for humans and agents alike; agents treat this tree as working memory when a change affects product or methodology meaning. Plain changes classified by AGENTS.md stay outside the corpus.
 
 ## How the corpus is wired
 
@@ -17,10 +17,10 @@ Cross-cutting, checked against every proposal: C-xxx (constraints), QS-xxx (qual
 
 ## What lives where — and when a change updates it
 
-Each folder below holds one kind of record. A change (the `clue-delta` loop) updates, in the same branch and PR as the code, every record its work touches:
+Each folder below holds one kind of record. A Cliewen change (the `clue-delta` loop) updates, in the same branch and PR as the code, every record its work touches:
 
 - **Goals** (`goals/`) — who wants the system and why. A new wish enters here as `status: proposed`; a change rarely touches goals.
-- **Plans** (`plans/`) — campaigns with verifiable milestones. Every change names the plan item it serves (or declares itself plan-less); the digest updates milestone bookkeeping.
+- **Plans** (`plans/`) — campaigns with verifiable milestones. Every Cliewen change names the plan item it serves (or declares itself plan-less); the digest updates milestone bookkeeping.
 - **Capabilities** (`capabilities/`) — one folder per capability: `README.md` (what and why), `criteria.md` (acceptance criteria as Gherkin, each tied to tests), `design.md` (how it works). **Design is documented per capability** — a change that alters a capability's behavior updates its criteria and design in the same PR.
 - **Architecture** (`architecture/`) — the shape of the whole: the expensive-to-change. Updated when a change alters the system's structure or public surface, not for local detail.
 - **Decisions** (`decisions/`) — why things are the way they are. An **ADR** records an architectural decision, a **PDR** a decision about how the project works; both are expensive to reverse. Cheap-and-local-to-reverse decisions are one-line rows in `log.md`. Every decision made during a change is recorded in its digest.

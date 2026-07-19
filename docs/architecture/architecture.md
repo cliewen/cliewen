@@ -22,25 +22,29 @@ Process cannot drive humans, and agents cheat unless mechanically prevented. The
 Goodhart guard: **machines enforce form, humans verify meaning.** The linter checks that AC-042 has a test; only PR review checks the test means anything.
 
 ```mermaid
-flowchart LR
-    S[Skills<br/>process knowledge] -->|guide| A[Agent]
-    A -->|produces| B[Branch = proposal<br/>/changes/CH-xxx]
+flowchart TD
+    A[Agent] --> Q{Cliewen<br/>relevant?}
+    Q -->|no: plain| P[Ordinary branch<br/>focused checks]
+    P --> H{Human PR review:<br/>change OK?}
+    Q -->|yes| S[Skills<br/>process knowledge]
+    S -->|guide| B[Branch = proposal<br/>light or full CH-xxx]
     B -->|clue validate| C{CLI: form OK?}
     C -->|no| A
-    C -->|yes| H{Human PR review:<br/>meaning OK?}
+    C -->|yes| H
     H -->|no| A
     H -->|merge = acceptance| D[/docs corpus<br/>system-of-record/]
+    H -->|merge plain change| R[Repository state<br/>outside corpus]
     D -->|working memory| A
     W[CI wall<br/>same binary] -.enforces.- C
 ```
 
 ## Three artifact lifetime classes
 
-1. **Permanent** — `/docs`. Lives forever, updated at every merge.
+1. **Permanent** — `/docs`. Lives forever, updated by every Cliewen merge.
 2. **Transient** — `/changes/<CH-xxx>/` on a branch only. Dies at merge, digested into permanent docs. CI gate: `main` never contains `/changes/`.
 3. **Campaign** — `/docs/plans`. Live on `main`, mutate continuously (bookkeeping in digests, semantic changes via ADR-backed revisions), frozen immutable at `status: completed` — never deleted.
 
-Git is the engine: the branch is the proposal, the PR is the review gate, the merge commit is the acceptance, and `git log docs/` is the provenance archive. Repo-native, never forge-native.
+Git is the engine: for a Cliewen change the branch is the proposal, the PR is the review gate, the merge commit is the acceptance, and `git log docs/` is the provenance archive. A plain change stays outside the artifact graph but retains the branch, PR, and human merge boundary ([PDR-011](../decisions/PDR-011-plain-changes-bypass-cliewen.md)). Repo-native, never forge-native.
 
 ## The frontmatter graph
 

@@ -14,25 +14,50 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - uses: actions/setup-go@v7
         with:
-          go-version: stable
+          fetch-depth: 0
       - uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: npm
+      - name: Classify changed surface
+        id: scope
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: |
+          if git diff --name-only -z "$BASE_SHA" "$GITHUB_SHA" > "$RUNNER_TEMP/changed-files"; then
+            node .github/scripts/ci-scope.mjs < "$RUNNER_TEMP/changed-files" >> "$GITHUB_OUTPUT"
+          else
+            echo "full=true" >> "$GITHUB_OUTPUT"
+            echo "guide=true" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Test CI scope classifier
+        run: npm run test:ci-scope
+      - uses: actions/setup-go@v7
+        if: steps.scope.outputs.full == 'true'
+        with:
+          go-version: stable
       - name: Build
+        if: steps.scope.outputs.full == 'true'
         run: go build ./...
       - name: Test (with coverage)
+        if: steps.scope.outputs.full == 'true'
         run: go test ./... -coverprofile=coverage.out
       - name: Coverage gate (QS-001, total >= 80%)
+        if: steps.scope.outputs.full == 'true'
         run: |
           total=$(go tool cover -func=coverage.out | awk '/^total:/ {sub(/%/,"",$3); print $3}')
           echo "total statement coverage: ${total}%"
           awk -v t="$total" 'BEGIN { exit !(t >= 80) }' || { echo "FAIL: ${total}% is below the 80% gate (QS-001)"; exit 1; }
       - name: Build public guide (strict dead-link check)
+        if: steps.scope.outputs.full == 'true' || steps.scope.outputs.guide == 'true'
         run: |
           npm ci
           npm run guide:build
       - name: Validate corpus (digest-before-merge gate)
+        if: steps.scope.outputs.full == 'true'
         run: go run ./cmd/clue validate --forbid-changes
+      - name: Check diff whitespace
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: git diff --check "$BASE_SHA" "$GITHUB_SHA"
