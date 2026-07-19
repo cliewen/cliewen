@@ -1,12 +1,36 @@
-import { withMermaid } from "vitepress-plugin-mermaid";
+import { defineConfig } from "vitepress";
+import { MermaidMarkdown } from "vitepress-plugin-mermaid";
 
-export default withMermaid({
+const mermaidConfigId = "virtual:mermaid-config";
+const resolvedMermaidConfigId = `\0${mermaidConfigId}`;
+// The package's withMermaid helper injects its renderer into every page.
+// Supplying the renderer's virtual config directly lets the theme load it
+// only when a page contains a Mermaid fence.
+const mermaidConfigPlugin = {
+  name: "cliewen-mermaid-config",
+  resolveId(id: string) {
+    return id === mermaidConfigId ? resolvedMermaidConfigId : undefined;
+  },
+  load(id: string) {
+    if (id === resolvedMermaidConfigId) {
+      return "export default { securityLevel: 'loose', startOnLoad: false };";
+    }
+  },
+};
+
+export default defineConfig({
   lang: "en-US",
   title: "Cliewen",
   description: "A verifiable thread from goal to test for agent-driven development.",
   base: "/cliewen/",
   cleanUrls: true,
   ignoreDeadLinks: false,
+  markdown: {
+    config: (md) => MermaidMarkdown(md),
+  },
+  vite: {
+    plugins: [mermaidConfigPlugin],
+  },
   head: [
     ["meta", { name: "theme-color", content: "#3b5bdb" }],
   ],

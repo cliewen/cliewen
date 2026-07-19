@@ -10,10 +10,7 @@ on:
   public:
   workflow_dispatch:
 
-permissions:
-  contents: read
-  pages: write
-  id-token: write
+permissions: {}
 
 concurrency:
   group: pages
@@ -22,7 +19,10 @@ concurrency:
 jobs:
   build:
     name: Build guide
-    if: github.event.repository.private == false
+    if: github.event.repository.private == false && github.ref == 'refs/heads/main'
+    permissions:
+      contents: read
+      pages: read
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -45,6 +45,10 @@ jobs:
   deploy:
     name: Deploy guide
     needs: build
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
     runs-on: ubuntu-latest
     timeout-minutes: 10
     environment:
