@@ -11,7 +11,7 @@ An agent can produce a convincing patch without understanding why the system exi
 Cliewen gives each kind of truth one durable home and makes the hand-offs explicit:
 
 - The corpus under `/docs` is the system of record.
-- A branch is a proposal and a pull request is the human review gate.
+- A branch is a proposal, and a pull request is the human review gate.
 - A transient `/changes/CH-xxx-*` workspace holds the delta while it is being built, then disappears before merge.
 - The `clue` CLI enforces structure and traceability.
 - The human reviewer decides whether the change means the right thing.

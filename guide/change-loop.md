@@ -22,11 +22,11 @@ Never weaken a test or lint rule to make the build pass. A failing check is evid
 
 Once every implementation task is complete or explicitly infeasible, update durable documentation, decisions, indexes, plan bookkeeping, and user-facing release notes. Then delete the `/changes` workspace.
 
-Deletion is the digest: the proposal has been absorbed into current system truth, and Git retains the delta. `main` never contains `/changes`.
+Deletion is the digest: the proposal has been absorbed into the current system truth, and Git retains the delta. `main` never contains `/changes`.
 
 ## 5. Verify
 
-Run the repository tests, `clue validate --forbid-changes`, and the human-readable `clue-verify` checklist. Fetch the latest `main`; if another change merged first, rebase and repeat verification.
+Run the repository tests, `clue validate --forbid-changes`, and the human-readable `clue-verify` checklist. Fetch the latest `main`; if another change is merged first, rebase and repeat verification.
 
 ## 6. Open the review gate
 
