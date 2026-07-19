@@ -113,24 +113,15 @@ func checkFrontmatterHygiene(c *Corpus) []Issue {
 		}
 	}
 	for _, a := range c.Artifacts {
-		body := strings.TrimPrefix(strings.TrimLeft(a.Body, "\n"), bom)
-		if hasLeadingFrontmatterBlock(body) {
+		// Reuse the scanner's own fence semantics: only a closed block
+		// whose content parses as a non-empty YAML mapping is leftover
+		// frontmatter. Prose between two thematic breaks is not.
+		body := strings.TrimLeft(a.Body, "\n"+bom)
+		if fields, _, ok, _ := parseFrontmatter(body); ok && len(fields) > 0 {
 			issues = append(issues, Issue{a.Path, "body opens with a complete second frontmatter block — leftover source frontmatter; an artifact carries exactly one frontmatter block"})
 		}
 	}
 	return issues
-}
-
-func hasLeadingFrontmatterBlock(body string) bool {
-	if !strings.HasPrefix(body, "---\n") {
-		return false
-	}
-	for _, line := range strings.Split(body[len("---\n"):], "\n") {
-		if line == "---" {
-			return true
-		}
-	}
-	return false
 }
 
 // checkConstraints enforces the convention register's fields (AC-023):

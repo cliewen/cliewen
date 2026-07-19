@@ -315,12 +315,15 @@ func TestAC035_BOMHiddenSecondFrontmatterReported(t *testing.T) {
 	assertIssue(t, issues, "second frontmatter")
 }
 
-// AC-035 negative: a thematic break without a matching closing fence is
-// not a frontmatter block, whether it opens the body or appears later.
+// AC-035 negative: thematic breaks are not frontmatter fences — an
+// unclosed break, a pair enclosing ordinary markdown, or an empty pair
+// stays clean wherever it appears in the body.
 func TestAC035_ThematicBreaksClean(t *testing.T) {
 	tests := map[string]string{
-		"opens body":    "---\nid: G-001\ntype: goal\nstatus: accepted\nlinks: []\ntitle: First goal\n---\n\n---\n\n# G-001\n",
-		"later in body": "---\nid: G-001\ntype: goal\nstatus: accepted\nlinks: []\ntitle: First goal\n---\n\n# G-001\n\nAbove the break.\n\n---\n\nBelow the break.\n",
+		"opens body":                "---\nid: G-001\ntype: goal\nstatus: accepted\nlinks: []\ntitle: First goal\n---\n\n---\n\n# G-001\n",
+		"later in body":             "---\nid: G-001\ntype: goal\nstatus: accepted\nlinks: []\ntitle: First goal\n---\n\n# G-001\n\nAbove the break.\n\n---\n\nBelow the break.\n",
+		"opens body, another later": "---\nid: G-001\ntype: goal\nstatus: accepted\nlinks: []\ntitle: First goal\n---\n\n---\n\n# G-001\n\nBetween the breaks.\n\n---\n\nBelow the break.\n",
+		"empty between breaks":      "---\nid: G-001\ntype: goal\nstatus: accepted\nlinks: []\ntitle: First goal\n---\n\n---\n\n---\n\n# G-001\n",
 	}
 	for name, content := range tests {
 		t.Run(name, func(t *testing.T) {

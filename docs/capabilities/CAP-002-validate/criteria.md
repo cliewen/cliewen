@@ -109,4 +109,5 @@ Feature: clue validate — deterministic corpus judgment
     Then it exits with a non-zero code
     And the output names the file and calls the block a leftover second frontmatter
     But a thematic break without a matching closing fence does not trigger the check
+    And thematic breaks enclosing ordinary markdown or nothing at all do not trigger the check
 ```
