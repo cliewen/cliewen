@@ -1,6 +1,6 @@
 # Decisions
 
-Why things are the way they are — every decision made during a change is recorded here in its digest, routed by how expensive it is to reverse.
+Why things are the way they are — every decision made during a Cliewen change is recorded here in its digest, routed by how expensive it is to reverse.
 
 - **ADR-xxx** — Architectural Decision Records: decisions about the structure of the software (or of this corpus). MADR format: context, options, outcome, consequences.
 - **PDR-xxx** — Project Decision Records: expensive-to-reverse decisions about how the project works (process, review rules, release policy). Same format as ADRs.

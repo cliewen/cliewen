@@ -44,6 +44,6 @@ You do not need to learn the whole corpus before making a change. The [change lo
 
 ## 4. Make the wall real
 
-The generated CI workflow runs immediately but stays visibly unarmed until you vendor the pinned `clue` binary described in its comments. Once armed, CI runs `clue validate --forbid-changes`; a pull request cannot pass with an undigested `/changes` workspace.
+The generated CI workflow runs immediately. Only Markdown outside protected corpus, policy, configuration, and methodology paths is eligible to pass through without Cliewen; every other diff fails closed to the corpus wall. It stays visibly unarmed on Cliewen changes until you vendor the pinned `clue` binary described in its comments. Once armed, CI runs `clue validate --forbid-changes`; a Cliewen pull request cannot pass with an undigested `/changes` workspace.
 
 That is your first complete thread: a repository-local intent model, the same deterministic judge on a developer machine and in CI, and a human-controlled merge boundary.

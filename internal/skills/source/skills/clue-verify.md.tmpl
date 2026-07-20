@@ -1,8 +1,8 @@
 {{template "frontmatter" .}}# clue-verify
 
-Run this pre-merge checklist before opening or updating any PR. When the `clue` CLI exists, `clue validate` performs the mechanical half; until then, check by hand. Never fix a failure by weakening the check.
+Run this pre-merge checklist before opening or updating any Cliewen PR. Plain changes use only checks relevant to their changed surface and do not invoke this skill. When the `clue` CLI exists, `clue validate` performs the mechanical half; until then, check by hand. Never fix a failure by weakening the check.
 
-- [ ] The change uses the correct workspace under **Change tiers** below.
+- [ ] The change uses the correct workspace under **Change scope and tiers** below.
 - [ ] Every artifact touched has frontmatter `id`, `type`, `status`, `links`, and `title`, plus decision `author`/`accepted-by`, constraint `source`/`enforcement`, capability `goal`, and any other type-specific fields.
 - [ ] Every `links` entry resolves to an existing ID.
 - [ ] The proposal names a real plan item or explicitly declares the change plan-less.

@@ -1,6 +1,6 @@
 # The Cliewen corpus
 
-This directory is the **system-of-record**: the permanent, durable truth about the system. Changes are transient deltas on branches that get **digested** into this corpus at merge — `git log docs/` is the audit trail. Entry point for humans and agents alike; agents treat this tree as working memory on every change.
+This directory is the **system-of-record**: the permanent, durable truth about the system. Cliewen changes are transient deltas on branches that get **digested** into this corpus at merge — `git log docs/` is the audit trail. Entry point for humans and agents alike; agents treat this tree as working memory when a change affects product or methodology meaning. Plain changes under PDR-011 stay outside the corpus.
 
 ## How the corpus is wired
 

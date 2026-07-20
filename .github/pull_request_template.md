@@ -2,7 +2,13 @@
 
 <!-- What changes, and why is it needed? -->
 
-## Proposal
+## Verification
+
+<!-- List the checks relevant to the changed surface and their results. -->
+
+## Cliewen proposal
+
+<!-- Delete this section and the Cliewen checklist for a plain change. Plain means no effect on behavior, intent, evidence, decisions, plans, policy, commands, contracts, user workflow, or methodology. -->
 
 - Change ID: `CH-xxx`
 - Change tier: <!-- full or light -->
@@ -15,13 +21,9 @@
 - Decision records added or changed: <!-- links, or none -->
 - Constraints and quality scenarios assessed: <!-- links and effects, or none -->
 
-## Verification
+## Cliewen checklist
 
-<!-- List the commands run and their results. Include focused positive and negative evidence for every active acceptance criterion affected by the change. -->
-
-## Checklist
-
-- [ ] The branch started from the current tip of `main`, and this is the author's only change in flight.
+- [ ] This is the author's only Cliewen change in flight.
 - [ ] The proposal was committed before implementation, or this is a correctly scoped light change whose proposal is this PR description.
 - [ ] The plan item or plan-less declaration is truthful, and all artifact links resolve.
 - [ ] Decisions are recorded at the right tier, and active constraints and quality scenarios were assessed.
@@ -30,4 +32,8 @@
 - [ ] Full-change tasks are complete, plan bookkeeping is current, and no transient `/changes/` workspace remains.
 - [ ] Generated artifacts were regenerated from their canonical sources where applicable.
 - [ ] `go build ./...`, coverage-gated `go test ./...`, `go run ./cmd/clue validate --forbid-changes`, and `git diff --check` pass.
+
+## Review boundary
+
+- [ ] The branch started from the current tip of `main` and does not build on unmerged work.
 - [ ] The pull request is ready for human review and merge; no agent will merge it or push to `main`.

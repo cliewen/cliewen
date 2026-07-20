@@ -30,8 +30,28 @@ jobs:
       CLUE_VERSION: __CLUE_VERSION__
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Detect Cliewen change
+        id: scope
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: |
+          if ! git diff --name-only "$BASE_SHA" "$GITHUB_SHA" > "$RUNNER_TEMP/changed-files"; then
+            echo "cliewen=true" >> "$GITHUB_OUTPUT"
+          elif [ ! -s "$RUNNER_TEMP/changed-files" ]; then
+            echo "cliewen=true" >> "$GITHUB_OUTPUT"
+          elif grep -Eqv '\.md$' "$RUNNER_TEMP/changed-files"; then
+            echo "cliewen=true" >> "$GITHUB_OUTPUT"
+          elif grep -Eq '^(docs/|changes/|\.agents/|\.claude/|\.github/|AGENTS\.md$|CHANGELOG\.md$|CONTRIBUTING\.md$|SECURITY\.md$|CODE_OF_CONDUCT\.md$)' "$RUNNER_TEMP/changed-files"; then
+            echo "cliewen=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "cliewen=false" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Check whether the wall is armed
+        if: steps.scope.outputs.cliewen == 'true'
         id: armed
         run: |
           if [ -f ".github/tools/clue-${CLUE_VERSION}-linux-amd64" ]; then
@@ -42,7 +62,7 @@ jobs:
           fi
 
       - name: Verify and install vendored clue ${{ env.CLUE_VERSION }}
-        if: steps.armed.outputs.armed == 'true'
+        if: steps.scope.outputs.cliewen == 'true' && steps.armed.outputs.armed == 'true'
         run: |
           cd .github/tools
           sha256sum -c --ignore-missing SHA256SUMS
@@ -52,5 +72,5 @@ jobs:
       # --forbid-changes is the digest-before-merge gate: main (and any
       # PR at merge time) must not contain the transient /changes tree.
       - name: clue validate
-        if: steps.armed.outputs.armed == 'true'
+        if: steps.scope.outputs.cliewen == 'true' && steps.armed.outputs.armed == 'true'
         run: clue validate --forbid-changes

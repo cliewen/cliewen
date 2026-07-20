@@ -7,7 +7,7 @@ version: 0.4.0
 
 # clue-delta
 
-Use for every mutation of `main`: features, fixes, docs, and plans. Apply the **Change tiers**, **Decision records**, **Repository-local conventions**, and **Review boundary** below throughout the loop.
+Use for every Cliewen change: features, fixes, docs, and plans whose meaning belongs in the corpus or methodology. Plain changes are classified by AGENTS.md before the corpus is loaded and do not invoke this skill. Apply the **Change scope and tiers**, **Decision records**, **Repository-local conventions**, and **Review boundary** below throughout the loop.
 
 1. **Branch:** Follow the review boundary and name the branch `ch-xxx-slug`. Take the next free CH number by searching Git history and `/changes/` for the highest used number.
 2. **Propose:** For a full change, create `/changes/CH-xxx-slug/` and commit it before implementation:
@@ -20,9 +20,13 @@ Use for every mutation of `main`: features, fixes, docs, and plans. Apply the **
 
 Keep deltas small: Git merges text, not meaning.
 
-## Change tiers
+## Change scope and tiers
 
-A change is light only when all of these hold: no decision is made, no acceptance criterion or capability meaning changes, no semantic plan mutation occurs, and no methodology carrier such as a skill, AGENTS.md rule, or lint rule is touched. Typical light changes: typos, documentation clarity, dependency bumps, pure refactors, CI plumbing. A light change skips the transient workspace; its branch and ready PR remain mandatory, and the PR description is the proposal with a real plan item or an explicit plan-less declaration.
+Classify scope before using the Cliewen loop. A change is **plain** only when it has no effect on product behavior, intent, executable evidence, decisions, plans, policy, or methodology. `/docs`, `/changes`, product code, tests, configuration, build and release machinery, security and governance policy, AGENTS.md rules, skills, and lint rules are protected and never plain. Changes to commands, contracts, user workflow, or normative instructions are not editorial. Uncertainty is not plain.
+
+A plain change stays outside this skill: use an ordinary branch from the current tip of `main`, run checks relevant to the changed surface, open a ready PR, and leave merge to a human. Do not assign a CH identity, read the corpus, declare a plan item, create proposal artifacts, run Cliewen verification, update plan bookkeeping, or add a Cliewen-mandated changelog entry. Plain changes do not consume the one-Cliewen-change-in-flight slot and never build on unmerged work.
+
+A change is light only when all of these hold: no decision is made, no acceptance criterion or capability meaning changes, no semantic plan mutation occurs, and no methodology carrier such as a skill, AGENTS.md rule, or lint rule is touched. Typical light changes: typos or documentation clarity on a protected Cliewen surface, dependency bumps, pure refactors, and CI plumbing. A light change skips the transient workspace; its branch and ready PR remain mandatory, and the PR description is the proposal with a real plan item or an explicit plan-less declaration.
 
 Every other change uses the full loop and a `/changes/CH-xxx-slug/` workspace. Escalate immediately if a decision, open question, meaning change, or methodology-carrier edit appears during work.
 
@@ -36,12 +40,12 @@ Every decision record is timeless: state what is decided and only the enduring c
 
 ## Repository-local conventions
 
-Apply the repository-local conventions declared in AGENTS.md, including digest requirements such as a user-facing changelog entry. Local conventions extend the methodology and never override it. If AGENTS.md conflicts with a skill, record the conflict in `open-questions.md` and stop for a human decision; never choose silently.
+For a Cliewen change, apply the repository-local conventions declared in AGENTS.md, including digest requirements such as a user-facing changelog entry. Plain changes follow only the repository conventions that apply to their changed surface. Local conventions extend the methodology and never override it. If AGENTS.md conflicts with a skill, record the conflict in `open-questions.md` and stop for a human decision; never choose silently.
 
 ## Review boundary
 
-Every change branches from the current tip of `main`, never from unaccepted work. Each author takes one change to its PR before starting another; independent authors may work in parallel from `main`. If work must build on an unmerged change, record a blocking open question and stop unless the human explicitly authorizes it. If another change merges first, rebase onto the new `main` tip and repeat verification.
+Every change branches from the current tip of `main`, never from unaccepted work. Each author takes one Cliewen change to its PR before starting another; independent authors may work in parallel from `main`, and plain changes do not consume this slot. If work must build on an unmerged change, record a blocking open question and stop unless the human explicitly authorizes it. If another change merges first, rebase onto the new `main` tip and repeat verification.
 
-Open the PR ready for review only after verification passes, never as a draft. The PR is the completed proposal's human review gate; unfinished work stays on the branch. An agent never merges its own PR, creates a local merge commit into `main`, or pushes to `main`. After opening the PR an agent stops and waits; it never starts the next change while the previous one is unreviewed. Review fixes stay on the same branch and PR; a follow-up change exists only when a human has accepted this one and explicitly scoped the follow-up.
+Open the PR ready for review only after verification passes, never as a draft. The PR is the completed proposal's human review gate; unfinished work stays on the branch. An agent never merges its own PR, creates a local merge commit into `main`, or pushes to `main`. After opening the PR an agent stops and waits on further Cliewen work; independent plain changes may still proceed from accepted `main`. Review fixes stay on the same branch and PR; a follow-up Cliewen change exists only when a human has accepted this one and explicitly scoped the follow-up.
 
 After a human reports the merge, orient before starting anything else: describe the plan's next unfinished step in plain language and ask whether to start it, or say that the plan has nothing left and ask what comes next.
