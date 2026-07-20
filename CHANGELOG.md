@@ -2,6 +2,12 @@
 
 All notable, user-visible changes to `clue` and the Cliewen skills. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and versions follow semver. Each GitHub release body is this file's matching version section, extracted verbatim by the release workflow — a release with no section here fails.
 
+## [Unreleased]
+
+### Changed
+
+- **Ready changes now match their hosted pull request exactly.** Agents commit every intended edit, verify a clean worktree, push the branch, and confirm that the ready PR's head matches the locally verified commit before handoff. Review fixes repeat that check on the existing PR, while a requested local-only stopping point is clearly reported as incomplete and not mergeable.
+
 ## [0.4.0] - 2026-07-19
 
 ### Changed

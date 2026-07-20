@@ -4,7 +4,7 @@ type: constraint
 status: active
 links: [ADR-012]
 title: Every release-relevant user-visible change adds a changelog entry
-source: AGENTS.md rule 6, ADR-012
+source: AGENTS.md rule 7, ADR-012
 enforcement: agent
 ---
 

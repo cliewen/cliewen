@@ -4,7 +4,7 @@ type: constraint
 status: active
 links: []
 title: Every Cliewen proposal declares its plan item or declares itself plan-less
-source: AGENTS.md rule 2, clue-delta skill step 2
+source: AGENTS.md rule 3, clue-delta skill step 2
 enforcement: agent
 ---
 

@@ -7,7 +7,7 @@ version: 0.4.0
 
 # clue-verify
 
-Run this pre-merge checklist before opening or updating any Cliewen PR. Plain changes use only checks relevant to their changed surface and do not invoke this skill. When the `clue` CLI exists, `clue validate` performs the mechanical half; until then, check by hand. Never fix a failure by weakening the check.
+Run this pre-merge checklist when opening or updating any Cliewen PR. Complete the local checks before publishing; complete the hosted-head check immediately after publishing and before reporting the PR ready. Plain changes use only checks relevant to their changed surface and do not invoke this skill. When the `clue` CLI exists, `clue validate` performs the mechanical half; until then, check by hand. Never fix a failure by weakening the check.
 
 - [ ] The change uses the correct workspace under **Change scope and tiers** below.
 - [ ] Every artifact touched has frontmatter `id`, `type`, `status`, `links`, and `title`, plus decision `author`/`accepted-by`, constraint `source`/`enforcement`, capability `goal`, and any other type-specific fields.
@@ -21,7 +21,9 @@ Run this pre-merge checklist before opening or updating any Cliewen PR. Plain ch
 - [ ] Diagrams are inline Mermaid and readable when rendered.
 - [ ] The full-change workspace is absent after digest; `main` never contains `/changes/`.
 - [ ] Every decision satisfies **Decision records** below, including routing, timeless content, provenance, objections, and pending approval signatures.
+- [ ] Every intended edit, including each review fix, is committed and `git status --porcelain` is empty.
 - [ ] `git merge-base HEAD origin/main` equals `origin/main` after fetching; no other change workspace is visible on this branch.
+- [ ] After publishing, the current branch is the ready hosted PR's head branch, its head SHA equals local `HEAD`, and the reported verification ran against that commit.
 - [ ] The branch and hosted PR satisfy the **Review boundary** below.
 
 ## Change scope and tiers
@@ -50,6 +52,10 @@ For a Cliewen change, apply the repository-local conventions declared in AGENTS.
 
 Every change branches from the current tip of `main`, never from unaccepted work. Each author takes one Cliewen change to its PR before starting another; independent authors may work in parallel from `main`, and plain changes do not consume this slot. If work must build on an unmerged change, record a blocking open question and stop unless the human explicitly authorizes it. If another change merges first, rebase onto the new `main` tip and repeat verification.
 
-Open the PR ready for review only after verification passes, never as a draft. The PR is the completed proposal's human review gate; unfinished work stays on the branch. An agent never merges its own PR, creates a local merge commit into `main`, or pushes to `main`. After opening the PR an agent stops and waits on further Cliewen work; independent plain changes may still proceed from accepted `main`. Review fixes stay on the same branch and PR; a follow-up Cliewen change exists only when a human has accepted this one and explicitly scoped the follow-up.
+Open the PR ready for review only after local verification passes, never as a draft. The PR is the completed proposal's human review gate; unfinished work stays on the branch. An agent never merges its own PR, creates a local merge commit into `main`, or pushes to `main`.
+
+Ready means the hosted PR contains the exact locally verified state. Before reporting any change ready, commit every intended edit, run the applicable local verification against that commit, require `git status --porcelain` to be empty, push the verified commit, and confirm that the ready hosted PR's head branch and SHA equal the current local branch and `HEAD`. Perform the hosted check immediately after opening or updating the PR; if either side differs, reconcile without silently overwriting remote work, rerun verification on the resulting commit, require a clean worktree, push the verified commit, and check again. A human-requested local stopping point such as "commit only" is preserved work, not a completed or mergeable change, and the agent says that no ready PR exists.
+
+After opening and confirming the PR, an agent stops and waits on further Cliewen work; independent plain changes may still proceed from accepted `main`. Review fixes stay on the same branch and PR: commit them, rerun local verification against that commit, require a clean worktree, push the verified commit there, and repeat the hosted-head check before reporting ready again. A follow-up Cliewen change exists only when a human has accepted this one and explicitly scoped the follow-up.
 
 After a human reports the merge, orient before starting anything else: describe the plan's next unfinished step in plain language and ask whether to start it, or say that the plan has nothing left and ask what comes next.

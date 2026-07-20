@@ -1,6 +1,6 @@
 {{template "frontmatter" .}}# clue-verify
 
-Run this pre-merge checklist before opening or updating any Cliewen PR. Plain changes use only checks relevant to their changed surface and do not invoke this skill. When the `clue` CLI exists, `clue validate` performs the mechanical half; until then, check by hand. Never fix a failure by weakening the check.
+Run this pre-merge checklist when opening or updating any Cliewen PR. Complete the local checks before publishing; complete the hosted-head check immediately after publishing and before reporting the PR ready. Plain changes use only checks relevant to their changed surface and do not invoke this skill. When the `clue` CLI exists, `clue validate` performs the mechanical half; until then, check by hand. Never fix a failure by weakening the check.
 
 - [ ] The change uses the correct workspace under **Change scope and tiers** below.
 - [ ] Every artifact touched has frontmatter `id`, `type`, `status`, `links`, and `title`, plus decision `author`/`accepted-by`, constraint `source`/`enforcement`, capability `goal`, and any other type-specific fields.
@@ -14,7 +14,9 @@ Run this pre-merge checklist before opening or updating any Cliewen PR. Plain ch
 - [ ] Diagrams are inline Mermaid and readable when rendered.
 - [ ] The full-change workspace is absent after digest; `main` never contains `/changes/`.
 - [ ] Every decision satisfies **Decision records** below, including routing, timeless content, provenance, objections, and pending approval signatures.
+- [ ] Every intended edit, including each review fix, is committed and `git status --porcelain` is empty.
 - [ ] `git merge-base HEAD origin/main` equals `origin/main` after fetching; no other change workspace is visible on this branch.
+- [ ] After publishing, the current branch is the ready hosted PR's head branch, its head SHA equals local `HEAD`, and the reported verification ran against that commit.
 - [ ] The branch and hosted PR satisfy the **Review boundary** below.
 
 {{template "change-tiers" .}}

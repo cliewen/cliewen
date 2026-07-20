@@ -306,6 +306,30 @@ func TestSanity_ScaffoldedRoutingClassifiesPlainWorkBeforeCorpus(t *testing.T) {
 	}
 }
 
+func TestSanity_ScaffoldedRoutingRequiresExactHostedHandoff(t *testing.T) {
+	root, _ := runInto(t)
+	data, err := os.ReadFile(filepath.Join(root, "AGENTS.md"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	content := string(data)
+	for _, want := range []string{
+		"Ready means the hosted PR contains the verified state",
+		"commit every intended edit",
+		"run the applicable local verification against that commit",
+		"require a clean worktree",
+		"push the verified commit",
+		"head branch and SHA equal the locally verified branch and `HEAD`",
+		"Review fixes repeat that local-before-publish handoff on the existing branch and PR",
+		"local stopping point is preserved work",
+		"incomplete and not mergeable",
+	} {
+		if !strings.Contains(content, want) {
+			t.Errorf("AGENTS.md does not contain review-handoff rule %q", want)
+		}
+	}
+}
+
 // The CI template's version pin comes from the embedded skills' stamp;
 // no placeholder may survive into the emitted workflow.
 func TestUnit_WorkflowVersionSubstituted(t *testing.T) {

@@ -4,7 +4,7 @@ type: constraint
 status: active
 links: []
 title: Markdown prose is never hard-wrapped
-source: AGENTS.md rule 5
+source: AGENTS.md rule 6
 enforcement: agent
 ---
 
