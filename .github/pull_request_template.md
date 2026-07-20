@@ -36,4 +36,6 @@
 ## Review boundary
 
 - [ ] The branch started from the current tip of `main` and does not build on unmerged work.
+- [ ] Every intended edit is committed, the worktree is clean, and the reported verification ran against the current commit.
+- [ ] The branch is pushed and this ready pull request's head branch and SHA equal the locally verified branch and `HEAD`.
 - [ ] The pull request is ready for human review and merge; no agent will merge it or push to `main`.

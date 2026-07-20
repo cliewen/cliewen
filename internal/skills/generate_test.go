@@ -100,6 +100,41 @@ func TestSanity_CommittedSkillsMatchCanonicalSources(t *testing.T) {
 	}
 }
 
+func TestUnit_ReviewBoundaryRequiresExactHostedHandoff(t *testing.T) {
+	rendered := map[string]string{}
+	for _, file := range mustRender(t) {
+		rendered[file.relativePath] = string(file.content)
+	}
+
+	for _, name := range []string{"clue-delta/skill.md", "clue-extract/skill.md", "clue-verify/skill.md"} {
+		content := rendered[name]
+		for _, want := range []string{
+			"commit every intended edit",
+			"`git status --porcelain` to be empty",
+			"head branch and SHA equal the current local branch and `HEAD`",
+			"if either side differs",
+			`local stopping point such as "commit only"`,
+			"not a completed or mergeable change",
+			"Review fixes stay on the same branch and PR: commit and push them there, rerun verification",
+		} {
+			if !strings.Contains(content, want) {
+				t.Errorf("%s does not contain review-handoff rule %q", name, want)
+			}
+		}
+	}
+
+	verify := rendered["clue-verify/skill.md"]
+	for _, want := range []string{
+		"Every intended edit, including each review fix, is committed and `git status --porcelain` is empty",
+		"After publishing, the current branch is the ready hosted PR's head branch",
+		"reported verification ran against that commit",
+	} {
+		if !strings.Contains(verify, want) {
+			t.Errorf("clue-verify/skill.md does not contain hosted verification item %q", want)
+		}
+	}
+}
+
 func mustRender(t *testing.T) []renderedFile {
 	t.Helper()
 	files, err := render()
