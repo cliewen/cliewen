@@ -4,14 +4,11 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-07-20
+
 ### Changed
 
 - **Ready changes now match their hosted pull request exactly.** Agents commit every intended edit, verify a clean worktree, push the branch, and confirm that the ready PR's head matches the locally verified commit before handoff. Review fixes repeat that check on the existing PR, while a requested local-only stopping point is clearly reported as incomplete and not mergeable.
-
-## [0.4.0] - 2026-07-19
-
-### Changed
-
 - **Plain editorial changes now stay outside Cliewen.** Agents classify work before loading the corpus; changes with no effect on behavior, intent, evidence, decisions, plans, policy, or methodology use an ordinary branch, relevant checks, a pull request, and human merge without CH identity, proposal metadata, full Cliewen verification, plan bookkeeping, or release-note work.
 - **The public guide now gives newcomers a practical starting point.** It separates required and optional tooling, explains how agents maintain the corpus alongside code, routes cheap decisions to the log and expensive decisions to ADRs or PDRs, and provides prompts for greenfield work, routine changes, and brownfield adoption without claiming live synchronization or cross-repository validation.
 - **`clue validate` now catches hidden and duplicated frontmatter.** A UTF-8 byte-order mark anywhere in a corpus markdown file fails validation with guidance to strip it — a BOM can hide a frontmatter fence from the parser. A complete second frontmatter block opening an artifact body fails as a leftover from a brownfield conversion that prepended instead of replaced; the `clue-extract` contract now spells out that a converted file carries exactly one frontmatter block.
