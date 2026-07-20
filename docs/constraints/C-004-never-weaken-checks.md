@@ -4,7 +4,7 @@ type: constraint
 status: active
 links: []
 title: Never weaken a test or a lint rule to make a build pass
-source: AGENTS.md rule 4, clue-verify preamble
+source: AGENTS.md rule 5, clue-verify preamble
 enforcement: agent
 ---
 
