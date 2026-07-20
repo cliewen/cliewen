@@ -115,7 +115,7 @@ func TestUnit_ReviewBoundaryRequiresExactHostedHandoff(t *testing.T) {
 			"if either side differs",
 			`local stopping point such as "commit only"`,
 			"not a completed or mergeable change",
-			"Review fixes stay on the same branch and PR: commit and push them there, rerun verification",
+			"Review fixes stay on the same branch and PR: commit them, rerun local verification against that commit, require a clean worktree, push the verified commit there",
 		} {
 			if !strings.Contains(content, want) {
 				t.Errorf("%s does not contain review-handoff rule %q", name, want)

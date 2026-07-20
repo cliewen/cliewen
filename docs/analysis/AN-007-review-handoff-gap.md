@@ -34,7 +34,7 @@ Adding a Cliewen skill for plain changes or another classify-before-edit front d
 
 Adding a CI check for uncommitted edits is infeasible because CI receives only hosted commits. CI can prove properties of a PR head, not that an agent has no additional local intent.
 
-The proportionate carrier change is to define readiness as an exact handoff: every intended edit committed, a clean worktree, the branch pushed, a ready hosted PR, the local branch matching the PR head branch, and local `HEAD` matching the PR head SHA. Review updates repeat verification against that exact commit. A human-requested earlier stop remains allowed but is reported as incomplete and not mergeable.
+The proportionate carrier change is to define readiness as an exact handoff: every intended edit committed, applicable local verification passed against that commit, a clean worktree, the verified commit pushed, a ready hosted PR, the local branch matching the PR head branch, and local `HEAD` matching the PR head SHA. Review updates repeat that local-before-publish sequence against the exact commit. A human-requested earlier stop remains allowed but is reported as incomplete and not mergeable.
 
 ## Finding and consumer
 

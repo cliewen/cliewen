@@ -316,9 +316,11 @@ func TestSanity_ScaffoldedRoutingRequiresExactHostedHandoff(t *testing.T) {
 	for _, want := range []string{
 		"Ready means the hosted PR contains the verified state",
 		"commit every intended edit",
+		"run the applicable local verification against that commit",
 		"require a clean worktree",
+		"push the verified commit",
 		"head branch and SHA equal the locally verified branch and `HEAD`",
-		"Review fixes repeat that handoff on the existing branch and PR",
+		"Review fixes repeat that local-before-publish handoff on the existing branch and PR",
 		"local stopping point is preserved work",
 		"incomplete and not mergeable",
 	} {

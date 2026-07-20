@@ -34,6 +34,6 @@ Run the repository tests, `clue validate --forbid-changes`, and the human-readab
 
 Open a ready pull request only after local verification passes. Then confirm that its hosted head branch and SHA equal the clean, locally verified branch and `HEAD` before reporting it ready. CI verifies form and the human reviews meaning. Agents never merge their own pull requests or push directly to `main`; merging is the human act that accepts the change. A requested local branch or commit stopping point preserves work, but it is incomplete and not mergeable.
 
-Review fixes are committed and pushed to the same branch and pull request, then verification and the hosted-head check repeat. After the human merges, orient on the next unfinished plan milestone and ask before beginning it.
+Review fixes are committed and locally verified on the same branch. Once the worktree is clean, push the verified commit to the existing pull request and repeat the hosted-head check before reporting it ready again. After the human merges, orient on the next unfinished plan milestone and ask before beginning it.
 
 The lifecycle instructions live in [the skills](./skills).
