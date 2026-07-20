@@ -4,6 +4,7 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"testing"
 
@@ -337,6 +338,84 @@ func TestUnit_WorkflowVersionSubstituted(t *testing.T) {
 	} {
 		if !strings.Contains(string(data), want) {
 			t.Errorf("workflow does not contain plain-change scope boundary %q", want)
+		}
+	}
+}
+
+// extractGrepPattern pulls the single-quoted regex argument of a shipped
+// `grep -E` invocation out of the emitted workflow and compiles it, so the
+// behavioral test below judges the patterns actually shipped, not a copy.
+func extractGrepPattern(t *testing.T, workflow, invocation string) *regexp.Regexp {
+	t.Helper()
+	m := regexp.MustCompile(invocation).FindStringSubmatch(workflow)
+	if m == nil {
+		t.Fatalf("clue.yml no longer contains a %q classifier", invocation)
+	}
+	return regexp.MustCompile(m[1])
+}
+
+// The scaffolded wall's plain/Cliewen split ships as inline grep patterns
+// with no executable test of its own — only substring assertions. This runs
+// the actual patterns emitted into clue.yml through the classifier's decision
+// procedure, so a regex edit that reclassified a protected surface as plain
+// (or a non-Markdown file as editorial) fails here instead of in an adopter's
+// merged history. The empty and diff-failure branches are pure shell and stay
+// covered by their fail-closed encoding here.
+func TestUnit_ScaffoldWallClassifierClassifiesByShippedPatterns(t *testing.T) {
+	root, _ := runInto(t)
+	data, err := os.ReadFile(filepath.Join(root, ".github", "workflows", "clue.yml"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	workflow := string(data)
+
+	notMarkdown := extractGrepPattern(t, workflow, `grep -Eqv '([^']*)'`)
+	protected := extractGrepPattern(t, workflow, `grep -Eq '([^']*)'`)
+
+	// Mirrors the emitted shell for a successful, non-empty diff: any file
+	// that is not Markdown, any Markdown file on a protected path, and an
+	// empty list are Cliewen changes; only Markdown outside protected paths
+	// is plain.
+	classify := func(files []string) string {
+		if len(files) == 0 {
+			return "cliewen" // shell: [ ! -s ] fails closed
+		}
+		for _, f := range files {
+			if !notMarkdown.MatchString(f) { // grep -Eqv '\.md$': a non-.md file
+				return "cliewen"
+			}
+		}
+		for _, f := range files {
+			if protected.MatchString(f) { // grep -Eq '^(docs/|...)'
+				return "cliewen"
+			}
+		}
+		return "plain"
+	}
+
+	cases := []struct {
+		name  string
+		files []string
+		want  string
+	}{
+		{"guide markdown only is plain", []string{"guide/intro.md", "guide/nested/deep.md"}, "plain"},
+		{"corpus markdown is protected", []string{"docs/decisions/PDR-011.md"}, "cliewen"},
+		{"transient workspace is protected", []string{"changes/CH-099-x/proposal.md"}, "cliewen"},
+		{"routing hub is protected", []string{"AGENTS.md"}, "cliewen"},
+		{"changelog is protected", []string{"CHANGELOG.md"}, "cliewen"},
+		{"skill source is protected", []string{".agents/skills/clue-delta/skill.md"}, "cliewen"},
+		{"code is not editorial", []string{"cmd/clue/main.go"}, "cliewen"},
+		{"config is not editorial", []string{"guide/.vitepress/config.mts"}, "cliewen"},
+		{"mixed guide and code fails closed", []string{"guide/intro.md", "cmd/clue/main.go"}, "cliewen"},
+		{"empty diff fails closed", nil, "cliewen"},
+		// Documents the deliberately permissive path rule: unprotected
+		// root Markdown passes as plain, and the human review boundary is
+		// the backstop (PDR-011). Change this only with that decision.
+		{"unprotected root markdown is plain", []string{"README.md"}, "plain"},
+	}
+	for _, tc := range cases {
+		if got := classify(tc.files); got != tc.want {
+			t.Errorf("%s: classify(%v) = %q, want %q", tc.name, tc.files, got, tc.want)
 		}
 	}
 }
