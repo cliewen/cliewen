@@ -13,4 +13,4 @@ title: CH-044 task breakdown
 - [x] Add regression coverage for authoritative-decision and release-cut interpretation
 - [x] Align user-facing guidance and release notes with the stricter actionable-finding contract
 - [x] Verify generated artifacts, tests, coverage, corpus validation, and guide build
-- [ ] Run the automatic agentic review loop and resolve every actionable finding
+- [x] Run the automatic agentic review loop and resolve every actionable finding
