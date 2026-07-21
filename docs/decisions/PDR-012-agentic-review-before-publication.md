@@ -5,7 +5,7 @@ status: verified
 links: [G-001, ARCH-002, PDR-007, C-012]
 title: Every Cliewen change receives an automatic agentic review before publication
 author: agent
-accepted-by: Flemming N. Larsen (2026-07-21, implementation conversation)
+accepted-by: Flemming N. Larsen (2026-07-21, implementation conversation; finding-grounding amendment approved 2026-07-22, follow-up conversation)
 ---
 
 # PDR-012 — Agentic review before publication
