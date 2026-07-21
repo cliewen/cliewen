@@ -335,6 +335,26 @@ func TestSanity_CommunityFrontDoorIsWellFormed(t *testing.T) {
 	}
 }
 
+func TestSanity_ReviewFixConstraintOrdersFinalCandidateBeforeReview(t *testing.T) {
+	data, err := os.ReadFile(filepath.Join("..", "..", "docs", "constraints", "C-012-agents-never-merge-own-changes.md"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	content := string(data)
+	fixes := strings.Index(content, "Review fixes to an unaccepted change")
+	if fixes < 0 {
+		t.Fatal("C-012 does not define the review-fix handoff")
+	}
+	handoff := content[fixes:]
+	verifyCandidate := strings.Index(handoff, "local verification")
+	commitCandidate := strings.Index(handoff, "commit")
+	reviewCandidate := strings.Index(handoff, "agentic review")
+	pushCandidate := strings.Index(handoff, "push")
+	if verifyCandidate < 0 || commitCandidate <= verifyCandidate || reviewCandidate <= commitCandidate || pushCandidate <= reviewCandidate {
+		t.Error("C-012 must verify and commit a repaired candidate before agentic review, then push the reviewed commit")
+	}
+}
+
 // Sanity: guide-only editorial changes take the focused CI path, while
 // the classifier and workflow retain a fail-closed full path.
 func TestSanity_CIHasFailClosedFocusedGuideScope(t *testing.T) {
