@@ -382,7 +382,7 @@ func TestSanity_PRBoundaryExplainsAuthorizationAndCIEnforcement(t *testing.T) {
 			"mandatory authorization and protected-integration boundary",
 		},
 		"docs/constraints/README.md": {
-			"C-012 — Changes are locally reviewed, root at main, and remain human-merged",
+			"C-012 — Changes are reviewed locally, root at main, and remain human-merged",
 		},
 	} {
 		data, err := os.ReadFile(filepath.Join(root, filepath.FromSlash(rel)))
