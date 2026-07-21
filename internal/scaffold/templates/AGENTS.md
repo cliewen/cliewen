@@ -24,7 +24,7 @@ For every other change, read [`docs/README.md`](docs/README.md) before acting: t
 | [`clue-analysis`](.agents/skills/clue-analysis/skill.md) | Risks/unknowns first: spikes that end in findings docs |
 | [`clue-plan`](.agents/skills/clue-plan/skill.md) | Creating or revising a plan |
 | [`clue-delta`](.agents/skills/clue-delta/skill.md) | The change loop: branch → implement → digest → merge |
-| [`clue-verify`](.agents/skills/clue-verify/skill.md) | Automatic agentic review and pre-merge verification before any Cliewen PR |
+| [`clue-verify`](.agents/skills/clue-verify/skill.md) | Pre-merge verification and automatic agentic review before any Cliewen PR |
 | [`clue-extract`](.agents/skills/clue-extract/skill.md) | Brownfield adoption: transform an existing corpus into `/docs` |
 
 ## Repo-local conventions

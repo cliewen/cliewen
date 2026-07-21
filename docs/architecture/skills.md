@@ -21,10 +21,10 @@ The set is not arbitrary — it is the lifecycle (Foundation §10) cut at its ph
 | `clue-analysis` | Risks and unknowns first: spikes ending in findings docs (`/docs/analysis`) | `clue-plan` (findings feed plans) or `clue-delta` (findings feed a change) |
 | `clue-plan` | Campaign layer: create or revise a plan with verifiable milestones | `clue-delta` (every plan mutation is itself a change) |
 | `clue-delta` | The change loop: branch → propose → implement → digest → merge | `clue-verify` (before every Cliewen PR) |
-| `clue-verify` | Automatic adversarial agent review plus the pre-merge checklist | the locally reviewed candidate, then the PR (human controls merge; CI verifies form) |
+| `clue-verify` | Pre-merge verification followed by automatic adversarial agent review | the locally verified and reviewed candidate, then the PR (human controls merge; CI verifies form) |
 | `clue-extract` | Brownfield adoption: one-time transform of an existing corpus into `/docs`, everything born `inferred` (ADR-008) | `clue-delta` (the extraction runs as the adopted repo's first change loop) |
 
-Two invariants tie them together: **every path through the skills ends at the same gate** (implement → context-isolated review where supported → verify → PR → merge), and **every skill produces a hand-off the next one consumes** — findings feed plans, plans frame deltas, review findings return to the implementing context, and deltas produce the corpus that analysis reads next time. A plain change is classified before this layer and invokes no Cliewen skill ([PDR-011](../decisions/PDR-011-plain-changes-bypass-cliewen.md)). A skill whose output nothing consumes gets removed, the same §2 rule that governs corpus artifacts.
+Two invariants tie them together: **every path through the skills ends at the same gate** (implement → commit → verify → context-isolated review where supported → PR → merge), and **every skill produces a hand-off the next one consumes** — findings feed plans, plans frame deltas, review findings return to the implementing context, and deltas produce the corpus that analysis reads next time. A plain change is classified before this layer and invokes no Cliewen skill ([PDR-011](../decisions/PDR-011-plain-changes-bypass-cliewen.md)). A skill whose output nothing consumes gets removed, the same §2 rule that governs corpus artifacts.
 
 ## Shared rules and standalone outputs
 

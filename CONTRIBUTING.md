@@ -38,7 +38,7 @@ Before review, digest a full change into the permanent corpus, update its plan b
 
 For a plain change, run only checks relevant to its changed surface. A guide-Markdown-only edit runs `git diff --check` and `npm run guide:build`.
 
-For a Cliewen change, run the repository's full mechanical gates:
+For a Cliewen change, commit the complete candidate, then run the repository's full mechanical gates against that commit:
 
 ```text
 go build ./...
@@ -48,7 +48,7 @@ go run ./cmd/clue validate --forbid-changes
 git diff --check
 ```
 
-Total Go statement coverage must remain at least 80%. `clue-verify` then automatically reviews the committed candidate before publication. A coding-agent host with context-isolated delegation starts a fresh read-only reviewer; other hosts disclose an in-context fallback. Actionable findings return to the implementing context, and every substantive fix is checked, committed, and reviewed again until the current commit receives a clean pass. The final verification evidence identifies the review mode and reviewed commit.
+Total Go statement coverage must remain at least 80%. `clue-verify` then automatically reviews that same commit before publication. A coding-agent host with context-isolated delegation starts a fresh read-only reviewer; other hosts disclose an in-context fallback. Actionable findings return to the implementing context, and every substantive fix is committed, checked against that commit, and reviewed again until the current commit receives a clean pass. The final verification evidence identifies the review mode and reviewed commit.
 
 ## Open the Pull Request
 

@@ -156,6 +156,12 @@ func TestUnit_AgenticReviewLoopConvergesOnCurrentCommit(t *testing.T) {
 			t.Errorf("clue-verify/skill.md does not contain agentic-review rule %q", want)
 		}
 	}
+	commitCandidate := strings.Index(verify, "commit the complete candidate")
+	verifyCandidate := strings.Index(verify, "run the applicable local checks against that commit")
+	reviewCandidate := strings.Index(verify, "start a new read-only reviewer")
+	if commitCandidate < 0 || verifyCandidate <= commitCandidate || reviewCandidate <= verifyCandidate {
+		t.Error("clue-verify must commit the candidate, verify that commit, then start agentic review")
+	}
 
 	for _, name := range []string{"clue-delta/skill.md", "clue-extract/skill.md"} {
 		if !strings.Contains(rendered[name], "automatic agentic review loop") {

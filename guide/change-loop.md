@@ -26,9 +26,9 @@ Once every implementation task is complete or explicitly infeasible, update dura
 
 Deletion is the digest: the proposal has been absorbed into the current system truth, and Git retains the delta. `main` never contains `/changes`.
 
-## 5. Review and verify
+## 5. Verify and review
 
-Run the repository tests, `clue validate --forbid-changes`, and `clue-verify`. The skill automatically challenges the committed candidate before publication: a host with context-isolated delegation starts a fresh read-only reviewer with the declared intent but without the implementation conversation; other hosts disclose an in-context fallback. The reviewer returns actionable correctness, regression, security, evidence, intent, or unjustified-complexity findings without editing. The implementing context fixes them, reruns checks, commits, and starts a new pass; every substantive edit invalidates the earlier clean result. The current commit needs a clean pass before it is locally ready. Fetch the latest `main`; if another change is merged first, rebase and repeat review and verification.
+Commit the complete candidate, run the repository tests and `clue validate --forbid-changes` against that commit, then run `clue-verify` on the same commit. The skill automatically challenges the committed candidate before publication: a host with context-isolated delegation starts a fresh read-only reviewer with the declared intent but without the implementation conversation; other hosts disclose an in-context fallback. The reviewer returns actionable correctness, regression, security, evidence, intent, or unjustified-complexity findings without editing. The implementing context fixes them, commits the repaired candidate, reruns checks against that commit, and starts a new review pass on the same commit; every substantive edit invalidates the earlier clean result. The current commit needs a clean pass before it is locally ready. Fetch the latest `main`; if another change is merged first, rebase and repeat review and verification.
 
 ## 6. Open the review gate
 

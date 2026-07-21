@@ -11,7 +11,7 @@ Skills are Cliewen's process-knowledge layer. They tell a coding agent what the 
 | `clue-analysis` | Risk or an unknown should be investigated before committing to a design | Verified findings under `/docs/analysis`, then a plan or change |
 | `clue-plan` | A goal needs a campaign or an active plan needs a semantic revision | A plan with verifiable milestones, then `clue-delta` |
 | `clue-delta` | A light or full Cliewen change will mutate `main` | A complete branch, digested corpus, and verified pull request |
-| `clue-verify` | A Cliewen pull request is about to open or update | An automatically agent-reviewed candidate, the pre-merge checklist, and review hand-off |
+| `clue-verify` | A Cliewen pull request is about to open or update | A locally verified and automatically agent-reviewed candidate, then the review hand-off |
 | `clue-extract` | An existing repository needs a one-time brownfield conversion | An inferred corpus reviewed through its first change loop |
 
 ## Why the skills stay separate

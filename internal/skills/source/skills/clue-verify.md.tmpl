@@ -25,10 +25,10 @@ Run this verification and review workflow before opening or updating any Cliewen
 
 Run this loop automatically; never ask the human to clear context or initiate a separate review.
 
-1. Finish the applicable local checks and commit the complete candidate. Determine the current commit and its base on accepted `main`.
+1. Finish every intended edit and commit the complete candidate. Determine the current commit and its base on accepted `main`, then run the applicable local checks against that commit.
 2. If the coding-agent host supports context-isolated delegation, start a new read-only reviewer without the implementation conversation. Give it only the repository, branch, base, and declared intent: recover a full change's proposal from branch history; for a light change provide the user's request and accepted clarifications without implementation rationale. If isolated delegation is unavailable, perform an explicit adversarial pass in the current context and label it `in-context fallback`; never describe that fallback as independent review.
 3. Instruct the reviewer to inspect the complete base diff, durable corpus, tests, constraints, and quality scenarios. It returns no edits, only actionable findings about correctness, intent mismatch, regressions, security, missing evidence, or unjustified complexity. Each finding includes severity, location, evidence, and a concrete remediation. Exclude stylistic preference, optional improvement, and speculative scope expansion.
-4. Resolve every actionable finding in the implementing context. A finding that requires a new decision or changed intent becomes an open question and stops the change. Otherwise rerun applicable local checks and commit the repairs.
+4. Resolve every actionable finding in the implementing context. A finding that requires a new decision or changed intent becomes an open question and stops the change. Otherwise commit the repairs and rerun applicable local checks against the repaired commit.
 5. Start a new review pass after every substantive edit; a previous clean result applies only to the commit it reviewed. Continue until the current commit receives a pass with no actionable findings. Do not publish with unresolved findings or without a clean pass.
 6. Report the final review mode and reviewed commit with the verification evidence. Context isolation reduces implementation anchoring but is not a substitute for human judgment or permission to merge.
 

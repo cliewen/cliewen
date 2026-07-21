@@ -25,6 +25,6 @@ For every other change, read [`docs/README.md`](docs/README.md) before acting: t
 | [`clue-analysis`](.agents/skills/clue-analysis/skill.md) | Risks/unknowns first: spikes that end in findings docs |
 | [`clue-plan`](.agents/skills/clue-plan/skill.md) | Creating or revising a plan |
 | [`clue-delta`](.agents/skills/clue-delta/skill.md) | The change loop: branch → implement → digest → merge |
-| [`clue-verify`](.agents/skills/clue-verify/skill.md) | Automatic agentic review and pre-merge verification before any Cliewen PR |
+| [`clue-verify`](.agents/skills/clue-verify/skill.md) | Pre-merge verification and automatic agentic review before any Cliewen PR |
 
 The skill files are generated artifacts ([ADR-021](docs/decisions/ADR-021-generated-standalone-skills.md)): to change a skill, edit `internal/skills/source/` and run `go generate ./internal/skills` — never edit `.agents/skills/` or `internal/scaffold/templates/skills/` directly; the repository tests reject hand-edited generated files.

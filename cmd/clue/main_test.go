@@ -346,12 +346,12 @@ func TestSanity_ReviewFixConstraintOrdersFinalCandidateBeforeReview(t *testing.T
 		t.Fatal("C-012 does not define the review-fix handoff")
 	}
 	handoff := content[fixes:]
-	verifyCandidate := strings.Index(handoff, "local verification")
 	commitCandidate := strings.Index(handoff, "commit")
+	verifyCandidate := strings.Index(handoff, "local verification")
 	reviewCandidate := strings.Index(handoff, "agentic review")
 	pushCandidate := strings.Index(handoff, "push")
-	if verifyCandidate < 0 || commitCandidate <= verifyCandidate || reviewCandidate <= commitCandidate || pushCandidate <= reviewCandidate {
-		t.Error("C-012 must verify and commit a repaired candidate before agentic review, then push the reviewed commit")
+	if commitCandidate < 0 || verifyCandidate <= commitCandidate || reviewCandidate <= verifyCandidate || pushCandidate <= reviewCandidate {
+		t.Error("C-012 must commit a repaired candidate, verify and review that commit, then push the reviewed commit")
 	}
 }
 
