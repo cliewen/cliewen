@@ -109,6 +109,11 @@ func TestUnit_ReviewBoundaryRequiresExactHostedHandoff(t *testing.T) {
 	for _, name := range []string{"clue-delta/skill.md", "clue-extract/skill.md", "clue-verify/skill.md"} {
 		content := rendered[name]
 		for _, want := range []string{
+			"authorization and protected-integration boundary",
+			"not a demand for duplicate human code review",
+			"only a human-controlled PR merge accepts it",
+			"A PR alone displays hosted CI but does not enforce it",
+			"branch protection makes its required status check a merge precondition",
 			"commit every intended edit",
 			"`git status --porcelain` to be empty",
 			"head branch and SHA equal the current local branch and `HEAD`",
