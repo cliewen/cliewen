@@ -12,14 +12,14 @@ This is agent-maintained documentation, not background synchronization. `clue` d
 
 ## Prompts that get useful work started
 
-These are examples, not magic phrases. The repository's `AGENTS.md` handles skill routing, so a prompt can stay focused on the outcome.
+You do not need to speak Cliewen's internal language. Describe what you want in ordinary terms; the repository's `AGENTS.md` tells the agent which workflow to follow. For example:
 
 ### Start a greenfield project
 
 After `clue init`, give the agent the first outcome rather than a proposed file layout:
 
 ```text
-This is a new system. Use Cliewen to turn this outcome into the first goal and a small plan: <outcome>.
+I'm starting a new system that should <outcome>. Help me work out a small first version.
 ```
 
 The agent should establish the goal, make uncertainty visible, and propose the smallest verifiable plan before implementation.
@@ -29,7 +29,7 @@ The agent should establish the goal, make uncertainty visible, and propose the s
 Once the corpus exists, name the behavior and ask for the complete change:
 
 ```text
-Using Cliewen, add <behavior>. Keep the acceptance criteria, tests, code, and durable documentation aligned, then prepare the pull request.
+Please add <behavior> and get it ready for review.
 ```
 
 The agent follows the change loop and leaves the merge decision to a human.
@@ -39,7 +39,7 @@ The agent follows the change loop and leaves the merge decision to a human.
 Use `clue-extract` once when the repository already contains specifications, decision notes, tagged tests, or other durable intent:
 
 ```text
-Use clue-extract to adopt this repository. Preserve existing IDs and test traceability. Mark every extracted non-decision artifact with provenance: inferred, and every extracted decision with status: inferred and author: agent. Stop when sources conflict.
+Bring this repository into Cliewen. Keep the links between its existing specifications and tests, and flag anything that disagrees.
 ```
 
 Extraction is a meaning-level conversion, not a file copy. Existing evidence is mapped into one Cliewen corpus, and every extracted artifact begins inferred: non-decision artifacts use `provenance: inferred`, while decisions use `status: inferred` and `author: agent`. Human review promotes only the meaning it verifies. The old parallel specification corpus is removed in the same pull request.
@@ -51,7 +51,7 @@ One extraction mapping ships today: OpenSpec as extended in [Intent Engineering 
 A `clue-analysis` discovery pass is useful when evidence and ownership are distributed across several systems. It can establish what the sources are, how fresh they are, and where they disagree before you choose which repository-local extractions to propose.
 
 ```text
-Use clue-analysis to inventory evidence across <repositories, wiki, tickets>. Record source revisions and freshness, distinguish observation from inference, surface conflicts, and recommend corpus boundaries for repository-local extraction.
+Before we adopt Cliewen, investigate the risks and unknowns around where our intent lives across <repositories, wiki, tickets>. Find what is still current and what conflicts, then recommend what should live in each repository.
 ```
 
 Wiki pages and tickets can be evidence, preferably through revision-pinned links or stable exports. They do not become a second system of record, and Cliewen does not live-sync them after adoption.
