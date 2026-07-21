@@ -398,6 +398,34 @@ func TestSanity_PRBoundaryExplainsAuthorizationAndCIEnforcement(t *testing.T) {
 	}
 }
 
+func TestSanity_AgenticFindingsRequireOperativeViolations(t *testing.T) {
+	root := filepath.Join("..", "..")
+	for rel, wants := range map[string][]string{
+		"docs/decisions/PDR-012-agentic-review-before-publication.md": {
+			"A finding is grounded in an operative requirement",
+			"human-controlled merge is mandatory but duplicate human code review is not",
+			"a release cut renames `[Unreleased]` to the versioned section",
+			"lifecycle-correct state are not actionable defects by themselves",
+		},
+		"guide/change-loop.md": {
+			"Every finding identifies the operative requirement or declared intent that is violated and its concrete consequence",
+			"Human-controlled merge does not imply duplicate human code review",
+			"a release cut uses its versioned changelog section instead of `[Unreleased]`",
+		},
+	} {
+		data, err := os.ReadFile(filepath.Join(root, filepath.FromSlash(rel)))
+		if err != nil {
+			t.Fatalf("%s not found: %v", rel, err)
+		}
+		content := string(data)
+		for _, want := range wants {
+			if !strings.Contains(content, want) {
+				t.Errorf("%s does not contain grounded-finding rule %q", rel, want)
+			}
+		}
+	}
+}
+
 // Sanity: guide-only editorial changes take the focused CI path, while
 // the classifier and workflow retain a fail-closed full path.
 func TestSanity_CIHasFailClosedFocusedGuideScope(t *testing.T) {

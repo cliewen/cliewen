@@ -2,6 +2,12 @@
 
 All notable, user-visible changes to `clue` and the Cliewen skills. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and versions follow semver. Each GitHub release body is this file's matching version section, extracted verbatim by the release workflow — a release with no section here fails.
 
+## [Unreleased]
+
+### Changed
+
+- **Agentic review findings now have to demonstrate an operative violation.** Reviewers apply authoritative decisions and explicit lifecycle rules before reporting a defect, so optional human review is not confused with the required human-controlled merge and a release's versioned changelog section is not mistaken for a missing `[Unreleased]` section.
+
 ## [0.5.0] - 2026-07-21
 
 ### Changed
