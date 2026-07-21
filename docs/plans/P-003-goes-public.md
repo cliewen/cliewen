@@ -1,12 +1,14 @@
 ---
 id: P-003
 type: plan
-status: active
+status: completed
 links: [G-003]
 title: Cliewen goes public — readiness, guide, release, visibility flip
 ---
 
 # P-003 — Cliewen goes public
+
+> **Completed 2026-07-21** — all milestones done; frozen immutable. The repository, v0.4.0 release, and newcomer guide are publicly reachable, and `main` is protected by the required validation check. No successor is designated.
 
 The baseline ([P-001](P-001-elaboration-baseline.md)) proved the methodology at home; [P-002](P-002-leaves-home.md) made it installable and trialed it on foreign soil. This campaign makes the repository, its releases, and a human-readable guide publicly reachable, in the order [PDR-009](../decisions/PDR-009-going-public.md) fixes: readiness first, the v0.4.0 release, then the flip — which takes the guide live in the same act. Serves [G-003](../goals/G-003-cliewen-is-public.md). Milestone numbering is corpus-global and continues from P-002 (M-004…M-007).
 
@@ -18,7 +20,7 @@ The baseline ([P-001](P-001-elaboration-baseline.md)) proved the methodology at 
 | M-009 | **The community front door exists**: CONTRIBUTING, CODE_OF_CONDUCT, SECURITY, and issue/PR templates exist and route contributors into the change loop ([C-005](../constraints/C-005-proposal-declares-plan-item.md), [C-012](../constraints/C-012-agents-never-merge-own-changes.md), [PDR-007](../decisions/PDR-007-review-boundary.md)) rather than around it | `done` | CH-030: Contributor Covenant 3.0, coordinated vulnerability disclosure, structured bug and proposed-goal intake, contribution guidance, and a change-loop PR template; repository sanity coverage guards the files and form structure |
 | M-010 | **The guide exists and deploys**: a handwritten VitePress guide builds green locally and in CI with dead-link checking; diagrams render as mermaid ([C-007](../constraints/C-007-diagrams-inline-mermaid.md) parity); a GitHub Pages deploy workflow exists, gated so it cannot fail while the repository is private; the site's architecture is recorded as an ADR | `done` | CH-032: newcomer guide covers the methodology, corpus, change loop, and skills; locked VitePress/Mermaid build is green locally and in CI with strict links; Pages deploy is visibility-gated and triggered by the public event; ADR-023 records the site boundary |
 | M-011 | **v0.4.0 is cut as the goes-public release** ([PDR-009](../decisions/PDR-009-going-public.md)): the changelog's unreleased section becomes the 0.4.0 section with an install story free of private-repo caveats; the skills carry the 0.4.0 stamp; the release workflow publishes the cross-platform binaries and checksums with the changelog section as the release body ([ADR-012](../decisions/ADR-012-release-notes-from-changelog.md)) | `done` | CH-035 prepared the reviewed changelog section and 0.4.0 skill stamps; CH-037 kept plain editorial work outside Cliewen and gave it focused CI; the [v0.4.0 release](https://github.com/cliewen/cliewen/releases/tag/v0.4.0) was published from `cf67e01` by [Release run 29783968306](https://github.com/cliewen/cliewen/actions/runs/29783968306), then all six binaries were independently checksum-verified and the Windows binary reported `clue 0.4.0` |
-| M-012 | **The repository is public and reachable**: in one act per [PDR-009](../decisions/PDR-009-going-public.md), visibility flips, the deploy gate opens, and the guide goes live on Pages; `go install` of v0.4.0 and anonymous release-asset download succeed without credentials; the required CI check still gates merges | `todo` | |
+| M-012 | **The repository is public and reachable**: in one act per [PDR-009](../decisions/PDR-009-going-public.md), visibility flips, the deploy gate opens, and the guide goes live on Pages; `go install` of v0.4.0 and anonymous release-asset download succeed without credentials; the required CI check still gates merges | `done` | CH-041 staged the public-state documentation before the flip. On 2026-07-21 the repository became public; Pages was enabled with workflow publishing, and explicit [run 29840793375](https://github.com/cliewen/cliewen/actions/runs/29840793375) deployed `main` at `4bf25c9` before the [guide](https://cliewen.github.io/cliewen/) returned HTTP 200 anonymously. A credential-free `go install github.com/cliewen/cliewen/cmd/clue@v0.4.0` through `proxy.golang.org` and a direct anonymous Windows asset download both reported `clue 0.4.0`; the downloaded asset matched its published SHA-256. Hosted branch protection was read back with strict `validate` required, admin enforcement enabled, and force-pushes and deletions disabled. |
 
 ## Explicitly out of this campaign
 
