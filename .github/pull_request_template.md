@@ -6,8 +6,6 @@
 
 <!-- List the checks relevant to the changed surface and their results. -->
 
-- Agentic review mode and reviewed commit: <!-- context-isolated or in-context fallback; SHA -->
-
 ## Cliewen proposal
 
 <!-- Delete this section and the Cliewen checklist for a plain change. Plain means no effect on behavior, intent, evidence, decisions, plans, policy, commands, contracts, user workflow, or methodology. -->
@@ -16,6 +14,7 @@
 - Change tier: <!-- full or light -->
 - Plan item served: <!-- P-xxx / M-xxx, or explicitly plan-less -->
 - Proposal location: <!-- /changes/CH-xxx-slug/proposal.md for full changes; this PR description for light changes -->
+- Agentic review mode and reviewed commit: <!-- context-isolated or in-context fallback; SHA -->
 
 ## Traceability and Decisions
 

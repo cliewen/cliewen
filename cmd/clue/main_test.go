@@ -232,7 +232,7 @@ func TestSanity_CommunityFrontDoorIsWellFormed(t *testing.T) {
 	)
 
 	for rel, wants := range map[string][]string{
-		"CONTRIBUTING.md": {"CODE_OF_CONDUCT.md", "SECURITY.md", conductMailto, "human maintainer", "plan-less", "plain change"},
+		"CONTRIBUTING.md": {"CODE_OF_CONDUCT.md", "SECURITY.md", conductMailto, "human maintainer", "plan-less", "plain change", "For a plain change", "For a Cliewen change", "automatic agentic review pass"},
 		"CODE_OF_CONDUCT.md": {
 			"Contributor Covenant 3.0 Code of Conduct",
 			"## Encouraged Behaviors",
@@ -263,6 +263,12 @@ func TestSanity_CommunityFrontDoorIsWellFormed(t *testing.T) {
 				t.Errorf("%s does not contain required community-front-door text %q", rel, want)
 			}
 		}
+	}
+	prTemplate := read(".github/pull_request_template.md")
+	cliewenSection := strings.Index(prTemplate, "## Cliewen proposal")
+	reviewEvidence := strings.Index(prTemplate, "Agentic review mode and reviewed commit")
+	if cliewenSection < 0 || reviewEvidence < cliewenSection {
+		t.Error(".github/pull_request_template.md must keep agentic-review evidence inside the removable Cliewen-only section")
 	}
 	plainEmail := regexp.MustCompile(`[[:alnum:]._%+-]+@[[:alnum:].-]+\.[[:alpha:]]{2,}`)
 	for _, rel := range []string{"CONTRIBUTING.md", "CODE_OF_CONDUCT.md", "SECURITY.md", "docs/decisions/PDR-010-community-participation.md"} {
