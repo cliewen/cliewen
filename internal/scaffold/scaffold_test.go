@@ -332,6 +332,12 @@ func TestSanity_ScaffoldedRoutingRequiresExactHostedHandoff(t *testing.T) {
 			t.Errorf("AGENTS.md does not contain review-handoff rule %q", want)
 		}
 	}
+	commitCandidate := strings.Index(content, "commit every intended edit")
+	reviewCandidate := strings.Index(content, "automatically run the `clue-verify` agentic review loop on that exact candidate")
+	pushCandidate := strings.Index(content, "push the reviewed commit")
+	if commitCandidate < 0 || reviewCandidate <= commitCandidate || pushCandidate <= reviewCandidate {
+		t.Error("AGENTS.md must commit and verify the candidate before agentic review, then push the reviewed commit")
+	}
 }
 
 // The CI template's version pin comes from the embedded skills' stamp;
