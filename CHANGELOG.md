@@ -6,7 +6,7 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 
 ### Changed
 
-- **Cliewen changes now receive an automatic agentic review before publication.** Coding-agent hosts with isolated delegation challenge the committed candidate in a fresh read-only context; other hosts disclose an in-context fallback. Actionable findings return to the implementing context, substantive fixes trigger a new pass, and only a clean pass on the current commit can proceed to the ready PR.
+- **Cliewen changes now receive an automatic agentic review before publication.** Coding-agent hosts with isolated delegation challenge the committed candidate in a fresh read-only context; other hosts disclose an in-context fallback. Actionable findings return to the implementing context, substantive fixes trigger a new pass, and only a clean pass on the current commit can proceed to the ready PR. The PR is explicitly the authorization and protected-integration safeguard—not mandatory duplicate human code review—and required hosted CI plus branch protection prevents the agent from silently skipping the gate.
 - **Cliewen is publicly reachable.** The source repository, v0.4.0 release assets, and newcomer guide can be reached without repository credentials; source installation and direct release-asset downloads now work anonymously.
 
 ## [0.4.0] - 2026-07-20

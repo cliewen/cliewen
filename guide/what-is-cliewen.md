@@ -11,10 +11,12 @@ Coding agents can produce changes faster than people can review them. That moves
 Cliewen separates mechanical checks from human judgment. It gives reviewers declared intent and evidence to compare with the implementation:
 
 - The corpus under `/docs` is the system of record.
-- A branch is a proposal, and a pull request is the human review gate.
+- A branch is a proposal, and a pull request is the authorization boundary: the agent may publish a candidate but cannot accept it into `main`.
 - A full change keeps its working delta in `/changes/CH-xxx-*`; the digest deletes that workspace before merge.
 - The `clue` CLI checks structure, links, and test traceability.
-- A human decides whether the intent, implementation, and evidence agree.
+- A human controls acceptance by merging; this safeguard does not require repeating a code review already completed locally.
+
+The pull request is also where hosted CI becomes enforceable when the repository requires its status check and protects `main`. A pull request without a required check and branch protection only displays CI; the combination is what prevents an agent from silently skipping the gate.
 
 ## Born from Intent Engineering and spec-driven development
 

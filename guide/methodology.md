@@ -43,6 +43,6 @@ Quality scenarios turn broad aspirations into measurable boundaries, such as a c
 
 ## Four actors, one boundary
 
-Skills carry process knowledge, `clue` is the deterministic judge, CI is the wall, and the human verifies meaning. The machine does not pretend to understand whether a criterion is valuable; the reviewer does not have to count missing links by hand.
+Skills carry process knowledge, `clue` is the deterministic judge, protected CI is the wall, and the human controls acceptance. The machine does not pretend to understand whether a criterion is valuable; the human does not have to repeat a locally completed code review, but the agent can never perform the merge that accepts its own work. CI becomes a wall only when its PR check is required and branch protection blocks integration without it.
 
 Continue with [the corpus](./corpus) to see where the artifacts live.

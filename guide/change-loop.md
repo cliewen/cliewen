@@ -32,7 +32,11 @@ Commit the complete candidate, run the repository tests and `clue validate --for
 
 ## 6. Open the review gate
 
-Open a ready pull request only after local review and verification pass. Report the review mode and reviewed commit, then confirm that the hosted head branch and SHA equal the clean, locally reviewed branch and `HEAD` before reporting it ready. CI verifies form and the human reviews meaning. Agents never merge their own pull requests or push directly to `main`; merging is the human act that accepts the change. A requested local branch or commit stopping point preserves work, but it is incomplete and not mergeable.
+The pull request is an authorization and protected-integration gate, not a demand for duplicate human code review. A solo developer may already have accepted the local candidate; the PR still prevents the agent that prepared it from accepting its own work. The agent may publish the branch, but it never merges the pull request or pushes to `main`. The human-controlled merge is the acceptance act.
+
+The PR also gives hosted CI an exact candidate, but a PR alone does not enforce anything. Enforcement requires the CI workflow to run on the PR, its result to be a required status check, and branch protection to block merge until that check passes. Local verification remains fast evidence; protected hosted CI is the safeguard that the agent cannot silently skip. Workflow and protection changes must never weaken the gate merely to make a change pass.
+
+Open a ready pull request only after local review and verification pass. Report the review mode and reviewed commit, then confirm that the hosted head branch and SHA equal the clean, locally reviewed branch and `HEAD` before reporting it ready. A requested local branch or commit stopping point preserves work, but it is incomplete and not mergeable.
 
 Review fixes are committed, locally verified, and agent-reviewed again on the same branch. Once the current commit has a clean pass and the worktree is clean, push it to the existing pull request and repeat the hosted-head check before reporting it ready again. After the human merges, orient on the next unfinished plan milestone and ask before beginning it.
 

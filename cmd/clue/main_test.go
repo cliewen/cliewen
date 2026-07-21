@@ -355,6 +355,42 @@ func TestSanity_ReviewFixConstraintOrdersFinalCandidateBeforeReview(t *testing.T
 	}
 }
 
+func TestSanity_PRBoundaryExplainsAuthorizationAndCIEnforcement(t *testing.T) {
+	root := filepath.Join("..", "..")
+	for rel, wants := range map[string][]string{
+		"docs/decisions/PDR-007-review-boundary.md": {
+			"authorization and protected-integration boundary",
+			"not a requirement that a solo developer repeat a code review",
+			"The PR alone is insufficient",
+			"required check",
+			"branch protection",
+		},
+		"guide/change-loop.md": {
+			"authorization and protected-integration gate",
+			"not a demand for duplicate human code review",
+			"a PR alone does not enforce anything",
+			"required status check",
+			"branch protection",
+		},
+		"guide/what-is-cliewen.md": {
+			"pull request is the authorization boundary",
+			"does not require repeating a code review",
+			"required check and branch protection",
+		},
+	} {
+		data, err := os.ReadFile(filepath.Join(root, filepath.FromSlash(rel)))
+		if err != nil {
+			t.Fatalf("%s not found: %v", rel, err)
+		}
+		content := string(data)
+		for _, want := range wants {
+			if !strings.Contains(content, want) {
+				t.Errorf("%s does not explain PR safeguard %q", rel, want)
+			}
+		}
+	}
+}
+
 // Sanity: guide-only editorial changes take the focused CI path, while
 // the classifier and workflow retain a fail-closed full path.
 func TestSanity_CIHasFailClosedFocusedGuideScope(t *testing.T) {
