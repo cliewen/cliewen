@@ -20,7 +20,7 @@ mkdir -p ~/.local/bin && install -m 0755 clue-*-linux-amd64 ~/.local/bin/clue
 export PATH="$HOME/.local/bin:$PATH"   # skip if ~/.local/bin is already on your PATH; persist it in your shell profile
 ```
 
-Either route ends with `clue version` working from any directory. On Windows, download the `clue-*-windows-*.exe` asset for your architecture and place it on `PATH` as `clue.exe`. The repository is currently private while the [public-release campaign](docs/plans/P-003-goes-public.md) completes: collaborators using `go install` additionally need `GOPRIVATE=github.com/cliewen` and git authentication for github.com, while `gh release download` authenticates through `gh auth login`. Anonymous installation is part of the campaign's final visibility milestone.
+Either route ends with `clue version` working from any directory. On Windows, download the `clue-*-windows-*.exe` asset for your architecture and place it on `PATH` as `clue.exe`. The repository and its releases are public: `go install` and direct release-asset downloads need no repository credentials, while `gh release download` may use the GitHub CLI's normal authentication.
 
 `clue version` reports the release it was built from — a checkout build (`go build ./cmd/clue`) or an install of an untagged commit reports `dev`. A tagged release (`vX.Y.Z`) builds the cross-platform binaries and stamps each with its version; the agent skills carry the same version, and `clue validate` flags drift between them ([CAP-004](docs/capabilities/CAP-004-ship/README.md), [ADR-011](docs/decisions/ADR-011-version-stamping.md)).
 
@@ -45,7 +45,7 @@ Adopting a repo with an existing spec corpus instead? That is the [`clue-extract
 
 ## Public guide
 
-The handwritten [Cliewen guide](guide/index.md) explains the methodology, corpus taxonomy, change loop, and skills for newcomers who are not yet inside a Cliewen repository. Its VitePress production build and dead-link check run in CI today; GitHub Pages deployment stays gated while the repository is private and becomes eligible at the final visibility flip.
+The handwritten [Cliewen guide](https://cliewen.github.io/cliewen/) explains the methodology, corpus taxonomy, change loop, and skills for newcomers who are not yet inside a Cliewen repository. Its [source](guide/index.md) builds with strict dead-link checking in CI and deploys from `main` through GitHub Pages.
 
 ## Developing the skills
 
@@ -60,7 +60,7 @@ The generator rewrites `.agents/skills/` and the embedded `clue init` copies und
 
 ## Status
 
-Baseline and distribution are complete ([P-001](docs/plans/P-001-elaboration-baseline.md), [P-002](docs/plans/P-002-leaves-home.md)). Public readiness, the community front door, and the deployment-ready guide are complete; the repository remains private while the public-release campaign cuts v0.4.0 before the visibility flip ([P-003](docs/plans/P-003-goes-public.md)). User-visible history lives in [CHANGELOG.md](CHANGELOG.md); each GitHub release body is its version's section there. This repo dogfoods its own conventions from commit one — start reading at [docs/README.md](docs/README.md). Agents: see [AGENTS.md](AGENTS.md).
+Baseline and distribution are complete ([P-001](docs/plans/P-001-elaboration-baseline.md), [P-002](docs/plans/P-002-leaves-home.md)). The v0.4.0 public release is published, and the repository, community front door, and newcomer guide are publicly reachable while final verification and plan closeout finish the public-release campaign ([P-003](docs/plans/P-003-goes-public.md)). User-visible history lives in [CHANGELOG.md](CHANGELOG.md); each GitHub release body is its version's section there. This repo dogfoods its own conventions from commit one — start reading at [docs/README.md](docs/README.md). Agents: see [AGENTS.md](AGENTS.md).
 
 ## License
 

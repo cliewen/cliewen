@@ -4,6 +4,10 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 
 ## [Unreleased]
 
+### Changed
+
+- **Cliewen is publicly reachable.** The source repository, v0.4.0 release assets, and newcomer guide can be reached without repository credentials; source installation and direct release-asset downloads now work anonymously.
+
 ## [0.4.0] - 2026-07-20
 
 ### Changed
