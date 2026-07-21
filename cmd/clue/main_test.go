@@ -232,7 +232,7 @@ func TestSanity_CommunityFrontDoorIsWellFormed(t *testing.T) {
 	)
 
 	for rel, wants := range map[string][]string{
-		"CONTRIBUTING.md": {"CODE_OF_CONDUCT.md", "SECURITY.md", conductMailto, "human maintainer", "plan-less", "plain change"},
+		"CONTRIBUTING.md": {"CODE_OF_CONDUCT.md", "SECURITY.md", conductMailto, "human maintainer", "plan-less", "plain change", "For a plain change", "For a Cliewen change", "automatic agentic review pass"},
 		"CODE_OF_CONDUCT.md": {
 			"Contributor Covenant 3.0 Code of Conduct",
 			"## Encouraged Behaviors",
@@ -263,6 +263,12 @@ func TestSanity_CommunityFrontDoorIsWellFormed(t *testing.T) {
 				t.Errorf("%s does not contain required community-front-door text %q", rel, want)
 			}
 		}
+	}
+	prTemplate := read(".github/pull_request_template.md")
+	cliewenSection := strings.Index(prTemplate, "## Cliewen proposal")
+	reviewEvidence := strings.Index(prTemplate, "Agentic review mode and reviewed commit")
+	if cliewenSection < 0 || reviewEvidence < cliewenSection {
+		t.Error(".github/pull_request_template.md must keep agentic-review evidence inside the removable Cliewen-only section")
 	}
 	plainEmail := regexp.MustCompile(`[[:alnum:]._%+-]+@[[:alnum:].-]+\.[[:alpha:]]{2,}`)
 	for _, rel := range []string{"CONTRIBUTING.md", "CODE_OF_CONDUCT.md", "SECURITY.md", "docs/decisions/PDR-010-community-participation.md"} {
@@ -326,6 +332,69 @@ func TestSanity_CommunityFrontDoorIsWellFormed(t *testing.T) {
 	}
 	if !hasSecurityPolicy {
 		t.Error("issue-template config must route vulnerability reports to the private security policy")
+	}
+}
+
+func TestSanity_ReviewFixConstraintOrdersFinalCandidateBeforeReview(t *testing.T) {
+	data, err := os.ReadFile(filepath.Join("..", "..", "docs", "constraints", "C-012-agents-never-merge-own-changes.md"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	content := string(data)
+	fixes := strings.Index(content, "Review fixes to an unaccepted change")
+	if fixes < 0 {
+		t.Fatal("C-012 does not define the review-fix handoff")
+	}
+	handoff := content[fixes:]
+	commitCandidate := strings.Index(handoff, "commit")
+	verifyCandidate := strings.Index(handoff, "local verification")
+	reviewCandidate := strings.Index(handoff, "agentic review")
+	pushCandidate := strings.Index(handoff, "push")
+	if commitCandidate < 0 || verifyCandidate <= commitCandidate || reviewCandidate <= verifyCandidate || pushCandidate <= reviewCandidate {
+		t.Error("C-012 must commit a repaired candidate, verify and review that commit, then push the reviewed commit")
+	}
+}
+
+func TestSanity_PRBoundaryExplainsAuthorizationAndCIEnforcement(t *testing.T) {
+	root := filepath.Join("..", "..")
+	for rel, wants := range map[string][]string{
+		"docs/decisions/PDR-007-review-boundary.md": {
+			"authorization and protected-integration boundary",
+			"not a requirement that a solo developer repeat a code review",
+			"The PR alone is insufficient",
+			"required check",
+			"branch protection",
+		},
+		"guide/change-loop.md": {
+			"authorization and protected-integration gate",
+			"not a demand for duplicate human code review",
+			"a PR alone does not enforce anything",
+			"required status check",
+			"branch protection",
+		},
+		"guide/what-is-cliewen.md": {
+			"pull request is the authorization boundary",
+			"does not require repeating a code review",
+			"required check and branch protection",
+		},
+		"docs/decisions/log.md": {
+			"PDR-007 supersedes CH-023's “human review gate” interpretation",
+			"mandatory authorization and protected-integration boundary",
+		},
+		"docs/constraints/README.md": {
+			"C-012 — Changes are reviewed locally, root at main, and remain human-merged",
+		},
+	} {
+		data, err := os.ReadFile(filepath.Join(root, filepath.FromSlash(rel)))
+		if err != nil {
+			t.Fatalf("%s not found: %v", rel, err)
+		}
+		content := string(data)
+		for _, want := range wants {
+			if !strings.Contains(content, want) {
+				t.Errorf("%s does not explain PR safeguard %q", rel, want)
+			}
+		}
 	}
 }
 

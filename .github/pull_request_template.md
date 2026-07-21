@@ -14,6 +14,7 @@
 - Change tier: <!-- full or light -->
 - Plan item served: <!-- P-xxx / M-xxx, or explicitly plan-less -->
 - Proposal location: <!-- /changes/CH-xxx-slug/proposal.md for full changes; this PR description for light changes -->
+- Agentic review mode and reviewed commit: <!-- context-isolated or in-context fallback; SHA -->
 
 ## Traceability and Decisions
 
@@ -31,6 +32,7 @@
 - [ ] User-visible impact is described under `[Unreleased]` in `CHANGELOG.md`, or the change has no user-visible impact.
 - [ ] Full-change tasks are complete, plan bookkeeping is current, and no transient `/changes/` workspace remains.
 - [ ] Generated artifacts were regenerated from their canonical sources where applicable.
+- [ ] The current commit received a clean agentic review pass, and every substantive fix after an earlier pass triggered a new review.
 - [ ] `go build ./...`, coverage-gated `go test ./...`, `go run ./cmd/clue validate --forbid-changes`, and `git diff --check` pass.
 
 ## Review boundary

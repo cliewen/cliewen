@@ -314,12 +314,16 @@ func TestSanity_ScaffoldedRoutingRequiresExactHostedHandoff(t *testing.T) {
 	}
 	content := string(data)
 	for _, want := range []string{
-		"Ready means the hosted PR contains the verified state",
+		"Ready means the hosted PR contains the reviewed and verified state",
+		"automatically run the `clue-verify` agentic review loop",
+		"context-isolated read-only reviewer",
+		"in-context fallback",
+		"current commit receives a clean pass",
 		"commit every intended edit",
 		"run the applicable local verification against that commit",
 		"require a clean worktree",
-		"push the verified commit",
-		"head branch and SHA equal the locally verified branch and `HEAD`",
+		"push the reviewed commit",
+		"head branch and SHA equal the locally reviewed branch and `HEAD`",
 		"Review fixes repeat that local-before-publish handoff on the existing branch and PR",
 		"local stopping point is preserved work",
 		"incomplete and not mergeable",
@@ -327,6 +331,12 @@ func TestSanity_ScaffoldedRoutingRequiresExactHostedHandoff(t *testing.T) {
 		if !strings.Contains(content, want) {
 			t.Errorf("AGENTS.md does not contain review-handoff rule %q", want)
 		}
+	}
+	commitCandidate := strings.Index(content, "commit every intended edit")
+	reviewCandidate := strings.Index(content, "automatically run the `clue-verify` agentic review loop on that exact candidate")
+	pushCandidate := strings.Index(content, "push the reviewed commit")
+	if commitCandidate < 0 || reviewCandidate <= commitCandidate || pushCandidate <= reviewCandidate {
+		t.Error("AGENTS.md must commit and verify the candidate before agentic review, then push the reviewed commit")
 	}
 }
 

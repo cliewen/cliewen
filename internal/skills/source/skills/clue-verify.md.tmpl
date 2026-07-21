@@ -1,6 +1,6 @@
 {{template "frontmatter" .}}# clue-verify
 
-Run this pre-merge checklist when opening or updating any Cliewen PR. Complete the local checks before publishing; complete the hosted-head check immediately after publishing and before reporting the PR ready. Plain changes use only checks relevant to their changed surface and do not invoke this skill. When the `clue` CLI exists, `clue validate` performs the mechanical half; until then, check by hand. Never fix a failure by weakening the check.
+Run this verification and review workflow before opening or updating any Cliewen PR. Complete the local checks and agentic review loop before publishing; complete the hosted-head check immediately after publishing and before reporting the PR ready. Plain changes use only checks relevant to their changed surface and do not invoke this skill. When the `clue` CLI exists, `clue validate` performs the mechanical half; until then, check by hand. Never fix a failure by weakening the check.
 
 - [ ] The change uses the correct workspace under **Change scope and tiers** below.
 - [ ] Every artifact touched has frontmatter `id`, `type`, `status`, `links`, and `title`, plus decision `author`/`accepted-by`, constraint `source`/`enforcement`, capability `goal`, and any other type-specific fields.
@@ -14,10 +14,23 @@ Run this pre-merge checklist when opening or updating any Cliewen PR. Complete t
 - [ ] Diagrams are inline Mermaid and readable when rendered.
 - [ ] The full-change workspace is absent after digest; `main` never contains `/changes/`.
 - [ ] Every decision satisfies **Decision records** below, including routing, timeless content, provenance, objections, and pending approval signatures.
+- [ ] The current commit received a clean pass under **Agentic review loop** below; every substantive edit after an earlier clean pass triggered a new pass.
+- [ ] The final handoff identifies the review mode (`context-isolated` or `in-context fallback`) and the reviewed commit.
 - [ ] Every intended edit, including each review fix, is committed and `git status --porcelain` is empty.
 - [ ] `git merge-base HEAD origin/main` equals `origin/main` after fetching; no other change workspace is visible on this branch.
 - [ ] After publishing, the current branch is the ready hosted PR's head branch, its head SHA equals local `HEAD`, and the reported verification ran against that commit.
 - [ ] The branch and hosted PR satisfy the **Review boundary** below.
+
+## Agentic review loop
+
+Run this loop automatically; never ask the human to clear context or initiate a separate review.
+
+1. Finish every intended edit and commit the complete candidate. Determine the current commit and its base on accepted `main`, then run the applicable local checks against that commit.
+2. If the coding-agent host supports context-isolated delegation, start a new read-only reviewer without the implementation conversation. Give it only the repository, branch, base, and declared intent: recover a full change's proposal from branch history; for a light change provide the user's request and accepted clarifications without implementation rationale. If isolated delegation is unavailable, perform an explicit adversarial pass in the current context and label it `in-context fallback`; never describe that fallback as independent review.
+3. Instruct the reviewer to inspect the complete base diff, durable corpus, tests, constraints, and quality scenarios. It returns no edits, only actionable findings about correctness, intent mismatch, regressions, security, missing evidence, or unjustified complexity. Each finding includes severity, location, evidence, and a concrete remediation. Exclude stylistic preference, optional improvement, and speculative scope expansion.
+4. Resolve every actionable finding in the implementing context. A finding that requires a new decision or changed intent becomes an open question and stops the change. Otherwise commit the repairs and rerun applicable local checks against the repaired commit.
+5. Start a new review pass after every substantive edit; a previous clean result applies only to the commit it reviewed. Continue until the current commit receives a pass with no actionable findings. Do not publish with unresolved findings or without a clean pass.
+6. Report the final review mode and reviewed commit with the verification evidence. Context isolation reduces implementation anchoring but is not a substitute for human judgment or permission to merge.
 
 {{template "change-tiers" .}}
 {{template "decision-records" .}}

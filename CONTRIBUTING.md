@@ -38,7 +38,7 @@ Before review, digest a full change into the permanent corpus, update its plan b
 
 For a plain change, run only checks relevant to its changed surface. A guide-Markdown-only edit runs `git diff --check` and `npm run guide:build`.
 
-For a Cliewen change, run the repository's full mechanical gates:
+For a Cliewen change, commit the complete candidate, then run the repository's full mechanical gates against that commit:
 
 ```text
 go build ./...
@@ -48,11 +48,11 @@ go run ./cmd/clue validate --forbid-changes
 git diff --check
 ```
 
-Total Go statement coverage must remain at least 80%. Also review the meaning the machines cannot judge: links and traceability are truthful, decisions are typed correctly, active constraints and quality scenarios were assessed, and release notes describe user impact.
+Total Go statement coverage must remain at least 80%. `clue-verify` then automatically reviews that same commit before publication. A coding-agent host with context-isolated delegation starts a fresh read-only reviewer; other hosts disclose an in-context fallback. Actionable findings return to the implementing context, and every substantive fix is committed, checked against that commit, and reviewed again until the current commit receives a clean pass. The final verification evidence identifies the review mode and reviewed commit.
 
 ## Open the Pull Request
 
-For a plain change, complete only the pull-request summary and relevant verification. For a Cliewen change, also complete the template's proposal, traceability, and Cliewen checklist. Open the pull request as ready for review only after the applicable checks pass. Keep review fixes on the same branch and pull request.
+For a plain change, complete only the pull-request summary and relevant verification, then open the pull request after the applicable checks pass. For a Cliewen change, also complete the template's proposal, traceability, and Cliewen checklist, and open the pull request only after the applicable checks and automatic agentic review pass. Keep review fixes on the same branch and pull request; for a Cliewen change, each substantive fix invalidates the earlier clean pass.
 
 The branch and pull request are a proposal; merge is acceptance. A human maintainer merges accepted changes. Agents must never merge their own pull requests, create local merge commits into `main`, or push directly to `main`.
 

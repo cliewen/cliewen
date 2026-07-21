@@ -26,14 +26,18 @@ Once every implementation task is complete or explicitly infeasible, update dura
 
 Deletion is the digest: the proposal has been absorbed into the current system truth, and Git retains the delta. `main` never contains `/changes`.
 
-## 5. Verify
+## 5. Verify and review
 
-Run the repository tests, `clue validate --forbid-changes`, and the human-readable `clue-verify` checklist. Fetch the latest `main`; if another change is merged first, rebase and repeat verification.
+Commit the complete candidate, run the repository tests and `clue validate --forbid-changes` against that commit, then run `clue-verify` on the same commit. The skill automatically challenges the committed candidate before publication: a host with context-isolated delegation starts a fresh read-only reviewer with the declared intent but without the implementation conversation; other hosts disclose an in-context fallback. The reviewer returns actionable correctness, regression, security, evidence, intent, or unjustified-complexity findings without editing. The implementing context fixes them, commits the repaired candidate, reruns checks against that commit, and starts a new review pass on the same commit; every substantive edit invalidates the earlier clean result. The current commit needs a clean pass before it is locally ready. Fetch the latest `main`; if another change is merged first, rebase and repeat review and verification.
 
 ## 6. Open the review gate
 
-Open a ready pull request only after local verification passes. Then confirm that its hosted head branch and SHA equal the clean, locally verified branch and `HEAD` before reporting it ready. CI verifies form and the human reviews meaning. Agents never merge their own pull requests or push directly to `main`; merging is the human act that accepts the change. A requested local branch or commit stopping point preserves work, but it is incomplete and not mergeable.
+The pull request is an authorization and protected-integration gate, not a demand for duplicate human code review. A solo developer may already have accepted the local candidate; the PR still prevents the agent that prepared it from accepting its own work. The agent may publish the branch, but it never merges the pull request or pushes to `main`. The human-controlled merge is the acceptance act.
 
-Review fixes are committed and locally verified on the same branch. Once the worktree is clean, push the verified commit to the existing pull request and repeat the hosted-head check before reporting it ready again. After the human merges, orient on the next unfinished plan milestone and ask before beginning it.
+The PR also gives hosted CI an exact candidate, but a PR alone does not enforce anything. Enforcement requires the CI workflow to run on the PR, its result to be a required status check, and branch protection to block merge until that check passes. Local verification remains fast evidence; protected hosted CI is the safeguard that the agent cannot silently skip. Workflow and protection changes must never weaken the gate merely to make a change pass.
+
+Open a ready pull request only after local review and verification pass. Report the review mode and reviewed commit, then confirm that the hosted head branch and SHA equal the clean, locally reviewed branch and `HEAD` before reporting it ready. A requested local branch or commit stopping point preserves work, but it is incomplete and not mergeable.
+
+Review fixes are committed, locally verified, and agent-reviewed again on the same branch. Once the current commit has a clean pass and the worktree is clean, push it to the existing pull request and repeat the hosted-head check before reporting it ready again. After the human merges, orient on the next unfinished plan milestone and ask before beginning it.
 
 The lifecycle instructions live in [the skills](./skills).
