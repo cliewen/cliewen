@@ -6,6 +6,8 @@
 
 <!-- List the checks relevant to the changed surface and their results. -->
 
+- Agentic review mode and reviewed commit: <!-- context-isolated or in-context fallback; SHA -->
+
 ## Cliewen proposal
 
 <!-- Delete this section and the Cliewen checklist for a plain change. Plain means no effect on behavior, intent, evidence, decisions, plans, policy, commands, contracts, user workflow, or methodology. -->
@@ -31,6 +33,7 @@
 - [ ] User-visible impact is described under `[Unreleased]` in `CHANGELOG.md`, or the change has no user-visible impact.
 - [ ] Full-change tasks are complete, plan bookkeeping is current, and no transient `/changes/` workspace remains.
 - [ ] Generated artifacts were regenerated from their canonical sources where applicable.
+- [ ] The current commit received a clean agentic review pass, and every substantive fix after an earlier pass triggered a new review.
 - [ ] `go build ./...`, coverage-gated `go test ./...`, `go run ./cmd/clue validate --forbid-changes`, and `git diff --check` pass.
 
 ## Review boundary

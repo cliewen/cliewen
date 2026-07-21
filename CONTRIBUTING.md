@@ -48,11 +48,11 @@ go run ./cmd/clue validate --forbid-changes
 git diff --check
 ```
 
-Total Go statement coverage must remain at least 80%. Also review the meaning the machines cannot judge: links and traceability are truthful, decisions are typed correctly, active constraints and quality scenarios were assessed, and release notes describe user impact.
+Total Go statement coverage must remain at least 80%. `clue-verify` then automatically reviews the committed candidate before publication. A coding-agent host with context-isolated delegation starts a fresh read-only reviewer; other hosts disclose an in-context fallback. Actionable findings return to the implementing context, and every substantive fix is checked, committed, and reviewed again until the current commit receives a clean pass. The final verification evidence identifies the review mode and reviewed commit.
 
 ## Open the Pull Request
 
-For a plain change, complete only the pull-request summary and relevant verification. For a Cliewen change, also complete the template's proposal, traceability, and Cliewen checklist. Open the pull request as ready for review only after the applicable checks pass. Keep review fixes on the same branch and pull request.
+For a plain change, complete only the pull-request summary and relevant verification. For a Cliewen change, also complete the template's proposal, traceability, and Cliewen checklist. Open the pull request as ready for review only after the applicable checks and automatic agentic review pass. Keep review fixes on the same branch and pull request; each substantive fix invalidates the earlier clean pass.
 
 The branch and pull request are a proposal; merge is acceptance. A human maintainer merges accepted changes. Agents must never merge their own pull requests, create local merge commits into `main`, or push directly to `main`.
 

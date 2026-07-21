@@ -115,7 +115,7 @@ func TestUnit_ReviewBoundaryRequiresExactHostedHandoff(t *testing.T) {
 			"if either side differs",
 			`local stopping point such as "commit only"`,
 			"not a completed or mergeable change",
-			"Review fixes stay on the same branch and PR: commit them, rerun local verification against that commit, require a clean worktree, push the verified commit there",
+			"Review fixes stay on the same branch and PR: commit them, rerun local verification and the automatic agentic review loop against that commit, require a clean worktree, push the reviewed commit there",
 		} {
 			if !strings.Contains(content, want) {
 				t.Errorf("%s does not contain review-handoff rule %q", name, want)
@@ -131,6 +131,35 @@ func TestUnit_ReviewBoundaryRequiresExactHostedHandoff(t *testing.T) {
 	} {
 		if !strings.Contains(verify, want) {
 			t.Errorf("clue-verify/skill.md does not contain hosted verification item %q", want)
+		}
+	}
+}
+
+func TestUnit_AgenticReviewLoopConvergesOnCurrentCommit(t *testing.T) {
+	rendered := map[string]string{}
+	for _, file := range mustRender(t) {
+		rendered[file.relativePath] = string(file.content)
+	}
+
+	verify := rendered["clue-verify/skill.md"]
+	for _, want := range []string{
+		"never ask the human to clear context or initiate a separate review",
+		"start a new read-only reviewer without the implementation conversation",
+		"recover a full change's proposal from branch history",
+		"label it `in-context fallback`",
+		"only actionable findings about correctness, intent mismatch, regressions, security, missing evidence, or unjustified complexity",
+		"a previous clean result applies only to the commit it reviewed",
+		"Do not publish with unresolved findings or without a clean pass",
+		"Report the final review mode and reviewed commit",
+	} {
+		if !strings.Contains(verify, want) {
+			t.Errorf("clue-verify/skill.md does not contain agentic-review rule %q", want)
+		}
+	}
+
+	for _, name := range []string{"clue-delta/skill.md", "clue-extract/skill.md"} {
+		if !strings.Contains(rendered[name], "automatic agentic review loop") {
+			t.Errorf("%s does not invoke the automatic agentic review loop", name)
 		}
 	}
 }
