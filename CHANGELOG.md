@@ -2,6 +2,16 @@
 
 All notable, user-visible changes to `clue` and the Cliewen skills. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and versions follow semver. Each GitHub release body is this file's matching version section, extracted verbatim by the release workflow — a release with no section here fails.
 
+## [0.5.1] - 2026-07-22
+
+### Changed
+
+- **Agentic review findings now have to demonstrate an operative violation.** Reviewers apply authoritative decisions and explicit lifecycle rules before reporting a defect, so optional human review is not confused with the required human-controlled merge and a release's versioned changelog section is not mistaken for a missing `[Unreleased]` section.
+
+### Install
+
+`go install github.com/cliewen/cliewen/cmd/clue@v0.5.1`, or download a prebuilt binary for your platform from the release assets and verify it against `SHA256SUMS`. Update vendored Cliewen skills from this release's `.agents/skills/`; a 0.5.1 binary rejects older Cliewen skill versions as drift.
+
 ## [0.5.0] - 2026-07-21
 
 ### Changed
