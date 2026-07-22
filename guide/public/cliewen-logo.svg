@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">Cliewen logo</title>
+  <desc id="desc">A ball of thread whose loose end forms a check mark.</desc>
+
+  <!-- Solid silhouette and heavy strokes keep the mark legible at favicon size. -->
+  <rect width="512" height="512" rx="104" fill="#3047A5"/>
+
+  <g transform="translate(256 256) scale(1.13) translate(-256 -256)">
+    <!-- Ball of thread. -->
+    <circle cx="224" cy="224" r="122" fill="#F7F3E8"/>
+    <g fill="none" stroke="#3047A5" stroke-width="25" stroke-linecap="round">
+      <path d="M130 169c59 4 130 49 173 112"/>
+      <path d="M155 125c58 32 112 93 139 164"/>
+      <path d="M121 231c57-47 140-75 210-66"/>
+      <path d="M138 285c63-41 136-58 190-46"/>
+    </g>
+
+    <!-- The thread leaves the ball and resolves into a verified check. -->
+    <path
+      d="M301 288c34 24 42 57 29 89l42 38 73-91"
+      fill="none"
+      stroke="#F7F3E8"
+      stroke-width="34"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    />
+  </g>
+</svg>
