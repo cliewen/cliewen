@@ -36,9 +36,12 @@ jobs:
       - name: Test CI scope classifier
         run: npm run test:ci-scope
       - uses: actions/setup-go@v7
-        if: steps.scope.outputs.full == 'true'
+        if: steps.scope.outputs.full == 'true' || steps.scope.outputs.guide == 'true'
         with:
           go-version: stable
+      - name: Test guide evidence
+        if: steps.scope.outputs.guide == 'true' && steps.scope.outputs.full != 'true'
+        run: go test ./guide
       - name: Build
         if: steps.scope.outputs.full == 'true'
         run: go build ./...
