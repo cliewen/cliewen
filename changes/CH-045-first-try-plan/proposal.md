@@ -2,7 +2,7 @@
 id: CH-045
 type: change
 status: open
-links: [G-001]
+links: [G-001, P-004]
 title: P-004 "Cliewen earns the first try" begins
 ---
 
