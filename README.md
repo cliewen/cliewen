@@ -25,7 +25,7 @@ Then:
 3. Move it into a directory on your user `PATH`. On Windows, a folder such as `%LOCALAPPDATA%\Programs\clue` works once added through "Edit environment variables for your account." On macOS and Linux, `~/.local/bin` is a common choice.
 4. Open a new terminal and run `clue version`. It should match the release you downloaded.
 
-The macOS binaries are not yet notarized. If macOS blocks `clue`, first confirm the checksum matches, try `clue version` once, then open **System Settings → Privacy & Security** and click **Open Anyway**. Apple documents this exception in [Open a Mac app from an unknown developer](https://support.apple.com/guide/mac-help/open-a-mac-app-from-an-unknown-developer-mh40616/mac).
+The macOS binaries are unsigned and not notarized. If macOS blocks `clue`, first confirm the checksum matches, try `clue version` once, then open **System Settings → Privacy & Security** and click **Open Anyway**. Apple documents this exception in [Open a Mac app from an unknown developer](https://support.apple.com/guide/mac-help/open-a-mac-app-from-an-unknown-developer-mh40616/mac).
 
 The [installation guide](https://cliewen.dev/getting-started#_1-install-clue) has the same short path with a little more context, but it is not required for the quickstart.
 
