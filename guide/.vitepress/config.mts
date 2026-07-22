@@ -64,6 +64,7 @@ export default defineConfig({
           { text: "What is Cliewen?", link: "/what-is-cliewen" },
           { text: "Get started", link: "/getting-started" },
           { text: "Greenfield and brownfield", link: "/adoption" },
+          { text: "Enforce CI", link: "/ci-wall" },
         ],
       },
       {

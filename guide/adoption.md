@@ -8,7 +8,49 @@ Tell the agent what outcome you want. You should not have to mirror every code c
 
 `clue validate` checks the parts a machine can judge: artifact structure, links, generated indexes, and traceability from active acceptance criteria to tests. A human still reviews whether the documentation and implementation say the right thing.
 
-This is agent-maintained documentation, not background synchronization. `clue` does not watch a wiki or ticket system, and it does not invent missing intent from code. The change loop requires local validation before a Cliewen pull request is ready for review. Once the generated CI wall is armed and its validation job is a required check, broken traceability blocks merge. Plain changes keep the same required job but do not invoke the corpus validator.
+This is agent-maintained documentation, not background synchronization. `clue` does not watch a wiki or ticket system, and it does not invent missing intent from code. The change loop requires local validation before a Cliewen pull request is ready for review. Once the [generated CI wall](./ci-wall) is armed and its validation job is a required check, broken traceability blocks merge. Plain changes keep the same required job but do not invoke the corpus validator.
+
+## Start with the minimum
+
+Do not fill every corpus folder because the scaffold created it. A useful first thread needs four things:
+
+| Record | Question it answers |
+|---|---|
+| Goal | Who needs an outcome, and why? |
+| Capability | What must the system be able to do? |
+| Acceptance criterion | What observable example makes the behavior specific enough to accept? |
+| Positive and negative test evidence | Does the behavior work, and does it reject or survive the important counter-case? |
+
+The criterion carries a stable ID such as `AC-001`. The focused positive and negative tests both reference that ID using the convention for their test framework. Keep the criterion draft until the implementation and both tests are ready, then activate it in the same change.
+
+`clue validate` checks that an active criterion has at least one supported test reference. It does not count or classify the pair yet. The change loop and review hold the stronger positive-and-negative rule.
+
+## Add the wider corpus when it earns its keep
+
+The rest of the taxonomy solves problems that appear as work grows:
+
+| Add | When |
+|---|---|
+| A plan | The outcome needs several ordered changes or milestones |
+| A decision record | Reversing a choice later would be expensive, or the repository needs to remember why one path won |
+| A constraint | Law, policy, compatibility, licensing, or another non-negotiable boundary limits the solution |
+| A quality scenario | Performance, reliability, usability, or another system quality needs a concrete threshold |
+| Architecture | Several capabilities depend on the same boundary or an expensive-to-change structure |
+| Analysis findings | Important unknowns need investigation before anyone can plan honestly |
+
+Leave unused categories empty. Cliewen is supposed to expose necessary reasoning, not reward document volume.
+
+## When Cliewen is a poor fit
+
+Do not adopt Cliewen when the repository cannot own both the intent and its acceptance evidence. The current method is also a poor fit when:
+
+- Work does not go through Git branches and a human-controlled merge boundary.
+- The project cannot run reliable tests or enforce a stable CI check before integration.
+- The code is a disposable prototype, generated output, or vendored source whose behavior is accepted somewhere else.
+- One corpus would need to claim test evidence spread across several repositories. Current validation is repository-local.
+- The team will not let agents update the corpus with the implementation or will not review the meaning before merge.
+
+In those cases, use the project's existing lightweight notes and tests instead of creating a corpus nobody will maintain.
 
 ## Prompts that get useful work started
 

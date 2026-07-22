@@ -7,6 +7,7 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 ### Changed
 
 - **The first Cliewen trial now shows its value without risking an existing repository.** The public front door explains who the method is for and separates Cliewen, `clue`, and the corpus before introducing the taxonomy. Release binaries are now the primary installation path with a compact download table and short checksum and `PATH` steps, and the disposable demo turns a draft criterion active to show the real missing-test diagnostic before cleanup. The guide also states the current boundary: `clue` detects whether supported test evidence exists, while the change loop and human review require the focused positive and negative pair. The public guide now loads its assets and navigation correctly from `https://cliewen.dev/`.
+- **The CI wall now has a complete setup and proof path.** The guide shows how to vendor and verify the pinned `clue` binary, require the stable `validate` check, protect the default branch without bypass, and prove an undigested change cannot merge. Adoption guidance now starts with the minimum goal → capability → criterion → positive and negative tests thread and states when the wider corpus is useful or Cliewen is the wrong fit.
 
 ## [0.5.1] - 2026-07-22
 
