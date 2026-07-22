@@ -4,6 +4,22 @@ The change loop applies when work belongs in Cliewen. Before loading the corpus,
 
 When meaning may change or classification is uncertain, use this loop.
 
+## One real change, end to end
+
+[Cliewen pull request #2](https://github.com/cliewen/cliewen/pull/2) made the last edge of the thread machine-checkable. Before that change, an active acceptance criterion could lose its test reference without `clue` noticing; after it, the validator reports the criterion and exits non-zero.
+
+| Stage | What the change carried |
+|---|---|
+| Need | Make acceptance-criterion-to-test traceability enforceable rather than conventional |
+| Proposal | CH-003 declared the intended AC↔test contract and served the baseline plan's traceability milestone |
+| Durable capability | [`clue validate`](https://github.com/cliewen/cliewen/tree/main/docs/capabilities/CAP-002-validate) owns criteria such as AC-009, which requires test evidence for every active criterion |
+| Positive and negative evidence | Focused tests show both the missing-test failure and the referenced-test success path |
+| Implementation | The validator harvests declared ACs and supported test references, then reports an active AC with no evidence |
+| Digest | The transient CH-003 workspace disappeared; the capability, criteria, decisions, implementation, and tests remained |
+| Acceptance | The branch became PR #2, CI ran the candidate, and a human merge accepted it into `main` |
+
+That same shape applies to an ordinary product request: state the desired behavior, connect it to a criterion and evidence, implement until the thread and tests are green, digest the temporary proposal, and hand the exact verified commit to the protected pull request.
+
 ## 1. Branch
 
 Create `ch-xxx-your-slug` from the current tip of `main`. One author takes one Cliewen change to its pull request before starting another, and a change never starts from unaccepted work. Plain changes do not consume the Cliewen slot.

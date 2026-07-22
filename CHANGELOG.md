@@ -2,6 +2,12 @@
 
 All notable, user-visible changes to `clue` and the Cliewen skills. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and versions follow semver. Each GitHub release body is this file's matching version section, extracted verbatim by the release workflow — a release with no section here fails.
 
+## [Unreleased]
+
+### Changed
+
+- **The first Cliewen trial now shows its value without risking an existing repository.** The public front door explains who the method is for and separates Cliewen, `clue`, and the corpus before introducing the taxonomy. Release binaries are now the primary installation path with checksum and `PATH` steps for Windows, macOS, and Linux, and the disposable demo turns a draft criterion active to show the real missing-test diagnostic before cleanup. The guide also states the current boundary: `clue` detects whether supported test evidence exists, while the change loop and human review require the focused positive and negative pair.
+
 ## [0.5.1] - 2026-07-22
 
 ### Changed

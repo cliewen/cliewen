@@ -3,22 +3,23 @@ layout: home
 
 hero:
   name: Cliewen
-  text: A verifiable thread from goal to test
-  tagline: A small, repo-native methodology for agent-driven development where the documentation corpus is the system of record and humans keep the meaning.
+  text: Ship agent-written changes without losing the intent
+  tagline: Cliewen keeps requirements, decisions, implementation, and tests connected in Git—and catches missing evidence before merge.
   actions:
     - theme: brand
-      text: Get started
+      text: Try it safely
       link: /getting-started
     - theme: alt
-      text: See how it works
-      link: /methodology
+      text: Why Cliewen?
+      link: /what-is-cliewen
 
 features:
-  - title: The system, not just the change
-    details: Goals, capabilities, acceptance criteria, architecture, decisions, and constraints stay useful after a pull request is merged.
-  - title: Form enforced by machines
-    details: The clue CLI checks the artifact graph, test traceability, indexes, versions, and change-workspace boundary locally and in CI.
-  - title: Meaning verified by humans
-    details: Agents prepare a complete branch and pull request. A human reviews the intent and performs the merge.
+  - title: For agent-driven pull requests
+    details: Built for repositories where coding agents implement real product changes and tests through Git branches and pull requests.
+  - title: One thread the repository can check
+    details: Goals lead to capabilities, acceptance criteria, and test evidence. The clue CLI reports broken links and missing evidence locally and in CI.
+  - title: Methodology, judge, and memory
+    details: Cliewen is the methodology, clue is its command-line judge, and the corpus under docs is the permanent system record that agents maintain with the code.
+  - title: Deliberately visible overhead
+    details: Agents prepare the corpus and verified proposal; humans keep control of intent and merge. Small work that changes no meaning stays outside the full loop.
 ---
-
