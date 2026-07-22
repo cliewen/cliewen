@@ -5,6 +5,9 @@ hero:
   name: Cliewen
   text: Ship agent-written changes without losing the intent
   tagline: Cliewen keeps requirements, decisions, implementation, and tests connected in Git—and catches missing evidence before merge.
+  image:
+    src: /cliewen-logo.svg
+    alt: Cliewen logo
   actions:
     - theme: brand
       text: Try it safely

@@ -49,9 +49,11 @@ export default defineConfig({
     },
   },
   head: [
+    ["link", { rel: "icon", href: "/cliewen-logo.svg", type: "image/svg+xml" }],
     ["meta", { name: "theme-color", content: "#3b5bdb" }],
   ],
   themeConfig: {
+    logo: "/cliewen-logo.svg",
     nav: [
       { text: "Guide", link: "/what-is-cliewen" },
       { text: "Get started", link: "/getting-started" },
