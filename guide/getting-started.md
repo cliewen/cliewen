@@ -182,4 +182,8 @@ That is the product's job: an active promise cannot silently lose all executable
 
 The experiment changed only `cliewen-demo`. Leave that directory, then delete it with your file manager or normal directory-removal command to undo the entire trial. Removing the separately installed `clue` binary is not required.
 
-If the failure made sense and you want to use Cliewen, start again in a new project or read the [greenfield and brownfield guide](./adoption) before initializing an existing repository. Before real work lands, [arm the CI wall](./ci-wall) so a broken thread cannot merge. The [change loop](./change-loop) shows how an agent carries a real request from proposal to human merge.
+If the failure made sense and you want to use Cliewen, start again in a new project or read the greenfield and brownfield guide before initializing an existing repository. Before real work lands, arm the CI wall so a broken thread cannot merge.
+
+## Next
+
+[Choose a greenfield or brownfield adoption path.](./adoption)

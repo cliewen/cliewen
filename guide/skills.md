@@ -26,4 +26,6 @@ Distributed Cliewen skills carry an ownership marker and the same version as the
 
 This makes process changes reviewable and reproducible: the agent guidance that shaped a branch is a versioned repository artifact, not an invisible service configuration.
 
-Ready to practice the loop? Return to [Get started](./getting-started).
+## Next
+
+[Practice the loop in a disposable repository.](./getting-started)

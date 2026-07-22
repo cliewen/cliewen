@@ -47,4 +47,12 @@ Feature: Onboarding — install to first green validate
     Then the existing file is not replaced and its prose outside clue:index markers is unchanged
     And the report names it as skipped
     And every file the existing one did not shadow is still created
+
+  @AC-036
+  Scenario: The public guide gives an operator one supported next step
+    Given a reader has completed the disposable Cliewen trial
+    When they open the public guide's operations page
+    Then it distinguishes shipped and verified support from methodology intent
+    And it gives safe recovery paths for routine operating problems
+    And every public-guide page ends with exactly one primary next action
 ```

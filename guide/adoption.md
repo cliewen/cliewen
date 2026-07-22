@@ -105,4 +105,6 @@ The current tooling has a deliberate repository boundary:
 - Several repositories can be adopted separately, each with its own corpus and local test evidence.
 - One unified corpus that claims acceptance evidence from tests spread across several repositories is not supported yet. Supporting it would require a future capability rather than a broader reading of the current tools.
 
-Once the boundary is clear, return to [the change loop](./change-loop) for the first adopted change.
+## Next
+
+[Follow the change loop for the first adopted change.](./change-loop)

@@ -155,4 +155,6 @@ Forge menus differ, so copy the contract rather than GitHub's labels:
 
 If your forge or hosting plan cannot enforce those conditions, local Cliewen validation still catches mistakes, but CI is evidence rather than a wall.
 
-Once the probe is blocked, return to [the adoption guide](./adoption) and decide how much of the corpus your project actually needs.
+## Next
+
+[Choose the smallest Cliewen practice your repository needs.](./adoption)
