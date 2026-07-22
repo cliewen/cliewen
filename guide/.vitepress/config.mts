@@ -22,7 +22,7 @@ export default defineConfig({
   lang: "en-US",
   title: "Cliewen",
   description: "A verifiable thread from goal to test for agent-driven development.",
-  base: "/cliewen/",
+  base: "/",
   cleanUrls: true,
   ignoreDeadLinks: false,
   markdown: {
