@@ -18,77 +18,14 @@ SDD frameworks document the *change*; Cliewen documents the *system*. Changes ar
 | macOS Intel / Apple silicon | `clue-<version>-darwin-amd64` / `clue-<version>-darwin-arm64` |
 | Linux x86-64 / ARM64 | `clue-<version>-linux-amd64` / `clue-<version>-linux-arm64` |
 
-Run the matching block from that download directory. It verifies the release checksum, installs `clue` under your user account, adds it to the current shell, and prints the installed version.
+Then:
 
-### Windows PowerShell
+1. Verify the downloaded binary's SHA-256 matches its line in `SHA256SUMS`. Use `Get-FileHash <asset> -Algorithm SHA256` on Windows, `shasum -a 256 <asset>` on macOS, or `sha256sum <asset>` on Linux.
+2. Rename the binary to `clue.exe` on Windows or `clue` on macOS and Linux. On macOS and Linux, also make it executable with `chmod +x clue`.
+3. Move it into a directory on your user `PATH`. On Windows, a folder such as `%LOCALAPPDATA%\Programs\clue` works once added through "Edit environment variables for your account." On macOS and Linux, `~/.local/bin` is a common choice.
+4. Open a new terminal and run `clue version`. It should match the release you downloaded.
 
-```powershell
-$Architecture = switch ([System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture) {
-    ([System.Runtime.InteropServices.Architecture]::X64) { "amd64" }
-    ([System.Runtime.InteropServices.Architecture]::Arm64) { "arm64" }
-    default { throw "Cliewen has no Windows asset for this architecture" }
-}
-$Asset = Get-ChildItem -File "clue-*-windows-$Architecture.exe" | Select-Object -First 1
-if ($null -eq $Asset) { throw "The Cliewen release asset is not in this directory" }
-$ChecksumLine = Get-Content .\SHA256SUMS | Where-Object { $_ -match ("\s" + [regex]::Escape($Asset.Name) + "$") }
-if ($null -eq $ChecksumLine) { throw "SHA256SUMS does not name $($Asset.Name)" }
-$Expected = (($ChecksumLine -split "\s+")[0]).ToUpperInvariant()
-$Actual = (Get-FileHash -Algorithm SHA256 -LiteralPath $Asset.FullName).Hash
-if ($Actual -ne $Expected) { throw "Checksum mismatch: do not run this binary" }
-
-$InstallDir = Join-Path $env:LOCALAPPDATA "Programs\clue"
-New-Item -ItemType Directory -Force -Path $InstallDir | Out-Null
-Copy-Item -LiteralPath $Asset.FullName -Destination (Join-Path $InstallDir "clue.exe")
-$UserPath = [Environment]::GetEnvironmentVariable("Path", "User")
-if (@($UserPath -split ";") -notcontains $InstallDir) {
-    $NewUserPath = if ([string]::IsNullOrWhiteSpace($UserPath)) { $InstallDir } else { "$UserPath;$InstallDir" }
-    [Environment]::SetEnvironmentVariable("Path", $NewUserPath, "User")
-}
-$env:Path = "$InstallDir;$env:Path"
-clue version
-```
-
-### macOS
-
-```sh
-case "$(uname -m)" in
-  x86_64) arch=amd64 ;;
-  arm64) arch=arm64 ;;
-  *) echo "Cliewen has no macOS asset for this architecture" >&2; exit 1 ;;
-esac
-asset=$(find . -maxdepth 1 -type f -name "clue-*-darwin-$arch" -print -quit)
-test -n "$asset" || { echo "The Cliewen release asset is not in this directory" >&2; exit 1; }
-name=$(basename "$asset")
-expected=$(awk -v file="$name" '$2 == file { print $1 }' SHA256SUMS)
-actual=$(shasum -a 256 "$asset" | awk '{ print $1 }')
-test -n "$expected" && test "$actual" = "$expected" || { echo "Checksum mismatch: do not run this binary" >&2; exit 1; }
-mkdir -p "$HOME/.local/bin"
-install -m 0755 "$asset" "$HOME/.local/bin/clue"
-export PATH="$HOME/.local/bin:$PATH"
-clue version
-```
-
-### Linux
-
-```sh
-case "$(uname -m)" in
-  x86_64) arch=amd64 ;;
-  aarch64 | arm64) arch=arm64 ;;
-  *) echo "Cliewen has no Linux asset for this architecture" >&2; exit 1 ;;
-esac
-asset=$(find . -maxdepth 1 -type f -name "clue-*-linux-$arch" -print -quit)
-test -n "$asset" || { echo "The Cliewen release asset is not in this directory" >&2; exit 1; }
-name=$(basename "$asset")
-expected=$(awk -v file="$name" '$2 == file { print $1 }' SHA256SUMS)
-test -n "$expected" || { echo "SHA256SUMS does not name $name" >&2; exit 1; }
-printf '%s  %s\n' "$expected" "$asset" | sha256sum -c -
-mkdir -p "$HOME/.local/bin"
-install -m 0755 "$asset" "$HOME/.local/bin/clue"
-export PATH="$HOME/.local/bin:$PATH"
-clue version
-```
-
-Persist `$HOME/.local/bin` in your shell's `PATH` on macOS or Linux if it is not already there. `clue version` should match the release you downloaded. The [installation guide](https://cliewen.github.io/cliewen/getting-started#_1-install-clue) explains the same path in more detail but is not required for the quickstart.
+The [installation guide](https://cliewen.dev/getting-started#_1-install-clue) has the same short path with a little more context, but it is not required for the quickstart.
 
 To install from source instead, use the Go toolchain:
 
@@ -113,7 +50,7 @@ clue init
 clue validate
 ```
 
-`init` materializes the whole convention in one call: the `docs/` corpus, an `AGENTS.md` routing hub, agent skills, and a GitHub workflow. On a fresh repository `validate` is green immediately. Continue with the [safe demo](https://cliewen.github.io/cliewen/getting-started#_3-see-clue-catch-a-broken-thread) to activate an acceptance criterion without evidence and watch `clue` name the missing test; remove `cliewen-demo` afterwards.
+`init` materializes the whole convention in one call: the `docs/` corpus, an `AGENTS.md` routing hub, agent skills, and a GitHub workflow. On a fresh repository `validate` is green immediately. Continue with the [safe demo](https://cliewen.dev/getting-started#_3-see-clue-catch-a-broken-thread) to activate an acceptance criterion without evidence and watch `clue` name the missing test; remove `cliewen-demo` afterwards.
 
 **2. Make your first Cliewen change.** The generated `AGENTS.md` first keeps unrelated editorial work out of Cliewen: a plain change uses an ordinary branch, relevant checks, a PR, and human merge. Work whose meaning belongs in Cliewen follows the change loop in [`clue-delta`](.agents/skills/clue-delta/skill.md): branch, propose in `/changes/CH-001-your-slug/`, implement against the corpus, digest into `docs/`, then run the pre-merge checks and automatic agentic review in [`clue-verify`](.agents/skills/clue-verify/skill.md) before opening a PR. Your coding agent loads the corpus and skills only when they are relevant.
 
@@ -123,7 +60,7 @@ Adopting a repo with an existing spec corpus instead? That is the [`clue-extract
 
 ## Public guide
 
-The handwritten [Cliewen guide](https://cliewen.github.io/cliewen/) explains the methodology, corpus taxonomy, change loop, and skills for newcomers who are not yet inside a Cliewen repository. Its [source](guide/index.md) builds with strict dead-link checking in CI and deploys from `main` through GitHub Pages.
+The handwritten [Cliewen guide](https://cliewen.dev/) explains the methodology, corpus taxonomy, change loop, and skills for newcomers who are not yet inside a Cliewen repository. Its [source](guide/index.md) builds with strict dead-link checking in CI and deploys from `main` through GitHub Pages.
 
 ## Developing the skills
 
