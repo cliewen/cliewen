@@ -1,12 +1,14 @@
 ---
 id: P-004
 type: plan
-status: active
+status: completed
 links: [G-001]
 title: Cliewen earns the first try — value, safe proof, enforced adoption
 ---
 
 # P-004 — Cliewen earns the first try
+
+> **Completed 2026-07-23** — all milestones done; frozen immutable. The public front door, safe demo, release-binary installation, enforced-CI guidance, adoption-fit guidance, and operating boundaries are all in place. No successor is designated.
 
 P-001 established the verifiable thread, P-002 made it distributable, and P-003 made the repository and newcomer guide public. This campaign makes that public path earn a newcomer's first try: state the value before the vocabulary, demonstrate a real validation failure without risking an existing repository, make the CI safeguard actionable, and state the product's operating boundaries honestly. It serves [G-001](../goals/G-001-verifiable-thread.md) without changing the validator or [QS-002](../quality/QS-002-onboarding-under-30-minutes.md).
 
