@@ -67,6 +67,7 @@ export default defineConfig({
           { text: "Get started", link: "/getting-started" },
           { text: "Greenfield and brownfield", link: "/adoption" },
           { text: "Enforce CI", link: "/ci-wall" },
+          { text: "Operate safely", link: "/operations" },
         ],
       },
       {

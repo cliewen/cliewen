@@ -30,6 +30,8 @@ That combination prevents two common failures of change-centered specifications:
 
 ## What Cliewen is not
 
-Cliewen is not an issue tracker, a project-management service, or a way to remove humans from engineering decisions. It is also not a replacement for tests. It depends on them: every active acceptance criterion must have focused positive and negative tests that show the stated intent is met, and `clue validate` fails when that evidence is missing. It is deliberately repo-native: Markdown, Git, the test framework you already use, one small binary, and skills that teach agents the workflow.
+Cliewen is not an issue tracker, a project-management service, or a way to remove humans from engineering decisions. It is also not a replacement for tests. It depends on them: every active acceptance criterion must have focused positive and negative tests that show the stated intent is met, and `clue validate` fails when that evidence is missing. It is deliberately repo-native: Markdown, Git, one small binary, and skills that teach agents the workflow. Today `clue` harvests test evidence from Go test names and Java/Kotlin JUnit tags; other frameworks need a supported profile before their references can count.
 
-Ready to see the pieces? Start with [the verifiable thread](./methodology), or go straight to [installing Cliewen](./getting-started).
+## Next
+
+[See how the verifiable thread works.](./methodology)

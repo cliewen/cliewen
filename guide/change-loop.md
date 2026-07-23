@@ -56,4 +56,6 @@ Open a ready pull request only after local review and verification pass. Report 
 
 Review fixes are committed, locally verified, and agent-reviewed again on the same branch. Once the current commit has a clean pass and the worktree is clean, push it to the existing pull request and repeat the hosted-head check before reporting it ready again. After the human merges, orient on the next unfinished plan milestone and ask before beginning it.
 
-The lifecycle instructions live in [the skills](./skills).
+## Next
+
+[Learn which Cliewen skill applies to your next change.](./skills)

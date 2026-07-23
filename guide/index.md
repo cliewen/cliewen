@@ -26,3 +26,7 @@ features:
   - title: Deliberately visible overhead
     details: Agents prepare the corpus and verified proposal; humans keep control of intent and merge. Small work that changes no meaning stays outside the full loop.
 ---
+
+## Next
+
+[Try Cliewen safely in a disposable repository.](./getting-started)
