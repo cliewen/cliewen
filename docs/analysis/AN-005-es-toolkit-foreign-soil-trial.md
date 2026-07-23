@@ -1,7 +1,7 @@
 ---
 id: AN-005
 type: analysis
-status: verified
+status: active
 provenance: inferred
 links: [P-002, M-007, PDR-005, AN-004]
 title: Foreign-soil trial — es-toolkit
@@ -13,7 +13,7 @@ title: Foreign-soil trial — es-toolkit
 
 This is the second qualifying foreign-soil trial for P-002/M-007. [`toss/es-toolkit`](https://github.com/toss/es-toolkit) is an external public open-source repository with no shared maintainer, was not designed for Cliewen, and was explicitly selected by the human. The trial was read-and-apply analysis, not adoption: no tracked file or hosted state in the target repository was changed.
 
-The spike is complete, so the analysis status is `verified`; its interpretation remains `provenance: inferred` because no es-toolkit maintainer verified the reconstructed intent.
+The spike is complete and the finding stands, so the analysis status is `active`; its interpretation remains `provenance: inferred` because no es-toolkit maintainer verified the reconstructed intent.
 
 ## Risk named
 

@@ -1,7 +1,7 @@
 ---
 id: AN-007
 type: analysis
-status: verified
+status: active
 links: [PDR-007, PDR-011, C-012, LOG-001]
 title: A ready PR can omit intended local review fixes
 ---

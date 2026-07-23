@@ -117,9 +117,20 @@ func TestUnit_StatusVocabEnforced(t *testing.T) {
 		"docs/goals/G-001-first.md": "---\nid: G-001\ntype: goal\nstatus: wip\nlinks: []\ntitle: First goal\n---\n",
 	})
 	assertIssue(t, run(t, files, false), "status wip not allowed for type goal")
+}
 
-	files["docs/goals/G-001-first.md"] = "---\nid: G-001\ntype: wizard\nstatus: accepted\nlinks: []\ntitle: First goal\n---\n"
-	assertIssue(t, run(t, files, false), "unknown type wizard")
+// ADR-026: a type the validator does not recognize is an adopter extension,
+// validated against the default lifecycle rather than rejected.
+func TestUnit_AdopterTypeValidatesAgainstDefault(t *testing.T) {
+	files := with(validFiles, map[string]string{
+		"docs/goals/G-001-first.md": "---\nid: G-001\ntype: risk\nstatus: active\nlinks: []\ntitle: An adopter-defined type\n---\n",
+	})
+	if issues := run(t, files, false); len(issues) != 0 {
+		t.Fatalf("an adopter type with a default status is valid; expected no issues, got %v", issues)
+	}
+
+	files["docs/goals/G-001-first.md"] = "---\nid: G-001\ntype: risk\nstatus: accepted\nlinks: []\ntitle: An adopter-defined type\n---\n"
+	assertIssue(t, run(t, files, false), "status accepted not allowed for type risk (allowed: draft, active, retired)")
 }
 
 func TestUnit_LogStatusVocab(t *testing.T) {
