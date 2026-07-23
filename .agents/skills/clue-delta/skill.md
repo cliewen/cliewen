@@ -22,7 +22,7 @@ Keep deltas small: Git merges text, not meaning.
 
 ## Change scope and tiers
 
-Classify scope before using the Cliewen loop. Three rules decide the tier, by how deeply the change reaches into meaning.
+Classify scope before using the Cliewen loop. Three rules decide the tier, by how deeply the change reaches into meaning; take the first rule that matches.
 
 1. **Plain — nothing about meaning changes.** The change has no effect on product behavior, intent, executable evidence, decisions, plans, policy, or methodology. It stays outside this skill: an ordinary branch from the current tip of `main`, checks relevant to the changed surface, a ready PR, and human merge. It takes no CH identity, corpus read, plan item, proposal artifacts, Cliewen verification, plan bookkeeping, or Cliewen-mandated changelog entry, does not consume the one-Cliewen-change-in-flight slot, and never builds on unmerged work. Protected surfaces are never plain: `/docs`, `/changes`, product code, tests, configuration, build and release machinery, security and governance policy, AGENTS.md rules, skills, and lint rules. Changes to commands, contracts, user workflow, or normative instructions are not editorial.
 2. **Light — meaning is touched but not changed.** The change makes no decision, changes no acceptance criterion or capability meaning, mutates no plan semantically, and touches no methodology carrier such as a skill, AGENTS.md rule, or lint rule. Typical: typos or documentation clarity on a protected surface, dependency bumps, pure refactors, and CI plumbing. Its branch and ready PR are mandatory and it skips the transient workspace, so the PR description is the proposal, naming a real plan item or explicitly declaring the change plan-less.
