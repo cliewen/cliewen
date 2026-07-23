@@ -22,11 +22,11 @@ A plan is a finite campaign serving a goal. Its milestones have explicit exit cr
 
 ## Change
 
-Cliewen does not own every repository edit. A plain change affects no product behavior, intent, evidence, decision, plan, policy, or methodology. It uses an ordinary branch, checks relevant to the edited surface, a pull request, and human merge, without a CH number or corpus work.
+Cliewen does not own every repository edit. Three rules set the tier, by how deeply a change reaches into meaning; the first that matches wins. A change is **plain** when nothing about meaning changes: it affects no product behavior, intent, evidence, decision, plan, policy, or methodology, so it uses an ordinary branch, checks relevant to the edited surface, a pull request, and human merge, without a CH number or corpus work. It is **light** when meaning is touched but not changed: no decision, no acceptance meaning change, no semantic plan mutation, no methodology carrier touched. Everything else is **full**.
 
-A Cliewen change is a branch-sized proposal. Full changes use a transient workspace under `/changes/CH-xxx-*` for the proposal, ordered tasks, and blocking questions. The workspace is deleted during the digest because the current system truth belongs in `/docs`, while Git keeps the proposal history.
+A Cliewen change is a branch-sized proposal. A full change uses a transient workspace under `/changes/CH-xxx-*` for the proposal, ordered tasks, and blocking questions. The workspace is deleted during the digest because the current system truth belongs in `/docs`, while Git keeps the proposal history. A light change skips that workspace and its ready pull-request description becomes the proposal, but the branch and human merge boundary remain.
 
-Small changes can use the light tier when they make no decision, change no acceptance meaning, perform no semantic plan mutation, and touch no methodology carrier. The ready pull-request description becomes the proposal, but the branch and human merge boundary remain.
+Two guards hold above the rules. When the tier is unclear, take the higher one; and the moment a decision, an open question, a meaning change, or a methodology-carrier edit appears during work, move to the full loop before continuing.
 
 ## Capability and acceptance criterion
 

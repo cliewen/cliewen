@@ -290,7 +290,7 @@ func TestSanity_ScaffoldedRoutingClassifiesPlainWorkBeforeCorpus(t *testing.T) {
 	}
 	content := string(data)
 	classify := strings.Index(content, "Before loading the corpus, classify the requested work.")
-	readCorpus := strings.Index(content, "For every other change, read [`docs/README.md`]")
+	readCorpus := strings.Index(content, "For a light or full change, read [`docs/README.md`]")
 	if classify < 0 || readCorpus < 0 || classify >= readCorpus {
 		t.Fatalf("AGENTS.md does not classify plain work before routing into the corpus:\n%s", content)
 	}
@@ -298,7 +298,7 @@ func TestSanity_ScaffoldedRoutingClassifiesPlainWorkBeforeCorpus(t *testing.T) {
 		"no CH identity",
 		"relevant checks for the changed surface",
 		"Plain changes do not consume the one-Cliewen-change-in-flight slot",
-		"When uncertain, the change is not plain",
+		"the tier is unclear, take the higher one",
 	} {
 		if !strings.Contains(content, want) {
 			t.Errorf("AGENTS.md does not contain plain-change boundary %q", want)

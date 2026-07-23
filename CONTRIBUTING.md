@@ -12,7 +12,9 @@ Thank you for helping improve Cliewen. Participation is governed by the [Code of
 
 ## Before Starting a Change
 
-Classify the work before loading the corpus. A change is plain only when it has no effect on product behavior, intent, executable evidence, decisions, plans, policy, or methodology. `/docs`, `/changes`, code, tests, configuration, build and release machinery, security and governance policy, `AGENTS.md`, skills, and lint rules are protected and never plain. Changes to commands, contracts, user workflow, or normative instructions are not editorial. If uncertain, use Cliewen.
+Classify the work before loading the corpus. Three rules set the tier — plain, then light, then full — and you take the first that matches; light and full are stated under "Choose the Change Tier" below. A change is plain when nothing about meaning changes: it has no effect on product behavior, intent, executable evidence, decisions, plans, policy, or methodology. Protected surfaces are never plain: `/docs`, `/changes`, code, tests, configuration, build and release machinery, security and governance policy, `AGENTS.md`, skills, and lint rules. Changes to commands, contracts, user workflow, or normative instructions are not editorial.
+
+Two guards hold above the rules, from this first classification onward. When the tier is unclear, take the higher one; and the moment a decision, an open question, a meaning change, or a methodology-carrier edit appears during work, move to the full loop before continuing.
 
 A plain change starts from the current tip of `main`, uses an ordinary branch, runs checks relevant to the changed surface, and opens a ready pull request. It needs no CH number, plan declaration, proposal, corpus read, Cliewen skill, full verification checklist, plan bookkeeping, or changelog entry.
 
@@ -22,7 +24,7 @@ Use the next free `CH-xxx` identifier visible in git history and any active `/ch
 
 ## Choose the Change Tier
 
-A change is light only when it makes no decision, changes no acceptance-criterion or capability meaning, makes no semantic plan mutation, and touches no methodology carrier such as an agent skill, `AGENTS.md` rule, or lint rule. A light change has no `/changes/` workspace; its pull-request description is the proposal and states what, why, and the plan item or plan-less declaration.
+A change is light when meaning is touched but not changed: it makes no decision, changes no acceptance-criterion or capability meaning, makes no semantic plan mutation, and touches no methodology carrier such as an agent skill, `AGENTS.md` rule, or lint rule. A light change has no `/changes/` workspace; its pull-request description is the proposal and states what, why, and the plan item or plan-less declaration.
 
 Every other change is full. Before implementation, add `/changes/<CH-xxx-slug>/proposal.md`, `tasks.md`, and `open-questions.md`, then commit that proposal by itself. Record unresolved decisions in `open-questions.md` and stop until a human answer can be captured as a typed decision.
 
