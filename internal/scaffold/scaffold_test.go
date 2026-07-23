@@ -298,7 +298,7 @@ func TestSanity_ScaffoldedRoutingClassifiesPlainWorkBeforeCorpus(t *testing.T) {
 		"no CH identity",
 		"relevant checks for the changed surface",
 		"Plain changes do not consume the one-Cliewen-change-in-flight slot",
-		"When uncertain, the change is not plain",
+		"when the tier is unclear, take the higher one",
 	} {
 		if !strings.Contains(content, want) {
 			t.Errorf("AGENTS.md does not contain plain-change boundary %q", want)
