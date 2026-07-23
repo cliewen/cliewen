@@ -2,7 +2,7 @@
 
 The change loop applies when work belongs in Cliewen. Before loading the corpus, classify the request: if nothing about meaning changes — no product behavior, intent, evidence, decision, plan, policy, command, contract, user workflow, or methodology carrier — it is plain, and it uses an ordinary branch, relevant checks, a ready pull request, and human merge. That plain route has no CH number, proposal metadata, corpus work, Cliewen verification, plan bookkeeping, or changelog entry.
 
-When meaning is touched, use this loop: fully when meaning changes, and in the light tier when it is only touched. When the tier is unclear, take the higher one.
+When meaning is touched, use this loop. The light tier fits when meaning is only touched and no decision, acceptance meaning, plan semantics, or methodology carrier is affected; everything else is full. When the tier is unclear, take the higher one, and move to the full loop the moment a decision, an open question, a meaning change, or a methodology-carrier edit appears during work.
 
 ## One real change, end to end
 

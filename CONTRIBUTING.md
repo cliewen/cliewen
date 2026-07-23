@@ -12,9 +12,9 @@ Thank you for helping improve Cliewen. Participation is governed by the [Code of
 
 ## Before Starting a Change
 
-Classify the work before loading the corpus; three rules set the tier, and you take the first that matches. A change is plain when nothing about meaning changes: it has no effect on product behavior, intent, executable evidence, decisions, plans, policy, or methodology. Protected surfaces are never plain: `/docs`, `/changes`, code, tests, configuration, build and release machinery, security and governance policy, `AGENTS.md`, skills, and lint rules. Changes to commands, contracts, user workflow, or normative instructions are not editorial.
+Classify the work before loading the corpus. Three rules set the tier — plain, then light, then full — and you take the first that matches; light and full are stated under "Choose the Change Tier" below. A change is plain when nothing about meaning changes: it has no effect on product behavior, intent, executable evidence, decisions, plans, policy, or methodology. Protected surfaces are never plain: `/docs`, `/changes`, code, tests, configuration, build and release machinery, security and governance policy, `AGENTS.md`, skills, and lint rules. Changes to commands, contracts, user workflow, or normative instructions are not editorial.
 
-Two guards hold above the rules, from this first classification onward. When the tier is unclear, take the higher one; and the moment a decision, an open question, a meaning change, or a methodology-carrier edit appears during work, move up a tier before continuing.
+Two guards hold above the rules, from this first classification onward. When the tier is unclear, take the higher one; and the moment a decision, an open question, a meaning change, or a methodology-carrier edit appears during work, move to the full loop before continuing.
 
 A plain change starts from the current tip of `main`, uses an ordinary branch, runs checks relevant to the changed surface, and opens a ready pull request. It needs no CH number, plan declaration, proposal, corpus read, Cliewen skill, full verification checklist, plan bookkeeping, or changelog entry.
 
