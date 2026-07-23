@@ -13,7 +13,7 @@ title: Foreign-soil trial — hyperfine
 
 This is the first qualifying foreign-soil trial for P-002/M-007. [`sharkdp/hyperfine`](https://github.com/sharkdp/hyperfine) is an external public open-source repository with no shared maintainer, was not designed for Cliewen, and was explicitly selected by the human. The trial was read-and-apply analysis, not adoption: no tracked file or hosted state in the target repository was changed.
 
-The spike is complete, so the analysis status is `verified`; its interpretation remains `provenance: inferred` because no hyperfine maintainer verified the reconstructed intent.
+The spike is complete and the finding stands, so the analysis status is `active`; its interpretation remains `provenance: inferred` because no hyperfine maintainer verified the reconstructed intent.
 
 ## Risk named
 
