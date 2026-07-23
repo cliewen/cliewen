@@ -19,4 +19,5 @@ This index is the register table:
 - [C-010 — Milestone status values follow one vocabulary](C-010-milestone-status-vocabulary.md) · `agent`
 - [C-011 — Decision records are routed by type: ADR, PDR, or log row](C-011-decision-records-typed.md) · `agent`
 - [C-012 — Changes are reviewed locally, root at main, and remain human-merged](C-012-agents-never-merge-own-changes.md) · `agent`
+- [C-013-core-changes-need-decision](C-013-core-changes-need-decision.md)
 <!-- clue:index:end -->
