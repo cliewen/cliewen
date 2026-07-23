@@ -1,12 +1,14 @@
 ---
 id: P-005
 type: plan
-status: active
+status: completed
 links: [G-001]
 title: Cliewen draws its core — explicit core, one lifecycle, fewer types, memorable tiers
 ---
 
 # P-005 — Cliewen draws its core
+
+> **Completed 2026-07-24** — all milestones done; frozen immutable. The core is stated behind a red line, the validator holds one default lifecycle that tolerates adopter types, quality scenarios live as constraints, and change-tier routing is three rules and two guards. No successor is designated.
 
 P-004 made the public path earn a newcomer's first try; this campaign simplifies what that newcomer finds. It states Cliewen's core explicitly and protects it behind a red line ([PDR-013](../decisions/PDR-013-explicit-core-red-line.md)), then spends the new criterion — "does the core need it?" — three times: one default status lifecycle instead of fourteen per-type vocabularies, quality scenarios folded into the constraints register, and change-tier routing stated as a few memorable rules instead of dense enumerations. It serves [G-001](../goals/G-001-verifiable-thread.md): a smaller, explicit methodology is easier to verify end to end.
 

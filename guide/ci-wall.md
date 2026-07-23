@@ -11,7 +11,7 @@ CI without branch protection is a dashboard. Branch protection without the valid
 
 ## 1. Vendor the pinned judge
 
-Open `.github/workflows/clue.yml` and read `CLUE_VERSION`. Use that exact release; do not substitute `latest`. The examples below use `0.5.1`.
+Open `.github/workflows/clue.yml` and read `CLUE_VERSION`. Use that exact release; do not substitute `latest`. The examples below use `0.6.0`.
 
 Create the tools directory, then download the Linux amd64 binary and the release checksum file:
 
@@ -19,12 +19,12 @@ Create the tools directory, then download the Linux amd64 binary and the release
 
 ```powershell [Windows PowerShell]
 New-Item -ItemType Directory -Force .github/tools | Out-Null
-gh release download v0.5.1 --repo cliewen/cliewen --pattern 'clue-0.5.1-linux-amd64' --pattern 'SHA256SUMS' --dir .github/tools
+gh release download v0.6.0 --repo cliewen/cliewen --pattern 'clue-0.6.0-linux-amd64' --pattern 'SHA256SUMS' --dir .github/tools
 ```
 
 ```sh [macOS and Linux]
 mkdir -p .github/tools
-gh release download v0.5.1 --repo cliewen/cliewen --pattern 'clue-0.5.1-linux-amd64' --pattern 'SHA256SUMS' --dir .github/tools
+gh release download v0.6.0 --repo cliewen/cliewen --pattern 'clue-0.6.0-linux-amd64' --pattern 'SHA256SUMS' --dir .github/tools
 ```
 
 :::
@@ -33,14 +33,14 @@ The runner is Linux amd64 even when you develop on Windows or macOS. Verify the 
 
 | System | Check |
 |---|---|
-| Windows PowerShell | Run `Get-FileHash .github/tools/clue-0.5.1-linux-amd64 -Algorithm SHA256`, then compare it with the matching line in `.github/tools/SHA256SUMS` |
-| macOS | Run `shasum -a 256 .github/tools/clue-0.5.1-linux-amd64`, then compare it with the matching line in `.github/tools/SHA256SUMS` |
+| Windows PowerShell | Run `Get-FileHash .github/tools/clue-0.6.0-linux-amd64 -Algorithm SHA256`, then compare it with the matching line in `.github/tools/SHA256SUMS` |
+| macOS | Run `shasum -a 256 .github/tools/clue-0.6.0-linux-amd64`, then compare it with the matching line in `.github/tools/SHA256SUMS` |
 | Linux | Run `(cd .github/tools && sha256sum -c --ignore-missing SHA256SUMS)` |
 
 Commit both files with the generated workflow:
 
 ```sh
-git add .github/workflows/clue.yml .github/tools/SHA256SUMS .github/tools/clue-0.5.1-linux-amd64
+git add .github/workflows/clue.yml .github/tools/SHA256SUMS .github/tools/clue-0.6.0-linux-amd64
 git commit -m "Arm the Cliewen CI wall"
 ```
 
