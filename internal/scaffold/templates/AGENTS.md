@@ -16,6 +16,7 @@ For every other change, read [`docs/README.md`](docs/README.md) before acting: t
 4. **Open questions are artifacts.** When blocked on a decision, write it to the change's `open-questions.md` and stop; human answers become recorded decisions (ADR, PDR, or decision-log row — see [`docs/decisions/`](docs/decisions/README.md)).
 5. **Machines enforce form; humans verify meaning.** Never weaken a test or a lint rule to make a build pass — surface the conflict instead.
 6. **Markdown prose is never hard-wrapped.** One line per paragraph and per list item; wrapping is the reader's IDE concern. Line breaks are structural only (headings, lists, tables, code fences).
+7. **The core is behind a red line.** Cliewen's core is the verifiable thread (goal → plan → change → capability → criterion → test), the human merge boundary (agents never merge their own changes), and `clue validate` as deterministic judge. A change that alters what any of these means is never plain and never light: it requires an explicit decision record and human acceptance. Everything else is periphery you may freely extend — including your own artifact types under `docs/` — and periphery never constrains the core.
 
 ## Skills
 

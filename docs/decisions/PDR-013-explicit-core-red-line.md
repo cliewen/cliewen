@@ -30,7 +30,7 @@ The core:
 
 **Extension:** adopters extend Cliewen by adding their own artifacts and artifact types to their corpus under `/docs`; the core does not enumerate what a corpus may contain, only what the thread, the boundary, and the judge mean. The mechanical half of this (validator tolerance for adopter-defined types) is a corpus-format decision delivered separately.
 
-**Carrier:** the register entry [C-013](../constraints/C-013-core-changes-need-decision.md) holds the red-line rule; [ARCH-003](../architecture/core.md) holds the durable core statement the rule protects.
+**Carrier:** the AGENTS.md red-line rule, shipped to new projects as rule 7 of the `clue init` AGENTS.md template (default); the register entry [C-013](../constraints/C-013-core-changes-need-decision.md) holds the rule in this repository's inventory; [ARCH-003](../architecture/core.md) holds the durable core statement the rule protects.
 
 ### Rejected: keep protecting everything equally
 
