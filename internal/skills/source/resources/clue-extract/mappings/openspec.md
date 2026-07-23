@@ -17,7 +17,7 @@ Layout: `openspec/config.yaml`, synced truth in `openspec/specs/<capability>/spe
 | Architecture docs | `docs/architecture/` artifacts (`status: draft` until reviewed) or capability `design.md` where they are capability-local |
 | AC registry / scenario templates (`test/…`) | deleted — the corpus is the registry; next free ID per prefix is max + 1 over declared ACs |
 | Project README purpose statements | `G-xxx` goal(s), `status: accepted` (the repo's existence is the acceptance) |
-| Coverage/quality gates in build config | `QS-xxx` quality scenarios referencing the enforcing tool |
+| Coverage/quality gates in build config | `C-xxx` constraints (`enforcement: machine`) referencing the enforcing tool |
 | OpenSpec workflow skills (`openspec-*`) | deleted with the source corpus |
 | JUnit `@Tag("XX_NNN")` | untouched — clue normalizes underscores to hyphens at harvest |
 | Runner/type tags (`UNIT`, `INTEGRATION`, `E2E`, …) | kept untouched even when no pipeline filters on them yet — they are the runner's namespace, not the methodology's, and the only per-method type carrier where one file mixes test types |

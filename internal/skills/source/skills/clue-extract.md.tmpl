@@ -6,7 +6,7 @@ Brownfield adoption: transform an existing repository's specification corpus int
 
 The extraction PR is complete only when all of these hold:
 
-1. **The full taxonomy exists:** `/docs` has goals, plans, capabilities, decisions, constraints, quality, analysis, and architecture, with an indexed README in every folder and README, criteria, and design files in each capability folder. Extract meaning; do not invent it. A folder with nothing real to hold stays empty but indexed.
+1. **The full taxonomy exists:** `/docs` has goals, plans, capabilities, decisions, constraints, analysis, and architecture, with an indexed README in every folder and README, criteria, and design files in each capability folder. Extract meaning; do not invent it. A folder with nothing real to hold stays empty but indexed.
 2. **Everything extracted is born inferred:** Use `provenance: inferred`; decisions instead use `status: inferred` and `author: agent`. Human review may promote records to `verified`, file by file or in bulk. Extracted decisions also follow **Decision records** below.
 3. **Existing criterion IDs survive:** Declare each capability's namespace with `ac-prefix:` and keep source IDs verbatim. Never renumber; IDs are meaning-immutable and existing test tags must keep resolving.
 4. **Every test keeps or gains exactly one purpose:** Existing criterion tags remain. Untagged tests get `Unit`, `Sanity`, or `Arch` according to intent. Where a JVM test framework is present, install an ArchUnit or equivalent rule enforcing one purpose tag per test; `clue` only harvests at file level.

@@ -48,12 +48,12 @@ jobs:
       - name: Test (with coverage)
         if: steps.scope.outputs.full == 'true'
         run: go test ./... -coverprofile=coverage.out
-      - name: Coverage gate (QS-001, total >= 80%)
+      - name: Coverage gate (C-014, total >= 80%)
         if: steps.scope.outputs.full == 'true'
         run: |
           total=$(go tool cover -func=coverage.out | awk '/^total:/ {sub(/%/,"",$3); print $3}')
           echo "total statement coverage: ${total}%"
-          awk -v t="$total" 'BEGIN { exit !(t >= 80) }' || { echo "FAIL: ${total}% is below the 80% gate (QS-001)"; exit 1; }
+          awk -v t="$total" 'BEGIN { exit !(t >= 80) }' || { echo "FAIL: ${total}% is below the 80% gate (C-014)"; exit 1; }
       - name: Build public guide (strict dead-link check)
         if: steps.scope.outputs.full == 'true' || steps.scope.outputs.guide == 'true'
         run: |

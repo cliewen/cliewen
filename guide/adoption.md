@@ -33,8 +33,7 @@ The rest of the taxonomy solves problems that appear as work grows:
 |---|---|
 | A plan | The outcome needs several ordered changes or milestones |
 | A decision record | Reversing a choice later would be expensive, or the repository needs to remember why one path won |
-| A constraint | Law, policy, compatibility, licensing, or another non-negotiable boundary limits the solution |
-| A quality scenario | Performance, reliability, usability, or another system quality needs a concrete threshold |
+| A constraint | Law, policy, compatibility, licensing, another non-negotiable boundary, or a system quality (performance, reliability, usability) needs a concrete, checked threshold |
 | Architecture | Several capabilities depend on the same boundary or an expensive-to-change structure |
 | Analysis findings | Important unknowns need investigation before anyone can plan honestly |
 

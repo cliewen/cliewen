@@ -57,8 +57,7 @@ flowchart TD
     CH --> CAP[CAP-xxx capability]
     CAP --> AC[AC-xxx acceptance criterion]
     AC --> T[test tag<br/>positive + negative]
-    C[C-xxx constraints] -. checked against every proposal .-> CH
-    QS[QS-xxx quality scenarios] -. checked against every proposal .-> CH
+    C[C-xxx constraints<br/>including verifiable quality bars] -. checked against every proposal .-> CH
 ```
 
 ## Deliberately out (doors defined, doors closed)

@@ -20,4 +20,6 @@ This index is the register table:
 - [C-011 — Decision records are routed by type: ADR, PDR, or log row](C-011-decision-records-typed.md) · `agent`
 - [C-012 — Changes are reviewed locally, root at main, and remain human-merged](C-012-agents-never-merge-own-changes.md) · `agent`
 - [C-013-core-changes-need-decision](C-013-core-changes-need-decision.md)
+- [C-014-coverage-floor](C-014-coverage-floor.md)
+- [C-015-onboarding-under-30-minutes](C-015-onboarding-under-30-minutes.md)
 <!-- clue:index:end -->
