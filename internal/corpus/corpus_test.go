@@ -150,7 +150,7 @@ func TestUnit_LogStatusVocab(t *testing.T) {
 func TestUnit_FolderWithoutReadme(t *testing.T) {
 	files := with(validFiles, map[string]string{
 		"docs/runbooks/RB-001-fast.md": "---\nid: RB-001\ntype: runbook\nstatus: active\nlinks: []\ntitle: Fast\n---\n",
-		"docs/README.md":              "# Corpus\n\n<!-- clue:index:start -->\n- [goals/](goals/README.md)\n- [plans/](plans/README.md)\n- [runbooks/](runbooks/RB-001-fast.md)\n<!-- clue:index:end -->\n",
+		"docs/README.md":               "# Corpus\n\n<!-- clue:index:start -->\n- [goals/](goals/README.md)\n- [plans/](plans/README.md)\n- [runbooks/](runbooks/RB-001-fast.md)\n<!-- clue:index:end -->\n",
 	})
 	assertIssue(t, run(t, files, false), "docs/runbooks: folder has no README.md")
 }

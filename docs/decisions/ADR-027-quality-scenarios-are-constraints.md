@@ -2,7 +2,7 @@
 id: ADR-027
 type: decision
 status: inferred
-links: [P-005, ADR-025, ADR-017, C-014, C-015]
+links: [P-005, ADR-025, ADR-026, ADR-017, C-014, C-015]
 title: Quality scenarios are constraints — the quality type folds into the register
 author: agent
 accepted-by: []
