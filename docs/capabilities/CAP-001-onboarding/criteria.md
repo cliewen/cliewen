@@ -14,7 +14,7 @@ Feature: Onboarding — install to first green validate
     # Retired 2026-07-17 (CH-020): the 30-minute clock spans a human
     # journey (reading, installing) no focused test pair can verify.
     # The mechanical path is covered by AC-002/AC-024/AC-025; the
-    # 30-minute end-to-end promise is QS-002, owned by the quickstart.
+    # 30-minute end-to-end promise is C-015, owned by the quickstart.
 
   @AC-002
   Scenario: init produces a corpus that validate accepts unchanged

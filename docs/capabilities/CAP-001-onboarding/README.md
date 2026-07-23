@@ -24,4 +24,4 @@ The layered guide, layers kept strictly separate:
 3. **Skills** — learned during use.
 4. **Book** — the why; depth, secondary.
 
-`clue init` exists since CH-020; how the command and the guide realize the layers is [design.md](design.md), the mechanical path is held by the tested criteria in [criteria.md](criteria.md), and the 30-minute end-to-end promise is [QS-002](../../quality/QS-002-onboarding-under-30-minutes.md).
+`clue init` exists since CH-020; how the command and the guide realize the layers is [design.md](design.md), the mechanical path is held by the tested criteria in [criteria.md](criteria.md), and the 30-minute end-to-end promise is [C-015](../../constraints/C-015-onboarding-under-30-minutes.md).

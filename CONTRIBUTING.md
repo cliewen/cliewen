@@ -28,7 +28,7 @@ Every other change is full. Before implementation, add `/changes/<CH-xxx-slug>/p
 
 ## Implement and Digest
 
-Keep the change focused on its proposal and tick each task immediately when it is complete. Update permanent capability, acceptance-criteria, decision, constraint, quality, architecture, and plan artifacts when their meaning changes.
+Keep the change focused on its proposal and tick each task immediately when it is complete. Update permanent capability, acceptance-criteria, decision, constraint, architecture, and plan artifacts when their meaning changes.
 
 Active acceptance criteria require positive and negative executable evidence. Never weaken a test, lint rule, or quality gate to make a build pass. If a Cliewen-owned skill changes, edit `internal/skills/source/` and run `go generate ./internal/skills`; do not edit `.agents/skills/` or `internal/scaffold/templates/skills/` directly.
 

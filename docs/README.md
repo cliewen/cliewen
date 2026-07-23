@@ -13,7 +13,7 @@ G-xxx (goal) → P-xxx/M-xxx (plan/milestone) → CH-xxx (change)
   → CAP-xxx (capability) → AC-xxx (acceptance criterion) → test tag
 ```
 
-Cross-cutting, checked against every proposal: C-xxx (constraints), QS-xxx (quality scenarios).
+Cross-cutting, checked against every proposal: C-xxx (constraints, including verifiable quality bars — see [ADR-027](decisions/ADR-027-quality-scenarios-are-constraints.md)).
 
 Two optional fields extend the core, each with `checkACTests`/`checkProvenance` as its consumer: `ac-prefix` on a criteria.md namespaces its AC IDs (`<PREFIX>-<digits>`, default `AC` — ADR-009), and `provenance: inferred|verified` marks agent-extracted artifacts awaiting human verification (absent = human-authored; decisions carry provenance in `status` instead — ADR-010).
 
@@ -30,7 +30,7 @@ Two optional fields extend the core, each with `checkACTests`/`checkProvenance` 
 | change, tasks | `open` | transient workspace artifacts |
 | open-questions | `open` → `resolved` | transient workspace artifacts |
 
-Types on the default: capability, criteria, design, constraint, quality, architecture, analysis, and any type an adopter adds.
+Types on the default: capability, criteria, design, constraint, architecture, analysis, and any type an adopter adds.
 
 ## Folders
 
@@ -40,7 +40,6 @@ Types on the default: capability, criteria, design, constraint, quality, archite
 - [capabilities/](capabilities/README.md) — CAP-xxx: one folder per capability (README / criteria / design)
 - [architecture/](architecture/README.md) — system scope: the whole, the expensive-to-change
 - [decisions/](decisions/README.md) — ADR-xxx (architecture) and PDR-xxx (project/process): MADR + provenance, including rejected records
-- [constraints/](constraints/README.md) — C-xxx: laws, licenses, policies you must not break
-- [quality/](quality/README.md) — QS-xxx: quality scenarios (verifiable NFRs)
+- [constraints/](constraints/README.md) — C-xxx: laws, licenses, policies, and verifiable quality bars you must not break
 - [analysis/](analysis/README.md) — spike findings, extraction reports
 <!-- clue:index:end -->

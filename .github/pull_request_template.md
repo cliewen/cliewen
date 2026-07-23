@@ -20,14 +20,14 @@
 
 - Acceptance criteria or capability meaning changed: <!-- links, or none -->
 - Decision records added or changed: <!-- links, or none -->
-- Constraints and quality scenarios assessed: <!-- links and effects, or none -->
+- Constraints assessed (including verifiable quality bars): <!-- links and effects, or none -->
 
 ## Cliewen checklist
 
 - [ ] This is the author's only Cliewen change in flight.
 - [ ] The proposal was committed before implementation, or this is a correctly scoped light change whose proposal is this PR description.
 - [ ] The plan item or plan-less declaration is truthful, and all artifact links resolve.
-- [ ] Decisions are recorded at the right tier, and active constraints and quality scenarios were assessed.
+- [ ] Decisions are recorded at the right tier, and active constraints were assessed.
 - [ ] Changed active acceptance criteria have positive and negative executable evidence.
 - [ ] User-visible impact is described under `[Unreleased]` in `CHANGELOG.md`, or the change has no user-visible impact.
 - [ ] Full-change tasks are complete, plan bookkeeping is current, and no transient `/changes/` workspace remains.

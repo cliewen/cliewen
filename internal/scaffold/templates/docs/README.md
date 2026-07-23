@@ -13,7 +13,7 @@ G-xxx (goal) → P-xxx/M-xxx (plan/milestone) → CH-xxx (change)
   → CAP-xxx (capability) → AC-xxx (acceptance criterion) → test tag
 ```
 
-Cross-cutting, checked against every proposal: C-xxx (constraints), QS-xxx (quality scenarios).
+Cross-cutting, checked against every proposal: C-xxx (constraints, including verifiable quality bars).
 
 ## What lives where — and when a change updates it
 
@@ -24,8 +24,7 @@ Each folder below holds one kind of record. A Cliewen change (the `clue-delta` l
 - **Capabilities** (`capabilities/`) — one folder per capability: `README.md` (what and why), `criteria.md` (acceptance criteria as Gherkin, each tied to tests), `design.md` (how it works). **Design is documented per capability** — a change that alters a capability's behavior updates its criteria and design in the same PR.
 - **Architecture** (`architecture/`) — the shape of the whole: the expensive-to-change. Updated when a change alters the system's structure or public surface, not for local detail.
 - **Decisions** (`decisions/`) — why things are the way they are. An **ADR** records an architectural decision, a **PDR** a decision about how the project works; both are expensive to reverse. Cheap-and-local-to-reverse decisions are one-line rows in `log.md`. Every decision made during a change is recorded in its digest.
-- **Constraints** (`constraints/`) — external rules the system must not break: laws, licenses, policies. Each names its `source` and how it is `enforcement`-checked. Updated only when the outside world imposes something.
-- **Quality** (`quality/`) — quality scenarios: verifiable non-functional requirements. Updated when a change introduces or moves a quality bar.
+- **Constraints** (`constraints/`) — rules the system must not break: laws, licenses, policies, and verifiable quality bars (a coverage floor, a response-time bound). Each names its `source` and how it is `enforcement`-checked. Updated when the outside world imposes something or a quality bar moves.
 - **Analysis** (`analysis/`) — findings from spikes and extractions. Historical records: written once, never rewritten.
 
 ## Status vocabularies
@@ -49,7 +48,6 @@ Each folder below holds one kind of record. A Cliewen change (the `clue-delta` l
 - [capabilities/](capabilities/README.md) — CAP-xxx: one folder per capability (README / criteria / design)
 - [architecture/](architecture/README.md) — the whole, the expensive-to-change
 - [decisions/](decisions/README.md) — ADR-xxx, PDR-xxx and the decision log
-- [constraints/](constraints/README.md) — C-xxx: laws, licenses, policies you must not break
-- [quality/](quality/README.md) — QS-xxx: quality scenarios (verifiable NFRs)
+- [constraints/](constraints/README.md) — C-xxx: laws, licenses, policies, and verifiable quality bars you must not break
 - [analysis/](analysis/README.md) — spike findings, extraction reports
 <!-- clue:index:end -->

@@ -11,8 +11,7 @@ The `/docs` tree is Cliewen's permanent working memory. Agents read it before ac
 | `capabilities/` | `CAP-xxx` with criteria and design | What can the system do, how is it verified, and how is it built? |
 | `architecture/` | `ARCH-xxx` | What describes the whole system or an expensive-to-change boundary? |
 | `decisions/` | `ADR-xxx`, `PDR-xxx`, and a decision log | Why is the system or project shaped this way? |
-| `constraints/` | `C-xxx` | What rule must every relevant change obey? |
-| `quality/` | `QS-xxx` | What measurable non-functional behavior must hold? |
+| `constraints/` | `C-xxx` | What rule must every relevant change obey — including a verifiable quality bar such as a coverage floor? |
 | `analysis/` | `AN-xxx` | What did a time-boxed investigation find? |
 
 Each folder has a README that explains its type and contains a generated index of the artifacts beside it.

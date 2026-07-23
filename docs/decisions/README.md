@@ -46,4 +46,5 @@ ADRs and PDRs share the MADR format and two-tier provenance: `inferred` (binding
 - [PDR-013-explicit-core-red-line](PDR-013-explicit-core-red-line.md)
 - [ADR-025-one-status-lifecycle](ADR-025-one-status-lifecycle.md)
 - [ADR-026-adopter-types-default-lifecycle](ADR-026-adopter-types-default-lifecycle.md)
+- [ADR-027-quality-scenarios-are-constraints](ADR-027-quality-scenarios-are-constraints.md)
 <!-- clue:index:end -->

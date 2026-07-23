@@ -9,8 +9,7 @@ flowchart TD
     CH --> CAP[Capability<br/>what the system can do]
     CAP --> AC[Acceptance criterion<br/>one verifiable behavior]
     AC --> T[Test<br/>positive and negative evidence]
-    C[Constraints] -. laws checked against every Cliewen change .-> CH
-    QS[Quality scenarios] -. measurable system qualities .-> CH
+    C[Constraints<br/>including verifiable quality bars] -. laws checked against every Cliewen change .-> CH
 ```
 
 ## Goal
@@ -35,11 +34,9 @@ A capability owns three views: a plain-language explanation, Gherkin acceptance 
 
 That immutability matters. A test tagged `AC-042` should always mean the same promise, even years later.
 
-## Constraints and quality scenarios
+## Constraints
 
-Constraints are rules a Cliewen change must not break: a law, license, policy, or project convention. Each one names its source, and whether a machine, agent, or human enforces it.
-
-Quality scenarios turn broad aspirations into measurable boundaries, such as a coverage floor or a maximum onboarding time. Every Cliewen proposal is assessed against both constraints and quality scenarios.
+Constraints are rules a Cliewen change must not break: a law, license, policy, project convention, or a verifiable quality bar such as a coverage floor or a maximum onboarding time. Each one names its source and whether a machine, agent, or human enforces it, and every Cliewen proposal is assessed against all of them.
 
 ## Four actors, one boundary
 
