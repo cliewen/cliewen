@@ -1,7 +1,7 @@
 ---
 id: AN-003
 type: analysis
-status: verified
+status: active
 links: [P-002, M-007, PDR-005]
 title: Calibration trial — robocode-api-bridge
 ---

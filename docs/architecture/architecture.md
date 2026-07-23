@@ -1,7 +1,7 @@
 ---
 id: ARCH-001
 type: architecture
-status: verified
+status: active
 links: [G-001]
 title: System architecture — actors, lifetime classes, the frontmatter graph
 ---

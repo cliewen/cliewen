@@ -19,21 +19,18 @@ Two optional fields extend the core, each with `checkACTests`/`checkProvenance` 
 
 ## Status vocabularies
 
-This table mirrors the `statusVocab` map in `internal/corpus/rules.go` — the consumer that enforces it. Change them together.
+**The default lifecycle is `draft` → `active` → `retired`.** It applies to every artifact type — including adopter-defined types ([ADR-026](decisions/ADR-026-adopter-types-default-lifecycle.md)) — except the few below that need a different shape for a stated reason ([ADR-025](decisions/ADR-025-one-status-lifecycle.md)). This table mirrors the `defaultLifecycle` slice and `statusVocabExceptions` map in `internal/corpus/rules.go` — the consumer that enforces it. Change them together.
 
-| Type | Statuses |
-|---|---|
-| goal | `proposed` → `accepted` → `retired` (proposed goals ARE the inbox, see ADR-002) |
-| plan | `draft` → `active` → `completed` (completed ⇒ immutable) |
-| capability, criteria, design | `draft` → `active` → `retired` |
-| decision | `inferred` → `verified` (human acceptance promotes; rejected records stay `verified`) |
-| log | `active` (the decision log — one register, rows are its lifecycle, see PDR-003) |
-| constraint | `active` → `retired` |
-| quality | `draft` → `active` → `retired` |
-| analysis | `verified` (findings are historical records) |
-| architecture | `draft` → `verified` |
-| change, tasks (transient) | `open` |
-| open-questions (transient) | `open` → `resolved` |
+| Type | Statuses | Why not the default |
+|---|---|---|
+| goal | `proposed` → `accepted` → `retired` | proposed goals ARE the inbox (ADR-002) |
+| plan | `draft` → `active` → `completed` | `completed` is immutable, not `retired` (C-008) |
+| decision | `inferred` → `verified` | provenance lives in status; human acceptance promotes (ADR-010) |
+| log | `active` | one register — rows are its lifecycle (PDR-003) |
+| change, tasks | `open` | transient workspace artifacts |
+| open-questions | `open` → `resolved` | transient workspace artifacts |
+
+Types on the default: capability, criteria, design, constraint, quality, architecture, analysis, and any type an adopter adds.
 
 ## Folders
 

@@ -30,17 +30,16 @@ Each folder below holds one kind of record. A Cliewen change (the `clue-delta` l
 
 ## Status vocabularies
 
-| Type | Statuses |
-|---|---|
-| goal | `proposed` → `accepted` → `retired` |
-| plan | `draft` → `active` → `completed` (completed ⇒ immutable) |
-| capability, criteria, design | `draft` → `active` → `retired` |
-| decision | `inferred` → `verified` (human acceptance promotes) |
-| log | `active` |
-| constraint | `active` → `retired` |
-| quality | `draft` → `active` → `retired` |
-| analysis | `verified` |
-| architecture | `draft` → `verified` |
+**The default lifecycle is `draft` → `active` → `retired`.** It applies to every artifact type, including your own — a type `clue validate` does not recognize is validated against this default, so you can add your own artifact types under `docs/` without changing the tool. Only the types below differ, each for a stated reason.
+
+| Type | Statuses | Why not the default |
+|---|---|---|
+| goal | `proposed` → `accepted` → `retired` | proposed goals are the inbox |
+| plan | `draft` → `active` → `completed` | `completed` is immutable |
+| decision | `inferred` → `verified` | provenance lives in status; human acceptance promotes |
+| log | `active` | one register — rows are its lifecycle |
+| change, tasks | `open` | transient workspace artifacts |
+| open-questions | `open` → `resolved` | transient workspace artifacts |
 
 ## Folders
 

@@ -23,24 +23,34 @@ type Options struct {
 	Version string
 }
 
-// statusVocab is the allowed status set per artifact type. The docs/README.md
-// status table mirrors this map; the map is the consumer that keeps the
-// `status` field honest (Foundation §7: every field must have a consumer).
-var statusVocab = map[string][]string{
-	"goal":           {"proposed", "accepted", "retired"},
-	"plan":           {"draft", "active", "completed"},
-	"capability":     {"draft", "active", "retired"},
-	"criteria":       {"draft", "active", "retired"},
-	"design":         {"draft", "active", "retired"},
-	"decision":       {"inferred", "verified"},
-	"log":            {"active"},
-	"constraint":     {"active", "retired"},
-	"quality":        {"draft", "active", "retired"},
-	"analysis":       {"verified"},
-	"architecture":   {"draft", "verified"},
-	"change":         {"open"},
-	"tasks":          {"open"},
-	"open-questions": {"open", "resolved"},
+// defaultLifecycle is the status vocabulary for every artifact type that has
+// no semantic reason to differ — including adopter-defined types the validator
+// does not recognize (ADR-025, ADR-026). Types that need a different shape are
+// listed in statusVocabExceptions. The docs/README.md status table mirrors
+// both; together they keep the `status` field honest (Foundation §7: every
+// field must have a consumer).
+var defaultLifecycle = []string{"draft", "active", "retired"}
+
+// statusVocabExceptions holds the types whose lifecycle is not the default,
+// each for the reason named in ADR-025.
+var statusVocabExceptions = map[string][]string{
+	"goal":           {"proposed", "accepted", "retired"}, // proposed goals are the inbox (ADR-002)
+	"plan":           {"draft", "active", "completed"},    // completed is immutable (C-008)
+	"decision":       {"inferred", "verified"},            // provenance lives in status (ADR-010)
+	"log":            {"active"},                          // one register; rows are its lifecycle (PDR-003)
+	"change":         {"open"},                            // transient workspace artifact
+	"tasks":          {"open"},                            // transient workspace artifact
+	"open-questions": {"open", "resolved"},                // transient workspace artifact
+}
+
+// statusVocabFor returns the allowed status set for a type: its exception if it
+// has one, otherwise the default lifecycle. Unknown types resolve to the
+// default, which is what lets adopters add their own types (ADR-026).
+func statusVocabFor(typ string) []string {
+	if v, ok := statusVocabExceptions[typ]; ok {
+		return v
+	}
+	return defaultLifecycle
 }
 
 var (
@@ -194,14 +204,10 @@ func checkStatusVocab(c *Corpus) []Issue {
 		if a.Type == "" {
 			continue // reported by checkCoreFields
 		}
-		allowed, known := statusVocab[a.Type]
-		if !known {
-			issues = append(issues, Issue{a.Path, "unknown type " + a.Type})
-			continue
-		}
 		if a.Status == "" {
 			continue // reported by checkCoreFields
 		}
+		allowed := statusVocabFor(a.Type)
 		ok := false
 		for _, s := range allowed {
 			if a.Status == s {

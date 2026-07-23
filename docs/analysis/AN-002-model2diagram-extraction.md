@@ -1,7 +1,7 @@
 ---
 id: AN-002
 type: analysis
-status: verified
+status: active
 links: [P-001, M-003, G-001]
 title: Extraction target analysis — model2diagram (OpenSpec)
 ---

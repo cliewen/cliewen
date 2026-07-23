@@ -1,7 +1,7 @@
 ---
 id: ARCH-002
 type: architecture
-status: verified
+status: active
 links: [ARCH-001, ADR-021]
 title: The skills layer — process knowledge as versioned artifacts
 ---

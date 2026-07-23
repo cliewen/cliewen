@@ -1,7 +1,7 @@
 ---
 id: AN-004
 type: analysis
-status: verified
+status: active
 provenance: inferred
 links: [P-002, M-007, PDR-005]
 title: Foreign-soil trial — hyperfine

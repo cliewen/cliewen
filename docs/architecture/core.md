@@ -1,7 +1,7 @@
 ---
 id: ARCH-003
 type: architecture
-status: draft
+status: active
 links: [G-001, PDR-013, C-013]
 title: The Cliewen core — three load-bearing elements, a red line, and an extensible periphery
 ---

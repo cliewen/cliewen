@@ -1,7 +1,7 @@
 ---
 id: AN-001
 type: analysis
-status: verified
+status: active
 links: [G-001]
 title: Cliewen Foundation Document (v0.4, 2026-07-11)
 ---
