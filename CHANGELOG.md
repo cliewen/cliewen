@@ -2,7 +2,7 @@
 
 All notable, user-visible changes to `clue` and the Cliewen skills. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and versions follow semver. Each GitHub release body is this file's matching version section, extracted verbatim by the release workflow — a release with no section here fails.
 
-## [Unreleased]
+## [0.6.0] - 2026-07-24
 
 ### Changed
 
@@ -14,6 +14,10 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 - **The public guide now has a Cliewen visual identity.** The thread-and-check logo appears in the guide header and homepage, and browsers use it as the site icon.
 - **The first Cliewen trial now shows its value without risking an existing repository.** The public front door explains who the method is for and separates Cliewen, `clue`, and the corpus before introducing the taxonomy. Release binaries are now the primary installation path with a compact download table and short checksum and `PATH` steps, and the disposable demo turns a draft criterion active to show the real missing-test diagnostic before cleanup. The guide also states the current boundary: `clue` detects whether supported test evidence exists, while the change loop and human review require the focused positive and negative pair. The public guide now loads its assets and navigation correctly from `https://cliewen.dev/`.
 - **The CI wall now has a complete setup and proof path.** The guide shows how to vendor and verify the pinned `clue` binary, require the stable `validate` check, protect the default branch without bypass, and prove an undigested change cannot merge. Adoption guidance now starts with the minimum goal → capability → criterion → positive and negative tests thread and states when the wider corpus is useful or Cliewen is the wrong fit.
+
+### Install
+
+`go install github.com/cliewen/cliewen/cmd/clue@v0.6.0`, or download a prebuilt binary for your platform from the release assets and verify it against `SHA256SUMS`. Update vendored Cliewen skills from this release's `.agents/skills/`; a 0.6.0 binary rejects older Cliewen skill versions as drift.
 
 ## [0.5.1] - 2026-07-22
 
