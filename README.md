@@ -77,7 +77,7 @@ The generator rewrites `.agents/skills/` and the embedded `clue init` copies und
 
 ## Status
 
-Baseline, distribution, and the public launch are complete ([P-001](docs/plans/P-001-elaboration-baseline.md), [P-002](docs/plans/P-002-leaves-home.md), [P-003](docs/plans/P-003-goes-public.md)). [P-004](docs/plans/P-004-first-try.md) is improving the first safe trial, enforced adoption path, and operating guidance. User-visible history lives in [CHANGELOG.md](CHANGELOG.md); each GitHub release body is its version's section there. This repo dogfoods its own conventions from commit one — start reading at [docs/README.md](docs/README.md). Agents: see [AGENTS.md](AGENTS.md).
+Baseline, distribution, the public launch, and the first-try campaign are complete ([P-001](docs/plans/P-001-elaboration-baseline.md), [P-002](docs/plans/P-002-leaves-home.md), [P-003](docs/plans/P-003-goes-public.md), [P-004](docs/plans/P-004-first-try.md)). User-visible history lives in [CHANGELOG.md](CHANGELOG.md); each GitHub release body is its version's section there. This repo dogfoods its own conventions from commit one — start reading at [docs/README.md](docs/README.md). Agents: see [AGENTS.md](AGENTS.md).
 
 ## License
 
