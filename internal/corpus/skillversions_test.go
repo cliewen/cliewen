@@ -301,6 +301,27 @@ func TestAC037_ADirectoryNamedSkillMdIsNotAManifest(t *testing.T) {
 	}
 }
 
+// AC-037: a manifest reached through a symlink is a manifest. Stat follows the
+// link on purpose — a skills tree shared across checkouts is a supported shape
+// (ADR-028) — so the skill enrolls and drifts exactly as a direct file would.
+func TestAC037_ASymlinkedManifestIsAManifest(t *testing.T) {
+	root := t.TempDir()
+	target := filepath.Join(t.TempDir(), "shared-skill.md")
+	if err := os.WriteFile(target, []byte(markedSkill("0.1.0")), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	dir := filepath.Join(root, ".agents", "skills", "clue-delta")
+	if err := os.MkdirAll(dir, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Symlink(target, filepath.Join(dir, "skill.md")); err != nil {
+		t.Skip("this host cannot create symlinks: ", err)
+	}
+	if !anyMsg(checkSkillVersions(&Corpus{Root: root}, "0.2.0"), "drift") {
+		t.Fatal("a symlinked manifest must enroll and drift against 0.2.0")
+	}
+}
+
 // Unit: a repo with no skills folder has nothing to check.
 func TestUnit_NoSkillsFolderIsClean(t *testing.T) {
 	if issues := checkSkillVersions(&Corpus{Root: t.TempDir()}, "0.1.0"); len(issues) != 0 {
