@@ -288,6 +288,19 @@ func TestAC037_AmbiguityIsReportedForAnUnmarkedSkill(t *testing.T) {
 	}
 }
 
+// AC-037: only an entry resolving to a regular file is a manifest. A
+// directory named skill.md sitting in a legacy Cliewen slot is not one, so it
+// neither enrolls nor trips the reinstall finding (ADR-028).
+func TestAC037_ADirectoryNamedSkillMdIsNotAManifest(t *testing.T) {
+	root := t.TempDir()
+	if err := os.MkdirAll(filepath.Join(root, ".agents", "skills", "clue-delta", "skill.md"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if issues := checkSkillVersions(&Corpus{Root: root}, "0.1.0"); len(issues) != 0 {
+		t.Fatalf("a directory named skill.md is not a manifest, got %v", issues)
+	}
+}
+
 // Unit: a repo with no skills folder has nothing to check.
 func TestUnit_NoSkillsFolderIsClean(t *testing.T) {
 	if issues := checkSkillVersions(&Corpus{Root: t.TempDir()}, "0.1.0"); len(issues) != 0 {
