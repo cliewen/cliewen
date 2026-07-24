@@ -55,10 +55,25 @@ func checkSkillVersions(c *Corpus, binaryVersion string) []Issue {
 		if !e.IsDir() {
 			continue
 		}
-		rel := path.Join(skillsDir, e.Name(), "skill.md")
-		data, rerr := os.ReadFile(filepath.Join(root, e.Name(), "skill.md"))
-		if rerr != nil {
+		dir := filepath.Join(root, e.Name())
+		manifest, ambiguous, derr := findSkillManifest(dir)
+		if derr != nil {
+			continue // an unreadable directory is not a skill
+		}
+		if ambiguous {
+			// Only a case-sensitive filesystem can hold two entries that
+			// fold to skill.md; report it rather than resolve by read order
+			// so the verdict does not depend on the filesystem (ADR-028).
+			issues = append(issues, Issue{path.Join(skillsDir, e.Name()), "skill directory holds multiple case-variants of skill.md; keep exactly one manifest"})
+			continue
+		}
+		if manifest == "" {
 			continue // a folder without a skill.md is not a skill
+		}
+		rel := path.Join(skillsDir, e.Name(), manifest)
+		data, rerr := os.ReadFile(filepath.Join(dir, manifest))
+		if rerr != nil {
+			continue // a folder without a readable skill.md is not a skill
 		}
 		text := strings.ReplaceAll(string(data), "\r\n", "\n")
 		fields, _, ok, perr := parseFrontmatter(text)
@@ -144,6 +159,33 @@ func checkSkillVersions(c *Corpus, binaryVersion string) []Issue {
 		}
 	}
 	return issues
+}
+
+// findSkillManifest resolves a skill's manifest inside dir by matching an entry
+// whose name case-folds to "skill.md", so a manifest named SKILL.md, Skill.md,
+// or skill.md is found identically on a case-sensitive and a case-insensitive
+// filesystem alike (ADR-028). It returns the actual entry name, whether more
+// than one case-variant is present — only reachable on a case-sensitive
+// filesystem, and reported by the caller rather than silently resolved — and
+// any directory-read error.
+func findSkillManifest(dir string) (name string, ambiguous bool, err error) {
+	entries, err := os.ReadDir(dir)
+	if err != nil {
+		return "", false, err
+	}
+	for _, e := range entries {
+		if e.IsDir() {
+			continue
+		}
+		if strings.EqualFold(e.Name(), "skill.md") {
+			if name != "" {
+				ambiguous = true
+				continue
+			}
+			name = e.Name()
+		}
+	}
+	return name, ambiguous, nil
 }
 
 // frontmatterDeclares is used only when YAML parsing fails: an unparseable
