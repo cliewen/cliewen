@@ -264,6 +264,30 @@ func TestAC037_TwoCaseVariantsAreReportedAmbiguous(t *testing.T) {
 	}
 }
 
+// AC-037 (negative): the ambiguity is reported for an unmarked third-party
+// skill too. Ownership lives inside the manifest that cannot be chosen, so
+// this is the one place an unmarked directory does not simply drop out
+// (ADR-028).
+func TestAC037_AmbiguityIsReportedForAnUnmarkedSkill(t *testing.T) {
+	root := t.TempDir()
+	writeSkillNamed(t, root, "third-party", "skill.md", "---\nversion: 9.9.9\n---\n")
+	writeSkillNamed(t, root, "third-party", "SKILL.md", "---\nversion: 9.9.9\n---\n")
+	entries, err := os.ReadDir(filepath.Join(root, ".agents", "skills", "third-party"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(entries) < 2 {
+		t.Skip("case-insensitive filesystem cannot hold two manifest case-variants")
+	}
+	issues := checkSkillVersions(&Corpus{Root: root}, "0.1.0")
+	if !anyMsg(issues, "case-variants") {
+		t.Fatalf("an unmarked skill's manifest ambiguity must still be reported, got %v", issues)
+	}
+	if len(issues) != 1 {
+		t.Fatalf("the ambiguity ends the directory; no further finding is expected, got %v", issues)
+	}
+}
+
 // Unit: a repo with no skills folder has nothing to check.
 func TestUnit_NoSkillsFolderIsClean(t *testing.T) {
 	if issues := checkSkillVersions(&Corpus{Root: t.TempDir()}, "0.1.0"); len(issues) != 0 {

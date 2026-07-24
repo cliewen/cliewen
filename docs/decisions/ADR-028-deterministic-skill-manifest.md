@@ -22,10 +22,11 @@ accepted-by: []
 
 - **Case-folded match, not a fixed path.** Each skill directory is scanned for a regular-file entry whose name case-folds to `skill.md`. `skill.md`, `SKILL.md`, and `Skill.md` resolve identically on every filesystem, so a convention-named manifest yields the same enrollment everywhere. A directory with no such entry is not a skill, unchanged from before.
 - **Multiple variants are an ambiguity, not a silent pick.** Only a case-sensitive filesystem can hold two entries that both fold to `skill.md`. Rather than depend on directory-read order, validation names that directory and reports the ambiguity, keeping the verdict deterministic in the one place the divergence could re-enter.
+- **The ambiguity is reported whoever owns the skill.** Resolution precedes ownership: the marker that would scope the directory out of Cliewen's set ([ADR-022](ADR-022-skill-ownership-marker.md)) lives inside the very file that cannot be chosen, so an unmarked third-party directory holding two case-variants is reported like any other. This is a deliberate exception to "an unmarked skill does not participate" (AC-029, AC-033), and the only one: it costs an adopter a named, one-rename fix, where staying silent would mean either picking a variant by read order or letting the ambiguity decide which skills Cliewen can see.
 - **Nothing downstream of resolution changes.** Ownership marking ([ADR-022](ADR-022-skill-ownership-marker.md)), legacy-slot migration, the version-stamp requirement, set consistency, and binary drift all keep their meaning and operate on the manifest once resolved. This decision governs only which file is read.
 - **Adopters rename nothing.** The rule accepts the manifest name adopters already ship; it does not impose a canonical spelling on disk.
 
-**Carrier:** `corpus.checkSkillVersions` manifest resolution (machine); AC-037 under [CAP-004](../capabilities/CAP-004-ship/criteria.md) with a positive and a negative test.
+**Carrier:** `corpus.checkSkillVersions` manifest resolution (machine); AC-037 under [CAP-004](../capabilities/CAP-004-ship/criteria.md) with a positive and a negative test, the negative case covering an unmarked third-party directory alongside a Cliewen one.
 
 ### Rejected: keep the fixed lowercase path and require adopters to rename
 
