@@ -2,6 +2,12 @@
 
 All notable, user-visible changes to `clue` and the Cliewen skills. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and versions follow semver. Each GitHub release body is this file's matching version section, extracted verbatim by the release workflow — a release with no section here fails.
 
+## [Unreleased]
+
+### Fixed
+
+- **`clue validate` now reaches the same verdict about your skills on every filesystem.** A skill whose manifest is named `SKILL.md` — the spelling Claude Code and Anthropic skills ship with — was seen on Windows and macOS but silently ignored on a Linux CI runner, so the same commit could be judged differently depending on where the check ran. The validator now matches a skill's manifest regardless of filename case, and if one directory somehow holds two case-variants it names that ambiguity instead of picking one. You do not need to rename anything.
+
 ## [0.6.0] - 2026-07-24
 
 ### Changed
