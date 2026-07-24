@@ -16,6 +16,7 @@ import (
 	"path"
 	"path/filepath"
 	"regexp"
+	"slices"
 	"sort"
 	"strings"
 )
@@ -34,6 +35,7 @@ const versionPlaceholder = "__CLUE_VERSION__"
 type Report struct {
 	Created        []string
 	Skipped        []string // existed already — never overwritten
+	Linked         []string // symlinked directories: nothing was written through them
 	Indexed        []string // README index blocks regenerated on this run
 	MissingReadmes []string // pre-existing docs folders without the README validate requires
 }
@@ -60,6 +62,7 @@ func Run(root string) (*Report, error) {
 		return nil, err
 	}
 	rep := &Report{}
+	links := map[string]string{}
 	err = fs.WalkDir(templates, "templates", func(p string, d fs.DirEntry, err error) error {
 		if err != nil || d.IsDir() {
 			return err
@@ -71,7 +74,7 @@ func Run(root string) (*Report, error) {
 		}
 		data = []byte(strings.ReplaceAll(string(data), versionPlaceholder, version))
 		for _, target := range targetsFor(rel) {
-			if werr := writeIfAbsent(root, target, data, rep); werr != nil {
+			if werr := writeIfAbsent(root, target, data, rep, links); werr != nil {
 				return werr
 			}
 		}
@@ -85,6 +88,7 @@ func Run(root string) (*Report, error) {
 	}
 	sort.Strings(rep.Created)
 	sort.Strings(rep.Skipped)
+	sort.Strings(rep.Linked)
 	sort.Strings(rep.Indexed)
 	sort.Strings(rep.MissingReadmes)
 	return rep, nil
@@ -112,6 +116,10 @@ func Regen(root string) (*Report, error) {
 // Skills go to .agents/skills (canonical) and are mirrored to
 // .claude/skills with the Claude Code SKILL.md spelling; the github/
 // prefix stands in for .github/ (a dotted folder could not be embedded).
+//
+// A successful run may emit no .claude/skills mirror at all: sharing an
+// assistant's skills across checkouts makes that folder a symlink, and
+// init never writes through one (see linkedAncestor).
 func targetsFor(rel string) []string {
 	switch {
 	case strings.HasPrefix(rel, "github/"):
@@ -127,7 +135,52 @@ func targetsFor(rel string) []string {
 	}
 }
 
-func writeIfAbsent(root, target string, data []byte, rep *Report) error {
+// linkedAncestor returns the repo-relative directory under root that is a
+// symlink and therefore blocks target, or "" when the path is clear. root
+// itself is never inspected: a checkout reached through a link is normal.
+// Lookups are memoized per directory in links, so a mirror of N files
+// costs one ancestor walk rather than N.
+func linkedAncestor(root, target string, links map[string]string) (string, error) {
+	dir := path.Dir(target)
+	if dir == "." || dir == "/" {
+		return "", nil
+	}
+	if hit, ok := links[dir]; ok {
+		return hit, nil
+	}
+	var prefix string
+	for _, seg := range strings.Split(dir, "/") {
+		prefix = path.Join(prefix, seg)
+		info, err := os.Lstat(filepath.Join(root, filepath.FromSlash(prefix)))
+		if err != nil {
+			if os.IsNotExist(err) {
+				break // nothing exists from here down, so no link can block us
+			}
+			return "", err
+		}
+		if info.Mode()&fs.ModeSymlink != 0 {
+			links[dir] = prefix
+			return prefix, nil
+		}
+	}
+	links[dir] = ""
+	return "", nil
+}
+
+func writeIfAbsent(root, target string, data []byte, rep *Report, links map[string]string) error {
+	// A symlinked directory below root is a tree the user shares across
+	// checkouts; init leaves it alone and reports the skip rather than
+	// mutating a directory outside this repository.
+	blocked, lerr := linkedAncestor(root, target, links)
+	if lerr != nil {
+		return lerr
+	}
+	if blocked != "" {
+		if !slices.Contains(rep.Linked, blocked) {
+			rep.Linked = append(rep.Linked, blocked)
+		}
+		return nil
+	}
 	full := filepath.Join(root, filepath.FromSlash(target))
 	if _, err := os.Stat(full); err == nil {
 		rep.Skipped = append(rep.Skipped, target)

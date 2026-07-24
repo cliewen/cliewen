@@ -60,6 +60,51 @@ func TestAC025_InitReportsSkipsAndNextStep(t *testing.T) {
 	}
 }
 
+// AC-038: the report names the symlinked folder as its own category and
+// counts it in the summary, so an empty mirror is explained rather than
+// mysterious.
+func TestAC038_InitReportsTheSymlinkedMirror(t *testing.T) {
+	root := t.TempDir()
+	shared := t.TempDir()
+	if err := os.MkdirAll(filepath.Join(root, ".claude"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Symlink(shared, filepath.Join(root, ".claude", "skills")); err != nil {
+		t.Skip("this host cannot create a symlink: ", err)
+	}
+	var out bytes.Buffer
+	if code := runInit([]string{root}, &out, &out); code != 0 {
+		t.Fatalf("expected exit 0, got %d\n%s", code, out.String())
+	}
+	report := out.String()
+	if !strings.Contains(report, "linked   .claude/skills") || !strings.Contains(report, "symlink") {
+		t.Fatalf("report does not name the symlinked mirror as linked:\n%s", report)
+	}
+	if !strings.Contains(report, "1 linked,") {
+		t.Fatalf("summary does not count the linked folder:\n%s", report)
+	}
+	if entries, err := os.ReadDir(shared); err != nil || len(entries) != 0 {
+		t.Fatalf("init wrote into the shared tree behind the link: %v, %v", entries, err)
+	}
+}
+
+// AC-038 negative: with no link in the way the report has no linked line
+// and the summary counts none.
+func TestAC038_InitReportsNoLinkWhenNoneExists(t *testing.T) {
+	root := t.TempDir()
+	var out bytes.Buffer
+	if code := runInit([]string{root}, &out, &out); code != 0 {
+		t.Fatalf("expected exit 0, got %d\n%s", code, out.String())
+	}
+	report := out.String()
+	if strings.Contains(report, "linked   ") {
+		t.Fatalf("an ordinary run must report no link:\n%s", report)
+	}
+	if !strings.Contains(report, "0 linked,") {
+		t.Fatalf("summary does not report a zero linked count:\n%s", report)
+	}
+}
+
 // Unit: a scaffold error exits 1 and lands on the error writer, not the
 // report writer — scripted callers filter stderr.
 func TestUnit_InitErrorGoesToErrWriterAndExitsOne(t *testing.T) {

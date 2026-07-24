@@ -56,7 +56,10 @@ Commands:
              (.agents/skills + .claude/skills mirror), and a CI workflow
              template. Idempotent: existing files are never overwritten
              (they are reported and skipped); README index blocks between
-             the clue:index markers are regenerated.
+             the clue:index markers are regenerated. A target directory
+             that is a symlink — a skills tree shared across checkouts —
+             is left untouched: nothing is written through it, and it is
+             reported as linked.
 
   scaffold   Regenerate the taxonomy README index blocks under path
              (default ".") from folder contents: entries whose targets

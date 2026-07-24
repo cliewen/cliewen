@@ -244,6 +244,26 @@ func TestAC025_SkipIsPerFileNotPerRun(t *testing.T) {
 	}
 }
 
+// AC-038 negative: an ordinary .claude/skills directory is mirrored into
+// exactly as before and produces no linked report — the skip is caused by
+// the link, not by the path.
+func TestAC038_OrdinaryMirrorDirectoryIsStillWritten(t *testing.T) {
+	root := t.TempDir()
+	if err := os.MkdirAll(filepath.Join(root, ".claude", "skills"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	rep, err := Run(root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(rep.Linked) != 0 {
+		t.Fatalf("a real directory is not a link, got %v", rep.Linked)
+	}
+	if _, err := os.Stat(filepath.Join(root, ".claude", "skills", "clue-delta", "SKILL.md")); err != nil {
+		t.Fatalf("the mirror was not written into a real directory: %v", err)
+	}
+}
+
 // The two generated distribution trees must stay byte-identical. The
 // skill-generator package separately holds both trees to their shared
 // canonical render.

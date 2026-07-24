@@ -66,7 +66,7 @@ clue validate
 The current release reports every created file, then ends like this:
 
 ```text
-clue init: 25 created, 0 skipped, 0 index block(s) regenerated
+clue init: 25 created, 0 skipped, 0 linked, 0 index block(s) regenerated
 next: run `clue validate` — green on a fresh scaffold; then read docs/README.md
 clue validate: OK (2 artifacts, 1 agent-enforced constraint(s) awaiting machine checks)
 ```
