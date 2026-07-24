@@ -264,6 +264,64 @@ func TestAC037_TwoCaseVariantsAreReportedAmbiguous(t *testing.T) {
 	}
 }
 
+// AC-037 (negative): the ambiguity is reported for an unmarked third-party
+// skill too. Ownership lives inside the manifest that cannot be chosen, so
+// this is the one place an unmarked directory does not simply drop out
+// (ADR-028).
+func TestAC037_AmbiguityIsReportedForAnUnmarkedSkill(t *testing.T) {
+	root := t.TempDir()
+	writeSkillNamed(t, root, "third-party", "skill.md", "---\nversion: 9.9.9\n---\n")
+	writeSkillNamed(t, root, "third-party", "SKILL.md", "---\nversion: 9.9.9\n---\n")
+	entries, err := os.ReadDir(filepath.Join(root, ".agents", "skills", "third-party"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(entries) < 2 {
+		t.Skip("case-insensitive filesystem cannot hold two manifest case-variants")
+	}
+	issues := checkSkillVersions(&Corpus{Root: root}, "0.1.0")
+	if !anyMsg(issues, "case-variants") {
+		t.Fatalf("an unmarked skill's manifest ambiguity must still be reported, got %v", issues)
+	}
+	if len(issues) != 1 {
+		t.Fatalf("the ambiguity ends the directory; no further finding is expected, got %v", issues)
+	}
+}
+
+// AC-037: only an entry resolving to a regular file is a manifest. A
+// directory named skill.md sitting in a legacy Cliewen slot is not one, so it
+// neither enrolls nor trips the reinstall finding (ADR-028).
+func TestAC037_ADirectoryNamedSkillMdIsNotAManifest(t *testing.T) {
+	root := t.TempDir()
+	if err := os.MkdirAll(filepath.Join(root, ".agents", "skills", "clue-delta", "skill.md"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if issues := checkSkillVersions(&Corpus{Root: root}, "0.1.0"); len(issues) != 0 {
+		t.Fatalf("a directory named skill.md is not a manifest, got %v", issues)
+	}
+}
+
+// AC-037: a manifest reached through a symlink is a manifest. Stat follows the
+// link on purpose — a skills tree shared across checkouts is a supported shape
+// (ADR-028) — so the skill enrolls and drifts exactly as a direct file would.
+func TestAC037_ASymlinkedManifestIsAManifest(t *testing.T) {
+	root := t.TempDir()
+	target := filepath.Join(t.TempDir(), "shared-skill.md")
+	if err := os.WriteFile(target, []byte(markedSkill("0.1.0")), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	dir := filepath.Join(root, ".agents", "skills", "clue-delta")
+	if err := os.MkdirAll(dir, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Symlink(target, filepath.Join(dir, "skill.md")); err != nil {
+		t.Skip("this host cannot create symlinks: ", err)
+	}
+	if !anyMsg(checkSkillVersions(&Corpus{Root: root}, "0.2.0"), "drift") {
+		t.Fatal("a symlinked manifest must enroll and drift against 0.2.0")
+	}
+}
+
 // Unit: a repo with no skills folder has nothing to check.
 func TestUnit_NoSkillsFolderIsClean(t *testing.T) {
 	if issues := checkSkillVersions(&Corpus{Root: t.TempDir()}, "0.1.0"); len(issues) != 0 {

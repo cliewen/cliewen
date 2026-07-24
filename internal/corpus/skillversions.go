@@ -164,26 +164,33 @@ func checkSkillVersions(c *Corpus, binaryVersion string) []Issue {
 // findSkillManifest resolves a skill's manifest inside dir by matching an entry
 // whose name case-folds to "skill.md", so a manifest named SKILL.md, Skill.md,
 // or skill.md is found identically on a case-sensitive and a case-insensitive
-// filesystem alike (ADR-028). It returns the actual entry name, whether more
-// than one case-variant is present — only reachable on a case-sensitive
-// filesystem, and reported by the caller rather than silently resolved — and
-// any directory-read error.
+// filesystem alike (ADR-028). Only an entry resolving to a regular file is a
+// manifest: a directory, FIFO, or device named skill.md is not one, and
+// reading it could block the judge rather than fail it. A symlink to a regular
+// file does count — a shared skills tree is a supported shape. It returns the
+// actual entry name, whether more than one case-variant is present — only
+// reachable on a case-sensitive filesystem, and reported by the caller rather
+// than silently resolved — and any directory-read error.
 func findSkillManifest(dir string) (name string, ambiguous bool, err error) {
 	entries, err := os.ReadDir(dir)
 	if err != nil {
 		return "", false, err
 	}
 	for _, e := range entries {
-		if e.IsDir() {
+		if !strings.EqualFold(e.Name(), "skill.md") {
 			continue
 		}
-		if strings.EqualFold(e.Name(), "skill.md") {
-			if name != "" {
-				ambiguous = true
-				continue
-			}
-			name = e.Name()
+		// Stat follows a symlink; an unstattable entry is simply not a
+		// manifest, exactly as an unreadable one was before.
+		info, serr := os.Stat(filepath.Join(dir, e.Name()))
+		if serr != nil || !info.Mode().IsRegular() {
+			continue
 		}
+		if name != "" {
+			ambiguous = true
+			continue
+		}
+		name = e.Name()
 	}
 	return name, ambiguous, nil
 }

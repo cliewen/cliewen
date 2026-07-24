@@ -6,7 +6,7 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 
 ### Fixed
 
-- **`clue validate` now reaches the same verdict about your skills on every filesystem.** A skill whose manifest is named `SKILL.md` — the spelling Claude Code and Anthropic skills ship with — was seen on Windows and macOS but silently ignored on a Linux CI runner, so the same commit could be judged differently depending on where the check ran. The validator now matches a skill's manifest regardless of filename case, and if one directory somehow holds two case-variants it names that ambiguity instead of picking one. You do not need to rename anything.
+- **`clue validate` now reaches the same verdict about your skills on every filesystem.** A skill whose manifest is named `SKILL.md` — the spelling Claude Code and Anthropic skills ship with — was seen on Windows and macOS but silently ignored on a Linux CI runner, so the same commit could be judged differently depending on where the check ran. The validator now matches a skill's manifest regardless of filename case, and if one directory somehow holds two case-variants it names that ambiguity instead of picking one — including for a skill Cliewen does not manage, because which file to read has to be settled before the file can say who owns it. Only a real file counts as a manifest, so a named pipe called `SKILL.md` cannot stall the check, while a manifest symlinked from a shared skills tree keeps working. You do not need to rename anything.
 
 ## [0.6.0] - 2026-07-24
 

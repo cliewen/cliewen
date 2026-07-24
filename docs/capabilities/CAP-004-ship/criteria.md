@@ -82,5 +82,6 @@ Feature: clue ships — a versioned binary and versioned skills, drift made lint
     Given a skill directory whose manifest is named "SKILL.md" rather than "skill.md"
     When the user runs "clue validate"
     Then the skill joins the managed set exactly as a lowercase "skill.md" would, so the verdict does not depend on the host filesystem
-    But a single directory holding two case-variants of the manifest name is reported as a named ambiguity rather than silently resolving to one
+    And a single directory holding two case-variants of the manifest name is reported as a named ambiguity rather than silently resolving to one
+    But that ambiguity is reported for an unmarked third-party skill too, because ownership cannot be read until the manifest is resolved
 ```
