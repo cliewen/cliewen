@@ -14,7 +14,7 @@ Make `clue validate` locate a skill's manifest the same way on every filesystem.
 
 This change resolves the manifest by scanning each skill directory's entries for a name equal to `skill.md` under Unicode case folding, so `SKILL.md`, `Skill.md`, and `skill.md` are all found identically everywhere. If a single directory holds more than one case-variant of the name — only reachable on a case-sensitive filesystem — the validator reports that as a named ambiguity issue rather than silently choosing one, keeping the verdict deterministic in that corner too.
 
-Because `clue validate` is Cliewen's deterministic judge, part of the core ([ARCH-003](../../docs/architecture/core.md)), the resolved behavior is recorded as a decision record under [C-013](../../docs/constraints/C-013-core-changes-need-decision.md) (ADR-028) and carried by a new acceptance criterion (AC-034) with a positive and a negative test that both fail against today's fixed-path lookup.
+Because `clue validate` is Cliewen's deterministic judge, part of the core ([ARCH-003](../../docs/architecture/core.md)), the resolved behavior is recorded as a decision record under [C-013](../../docs/constraints/C-013-core-changes-need-decision.md) (ADR-028) and carried by a new acceptance criterion (AC-037) with a positive and a negative test that both fail against today's fixed-path lookup.
 
 This serves [P-006](../../docs/plans/P-006-first-adoption.md) milestone **M-020**.
 

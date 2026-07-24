@@ -18,6 +18,17 @@ func writeSkill(t *testing.T, root, name, content string) {
 	}
 }
 
+func writeSkillNamed(t *testing.T, root, dir, manifest, content string) {
+	t.Helper()
+	p := filepath.Join(root, ".agents", "skills", dir, manifest)
+	if err := os.MkdirAll(filepath.Dir(p), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(p, []byte(content), 0o644); err != nil {
+		t.Fatal(err)
+	}
+}
+
 func anyMsg(issues []Issue, sub string) bool {
 	for _, i := range issues {
 		if strings.Contains(i.Msg, sub) {
@@ -209,6 +220,47 @@ func TestAC033_DevMatchingAndUnmarkedSkillsDoNotDrift(t *testing.T) {
 	}
 	if issues := checkSkillVersions(&Corpus{Root: root}, "0.1.0"); len(issues) != 0 {
 		t.Fatalf("matching release with unmarked neighbor should pass, got %v", issues)
+	}
+}
+
+// AC-037: a manifest named SKILL.md joins the managed set exactly as a
+// lowercase skill.md would, so the verdict does not depend on the host
+// filesystem. The drift finding names the actual manifest file, which the
+// fixed-path lookup could not do.
+func TestAC037_UppercaseManifestJoinsManagedSet(t *testing.T) {
+	root := t.TempDir()
+	writeSkillNamed(t, root, "clue-delta", "SKILL.md", markedSkill("0.1.0"))
+	issues := checkSkillVersions(&Corpus{Root: root}, "0.2.0")
+	if !anyMsg(issues, "drift") {
+		t.Fatalf("an uppercase-manifest skill must join the set and drift against 0.2.0, got %v", issues)
+	}
+	named := false
+	for _, i := range issues {
+		if strings.Contains(i.Path, "SKILL.md") {
+			named = true
+		}
+	}
+	if !named {
+		t.Fatalf("the drift finding must name the actual manifest SKILL.md, got %v", issues)
+	}
+}
+
+// AC-037 (negative): a single directory holding two case-variants of the
+// manifest name is reported as an ambiguity rather than silently resolving to
+// one. Only a case-sensitive filesystem can hold both files.
+func TestAC037_TwoCaseVariantsAreReportedAmbiguous(t *testing.T) {
+	root := t.TempDir()
+	writeSkillNamed(t, root, "clue-delta", "skill.md", markedSkill("0.1.0"))
+	writeSkillNamed(t, root, "clue-delta", "SKILL.md", markedSkill("0.1.0"))
+	entries, err := os.ReadDir(filepath.Join(root, ".agents", "skills", "clue-delta"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(entries) < 2 {
+		t.Skip("case-insensitive filesystem cannot hold two manifest case-variants")
+	}
+	if !anyMsg(checkSkillVersions(&Corpus{Root: root}, "0.1.0"), "case-variants") {
+		t.Fatal("expected an ambiguity issue naming the multiple case-variants")
 	}
 }
 

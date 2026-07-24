@@ -76,4 +76,11 @@ Feature: clue ships — a versioned binary and versioned skills, drift made lint
     When the user runs "clue validate"
     Then it exits with a non-zero code and reports the drift
     But an unmarked skill does not participate, a "dev" build skips the comparison, and a release matching the marked skills passes
+
+  @AC-037
+  Scenario: A skill's manifest is resolved the same way on every filesystem
+    Given a skill directory whose manifest is named "SKILL.md" rather than "skill.md"
+    When the user runs "clue validate"
+    Then the skill joins the managed set exactly as a lowercase "skill.md" would, so the verdict does not depend on the host filesystem
+    But a single directory holding two case-variants of the manifest name is reported as a named ambiguity rather than silently resolving to one
 ```
