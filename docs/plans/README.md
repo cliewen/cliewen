@@ -8,4 +8,5 @@ The campaign layer: P-xxx plans with M-xxx milestones. This folder is **flat** �
 - [P-003 — Cliewen goes public](P-003-goes-public.md) · `completed` (2026-07-21)
 - [P-004 — Cliewen earns the first try](P-004-first-try.md) · `completed` (2026-07-23)
 - [P-005 — Cliewen draws its core](P-005-explicit-core.md) · `completed` (2026-07-24)
+- [P-006 — Cliewen digests its first adoption](P-006-first-adoption.md) · `active`
 <!-- clue:index:end -->
