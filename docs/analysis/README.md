@@ -12,4 +12,5 @@ Some findings and historical references preserve evidence from adopter repositor
 - [AN-005 — Foreign-soil trial: es-toolkit](AN-005-es-toolkit-foreign-soil-trial.md) — exact-runtime, platform, CI-scope, and adoption-boundary evidence from the second qualifying trial
 - [AN-006 — The light tier still overcharges changes outside Cliewen](AN-006-plain-change-overhead.md) — PR #35 evidence, the remaining light-tier costs, and the boundary consumed by PDR-011
 - [AN-007 — A ready PR can omit intended local review fixes](AN-007-review-handoff-gap.md) — CH-037's missed review fixes and the clean, pushed, exact-head readiness gap
+- [AN-008 — Two independent critiques land on the same four half-built patterns](AN-008-methodology-critiques.md) — the 2026-07-25 methodology review and migration assessment reduced to four patterns, their collisions with standing decisions, and what the book already answers
 <!-- clue:index:end -->
