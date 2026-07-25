@@ -55,4 +55,13 @@ Feature: Onboarding — install to first green validate
     Then it distinguishes shipped and verified support from methodology intent
     And it gives safe recovery paths for routine operating problems
     And every public-guide page ends with exactly one primary next action
+
+  @AC-038
+  Scenario: init does not write through a symlinked skills folder
+    Given a repository whose ".claude/skills" is a symlink to a skills tree shared across checkouts
+    When the user runs "clue init"
+    Then no file is created inside the link's target
+    And the report names ".claude/skills" as skipped because it is a symlink
+    And the canonical ".agents/skills" skills and the rest of the convention are still created
+    And a ".claude/skills" that is an ordinary directory is mirrored as before, with no such report line
 ```
