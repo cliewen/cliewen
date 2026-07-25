@@ -2,7 +2,7 @@
 id: AN-008
 type: analysis
 status: active
-links: [ARCH-003, G-001, C-012, ADR-005, ADR-006, ADR-008, C-006]
+links: [P-007, ARCH-003, G-001, C-012, ADR-005, ADR-006, ADR-008, C-006]
 title: Two independent critiques land on the same four half-built patterns
 ---
 
@@ -10,7 +10,7 @@ title: Two independent critiques land on the same four half-built patterns
 
 ## Evidence boundary
 
-Two reviews were received by the maintainer on 2026-07-25 as model conversations and supplied to this analysis in full. The first is a methodology-level review of Cliewen as published (six findings). The second is a migration assessment produced while evaluating Cliewen for a production system in an enterprise setting (nineteen findings, prioritized P0–P2); that system's repository is not publicly accessible and is not named here, following the same evidence rule as [AN-002](AN-002-model2diagram-extraction.md)'s handling of private targets. The transcripts are evidence of the reviewers' reasoning, not versioned repository artifacts. Every claim below about Cliewen's current behavior was re-verified against this repository at the commit this analysis was written on; claims about the private system are reported as the assessment states them and are not independently reproducible.
+Two reviews were received by the maintainer on 2026-07-25 as model conversations and supplied to this analysis in full. The first is a methodology-level review of Cliewen as published (six findings). The second is a migration assessment produced while evaluating Cliewen for a production system in an enterprise setting (nineteen findings, prioritized P0–P2); that system's repository is not publicly accessible and, unlike the named-but-private target in [AN-002](AN-002-model2diagram-extraction.md), stays unnamed here for confidentiality; the analysis README's convention applies either way — readers should not expect its artifacts to resolve. The transcripts are evidence of the reviewers' reasoning, not versioned repository artifacts. Every claim below about Cliewen's current behavior was re-verified against this repository at accepted `main` commit `4373909`, on Windows 11 Pro amd64 with Go 1.26.5; claims about the private system are reported as the assessment states them and are not independently reproducible.
 
 ## The finding
 
