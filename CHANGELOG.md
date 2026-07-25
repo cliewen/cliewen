@@ -2,7 +2,7 @@
 
 All notable, user-visible changes to `clue` and the Cliewen skills. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and versions follow semver. Each GitHub release body is this file's matching version section, extracted verbatim by the release workflow — a release with no section here fails.
 
-## [Unreleased]
+## [0.7.0] - 2026-07-25
 
 ### Added
 
@@ -18,6 +18,10 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 - **`clue init` no longer writes into a skills folder you share between checkouts.** If `.claude/skills` — or `.claude`, or even `.agents/skills` — is a symlink pointing at a skills tree outside the repository, `init` used to follow the link and create Cliewen's skills inside that shared tree, silently changing a directory you were not initializing. It now leaves any symlinked directory below the target folder untouched, writes nothing through it, and reports it on its own line (`linked .claude/skills (symlink — mirror skipped, nothing written through it)`) with a count in the summary, so an empty mirror is explained rather than mysterious. Everything the link does not block — the canonical `.agents/skills`, `docs/`, `AGENTS.md`, the CI workflow — is still created, and the promise that no existing file is ever overwritten is unchanged. If you want the skills in the shared tree, install them there yourself. `clue validate` still reads a skill manifest through a symlink as before.
 
 - **`clue validate` now reaches the same verdict about your skills on every filesystem.** A skill whose manifest is named `SKILL.md` — the spelling Claude Code and Anthropic skills ship with — was seen on Windows and macOS but silently ignored on a Linux CI runner, so the same commit could be judged differently depending on where the check ran. The validator now matches a skill's manifest regardless of filename case, and if one directory somehow holds two case-variants it names that ambiguity instead of picking one — including for a skill Cliewen does not manage, because which file to read has to be settled before the file can say who owns it. Only a real file counts as a manifest, so a named pipe called `SKILL.md` cannot stall the check, while a manifest symlinked from a shared skills tree keeps working. You do not need to rename anything.
+
+### Install
+
+`go install github.com/cliewen/cliewen/cmd/clue@v0.7.0`, or download a prebuilt binary for your platform from the release assets and verify it against `SHA256SUMS`. Update vendored Cliewen skills from this release's `.agents/skills/`; a 0.7.0 binary rejects older Cliewen skill versions as drift.
 
 ## [0.6.0] - 2026-07-24
 
