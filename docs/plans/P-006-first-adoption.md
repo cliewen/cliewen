@@ -1,12 +1,14 @@
 ---
 id: P-006
 type: plan
-status: active
+status: completed
 links: [G-001, G-002]
 title: Cliewen digests its first adoption — one verdict everywhere, an honest init, an extraction contract that survives a real repository
 ---
 
 # P-006 — Cliewen digests its first adoption
+
+> **Completed 2026-07-25** — all milestones done; frozen immutable. `clue validate` reaches one verdict on every filesystem, `clue init` leaves a symlinked skills folder alone, `clue-extract`'s target contract matches a repository that actually adopted it, and a MADR corpus converts through a shipped mapping. No successor is designated.
 
 P-002 trialed the methodology on foreign soil without changing those repositories; P-003 and P-004 made the public path reachable and worth a first try; P-005 stated the core. This campaign spends the first evidence of a repository that actually lives with Cliewen: Robocode Tank Royale adopted it through `clue-extract` and recorded eight upstream findings in its own extraction report (`docs/analysis/AN-001-openspec-extraction.md`, merged 2026-07-19 — the repository is public, so citing it here is allowed). The campaign converts what is still open into fixes: one verdict on every filesystem, an `init` that does not fight a real skills folder, and an extraction contract that matches what a real repository looks like. It serves [G-001](../goals/G-001-verifiable-thread.md) — a judge that answers differently per platform cannot carry a verifiable thread — and [G-002](../goals/G-002-versioned-clue-and-skills.md), whose drift check is where the divergence shows.
 
