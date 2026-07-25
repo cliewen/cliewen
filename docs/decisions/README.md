@@ -6,6 +6,8 @@ ADRs and PDRs share the MADR format and two-tier provenance: `inferred` (binding
 
 **Merge binds, approval signs** ([PDR-004](PDR-004-merge-binds-approval-signs.md), superseding [PDR-001](PDR-001-pr-approval-promotes-adrs.md)): merging a PR makes its `inferred` decisions binding — in force immediately, no signature required — but does not touch their status. Only an explicit human approval (review approval, review comment, or a stated "approved") flips a decision to `verified`: each approver signs `accepted-by:`, approvals accumulate, and the acceptance date is the first approval. An explicit objection keeps a decision `inferred` regardless of other approvals and becomes an open question; unresolved reviewer disagreement is an objection. The agent performs the clerical signing, citing approver, date, and venue.
 
+**`accepted-by:` records only approval given under Cliewen's merge boundary** ([ADR-029](ADR-029-accepted-by-is-cliewen-approval-only.md)), never acceptance a record already carried before it entered this corpus. A record extracted from a source with its own acceptance history — a MADR record's decision-makers, for instance — preserves that history as body prose with its original names, roles, and dates, and keeps `accepted-by: []`, exactly the shape any unsigned record already has.
+
 **Records are timeless.** Context states the problem, not the episode: a motivating incident earns at most one sentence, and the change history lives in git log and the plans. Concrete mechanisms appear as decision content — the chosen option, the rejected options, the carrier — never as narrative.
 
 **Carrier rule for method decisions:** a decision that changes the methodology *for adopting projects* — usually a PDR — must name its carrier: the `clue` rule (machine), the skill text (agent), or the init template (default) that ships it. A method decision without a carrier does not reach new projects and is not yet done. The foundation new projects receive has exactly one authoritative form: the output of `clue init` plus the rules of the `clue` binary — and CAP-001's criteria are what hold that output to account.
@@ -48,4 +50,5 @@ ADRs and PDRs share the MADR format and two-tier provenance: `inferred` (binding
 - [ADR-026-adopter-types-default-lifecycle](ADR-026-adopter-types-default-lifecycle.md)
 - [ADR-027-quality-scenarios-are-constraints](ADR-027-quality-scenarios-are-constraints.md)
 - [ADR-028-deterministic-skill-manifest](ADR-028-deterministic-skill-manifest.md)
+- [ADR-029-accepted-by-is-cliewen-approval-only](ADR-029-accepted-by-is-cliewen-approval-only.md)
 <!-- clue:index:end -->

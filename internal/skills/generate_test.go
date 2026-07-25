@@ -2,6 +2,7 @@ package skills
 
 import (
 	"os"
+	"path"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -86,6 +87,31 @@ func TestAC028_DriftIsRejected(t *testing.T) {
 				t.Fatalf("drift did not name the affected skill: %v", drifts)
 			}
 		})
+	}
+}
+
+func TestSanity_EveryMappingSourceHasAGeneratedCounterpart(t *testing.T) {
+	entries, err := os.ReadDir(filepath.Join("source", "resources", "clue-extract", "mappings"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(entries) == 0 {
+		t.Fatal("no mapping sources found under source/resources/clue-extract/mappings")
+	}
+
+	rendered := map[string]bool{}
+	for _, file := range mustRender(t) {
+		rendered[file.relativePath] = true
+	}
+
+	for _, entry := range entries {
+		if entry.IsDir() {
+			continue
+		}
+		want := path.Join("clue-extract", "mappings", entry.Name())
+		if !rendered[want] {
+			t.Errorf("mapping source %s has no generated counterpart %s", entry.Name(), want)
+		}
 	}
 }
 

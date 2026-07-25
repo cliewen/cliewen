@@ -13,7 +13,7 @@ Layout: `openspec/config.yaml`, synced truth in `openspec/specs/<capability>/spe
 | Scenario ID prefix (e.g. `MG`) | `ac-prefix:` in that criteria.md frontmatter; a delta spanning several prefixes splits into one capability per prefix |
 | Pending change (`changes/<name>/`) | a milestone in the repo's plan **plus** a `status: draft` capability holding its criteria (draft = exempt from the test contract until implemented) and its design decisions in `design.md`; its tasks.md dies — `clue-delta` regenerates tasks when implementation starts |
 | `changes/archive/…` | git history only — no corpus artifact |
-| Nygard/MADR ADRs in `docs/decisions` | `ADR-xxx` born `status: inferred`, `author: agent`; original acceptance dates preserved in the body |
+| Nygard/MADR ADRs in `docs/decisions` | see [madr.md](madr.md) for the conversion — MADR is a source format on its own, not an OpenSpec detail |
 | Architecture docs | `docs/architecture/` artifacts (`status: draft` until reviewed) or capability `design.md` where they are capability-local |
 | AC registry / scenario templates (`test/…`) | deleted — the corpus is the registry; next free ID per prefix is max + 1 over declared ACs |
 | Project README purpose statements | `G-xxx` goal(s), `status: accepted` (the repo's existence is the acceptance) |
