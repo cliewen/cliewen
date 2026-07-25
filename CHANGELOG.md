@@ -4,6 +4,10 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 
 ## [Unreleased]
 
+### Changed
+
+- **`clue-extract`'s target contract now matches what a real adoption needs.** Routing now points every assistant entry point a repository carries — `AGENTS.md` plus files such as `CLAUDE.md` or `.cursor/rules` — to the corpus and installed skills, instead of assuming `AGENTS.md` is the only one. Extracting a corpus too large to give every criterion its tests in one change may now leave the untested capabilities `status: draft` on purpose, stated in the extraction report, rather than blocking the whole extraction on full coverage. Where a source requirement carries no stable ID of its own, the contract now says how to mint one deterministically, so re-running the same extraction reproduces the same IDs instead of renumbering ad hoc.
+
 ### Fixed
 
 - **`clue init` no longer writes into a skills folder you share between checkouts.** If `.claude/skills` — or `.claude`, or even `.agents/skills` — is a symlink pointing at a skills tree outside the repository, `init` used to follow the link and create Cliewen's skills inside that shared tree, silently changing a directory you were not initializing. It now leaves any symlinked directory below the target folder untouched, writes nothing through it, and reports it on its own line (`linked .claude/skills (symlink — mirror skipped, nothing written through it)`) with a count in the summary, so an empty mirror is explained rather than mysterious. Everything the link does not block — the canonical `.agents/skills`, `docs/`, `AGENTS.md`, the CI workflow — is still created, and the promise that no existing file is ever overwritten is unchanged. If you want the skills in the shared tree, install them there yourself. `clue validate` still reads a skill manifest through a symlink as before.
