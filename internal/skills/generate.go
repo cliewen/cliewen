@@ -142,7 +142,7 @@ func render() ([]renderedFile, error) {
 		return nil, fmt.Errorf("parse skill sources: %w", err)
 	}
 
-	rendered := make([]renderedFile, 0, len(skillNames)+1)
+	rendered := make([]renderedFile, 0, len(skillNames))
 	for _, name := range skillNames {
 		var output bytes.Buffer
 		if err := tmpl.ExecuteTemplate(&output, name+".md.tmpl", nil); err != nil {
