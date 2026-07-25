@@ -8,6 +8,8 @@ Why things are the way they are — every decision made during a Cliewen change 
 
 Decision records carry provenance in their status: a record an agent writes during a change starts `inferred`; explicit human approval (review approval or a stated "approved") promotes it to `verified`, with each approver signed in `accepted-by:`. Merging a change makes its decisions binding either way — approval changes their standing, not their force. Rejected records stay in the corpus as history.
 
+`accepted-by:` records only approval given under this repository's own merge boundary, never acceptance a record already carried before it entered the corpus. A record extracted from a source with its own acceptance history preserves that history as body prose with its original names, roles, and dates, and keeps `accepted-by: []`, exactly the shape any unsigned record already has.
+
 A decision that adopts a well-established practice cites it by name and records only the local why.
 
 Decision records are timeless: state what is decided and only the enduring context and rationale needed to understand it. Triggering incidents, chronology, conversations, implementation details, and review history belong in the change workspace, PR, and Git history; include a historical fact only when removing it would make the decision unintelligible.

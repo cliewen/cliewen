@@ -1,7 +1,9 @@
 package skills
 
 import (
+	"io/fs"
 	"os"
+	"path"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -86,6 +88,41 @@ func TestAC028_DriftIsRejected(t *testing.T) {
 				t.Fatalf("drift did not name the affected skill: %v", drifts)
 			}
 		})
+	}
+}
+
+func TestSanity_EveryMappingSourceHasAGeneratedCounterpart(t *testing.T) {
+	mappingsDir := filepath.Join("source", "resources", "clue-extract", "mappings")
+
+	rendered := map[string]bool{}
+	for _, file := range mustRender(t) {
+		rendered[file.relativePath] = true
+	}
+
+	found := 0
+	err := filepath.WalkDir(mappingsDir, func(filePath string, entry fs.DirEntry, walkErr error) error {
+		if walkErr != nil {
+			return walkErr
+		}
+		if entry.IsDir() {
+			return nil
+		}
+		found++
+		rel, relErr := filepath.Rel(mappingsDir, filePath)
+		if relErr != nil {
+			return relErr
+		}
+		want := path.Join("clue-extract", "mappings", filepath.ToSlash(rel))
+		if !rendered[want] {
+			t.Errorf("mapping source %s has no generated counterpart %s", filepath.ToSlash(rel), want)
+		}
+		return nil
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if found == 0 {
+		t.Fatal("no mapping sources found under source/resources/clue-extract/mappings")
 	}
 }
 

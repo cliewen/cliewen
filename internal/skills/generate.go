@@ -142,7 +142,7 @@ func render() ([]renderedFile, error) {
 		return nil, fmt.Errorf("parse skill sources: %w", err)
 	}
 
-	rendered := make([]renderedFile, 0, len(skillNames)+1)
+	rendered := make([]renderedFile, 0, len(skillNames))
 	for _, name := range skillNames {
 		var output bytes.Buffer
 		if err := tmpl.ExecuteTemplate(&output, name+".md.tmpl", nil); err != nil {
@@ -154,14 +154,28 @@ func render() ([]renderedFile, error) {
 		})
 	}
 
-	mapping, err := sources.ReadFile("source/resources/clue-extract/mappings/openspec.md")
-	if err != nil {
-		return nil, fmt.Errorf("read OpenSpec mapping source: %w", err)
-	}
-	rendered = append(rendered, renderedFile{
-		relativePath: "clue-extract/mappings/openspec.md",
-		content:      normalize(mapping),
+	const mappingsDir = "source/resources/clue-extract/mappings"
+	walkErr := fs.WalkDir(sources, mappingsDir, func(filePath string, entry fs.DirEntry, walkErr error) error {
+		if walkErr != nil {
+			return walkErr
+		}
+		if entry.IsDir() {
+			return nil
+		}
+		content, readErr := sources.ReadFile(filePath)
+		if readErr != nil {
+			return readErr
+		}
+		rel := strings.TrimPrefix(filePath, mappingsDir+"/")
+		rendered = append(rendered, renderedFile{
+			relativePath: path.Join("clue-extract/mappings", rel),
+			content:      normalize(content),
+		})
+		return nil
 	})
+	if walkErr != nil {
+		return nil, fmt.Errorf("read clue-extract mapping sources: %w", walkErr)
+	}
 	sort.Slice(rendered, func(i, j int) bool { return rendered[i].relativePath < rendered[j].relativePath })
 	return rendered, nil
 }

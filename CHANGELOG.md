@@ -4,8 +4,13 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 
 ## [Unreleased]
 
+### Added
+
+- **`clue-extract` now ships a MADR extraction mapping.** A repository whose decisions live in `docs/decisions/` or `doc/adr/` as MADR 3.x/4.x or older Nygard-style records — proposed, accepted, rejected, deprecated, or superseded by another record — converts mechanically instead of by improvisation: every converted decision is born `inferred` regardless of its source status, the source status survives as body prose and, where a successor exists, a `links:` edge; a `rejected` record states its rejection outright rather than reading as an adopted decision, and a `proposed` record the repository never acted on becomes an open question and a plan door instead of a decision merge would make binding; the numeric filename prefix survives as the record's ID, never renumbered or re-styled; a record with no number, or one whose number the target corpus already uses, gets one minted deterministically; and the source title, slug, and date all have a stated destination. `mappings/openspec.md` now points to the new mapping instead of restating it.
+
 ### Changed
 
+- **`accepted-by:` now has one meaning on every decision record, converted or not.** The field records only approval given under Cliewen's own merge boundary — a PR review approval, a review comment, or a stated "approved" — never acceptance a record already carried before it entered the corpus. A record extracted from a source with its own acceptance history (MADR's `decision-makers`, `consulted`, `informed`) preserves that history as body prose with the original names, roles, and dates, and keeps `accepted-by: []`, the same shape any unsigned record already has. The five shipped skills, `docs/decisions/README.md`, and the scaffolded `docs/decisions/README.md` that `clue init` writes into a new repository all state the same boundary now.
 - **`clue-extract`'s target contract now matches what a real adoption needs.** Routing now points every assistant entry point a repository carries — `AGENTS.md` plus files such as `CLAUDE.md` or `.cursor/rules` — to the corpus and installed skills, instead of assuming `AGENTS.md` is the only one. Extracting a corpus too large to give every criterion its tests in one change may now leave the untested capabilities `status: draft` on purpose, stated in the extraction report, rather than blocking the whole extraction on full coverage. Where a source requirement carries no stable ID of its own, the contract now says how to mint one deterministically, so re-running the same extraction reproduces the same IDs instead of renumbering ad hoc.
 
 ### Fixed
