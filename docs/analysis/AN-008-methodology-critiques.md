@@ -47,4 +47,4 @@ Cliewen is born from the Intent Engineering book, and four of its published desi
 
 ## Finding and consumer
 
-The critiques are one finding, not twenty-five: the core's guarantees are asserted by agent-facing machinery and unbacked on the human-facing and bounding sides. [P-007](../plans/P-007-core-hardening.md) consumes this analysis; its milestones M-024…M-029 answer patterns A through D in that order, and its out-of-campaign list holds the adopter-hardening items that a real pilot must price first.
+The critiques are one finding, not twenty-five: the core's guarantees are asserted by agent-facing machinery and unbacked on the human-facing and bounding sides. That lands squarely on [G-001](../goals/G-001-verifiable-thread.md): a thread whose human end is unstated and whose green claims more than the judge checks is not verifiable in the sense the goal means. [P-007](../plans/P-007-core-hardening.md) consumes this analysis; its milestones M-024…M-029 answer patterns A through D in that order, and its out-of-campaign list holds the adopter-hardening items that a real pilot must price first.
