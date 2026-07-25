@@ -34,11 +34,11 @@ Every rule in the corpus was born from an incident in a repository the maintaine
 
 ## Collisions the critiques did not see
 
-Three requested fixes collide with standing decisions and need explicit resolution rather than implementation:
+Three requested fixes meet standing decisions and need explicit resolution rather than direct implementation — two as genuine collisions, one dissolving on inspection:
 
 - Structured evidence comments (`// AC:`) were rejected by [ADR-005](../decisions/ADR-005-test-reference-convention.md) because nothing attaches a comment to a test but proximity. Cucumber Gherkin tags fit the existing tag philosophy; the no-tag-mechanism case (Gatling and kin) needs either an ADR revisiting ADR-005 for that class or a naming-convention answer.
 - An extraction dry-run cannot be a `clue` flag because [ADR-008](../decisions/ADR-008-extraction-is-a-skill.md) made extraction a skill; the fix is a skill-contract change (a report-only first pass), not a command.
-- An incident artifact type collides with [C-006](../constraints/C-006-adrs-timeless-with-carrier.md)'s one-sentence incident rule. The existing pattern is already correct — [AN-007](AN-007-review-handoff-gap.md) is an incident that fed C-012 and PDR-012 — and wants formalizing, not replacing.
+- An incident artifact type is not needed, and the reason is positive rather than a collision: episodes already live in analysis records — [AN-007](AN-007-review-handoff-gap.md) is an incident that fed C-012 and a LOG-001 readiness row through the carriers it links — and that division of labor is what keeps decision prose episode-free under [C-006](../constraints/C-006-adrs-timeless-with-carrier.md). The shape wants formalizing, not replacing.
 
 ## What the book already answers
 
