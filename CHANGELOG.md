@@ -2,6 +2,12 @@
 
 All notable, user-visible changes to `clue` and the Cliewen skills. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and versions follow semver. Each GitHub release body is this file's matching version section, extracted verbatim by the release workflow — a release with no section here fails.
 
+## [Unreleased]
+
+### Added
+
+- **The guide now explains why Cliewen is designed the way it is.** A new page, *The design of Cliewen*, gives someone evaluating the methodology the argument behind the rules: the problem it answers (acceptance, not implementation, is the bottleneck), the first iteration's observed failures and the repairs drawn from them, the three protected core elements, the reason behind each principle including its token cost, how adopters extend the core, and the limits Cliewen states plainly — including the parts still open in the current hardening campaign.
+
 ## [0.7.0] - 2026-07-25
 
 ### Added
