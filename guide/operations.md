@@ -24,7 +24,7 @@ Keep the binary, generated skills, and vendored CI binary on the same release wh
 
 If a released binary reports skill drift, do not edit a version number to silence it. Install the matching released binary or replace the complete generated skill set with the matching version, then run `clue validate`. A checkout build reports `dev` and cannot detect binary-to-skill release drift, so use a released binary for this check.
 
-`brew upgrade clue` and `winget upgrade Cliewen.Clue` move the binary and nothing else. In a repository already using Cliewen they therefore produce exactly that drift report, because the skills are committed repository files and no package manager can update them: the machine moved ahead of the repository. This is the check working, not a broken upgrade. Resolve it by completing the coordinated set above — skills and the vendored CI binary — in a normal reviewed change, or by installing the release the repository still carries if you are not ready to upgrade it yet.
+Re-running the install script moves the binary and nothing else. In a repository already using Cliewen that produces exactly the drift report above, because the skills are committed repository files no installer can update: the machine moved ahead of the repository. This is the check working, not a broken upgrade. Resolve it by completing the coordinated set — skills and the vendored CI binary — in a normal reviewed change, or by pinning the release the repository still carries with `CLUE_VERSION=<x.y.z>` if you are not ready to upgrade it yet.
 
 ## Recover without bypassing the evidence
 

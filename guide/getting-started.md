@@ -5,8 +5,8 @@ This path installs one binary and lets you see Cliewen reject a broken intent-to
 ## Prerequisites
 
 - **Required:** Git (`git`).
-- **Recommended:** a package manager — [winget](https://learn.microsoft.com/windows/package-manager/) on Windows (preinstalled on Windows 11) or [Homebrew](https://brew.sh/) on macOS and Linux.
-- **Required only for the manual download route:** permission to add one directory to your user `PATH`.
+- **Required for the install script:** `curl` or `wget` and `sha256sum` or `shasum` on macOS and Linux; PowerShell on Windows. All are normally present.
+- **Required:** permission to add one directory to your user `PATH`. No administrator rights are needed.
 - **Optional:** the Go toolchain, if you prefer installing from source.
 - **Recommended later for GitHub:** an authenticated [GitHub CLI](https://cli.github.com/) (`gh`) for the pull-request loop. Cliewen itself works with plain Git and any forge.
 
@@ -14,34 +14,35 @@ Node.js and npm are needed only to build this guide or contribute to Cliewen its
 
 ## 1. Install `clue`
 
-Use your package manager:
+One command, on any supported machine:
 
 ::: code-group
 
-```powershell [Windows]
-winget install --exact --id Cliewen.Clue
-clue version
+```sh [macOS and Linux]
+curl -fsSL https://cliewen.dev/install.sh | sh
 ```
 
-```sh [macOS and Linux]
-brew install cliewen/tap/clue
-clue version
+```powershell [Windows]
+irm https://cliewen.dev/install.ps1 | iex
 ```
 
 ```sh [Any host with Go]
 go install github.com/cliewen/cliewen/cmd/clue@latest
-clue version
 ```
 
 :::
 
-`clue version` should print the version you installed, for example `clue 0.7.0`. If your shell cannot find it, open a new terminal — a `PATH` change does not reach an already-running shell. The Go route installs under `$(go env GOPATH)/bin`, which you may need to add to `PATH` yourself; it also reports `dev` rather than a release version unless you install a tagged version.
+Then open a new terminal and run `clue version` — a `PATH` change does not reach an already-running shell. It should print the version you installed, for example `clue 0.7.0`.
 
-Later, `brew upgrade clue` or `winget upgrade Cliewen.Clue` moves the binary. That is only half an upgrade for a repository already using Cliewen — see [Operate safely](./operations) for why the resulting drift report is the check working.
+The script detects your operating system and architecture, downloads the matching release binary, and **verifies it against the release's `SHA256SUMS` before installing anything**; a mismatch stops with nothing written. It installs to `~/.local/bin` (macOS and Linux) or `%LOCALAPPDATA%\Programs\clue` (Windows) and needs no administrator rights. Set `CLUE_INSTALL` to choose a different directory, or `CLUE_VERSION` to pin a release. You are piping a script into a shell, so read it first if you prefer: [install.sh](https://cliewen.dev/install.sh) and [install.ps1](https://cliewen.dev/install.ps1) are short, and the manual steps below do the same work by hand.
+
+The Go route installs under `$(go env GOPATH)/bin`, which you may need to add to `PATH` yourself; it reports `dev` rather than a release version unless you install a tagged version.
+
+Upgrading later means re-running the same command. That moves the binary only — for a repository already using Cliewen it is half an upgrade, and [Operate safely](./operations) explains why the resulting drift report is the check working.
 
 ### Download a binary instead
 
-For a machine with neither package manager, open the [latest Cliewen release](https://github.com/cliewen/cliewen/releases/latest) and download `SHA256SUMS` plus the binary for your machine into an otherwise empty download directory:
+To install by hand — or on a machine where neither script can run — open the [latest Cliewen release](https://github.com/cliewen/cliewen/releases/latest) and download `SHA256SUMS` plus the binary for your machine into an otherwise empty download directory:
 
 | Machine | Release asset |
 |---|---|
@@ -66,7 +67,7 @@ Then:
 3. Move it into a directory on your user `PATH`. On Windows, a folder such as `%LOCALAPPDATA%\Programs\clue` works once added through "Edit environment variables for your account." On macOS and Linux, `~/.local/bin` is a common choice; add it to your shell's `PATH` if needed.
 4. Open a new terminal and run `clue version`. It should print the version you downloaded, for example `clue 0.7.0`.
 
-The macOS binaries are unsigned and not notarized, so a binary you download this way can be blocked by Gatekeeper. First confirm the checksum matches, try `clue version` once, then open **System Settings → Privacy & Security** and click **Open Anyway**. Apple documents this exception in [Open a Mac app from an unknown developer](https://support.apple.com/guide/mac-help/open-a-mac-app-from-an-unknown-developer-mh40616/mac). The Homebrew route above avoids this entirely: a formula installs into the Cellar without the quarantine attribute.
+The macOS binaries are unsigned and not notarized, so a binary you download through a browser can be blocked by Gatekeeper. First confirm the checksum matches, try `clue version` once, then open **System Settings → Privacy & Security** and click **Open Anyway**. Apple documents this exception in [Open a Mac app from an unknown developer](https://support.apple.com/guide/mac-help/open-a-mac-app-from-an-unknown-developer-mh40616/mac). The install script avoids this: a download made outside the browser carries no quarantine attribute.
 
 ## 2. Initialize a disposable repository
 

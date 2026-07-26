@@ -80,29 +80,8 @@ release:
   draft: false
   prerelease: auto
 
-# A formula, not a cask, and deliberately so: Homebrew casks are macOS-only,
-# so `homebrew_casks:` would drop Linux back to the manual download this
-# milestone exists to remove. `brews:` is deprecated upstream and makes
-# `goreleaser check` exit non-zero — which is why the workflow pins an exact
-# goreleaser version rather than a range. ADR-030 records the migration, and
-# that signing and notarizing the macOS binaries is its prerequisite.
-brews:
-  - name: clue
-    ids: [bundle]
-    repository:
-      owner: cliewen
-      name: homebrew-tap
-      branch: main
-      token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
-    directory: Formula
-    homepage: "https://cliewen.dev"
-    description: "The Cliewen corpus judge — keeps goal, capability, acceptance criterion and test connected in Git"
-    license: "Apache-2.0"
-    commit_author:
-      name: cliewen-release
-      email: release@cliewen.dev
-    commit_msg_template: "clue {{ .Version }}"
-    install: |
-      bin.install "clue"
-    test: |
-      assert_match version.to_s, shell_output("#{bin}/clue version")
+# No package-manager publisher yet, deliberately (ADR-030). Homebrew
+# formulas are deprecated upstream, and their replacement — casks — is
+# macOS-only, so Homebrew can no longer serve macOS and Linux from one
+# channel. The install scripts under guide/public/ cover all three
+# platforms today; winget and a Homebrew cask are additive and follow.

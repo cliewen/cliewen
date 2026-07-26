@@ -3,16 +3,16 @@ id: PDR-014
 type: decision
 status: inferred
 links: [P-007, CAP-001, C-015, ADR-030, PDR-008]
-title: Distribution reopens on the active campaign, not a successor plan
+title: Installation distribution reopens on the active campaign, not a successor plan
 author: agent
 accepted-by: []
 ---
 
-# PDR-014 — Distribution reopens on the active campaign
+# PDR-014 — Installation distribution reopens on the active campaign
 
 ## Context and problem statement
 
-Package-manager distribution has been parked three times. The [decision log](log.md) row of 2026-07-22 placed installer scripts and package-manager channels outside the first-try campaign "until supported by their own evidence and scope", and P-004, P-005 and P-006 each restated them in their exclusion lists. The parking was conditional, and the condition was evidence — but nothing in the corpus says who decides the condition is met, or where the work lands when it is.
+Installation distribution — installer scripts and package-manager channels alike — has been parked three times. The [decision log](log.md) row of 2026-07-22 placed both outside the first-try campaign "until supported by their own evidence and scope", and P-004, P-005 and P-006 each restated them in their exclusion lists. The parking was conditional, and the condition was evidence — but nothing in the corpus says who decides the condition is met, or where the work lands when it is.
 
 Two questions follow. Does the evidence now exist? And if it does, does distribution wait for a successor plan, or join the campaign already in flight?
 
@@ -24,7 +24,7 @@ The evidence the parking asked for is three things the corpus did not have in Ju
 
 It joins P-007 for a reason specific to that plan: P-007's exclusion list, alone among the campaigns, never names installation. It excludes adopter hardening a real pilot must price first, the production feedback loop, and foreign documentation kinds. Distribution was excluded by P-004 through P-006 and then simply not carried forward, so appending it retracts nothing the active campaign promised. A successor plan would cost the six sequential red-line milestones standing in front of it, for a gap that is measured, bounded, and touches no core element.
 
-The two milestones stay ordered rather than parallel: M-031's marketplace bootstrap consists of the package-manager commands M-030 creates, so shipping it first would produce a bootstrap that hands the user the manual table.
+The two milestones stay ordered rather than parallel: M-031's marketplace bootstrap consists of the install commands M-030 creates, so shipping it first would produce a bootstrap that hands the user the manual table.
 
 **Carrier:** the milestone rows in [P-007](../plans/P-007-core-hardening.md) and its mutation rules; this record is the revision's backing under [PDR-008](PDR-008-plan-revisions-may-ride.md).
 

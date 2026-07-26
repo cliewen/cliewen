@@ -10,19 +10,19 @@ SDD frameworks document the *change*; Cliewen documents the *system*. Changes ar
 
 ## Install
 
-`clue` is a single binary with no runtime dependencies. Use your package manager:
+`clue` is a single binary with no runtime dependencies. One command:
 
 ```sh
-brew install cliewen/tap/clue        # macOS and Linux
-winget install --exact --id Cliewen.Clue   # Windows
+curl -fsSL https://cliewen.dev/install.sh | sh          # macOS and Linux
+irm https://cliewen.dev/install.ps1 | iex               # Windows (PowerShell)
 go install github.com/cliewen/cliewen/cmd/clue@latest   # any host with Go
 ```
 
-Then `clue version` should print the release you installed. Upgrades are `brew upgrade clue` or `winget upgrade Cliewen.Clue` — note that either moves the binary only, so a repository whose committed skills lag will report drift until you update them too.
+Open a new terminal, then `clue version` should print the release you installed. The script detects your platform, downloads the matching binary, and verifies it against the release's `SHA256SUMS` before installing — a mismatch stops with nothing written. It needs no administrator rights; `CLUE_INSTALL` and `CLUE_VERSION` override the target directory and release. Upgrading is the same command again, which moves the binary only, so a repository whose committed skills lag will report drift until you update those too.
 
 ### Download a binary instead
 
-For a host with no package manager, open the [latest release](https://github.com/cliewen/cliewen/releases/latest) and download `SHA256SUMS` plus the asset for your machine into an otherwise empty directory:
+To install by hand, open the [latest release](https://github.com/cliewen/cliewen/releases/latest) and download `SHA256SUMS` plus the asset for your machine into an otherwise empty directory:
 
 | Machine | Release asset |
 |---|---|
@@ -37,7 +37,7 @@ Then:
 3. Move it into a directory on your user `PATH`. On Windows, a folder such as `%LOCALAPPDATA%\Programs\clue` works once added through "Edit environment variables for your account." On macOS and Linux, `~/.local/bin` is a common choice.
 4. Open a new terminal and run `clue version`. It should match the release you downloaded.
 
-The macOS binaries are unsigned and not notarized, so a *downloaded* binary can be blocked by Gatekeeper. First confirm the checksum matches, try `clue version` once, then open **System Settings → Privacy & Security** and click **Open Anyway**. Apple documents this exception in [Open a Mac app from an unknown developer](https://support.apple.com/guide/mac-help/open-a-mac-app-from-an-unknown-developer-mh40616/mac). A Homebrew install is not affected — a formula installs into the Cellar without the quarantine attribute.
+The macOS binaries are unsigned and not notarized, so a binary downloaded through a browser can be blocked by Gatekeeper. First confirm the checksum matches, try `clue version` once, then open **System Settings → Privacy & Security** and click **Open Anyway**. Apple documents this exception in [Open a Mac app from an unknown developer](https://support.apple.com/guide/mac-help/open-a-mac-app-from-an-unknown-developer-mh40616/mac). The install script is not affected — a download made outside the browser carries no quarantine attribute.
 
 The [installation guide](https://cliewen.dev/getting-started#_1-install-clue) has the same short path with a little more context, but it is not required for the quickstart.
 

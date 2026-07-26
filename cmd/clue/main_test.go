@@ -319,6 +319,53 @@ func TestSanity_ReleaseKeepsTheAssetNamesTheAdopterWallInstalls(t *testing.T) {
 	}
 }
 
+// Sanity: the published install scripts are the asset contract's second
+// dependent (ADR-030). They compose the same `clue-<version>-<os>-<arch>`
+// name the release emits and verify it against SHA256SUMS before writing
+// anything. A renamed asset must fail here, not in a stranger's terminal;
+// a script that stopped verifying would be worse than the manual steps it
+// replaces, because it removes the check while keeping the convenience.
+func TestSanity_InstallScriptsUseTheReleaseAssetContract(t *testing.T) {
+	for _, s := range []struct {
+		file  string
+		asset string
+		sums  []string
+	}{
+		{
+			file:  "install.sh",
+			asset: `clue-${version}-${os}-${arch}`,
+			sums:  []string{"SHA256SUMS", "sha256sum -c --ignore-missing SHA256SUMS", "shasum -a 256"},
+		},
+		{
+			file:  "install.ps1",
+			asset: `clue-$version-windows-$arch.exe`,
+			sums:  []string{"SHA256SUMS", "Get-FileHash"},
+		},
+	} {
+		data, err := os.ReadFile(filepath.Join("..", "..", "guide", "public", s.file))
+		if err != nil {
+			t.Errorf("published install script %s not found: %v — the documented install command would 404", s.file, err)
+			continue
+		}
+		body := string(data)
+		if !strings.Contains(body, s.asset) {
+			t.Errorf("%s does not compose the asset name %q — it and the release config must name the same file", s.file, s.asset)
+		}
+		for _, want := range s.sums {
+			if !strings.Contains(body, want) {
+				t.Errorf("%s does not reference %q — it must verify the download against the release checksums before installing", s.file, want)
+			}
+		}
+		// The guide tells readers no administrator rights are needed, and
+		// ADR-030 makes that a property of the decision, not a convenience.
+		for _, forbidden := range []string{"sudo ", "RunAs", "-Verb RunAs"} {
+			if strings.Contains(body, forbidden) {
+				t.Errorf("%s contains %q — the install must not require elevation", s.file, forbidden)
+			}
+		}
+	}
+}
+
 // Sanity: the release body is the tag's CHANGELOG.md section (ADR-012) —
 // user-facing, reviewed prose. GitHub's auto-generated notes (a PR dump
 // with contributor @mentions) must not come back.
