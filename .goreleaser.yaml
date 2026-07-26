@@ -1,7 +1,7 @@
 # clue ships (CAP-004, ADR-030): one `vX.Y.Z` tag produces the bare
 # versioned binaries every adopted repository already downloads by name,
-# plus the archives Homebrew and winget consume — all covered by a single
-# SHA256SUMS.
+# plus archives a future package-manager channel can consume — all covered
+# by a single SHA256SUMS.
 #
 # The `bare` archive's name_template is a PUBLIC CONTRACT, not an
 # implementation detail. Every repository that has run `clue init` carries
@@ -42,8 +42,9 @@ archives:
     formats: [binary]
     name_template: "clue-{{ .Version }}-{{ .Os }}-{{ .Arch }}"
 
-  # What the package managers consume. Homebrew wants a tarball, winget a
-  # zip; neither can install a bare binary from a release asset.
+  # For a future package-manager channel: Homebrew would want a tarball and
+  # winget a zip, and neither installs a bare binary from a release asset.
+  # Published now so adding one later changes no existing asset (ADR-030).
   - id: bundle
     ids: [clue]
     formats: [tar.gz]

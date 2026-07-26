@@ -30,6 +30,8 @@ There is a second problem underneath. The release publishes **bare binaries**, a
 
 The asset-name rule is the load-bearing half. A release artifact whose name appears in a file shipped into other people's repositories — and now in a script strangers are asked to pipe into a shell — is a published interface, not an implementation detail. Nothing about `clue-0.7.0-linux-amd64` announces that; naming it a contract is what makes the constraint reviewable instead of rediscovered.
 
+This revises one of [CAP-001](../capabilities/CAP-001-onboarding/design.md)'s accumulated design lessons. That lesson made release binaries the primary install path and kept installer scripts out of a newcomer's first encounter. It was written while a package manager was assumed reachable; the manual route becomes the documented fallback, and the lesson records the revision in place rather than being deleted.
+
 **Carrier:** `guide/public/install.sh` and `guide/public/install.ps1`; `.goreleaser.yaml` (machine); `TestSanity_ReleaseKeepsTheAssetNamesTheAdopterWallInstalls` and `TestSanity_InstallScriptsUseTheReleaseAssetContract`, which tie the emitted asset names to both dependents so they cannot drift apart silently.
 
 ### Rejected: a Homebrew formula covering macOS and Linux

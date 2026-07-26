@@ -423,7 +423,7 @@ func TestSanity_ReleaseRunsTheJudgeStampedAsTheTag(t *testing.T) {
 		t.Error("the stamped step does not take VERSION from the tag — an empty stamp is exempt from the drift rule, so the gate would pass on any corpus")
 	}
 	// Nothing goreleaser touches may precede the gate: it builds, checksums,
-	// publishes, and commits the tap formula in one step, so a mismatched tag
+	// checksums and publishes in one step, so a mismatched tag
 	// must be refused before it runs at all. A marker that has vanished is a
 	// hole, not a pass — the earlier form used `i >= 0 && i < m[0]`, which
 	// silently guarded nothing once its step was renamed.
