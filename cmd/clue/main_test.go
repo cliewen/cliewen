@@ -4,6 +4,7 @@ import (
 	"go/ast"
 	"go/parser"
 	"go/token"
+	"io"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -205,24 +206,90 @@ func TestSanity_ReleaseNotesComeFromChangelog(t *testing.T) {
 
 // Sanity: the release runs the shipped drift rule stamped as its own tag
 // (ADR-011), before anything is built or published. A tag that disagrees
-// with the skills' frontmatter stamp must fail here; the alternative is an
+// with the skills' frontmatter stamp must fail there; the alternative is an
 // adopter meeting the mismatch as unexplained drift in their repository.
+// The workflow's own arguments are executed, not merely read, so the gate
+// is judged by what it does: refuse a mismatch naming both versions, admit
+// agreement, and keep an undigested workspace out of a release.
 func TestSanity_ReleaseRunsTheJudgeStampedAsTheTag(t *testing.T) {
 	data, err := os.ReadFile(filepath.Join("..", "..", ".github", "workflows", "release.yml"))
 	if err != nil {
 		t.Fatalf("release workflow not found: %v", err)
 	}
 	wf := string(data)
-	gate := regexp.MustCompile(`main\.version=\$\{VERSION\}[^\n]*\./cmd/clue validate`)
-	loc := gate.FindStringIndex(wf)
-	if loc == nil {
-		t.Fatal("release workflow never runs clue validate stamped with the tag's version — nothing compares the tag to the shipped skill stamp")
+	gate := regexp.MustCompile(`run: go run -ldflags "-X main\.version=\$\{VERSION\}" \./cmd/clue ([^\n]+)`)
+	m := gate.FindStringSubmatchIndex(wf)
+	if m == nil {
+		t.Fatal("release workflow never runs clue stamped with the tag's version — nothing compares the tag to the shipped skill stamp")
+	}
+	if !strings.Contains(wf[:m[0]], "VERSION: ${{ steps.version.outputs.v }}") {
+		t.Error("the stamped step does not take VERSION from the tag — the gate would compare the skills against something other than the release")
 	}
 	for _, later := range []string{"Build cross-platform binaries", "action-gh-release"} {
-		if i := strings.Index(wf, later); i >= 0 && i < loc[0] {
-			t.Errorf("the stamped validate step runs after %q — a mismatched tag must fail before any artifact exists", later)
+		if i := strings.Index(wf, later); i >= 0 && i < m[0] {
+			t.Errorf("the stamped step runs after %q — a mismatched tag must fail before any artifact exists", later)
 		}
 	}
+
+	args := strings.Fields(wf[m[2]:m[3]])
+	if len(args) == 0 || args[0] != "validate" {
+		t.Fatalf("the stamped step runs %q, not validate — the drift rule is never reached", args)
+	}
+
+	// The arguments the release actually passes, against a corpus whose
+	// skills lag the stamp: exit 1, naming both versions.
+	root := validCorpus(t)
+	writeFile(t, root, ".agents/skills/clue-delta/skill.md", "---\ncliewen-skill: true\nversion: 0.1.0\n---\n\n# clue-delta\n")
+	// runValidate receives the arguments after the subcommand, as main does.
+	runArgs := append(append([]string{}, args[1:]...), root)
+	old := version
+	defer func() { version = old }()
+
+	version = "0.2.0"
+	code, out := runValidateCapturingStdout(t, runArgs)
+	if code != 1 {
+		t.Errorf("tag 0.2.0 against skills at 0.1.0: expected exit 1, got %d — the release would ship a self-inconsistent pair", code)
+	}
+	for _, want := range []string{"0.1.0", "0.2.0"} {
+		if !strings.Contains(out, want) {
+			t.Errorf("the refusal does not name %s: %q — the maintainer cannot see which half to bump", want, out)
+		}
+	}
+
+	version = "0.1.0"
+	if code, _ = runValidateCapturingStdout(t, runArgs); code != 0 {
+		t.Errorf("tag 0.1.0 against skills at 0.1.0: expected exit 0, got %d — releases that agree must not be blocked", code)
+	}
+
+	// --forbid-changes is load-bearing in this step: an undigested
+	// workspace must not reach a release either.
+	writeFile(t, root, "changes/CH-009-x/proposal.md", "---\nid: CH-009\ntype: change\nstatus: open\nlinks: []\ntitle: X\n---\n")
+	if code, _ = runValidateCapturingStdout(t, runArgs); code != 1 {
+		t.Errorf("undigested workspace at a matching tag: expected exit 1, got %d — the release step dropped --forbid-changes", code)
+	}
+}
+
+// runValidateCapturingStdout runs the validate command and returns its exit
+// code with the issue lines it printed, which is where the drift rule names
+// the two versions.
+func runValidateCapturingStdout(t *testing.T, args []string) (int, string) {
+	t.Helper()
+	r, w, err := os.Pipe()
+	if err != nil {
+		t.Fatalf("pipe: %v", err)
+	}
+	old := os.Stdout
+	os.Stdout = w
+	code := runValidate(args)
+	os.Stdout = old
+	if err := w.Close(); err != nil {
+		t.Fatalf("close pipe: %v", err)
+	}
+	out, err := io.ReadAll(r)
+	if err != nil {
+		t.Fatalf("read pipe: %v", err)
+	}
+	return code, string(out)
 }
 
 type communityIssueForm struct {
