@@ -222,8 +222,15 @@ func TestSanity_ReleaseRunsTheJudgeStampedAsTheTag(t *testing.T) {
 	if m == nil {
 		t.Fatal("release workflow never runs clue stamped with the tag's version — nothing compares the tag to the shipped skill stamp")
 	}
-	if !strings.Contains(wf[:m[0]], "VERSION: ${{ steps.version.outputs.v }}") {
-		t.Error("the stamped step does not take VERSION from the tag — the gate would compare the skills against something other than the release")
+	// Scoped to this step: an empty ${VERSION} is exempt from the drift
+	// rule, so a stamp wired from nothing fails open and ships the
+	// mismatch. Another step's env does not vouch for this one.
+	step := wf[:m[0]]
+	if i := strings.LastIndex(step, "- name:"); i >= 0 {
+		step = step[i:]
+	}
+	if !strings.Contains(step, "VERSION: ${{ steps.version.outputs.v }}") {
+		t.Error("the stamped step does not take VERSION from the tag — an empty stamp is exempt from the drift rule, so the gate would pass on any corpus")
 	}
 	for _, later := range []string{"Build cross-platform binaries", "action-gh-release"} {
 		if i := strings.Index(wf, later); i >= 0 && i < m[0] {
@@ -278,10 +285,11 @@ func runValidateCapturingStdout(t *testing.T, args []string) (int, string) {
 	if err != nil {
 		t.Fatalf("pipe: %v", err)
 	}
+	defer func() { _ = r.Close() }()
 	old := os.Stdout
+	defer func() { os.Stdout = old }()
 	os.Stdout = w
 	code := runValidate(args)
-	os.Stdout = old
 	if err := w.Close(); err != nil {
 		t.Fatalf("close pipe: %v", err)
 	}
