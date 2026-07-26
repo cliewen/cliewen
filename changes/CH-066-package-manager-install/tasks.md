@@ -20,9 +20,9 @@ title: Tasks for CH-066
 - [x] Prove each new guard bites by mutating the config it judges: renamed checksum, renamed bare asset, removed bare archive, re-enabled changelog generator, dropped `-trimpath` — all five refused
 - [x] Dry-run goreleaser locally: settle whether `formats: [binary]` appends `.exe` on Windows, and prove `sha256sum -c --ignore-missing SHA256SUMS` still passes — both confirmed; `SHA256SUMS` records upload names, so the adopter wall verifies unchanged
 - [x] Pin an exact goreleaser version and record why: `brews:` is deprecated but is the only channel serving macOS and Linux from one formula
-- [ ] Lead `guide/getting-started.md` with the package-manager commands and demote the manual download to a fallback
-- [ ] Record in `guide/operations.md` that upgrading the binary alone produces a correct drift report, not a bug
-- [ ] Mirror the install restructure in `README.md`
-- [ ] Rewrite CAP-004's release-pipeline design for goreleaser and add the append-only asset rule to its deliberate limits
-- [ ] Add the `[Unreleased]` changelog entry
-- [ ] Run repository and corpus verification
+- [x] Lead `guide/getting-started.md` with the package-manager commands and demote the manual download to a fallback
+- [x] Record in `guide/operations.md` that upgrading the binary alone produces a correct drift report, not a bug
+- [x] Mirror the install restructure in `README.md`
+- [x] Rewrite CAP-004's release-pipeline design for goreleaser and add the append-only asset rule to its deliberate limits
+- [x] Add the `[Unreleased]` changelog entry
+- [x] Run repository and corpus verification
