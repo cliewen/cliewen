@@ -222,12 +222,18 @@ func TestSanity_ReleaseRunsTheJudgeStampedAsTheTag(t *testing.T) {
 	if m == nil {
 		t.Fatal("release workflow never runs clue stamped with the tag's version — nothing compares the tag to the shipped skill stamp")
 	}
-	// Scoped to this step: an empty ${VERSION} is exempt from the drift
-	// rule, so a stamp wired from nothing fails open and ships the
-	// mismatch. Another step's env does not vouch for this one.
-	step := wf[:m[0]]
-	if i := strings.LastIndex(step, "- name:"); i >= 0 {
-		step = step[i:]
+	// Scoped to this step and to the whole of it, in whatever order its
+	// keys are written: an empty ${VERSION} is exempt from the drift rule,
+	// so a stamp wired from nothing fails open and ships the mismatch.
+	// Another step's env does not vouch for this one.
+	const stepMark = "\n      - " // a step boundary in the job's steps: list
+	i := strings.LastIndex(wf[:m[0]], stepMark)
+	if i < 0 {
+		t.Fatal("the stamped run line is not inside a step of the job's steps: list — the env it is judged against cannot be identified")
+	}
+	step := wf[i:]
+	if j := strings.Index(step[len(stepMark):], stepMark); j >= 0 {
+		step = step[:len(stepMark)+j]
 	}
 	if !strings.Contains(step, "VERSION: ${{ steps.version.outputs.v }}") {
 		t.Error("the stamped step does not take VERSION from the tag — an empty stamp is exempt from the drift rule, so the gate would pass on any corpus")
@@ -241,6 +247,16 @@ func TestSanity_ReleaseRunsTheJudgeStampedAsTheTag(t *testing.T) {
 	args := strings.Fields(wf[m[2]:m[3]])
 	if len(args) == 0 || args[0] != "validate" {
 		t.Fatalf("the stamped step runs %q, not validate — the drift rule is never reached", args)
+	}
+	// runValidate parses with flag.ExitOnError, which exits the process on
+	// an unknown flag: executing one would take the test binary down with
+	// no message at all. Refuse it legibly instead — a step that grows a
+	// flag teaches this test what the flag does to the gate first.
+	executable := map[string]bool{"--forbid-changes": true}
+	for _, a := range args[1:] {
+		if strings.HasPrefix(a, "-") && !executable[a] {
+			t.Fatalf("the stamped step passes %q, which this test cannot execute — assert what the flag does to the gate below, then add it to the executable set", a)
+		}
 	}
 
 	// The arguments the release actually passes, against a corpus whose
@@ -286,6 +302,18 @@ func runValidateCapturingStdout(t *testing.T, args []string) (int, string) {
 		t.Fatalf("pipe: %v", err)
 	}
 	defer func() { _ = r.Close() }()
+	// Drain while validate writes: a pipe holds one buffer's worth, so
+	// reading only after the writer closes would deadlock the moment the
+	// corpus reports more issues than that.
+	type captured struct {
+		out string
+		err error
+	}
+	done := make(chan captured, 1)
+	go func() {
+		out, readErr := io.ReadAll(r)
+		done <- captured{string(out), readErr}
+	}()
 	old := os.Stdout
 	defer func() { os.Stdout = old }()
 	os.Stdout = w
@@ -293,11 +321,11 @@ func runValidateCapturingStdout(t *testing.T, args []string) (int, string) {
 	if err := w.Close(); err != nil {
 		t.Fatalf("close pipe: %v", err)
 	}
-	out, err := io.ReadAll(r)
-	if err != nil {
-		t.Fatalf("read pipe: %v", err)
+	got := <-done
+	if got.err != nil {
+		t.Fatalf("read pipe: %v", got.err)
 	}
-	return code, string(out)
+	return code, got.out
 }
 
 type communityIssueForm struct {
