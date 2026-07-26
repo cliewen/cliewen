@@ -13,7 +13,7 @@
 #
 # This script downloads the same `clue-<version>-<os>-<arch>.exe` asset the
 # release publishes for every other channel (ADR-030). Those names are an
-# append-only contract; TestSanity_InstallScriptUsesTheReleaseAssetContract
+# append-only contract; TestSanity_InstallScriptsUseTheReleaseAssetContract
 # holds this file to them.
 
 $ErrorActionPreference = 'Stop'
@@ -29,10 +29,20 @@ $arch = switch ($env:PROCESSOR_ARCHITECTURE) {
 
 $version = $env:CLUE_VERSION
 if (-not $version) {
-    $latest = Invoke-RestMethod -Uri "https://api.github.com/repos/$repo/releases/latest" -Headers @{ 'User-Agent' = 'clue-install' }
-    if (-not $latest.tag_name) { throw 'Could not determine the latest release; set CLUE_VERSION=<x.y.z> and retry.' }
-    $version = $latest.tag_name -replace '^v', ''
+    # The /releases/latest redirect ends in the tag: no API token, and not
+    # subject to api.github.com's unauthenticated rate limit, which a
+    # shared address can exhaust.
+    try {
+        $head = Invoke-WebRequest -Uri "https://github.com/$repo/releases/latest" -Method Head -MaximumRedirection 0 -ErrorAction Stop
+        $location = $head.Headers['Location']
+    } catch {
+        $location = $_.Exception.Response.Headers.Location.ToString()
+    }
+    if (-not $location) { throw 'Could not determine the latest release; set CLUE_VERSION=<x.y.z> and retry.' }
+    $version = ($location -split '/')[-1]
 }
+# Accept 0.7.0 or v0.7.0; the asset names carry bare semver (ADR-011).
+$version = $version -replace '^v', ''
 
 $asset = "clue-$version-windows-$arch.exe"
 $base = "https://github.com/$repo/releases/download/v$version"
@@ -59,14 +69,30 @@ try {
     Remove-Item $tmp -Recurse -Force -ErrorAction SilentlyContinue
 }
 
-# Persist the PATH entry for the user, not the machine, so no elevation is
-# needed. The current session is updated separately: a change made here
-# does not reach an already-running shell.
-$userPath = [Environment]::GetEnvironmentVariable('Path', 'User')
-if ($userPath -notlike "*$installDir*") {
-    [Environment]::SetEnvironmentVariable('Path', "$userPath;$installDir", 'User')
+# Add to the user's PATH, never the machine's, so no elevation is needed.
+#
+# The raw registry value is read and rewritten deliberately:
+# [Environment]::GetEnvironmentVariable expands a REG_EXPAND_SZ value on
+# read, so the obvious read-modify-write would silently replace entries
+# like %JAVA_HOME%\bin with whatever they happened to resolve to, and
+# store the result as a plain string. That quietly breaks a PATH the user
+# wrote to track their variables — on a machine this script was only asked
+# to install one binary on.
+$envKey = 'HKCU:\Environment'
+$raw = (Get-Item $envKey).GetValue('Path', '', 'DoNotExpandEnvironmentNames')
+$entries = @($raw -split ';' | Where-Object { $_ -ne '' })
+
+if ($entries -notcontains $installDir) {
+    $updated = (@($entries) + $installDir) -join ';'
+    Set-ItemProperty -Path $envKey -Name Path -Value $updated -Type ExpandString
     Write-Host "Added $installDir to your user PATH."
     Write-Host 'Open a new terminal, then run `clue version` to confirm.'
 } else {
     Write-Host 'Run `clue version` to confirm, then `clue init` in a repository.'
+}
+
+# The registry write above does not reach this session or any other shell
+# already running; update this one so `clue` works immediately here too.
+if (($env:Path -split ';') -notcontains $installDir) {
+    $env:Path = "$env:Path;$installDir"
 }

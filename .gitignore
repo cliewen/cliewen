@@ -10,6 +10,11 @@ coverage.out
 # goreleaser output (local dry runs; CI builds it fresh with --clean)
 /dist/
 
+# The release body the workflow extracts from CHANGELOG.md before building.
+# goreleaser refuses to release from a dirty tree, and an untracked file is
+# dirty — so leaving this unignored fails every tagged release at publish.
+/release-notes.md
+
 # public guide build output
 node_modules/
 guide/.vitepress/cache/
