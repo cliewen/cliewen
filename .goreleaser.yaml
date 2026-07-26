@@ -1,0 +1,108 @@
+# clue ships (CAP-004, ADR-030): one `vX.Y.Z` tag produces the bare
+# versioned binaries every adopted repository already downloads by name,
+# plus the archives Homebrew and winget consume — all covered by a single
+# SHA256SUMS.
+#
+# The `bare` archive's name_template is a PUBLIC CONTRACT, not an
+# implementation detail. Every repository that has run `clue init` carries
+# .github/workflows/clue.yml, which downloads `clue-<version>-linux-amd64`
+# by name and runs `install -m 0755` on it. Renaming these assets breaks
+# all of them at their next CI run, with no change in those repositories to
+# explain it. Assets are append-only: a new channel may add, never rename.
+# TestSanity_ReleaseKeepsTheAssetNamesTheAdopterWallInstalls holds this.
+version: 2
+
+project_name: clue
+
+builds:
+  - id: clue
+    main: ./cmd/clue
+    binary: clue
+    env:
+      - CGO_ENABLED=0
+    flags:
+      - -trimpath
+    # Bare semver, `v` already stripped by goreleaser — the form ADR-011
+    # requires so the drift rule can compare the binary against the skills'
+    # frontmatter stamp with a string equality.
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    # The binary embeds the commit's timestamp, not the runner's clock, so
+    # re-running a tag reproduces the same bytes.
+    mod_timestamp: "{{ .CommitTimestamp }}"
+    goos: [linux, darwin, windows]
+    goarch: [amd64, arm64]
+
+archives:
+  # The compatibility surface: the same six assets the hand-rolled build
+  # loop published, under the same six names. goreleaser carries the .exe
+  # extension into the Windows asset name, so those two are unchanged too.
+  - id: bare
+    ids: [clue]
+    formats: [binary]
+    name_template: "clue-{{ .Version }}-{{ .Os }}-{{ .Arch }}"
+
+  # What the package managers consume. Homebrew wants a tarball, winget a
+  # zip; neither can install a bare binary from a release asset.
+  - id: bundle
+    ids: [clue]
+    formats: [tar.gz]
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+    name_template: "clue_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    wrap_in_directory: false
+    files:
+      - LICENSE
+      - README.md
+      - CHANGELOG.md
+
+checksum:
+  algorithm: sha256
+  # An adopter's wall runs `sha256sum -c --ignore-missing SHA256SUMS`
+  # against a file it vendored under this exact name. Not renameable.
+  # --ignore-missing is why adding the archives above breaks nothing:
+  # the checksum file lists the upload names, extra lines included.
+  name_template: "SHA256SUMS"
+
+# The release body is the tag's CHANGELOG.md section, passed by the
+# workflow as --release-notes (ADR-012). GoReleaser's own generator is a
+# commit dump with @mentions — exactly what ADR-012 refuses — so it is
+# disabled here rather than merely overridden at the call site.
+changelog:
+  disable: true
+
+release:
+  github:
+    owner: cliewen
+    name: cliewen
+  name_template: "{{ .Tag }}"
+  draft: false
+  prerelease: auto
+
+# A formula, not a cask, and deliberately so: Homebrew casks are macOS-only,
+# so `homebrew_casks:` would drop Linux back to the manual download this
+# milestone exists to remove. `brews:` is deprecated upstream and makes
+# `goreleaser check` exit non-zero — which is why the workflow pins an exact
+# goreleaser version rather than a range. ADR-030 records the migration, and
+# that signing and notarizing the macOS binaries is its prerequisite.
+brews:
+  - name: clue
+    ids: [bundle]
+    repository:
+      owner: cliewen
+      name: homebrew-tap
+      branch: main
+      token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
+    directory: Formula
+    homepage: "https://cliewen.dev"
+    description: "The Cliewen corpus judge — keeps goal, capability, acceptance criterion and test connected in Git"
+    license: "Apache-2.0"
+    commit_author:
+      name: cliewen-release
+      email: release@cliewen.dev
+    commit_msg_template: "clue {{ .Version }}"
+    install: |
+      bin.install "clue"
+    test: |
+      assert_match version.to_s, shell_output("#{bin}/clue version")

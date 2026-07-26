@@ -1,9 +1,13 @@
-# clue ships (P-002/M-004): a `vX.Y.Z` tag builds cross-platform binaries,
-# each stamped with the tag's version via ldflags, and publishes them as a
-# GitHub release for `gh release download`. The stamped string is bare
-# semver (the leading `v` is stripped, ADR-011) so it can be compared with
-# the skills' frontmatter version; the gate below performs that comparison
-# rather than assuming it holds.
+# clue ships (P-002/M-004, P-007/M-030): a `vX.Y.Z` tag builds cross-platform
+# binaries, each stamped with the tag's version via ldflags, and publishes
+# them as a GitHub release for `gh release download`. The stamped string is
+# bare semver (the leading `v` is stripped, ADR-011) so it can be compared
+# with the skills' frontmatter version; the gate below performs that
+# comparison rather than assuming it holds.
+#
+# The build matrix, the asset names, and the checksum file live in
+# .goreleaser.yaml (ADR-030) — that file, not this one, is where a release's
+# published interface is defined, and the sanity tests judge it there.
 #
 # workflow_dispatch is allowed only against a tag ref (re-running a release):
 # the guard below rejects any non-tag ref, so dispatching from a branch can
@@ -23,7 +27,11 @@ jobs:
     name: Build binaries
     runs-on: ubuntu-latest
     steps:
+      # GoReleaser derives the version from the tag and refuses a shallow
+      # clone; nothing below this line can run without full history.
       - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
       - uses: actions/setup-go@v7
         with:
           go-version: stable
@@ -73,29 +81,23 @@ jobs:
       - name: Run tests
         run: go test ./...
 
-      - name: Build cross-platform binaries
-        env:
-          VERSION: ${{ steps.version.outputs.v }}
-        run: |
-          mkdir -p dist
-          for target in linux/amd64 linux/arm64 darwin/amd64 darwin/arm64 windows/amd64 windows/arm64; do
-            os="${target%/*}"; arch="${target#*/}"
-            out="clue-${VERSION}-${os}-${arch}"
-            ext=""; [ "$os" = "windows" ] && ext=".exe"
-            echo "building ${out}${ext}"
-            GOOS="$os" GOARCH="$arch" CGO_ENABLED=0 \
-              go build -trimpath -ldflags "-s -w -X main.version=${VERSION}" \
-              -o "dist/${out}${ext}" ./cmd/clue
-          done
-
-      - name: Checksums
-        run: cd dist && sha256sum * > SHA256SUMS
-
-      # Pinned by commit SHA: this third-party action runs with
-      # contents: write and publishes the artifacts.
-      - name: Publish GitHub release
-        uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65 # v2
+      # Builds every target, writes SHA256SUMS, publishes the release, and
+      # commits the Homebrew formula — all from .goreleaser.yaml, so the
+      # asset names an adopter's CI wall depends on have one definition.
+      # --release-notes keeps the body the reviewed CHANGELOG section
+      # (ADR-012), overriding goreleaser's own generator, which the config
+      # also disables. Pinned by commit SHA: this third-party action runs
+      # with contents: write and publishes the artifacts.
+      - name: Build and publish with GoReleaser
+        uses: goreleaser/goreleaser-action@f06c13b6b1a9625abc9e6e439d9c05a8f2190e94 # v7.2.3
         with:
-          name: ${{ github.ref_name }}
-          files: dist/*
-          body_path: release-notes.md
+          distribution: goreleaser
+          # Exact, not a range. The config uses `brews:`, which upstream has
+          # deprecated (ADR-030); a floating range would let an upstream
+          # removal break a release with no change on our side. Bumping this
+          # is a deliberate act that reruns the dry run.
+          version: "2.17.1"
+          args: release --clean --release-notes=release-notes.md
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          HOMEBREW_TAP_GITHUB_TOKEN: ${{ secrets.HOMEBREW_TAP_GITHUB_TOKEN }}

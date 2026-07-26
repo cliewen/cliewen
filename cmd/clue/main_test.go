@@ -159,29 +159,163 @@ func TestAC033_RunValidateThreadsVersionIntoDriftRule(t *testing.T) {
 	}
 }
 
-// Sanity: the release workflow builds versioned cross-platform binaries.
-// A repo invariant guarding M-004's release pipeline against regression;
-// the operational proof is the first tagged release itself.
-func TestSanity_ReleaseWorkflowIsCrossPlatform(t *testing.T) {
+func readReleaseWorkflow(t *testing.T) string {
+	t.Helper()
 	data, err := os.ReadFile(filepath.Join("..", "..", ".github", "workflows", "release.yml"))
 	if err != nil {
 		t.Fatalf("release workflow not found: %v", err)
 	}
-	wf := string(data)
-	for _, want := range []string{"main.version", "linux", "darwin", "windows", "arm64", "amd64", "go test", "SHA256SUMS"} {
-		if !strings.Contains(wf, want) {
-			t.Errorf("release workflow does not mention %q — expected a tested, stamped, checksummed cross-platform build", want)
+	return string(data)
+}
+
+// The build matrix, the stamp, the checksum name, and the published asset
+// names moved out of the workflow's shell loop into goreleaser's config
+// (ADR-030). The invariants did not move, so they are judged where they now
+// live — parsed, so a key in a comment or a stray substring cannot satisfy
+// them the way `strings.Contains(wf, "linux")` once could.
+type goreleaserConfig struct {
+	Builds []struct {
+		Main         string   `yaml:"main"`
+		Binary       string   `yaml:"binary"`
+		Env          []string `yaml:"env"`
+		Flags        []string `yaml:"flags"`
+		Ldflags      []string `yaml:"ldflags"`
+		Goos         []string `yaml:"goos"`
+		Goarch       []string `yaml:"goarch"`
+		ModTimestamp string   `yaml:"mod_timestamp"`
+	} `yaml:"builds"`
+	Archives []struct {
+		ID           string   `yaml:"id"`
+		Formats      []string `yaml:"formats"`
+		NameTemplate string   `yaml:"name_template"`
+	} `yaml:"archives"`
+	Checksum struct {
+		Algorithm    string `yaml:"algorithm"`
+		NameTemplate string `yaml:"name_template"`
+	} `yaml:"checksum"`
+	Changelog struct {
+		Disable bool `yaml:"disable"`
+	} `yaml:"changelog"`
+}
+
+func readGoreleaserConfig(t *testing.T) goreleaserConfig {
+	t.Helper()
+	data, err := os.ReadFile(filepath.Join("..", "..", ".goreleaser.yaml"))
+	if err != nil {
+		t.Fatalf("goreleaser config not found: %v — the release's build matrix and asset names have no definition", err)
+	}
+	var cfg goreleaserConfig
+	if err := yaml.Unmarshal(data, &cfg); err != nil {
+		t.Fatalf("goreleaser config does not parse: %v", err)
+	}
+	return cfg
+}
+
+func contains(hay []string, needle string) bool {
+	for _, h := range hay {
+		if h == needle {
+			return true
 		}
 	}
+	return false
+}
+
+// Sanity: the release builds versioned cross-platform binaries.
+// A repo invariant guarding M-004's release pipeline against regression;
+// the operational proof is the first tagged release itself.
+func TestSanity_ReleaseWorkflowIsCrossPlatform(t *testing.T) {
+	wf := readReleaseWorkflow(t)
+	cfg := readGoreleaserConfig(t)
+
+	if len(cfg.Builds) != 1 {
+		t.Fatalf("goreleaser defines %d builds, expected exactly 1 — a second build could ship an unstamped clue", len(cfg.Builds))
+	}
+	b := cfg.Builds[0]
+	for _, want := range []string{"linux", "darwin", "windows"} {
+		if !contains(b.Goos, want) {
+			t.Errorf("goreleaser does not build for %s — a release must cover every supported host", want)
+		}
+	}
+	for _, want := range []string{"amd64", "arm64"} {
+		if !contains(b.Goarch, want) {
+			t.Errorf("goreleaser does not build for %s", want)
+		}
+	}
+	stamped := false
+	for _, f := range b.Ldflags {
+		if strings.Contains(f, "-X main.version={{ .Version }}") {
+			stamped = true
+		}
+	}
+	if !stamped {
+		t.Error("goreleaser does not stamp main.version from the tag — the binary could not report its version, and the drift rule would have nothing to compare")
+	}
+	if !contains(b.Flags, "-trimpath") {
+		t.Error("goreleaser does not pass -trimpath — released binaries would embed the runner's paths")
+	}
+	if !contains(b.Env, "CGO_ENABLED=0") {
+		t.Error("goreleaser does not disable cgo — a released binary could acquire a runtime dependency (ADR-001: install is one download)")
+	}
+	if b.ModTimestamp == "" {
+		t.Error("goreleaser does not set mod_timestamp — re-running the same tag would produce different bytes")
+	}
+	// An adopter's wall verifies a file it vendored under this exact name.
+	if cfg.Checksum.NameTemplate != "SHA256SUMS" {
+		t.Errorf("the checksum file is named %q, not SHA256SUMS — every adopted repo's vendored CI wall verifies that exact name", cfg.Checksum.NameTemplate)
+	}
+
 	// A manual dispatch must not publish a branch-named release: the ref
 	// must be guarded to a tag before anything is built.
 	if !strings.Contains(wf, "GITHUB_REF_TYPE") {
 		t.Error("release workflow does not guard GITHUB_REF_TYPE — a branch dispatch could publish a branch-named release")
 	}
+	// A tag can land on any commit; nothing ships untested.
+	if !strings.Contains(wf, "go test") {
+		t.Error("release workflow does not run the tests before publishing")
+	}
 	// The publishing action runs with contents: write; a mutable tag pin
 	// would let a moved tag ship different code into our releases.
-	if pin := regexp.MustCompile(`action-gh-release@[0-9a-f]{40}`); !pin.MatchString(wf) {
-		t.Error("release workflow does not pin action-gh-release by commit SHA")
+	if pin := regexp.MustCompile(`goreleaser/goreleaser-action@[0-9a-f]{40}`); !pin.MatchString(wf) {
+		t.Error("release workflow does not pin goreleaser-action by commit SHA")
+	}
+}
+
+// Sanity: the published asset names are an append-only contract (ADR-030).
+// internal/scaffold/templates/github/workflows/clue.yml is vendored into
+// every repository that ran `clue init`; it verifies SHA256SUMS and then
+// runs `install -m 0755 clue-${CLUE_VERSION}-linux-amd64`. A renamed asset
+// breaks all of them at their next CI run, with no change in those
+// repositories to explain it — so the release config and the scaffolded
+// wall must keep naming the same file.
+func TestSanity_ReleaseKeepsTheAssetNamesTheAdopterWallInstalls(t *testing.T) {
+	cfg := readGoreleaserConfig(t)
+
+	var bare string
+	for _, a := range cfg.Archives {
+		if len(a.Formats) == 1 && a.Formats[0] == "binary" {
+			bare = a.NameTemplate
+		}
+	}
+	if bare == "" {
+		t.Fatal("no archive emits format `binary` — the release would publish only wrapped archives, and every adopted repo's wall downloads a bare binary by name")
+	}
+	rendered := strings.NewReplacer(
+		"{{ .Version }}", "9.9.9", "{{.Version}}", "9.9.9",
+		"{{ .Os }}", "linux", "{{.Os}}", "linux",
+		"{{ .Arch }}", "amd64", "{{.Arch}}", "amd64",
+	).Replace(bare)
+	if rendered != "clue-9.9.9-linux-amd64" {
+		t.Fatalf("the bare asset name renders as %q, not clue-<version>-linux-amd64 — the vendored wall installs the latter", rendered)
+	}
+
+	wall, err := os.ReadFile(filepath.Join("..", "..", "internal", "scaffold", "templates", "github", "workflows", "clue.yml"))
+	if err != nil {
+		t.Fatalf("scaffolded CI wall template not found: %v", err)
+	}
+	for _, want := range []string{"clue-${CLUE_VERSION}-linux-amd64", "SHA256SUMS"} {
+		if !strings.Contains(string(wall), want) {
+			t.Errorf("the scaffolded wall no longer references %q — it and the release config must name the same asset", want)
+		}
 	}
 }
 
@@ -189,18 +323,21 @@ func TestSanity_ReleaseWorkflowIsCrossPlatform(t *testing.T) {
 // user-facing, reviewed prose. GitHub's auto-generated notes (a PR dump
 // with contributor @mentions) must not come back.
 func TestSanity_ReleaseNotesComeFromChangelog(t *testing.T) {
-	data, err := os.ReadFile(filepath.Join("..", "..", ".github", "workflows", "release.yml"))
-	if err != nil {
-		t.Fatalf("release workflow not found: %v", err)
-	}
-	wf := string(data)
-	for _, want := range []string{"CHANGELOG.md", "body_path"} {
+	wf := readReleaseWorkflow(t)
+	for _, want := range []string{"CHANGELOG.md", "--release-notes=release-notes.md"} {
 		if !strings.Contains(wf, want) {
 			t.Errorf("release workflow does not mention %q — the release body must be extracted from the changelog", want)
 		}
 	}
 	if strings.Contains(wf, "generate_release_notes") {
 		t.Error("release workflow enables generate_release_notes — release bodies are written for users in the changelog, not auto-generated")
+	}
+	// GoReleaser ships its own notes generator: a commit dump with
+	// contributor @mentions, the same thing ADR-012 refused. --release-notes
+	// overrides it, but a config that still asks for one is a loaded gun —
+	// drop the flag and the dump silently becomes the release body.
+	if cfg := readGoreleaserConfig(t); !cfg.Changelog.Disable {
+		t.Error("goreleaser's changelog generation is not disabled — the release body must come only from the reviewed CHANGELOG section")
 	}
 }
 
@@ -238,8 +375,17 @@ func TestSanity_ReleaseRunsTheJudgeStampedAsTheTag(t *testing.T) {
 	if !strings.Contains(step, "VERSION: ${{ steps.version.outputs.v }}") {
 		t.Error("the stamped step does not take VERSION from the tag — an empty stamp is exempt from the drift rule, so the gate would pass on any corpus")
 	}
-	for _, later := range []string{"Build cross-platform binaries", "action-gh-release"} {
-		if i := strings.Index(wf, later); i >= 0 && i < m[0] {
+	// Nothing goreleaser touches may precede the gate: it builds, checksums,
+	// publishes, and commits the tap formula in one step, so a mismatched tag
+	// must be refused before it runs at all. A marker that has vanished is a
+	// hole, not a pass — the earlier form used `i >= 0 && i < m[0]`, which
+	// silently guarded nothing once its step was renamed.
+	for _, later := range []string{"goreleaser/goreleaser-action", "release --clean"} {
+		i := strings.Index(wf, later)
+		if i < 0 {
+			t.Fatalf("release workflow no longer mentions %q — the ordering guard has nothing to hold; name whatever step now builds and publishes", later)
+		}
+		if i < m[0] {
 			t.Errorf("the stamped step runs after %q — a mismatched tag must fail before any artifact exists", later)
 		}
 	}

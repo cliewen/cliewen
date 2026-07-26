@@ -37,9 +37,11 @@ The conventional goreleaser layout, and what both package managers want. It brea
 
 One command on macOS and Linux, no tap repository, no upstream review. But it is a third artifact to keep matched to the release, it teaches piping a network fetch into a shell, and Homebrew already covers both platforms with a formula goreleaser writes for us. [CAP-001](../capabilities/CAP-001-onboarding/design.md)'s design has held since 2026-07-22 that the first encounter does not present installer scripts; nothing here disturbs that.
 
-### Rejected: a Homebrew cask instead of a formula
+### Rejected for now: a Homebrew cask instead of a formula
 
-`brews:` is deprecated in goreleaser in favour of `homebrew_casks:`, so a cask is the forward-looking choice. Two things rule it out for now: casks are macOS-only, which would split Linux onto a separate channel and lose the single-formula simplicity; and a cask install carries the quarantine attribute, which our unsigned, un-notarized macOS binaries do not survive — a formula installs into the Cellar without it. This is a known scheduled cost, not an oversight: when `brews:` is removed, the replacement is a macOS cask plus a Linux tarball channel, and signing and notarizing the macOS binaries becomes a prerequisite rather than a nicety.
+`brews:` is deprecated upstream in favour of `homebrew_casks:`, and `goreleaser check` exits non-zero on it, so a cask is the forward-looking choice. It is rejected because **Homebrew casks are macOS-only**. Adopting one now would drop Linux back to the six manual steps this decision exists to remove — a whole platform losing the outcome, to satisfy a deprecation that has not yet bitten. A cask also carries the quarantine attribute our unsigned, un-notarized macOS binaries do not survive, where a formula installs into the Cellar without it.
+
+The deprecation is therefore managed rather than ignored: **the release pins an exact goreleaser version rather than a version range**, so an upstream removal cannot break a release with no change on our side, and bumping the pin is a deliberate act that reruns the release dry run. Two things must be true before the migration: `homebrew_casks:` (or another channel) must cover Linux, and the macOS binaries must be signed and notarized. Until both hold, migrating trades a working install path for a tidier config.
 
 ### Deferred: winget in the same release
 
