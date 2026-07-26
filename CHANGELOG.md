@@ -6,7 +6,11 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 
 ### Added
 
-- **The guide now explains why Cliewen is designed the way it is.** A new page, *The design of Cliewen*, gives someone evaluating the methodology the argument behind the rules: the problem it answers (acceptance, not implementation, is the bottleneck), the first iteration's observed failures and the repairs drawn from them, the three protected core elements, the reason behind each principle including its token cost, how adopters extend the core, and the limits Cliewen states plainly — including the parts still open in the current hardening campaign.
+- **The guide now explains why Cliewen works the way it does.** If you are deciding whether to adopt it, the other pages tell you the rules; the new page, *The design of Cliewen*, gives you the argument. It says what problem the method is answering — that accepting a change, not writing it, is what agents made scarce — which failures of the earlier approach each rule repairs, which three parts cannot be changed without an explicit decision, what each principle costs you in tokens and time, how you extend the method with your own rules, and what Cliewen does not solve, including the gaps still open today.
+
+### Fixed
+
+- **A guide link pointed at a finished plan.** The corpus page invited you to browse Cliewen's "active public campaign" and linked one that finished several campaigns ago. It now links the plan actually being worked on.
 
 ## [0.7.0] - 2026-07-25
 
