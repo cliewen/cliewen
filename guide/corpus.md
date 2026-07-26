@@ -55,7 +55,7 @@ The log is for choices that do not need a full argument preserved. ADRs and PDRs
 
 ## See a living corpus
 
-Cliewen dogfoods the methodology. Browse its [corpus entry point](https://github.com/cliewen/cliewen/blob/main/docs/README.md), [active public campaign](https://github.com/cliewen/cliewen/blob/main/docs/plans/P-003-goes-public.md), or [validator capability](https://github.com/cliewen/cliewen/tree/main/docs/capabilities/CAP-002-validate) to see real artifacts rather than a toy example.
+Cliewen dogfoods the methodology. Browse its [corpus entry point](https://github.com/cliewen/cliewen/blob/main/docs/README.md), [active campaign](https://github.com/cliewen/cliewen/blob/main/docs/plans/P-007-core-hardening.md), or [validator capability](https://github.com/cliewen/cliewen/tree/main/docs/capabilities/CAP-002-validate) to see real artifacts rather than a toy example.
 
 ## Next
 

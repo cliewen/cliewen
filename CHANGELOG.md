@@ -2,6 +2,16 @@
 
 All notable, user-visible changes to `clue` and the Cliewen skills. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and versions follow semver. Each GitHub release body is this file's matching version section, extracted verbatim by the release workflow — a release with no section here fails.
 
+## [Unreleased]
+
+### Added
+
+- **The guide now explains why Cliewen works the way it does.** If you are deciding whether to adopt it, the other pages tell you the rules; the new page, *The design of Cliewen*, gives you the argument. It says what problem the method is answering — that accepting a change, not writing it, is what agents made scarce — which failures of the earlier approach each rule repairs, which three parts cannot be changed without an explicit decision, what each principle costs you in tokens and time, how you extend the method with your own rules, and what Cliewen does not solve, including the gaps still open today.
+
+### Fixed
+
+- **A guide link pointed at a finished plan.** The corpus page invited you to browse Cliewen's "active public campaign" and linked one that finished several campaigns ago. It now links the plan actually being worked on.
+
 ## [0.7.0] - 2026-07-25
 
 Mostly about moving a repository into Cliewen when it already keeps decision records of its own, plus two fixes for `clue` judging the same files differently depending on where it ran.
