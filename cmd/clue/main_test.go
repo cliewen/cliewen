@@ -203,6 +203,28 @@ func TestSanity_ReleaseNotesComeFromChangelog(t *testing.T) {
 	}
 }
 
+// Sanity: the release runs the shipped drift rule stamped as its own tag
+// (ADR-011), before anything is built or published. A tag that disagrees
+// with the skills' frontmatter stamp must fail here; the alternative is an
+// adopter meeting the mismatch as unexplained drift in their repository.
+func TestSanity_ReleaseRunsTheJudgeStampedAsTheTag(t *testing.T) {
+	data, err := os.ReadFile(filepath.Join("..", "..", ".github", "workflows", "release.yml"))
+	if err != nil {
+		t.Fatalf("release workflow not found: %v", err)
+	}
+	wf := string(data)
+	gate := regexp.MustCompile(`main\.version=\$\{VERSION\}[^\n]*\./cmd/clue validate`)
+	loc := gate.FindStringIndex(wf)
+	if loc == nil {
+		t.Fatal("release workflow never runs clue validate stamped with the tag's version — nothing compares the tag to the shipped skill stamp")
+	}
+	for _, later := range []string{"Build cross-platform binaries", "action-gh-release"} {
+		if i := strings.Index(wf, later); i >= 0 && i < loc[0] {
+			t.Errorf("the stamped validate step runs after %q — a mismatched tag must fail before any artifact exists", later)
+		}
+	}
+}
+
 type communityIssueForm struct {
 	Name        string `yaml:"name"`
 	Description string `yaml:"description"`
