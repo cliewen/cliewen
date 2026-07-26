@@ -51,4 +51,6 @@ ADRs and PDRs share the MADR format and two-tier provenance: `inferred` (binding
 - [ADR-027-quality-scenarios-are-constraints](ADR-027-quality-scenarios-are-constraints.md)
 - [ADR-028-deterministic-skill-manifest](ADR-028-deterministic-skill-manifest.md)
 - [ADR-029-accepted-by-is-cliewen-approval-only](ADR-029-accepted-by-is-cliewen-approval-only.md)
+- [ADR-030-package-manager-distribution](ADR-030-package-manager-distribution.md)
+- [PDR-014-distribution-reopens-on-the-active-campaign](PDR-014-distribution-reopens-on-the-active-campaign.md)
 <!-- clue:index:end -->
