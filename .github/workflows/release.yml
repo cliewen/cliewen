@@ -1,8 +1,9 @@
 # clue ships (P-002/M-004): a `vX.Y.Z` tag builds cross-platform binaries,
 # each stamped with the tag's version via ldflags, and publishes them as a
 # GitHub release for `gh release download`. The stamped string is bare
-# semver (the leading `v` is stripped, ADR-011) so it matches the skills'
-# frontmatter version and `clue validate`'s drift check agrees.
+# semver (the leading `v` is stripped, ADR-011) so it can be compared with
+# the skills' frontmatter version; the gate below performs that comparison
+# rather than assuming it holds.
 #
 # workflow_dispatch is allowed only against a tag ref (re-running a release):
 # the guard below rejects any non-tag ref, so dispatching from a branch can
@@ -55,6 +56,18 @@ jobs:
             echo "CHANGELOG.md has no '## [${VERSION}]' section with content; write user-facing notes before tagging (ADR-012)" >&2
             exit 1
           fi
+
+      # A release has two version inputs — the tag and the skills' own
+      # frontmatter stamp — and ADR-011 makes their disagreement a failure.
+      # Run the judge stamped exactly as the published binary will be, so
+      # the drift rule an adopter runs is applied here, where the mismatch
+      # can still be prevented, instead of surfacing in their repository
+      # with no local change to explain it. --forbid-changes keeps an
+      # undigested workspace out of a release the way CI keeps it off main.
+      - name: Require the shipped skills to match the tag
+        env:
+          VERSION: ${{ steps.version.outputs.v }}
+        run: go run -ldflags "-X main.version=${VERSION}" ./cmd/clue validate --forbid-changes
 
       # A tag can land on any commit; nothing ships untested.
       - name: Run tests

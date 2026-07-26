@@ -10,6 +10,7 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 
 ### Fixed
 
+- **A release can no longer ship a `clue` and skills that disagree about their version.** The version came from the git tag, while the skills carried a version written by hand, and nothing compared the two — so a forgotten bump published a binary and a skill set that contradicted each other. You would have met that as a drift error in your own repository, after installing both halves, with nothing you had done to explain it. Cutting a release now runs the same drift check you run, stamped as the tag, before anything is built: a mismatch stops the release and names both versions, so the pair you download always agrees with itself.
 - **A guide link pointed at a finished plan.** The corpus page invited you to browse Cliewen's "active public campaign" and linked one that finished several campaigns ago. It now links the plan actually being worked on.
 
 ## [0.7.0] - 2026-07-25
