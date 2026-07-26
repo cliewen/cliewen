@@ -73,6 +73,7 @@ export default defineConfig({
       {
         text: "How the method works",
         items: [
+          { text: "The design of Cliewen", link: "/design" },
           { text: "The verifiable thread", link: "/methodology" },
           { text: "The corpus", link: "/corpus" },
           { text: "The change loop", link: "/change-loop" },

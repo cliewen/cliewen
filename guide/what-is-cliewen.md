@@ -34,4 +34,4 @@ Cliewen is not an issue tracker, a project-management service, or a way to remov
 
 ## Next
 
-[See how the verifiable thread works.](./methodology)
+[Understand why Cliewen is designed the way it is.](./design)
