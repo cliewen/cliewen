@@ -54,6 +54,7 @@ ADRs and PDRs share the MADR format and two-tier provenance: `inferred` (binding
 - [PDR-014-distribution-reopens-on-the-active-campaign](PDR-014-distribution-reopens-on-the-active-campaign.md)
 - [ADR-030-verified-install-scripts](ADR-030-verified-install-scripts.md)
 - [ADR-031-plugin-ships-a-bootstrap-only](ADR-031-plugin-ships-a-bootstrap-only.md)
+- [ADR-032 — Acceptance criteria declare classified proof and paired directions](ADR-032-classified-ac-evidence.md) · `inferred`
 - [PDR-015-merging-cuts-the-release](PDR-015-merging-cuts-the-release.md)
 - [PDR-016 — Hosted PR state carries review findings and updater handoffs across agents](PDR-016-pr-state-carries-agent-handoffs.md) · `inferred` · refines PDR-007 clause 2 and supersedes clause 6
 - [PDR-017 — The human merge gate has a concise, durable acceptance brief](PDR-017-merge-gate-has-content.md) · `inferred`

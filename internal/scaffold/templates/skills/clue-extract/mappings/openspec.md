@@ -9,7 +9,7 @@ Layout: `openspec/config.yaml`, synced truth in `openspec/specs/<capability>/spe
 | `specs/<cap>/spec.md` | `docs/capabilities/CAP-xxx-<cap>/` — one capability per spec file |
 | Spec header + purpose prose | capability `README.md` (what/why, `goal:` link) |
 | `### Requirement:` + SHALL + `#### Scenario: <name> [ID]` | Gherkin scenarios in `criteria.md`, tag line `@<ID>` — keep the ID, whatever bracket/backtick notation the source used |
-| `Test-type:` line per scenario | plain body text inside the Gherkin scenario (per-AC required-types enforcement is a deliberate door, not yet built) |
+| `Test-type:` line per scenario | first body line inside the Gherkin scenario; preserve it as the declared proof class that `checkACTests` enforces |
 | Scenario ID prefix (e.g. `MG`) | `ac-prefix:` in that criteria.md frontmatter; a delta spanning several prefixes splits into one capability per prefix |
 | Pending change (`changes/<name>/`) | a milestone in the repo's plan **plus** a `status: draft` capability holding its criteria (draft = exempt from the test contract until implemented) and its design decisions in `design.md`; its tasks.md dies — `clue-delta` regenerates tasks when implementation starts |
 | `changes/archive/…` | git history only — no corpus artifact |

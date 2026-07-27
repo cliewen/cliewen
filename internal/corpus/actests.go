@@ -23,13 +23,19 @@ var (
 	testFuncRe     = regexp.MustCompile(`(?m)^func (Test\w*)\s*\(`)
 	fixedPurposeRe = regexp.MustCompile(`^Test(Unit|Sanity|Arch)(_\w*)?$`)
 	acNameRe       = regexp.MustCompile(`^Test([A-Z][A-Z0-9]*?)(\d+)(_\w*)?$`)
+	classifiedGoRe = regexp.MustCompile(`^Test([A-Z][A-Z0-9]*?)(\d+)_(Unit|Integration|E2E|Performance)(Positive|Negative)(_\w*)?$`)
 	jvmTagRe       = regexp.MustCompile(`@Tag\(\s*"([^"]+)"\s*\)`)
 	jvmACRe        = regexp.MustCompile(`^([A-Z][A-Z0-9]*)-(\d+)$`)
+	testTypeRe     = regexp.MustCompile(`^\s*Test-type:\s*(Unit|Integration|E2E|Performance)(\s+\(single-direction\))?\s*$`)
+	featureTagRe   = regexp.MustCompile(`@([A-Za-z][A-Za-z0-9-]*)`)
 )
 
 type acDecl struct {
 	path, status string
 	retired      bool
+	testType     string
+	single       bool
+	invalidType  bool
 }
 
 func checkACTests(c *Corpus) []Issue {
@@ -54,7 +60,8 @@ func checkACTests(c *Corpus) []Issue {
 		prefixes[prefix] = true
 		// Tag lines are read per line: `@AC-012 @retired` on one line is
 		// the tombstone form (ADR-007).
-		for _, line := range strings.Split(a.Body, "\n") {
+		lines := strings.Split(a.Body, "\n")
+		for i, line := range lines {
 			retired := strings.Contains(line, "@retired")
 			for _, m := range acTagRe.FindAllStringSubmatch(line, -1) {
 				ac := m[1] + "-" + m[2]
@@ -66,12 +73,28 @@ func checkACTests(c *Corpus) []Issue {
 					issues = append(issues, Issue{a.Path, "duplicate declaration of " + ac + " (already declared in " + prev.path + ")"})
 					continue
 				}
-				declared[ac] = acDecl{a.Path, a.Status, retired}
+				d := acDecl{path: a.Path, status: a.Status, retired: retired}
+				d.testType, d.single, d.invalidType = scenarioTestType(lines[i+1:])
+				declared[ac] = d
 			}
 		}
 	}
 
 	tested := map[string]bool{}
+	classified := map[string]map[string]map[string]bool{}
+	record := func(path, subject, ac, typ, direction string) {
+		issues = append(issues, checkACRef(path, subject, ac, declared, tested)...)
+		if typ == "" || direction == "" {
+			return
+		}
+		if classified[ac] == nil {
+			classified[ac] = map[string]map[string]bool{}
+		}
+		if classified[ac][typ] == nil {
+			classified[ac][typ] = map[string]bool{}
+		}
+		classified[ac][typ][direction] = true
+	}
 	_ = filepath.WalkDir(c.Root, func(p string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return nil
@@ -88,7 +111,8 @@ func checkACTests(c *Corpus) []Issue {
 		isGo := strings.HasSuffix(d.Name(), "_test.go")
 		isJVM := strings.HasSuffix(d.Name(), "Test.kt") || strings.HasSuffix(d.Name(), "Test.java") ||
 			strings.HasSuffix(d.Name(), "Tests.kt") || strings.HasSuffix(d.Name(), "Tests.java")
-		if !isGo && !isJVM {
+		isFeature := strings.HasSuffix(d.Name(), ".feature")
+		if !isGo && !isJVM && !isFeature {
 			return nil
 		}
 		data, rerr := os.ReadFile(p)
@@ -108,12 +132,69 @@ func checkACTests(c *Corpus) []Issue {
 				if fixedPurposeRe.MatchString(name) {
 					continue // Unit/Sanity/Arch need no AC
 				}
+				if cm := classifiedGoRe.FindStringSubmatch(name); cm != nil && prefixes[cm[1]] {
+					record(relSlash, "test "+name, cm[1]+"-"+cm[2], cm[3], strings.ToLower(cm[4]))
+					continue
+				}
 				am := acNameRe.FindStringSubmatch(name)
 				if am == nil || !prefixes[am[1]] {
 					issues = append(issues, Issue{relSlash, "test " + name + " declares no purpose (ADR-006: prefix <ACPREFIX><digits>, Unit, Sanity or Arch)"})
 					continue
 				}
-				issues = append(issues, checkACRef(relSlash, "test "+name, am[1]+"-"+am[2], declared, tested)...)
+				record(relSlash, "test "+name, am[1]+"-"+am[2], "", "")
+			}
+			return nil
+		}
+
+		if isFeature {
+			featureLines := strings.Split(text, "\n")
+			for i := 0; i < len(featureLines); {
+				if !strings.HasPrefix(strings.TrimSpace(featureLines[i]), "@") {
+					i++
+					continue
+				}
+				var tags [][]string
+				for i < len(featureLines) && strings.HasPrefix(strings.TrimSpace(featureLines[i]), "@") {
+					tags = append(tags, featureTagRe.FindAllStringSubmatch(featureLines[i], -1)...)
+					i++
+				}
+				if i == len(featureLines) || !isScenarioHeader(strings.TrimSpace(featureLines[i])) {
+					continue
+				}
+				types, directions := map[string]bool{}, map[string]bool{}
+				for _, tag := range tags {
+					switch strings.ToLower(tag[1]) {
+					case "unit":
+						types["Unit"] = true
+					case "integration":
+						types["Integration"] = true
+					case "e2e":
+						types["E2E"] = true
+					case "performance":
+						types["Performance"] = true
+					case "positive", "negative":
+						directions[strings.ToLower(tag[1])] = true
+					}
+				}
+				for _, tag := range tags {
+					am := jvmACRe.FindStringSubmatch(tag[1])
+					if am == nil || !prefixes[am[1]] {
+						continue
+					}
+					if len(types) > 1 || len(directions) > 1 {
+						issues = append(issues, Issue{relSlash, "Cucumber tag block for " + tag[1] + " must declare at most one test type and direction (ADR-032)"})
+						record(relSlash, "tag "+tag[0], tag[1], "", "")
+						continue
+					}
+					for typ := range types {
+						for direction := range directions {
+							record(relSlash, "tag "+tag[0], tag[1], typ, direction)
+						}
+					}
+					if len(types) == 0 || len(directions) == 0 {
+						record(relSlash, "tag "+tag[0], tag[1], "", "")
+					}
+				}
 			}
 			return nil
 		}
@@ -121,13 +202,37 @@ func checkACTests(c *Corpus) []Issue {
 		// JVM files: harvest @Tag values at file level (ADR-009). Tags in
 		// a known AC namespace are references; everything else is runner
 		// metadata clue ignores (ADR-006).
-		for _, m := range jvmTagRe.FindAllStringSubmatch(text, -1) {
+		jvmTags := jvmTagRe.FindAllStringSubmatch(text, -1)
+		jvmTypes, jvmDirections := []string{}, []string{}
+		for _, other := range jvmTags {
+			switch strings.ToLower(other[1]) {
+			case "unit":
+				jvmTypes = append(jvmTypes, "Unit")
+			case "integration":
+				jvmTypes = append(jvmTypes, "Integration")
+			case "e2e":
+				jvmTypes = append(jvmTypes, "E2E")
+			case "performance":
+				jvmTypes = append(jvmTypes, "Performance")
+			case "positive", "negative":
+				jvmDirections = append(jvmDirections, strings.ToLower(other[1]))
+			}
+		}
+		for _, m := range jvmTags {
 			norm := strings.ReplaceAll(m[1], "_", "-")
 			am := jvmACRe.FindStringSubmatch(norm)
 			if am == nil || !prefixes[am[1]] {
 				continue
 			}
-			issues = append(issues, checkACRef(relSlash, `tag "`+m[1]+`"`, norm, declared, tested)...)
+			if len(jvmTypes) == 0 || len(jvmDirections) == 0 {
+				record(relSlash, `tag "`+m[1]+`"`, norm, "", "")
+				continue
+			}
+			for _, typ := range jvmTypes {
+				for _, direction := range jvmDirections {
+					record(relSlash, `tag "`+m[1]+`"`, norm, typ, direction)
+				}
+			}
 		}
 		return nil
 	})
@@ -136,8 +241,75 @@ func checkACTests(c *Corpus) []Issue {
 		if d.status == "active" && !d.retired && !tested[ac] {
 			issues = append(issues, Issue{d.path, ac + " has no test (convention per ADR-005/ADR-009: a Go test named Test" + strings.ReplaceAll(ac, "-", "") + "_… or a framework tag \"" + strings.ReplaceAll(ac, "-", "_") + "\")"})
 		}
+		if d.status != "active" || d.retired || d.testType == "" {
+			if d.status == "active" && !d.retired && d.invalidType {
+				issues = append(issues, Issue{d.path, ac + " has a Test-type that is not the first non-blank scenario-body line (ADR-032)"})
+			}
+			continue
+		}
+		coverage := classified[ac][d.testType]
+		if d.single {
+			if len(coverage) == 0 {
+				issues = append(issues, Issue{d.path, ac + " has no " + d.testType + " evidence (ADR-032)"})
+			}
+			continue
+		}
+		for _, direction := range []string{"positive", "negative"} {
+			if !coverage[direction] {
+				issues = append(issues, Issue{d.path, ac + " has no " + d.testType + " " + direction + " evidence (ADR-032)"})
+			}
+		}
 	}
 	return issues
+}
+
+// scenarioTestType reads the Test-type declaration from the first non-blank
+// scenario-body line. A Test-type elsewhere in the same scenario is malformed
+// rather than an opt-in declaration (ADR-032).
+func scenarioTestType(lines []string) (testType string, single, invalid bool) {
+	inScenario := false
+	firstBodyLine := true
+	for _, line := range lines {
+		trimmed := strings.TrimSpace(line)
+		if !inScenario {
+			if trimmed == "" {
+				return "", false, false
+			}
+			if strings.HasPrefix(trimmed, "@") {
+				continue
+			}
+			if !isScenarioHeader(trimmed) {
+				return "", false, false
+			}
+			inScenario = true
+			continue
+		}
+		if isScenarioHeader(trimmed) {
+			break
+		}
+		if trimmed == "" {
+			continue
+		}
+		if firstBodyLine {
+			firstBodyLine = false
+			if m := testTypeRe.FindStringSubmatch(line); m != nil {
+				testType, single = m[1], m[2] != ""
+				continue
+			}
+			if strings.HasPrefix(trimmed, "Test-type:") {
+				return "", false, true
+			}
+			continue
+		}
+		if strings.HasPrefix(trimmed, "Test-type:") {
+			return "", false, true
+		}
+	}
+	return testType, single, false
+}
+
+func isScenarioHeader(line string) bool {
+	return strings.HasPrefix(line, "Scenario:") || strings.HasPrefix(line, "Scenario Outline:") || strings.HasPrefix(line, "Scenario Template:")
 }
 
 // checkACRef records an AC reference from a test and reports it when it
