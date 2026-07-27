@@ -10,8 +10,8 @@ title: Tasks for CH-071
 
 - [x] Branch `ch-071-merge-gate-has-content` from `main` tip
 - [x] Write proposal.md
-- [ ] **Pause: draft PDR-017 and get human confirmation before implementing** (opt-in spec-first pause, exercised on this change itself)
-- [ ] Record PDR-017 (docs/decisions/), update docs/decisions/README.md index
+- [x] **Pause: draft PDR-017 and get human confirmation before implementing** (opt-in spec-first pause, exercised on this change itself; confirmed in conversation on 2026-07-27)
+- [x] Record PDR-017 (docs/decisions/), update docs/decisions/README.md index
 - [ ] Add shared skill fragment (system-of-record) under internal/skills/source/shared/
 - [ ] Update internal/skills/source/skills/clue-delta.md.tmpl — opt-in pause after Propose, include new shared fragment
 - [ ] Update internal/skills/source/skills/clue-verify.md.tmpl — per-criterion scenario-resolution step in the review loop, acceptance-brief handoff content
