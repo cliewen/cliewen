@@ -4,6 +4,10 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 
 ## [Unreleased]
 
+## [0.8.0] - 2026-07-27
+
+The release where installing `clue` stops being a six-step errand, and where the guide finally argues its own case.
+
 ### Added
 
 - **`clue` installs with one command.** `curl -fsSL https://cliewen.dev/install.sh | sh` on macOS and Linux, or `irm https://cliewen.dev/install.ps1 | iex` on Windows, replaces reading a platform table, downloading a binary, checking its SHA-256 by hand, renaming it, making it executable and editing your `PATH`. The script works out your platform, fetches the matching binary, and checks it against the release's `SHA256SUMS` before it writes anything — if that check fails, nothing is installed. It needs no administrator rights, and `CLUE_INSTALL` and `CLUE_VERSION` let you choose the directory and the release. Upgrading is the same command again. The manual download is still documented, unchanged, for anyone who prefers it or whose machine cannot run the script. If you already run Cliewen in a repository, note that upgrading the binary does not touch the skills committed there, so `clue validate` will correctly report drift until you update those too; the guide's *Operate safely* page explains how.
@@ -13,6 +17,10 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 
 - **A release can no longer ship a `clue` and skills that disagree about their version.** The version came from the git tag, while the skills carried a version written by hand, and nothing compared the two — so a forgotten bump published a binary and a skill set that contradicted each other. You would have met that as a drift error in your own repository, after installing both halves, with nothing you had done to explain it. Cutting a release now runs the same drift check you run, stamped as the tag, before anything is built: a mismatch stops the release and names both versions, so the pair you download always agrees with itself.
 - **A guide link pointed at a finished plan.** The corpus page invited you to browse Cliewen's "active public campaign" and linked one that finished several campaigns ago. It now links the plan actually being worked on.
+
+### Install
+
+`curl -fsSL https://cliewen.dev/install.sh | sh` on macOS and Linux, `irm https://cliewen.dev/install.ps1 | iex` on Windows, or `go install github.com/cliewen/cliewen/cmd/clue@v0.8.0`. You can still download a prebuilt binary from the release assets and verify it against `SHA256SUMS` by hand; those asset names are unchanged, so a vendored CI wall pinned to an earlier release keeps working exactly as before. Update vendored Cliewen skills from this release's `.agents/skills/`; a 0.8.0 binary rejects older Cliewen skill versions as drift.
 
 ## [0.7.0] - 2026-07-25
 
