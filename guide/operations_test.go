@@ -69,6 +69,7 @@ func TestAC041_ChangeLoopCoordinatesOnlyTheSharedPR(t *testing.T) {
 		"Any agent asked to fix one becomes the updater for that turn",
 		"pushes without force",
 		"If another updater moved the head",
+		"merge newer accepted `main` into its branch with a normal push instead of rewriting hosted history",
 		"the agent says the PR is not merge-ready",
 	} {
 		if !strings.Contains(string(content), required) {

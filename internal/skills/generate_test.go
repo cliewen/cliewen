@@ -223,6 +223,7 @@ func TestAC041_AnyEditorOwnsTheExactFastForwardHandoff(t *testing.T) {
 			"Any agent that edits an existing PR becomes the updater for that turn",
 			"record its hosted head",
 			"push only a normal fast-forward update, never force",
+			"After a PR is published, incorporate a newer accepted `main` by merging it into the PR branch with a normal push, never by rewriting hosted history",
 			"Resolve satisfied review conversations only after the hosted head contains their reviewed repair",
 		} {
 			if !strings.Contains(content, want) {

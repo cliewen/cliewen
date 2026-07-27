@@ -32,5 +32,6 @@ Feature: Collaborative pull-request handoffs
     And it resolves satisfied findings only after that confirmation
     But if the hosted head changes or a normal push is rejected it does not overwrite remote work or claim the pull request is merge-ready
     And an open changed head is fetched and reconciled before verification and review repeat
+    And if accepted main advances after publication, current main is merged into the pull request branch without rewriting hosted history before verification and review repeat
     And a merged or closed pull request stops with any local work reported as unpublished
 ```
