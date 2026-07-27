@@ -184,6 +184,13 @@ func TestAC043_TestTypeAfterScenarioBodyTagFails(t *testing.T) {
 	assertIssue(t, run(t, files, false), "AC-101 has a Test-type that is not the first non-blank scenario-body line")
 }
 
+func TestAC043_SecondTestTypeInScenarioFails(t *testing.T) {
+	files := capFiles("active")
+	files["docs/capabilities/CAP-101-x/criteria.md"] = "---\nid: CAP-101-criteria\ntype: criteria\nstatus: active\nlinks: [CAP-101]\ntitle: X criteria\n---\n\n```gherkin\nFeature: X\n\n  @AC-101\n  Scenario: it works\n    Test-type: Unit\n    Given a thing\n    Test-type: E2E\n    Then it works\n```\n"
+	files["pkg/x_test.go"] = "package x\n\nfunc TestAC101_UnitPositive_Works(t *testing.T) {}\nfunc TestAC101_UnitNegative_Rejects(t *testing.T) {}\n"
+	assertIssue(t, run(t, files, false), "AC-101 has a Test-type that is not the first non-blank scenario-body line")
+}
+
 func TestAC043_UnitPositive_JvmTagsCarryTypeAndDirection(t *testing.T) {
 	files := capFiles("active")
 	files["docs/capabilities/CAP-101-x/criteria.md"] = "---\nid: CAP-101-criteria\ntype: criteria\nstatus: active\nlinks: [CAP-101]\ntitle: X criteria\n---\n\n```gherkin\nFeature: X\n\n  @AC-101\n  Scenario: it works\n    Test-type: Integration\n    Given a thing\n    Then it works\n```\n"

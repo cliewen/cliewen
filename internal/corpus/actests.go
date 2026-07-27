@@ -281,7 +281,8 @@ func scenarioTestType(lines []string) (testType string, single, invalid bool) {
 		if firstBodyLine {
 			firstBodyLine = false
 			if m := testTypeRe.FindStringSubmatch(line); m != nil {
-				return m[1], m[2] != "", false
+				testType, single = m[1], m[2] != ""
+				continue
 			}
 			if strings.HasPrefix(trimmed, "Test-type:") {
 				return "", false, true
@@ -292,7 +293,7 @@ func scenarioTestType(lines []string) (testType string, single, invalid bool) {
 			return "", false, true
 		}
 	}
-	return "", false, false
+	return testType, single, false
 }
 
 func isScenarioHeader(line string) bool {
