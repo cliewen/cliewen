@@ -225,6 +225,7 @@ func TestAC041_AnyEditorOwnsTheExactFastForwardHandoff(t *testing.T) {
 			"push only a normal fast-forward update, never force",
 			"After a PR is published, incorporate a newer accepted `main` by merging it into the PR branch with a normal push, never by rewriting hosted history",
 			"Resolve satisfied review conversations only after the hosted head contains their reviewed repair",
+			"the agent may review or help update an existing PR under the handoff above",
 		} {
 			if !strings.Contains(content, want) {
 				t.Errorf("%s does not carry the exact updater handoff %q", file.relativePath, want)
