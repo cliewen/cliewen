@@ -36,9 +36,10 @@ Run this loop automatically; never ask the human to clear context or initiate a 
 1. Finish every intended edit and commit the complete candidate. Determine the current commit and its base on accepted `main`, then run the applicable local checks against that commit.
 2. If the coding-agent host supports context-isolated delegation, start a new read-only reviewer without the implementation conversation. Give it only the repository, branch, base, and declared intent: recover a full change's proposal from branch history; for a light change provide the user's request and accepted clarifications without implementation rationale. If isolated delegation is unavailable, perform an explicit adversarial pass in the current context and label it `in-context fallback`; never describe that fallback as independent review.
 3. Instruct the reviewer to inspect the complete base diff, durable corpus, tests, and constraints. It returns no edits, only actionable findings about correctness, intent mismatch, regressions, security, missing evidence, or unjustified complexity. Each finding includes severity, location, evidence, the operative requirement or declared intent that is violated, the concrete consequence, and a remediation. Apply authoritative decisions and the repository's explicit lifecycle rules before treating nearby wording as contradictory: human-controlled merge does not require duplicate human code review, and lifecycle-successor evidence satisfies a requirement when the repository declares that transition. Historical descriptions, optional activity, alternative readings, and lifecycle-correct state are not actionable defects by themselves. Exclude stylistic preference, optional improvement, and speculative scope expansion. When reviewing an existing hosted PR, bind the result to its observed head and ensure actionable findings become unresolved hosted review conversations under the **Review boundary**; the isolated reviewer itself remains read-only.
-4. Resolve every actionable finding in the implementing context. A finding that requires a new decision or changed intent becomes an open question and stops the change. Otherwise the implementing context becomes the updater for that turn, follows the **Review boundary**, commits the repairs, and reruns applicable local checks against the repaired commit.
-5. Start a new review pass after every substantive edit; a previous clean result applies only to the commit it reviewed. Continue until the current commit receives a pass with no actionable findings. Do not publish with unresolved findings or without a clean pass.
-6. Report the final review mode and reviewed commit with the verification evidence. Context isolation reduces implementation anchoring but is not a substitute for human judgment or permission to merge.
+4. For every added or changed acceptance criterion, compare each scenario against its referenced tests' setup, action, and assertions. Record an advisory verdict for the acceptance brief: `verifies`, `verifies-something-adjacent`, or `undetermined`. This scenario-resolution result is not an actionable finding and does not gate `clue validate`; if it exposes a real defect, report that defect through the ordinary finding lifecycle.
+5. Resolve every actionable finding in the implementing context. A finding that requires a new decision or changed intent becomes an open question and stops the change. Otherwise the implementing context becomes the updater for that turn, follows the **Review boundary**, commits the repairs, and reruns applicable local checks against the repaired commit.
+6. Start a new review pass after every substantive edit; a previous clean result applies only to the commit it reviewed. Continue until the current commit receives a pass with no actionable findings. Do not publish with unresolved findings or without a clean pass.
+7. Report the final review mode and reviewed commit with the verification evidence. Context isolation reduces implementation anchoring but is not a substitute for human judgment or permission to merge.
 
 ## Change scope and tiers
 
@@ -63,6 +64,11 @@ Every decision record is timeless: state what is decided and only the enduring c
 ## Repository-local conventions
 
 For a Cliewen change, apply the repository-local conventions declared in AGENTS.md, including digest requirements such as a user-facing changelog entry. Plain changes follow only the repository conventions that apply to their changed surface. Local conventions extend the methodology and never override it. If AGENTS.md conflicts with a skill, record the conflict in `open-questions.md` and stop for a human decision; never choose silently.
+
+
+## Durable work state
+
+An agent's private memory is never where work lives. Anything needed to implement, continue, review, or hand off work belongs in a corpus artifact, the change workspace, or the pull request; private conversation does not survive a change of agent.
 
 ## Review boundary
 
