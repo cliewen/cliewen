@@ -256,9 +256,9 @@ func checkACTests(c *Corpus) []Issue {
 		// A Human-class criterion is satisfied by the acceptance brief, never
 		// a code test; @draft exempts a not-yet-proven criterion from the
 		// active-file test requirement without retiring it (ADR-033).
-		exempt := d.draft || d.testType == "Human"
+		exempt := d.draft || d.testType == "Human" || d.humanSingle
 		live := d.status == "active" && !d.retired
-		if live && !exempt && d.humanSingle {
+		if live && d.humanSingle {
 			issues = append(issues, Issue{d.path, ac + " declares Test-type: Human (single-direction), which the Human class does not use (ADR-033)"})
 		}
 		if live && !exempt && !tested[ac] {
