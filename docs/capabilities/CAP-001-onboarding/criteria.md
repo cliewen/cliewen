@@ -64,4 +64,13 @@ Feature: Onboarding — install to first green validate
     And the report names ".claude/skills" as skipped because it is a symlink
     And the canonical ".agents/skills" skills and the rest of the convention are still created
     And a ".claude/skills" that is an ordinary directory is mirrored as before, with no such report line
+
+  @AC-039
+  Scenario: The published plugin bootstraps and ships none of the managed skills
+    Given the plugin marketplace manifest published at the repository root
+    When its listed plugin is resolved to the committed tree it names
+    Then that tree ships exactly one skill, and it is the bootstrap
+    And none of the managed Cliewen lifecycle skills appear among its components
+    And nothing in the bootstrap pins a "clue" version
+    And the plugin tree lies outside every directory the skill generator owns
 ```

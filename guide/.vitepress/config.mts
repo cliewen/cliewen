@@ -65,6 +65,7 @@ export default defineConfig({
         items: [
           { text: "What is Cliewen?", link: "/what-is-cliewen" },
           { text: "Get started", link: "/getting-started" },
+          { text: "Install from Claude Code", link: "/plugin" },
           { text: "Greenfield and brownfield", link: "/adoption" },
           { text: "Enforce CI", link: "/ci-wall" },
           { text: "Operate safely", link: "/operations" },

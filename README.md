@@ -20,6 +20,8 @@ go install github.com/cliewen/cliewen/cmd/clue@latest   # any host with Go
 
 Open a new terminal, then `clue version` should print the release you installed. The script detects your platform, downloads the matching binary, and verifies it against the release's `SHA256SUMS` before installing — a mismatch stops with nothing written. It needs no administrator rights; `CLUE_INSTALL` and `CLUE_VERSION` override the target directory and release. Upgrading is the same command again, which moves the binary only, so a repository whose committed skills lag will report drift until you update those too.
 
+Inside Claude Code, `/plugin marketplace add cliewen/cliewen` then `/plugin install cliewen@cliewen` runs the same install for you and offers to scaffold. It ships no lifecycle skills — `clue init` writes those into the repository, stamped with the binary's version; the [plugin page](https://cliewen.dev/plugin) explains why that boundary exists.
+
 ### Download a binary instead
 
 To install by hand, open the [latest release](https://github.com/cliewen/cliewen/releases/latest) and download `SHA256SUMS` plus the asset for your machine into an otherwise empty directory:

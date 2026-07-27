@@ -32,6 +32,8 @@ go install github.com/cliewen/cliewen/cmd/clue@latest
 
 :::
 
+Working inside Claude Code? [Install from the plugin instead](./plugin) and skip the context switch; it runs the same script and installs the same binary.
+
 Then open a new terminal and run `clue version` — a `PATH` change does not reach an already-running shell. It should print the version you installed, for example `clue 0.7.0`. On macOS and Linux the script does not edit your shell profile: if `~/.local/bin` is not already on `PATH`, the script prints the exact `export PATH=…` line to add.
 
 The script detects your operating system and architecture, downloads the matching release binary, and **verifies it against the release's `SHA256SUMS` before installing anything**; a mismatch stops with nothing written. It installs to `~/.local/bin` (macOS and Linux) or `%LOCALAPPDATA%\Programs\clue` (Windows) and needs no administrator rights. Set `CLUE_INSTALL` to choose a different directory, or `CLUE_VERSION` to pin a release. You are piping a script into a shell, so read it first if you prefer: [install.sh](https://cliewen.dev/install.sh) and [install.ps1](https://cliewen.dev/install.ps1) are short, and the manual steps below do the same work by hand.

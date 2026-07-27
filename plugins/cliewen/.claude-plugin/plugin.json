@@ -1,0 +1,13 @@
+{
+  "name": "cliewen",
+  "displayName": "Cliewen",
+  "description": "Installs the clue binary and offers to scaffold Cliewen in this repository. Ships no lifecycle skills: clue init writes those into the repository, version-locked to the binary.",
+  "author": {
+    "name": "Cliewen",
+    "url": "https://github.com/cliewen/cliewen"
+  },
+  "homepage": "https://cliewen.dev/plugin",
+  "repository": "https://github.com/cliewen/cliewen",
+  "license": "Apache-2.0",
+  "keywords": ["cliewen", "clue", "specification", "traceability", "methodology"]
+}

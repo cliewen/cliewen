@@ -4,6 +4,10 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 
 ## [Unreleased]
 
+### Added
+
+- **Cliewen installs from inside Claude Code.** `/plugin marketplace add cliewen/cliewen` followed by `/plugin install cliewen@cliewen` adds one skill, `/cliewen:setup`, which works out your platform, installs `clue` with the same checksum-verifying script the guide documents, checks that the binary reports a release version, and then asks before running `clue init` — nothing is written into your repository until you agree. It installs the binary and nothing else: the five skills that run the Cliewen loop are not in the plugin, and will not be. Those are committed files that `clue init` writes into your repository, each stamped with the version of the binary that wrote it, and `clue validate` fails if the two ever disagree. A plugin's files live in a per-user cache instead, outside where that check can see them and shared across every repository you open, so a bundled copy would quietly contradict any repository pinned to a different release. The new *Install from Claude Code* page explains the boundary and says which route to use where; CI should keep using the pinned, checksum-verified binary, never a plugin.
+
 ## [0.8.0] - 2026-07-27
 
 The release where installing `clue` stops being a six-step errand, and where the guide finally argues its own case.
