@@ -22,7 +22,7 @@ That same shape applies to an ordinary product request: state the desired behavi
 
 ## 1. Branch
 
-Create `ch-xxx-your-slug` from the current tip of `main`. One author takes one Cliewen change to its pull request before starting another, and a change never starts from unaccepted work. Plain changes do not consume the Cliewen slot.
+Create `ch-xxx-your-slug` from the current tip of `main`. One initiating author takes one initiated Cliewen change to its pull request before starting another, and a change never starts from unaccepted work. Plain changes, reviews, and help updating an existing pull request do not consume another initiated-change slot.
 
 ## 2. Propose
 

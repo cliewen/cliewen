@@ -720,6 +720,34 @@ func TestSanity_ReviewFixConstraintOrdersFinalCandidateBeforeReview(t *testing.T
 	}
 }
 
+func TestAC041_PublicCarriersKeepCrossAgentHelpOutsideTheInitiatedSlot(t *testing.T) {
+	root := filepath.Join("..", "..")
+	for rel, wants := range map[string][]string{
+		".github/pull_request_template.md": {
+			"initiating author's only initiated Cliewen change",
+			"review or update help on an existing PR does not consume another slot",
+		},
+		"CONTRIBUTING.md": {
+			"A contributor may initiate one Cliewen change at a time",
+			"reviewing, and helping update an existing pull request do not consume another initiated-change slot",
+		},
+		"guide/change-loop.md": {
+			"One initiating author takes one initiated Cliewen change",
+			"reviews, and help updating an existing pull request do not consume another initiated-change slot",
+		},
+	} {
+		data, err := os.ReadFile(filepath.Join(root, filepath.FromSlash(rel)))
+		if err != nil {
+			t.Fatal(err)
+		}
+		for _, want := range wants {
+			if !strings.Contains(string(data), want) {
+				t.Errorf("%s does not preserve cross-agent help outside the initiated-change slot %q", rel, want)
+			}
+		}
+	}
+}
+
 func TestSanity_PRBoundaryExplainsAuthorizationAndCIEnforcement(t *testing.T) {
 	root := filepath.Join("..", "..")
 	for rel, wants := range map[string][]string{

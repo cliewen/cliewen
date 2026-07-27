@@ -26,7 +26,7 @@
 
 ## Cliewen checklist
 
-- [ ] This is the author's only Cliewen change in flight.
+- [ ] This is the initiating author's only initiated Cliewen change; review or update help on an existing PR does not consume another slot.
 - [ ] The proposal was committed before implementation, or this is a correctly scoped light change whose proposal is this PR description.
 - [ ] The plan item or plan-less declaration is truthful, and all artifact links resolve.
 - [ ] Decisions are recorded at the right tier, and active constraints were assessed.

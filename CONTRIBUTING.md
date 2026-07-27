@@ -18,7 +18,7 @@ Two guards hold above the rules, from this first classification onward. When the
 
 A plain change starts from the current tip of `main`, uses an ordinary branch, runs checks relevant to the changed surface, and opens a ready pull request. It needs no CH number, plan declaration, proposal, corpus read, Cliewen skill, full verification checklist, plan bookkeeping, or changelog entry.
 
-For every other change, search existing issues, pull requests, and the system-of-record under [`docs/`](docs/README.md). Every Cliewen change serves an existing item under [`docs/plans/`](docs/plans/README.md) or explicitly declares itself plan-less. A contributor may have one Cliewen change in flight at a time; plain changes do not consume that slot. Every branch starts from accepted `main` and never from unmerged work.
+For every other change, search existing issues, pull requests, and the system-of-record under [`docs/`](docs/README.md). Every Cliewen change serves an existing item under [`docs/plans/`](docs/plans/README.md) or explicitly declares itself plan-less. A contributor may initiate one Cliewen change at a time; plain changes, reviewing, and helping update an existing pull request do not consume another initiated-change slot. Every branch starts from accepted `main` and never from unmerged work.
 
 Use the next free `CH-xxx` identifier visible in git history and any active `/changes/` workspace, then create a descriptive Cliewen branch such as `ch-031-short-slug`.
 
