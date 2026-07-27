@@ -117,12 +117,17 @@ func TestSanity_BootstrapCommandsAreLiterallyRunnable(t *testing.T) {
 	if !strings.Contains(string(body), `PATH="${CLUE_INSTALL:-$HOME/.local/bin}:$PATH" clue version`) {
 		t.Error("bootstrap does not verify the Unix installer with its install directory on PATH — a host application can inherit a PATH that lacks ~/.local/bin even after a fresh shell is opened")
 	}
+	if !strings.Contains(string(body), `& "$env:LOCALAPPDATA\Programs\clue\clue.exe" version`) {
+		t.Error("bootstrap does not verify the Windows installer by its explicit install path — a host application can inherit a PATH that predates the installer's registry write, and a bare `clue version` can silently resolve to an unrelated binary instead of failing")
+	}
 	for _, want := range []string{
 		`PATH="${CLUE_INSTALL:-$HOME/.local/bin}:$PATH" clue init`,
 		`PATH="${CLUE_INSTALL:-$HOME/.local/bin}:$PATH" clue validate`,
+		`& "$env:LOCALAPPDATA\Programs\clue\clue.exe" init`,
+		`& "$env:LOCALAPPDATA\Programs\clue\clue.exe" validate`,
 	} {
 		if !strings.Contains(string(body), want) {
-			t.Errorf("bootstrap does not use the temporary Unix install PATH for %q — first-install scaffolding must work before the user restarts with a persisted PATH", want)
+			t.Errorf("bootstrap does not use the explicit install path for %q — first-install scaffolding must work before the user restarts with a persisted PATH", want)
 		}
 	}
 }
