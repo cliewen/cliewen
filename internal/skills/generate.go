@@ -33,6 +33,13 @@ var outputRoots = []string{
 	"internal/scaffold/templates/skills",
 }
 
+// OutputRoots names the repository-relative directories the generator owns:
+// it deletes and rewrites each managed skill beneath them, and reports any
+// other file there as drift. Hand-authored skill trees must stay outside.
+func OutputRoots() []string {
+	return append([]string(nil), outputRoots...)
+}
+
 type renderedFile struct {
 	relativePath string
 	content      []byte

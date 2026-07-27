@@ -53,4 +53,5 @@ ADRs and PDRs share the MADR format and two-tier provenance: `inferred` (binding
 - [ADR-029-accepted-by-is-cliewen-approval-only](ADR-029-accepted-by-is-cliewen-approval-only.md)
 - [PDR-014-distribution-reopens-on-the-active-campaign](PDR-014-distribution-reopens-on-the-active-campaign.md)
 - [ADR-030-verified-install-scripts](ADR-030-verified-install-scripts.md)
+- [ADR-031-plugin-ships-a-bootstrap-only](ADR-031-plugin-ships-a-bootstrap-only.md)
 <!-- clue:index:end -->
