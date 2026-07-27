@@ -248,3 +248,11 @@ func TestAC044_CucumberNonScenarioTagBlocksDoNotCountAsEvidence(t *testing.T) {
 		})
 	}
 }
+
+func TestAC044_CucumberAmbiguousDirectionTagsFail(t *testing.T) {
+	files := capFiles("active")
+	files["docs/capabilities/CAP-101-x/criteria.md"] = "---\nid: CAP-101-criteria\ntype: criteria\nstatus: active\nlinks: [CAP-101]\ntitle: X criteria\n---\n\n```gherkin\nFeature: X\n\n  @AC-101\n  Scenario: it works\n    Test-type: E2E\n    Given a thing\n    Then it works\n```\n"
+	files["features/x.feature"] = "@AC-101 @e2e @positive @negative\nScenario: it works\n"
+	assertIssue(t, run(t, files, false), "Cucumber tag block for AC-101 must declare at most one test type and direction")
+	assertIssue(t, run(t, files, false), "AC-101 has no E2E positive evidence")
+}

@@ -161,27 +161,39 @@ func checkACTests(c *Corpus) []Issue {
 				if i == len(featureLines) || !isScenarioHeader(strings.TrimSpace(featureLines[i])) {
 					continue
 				}
+				types, directions := map[string]bool{}, map[string]bool{}
+				for _, tag := range tags {
+					switch strings.ToLower(tag[1]) {
+					case "unit":
+						types["Unit"] = true
+					case "integration":
+						types["Integration"] = true
+					case "e2e":
+						types["E2E"] = true
+					case "performance":
+						types["Performance"] = true
+					case "positive", "negative":
+						directions[strings.ToLower(tag[1])] = true
+					}
+				}
 				for _, tag := range tags {
 					am := jvmACRe.FindStringSubmatch(tag[1])
 					if am == nil || !prefixes[am[1]] {
 						continue
 					}
-					typ, direction := "", ""
-					for _, other := range tags {
-						switch strings.ToLower(other[1]) {
-						case "unit":
-							typ = "Unit"
-						case "integration":
-							typ = "Integration"
-						case "e2e":
-							typ = "E2E"
-						case "performance":
-							typ = "Performance"
-						case "positive", "negative":
-							direction = strings.ToLower(other[1])
+					if len(types) > 1 || len(directions) > 1 {
+						issues = append(issues, Issue{relSlash, "Cucumber tag block for " + tag[1] + " must declare at most one test type and direction (ADR-032)"})
+						record(relSlash, "tag "+tag[0], tag[1], "", "")
+						continue
+					}
+					for typ := range types {
+						for direction := range directions {
+							record(relSlash, "tag "+tag[0], tag[1], typ, direction)
 						}
 					}
-					record(relSlash, "tag "+tag[0], tag[1], typ, direction)
+					if len(types) == 0 || len(directions) == 0 {
+						record(relSlash, "tag "+tag[0], tag[1], "", "")
+					}
 				}
 			}
 			return nil
