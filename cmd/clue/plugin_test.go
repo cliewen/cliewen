@@ -100,6 +100,22 @@ func TestAC039_PluginShipsOnlyTheBootstrapSkill(t *testing.T) {
 	}
 }
 
+// Sanity: SKILL.md is never rendered — it is injected into an agent's context
+// as raw text, and the bootstrap's commands exist to be executed verbatim. A
+// markdown escape that only a renderer would resolve becomes part of the
+// command: `curl … \| sh` passes `|` and `sh` to curl as extra URLs, and `\`
+// is not PowerShell's escape character at all. Keep the commands in fenced
+// blocks, where a pipe needs no escaping.
+func TestSanity_BootstrapCommandsAreLiterallyRunnable(t *testing.T) {
+	body, err := os.ReadFile(repoPath("plugins", "cliewen", "skills", "setup", "SKILL.md"))
+	if err != nil {
+		t.Fatalf("bootstrap SKILL.md not found: %v", err)
+	}
+	if strings.Contains(string(body), `\|`) {
+		t.Error(`bootstrap contains an escaped pipe (\|) — an agent copying the command would run it literally, and the plugin's happy path would fail on first use`)
+	}
+}
+
 // AC-039 negative: nothing the plugin ships may be a managed lifecycle skill,
 // carry the ownership marker, or pin a `clue` version — and the tree stays out
 // of the generator's way.

@@ -19,11 +19,11 @@ Run `clue version`.
 
 Pick the command for the host, run it, then **open a new shell** before checking the result: a `PATH` change does not reach an already-running one.
 
-| Host | Command |
-|---|---|
-| macOS, Linux | `curl -fsSL https://cliewen.dev/install.sh \| sh` |
-| Windows | `irm https://cliewen.dev/install.ps1 \| iex` |
-| Any host with the Go toolchain | `go install github.com/cliewen/cliewen/cmd/clue@latest` |
+```sh
+curl -fsSL https://cliewen.dev/install.sh | sh          # macOS and Linux
+irm https://cliewen.dev/install.ps1 | iex               # Windows (PowerShell)
+go install github.com/cliewen/cliewen/cmd/clue@latest   # any host with Go
+```
 
 Do not pass a version. The scripts install the newest release, which is the one whose skills `clue init` writes; naming a version here would pin new users to a release nobody remembers to bump.
 
