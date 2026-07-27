@@ -259,14 +259,20 @@ func scenarioTestType(lines []string) (testType string, single, invalid bool) {
 	firstBodyLine := true
 	for _, line := range lines {
 		trimmed := strings.TrimSpace(line)
-		if strings.HasPrefix(trimmed, "@") || isScenarioHeader(trimmed) {
-			if inScenario || strings.HasPrefix(trimmed, "@") {
-				break
+		if !inScenario {
+			if trimmed == "" || strings.HasPrefix(trimmed, "@") {
+				continue
+			}
+			if !isScenarioHeader(trimmed) {
+				return "", false, false
 			}
 			inScenario = true
 			continue
 		}
-		if !inScenario || trimmed == "" {
+		if strings.HasPrefix(trimmed, "@") || isScenarioHeader(trimmed) {
+			break
+		}
+		if trimmed == "" {
 			continue
 		}
 		if firstBodyLine {
