@@ -10,6 +10,7 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 
 ### Fixed
 
+- **Review fixes can no longer disappear between coding agents without an explicit warning.** Reviews of an open pull request now name the exact hosted commit they cover, and real findings stay as unresolved review conversations until a reviewed fix reaches the pull request. Whichever agent edits the branch owns that update through commit, review, normal push, and hosted-head confirmation; if another agent moved the branch, the pull request already merged, or the reviewer cannot publish a resolvable finding, the agent stops and says the pull request is not merge-ready. Different authors and pull requests still proceed in parallel, and hosts that require conversation resolution can block a known unfinished repair at merge.
 - **The 0.8.0 release page was published empty.** If you opened the 0.8.0 release looking for what changed, you found nothing there — the notes existed in `CHANGELOG.md` and in the repository, but the published page was blank. The page has been corrected in place; the downloads and their checksums were never affected and have not moved. The cause was a build setting that silently discarded the release notes it was meant to protect, and the release now reads its own published page back and fails if it does not match the reviewed notes, so a release can no longer succeed while saying nothing.
 
 ## [0.8.0] - 2026-07-27

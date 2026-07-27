@@ -8,4 +8,5 @@ One folder per capability — the middle anchor of the red thread. Every capabil
 - [CAP-003 — Brownfield extraction](CAP-003-extract/README.md) · `active`
 - [CAP-004 — clue ships](CAP-004-ship/README.md) · `active`
 - [CAP-005 — Index generation](CAP-005-indexes/README.md) · `active`
+- [CAP-006-collaborative-handoffs/](CAP-006-collaborative-handoffs/README.md)
 <!-- clue:index:end -->

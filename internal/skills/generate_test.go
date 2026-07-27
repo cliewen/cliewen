@@ -154,10 +154,10 @@ func TestUnit_ReviewBoundaryRequiresExactHostedHandoff(t *testing.T) {
 			"commit every intended edit",
 			"`git status --porcelain` to be empty",
 			"head branch and SHA equal the current local branch and `HEAD`",
-			"if either side differs",
+			"If either side differs",
 			`local stopping point such as "commit only"`,
 			"not a completed or mergeable change",
-			"Review fixes stay on the same branch and PR: commit them, rerun local verification and the automatic agentic review loop against that commit, require a clean worktree, push the reviewed commit there",
+			"Review fixes stay on the same branch and PR and repeat the complete updater handoff",
 		} {
 			if !strings.Contains(content, want) {
 				t.Errorf("%s does not contain review-handoff rule %q", name, want)
@@ -173,6 +173,81 @@ func TestUnit_ReviewBoundaryRequiresExactHostedHandoff(t *testing.T) {
 	} {
 		if !strings.Contains(verify, want) {
 			t.Errorf("clue-verify/skill.md does not contain hosted verification item %q", want)
+		}
+	}
+}
+
+func TestAC040_ReviewResultsAreDurableAndCommitBound(t *testing.T) {
+	for _, file := range mustRender(t) {
+		if !strings.HasSuffix(file.relativePath, "/skill.md") || (!strings.HasPrefix(file.relativePath, "clue-delta/") && !strings.HasPrefix(file.relativePath, "clue-extract/") && !strings.HasPrefix(file.relativePath, "clue-verify/")) {
+			continue
+		}
+		content := string(file.content)
+		for _, want := range []string{
+			"Every review of an existing hosted PR is bound to its observed head SHA",
+			"A clean result applies only to that commit; every substantive edit invalidates it",
+			"publish the finding there and leave it unresolved until a hosted commit contains the reviewed repair",
+		} {
+			if !strings.Contains(content, want) {
+				t.Errorf("%s does not carry durable review state %q", file.relativePath, want)
+			}
+		}
+	}
+}
+
+func TestAC040_ReviewWithoutResolvableHostStateFailsOpenly(t *testing.T) {
+	verify := ""
+	for _, file := range mustRender(t) {
+		if file.relativePath == "clue-verify/skill.md" {
+			verify = string(file.content)
+		}
+	}
+	for _, want := range []string{
+		"If the reviewer cannot publish a resolvable finding, report the PR as not merge-ready",
+		"never claim a chat-only finding has equivalent protection",
+		"the isolated reviewer itself remains read-only",
+	} {
+		if !strings.Contains(verify, want) {
+			t.Errorf("clue-verify/skill.md does not expose the unenforced-review fallback %q", want)
+		}
+	}
+}
+
+func TestAC041_AnyEditorOwnsTheExactFastForwardHandoff(t *testing.T) {
+	for _, file := range mustRender(t) {
+		if !strings.HasSuffix(file.relativePath, "/skill.md") || (!strings.HasPrefix(file.relativePath, "clue-delta/") && !strings.HasPrefix(file.relativePath, "clue-extract/") && !strings.HasPrefix(file.relativePath, "clue-verify/")) {
+			continue
+		}
+		content := string(file.content)
+		for _, want := range []string{
+			"Any agent that edits an existing PR becomes the updater for that turn",
+			"record its hosted head",
+			"push only a normal fast-forward update, never force",
+			"After a PR is published, incorporate a newer accepted `main` by merging it into the PR branch with a normal push, never by rewriting hosted history",
+			"Resolve satisfied review conversations only after the hosted head contains their reviewed repair",
+			"the agent may review or help update an existing PR under the handoff above",
+		} {
+			if !strings.Contains(content, want) {
+				t.Errorf("%s does not carry the exact updater handoff %q", file.relativePath, want)
+			}
+		}
+	}
+}
+
+func TestAC041_ConcurrentOrClosedPRStateFailsSafely(t *testing.T) {
+	verify := ""
+	for _, file := range mustRender(t) {
+		if file.relativePath == "clue-verify/skill.md" {
+			verify = string(file.content)
+		}
+	}
+	for _, want := range []string{
+		"If the head changed or the push is rejected as non-fast-forward",
+		"fetch and reconcile without overwriting remote work",
+		"If the PR merged or closed, stop and report local work as unpublished",
+	} {
+		if !strings.Contains(verify, want) {
+			t.Errorf("clue-verify/skill.md does not fail safely on contested PR state %q", want)
 		}
 	}
 }
