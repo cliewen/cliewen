@@ -32,14 +32,17 @@ if (-not $version) {
     # The /releases/latest redirect ends in the tag: no API token, and not
     # subject to api.github.com's unauthenticated rate limit, which a
     # shared address can exhaust.
-    try {
-        $head = Invoke-WebRequest -Uri "https://github.com/$repo/releases/latest" -Method Head -MaximumRedirection 0 -ErrorAction Stop
-        $location = $head.Headers['Location']
-    } catch {
-        $location = $_.Exception.Response.Headers.Location.ToString()
-    }
-    if (-not $location) { throw 'Could not determine the latest release; set CLUE_VERSION=<x.y.z> and retry.' }
-    $version = ($location -split '/')[-1]
+    #
+    # The redirect is followed rather than inspected, because reading an
+    # unfollowed 302's Location header differs between Windows PowerShell
+    # 5.1 and PowerShell 7 — and 5.1 is what `powershell.exe` starts on
+    # every Windows machine. The final URI is exposed under two different
+    # names instead, and both are cheap to ask for.
+    $head = Invoke-WebRequest -Uri "https://github.com/$repo/releases/latest" -Method Head -UseBasicParsing
+    $final = $head.BaseResponse.RequestMessage.RequestUri   # PowerShell 7
+    if (-not $final) { $final = $head.BaseResponse.ResponseUri }  # Windows PowerShell 5.1
+    if (-not $final) { throw 'Could not determine the latest release; set CLUE_VERSION=<x.y.z> and retry.' }
+    $version = ("$final" -split '/')[-1]
 }
 # Accept 0.7.0 or v0.7.0; the asset names carry bare semver (ADR-011).
 $version = $version -replace '^v', ''
