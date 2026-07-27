@@ -154,6 +154,13 @@ func TestAC043_UnitNegative_ClassifiedEvidenceCoversThePair(t *testing.T) {
 	}
 }
 
+func TestAC043_TestTypeAfterScenarioBodyLineFails(t *testing.T) {
+	files := capFiles("active")
+	files["docs/capabilities/CAP-101-x/criteria.md"] = "---\nid: CAP-101-criteria\ntype: criteria\nstatus: active\nlinks: [CAP-101]\ntitle: X criteria\n---\n\n```gherkin\nFeature: X\n\n  @AC-101\n  Scenario: it works\n    Given a thing\n    Test-type: Unit\n    Then it works\n```\n"
+	files["pkg/x_test.go"] = "package x\n\nfunc TestAC101_UnitPositive_Works(t *testing.T) {}\nfunc TestAC101_UnitNegative_Rejects(t *testing.T) {}\n"
+	assertIssue(t, run(t, files, false), "AC-101 has a Test-type that is not the first non-blank scenario-body line")
+}
+
 func TestAC043_UnitPositive_JvmTagsCarryTypeAndDirection(t *testing.T) {
 	files := capFiles("active")
 	files["docs/capabilities/CAP-101-x/criteria.md"] = "---\nid: CAP-101-criteria\ntype: criteria\nstatus: active\nlinks: [CAP-101]\ntitle: X criteria\n---\n\n```gherkin\nFeature: X\n\n  @AC-101\n  Scenario: it works\n    Test-type: Integration\n    Given a thing\n    Then it works\n```\n"
@@ -185,5 +192,14 @@ func TestAC044_UnitNegative_CucumberPairSatisfiesCoverage(t *testing.T) {
 	files["features/x.feature"] = "@AC-101 @e2e @positive\nScenario: it works\n\n@AC-101 @e2e @negative\nScenario: it fails\n"
 	if issues := run(t, files, false); len(issues) != 0 {
 		t.Fatalf("Cucumber pair should cover the criterion, got %v", issues)
+	}
+}
+
+func TestAC044_CucumberMultiLineTagBlocksCarryClassifiedEvidence(t *testing.T) {
+	files := capFiles("active")
+	files["docs/capabilities/CAP-101-x/criteria.md"] = "---\nid: CAP-101-criteria\ntype: criteria\nstatus: active\nlinks: [CAP-101]\ntitle: X criteria\n---\n\n```gherkin\nFeature: X\n\n  @AC-101\n  Scenario: it works\n    Test-type: E2E\n    Given a thing\n    Then it works\n```\n"
+	files["features/x.feature"] = "@AC-101\n@e2e @positive\nScenario: it works\n\n@AC-101\n@e2e @negative\nScenario: it fails\n"
+	if issues := run(t, files, false); len(issues) != 0 {
+		t.Fatalf("multi-line Cucumber tag blocks should satisfy classified coverage, got %v", issues)
 	}
 }

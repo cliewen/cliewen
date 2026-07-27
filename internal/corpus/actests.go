@@ -74,19 +74,7 @@ func checkACTests(c *Corpus) []Issue {
 					continue
 				}
 				d := acDecl{path: a.Path, status: a.Status, retired: retired}
-				for _, scenarioLine := range lines[i+1:] {
-					if strings.HasPrefix(strings.TrimSpace(scenarioLine), "@") {
-						break
-					}
-					if m := testTypeRe.FindStringSubmatch(scenarioLine); m != nil {
-						d.testType, d.single = m[1], m[2] != ""
-						break
-					}
-					if strings.HasPrefix(strings.TrimSpace(scenarioLine), "Test-type:") {
-						d.invalidType = true
-						break
-					}
-				}
+				d.testType, d.single, d.invalidType = scenarioTestType(lines[i+1:])
 				declared[ac] = d
 			}
 		}
@@ -159,8 +147,17 @@ func checkACTests(c *Corpus) []Issue {
 		}
 
 		if isFeature {
-			for _, line := range strings.Split(text, "\n") {
-				tags := featureTagRe.FindAllStringSubmatch(line, -1)
+			featureLines := strings.Split(text, "\n")
+			for i := 0; i < len(featureLines); {
+				if !strings.HasPrefix(strings.TrimSpace(featureLines[i]), "@") {
+					i++
+					continue
+				}
+				var tags [][]string
+				for i < len(featureLines) && strings.HasPrefix(strings.TrimSpace(featureLines[i]), "@") {
+					tags = append(tags, featureTagRe.FindAllStringSubmatch(featureLines[i], -1)...)
+					i++
+				}
 				for _, tag := range tags {
 					am := jvmACRe.FindStringSubmatch(tag[1])
 					if am == nil || !prefixes[am[1]] {
@@ -231,7 +228,7 @@ func checkACTests(c *Corpus) []Issue {
 		}
 		if d.status != "active" || d.retired || d.testType == "" {
 			if d.status == "active" && !d.retired && d.invalidType {
-				issues = append(issues, Issue{d.path, ac + " has an invalid Test-type (allowed: Unit, Integration, E2E, Performance, with optional (single-direction))"})
+				issues = append(issues, Issue{d.path, ac + " has a Test-type that is not the first non-blank scenario-body line (ADR-032)"})
 			}
 			continue
 		}
@@ -249,6 +246,45 @@ func checkACTests(c *Corpus) []Issue {
 		}
 	}
 	return issues
+}
+
+// scenarioTestType reads the Test-type declaration from the first non-blank
+// scenario-body line. A Test-type elsewhere in the same scenario is malformed
+// rather than an opt-in declaration (ADR-032).
+func scenarioTestType(lines []string) (testType string, single, invalid bool) {
+	inScenario := false
+	firstBodyLine := true
+	for _, line := range lines {
+		trimmed := strings.TrimSpace(line)
+		if strings.HasPrefix(trimmed, "@") || isScenarioHeader(trimmed) {
+			if inScenario || strings.HasPrefix(trimmed, "@") {
+				break
+			}
+			inScenario = true
+			continue
+		}
+		if !inScenario || trimmed == "" {
+			continue
+		}
+		if firstBodyLine {
+			firstBodyLine = false
+			if m := testTypeRe.FindStringSubmatch(line); m != nil {
+				return m[1], m[2] != "", false
+			}
+			if strings.HasPrefix(trimmed, "Test-type:") {
+				return "", false, true
+			}
+			continue
+		}
+		if strings.HasPrefix(trimmed, "Test-type:") {
+			return "", false, true
+		}
+	}
+	return "", false, false
+}
+
+func isScenarioHeader(line string) bool {
+	return strings.HasPrefix(line, "Scenario:") || strings.HasPrefix(line, "Scenario Outline:")
 }
 
 // checkACRef records an AC reference from a test and reports it when it
