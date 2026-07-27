@@ -203,3 +203,18 @@ func TestAC044_CucumberMultiLineTagBlocksCarryClassifiedEvidence(t *testing.T) {
 		t.Fatalf("multi-line Cucumber tag blocks should satisfy classified coverage, got %v", issues)
 	}
 }
+
+func TestAC044_CucumberNonScenarioTagBlocksDoNotCountAsEvidence(t *testing.T) {
+	for name, feature := range map[string]string{
+		"feature":  "@AC-101 @e2e @positive\nFeature: X\nScenario: it works\n",
+		"rule":     "Feature: X\n@AC-101 @e2e @positive\nRule: a rule\nScenario: it works\n",
+		"examples": "Feature: X\nScenario Outline: it works\n@AC-101 @e2e @positive\nExamples: data\n  | value |\n  | x |\n",
+	} {
+		t.Run(name, func(t *testing.T) {
+			files := capFiles("active")
+			files["docs/capabilities/CAP-101-x/criteria.md"] = "---\nid: CAP-101-criteria\ntype: criteria\nstatus: active\nlinks: [CAP-101]\ntitle: X criteria\n---\n\n```gherkin\nFeature: X\n\n  @AC-101\n  Scenario: it works\n    Test-type: E2E\n    Given a thing\n    Then it works\n```\n"
+			files["features/x.feature"] = feature
+			assertIssue(t, run(t, files, false), "AC-101 has no E2E positive evidence")
+		})
+	}
+}

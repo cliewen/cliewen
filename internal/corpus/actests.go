@@ -158,6 +158,9 @@ func checkACTests(c *Corpus) []Issue {
 					tags = append(tags, featureTagRe.FindAllStringSubmatch(featureLines[i], -1)...)
 					i++
 				}
+				if i == len(featureLines) || !isScenarioHeader(strings.TrimSpace(featureLines[i])) {
+					continue
+				}
 				for _, tag := range tags {
 					am := jvmACRe.FindStringSubmatch(tag[1])
 					if am == nil || !prefixes[am[1]] {
@@ -284,7 +287,7 @@ func scenarioTestType(lines []string) (testType string, single, invalid bool) {
 }
 
 func isScenarioHeader(line string) bool {
-	return strings.HasPrefix(line, "Scenario:") || strings.HasPrefix(line, "Scenario Outline:")
+	return strings.HasPrefix(line, "Scenario:") || strings.HasPrefix(line, "Scenario Outline:") || strings.HasPrefix(line, "Scenario Template:")
 }
 
 // checkACRef records an AC reference from a test and reports it when it
