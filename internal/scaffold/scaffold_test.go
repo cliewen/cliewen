@@ -335,16 +335,17 @@ func TestSanity_ScaffoldedRoutingRequiresExactHostedHandoff(t *testing.T) {
 	content := string(data)
 	for _, want := range []string{
 		"Ready means the hosted PR contains the reviewed and verified state",
-		"automatically run the `clue-verify` agentic review loop",
-		"context-isolated read-only reviewer",
-		"in-context fallback",
-		"current commit receives a clean pass",
-		"commit every intended edit",
-		"run the applicable local verification against that commit",
+		"Every review of an existing PR names its hosted head",
+		"actionable findings become unresolved hosted review conversations",
+		"Any agent that edits becomes the updater for that turn",
+		"fetch and record the hosted head",
+		"commit and verify the complete repair",
+		"obtain a clean review of that commit",
 		"require a clean worktree",
-		"push the reviewed commit",
-		"head branch and SHA equal the locally reviewed branch and `HEAD`",
-		"Review fixes repeat that local-before-publish handoff on the existing branch and PR",
+		"push without force",
+		"confirm the PR head equals the reviewed commit",
+		"changed head or non-fast-forward rejection requires reconciliation",
+		"merged or closed PR stops with local work reported as unpublished",
 		"local stopping point is preserved work",
 		"incomplete and not mergeable",
 	} {
@@ -352,11 +353,11 @@ func TestSanity_ScaffoldedRoutingRequiresExactHostedHandoff(t *testing.T) {
 			t.Errorf("AGENTS.md does not contain review-handoff rule %q", want)
 		}
 	}
-	commitCandidate := strings.Index(content, "commit every intended edit")
-	reviewCandidate := strings.Index(content, "automatically run the `clue-verify` agentic review loop on that exact candidate")
-	pushCandidate := strings.Index(content, "push the reviewed commit")
+	commitCandidate := strings.Index(content, "commit and verify the complete repair")
+	reviewCandidate := strings.Index(content, "obtain a clean review of that commit")
+	pushCandidate := strings.Index(content, "push without force")
 	if commitCandidate < 0 || reviewCandidate <= commitCandidate || pushCandidate <= reviewCandidate {
-		t.Error("AGENTS.md must commit and verify the candidate before agentic review, then push the reviewed commit")
+		t.Error("AGENTS.md must commit and verify the candidate before agentic review, then push the reviewed commit without force")
 	}
 }
 

@@ -72,13 +72,14 @@ Configure one active ruleset:
 | Target branches | Include the default branch |
 | Restrict deletions | Enabled |
 | Require a pull request before merging | Enabled; zero required approvals is enough for Cliewen's human-controlled merge boundary |
+| Require conversation resolution before merging | Enabled; known agent-review findings remain blocking until their hosted fixes are reviewed |
 | Require status checks to pass | Add `validate`; require the branch to be up to date before merging |
 | Expected source | Select GitHub Actions when GitHub offers a source for the recent `validate` check |
 | Block force pushes | Enabled |
 
 An empty bypass list matters. A rule that the normal maintainer or automation can silently bypass is not the merge boundary Cliewen assumes. If another ruleset or an older branch-protection rule also targets `main`, GitHub combines them and applies the most restrictive result.
 
-Rulesets are available for public repositories on GitHub Free, while private repositories need a plan that includes them. If the Rulesets menu is unavailable but classic branch protection is offered, configure the same default-branch requirements there: pull requests only, strict `validate` status check, administrators included, and force pushes and deletions disabled. If the hosting plan offers neither enforcement surface, the workflow can report failures but cannot block integration.
+Rulesets are available for public repositories on GitHub Free, while private repositories need a plan that includes them. If the Rulesets menu is unavailable but classic branch protection is offered, configure the same default-branch requirements there: pull requests only, strict `validate` status check, conversation resolution required, administrators included, and force pushes and deletions disabled. If the hosting plan offers neither enforcement surface, the workflow can report failures and agents can warn about unresolved findings, but neither can block integration.
 
 After saving, inspect the effective default-branch rules:
 
@@ -86,7 +87,7 @@ After saving, inspect the effective default-branch rules:
 gh ruleset check --default --repo OWNER/REPOSITORY
 ```
 
-You should see the pull-request requirement, required `validate` check, deletion restriction, and force-push block. Do not remove an existing stronger requirement merely to match this minimum.
+You should see the pull-request requirement, conversation-resolution requirement, required `validate` check, deletion restriction, and force-push block. Do not remove an existing stronger requirement merely to match this minimum.
 
 ## 4. Prove failure blocks merge
 
@@ -150,6 +151,7 @@ Forge menus differ, so copy the contract rather than GitHub's labels:
 - Keep one stable check name, `validate`.
 - Verify and execute the pinned `clue` release, then run `clue validate --forbid-changes` for every Cliewen change.
 - Require a merge request or pull request and the successful `validate` check before integration.
+- Require resolvable review conversations to be closed before integration; an agent finding remains open until its reviewed fix is hosted.
 - Give normal users and automation no bypass for direct pushes, failed checks, force pushes, or branch deletion.
 - Run the same undigested-workspace probe and confirm the forge blocks integration.
 
