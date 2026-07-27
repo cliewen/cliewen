@@ -1,3 +1,13 @@
+## Acceptance brief
+
+<!-- REQUIRED: Replace this comment with a concise, human-facing brief before requesting merge. -->
+
+- Plan item and whether it remains wanted: <!-- REQUIRED -->
+- Added or changed criteria, verbatim scenarios, and advisory scenario-resolution verdicts (`verifies`, `verifies-something-adjacent`, or `undetermined`): <!-- REQUIRED, or none -->
+- What becomes binding on merge (inferred decisions, invalidated or superseded records): <!-- REQUIRED, or none -->
+
+> A green build, complete form, or confident agent is not evidence that this outcome is wanted or that the criteria reflect reality. Keep this brief to one screen; split a change rather than hiding material meaning.
+
 ## Summary
 
 <!-- What changes, and why is it needed? -->

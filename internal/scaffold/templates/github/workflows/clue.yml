@@ -74,3 +74,11 @@ jobs:
       - name: clue validate
         if: steps.scope.outputs.cliewen == 'true' && steps.armed.outputs.armed == 'true'
         run: clue validate --forbid-changes
+
+      - name: Require a completed acceptance brief
+        if: github.event_name == 'pull_request' && steps.scope.outputs.cliewen == 'true'
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: |
+          printf '%s' "$PR_BODY" | grep -Fq '## Acceptance brief' || { echo 'FAIL: Cliewen PRs need an acceptance brief'; exit 1; }
+          ! printf '%s' "$PR_BODY" | grep -Fq '<!-- REQUIRED' || { echo 'FAIL: replace every acceptance-brief REQUIRED placeholder'; exit 1; }

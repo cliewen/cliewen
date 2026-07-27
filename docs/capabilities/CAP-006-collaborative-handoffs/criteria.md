@@ -34,4 +34,12 @@ Feature: Collaborative pull-request handoffs
     And an open changed head is fetched and reconciled before verification and review repeat
     And if accepted main advances after publication, current main is merged into the pull request branch without rewriting hosted history before verification and review repeat
     And a merged or closed pull request stops with any local work reported as unpublished
+
+  @AC-042
+  Scenario: The human merge gate receives its remaining semantic decisions
+    Given a full Cliewen change adds or changes acceptance criteria
+    When the agent prepares its ready pull request
+    Then the pull request starts with an acceptance brief naming the plan item, the criteria and scenarios, advisory scenario-resolution verdicts, and merge-binding decision effects
+    And CI rejects a full pull request that leaves the brief's required placeholders unfilled
+    But a scenario-resolution verdict is advisory and does not make `clue validate` fail
 ```

@@ -14,6 +14,7 @@ Use for every Cliewen change: features, fixes, docs, and plans whose meaning bel
    - `proposal.md` states what and why; its frontmatter `links` names the real plan item it serves or explicitly declares the change plan-less.
    - `tasks.md` is an ordered `- [ ]` checklist with dependencies first and at most one nested level. Mark `[x]` the moment a task completes, never in batch at the end. Mark an infeasible task `[-]` with its reason on the same line. A behavior-changing task names the acceptance-criterion IDs it serves; if none exists, add the criterion before implementation. Tests trace to criteria, never transient tasks.
    - `open-questions.md` records blocking questions. When one appears, write it and stop; the human answer becomes a decision record.
+   - A human may opt into a spec-first pause after Propose. Record the pause in `tasks.md` and stop before implementation until the human directs work to continue; otherwise proceed directly to Implement.
 3. **Implement:** Update the permanent corpus. Capabilities own README, criteria, and design files. Write criteria as Gherkin tagged `@AC-xxx`; every active criterion gets positive and negative tests in the same change, while an untestable capability stays `draft`. Split a criterion that cannot be verified by a focused pair. Every test declares exactly one purpose: the criterion ID, `Unit`, `Sanity`, or `Arch`, using framework tags where available and the test-name prefix in Go. When a criterion's meaning changes, retire it with `@retired`, keep the tombstone, mint a new ID, and remove or retag its tests.
 4. **Digest:** After every task is `[x]` or `[-]` with a reason, update permanent `/docs`, regenerate README indexes, apply repository-local digest conventions, record decisions, and update plan bookkeeping. Delete the change workspace. The digest is never a task in `tasks.md`; deletion is the digest, so a self-referential digest task cannot be completed honestly.
 5. **Verify, review, and propose for acceptance:** Run `clue-verify`, including its automatic agentic review loop on the verified committed candidate, then open the PR under the review boundary. Never ask the human to initiate the review. Merging accepts the change; decision provenance follows **Decision records** below.
@@ -43,6 +44,11 @@ Every decision record is timeless: state what is decided and only the enduring c
 ## Repository-local conventions
 
 For a Cliewen change, apply the repository-local conventions declared in AGENTS.md, including digest requirements such as a user-facing changelog entry. Plain changes follow only the repository conventions that apply to their changed surface. Local conventions extend the methodology and never override it. If AGENTS.md conflicts with a skill, record the conflict in `open-questions.md` and stop for a human decision; never choose silently.
+
+
+## Durable work state
+
+An agent's private memory is never where work lives. Anything needed to implement, continue, review, or hand off work belongs in a corpus artifact, the change workspace, or the pull request; private conversation does not survive a change of agent.
 
 ## Review boundary
 

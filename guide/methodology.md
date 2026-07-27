@@ -40,7 +40,7 @@ Constraints are rules a Cliewen change must not break: a law, license, policy, p
 
 ## Four actors, one boundary
 
-Skills carry process knowledge, `clue` is the deterministic judge, protected CI is the wall, and the human controls acceptance. The machine does not pretend to understand whether a criterion is valuable; the human does not have to repeat a locally completed code review, but the agent can never perform the merge that accepts its own work. CI becomes a wall only when its PR check is required and branch protection blocks integration without it.
+Skills carry process knowledge, `clue` is the deterministic judge, protected CI is the wall, and the human controls acceptance. A full-change PR begins with an acceptance brief that puts the remaining semantic questions — whether the plan item is still wanted, whether changed criteria fit reality, and what merge binds — in front of the human. The machine does not pretend to answer them; the human does not have to repeat a locally completed code review, but the agent can never perform the merge that accepts its own work. CI becomes a wall only when its PR check is required and branch protection blocks integration without it.
 
 ## Next
 
