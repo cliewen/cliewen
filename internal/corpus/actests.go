@@ -260,7 +260,10 @@ func scenarioTestType(lines []string) (testType string, single, invalid bool) {
 	for _, line := range lines {
 		trimmed := strings.TrimSpace(line)
 		if !inScenario {
-			if trimmed == "" || strings.HasPrefix(trimmed, "@") {
+			if trimmed == "" {
+				return "", false, false
+			}
+			if strings.HasPrefix(trimmed, "@") {
 				continue
 			}
 			if !isScenarioHeader(trimmed) {

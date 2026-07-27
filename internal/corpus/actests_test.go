@@ -168,6 +168,15 @@ func TestAC043_TestTypeAfterContiguousScenarioTagsIsClassified(t *testing.T) {
 	assertIssue(t, run(t, files, false), "AC-101 has no Unit negative evidence")
 }
 
+func TestAC043_SeparatedTagsDoNotAttachToScenario(t *testing.T) {
+	files := capFiles("active")
+	files["docs/capabilities/CAP-101-x/criteria.md"] = "---\nid: CAP-101-criteria\ntype: criteria\nstatus: active\nlinks: [CAP-101]\ntitle: X criteria\n---\n\n```gherkin\nFeature: X\n\n  @AC-101\n\n  @slow\n  Scenario: it works\n    Test-type: Unit\n    Given a thing\n    Then it works\n```\n"
+	files["pkg/x_test.go"] = "package x\n\nfunc TestAC101_UnitPositive_Works(t *testing.T) {}\n"
+	if issues := run(t, files, false); len(issues) != 0 {
+		t.Fatalf("a separated tag must not attach its Test-type to the AC, got %v", issues)
+	}
+}
+
 func TestAC043_UnitPositive_JvmTagsCarryTypeAndDirection(t *testing.T) {
 	files := capFiles("active")
 	files["docs/capabilities/CAP-101-x/criteria.md"] = "---\nid: CAP-101-criteria\ntype: criteria\nstatus: active\nlinks: [CAP-101]\ntitle: X criteria\n---\n\n```gherkin\nFeature: X\n\n  @AC-101\n  Scenario: it works\n    Test-type: Integration\n    Given a thing\n    Then it works\n```\n"
