@@ -45,6 +45,23 @@ func TestAC002_InitOutputPassesValidateUnchanged(t *testing.T) {
 	}
 }
 
+// AC-042: every initialized repository receives the PR form required by the
+// scaffolded CI wall, rather than leaving authors to recreate it by hand.
+func TestAC042_InitOutputIncludesAcceptanceBriefTemplate(t *testing.T) {
+	root, _ := runInto(t)
+	want, err := os.ReadFile(filepath.Join("..", "..", ".github", "pull_request_template.md"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	got, err := os.ReadFile(filepath.Join(root, ".github", "pull_request_template.md"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if string(got) != string(want) {
+		t.Error("scaffolded pull-request template differs from the repository template")
+	}
+}
+
 // AC-002 negative: the green result is not vacuous — validate really
 // judges the generated corpus and catches damage to it.
 func TestAC002_DamagedScaffoldIsCaught(t *testing.T) {
