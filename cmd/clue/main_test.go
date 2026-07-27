@@ -379,12 +379,59 @@ func TestSanity_ReleaseNotesComeFromChangelog(t *testing.T) {
 	if strings.Contains(wf, "generate_release_notes") {
 		t.Error("release workflow enables generate_release_notes — release bodies are written for users in the changelog, not auto-generated")
 	}
-	// GoReleaser ships its own notes generator: a commit dump with
-	// contributor @mentions, the same thing ADR-012 refused. --release-notes
-	// overrides it, but a config that still asks for one is a loaded gun —
-	// drop the flag and the dump silently becomes the release body.
-	if cfg := readGoreleaserConfig(t); !cfg.Changelog.Disable {
-		t.Error("goreleaser's changelog generation is not disabled — the release body must come only from the reviewed CHANGELOG section")
+	// This assertion used to be inverted, and it published v0.8.0 with a
+	// blank page. `changelog: {disable: true}` reads like extra protection
+	// for ADR-012 and is documented to "also ignore any changelog files
+	// passed via --release-notes, and render an empty changelog". Supplying
+	// --release-notes is already what keeps GoReleaser's commit dump out;
+	// disabling on top of it throws the reviewed notes away too.
+	if cfg := readGoreleaserConfig(t); cfg.Changelog.Disable {
+		t.Error("goreleaser config sets changelog.disable — that discards --release-notes and publishes an empty body; the flag alone already suppresses the generated changelog")
+	}
+	// Configuration can only say what was asked for. The release workflow
+	// must also check what GitHub actually published, because that is the
+	// only place the failure above was visible.
+	if !strings.Contains(wf, "gh release view") {
+		t.Error("release workflow never reads back the published body — ADR-012's one-to-one map must be verified against the release page, not just requested")
+	}
+}
+
+// Sanity: merging a release PR is what cuts the release (PDR-015). The
+// tagging workflow must take its version from the same single bump site the
+// release's drift gate judges, and must start the release explicitly — a tag
+// pushed with GITHUB_TOKEN does not trigger a workflow, so a missing dispatch
+// leaves a tagged commit that never publishes.
+func TestSanity_TagOnMergeDerivesTheVersionAndStartsTheRelease(t *testing.T) {
+	data, err := os.ReadFile(filepath.Join("..", "..", ".github", "workflows", "tag-on-merge.yml"))
+	if err != nil {
+		t.Fatalf("tag-on-merge workflow not found: %v", err)
+	}
+	wf := string(data)
+
+	const stamp = "internal/skills/source/shared/frontmatter.md.tmpl"
+	if !strings.Contains(wf, stamp) {
+		t.Errorf("tag-on-merge does not read %s — the tag must come from the same stamp the release gate compares against, not a second source", stamp)
+	}
+	if !strings.Contains(wf, "gh workflow run release.yml") {
+		t.Error("tag-on-merge never dispatches release.yml — a tag pushed with GITHUB_TOKEN does not trigger workflows, so the release would never start")
+	}
+	if !strings.Contains(wf, "actions: write") {
+		t.Error("tag-on-merge lacks actions: write — dispatching the release workflow fails with 403 without it")
+	}
+	// Without the already-tagged check this fails on every ordinary merge.
+	if !strings.Contains(wf, "refs/tags/v") {
+		t.Error("tag-on-merge does not check for an existing tag — it must be a quiet no-op on merges that do not raise the version")
+	}
+	if !strings.Contains(wf, "group: tag-on-main") || !strings.Contains(wf, "queue: max") || !strings.Contains(wf, "cancel-in-progress: false") {
+		t.Error("tag-on-merge does not serialize its release decision and tag push — concurrent main pushes can otherwise tag different commits")
+	}
+	if !strings.Contains(wf, `git diff --quiet "${GITHUB_SHA}^" "${GITHUB_SHA}" -- "$tmpl"`) {
+		t.Errorf("tag-on-merge does not gate releases on %s changing in the pushed commit — an ordinary merge can otherwise tag its own checkout", stamp)
+	}
+	// A spent version number cannot be reused, so a missing changelog
+	// section must stop the tag rather than the publish.
+	if !strings.Contains(wf, "CHANGELOG.md") {
+		t.Error("tag-on-merge does not require a CHANGELOG section — a stamp raised without notes would burn a tag that can never release (ADR-012)")
 	}
 }
 

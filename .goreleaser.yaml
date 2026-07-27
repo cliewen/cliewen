@@ -66,12 +66,20 @@ checksum:
   # the checksum file lists the upload names, extra lines included.
   name_template: "SHA256SUMS"
 
+# There is deliberately no `changelog:` block here.
+#
 # The release body is the tag's CHANGELOG.md section, passed by the
-# workflow as --release-notes (ADR-012). GoReleaser's own generator is a
-# commit dump with @mentions — exactly what ADR-012 refuses — so it is
-# disabled here rather than merely overridden at the call site.
-changelog:
-  disable: true
+# workflow as --release-notes (ADR-012). Supplying that flag already skips
+# GoReleaser's own generator — the commit dump with @mentions that ADR-012
+# refuses — so nothing further is needed to keep it out.
+#
+# `changelog: {disable: true}` looks like the stronger belt-and-braces
+# version of the same intent and is the exact opposite: it is documented to
+# "also ignore any changelog files passed via --release-notes, and render
+# an empty changelog". It shipped v0.8.0 with a blank release page. The
+# guard that catches this now is the workflow's post-publish comparison of
+# the published body against release-notes.md, because no amount of config
+# reading can tell you what GitHub ended up displaying.
 
 release:
   github:
