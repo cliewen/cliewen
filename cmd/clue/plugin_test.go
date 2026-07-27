@@ -18,8 +18,8 @@ import (
 var managedSkills = []string{"clue-analysis", "clue-delta", "clue-extract", "clue-plan", "clue-verify"}
 
 type marketplaceManifest struct {
-	Name    string `json:"name"`
-	Owner   struct {
+	Name  string `json:"name"`
+	Owner struct {
 		Name string `json:"name"`
 	} `json:"owner"`
 	Plugins []struct {
@@ -113,6 +113,17 @@ func TestSanity_BootstrapCommandsAreLiterallyRunnable(t *testing.T) {
 	}
 	if strings.Contains(string(body), `\|`) {
 		t.Error(`bootstrap contains an escaped pipe (\|) — an agent copying the command would run it literally, and the plugin's happy path would fail on first use`)
+	}
+	if !strings.Contains(string(body), `PATH="${CLUE_INSTALL:-$HOME/.local/bin}:$PATH" clue version`) {
+		t.Error("bootstrap does not verify the Unix installer with its install directory on PATH — a host application can inherit a PATH that lacks ~/.local/bin even after a fresh shell is opened")
+	}
+	for _, want := range []string{
+		`PATH="${CLUE_INSTALL:-$HOME/.local/bin}:$PATH" clue init`,
+		`PATH="${CLUE_INSTALL:-$HOME/.local/bin}:$PATH" clue validate`,
+	} {
+		if !strings.Contains(string(body), want) {
+			t.Errorf("bootstrap does not use the temporary Unix install PATH for %q — first-install scaffolding must work before the user restarts with a persisted PATH", want)
+		}
 	}
 }
 

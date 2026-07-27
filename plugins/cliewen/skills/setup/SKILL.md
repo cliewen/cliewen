@@ -17,7 +17,7 @@ Run `clue version`.
 
 ## 2. Install `clue`
 
-Pick the command for the host, run it, then **open a new shell** before checking the result: a `PATH` change does not reach an already-running one.
+Pick the command for the host and run it.
 
 ```sh
 curl -fsSL https://cliewen.dev/install.sh | sh          # macOS and Linux
@@ -33,7 +33,13 @@ The Go route reports `dev` rather than a release version unless a tagged version
 
 ## 3. Confirm the install
 
-Run `clue version` in a new shell and confirm it prints a release version. If it does not, stop and report what it printed. Everything below assumes a working binary, and a wrong answer here is much easier to explain now than after files have been written.
+Verify the binary with the command for the installation route you used:
+
+- macOS or Linux script: `PATH="${CLUE_INSTALL:-$HOME/.local/bin}:$PATH" clue version`
+- Windows script: `clue version`
+- Go: `"$(go env GOPATH)/bin/clue" version`
+
+The macOS/Linux `PATH` addition is temporary and makes this verification independent of the host application's inherited environment. Use that same prefix for every later `clue` command in this skill when the Unix script's directory is absent from the inherited `PATH`. If the script printed an `export PATH=…` line, pass that exact line to the user so they can add it to their shell profile; do not edit the profile on their behalf. Confirm that a script installation prints a release version. The Go route can print `dev` unless it installed a tagged version. If the relevant command does not produce the expected result, stop and report what it printed. Everything below assumes a working binary, and a wrong answer here is much easier to explain now than after files have been written.
 
 ## 4. Ask before scaffolding
 
@@ -45,7 +51,7 @@ Say what it will do:
 - It is safe to re-run: a second run refreshes the generated README index blocks and leaves prose alone.
 - It writes the five Cliewen skills into `.agents/skills/`, stamped with this binary's version. They are committed files, and `clue validate` fails if the binary and those skills ever disagree.
 
-If the user agrees, run `clue init`, then `clue validate` — a fresh scaffold validates green with no manual edits. Report both outputs.
+If the user agrees, run `clue init`, then `clue validate` — a fresh scaffold validates green with no manual edits. For the macOS/Linux script route when its directory is absent from the inherited `PATH`, run `PATH="${CLUE_INSTALL:-$HOME/.local/bin}:$PATH" clue init`, then `PATH="${CLUE_INSTALL:-$HOME/.local/bin}:$PATH" clue validate`. Report both outputs.
 
 If the repository already has a corpus of its own (existing decision records, specifications, requirements), say so and point at the `clue-extract` skill that `clue init` installs, rather than scaffolding over it.
 
