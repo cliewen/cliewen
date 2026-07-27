@@ -272,7 +272,7 @@ func scenarioTestType(lines []string) (testType string, single, invalid bool) {
 			inScenario = true
 			continue
 		}
-		if strings.HasPrefix(trimmed, "@") || isScenarioHeader(trimmed) {
+		if isScenarioHeader(trimmed) {
 			break
 		}
 		if trimmed == "" {
