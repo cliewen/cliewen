@@ -26,24 +26,29 @@ var (
 	classifiedGoRe = regexp.MustCompile(`^Test([A-Z][A-Z0-9]*?)(\d+)_(Unit|Integration|E2E|Performance)(Positive|Negative)(_\w*)?$`)
 	jvmTagRe       = regexp.MustCompile(`@Tag\(\s*"([^"]+)"\s*\)`)
 	jvmACRe        = regexp.MustCompile(`^([A-Z][A-Z0-9]*)-(\d+)$`)
-	testTypeRe     = regexp.MustCompile(`^\s*Test-type:\s*(Unit|Integration|E2E|Performance)(\s+\(single-direction\))?\s*$`)
+	testTypeRe     = regexp.MustCompile(`^\s*Test-type:\s*(Unit|Integration|E2E|Performance|Human)(\s+\(single-direction\))?\s*$`)
 	featureTagRe   = regexp.MustCompile(`@([A-Za-z][A-Za-z0-9-]*)`)
 )
 
 type acDecl struct {
 	path, status string
 	retired      bool
+	draft        bool // @draft (ADR-033): exempt from the active-file test requirement without retiring the AC
 	testType     string
 	single       bool
 	invalidType  bool
+	humanSingle  bool // Test-type: Human combined with (single-direction), which the Human class does not use (ADR-033)
 }
 
-func checkACTests(c *Corpus) []Issue {
-	declared := map[string]acDecl{}
+// harvestACs parses every criteria.md tag-line declaration and walks the
+// tree for classified Go, JVM, and Cucumber evidence, shared by
+// checkACTests (which enforces it) and Coverage (which derives a report
+// from the same declarations without repeating the walk).
+func harvestACs(c *Corpus) (declared map[string]acDecl, classified map[string]map[string]map[string]bool, tested map[string]bool, issues []Issue) {
+	declared = map[string]acDecl{}
 	// The default namespace is always known, so an undeclared AC-xxx
 	// reference fails as unknown, not as purpose-less.
 	prefixes := map[string]bool{"AC": true}
-	var issues []Issue
 	for _, a := range c.Artifacts {
 		if a.Type != "criteria" {
 			continue
@@ -63,6 +68,7 @@ func checkACTests(c *Corpus) []Issue {
 		lines := strings.Split(a.Body, "\n")
 		for i, line := range lines {
 			retired := strings.Contains(line, "@retired")
+			draft := strings.Contains(line, "@draft")
 			for _, m := range acTagRe.FindAllStringSubmatch(line, -1) {
 				ac := m[1] + "-" + m[2]
 				if m[1] != prefix {
@@ -73,15 +79,18 @@ func checkACTests(c *Corpus) []Issue {
 					issues = append(issues, Issue{a.Path, "duplicate declaration of " + ac + " (already declared in " + prev.path + ")"})
 					continue
 				}
-				d := acDecl{path: a.Path, status: a.Status, retired: retired}
+				d := acDecl{path: a.Path, status: a.Status, retired: retired, draft: draft}
 				d.testType, d.single, d.invalidType = scenarioTestType(lines[i+1:])
+				if d.testType == "Human" && d.single {
+					d.testType, d.single, d.humanSingle = "", false, true
+				}
 				declared[ac] = d
 			}
 		}
 	}
 
-	tested := map[string]bool{}
-	classified := map[string]map[string]map[string]bool{}
+	tested = map[string]bool{}
+	classified = map[string]map[string]map[string]bool{}
 	record := func(path, subject, ac, typ, direction string) {
 		issues = append(issues, checkACRef(path, subject, ac, declared, tested)...)
 		if typ == "" || direction == "" {
@@ -237,12 +246,26 @@ func checkACTests(c *Corpus) []Issue {
 		return nil
 	})
 
+	return declared, classified, tested, issues
+}
+
+func checkACTests(c *Corpus) []Issue {
+	declared, classified, tested, issues := harvestACs(c)
+
 	for ac, d := range declared {
-		if d.status == "active" && !d.retired && !tested[ac] {
+		// A Human-class criterion is satisfied by the acceptance brief, never
+		// a code test; @draft exempts a not-yet-proven criterion from the
+		// active-file test requirement without retiring it (ADR-033).
+		exempt := d.draft || d.testType == "Human"
+		live := d.status == "active" && !d.retired
+		if live && !exempt && d.humanSingle {
+			issues = append(issues, Issue{d.path, ac + " declares Test-type: Human (single-direction), which the Human class does not use (ADR-033)"})
+		}
+		if live && !exempt && !tested[ac] {
 			issues = append(issues, Issue{d.path, ac + " has no test (convention per ADR-005/ADR-009: a Go test named Test" + strings.ReplaceAll(ac, "-", "") + "_… or a framework tag \"" + strings.ReplaceAll(ac, "-", "_") + "\")"})
 		}
-		if d.status != "active" || d.retired || d.testType == "" {
-			if d.status == "active" && !d.retired && d.invalidType {
+		if d.status != "active" || d.retired || exempt || d.testType == "" {
+			if live && !exempt && d.invalidType {
 				issues = append(issues, Issue{d.path, ac + " has a Test-type that is not the first non-blank scenario-body line (ADR-032)"})
 			}
 			continue

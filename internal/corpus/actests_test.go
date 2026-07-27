@@ -256,3 +256,31 @@ func TestAC044_CucumberAmbiguousDirectionTagsFail(t *testing.T) {
 	assertIssue(t, run(t, files, false), "Cucumber tag block for AC-101 must declare at most one test type and direction")
 	assertIssue(t, run(t, files, false), "AC-101 has no E2E positive evidence")
 }
+
+func TestAC045_UnitPositive_HumanClassNeedsNoCodeTest(t *testing.T) {
+	files := capFiles("active")
+	files["docs/capabilities/CAP-101-x/criteria.md"] = "---\nid: CAP-101-criteria\ntype: criteria\nstatus: active\nlinks: [CAP-101]\ntitle: X criteria\n---\n\n```gherkin\nFeature: X\n\n  @AC-101\n  Scenario: a human confirms it\n    Test-type: Human\n    Given a thing only a person can judge\n    Then a human confirms it in the acceptance brief\n```\n"
+	if issues := run(t, files, false); len(issues) != 0 {
+		t.Fatalf("Human class needs no code test, got %v", issues)
+	}
+}
+
+func TestAC045_UnitNegative_HumanWithSingleDirectionIsMalformed(t *testing.T) {
+	files := capFiles("active")
+	files["docs/capabilities/CAP-101-x/criteria.md"] = "---\nid: CAP-101-criteria\ntype: criteria\nstatus: active\nlinks: [CAP-101]\ntitle: X criteria\n---\n\n```gherkin\nFeature: X\n\n  @AC-101\n  Scenario: a human confirms it\n    Test-type: Human (single-direction)\n    Given a thing only a person can judge\n    Then a human confirms it in the acceptance brief\n```\n"
+	assertIssue(t, run(t, files, false), "AC-101 declares Test-type: Human (single-direction), which the Human class does not use")
+}
+
+func TestAC046_UnitPositive_DraftTagExemptsOneCriterion(t *testing.T) {
+	files := capFiles("active")
+	files["docs/capabilities/CAP-101-x/criteria.md"] = "---\nid: CAP-101-criteria\ntype: criteria\nstatus: active\nlinks: [CAP-101]\ntitle: X criteria\n---\n\n```gherkin\nFeature: X\n\n  @AC-101 @draft\n  Scenario: not proven yet\n    Given a thing\n    Then it will work\n```\n"
+	if issues := run(t, files, false); len(issues) != 0 {
+		t.Fatalf("@draft criterion needs no test, got %v", issues)
+	}
+}
+
+func TestAC046_UnitNegative_RemovingDraftRestoresTheTestRequirement(t *testing.T) {
+	files := capFiles("active")
+	files["docs/capabilities/CAP-101-x/criteria.md"] = "---\nid: CAP-101-criteria\ntype: criteria\nstatus: active\nlinks: [CAP-101]\ntitle: X criteria\n---\n\n```gherkin\nFeature: X\n\n  @AC-101\n  Scenario: not proven yet\n    Given a thing\n    Then it will work\n```\n"
+	assertIssue(t, run(t, files, false), "AC-101 has no test")
+}

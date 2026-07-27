@@ -42,4 +42,12 @@ Feature: Collaborative pull-request handoffs
     Then the pull request starts with an acceptance brief naming the plan item, the criteria and scenarios, advisory scenario-resolution verdicts, and merge-binding decision effects
     And CI rejects a full pull request that leaves the brief's required placeholders unfilled
     But a scenario-resolution verdict is advisory and does not make `clue validate` fail
+
+  @AC-048
+  Scenario: The acceptance brief names newly declared Human-class criteria as their proof
+    Test-type: Unit
+    Given a full Cliewen change adds or materially revises a criterion declaring the Human test type
+    When the agent prepares its ready pull request
+    Then the acceptance brief's criteria line names that criterion and states that the brief is its proof
+    But a change touching no Human-class criterion leaves the brief's existing criteria line unchanged
 ```
