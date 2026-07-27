@@ -1,0 +1,114 @@
+# Cutting a release is "merge the release PR" (PDR-015).
+#
+# The human merge is the authorization; the tag is a consequence of it, not
+# a second manual act. Before this workflow, a merged version bump sat on
+# main doing nothing until someone remembered to tag — which is exactly what
+# happened to 0.8.0, where the install script kept serving the previous
+# release after the bump had landed.
+#
+# Every ordinary merge runs this and exits quietly: the tag for the version
+# already on main exists, so there is nothing to do. Only a merge that
+# raises the stamp reaches the tagging step.
+name: Tag on merge
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write   # push the tag
+  actions: write    # dispatch the release workflow
+
+# Keep the version-stamp check and tag push as one critical section. Pushes
+# arrive independently, so a later ordinary merge must wait for a preceding
+# version-bump merge to finish tagging before deciding it has work to do.
+concurrency:
+  group: tag-on-main
+  queue: max
+  cancel-in-progress: false
+
+jobs:
+  tag:
+    name: Tag a new version
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      # The skills' frontmatter template is the repository's single bump
+      # site and already the input the release's drift gate judges the tag
+      # against. Reading the version from anywhere else would create a
+      # second source that could disagree with it.
+      - name: Read the version from the skill stamp
+        id: version
+        run: |
+          tmpl=internal/skills/source/shared/frontmatter.md.tmpl
+          v=$(sed -n 's/^version:[[:space:]]*//p' "$tmpl" | head -n 1)
+          if ! printf '%s' "$v" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "::error title=Unreadable version stamp::${tmpl} does not carry a bare semver version; got '${v}'" >&2
+            exit 1
+          fi
+          echo "v=${v}" >> "$GITHUB_OUTPUT"
+
+      # Only the merge that changes the stamp can release it. Checking tag
+      # absence alone races with later ordinary merges: either push can see
+      # the same untagged version and tag its own checkout.
+      - name: Check whether this merge raises an untagged version
+        id: check
+        env:
+          VERSION: ${{ steps.version.outputs.v }}
+        run: |
+          tmpl=internal/skills/source/shared/frontmatter.md.tmpl
+          if git diff --quiet "${GITHUB_SHA}^" "${GITHUB_SHA}" -- "$tmpl"; then
+            echo "The version stamp did not change in this merge — nothing to release."
+            echo "release=false" >> "$GITHUB_OUTPUT"
+          elif git rev-parse -q --verify "refs/tags/v${VERSION}" >/dev/null; then
+            echo "v${VERSION} is already tagged — nothing to release."
+            echo "release=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "release=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      # A tag with no user-facing notes cannot be released at all: the
+      # release workflow fails at its extraction step (ADR-012). Failing
+      # here instead means a missing section costs a red run, not a spent
+      # version number that can never be reused.
+      - name: Require user-facing notes before tagging
+        if: steps.check.outputs.release == 'true'
+        env:
+          VERSION: ${{ steps.version.outputs.v }}
+        run: |
+          awk -v ver="$VERSION" '
+            BEGIN { header = "## [" ver "]" }
+            !found { if (index($0, header) == 1) found = 1; next }
+            /^## \[/ { exit }
+            { print }
+          ' CHANGELOG.md > "${RUNNER_TEMP}/notes.md"
+          if ! grep -q '[^[:space:]]' "${RUNNER_TEMP}/notes.md"; then
+            echo "::error title=No release notes::CHANGELOG.md has no '## [${VERSION}]' section with content; the stamp was raised without user-facing notes (ADR-012)" >&2
+            exit 1
+          fi
+
+      - name: Tag the merge commit
+        if: steps.check.outputs.release == 'true'
+        env:
+          VERSION: ${{ steps.version.outputs.v }}
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag -a "v${VERSION}" -m "v${VERSION}"
+          git push origin "v${VERSION}"
+
+      # A tag pushed with GITHUB_TOKEN does NOT trigger workflows — GitHub
+      # suppresses that to prevent loops — so the release must be started
+      # explicitly. workflow_dispatch is the documented exception to the
+      # suppression, which is why this needs no PAT. Dispatching against the
+      # tag ref satisfies the release workflow's existing tag-only guard, so
+      # the run is identical to one a pushed tag would have produced.
+      - name: Start the release
+        if: steps.check.outputs.release == 'true'
+        env:
+          VERSION: ${{ steps.version.outputs.v }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh workflow run release.yml --ref "v${VERSION}"

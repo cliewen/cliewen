@@ -85,9 +85,10 @@ jobs:
       # all from .goreleaser.yaml, so the asset names an adopter's CI wall
       # and the published install scripts depend on have one definition.
       # --release-notes keeps the body the reviewed CHANGELOG section
-      # (ADR-012), overriding goreleaser's own generator, which the config
-      # also disables. Pinned by commit SHA: this third-party action runs
-      # with contents: write and publishes the artifacts.
+      # (ADR-012); supplying it skips goreleaser's own generator. The step
+      # after this one checks that the page actually says so. Pinned by
+      # commit SHA: this third-party action runs with contents: write and
+      # publishes the artifacts.
       #
       # goreleaser refuses to build from a dirty tree, and the extracted
       # release-notes.md would count as dirty — .gitignore covers it.
@@ -103,3 +104,28 @@ jobs:
           args: release --clean --release-notes=release-notes.md
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # ADR-012 says the release page can never say anything the reviewed
+      # file does not. Everything before this point only checks what we
+      # *asked* for; this checks what GitHub actually published. v0.8.0
+      # shipped an empty body with every configuration assertion green,
+      # because `changelog: {disable: true}` silently discarded the notes —
+      # a dry run cannot catch that, since --skip=publish creates no page.
+      #
+      # The comparison strips CR and trailing blank lines from both sides:
+      # `--jq .body` appends a newline of its own, so a byte-exact diff
+      # would fail every release for a reason that is not a defect.
+      - name: Verify the published body is the reviewed changelog section
+        env:
+          VERSION: ${{ steps.version.outputs.v }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          norm() { printf '%s\n' "$(tr -d '\r' < "$1")"; }
+          gh release view "v${VERSION}" --json body --jq .body > "${RUNNER_TEMP}/body.md"
+          norm release-notes.md          > "${RUNNER_TEMP}/expected.norm"
+          norm "${RUNNER_TEMP}/body.md"  > "${RUNNER_TEMP}/published.norm"
+          if ! diff -u "${RUNNER_TEMP}/expected.norm" "${RUNNER_TEMP}/published.norm"; then
+            echo "::error title=Release body does not match CHANGELOG.md::The published v${VERSION} page is not the reviewed section (ADR-012). Fix it with: gh release edit v${VERSION} --notes-file release-notes.md" >&2
+            exit 1
+          fi
+          echo "Published body matches the reviewed CHANGELOG.md section."
