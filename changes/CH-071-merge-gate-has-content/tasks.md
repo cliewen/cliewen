@@ -1,7 +1,7 @@
 ---
 id: CH-071-tasks
 type: tasks
-status: active
+status: open
 links: [P-007]
 title: Tasks for CH-071
 ---
@@ -23,6 +23,6 @@ title: Tasks for CH-071
 - [ ] Update guide pages describing the merge gate as empty / lacking scenario-resolution (guide/change-loop.md, guide/design.md, guide/methodology.md)
 - [ ] CHANGELOG.md entry under [Unreleased]
 - [ ] Update docs/plans/P-007-core-hardening.md M-024 row to done with evidence
-- [ ] `go build ./...`, `go test ./...`, `go run ./cmd/clue validate --forbid-changes`, `git diff --check`
-- [ ] Digest: delete /changes/CH-071-merge-gate-has-content/
-- [ ] clue-verify agentic review loop, then open ready PR
+- [ ] `go build ./...`, `go test ./...`, `go run ./cmd/clue validate`, `git diff --check`
+
+After every checklist item is complete or infeasible with a recorded reason, digest this change by deleting `/changes/CH-071-merge-gate-has-content/`; then run `go run ./cmd/clue validate --forbid-changes`, complete the `clue-verify` agentic review loop, and open the ready PR.
