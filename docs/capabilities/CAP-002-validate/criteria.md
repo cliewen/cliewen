@@ -110,4 +110,22 @@ Feature: clue validate — deterministic corpus judgment
     And the output names the file and calls the block a leftover second frontmatter
     But a thematic break without a matching closing fence does not trigger the check
     And thematic breaks enclosing ordinary markdown or nothing at all do not trigger the check
+
+  @AC-043
+  Scenario: Declared test types require classified positive and negative evidence
+    Test-type: Unit
+    Given an active acceptance criterion declaring the Unit test type
+    And a test reference classified as Unit and positive
+    When the user runs "clue validate"
+    Then it exits with a non-zero code naming the missing negative evidence
+    But a Unit negative reference makes the criterion covered
+
+  @AC-044
+  Scenario: Cucumber tags provide classified acceptance-criterion evidence
+    Test-type: Unit
+    Given an active acceptance criterion declaring the E2E test type
+    And a Cucumber .feature scenario tagged with its AC ID, e2e, and positive
+    When the user runs "clue validate"
+    Then it exits with a non-zero code naming the missing negative evidence
+    But a Cucumber scenario tagged e2e and negative makes the criterion covered
 ```

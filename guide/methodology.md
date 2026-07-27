@@ -30,7 +30,7 @@ Two guards hold above the rules. When the tier is unclear, take the higher one; 
 
 ## Capability and acceptance criterion
 
-A capability owns three views: a plain-language explanation, Gherkin acceptance criteria, and implementer-facing design. An active criterion has a stable ID and both positive and negative focused tests. If its meaning changes, the old ID is retired as a tombstone and a new one is minted.
+A capability owns three views: a plain-language explanation, Gherkin acceptance criteria, and implementer-facing design. A new or revised active criterion declares its intended proof boundary with `Test-type: Unit`, `Integration`, `E2E`, or `Performance`, and has focused positive and negative evidence at that boundary; a genuinely single-direction scenario says so explicitly. If its meaning changes, the old ID is retired as a tombstone and a new one is minted.
 
 That immutability matters. A test tagged `AC-042` should always mean the same promise, even years later.
 
