@@ -36,13 +36,13 @@ var defaultLifecycle = []string{"draft", "active"}
 // statusVocabExceptions holds the types whose lifecycle is not the default,
 // each for the reason named in ADR-025.
 var statusVocabExceptions = map[string][]string{
-	"goal":           {"proposed", "accepted", "retired"}, // proposed goals are the inbox (ADR-002)
-	"plan":           {"draft", "active", "completed"},    // completed is immutable (C-008)
-	"decision":       {"inferred", "verified"},            // provenance lives in status (ADR-010)
-	"log":            {"active"},                          // one register; rows are its lifecycle (PDR-003)
-	"change":         {"open"},                            // transient workspace artifact
-	"tasks":          {"open"},                            // transient workspace artifact
-	"open-questions": {"open", "resolved"},                // transient workspace artifact
+	"goal":           {"proposed", "accepted"},         // proposed goals are the inbox (ADR-002)
+	"plan":           {"draft", "active", "completed"}, // completed is immutable (C-008)
+	"decision":       {"inferred", "verified"},         // provenance lives in status (ADR-010)
+	"log":            {"active"},                       // one register; rows are its lifecycle (PDR-003)
+	"change":         {"open"},                         // transient workspace artifact
+	"tasks":          {"open"},                         // transient workspace artifact
+	"open-questions": {"open", "resolved"},             // transient workspace artifact
 }
 
 // statusVocabFor returns the allowed status set for a type: its exception if it

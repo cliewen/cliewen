@@ -23,7 +23,7 @@ Three optional fields extend the core, each with a named consumer: `ac-prefix` o
 
 | Type | Statuses | Why not the default |
 |---|---|---|
-| goal | `proposed` → `accepted` → `retired` | proposed goals ARE the inbox (ADR-002) |
+| goal | `proposed` → `accepted` | proposed goals ARE the inbox (ADR-002) |
 | plan | `draft` → `active` → `completed` | `completed` is immutable, not `retired` (C-008) |
 | decision | `inferred` → `verified` | provenance lives in status; human acceptance promotes (ADR-010) |
 | log | `active` | one register — rows are its lifecycle (PDR-003) |

@@ -33,7 +33,7 @@ Each folder below holds one kind of record. A Cliewen change (the `clue-delta` l
 
 | Type | Statuses | Why not the default |
 |---|---|---|
-| goal | `proposed` → `accepted` → `retired` | proposed goals are the inbox |
+| goal | `proposed` → `accepted` | proposed goals are the inbox |
 | plan | `draft` → `active` → `completed` | `completed` is immutable |
 | decision | `inferred` → `verified` | provenance lives in status; human acceptance promotes |
 | log | `active` | one register — rows are its lifecycle |

@@ -30,7 +30,7 @@ ADR-025 gives every default-lifecycle type a `draft → active → retired` voca
 **This decision supersedes two specific clauses, not the records that carry them:**
 
 - **PDR-003's demotion mechanic** — "file deleted, row added, inbound references repointed" — is unchanged in effect but now names its mechanism: the row is (or, for a demoting change, gains) the `supersedes:` pointer on `log.md`, and "inbound references repointed" is what `checkLinks` was already enforcing.
-- **ADR-025's claim that `retired` is a reachable terminal state** for the default lifecycle is corrected: no file was ever observed reaching it, and this decision states why that was never a bug to fix — the state was never meant to be a resting place. `ADR-025`'s exceptions table (goal, plan, decision, log, transient workspace types) is otherwise unchanged.
+- **ADR-025's claim that `retired` is a reachable terminal state** is corrected for the default lifecycle and goals: no file was ever observed reaching it, and this decision states why that was never a bug to fix — the state was never meant to be a resting place. `ADR-025`'s other exception vocabularies (plan, decision, log, transient workspace types) are unchanged.
 
 **Carrier:** the `Supersedes` field on `internal/corpus.Artifact` and the `checkSupersedes` rule in `internal/corpus/rules.go` (machine); the retirement sentence in `clue-delta`'s Implement step, extended to name `supersedes:` alongside the existing criteria-tombstone sentence (agent); the decisions folder README and `docs/decisions/log.md`'s header preamble (default).
 

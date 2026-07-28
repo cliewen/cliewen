@@ -356,15 +356,22 @@ func TestAC050_UnitPositive_DanglingLinkNamesSuccessor(t *testing.T) {
 	assertIssue(t, issues, "G-002")
 }
 
-// AC-049: a status: retired file is rejected outright for a default-
-// lifecycle type — retirement is deletion, not a resting status the
-// default lifecycle offers. (goal, plan, decision, and log are named
-// ADR-025 exceptions with their own vocabularies and are unaffected.)
+// AC-049: a status: retired file is rejected outright — retirement is
+// deletion, not a resting status any artifact vocabulary offers.
 func TestAC049_UnitPositive_RetiredStatusRejectedForDefaultLifecycle(t *testing.T) {
 	files := with(validFiles, map[string]string{
 		"docs/goals/G-001-first.md": "---\nid: G-001\ntype: risk\nstatus: retired\nlinks: []\ntitle: An adopter-defined type\n---\n",
 	})
 	assertIssue(t, run(t, files, false), "status retired not allowed for type risk")
+}
+
+// AC-049: goals use a distinct inbox lifecycle, but retirement still means
+// deleting the goal rather than retaining it with status: retired.
+func TestAC049_UnitPositive_RetiredStatusRejectedForGoal(t *testing.T) {
+	files := with(validFiles, map[string]string{
+		"docs/goals/G-001-first.md": "---\nid: G-001\ntype: goal\nstatus: retired\nlinks: []\ntitle: First goal\n---\n",
+	})
+	assertIssue(t, run(t, files, false), "status retired not allowed for type goal (allowed: proposed, accepted)")
 }
 
 // AC-049: an artifact cannot claim to supersede its own id.

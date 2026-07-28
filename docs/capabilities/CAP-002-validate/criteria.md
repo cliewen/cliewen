@@ -163,7 +163,7 @@ Feature: clue validate — deterministic corpus judgment
     When the user runs "clue validate"
     Then it exits with a non-zero code naming the file and the not-actually-retired ID
     But once the still-live artifact is deleted and nothing else references it, the corpus passes
-    And a default-lifecycle artifact carrying status: retired is rejected outright, since retirement is deletion, not a status
+    And any artifact carrying status: retired is rejected outright, since retirement is deletion, not a status
     And an artifact naming its own ID in supersedes is rejected, since an artifact cannot retire itself
     And two artifacts both claiming to supersede the same ID are rejected, naming both claimants, rather than one being silently picked
 
