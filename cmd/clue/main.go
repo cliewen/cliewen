@@ -47,6 +47,7 @@ const usage = `clue — a verifiable thread from goal to test
 Usage:
   clue init [path]
   clue scaffold [path]
+  clue context <id> [path]
   clue validate [--forbid-changes] [--coverage] [--reality-gaps] [path]
   clue version
 
@@ -67,6 +68,11 @@ Commands:
              appended, prose outside the clue:index markers is never
              touched. Materializes nothing — missing folder READMEs are
              reported, and a path without a docs/ tree is an error.
+
+  context    Print one artifact and the transitive closure of its outgoing
+             links, with complete markdown content in deterministic order.
+             Acceptance-criterion and milestone IDs resolve to the artifact
+             that declares them. Path defaults to ".".
 
   validate   Scan docs/ and changes/ under path (default ".") and check
              the frontmatter graph: core fields, unique IDs, link
@@ -101,6 +107,8 @@ func main() {
 		os.Exit(runInit(os.Args[2:], os.Stdout, os.Stderr))
 	case "scaffold":
 		os.Exit(runScaffold(os.Args[2:], os.Stdout, os.Stderr))
+	case "context":
+		os.Exit(runContext(os.Args[2:], os.Stdout, os.Stderr))
 	case "validate":
 		os.Exit(runValidate(os.Args[2:]))
 	case "version", "--version":
