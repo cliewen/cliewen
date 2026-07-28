@@ -4,6 +4,8 @@ The change loop applies when work belongs in Cliewen. Before loading the corpus,
 
 When meaning is touched, use this loop. The light tier fits when meaning is only touched and no decision, acceptance meaning, plan semantics, or methodology carrier is affected; everything else is full. When the tier is unclear, take the higher one, and move to the full loop the moment a decision, an open question, a meaning change, or a methodology-carrier edit appears during work.
 
+After classification, start from the smallest durable context that governs the task. `clue context <id>` prints the named artifact and the transitive closure of its outgoing links; an acceptance-criterion or milestone ID resolves to the artifact that declares it. If the request gives no usable ID, orient at `docs/README.md`, choose the closest artifact, and run the command from there. Shared goals have many reverse dependents, so `context` deliberately follows declared outgoing dependencies only instead of recreating a full-corpus read.
+
 ## One real change, end to end
 
 [Cliewen pull request #2](https://github.com/cliewen/cliewen/pull/2) made the last edge of the thread machine-checkable. Before that change, an active acceptance criterion could lose its test reference without `clue` noticing; after it, the validator reports the criterion and exits non-zero.
@@ -19,6 +21,8 @@ When meaning is touched, use this loop. The light tier fits when meaning is only
 | Acceptance | The branch became PR #2, CI ran the candidate, and a human merge accepted it into `main` |
 
 That same shape applies to an ordinary product request: state the desired behavior, connect it to a criterion and evidence, implement until the thread and tests are green, digest the temporary proposal, and hand the exact verified commit to the protected pull request.
+
+An existing criterion does not make a behavior change light. The implementation changes executable evidence and may reveal that criterion, test boundary, and product reality disagree, so behavior remains a full reviewed delta. The first adopter-history measurement found real workspace cost—144 transient lines for 76 durable corpus additions across its two full semantic changes—but no behavior-under-existing-criterion example from which to justify removing that boundary. Light routing already left three of five accepted units without a workspace; focused context reduces reading cost without weakening the behavior-to-evidence handoff.
 
 ## 1. Branch
 

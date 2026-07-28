@@ -26,7 +26,9 @@ Cliewen does not own every repository edit. Three rules set the tier, by how dee
 
 A Cliewen change is a branch-sized proposal. A full change uses a transient workspace under `/changes/CH-xxx-*` for the proposal, ordered tasks, and blocking questions. The workspace is deleted during the digest because the current system truth belongs in `/docs`, while Git keeps the proposal history. A light change skips that workspace and its ready pull-request description becomes the proposal, but the branch and human merge boundary remain.
 
-Two guards hold above the rules. When the tier is unclear, take the higher one; and the moment a decision, an open question, a meaning change, or a methodology-carrier edit appears during work, move to the full loop before continuing.
+Two guards hold above the rules. When the tier is unclear, take the higher one; and the moment a decision, an open question, a meaning change, or a methodology-carrier edit appears during work, move to the full loop before continuing. Product behavior stays full even when an existing criterion already states the behavior: implementation changes executable evidence and can expose disagreement between the criterion, its tests, and reality.
+
+Once classified, `clue context <id>` resolves an artifact, criterion, or milestone identity and prints the transitive outgoing-link slice that governs it. This keeps reading proportional without reverse-expanding through shared goals into the whole corpus.
 
 ## Capability and acceptance criterion
 

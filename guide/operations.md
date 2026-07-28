@@ -11,6 +11,7 @@ This page is for a repository that has finished the disposable trial and is deci
 | Agent guidance | Five generated Cliewen skills in `.agents/skills/`, mirrored to `.claude/skills/` for Claude Code |
 | GitHub CI | `clue init` writes an unarmed GitHub Actions workflow; you vendor the pinned Linux binary and checksum, then require its `validate` check |
 | Validation | `clue validate` checks the repository-local corpus, generated indexes, skill ownership/version drift, and active-criterion test references; `--forbid-changes` also rejects an undigested `/changes/` workspace |
+| Focused context | `clue context <id>` prints the named artifact and its transitive outgoing-link dependencies; criterion and milestone IDs resolve to their declaring artifact |
 
 Cliewen does not run your tests, synchronize tickets or wikis, does not update installed files in the background, or validate evidence across repositories. It harvests only the Go and JVM conventions above. A different framework needs a supported language profile before its test references can satisfy `clue validate`; do not treat an arbitrary comment or tag as equivalent evidence.
 

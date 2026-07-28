@@ -1,6 +1,6 @@
 # The corpus
 
-The `/docs` tree is Cliewen's permanent working memory. Agents read it before acting, people review it with the implementation, and Git records every accepted mutation.
+The `/docs` tree is Cliewen's permanent working memory. After classifying a task, agents read the focused slice from `clue context <id>` and follow more edges only when needed; people review the durable artifacts with the implementation, and Git records every accepted mutation.
 
 ## The taxonomy
 
@@ -34,6 +34,8 @@ goal: G-001
 The ID is the identity; the path is only its current address. `clue` scans frontmatter, checks IDs and status vocabularies, resolves every `links` entry, and verifies that generated indexes match the files on disk.
 
 This makes refactoring the corpus safe. A file can move without becoming a different decision or capability, while duplicate IDs and broken references fail loudly.
+
+`clue context <id>` turns identity into a reading path: it prints the declaring artifact first, then follows outgoing `links` transitively in deterministic order. Criterion and milestone IDs resolve to their owning criteria or plan artifact. It does not follow reverse links, because starting from a shared goal would otherwise pull most of a mature corpus into one result.
 
 ## One home per scope
 

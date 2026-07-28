@@ -65,4 +65,5 @@ The CLI reports inferred ADRs and PDRs as decisions awaiting verification, separ
 - [ADR-033-human-proof-and-draft-criteria](ADR-033-human-proof-and-draft-criteria.md)
 - [ADR-034-retirement-is-deletion](ADR-034-retirement-is-deletion.md)
 - [ADR-035-bounded-provenance-and-reality-edges](ADR-035-bounded-provenance-and-reality-edges.md)
+- [PDR-018 — Behavior changes remain full until adopter evidence supports a narrower loop](PDR-018-behavior-changes-remain-full.md) · `inferred`
 <!-- clue:index:end -->

@@ -20,6 +20,8 @@ A plain change starts from the current tip of `main`, uses an ordinary branch, r
 
 For every other change, search existing issues, pull requests, and the system-of-record under [`docs/`](docs/README.md). Every Cliewen change serves an existing item under [`docs/plans/`](docs/plans/README.md) or explicitly declares itself plan-less. A contributor may initiate one Cliewen change at a time; plain changes, reviewing, and helping update an existing pull request do not consume another initiated-change slot. Every branch starts from accepted `main` and never from unmerged work.
 
+After classification, load the smallest durable slice that can govern the work: run `clue context <id>` when the request names or resolves to an artifact; otherwise orient at `docs/README.md`, select the closest plan, capability, criterion, or decision, and run `clue context` from there. Follow additional edges only when the task discovers them.
+
 Use the next free `CH-xxx` identifier visible in git history and any active `/changes/` workspace, then create a descriptive Cliewen branch such as `ch-031-short-slug`.
 
 ## Choose the Change Tier
@@ -27,6 +29,8 @@ Use the next free `CH-xxx` identifier visible in git history and any active `/ch
 A change is light when meaning is touched but not changed: it makes no decision, changes no acceptance-criterion or capability meaning, makes no semantic plan mutation, and touches no methodology carrier such as an agent skill, `AGENTS.md` rule, or lint rule. A light change has no `/changes/` workspace; its pull-request description is the proposal and states what, why, and the plan item or plan-less declaration.
 
 Every other change is full. Before implementation, add `/changes/<CH-xxx-slug>/proposal.md`, `tasks.md`, and `open-questions.md`, then commit that proposal by itself. Record unresolved decisions in `open-questions.md` and stop until a human answer can be captured as a typed decision.
+
+A product behavior change remains full when an existing criterion already describes the intended behavior. The criterion avoids inventing new acceptance meaning; it does not make the implementation or its executable evidence semantically inert.
 
 ## Implement and Digest
 

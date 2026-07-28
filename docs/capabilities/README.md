@@ -9,4 +9,5 @@ One folder per capability — the middle anchor of the red thread. Every capabil
 - [CAP-004 — clue ships](CAP-004-ship/README.md) · `active`
 - [CAP-005 — Index generation](CAP-005-indexes/README.md) · `active`
 - [CAP-006-collaborative-handoffs/](CAP-006-collaborative-handoffs/README.md)
+- [CAP-007 — Focused corpus context](CAP-007-focused-context/README.md) · `active`
 <!-- clue:index:end -->

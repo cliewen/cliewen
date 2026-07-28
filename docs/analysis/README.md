@@ -16,4 +16,5 @@ An incident where the corpus was green but later evidence contradicted it carrie
 - [AN-007 — A ready PR can omit intended local review fixes](AN-007-review-handoff-gap.md) — CH-037's missed review fixes and the clean, pushed, exact-head readiness gap
 - [AN-008 — Two independent critiques land on the same four half-built patterns](AN-008-methodology-critiques.md) — the 2026-07-25 methodology review and migration assessment reduced to four patterns, their collisions with standing decisions, and what the book already answers
 - [AN-009-multi-agent-pr-handoff](AN-009-multi-agent-pr-handoff.md)
+- [AN-010 — The first adopter history does not support widening the light tier](AN-010-adopter-change-overhead.md) — pinned Tank Royale history, measured workspace churn, evidence limits, and the PDR-018 consumer
 <!-- clue:index:end -->
