@@ -11,7 +11,7 @@ goal: G-001
 
 ## What
 
-An existing repository's spec corpus (OpenSpec first, per [AN-002](../../analysis/AN-002-model2diagram-extraction.md)) is transformed into a Cliewen `/docs` corpus by the `clue-extract` skill ([ADR-008](../../decisions/ADR-008-extraction-is-a-skill.md)): every artifact born `provenance: inferred` ([ADR-010](../../decisions/ADR-010-provenance-field.md)), existing AC IDs and test tags preserved through namespaced prefixes ([ADR-009](../../decisions/ADR-009-ac-id-namespaces.md)), the source corpus and its parallel registries deleted in the same PR, `clue validate` green before review.
+An existing repository's spec corpus (OpenSpec first, per [AN-002](../../analysis/AN-002-model2diagram-extraction.md)) is transformed into a Cliewen `/docs` corpus by the `clue-extract` skill ([ADR-008](../../decisions/ADR-008-extraction-is-a-skill.md)): every non-decision born `provenance: inferred` and classified by low/high reversal cost ([ADR-010](../../decisions/ADR-010-provenance-field.md), [ADR-035](../../decisions/ADR-035-bounded-provenance-and-reality-edges.md)), existing AC IDs and test tags preserved through namespaced prefixes ([ADR-009](../../decisions/ADR-009-ac-id-namespaces.md)), the source corpus and its parallel registries deleted in the same PR, `clue validate` green before review.
 
 ## Why
 

@@ -196,26 +196,144 @@ func TestUnit_CRLFFrontmatterParses(t *testing.T) {
 	}
 }
 
-// AC-018: the optional provenance field is linted (ADR-010).
-func TestAC018_ProvenanceVocabularyLinted(t *testing.T) {
+// AC-051 negative: inferred provenance needs a valid reversal-cost class.
+func TestAC051_UnitNegative_ProvenanceAndReversalCostAreLinted(t *testing.T) {
 	files := with(validFiles, map[string]string{
 		"docs/goals/G-001-first.md": "---\nid: G-001\ntype: goal\nstatus: accepted\nlinks: []\ntitle: First goal\nprovenance: guessed\n---\n",
 	})
 	assertIssue(t, run(t, files, false), "provenance must be inferred or verified")
 
 	files["docs/goals/G-001-first.md"] = "---\nid: G-001\ntype: goal\nstatus: accepted\nlinks: []\ntitle: First goal\nprovenance: inferred\n---\n"
+	assertIssue(t, run(t, files, false), "provenance inferred requires reversal-cost")
+
+	files["docs/goals/G-001-first.md"] = "---\nid: G-001\ntype: goal\nstatus: accepted\nlinks: []\ntitle: First goal\nprovenance: inferred\nreversal-cost: low\n---\n"
 	if issues := run(t, files, false); len(issues) != 0 {
-		t.Fatalf("provenance: inferred is valid; expected no issues, got %v", issues)
+		t.Fatalf("low-cost inferred provenance is valid; expected no issues, got %v", issues)
 	}
 }
 
-func TestAC018_DecisionsMustNotCarryProvenanceField(t *testing.T) {
+func TestAC051_DecisionsMustNotCarryProvenanceField(t *testing.T) {
 	files := with(validFiles, map[string]string{
 		"docs/README.md":              "# Corpus\n\n<!-- clue:index:start -->\n- [goals/](goals/README.md)\n- [plans/](plans/README.md)\n- [decisions/](decisions/README.md)\n<!-- clue:index:end -->\n",
 		"docs/decisions/README.md":    "# Decisions\n\n<!-- clue:index:start -->\n- [ADR-001](ADR-001-x.md)\n<!-- clue:index:end -->\n",
 		"docs/decisions/ADR-001-x.md": "---\nid: ADR-001\ntype: decision\nstatus: inferred\nlinks: []\ntitle: X\nprovenance: inferred\n---\n",
 	})
 	assertIssue(t, run(t, files, false), "decisions carry provenance in status")
+}
+
+func TestAC051_UnitPositive_HighCostInferredMeaningBlocksActiveCapability(t *testing.T) {
+	files := capFiles("active")
+	files["pkg/x_test.go"] = "package x\n\nfunc TestAC101_Works(t *testing.T) {}\n"
+	files["docs/capabilities/CAP-101-x/criteria.md"] = strings.Replace(
+		files["docs/capabilities/CAP-101-x/criteria.md"],
+		"title: X criteria\n",
+		"title: X criteria\nprovenance: inferred\nreversal-cost: high\n",
+		1,
+	)
+	issues := run(t, files, false)
+	assertIssue(t, issues, "high-cost inferred artifact CAP-101-criteria blocks active capability CAP-101")
+
+	files["docs/capabilities/CAP-101-x/criteria.md"] = strings.Replace(
+		files["docs/capabilities/CAP-101-x/criteria.md"],
+		"reversal-cost: high",
+		"reversal-cost: low",
+		1,
+	)
+	if issues := run(t, files, false); len(issues) != 0 {
+		t.Fatalf("low-cost inferred meaning may remain; got %v", issues)
+	}
+}
+
+func TestAC051_InferredDecisionsAreVisibleButDoNotBlock(t *testing.T) {
+	files := capFiles("active")
+	files["pkg/x_test.go"] = "package x\n\nfunc TestAC101_Works(t *testing.T) {}\n"
+	files["docs/README.md"] = strings.Replace(files["docs/README.md"], "- [capabilities/]", "- [decisions/](decisions/README.md)\n- [capabilities/]", 1)
+	files["docs/decisions/README.md"] = "# Decisions\n\n<!-- clue:index:start -->\n- [ADR-101](ADR-101-x.md)\n<!-- clue:index:end -->\n"
+	files["docs/decisions/ADR-101-x.md"] = "---\nid: ADR-101\ntype: decision\nstatus: inferred\nlinks: [CAP-101]\ntitle: X\n---\n"
+	c, scanIssues := Scan(writeCorpus(t, files))
+	if len(scanIssues) != 0 {
+		t.Fatalf("scan: %v", scanIssues)
+	}
+	if issues := Validate(c, Options{}); len(issues) != 0 {
+		t.Fatalf("inferred decisions stay non-blocking; got %v", issues)
+	}
+	if got := len(ProvenanceBacklog(c).Decisions); got != 1 {
+		t.Fatalf("expected one visible inferred decision, got %d", got)
+	}
+}
+
+func TestAC052_UnitPositive_RealityGapMapsCriterionToCapability(t *testing.T) {
+	files := capFiles("active")
+	files["pkg/x_test.go"] = "package x\n\nfunc TestAC101_Works(t *testing.T) {}\n"
+	files["docs/README.md"] = strings.Replace(files["docs/README.md"], "- [capabilities/]", "- [analysis/](analysis/README.md)\n- [capabilities/]", 1)
+	files["docs/analysis/README.md"] = "# Analysis\n\n<!-- clue:index:start -->\n- [AN-101](AN-101-incident.md)\n<!-- clue:index:end -->\n"
+	files["docs/analysis/AN-101-incident.md"] = "---\nid: AN-101\ntype: analysis\nstatus: active\nlinks: [AC-101]\ntitle: Incident\nreality: contradicted\n---\n"
+	c, scanIssues := Scan(writeCorpus(t, files))
+	if len(scanIssues) != 0 {
+		t.Fatalf("scan: %v", scanIssues)
+	}
+	if issues := Validate(c, Options{}); len(issues) != 0 {
+		t.Fatalf("criterion-linked incident should validate; got %v", issues)
+	}
+	gaps := RealityGaps(c)
+	if len(gaps) != 1 || gaps[0].Capability != "CAP-101" || strings.Join(gaps[0].Analyses, ",") != "AN-101" {
+		t.Fatalf("unexpected reality gaps: %+v", gaps)
+	}
+}
+
+func TestAC052_UnitNegative_RealityMarkerRequiresAnalysisAndFailedClaimLink(t *testing.T) {
+	files := capFiles("active")
+	files["pkg/x_test.go"] = "package x\n\nfunc TestAC101_Works(t *testing.T) {}\n"
+	files["docs/capabilities/CAP-101-x/README.md"] = strings.Replace(files["docs/capabilities/CAP-101-x/README.md"], "title: X\n---\n", "title: X\nreality: contradicted\n---\n", 1)
+	assertIssue(t, run(t, files, false), "reality is allowed only on analysis")
+
+	files = with(files, map[string]string{
+		"docs/README.md":                        strings.Replace(files["docs/README.md"], "- [capabilities/]", "- [analysis/](analysis/README.md)\n- [capabilities/]", 1),
+		"docs/capabilities/CAP-101-x/README.md": strings.Replace(files["docs/capabilities/CAP-101-x/README.md"], "reality: contradicted\n", "", 1),
+		"docs/analysis/README.md":               "# Analysis\n\n<!-- clue:index:start -->\n- [AN-101](AN-101-incident.md)\n<!-- clue:index:end -->\n",
+		"docs/analysis/AN-101-incident.md":      "---\nid: AN-101\ntype: analysis\nstatus: active\nlinks: []\ntitle: Incident\nreality: contradicted\n---\n",
+	})
+	assertIssue(t, run(t, files, false), "requires a links edge to the failed capability or live acceptance criterion")
+}
+
+// AC-052 negative: a criterion declared in a draft criteria file is not yet
+// live, so it neither resolves as a link nor carries a reality edge.
+func TestAC052_UnitNegative_DraftCriterionIsNotALiveClaim(t *testing.T) {
+	files := capFiles("draft")
+	files["docs/README.md"] = strings.Replace(files["docs/README.md"], "- [capabilities/]", "- [analysis/](analysis/README.md)\n- [capabilities/]", 1)
+	files["docs/analysis/README.md"] = "# Analysis\n\n<!-- clue:index:start -->\n- [AN-101](AN-101-incident.md)\n<!-- clue:index:end -->\n"
+	files["docs/analysis/AN-101-incident.md"] = "---\nid: AN-101\ntype: analysis\nstatus: active\nlinks: [AC-101]\ntitle: Incident\nreality: contradicted\n---\n"
+	assertIssue(t, run(t, files, false), "requires a links edge to the failed capability or live acceptance criterion")
+
+	c, _ := Scan(writeCorpus(t, files))
+	if gaps := RealityGaps(c); len(gaps) != 0 {
+		t.Fatalf("a draft criterion is no reality gap; got %+v", gaps)
+	}
+}
+
+// AC-051 negative: reversal-cost is bound to provenance, and decisions route
+// cost by record type rather than by the field.
+func TestAC051_UnitNegative_ReversalCostIsBoundToProvenance(t *testing.T) {
+	files := with(validFiles, map[string]string{
+		"docs/goals/G-001-first.md": "---\nid: G-001\ntype: goal\nstatus: accepted\nlinks: []\ntitle: First goal\nreversal-cost: high\n---\n",
+	})
+	assertIssue(t, run(t, files, false), "reversal-cost requires a provenance field")
+
+	files["docs/goals/G-001-first.md"] = "---\nid: G-001\ntype: goal\nstatus: accepted\nlinks: []\ntitle: First goal\nprovenance: verified\nreversal-cost: cheap\n---\n"
+	assertIssue(t, run(t, files, false), "reversal-cost must be low or high")
+
+	files = with(validFiles, map[string]string{
+		"docs/README.md":              "# Corpus\n\n<!-- clue:index:start -->\n- [goals/](goals/README.md)\n- [plans/](plans/README.md)\n- [decisions/](decisions/README.md)\n<!-- clue:index:end -->\n",
+		"docs/decisions/README.md":    "# Decisions\n\n<!-- clue:index:start -->\n- [ADR-001](ADR-001-x.md)\n<!-- clue:index:end -->\n",
+		"docs/decisions/ADR-001-x.md": "---\nid: ADR-001\ntype: decision\nstatus: inferred\nlinks: []\ntitle: X\nreversal-cost: high\n---\n",
+	})
+	issues := run(t, files, false)
+	assertIssue(t, issues, "decisions route cost by record type")
+	for _, is := range issues {
+		if strings.Contains(is.Msg, "reversal-cost requires a provenance field") {
+			t.Fatalf("a decision must not be told to add provenance, which it may not carry either: %v", issues)
+		}
+	}
 }
 
 // AC-023: constraints carry a non-empty source and an enforcement class

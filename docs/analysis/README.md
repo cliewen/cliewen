@@ -4,6 +4,8 @@ Spike findings and extraction reports. **Analysis must leave corpses:** every sp
 
 Some findings and historical references preserve evidence from adopter repositories that are not publicly accessible. In particular, Cliewen's AN-002 studies the private `model2diagram` target, while PDR-007 names that repository's own AN-002 workflow audit as historical evidence. Cliewen's findings remain available here, but readers should not expect the target repository's commits, pull requests, files, or audit to resolve. Normative rules derived from the trial and audit are stated in this corpus without depending on those private artifacts.
 
+An incident where the corpus was green but later evidence contradicted it carries `reality: contradicted` and links every capability or acceptance criterion whose claim failed, in addition to the carriers that failed to prevent the incident. `clue validate --reality-gaps` derives the affected-capability view from those edges; it is not a production telemetry channel.
+
 <!-- clue:index:start -->
 - [AN-001 — Foundation Document v0.4](AN-001-foundation-v0.4.md) — the founding analysis; origin record of the corpus
 - [AN-002 — Extraction target analysis: model2diagram](AN-002-model2diagram-extraction.md) — the OpenSpec corpus, its AC-ID/tag scheme, and what maps where

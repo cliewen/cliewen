@@ -52,17 +52,68 @@ func TestAC005_ExitCodeOneOnBrokenCorpus(t *testing.T) {
 	}
 }
 
-// AC-018: a valid corpus with inferred artifacts passes and their count
-// feeds the OK line.
-func TestAC018_InferredArtifactsCountedAndAccepted(t *testing.T) {
+// AC-051: low-cost inferred artifacts pass without feeding a monotonic count.
+func TestAC051_LowCostInferredArtifactsAreAccepted(t *testing.T) {
 	root := validCorpus(t)
-	writeFile(t, root, "docs/goals/G-001-first.md", "---\nid: G-001\ntype: goal\nstatus: accepted\nlinks: []\ntitle: First goal\nprovenance: inferred\n---\n")
+	writeFile(t, root, "docs/goals/G-001-first.md", "---\nid: G-001\ntype: goal\nstatus: accepted\nlinks: []\ntitle: First goal\nprovenance: inferred\nreversal-cost: low\n---\n")
 	if code := runValidate([]string{root}); code != 0 {
 		t.Fatalf("inferred provenance is valid; expected exit 0, got %d", code)
 	}
 	c, _ := corpus.Scan(root)
-	if n := inferredCount(c); n != 1 {
-		t.Fatalf("expected 1 inferred artifact, got %d", n)
+	if n := len(corpus.ProvenanceBacklog(c).BlockerArtifacts); n != 0 {
+		t.Fatalf("low-cost inferred artifact must not be an activation blocker, got %d", n)
+	}
+}
+
+func TestAC052_RealityGapsFlagPrintsAffectedCapability(t *testing.T) {
+	root := validCorpus(t)
+	writeFile(t, root, "docs/README.md", "# Corpus\n\n<!-- clue:index:start -->\n- [goals/](goals/README.md)\n- [capabilities/](capabilities/README.md)\n- [analysis/](analysis/README.md)\n<!-- clue:index:end -->\n")
+	writeFile(t, root, "docs/capabilities/README.md", "# Capabilities\n\n<!-- clue:index:start -->\n- [CAP-101](CAP-101-x/README.md)\n<!-- clue:index:end -->\n")
+	writeFile(t, root, "docs/capabilities/CAP-101-x/README.md", "---\nid: CAP-101\ntype: capability\nstatus: active\nlinks: []\ntitle: X\n---\n")
+	writeFile(t, root, "docs/capabilities/CAP-101-x/criteria.md", "---\nid: CAP-101-criteria\ntype: criteria\nstatus: active\nlinks: [CAP-101]\ntitle: X criteria\n---\n\n```gherkin\nFeature: X\n\n  @AC-101 @draft\n  Scenario: X\n    Given X\n    Then X\n```\n")
+	writeFile(t, root, "docs/analysis/README.md", "# Analysis\n\n<!-- clue:index:start -->\n- [AN-101](AN-101-incident.md)\n<!-- clue:index:end -->\n")
+	writeFile(t, root, "docs/analysis/AN-101-incident.md", "---\nid: AN-101\ntype: analysis\nstatus: active\nlinks: [AC-101]\ntitle: Incident\nreality: contradicted\n---\n")
+	code, out := runValidateCapturingStdout(t, []string{"--reality-gaps", root})
+	if code != 0 || !strings.Contains(out, "CAP-101: contradicted by AN-101") {
+		t.Fatalf("expected derived reality gap, code=%d output=%q", code, out)
+	}
+}
+
+func TestAC051_CLIReportsInferredDecisionsSeparately(t *testing.T) {
+	root := validCorpus(t)
+	writeFile(t, root, "docs/README.md", "# Corpus\n\n<!-- clue:index:start -->\n- [goals/](goals/README.md)\n- [decisions/](decisions/README.md)\n<!-- clue:index:end -->\n")
+	writeFile(t, root, "docs/decisions/README.md", "# Decisions\n\n<!-- clue:index:start -->\n- [ADR-101](ADR-101-x.md)\n<!-- clue:index:end -->\n")
+	writeFile(t, root, "docs/decisions/ADR-101-x.md", "---\nid: ADR-101\ntype: decision\nstatus: inferred\nlinks: []\ntitle: X\nauthor: agent\naccepted-by: []\n---\n")
+	code, out := runValidateCapturingStdout(t, []string{root})
+	if code != 0 || !strings.Contains(out, "1 inferred decision(s) awaiting verification") {
+		t.Fatalf("expected separate inferred-decision count, code=%d output=%q", code, out)
+	}
+}
+
+func TestAC051_CLIReportsActivationBlockerCount(t *testing.T) {
+	root := validCorpus(t)
+	writeFile(t, root, "docs/README.md", "# Corpus\n\n<!-- clue:index:start -->\n- [goals/](goals/README.md)\n- [capabilities/](capabilities/README.md)\n<!-- clue:index:end -->\n")
+	writeFile(t, root, "docs/capabilities/README.md", "# Capabilities\n\n<!-- clue:index:start -->\n- [CAP-101](CAP-101-x/README.md)\n<!-- clue:index:end -->\n")
+	writeFile(t, root, "docs/capabilities/CAP-101-x/README.md", "---\nid: CAP-101\ntype: capability\nstatus: active\nlinks: []\ntitle: X\nprovenance: inferred\nreversal-cost: high\n---\n")
+
+	r, w, err := os.Pipe()
+	if err != nil {
+		t.Fatal(err)
+	}
+	old := os.Stderr
+	os.Stderr = w
+	code := runValidate([]string{root})
+	os.Stderr = old
+	if err := w.Close(); err != nil {
+		t.Fatal(err)
+	}
+	out, err := io.ReadAll(r)
+	_ = r.Close()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if code != 1 || !strings.Contains(string(out), "1 high-cost inferred activation blocker(s)") {
+		t.Fatalf("expected activation-blocker count, code=%d stderr=%q", code, out)
 	}
 }
 

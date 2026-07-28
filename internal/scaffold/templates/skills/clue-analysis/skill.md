@@ -13,6 +13,7 @@ Use when a change has unclear risks or unknowns — **before** planning or imple
 2. Establish the evidence boundary before investigating: pin source revisions when possible; record the toolchain, runtime, operating system, shell, or other conditions relevant to reproduced results; and distinguish observed facts, inferences, and unverified intent. Repository activity is evidence of activity, not maintainer intent, unless explicit evidence says otherwise.
 3. Run a **spike**: a throwaway investigation such as a prototype, measurement, or literature scan. Spikes are disposable; their findings are not.
 4. End every spike with a findings document in `/docs/analysis/` (`AN-xxx-slug.md`, frontmatter: `id`, `type: analysis`, `status`, `links`, `title`). Include what was tried, what was rejected, and why; discarded options are half of why the system looks as it does.
+   - If the finding is an incident where the corpus was green but reality proved a claim wrong, add `reality: contradicted` and link every failed capability or acceptance criterion as well as the decisions, constraints, or process carriers that failed to prevent it. This records the edge from reality; it does not ingest production telemetry or open the operations loop.
 5. Route any outcome that constitutes a decision under **Decision records** below. A rejected alternative that is itself a decision gets a rejected decision record, not only a paragraph in the findings.
 6. Feed findings to `clue-plan` or `clue-delta`. Analysis with no consumer is doc-slop; do not write it.
 

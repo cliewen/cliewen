@@ -18,9 +18,11 @@ Decisions already carry two-tier provenance in their `status` (`inferred` → `v
 
 **Provenance and lifecycle are separate axes.** Any artifact may carry an optional frontmatter field `provenance: inferred | verified`; extraction writes `provenance: inferred` on everything it mints. An absent field means human-authored — the existing corpus needs no touch. Decisions keep expressing provenance in `status` as today; a decision does not carry the separate field.
 
-Promotion is the human review of the extraction PR: flipping `inferred` → `verified` file-by-file as meaning is confirmed (or in bulk when the reviewer accepts the whole corpus); the PR history is the audit record of who verified. Consumers: `clue validate` lints the vocabulary and reports how many artifacts remain `inferred` — the visible to-do list of unverified meaning.
+Promotion is the human review of the extraction PR: flipping `inferred` → `verified` file-by-file as meaning is confirmed (or in bulk when the reviewer accepts the whole corpus); the PR history is the audit record of who verified.
 
-**Carrier:** the vocabulary lint and inferred count in `clue` (machine); the born-inferred rule in the `clue-extract` skill (agent).
+**The unbounded counter is corrected by [ADR-035](ADR-035-bounded-provenance-and-reality-edges.md).** An inferred non-decision also declares whether its meaning is cheap or expensive to reverse. Cheap inferred findings may remain legitimately deferred; expensive inferred meaning blocks an active capability in its immediate graph slice. The CLI reports those activation blockers separately from inferred decisions awaiting verification instead of counting every inferred non-decision forever.
+
+**Carrier:** the vocabulary and reversal-cost lint in `clue` (machine); the born-inferred and cost-routing rule in the `clue-extract` skill (agent).
 
 ### Rejected: adding `inferred` to every status vocabulary
 

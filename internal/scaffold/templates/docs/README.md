@@ -6,6 +6,8 @@ This directory is the **system-of-record**: the permanent, durable truth about t
 
 Every artifact carries YAML frontmatter with a common core — `id`, `type`, `status`, `links`, `title` — plus small type-specific extensions. **Identity is the ID, the path is only the current address**: tooling discovers artifacts by scanning frontmatter, and external systems reference IDs, never paths.
 
+An extracted non-decision carries `provenance: inferred` and `reversal-cost: low|high`; high-cost inferred meaning blocks an active capability joined to it by one `links:` edge, while low-cost findings may remain deferred. Decisions carry provenance in `status`. An incident analysis where the corpus was green but reality disproved a claim carries `reality: contradicted` and links the failed capability or acceptance criterion; `clue validate --reality-gaps` derives the affected-capability view.
+
 The red thread `clue validate` walks:
 
 ```
