@@ -76,6 +76,7 @@ func Validate(c *Corpus, opts Options) []Issue {
 	issues = append(issues, checkIndexes(c)...)
 	issues = append(issues, checkACTests(c)...)
 	issues = append(issues, checkProvenance(c)...)
+	issues = append(issues, checkReality(c)...)
 	issues = append(issues, checkConstraints(c)...)
 	issues = append(issues, checkSkillVersions(c, opts.Version)...)
 	if opts.ForbidChanges && c.HasChanges {
@@ -90,24 +91,42 @@ func Validate(c *Corpus, opts Options) []Issue {
 	return issues
 }
 
-// checkProvenance validates the optional provenance field (ADR-010):
-// extraction mints artifacts born `inferred`; human review promotes them
-// to `verified`. Decisions express provenance in status and must not
-// carry the field.
+// checkProvenance validates the provenance and reversal-cost fields and
+// prevents high-cost inferred meaning from backing an active capability
+// (ADR-010, ADR-035).
 func checkProvenance(c *Corpus) []Issue {
 	var issues []Issue
 	for _, a := range c.Artifacts {
 		v, present := a.Fields["provenance"]
+		rawCost, hasCost := a.Fields["reversal-cost"]
+		if a.Type == "decision" && hasCost {
+			issues = append(issues, Issue{a.Path, "decisions route cost by record type and must not carry reversal-cost (ADR-035)"})
+		}
 		if !present {
+			if hasCost {
+				issues = append(issues, Issue{a.Path, "reversal-cost requires a provenance field (ADR-035)"})
+			}
 			continue // absent means human-authored
 		}
 		if a.Type == "decision" {
 			issues = append(issues, Issue{a.Path, "decisions carry provenance in status, not in a provenance field (ADR-010)"})
 			continue
 		}
-		if s, ok := v.(string); !ok || (s != "inferred" && s != "verified") {
+		s, valid := v.(string)
+		if !valid || (s != "inferred" && s != "verified") {
 			issues = append(issues, Issue{a.Path, "provenance must be inferred or verified (ADR-010)"})
+			continue
 		}
+		cost, costIsString := rawCost.(string)
+		if hasCost && (!costIsString || (cost != "low" && cost != "high")) {
+			issues = append(issues, Issue{a.Path, "reversal-cost must be low or high (ADR-035)"})
+		}
+		if s == "inferred" && !hasCost {
+			issues = append(issues, Issue{a.Path, "provenance inferred requires reversal-cost low or high (ADR-035)"})
+		}
+	}
+	for _, b := range ProvenanceBacklog(c).Blockers {
+		issues = append(issues, Issue{b.Artifact.Path, "high-cost inferred artifact " + b.Artifact.ID + " blocks active capability " + b.Capability.ID + " — verify it or classify it low only when reversal is cheap (ADR-035)"})
 	}
 	return issues
 }
@@ -237,6 +256,7 @@ func checkLinks(c *Corpus) []Issue {
 		}
 	}
 	supersededBy := supersededByIndex(c)
+	acOwners := acceptanceCriterionOwners(c)
 	var issues []Issue
 	for _, a := range c.Artifacts {
 		for _, l := range a.Links {
@@ -244,6 +264,9 @@ func checkLinks(c *Corpus) []Issue {
 				if !milestones[l] {
 					issues = append(issues, Issue{a.Path, "link " + l + " not found in any plan"})
 				}
+				continue
+			}
+			if _, ok := acOwners[l]; ok {
 				continue
 			}
 			if _, ok := c.ByID[l]; !ok {

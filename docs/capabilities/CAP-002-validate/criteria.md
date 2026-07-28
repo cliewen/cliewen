@@ -174,4 +174,21 @@ Feature: clue validate — deterministic corpus judgment
     And a separate artifact whose links field still references that retired ID
     When the user runs "clue validate"
     Then it exits with a non-zero code naming the retired ID and the successor that superseded it
+
+  @AC-051
+  Scenario: Reversal cost bounds inferred provenance at capability activation
+    Test-type: Unit
+    Given an active capability joined by a links edge to a non-decision artifact carrying provenance inferred and reversal-cost high
+    When the user runs "clue validate"
+    Then it exits with a non-zero code naming the inferred artifact and the active capability it blocks
+    But reversal-cost low remains valid while inferred
+    And the output separately counts high-cost inferred non-decisions and inferred decisions awaiting verification
+
+  @AC-052
+  Scenario: Incident analyses derive the capabilities where green met wrong
+    Test-type: Unit
+    Given an analysis carrying reality contradicted and a links edge to a capability or one of its acceptance criteria
+    When the user runs "clue validate --reality-gaps"
+    Then it lists the affected capability and the analysis that contradicted it
+    But reality contradicted on a non-analysis or without a capability or live criterion link fails validation
 ```

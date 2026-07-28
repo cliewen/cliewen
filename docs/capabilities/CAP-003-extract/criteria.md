@@ -42,7 +42,7 @@ Feature: Brownfield extraction — namespaced ACs, JVM harvesting, provenance
     Then it exits with a non-zero code
     And the output names the test file and the offending tag
 
-  @AC-018
+  @AC-018 @retired
   Scenario: Provenance is linted and inferred artifacts are counted
     Given an artifact carrying "provenance" with a value outside inferred|verified
     Or a decision carrying a provenance field at all

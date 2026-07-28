@@ -15,7 +15,7 @@ G-xxx (goal) → P-xxx/M-xxx (plan/milestone) → CH-xxx (change)
 
 Cross-cutting, checked against every proposal: C-xxx (constraints, including verifiable quality bars — see [ADR-027](decisions/ADR-027-quality-scenarios-are-constraints.md)).
 
-Three optional fields extend the core, each with a named consumer: `ac-prefix` on a criteria.md namespaces its AC IDs (`<PREFIX>-<digits>`, default `AC` — ADR-009, consumer `checkACTests`); `provenance: inferred|verified` marks agent-extracted artifacts awaiting human verification (absent = human-authored; decisions carry provenance in `status` instead — ADR-010, consumer `checkProvenance`); and `supersedes: [ID, …]` names an artifact this one's retirement replaced — the ID must no longer exist in the corpus (ADR-034, consumer `checkSupersedes`).
+Small consumed extensions keep the graph explicit. `ac-prefix` on a criteria.md namespaces its AC IDs (`<PREFIX>-<digits>`, default `AC`; consumer `checkACTests`). `provenance: inferred|verified` marks agent-extracted non-decisions, and an inferred artifact also declares `reversal-cost: low|high`; high-cost inferred meaning blocks an active capability joined to it by one links edge, while decisions carry provenance in `status` and remain visible separately (consumer `checkProvenance`). `supersedes: [ID, …]` names an artifact this one's retirement replaced and requires that ID to be absent (consumer `checkSupersedes`). `reality: contradicted` marks an incident analysis whose links name the capability or criterion that reality disproved (consumer `checkReality` and `clue validate --reality-gaps`).
 
 ## Status vocabularies
 

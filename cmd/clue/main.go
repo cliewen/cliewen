@@ -47,7 +47,7 @@ const usage = `clue — a verifiable thread from goal to test
 Usage:
   clue init [path]
   clue scaffold [path]
-  clue validate [--forbid-changes] [path]
+  clue validate [--forbid-changes] [--coverage] [--reality-gaps] [path]
   clue version
 
 Commands:
@@ -75,6 +75,9 @@ Commands:
 
              --forbid-changes  fail when /changes contains files — the
                                digest-before-merge gate used by CI.
+             --coverage        print derived proof coverage by capability.
+             --reality-gaps    print capabilities contradicted by incident
+                               analyses after their corpus was green.
 
   version    Print the release version this clue was built from.
 
@@ -114,6 +117,7 @@ func runValidate(args []string) int {
 	fs := flag.NewFlagSet("validate", flag.ExitOnError)
 	forbid := fs.Bool("forbid-changes", false, "fail when /changes contains files")
 	coverage := fs.Bool("coverage", false, "print derived per-capability proof coverage; never a committed registry")
+	realityGaps := fs.Bool("reality-gaps", false, "print capabilities contradicted by incident analyses; never a committed registry")
 	_ = fs.Parse(args)
 	root := "."
 	if fs.NArg() > 0 {
@@ -122,11 +126,19 @@ func runValidate(args []string) int {
 
 	c, issues := corpus.Scan(root)
 	issues = append(issues, corpus.Validate(c, corpus.Options{ForbidChanges: *forbid, Version: version})...)
+	provenance := corpus.ProvenanceBacklog(c)
 	if len(issues) > 0 {
 		for _, is := range issues {
 			fmt.Println(is)
 		}
-		fmt.Fprintf(os.Stderr, "clue validate: %d issue(s)\n", len(issues))
+		fmt.Fprintf(os.Stderr, "clue validate: %d issue(s)", len(issues))
+		if len(provenance.BlockerArtifacts) > 0 {
+			fmt.Fprintf(os.Stderr, ", %d high-cost inferred activation blocker(s)", len(provenance.BlockerArtifacts))
+		}
+		if len(provenance.Decisions) > 0 {
+			fmt.Fprintf(os.Stderr, ", %d inferred decision(s) awaiting verification", len(provenance.Decisions))
+		}
+		fmt.Fprintln(os.Stderr)
 		return 1
 	}
 	if *coverage {
@@ -134,9 +146,17 @@ func runValidate(args []string) int {
 			fmt.Printf("%s: %s\n", cc.Capability, cc.State)
 		}
 	}
+	if *realityGaps {
+		for _, gap := range corpus.RealityGaps(c) {
+			fmt.Printf("%s: contradicted by %s\n", gap.Capability, strings.Join(gap.Analyses, ", "))
+		}
+	}
 	notes := ""
-	if n := inferredCount(c); n > 0 {
-		notes += fmt.Sprintf(", %d born inferred awaiting verification", n)
+	if n := len(provenance.BlockerArtifacts); n > 0 {
+		notes += fmt.Sprintf(", %d high-cost inferred activation blocker(s)", n)
+	}
+	if n := len(provenance.Decisions); n > 0 {
+		notes += fmt.Sprintf(", %d inferred decision(s) awaiting verification", n)
 	}
 	if n := agentConstraintCount(c); n > 0 {
 		notes += fmt.Sprintf(", %d agent-enforced constraint(s) awaiting machine checks", n)
@@ -149,17 +169,6 @@ func runValidate(args []string) int {
 func runVersion(w io.Writer) int {
 	fmt.Fprintf(w, "clue %s\n", version)
 	return 0
-}
-
-// inferredCount is the visible to-do list of unverified meaning (ADR-010).
-func inferredCount(c *corpus.Corpus) int {
-	n := 0
-	for _, a := range c.Artifacts {
-		if p, _ := a.Fields["provenance"].(string); p == "inferred" {
-			n++
-		}
-	}
-	return n
 }
 
 // agentConstraintCount is the visible promotion backlog of the convention

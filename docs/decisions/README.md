@@ -8,6 +8,8 @@ ADRs and PDRs share the MADR format and two-tier provenance: `inferred` (binding
 
 **Merge binds, approval signs** ([PDR-004](PDR-004-merge-binds-approval-signs.md), superseding [PDR-001](PDR-001-pr-approval-promotes-adrs.md)): merging a PR makes its `inferred` decisions binding — in force immediately, no signature required — but does not touch their status. Only an explicit human approval (review approval, review comment, or a stated "approved") flips a decision to `verified`: each approver signs `accepted-by:`, approvals accumulate, and the acceptance date is the first approval. An explicit objection keeps a decision `inferred` regardless of other approvals and becomes an open question; unresolved reviewer disagreement is an objection. The agent performs the clerical signing, citing approver, date, and venue.
 
+The CLI reports inferred ADRs and PDRs as decisions awaiting verification, separately from high-cost inferred non-decision meaning that blocks capability activation. It never turns the missing signature itself into a validation failure: merge binds and approval signs remain separate acts.
+
 **`accepted-by:` records only approval given under Cliewen's merge boundary** ([ADR-029](ADR-029-accepted-by-is-cliewen-approval-only.md)), never acceptance a record already carried before it entered this corpus. A record extracted from a source with its own acceptance history — a MADR record's decision-makers, for instance — preserves that history as body prose with its original names, roles, and dates, and keeps `accepted-by: []`, exactly the shape any unsigned record already has.
 
 **Records are timeless.** Context states the problem, not the episode: a motivating incident earns at most one sentence, and the change history lives in git log and the plans. Concrete mechanisms appear as decision content — the chosen option, the rejected options, the carrier — never as narrative.
@@ -62,4 +64,5 @@ ADRs and PDRs share the MADR format and two-tier provenance: `inferred` (binding
 - [PDR-017 — The human merge gate has a concise, durable acceptance brief](PDR-017-merge-gate-has-content.md) · `inferred`
 - [ADR-033-human-proof-and-draft-criteria](ADR-033-human-proof-and-draft-criteria.md)
 - [ADR-034-retirement-is-deletion](ADR-034-retirement-is-deletion.md)
+- [ADR-035-bounded-provenance-and-reality-edges](ADR-035-bounded-provenance-and-reality-edges.md)
 <!-- clue:index:end -->
