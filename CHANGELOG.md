@@ -4,6 +4,10 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 
 ## [Unreleased]
 
+## [0.9.0] - 2026-07-28
+
+The release where Cliewen makes evidence honest from test shape to human acceptance, while focused context keeps the method proportionate to the task.
+
 ### Added
 
 - **`clue context <id>` loads the part of the corpus a task actually needs.** Give it an artifact, acceptance-criterion, or milestone ID and it prints the declaring artifact plus its transitive outgoing-link dependencies in deterministic order, with complete Markdown content. Generated and repository agent instructions now use that focused slice after classifying a task instead of requiring a full-corpus read. The change loop still treats product behavior as a full change even when a criterion already exists: the first adopter-history measurement found real workspace cost but no behavior-under-existing-criterion example that would justify weakening the behavior-to-evidence review boundary.
@@ -24,6 +28,10 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 
 - **Review fixes can no longer disappear between coding agents without an explicit warning.** Reviews of an open pull request now name the exact hosted commit they cover, and real findings stay as unresolved review conversations until a reviewed fix reaches the pull request. Whichever agent edits the branch owns that update through commit, review, normal push, and hosted-head confirmation; if another agent moved the branch, the pull request already merged, or the reviewer cannot publish a resolvable finding, the agent stops and says the pull request is not merge-ready. Different authors and pull requests still proceed in parallel, and hosts that require conversation resolution can block a known unfinished repair at merge.
 - **The 0.8.0 release page was published empty.** If you opened the 0.8.0 release looking for what changed, you found nothing there — the notes existed in `CHANGELOG.md` and in the repository, but the published page was blank. The page has been corrected in place; the downloads and their checksums were never affected and have not moved. The cause was a build setting that silently discarded the release notes it was meant to protect, and the release now reads its own published page back and fails if it does not match the reviewed notes, so a release can no longer succeed while saying nothing.
+
+### Install
+
+`curl -fsSL https://cliewen.dev/install.sh | sh` on macOS and Linux, `irm https://cliewen.dev/install.ps1 | iex` on Windows, or `go install github.com/cliewen/cliewen/cmd/clue@v0.9.0`. You can still download a prebuilt binary from the release assets and verify it against `SHA256SUMS` by hand; those asset names are unchanged, so a vendored CI wall pinned to an earlier release keeps working exactly as before. Update vendored Cliewen skills from this release's `.agents/skills/`; a 0.9.0 binary rejects older Cliewen skill versions as drift.
 
 ## [0.8.0] - 2026-07-27
 
