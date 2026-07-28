@@ -16,7 +16,7 @@ Adopting Cliewen in an existing repository means transforming whatever corpus is
 
 ## Decision outcome
 
-**One generic skill, `clue-extract`, owns extraction.** It has two parts: a **target contract** that is source-independent (which artifacts must exist, everything born `provenance: inferred` per [ADR-010](ADR-010-provenance-field.md), `clue validate` green before the PR, the source corpus and its parallel registries deleted in the same PR, routing and skills installed) and **per-source mapping sections**, of which OpenSpec ([AN-002](../analysis/AN-002-model2diagram-extraction.md)) is the first. A new source format is a new mapping section, not a new skill.
+**One generic skill, `clue-extract`, owns extraction.** It has two parts: a **target contract** that is source-independent (which artifacts must exist, every non-decision born `provenance: inferred` with low/high reversal cost per [ADR-010](ADR-010-provenance-field.md) and [ADR-035](ADR-035-bounded-provenance-and-reality-edges.md), every decision born `status: inferred`, `clue validate` green before the PR, the source corpus and its parallel registries deleted in the same PR, routing and skills installed) and **per-source mapping sections**, of which OpenSpec ([AN-002](../analysis/AN-002-model2diagram-extraction.md)) is the first. A new source format is a new mapping section, not a new skill.
 
 The transform is meaning-level work — deciding what a SHALL statement asserts, merging design prose into ADRs, splitting a spec into capabilities. That is exactly the work the methodology assigns to agents with human review, so `clue` stays out of it: the binary judges the *result* (the extracted corpus must validate like any other) and never parses source formats.
 
