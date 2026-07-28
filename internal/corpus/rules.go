@@ -69,6 +69,7 @@ func Validate(c *Corpus, opts Options) []Issue {
 	issues = append(issues, checkStatusVocab(c)...)
 	issues = append(issues, checkFrontmatterHygiene(c)...)
 	issues = append(issues, checkLinks(c)...)
+	issues = append(issues, checkSupersedes(c)...)
 	issues = append(issues, checkFolderReadmes(c)...)
 	issues = append(issues, checkIndexes(c)...)
 	issues = append(issues, checkACTests(c)...)
@@ -233,6 +234,7 @@ func checkLinks(c *Corpus) []Issue {
 			}
 		}
 	}
+	supersededBy := supersededByIndex(c)
 	var issues []Issue
 	for _, a := range c.Artifacts {
 		for _, l := range a.Links {
@@ -243,7 +245,39 @@ func checkLinks(c *Corpus) []Issue {
 				continue
 			}
 			if _, ok := c.ByID[l]; !ok {
-				issues = append(issues, Issue{a.Path, "link " + l + " resolves to no artifact"})
+				if successor, retired := supersededBy[l]; retired {
+					issues = append(issues, Issue{a.Path, "link " + l + " was retired — repoint to its successor " + successor + ", which names " + l + " in its supersedes field"})
+				} else {
+					issues = append(issues, Issue{a.Path, "link " + l + " resolves to no artifact"})
+				}
+			}
+		}
+	}
+	return issues
+}
+
+// supersededByIndex maps each retired ID named in some artifact's
+// supersedes field to the ID of the artifact that named it (ADR-034).
+func supersededByIndex(c *Corpus) map[string]string {
+	idx := map[string]string{}
+	for _, a := range c.Artifacts {
+		for _, s := range a.Supersedes {
+			idx[s] = a.ID
+		}
+	}
+	return idx
+}
+
+// checkSupersedes enforces ADR-034: retiring an artifact means deleting
+// its file in the same change. A supersedes entry naming an ID that
+// still resolves to a live artifact means the retirement was declared
+// but not actually carried out.
+func checkSupersedes(c *Corpus) []Issue {
+	var issues []Issue
+	for _, a := range c.Artifacts {
+		for _, s := range a.Supersedes {
+			if _, ok := c.ByID[s]; ok {
+				issues = append(issues, Issue{a.Path, "supersedes " + s + " but that artifact still exists in the corpus — delete it in this change (ADR-034)"})
 			}
 		}
 	}

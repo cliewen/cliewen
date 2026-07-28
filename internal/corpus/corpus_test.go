@@ -318,6 +318,50 @@ func TestAC035_SecondFrontmatterReported(t *testing.T) {
 	assertIssue(t, issues, "second frontmatter")
 }
 
+// AC-049: a supersedes entry naming a still-live artifact fails loudly.
+func TestAC049_UnitPositive_SupersedesStillLiveArtifactReported(t *testing.T) {
+	files := with(validFiles, map[string]string{
+		"docs/goals/G-002-second.md": "---\nid: G-002\ntype: goal\nstatus: accepted\nlinks: []\ntitle: Second goal\nsupersedes: [G-001]\n---\n",
+		"docs/goals/README.md":       "# Goals\n\n<!-- clue:index:start -->\n- [G-001](G-001-first.md)\n- [G-002](G-002-second.md)\n<!-- clue:index:end -->\n",
+	})
+	issues := run(t, files, false)
+	assertIssue(t, issues, "G-002-second.md")
+	assertIssue(t, issues, "supersedes G-001")
+}
+
+// AC-049 negative: deleting the still-live superseded artifact clears the issue.
+func TestAC049_UnitNegative_SupersedesDeletedArtifactClean(t *testing.T) {
+	files := with(validFiles, map[string]string{
+		"docs/goals/G-002-second.md": "---\nid: G-002\ntype: goal\nstatus: accepted\nlinks: []\ntitle: Second goal\nsupersedes: [G-001]\n---\n",
+		"docs/goals/README.md":       "# Goals\n\n<!-- clue:index:start -->\n- [G-002](G-002-second.md)\n<!-- clue:index:end -->\n",
+	})
+	delete(files, "docs/goals/G-001-first.md")
+	assertNoIssue(t, run(t, files, false), "supersedes G-001")
+}
+
+// AC-050: a dangling link to a retired ID names the artifact that
+// declared it superseded.
+func TestAC050_UnitPositive_DanglingLinkNamesSuccessor(t *testing.T) {
+	files := with(validFiles, map[string]string{
+		"docs/goals/G-002-second.md": "---\nid: G-002\ntype: goal\nstatus: accepted\nlinks: []\ntitle: Second goal\nsupersedes: [G-999]\n---\n",
+		"docs/goals/G-001-first.md":  "---\nid: G-001\ntype: goal\nstatus: accepted\nlinks: [G-999]\ntitle: First goal\n---\n",
+		"docs/goals/README.md":       "# Goals\n\n<!-- clue:index:start -->\n- [G-001](G-001-first.md)\n- [G-002](G-002-second.md)\n<!-- clue:index:end -->\n",
+	})
+	issues := run(t, files, false)
+	assertIssue(t, issues, "G-999")
+	assertIssue(t, issues, "G-002")
+}
+
+// AC-050 negative: repointing the link to the successor clears the issue.
+func TestAC050_UnitNegative_RepointedLinkIsClean(t *testing.T) {
+	files := with(validFiles, map[string]string{
+		"docs/goals/G-002-second.md": "---\nid: G-002\ntype: goal\nstatus: accepted\nlinks: []\ntitle: Second goal\nsupersedes: [G-999]\n---\n",
+		"docs/goals/G-001-first.md":  "---\nid: G-001\ntype: goal\nstatus: accepted\nlinks: [G-002]\ntitle: First goal\n---\n",
+		"docs/goals/README.md":       "# Goals\n\n<!-- clue:index:start -->\n- [G-001](G-001-first.md)\n- [G-002](G-002-second.md)\n<!-- clue:index:end -->\n",
+	})
+	assertNoIssue(t, run(t, files, false), "G-999")
+}
+
 func TestAC035_BOMHiddenSecondFrontmatterReported(t *testing.T) {
 	files := with(validFiles, map[string]string{
 		"docs/goals/G-001-first.md": "---\nid: G-001\ntype: goal\nstatus: accepted\nlinks: []\ntitle: First goal\n---\n\n" + testBOM + "---\nstatus: accepted\ndate: 2026-01-01\n---\n\n# G-001\n",

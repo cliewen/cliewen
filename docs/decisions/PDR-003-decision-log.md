@@ -11,6 +11,8 @@ accepted-by: Flemming N. Larsen (2026-07-14, PR #9)
 # PDR-003 — ADRs for the expensive-to-reverse; a decision log for the rest
 
 > **Superseded by [PDR-006](PDR-006-decision-records-are-typed.md):** the expensive-to-reverse tier is split by subject — ADRs record architecture only; project/process decisions are PDRs. The litmus test and the log mechanics below survive unchanged. Reading note: in the litmus below, "constrains future changes" is the same test as "expensive to reverse" seen from the other side — it does not mean "applies to future changes"; reversal cost alone routes a decision, per PDR-006 and the log's own header.
+>
+> **Demotion mechanic named by [ADR-034](ADR-034-retirement-is-deletion.md):** "row added, inbound references repointed" below means the demoted ADR's ID joins `log.md`'s own `supersedes:` frontmatter list, and `clue validate` — not just review discipline — rejects any surviving link to the deleted ID.
 
 ## Context and problem statement
 
