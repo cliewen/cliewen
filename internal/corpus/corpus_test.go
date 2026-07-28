@@ -388,6 +388,16 @@ func TestAC049_UnitPositive_ConflictingSupersedesClaimsRejected(t *testing.T) {
 	assertIssue(t, issues, "G-999 is claimed as superseded by more than one artifact: G-002, G-003")
 }
 
+// AC-049 negative: an artifact repeating the same ID twice in its own
+// supersedes list is one claim, not a conflict with itself.
+func TestAC049_UnitNegative_RepeatedSupersedesEntryIsNotAConflict(t *testing.T) {
+	files := with(validFiles, map[string]string{
+		"docs/goals/G-002-second.md": "---\nid: G-002\ntype: goal\nstatus: accepted\nlinks: []\ntitle: Second goal\nsupersedes: [G-999, G-999]\n---\n",
+		"docs/goals/README.md":       "# Goals\n\n<!-- clue:index:start -->\n- [G-001](G-001-first.md)\n- [G-002](G-002-second.md)\n<!-- clue:index:end -->\n",
+	})
+	assertNoIssue(t, run(t, files, false), "claimed as superseded by more than one artifact")
+}
+
 // AC-050 negative: repointing the link to the successor clears the issue.
 func TestAC050_UnitNegative_RepointedLinkIsClean(t *testing.T) {
 	files := with(validFiles, map[string]string{

@@ -280,6 +280,7 @@ func checkSupersedes(c *Corpus) []Issue {
 	var issues []Issue
 	claimants := map[string][]*Artifact{} // superseded ID -> claiming artifacts
 	for _, a := range c.Artifacts {
+		claimed := map[string]bool{} // dedupe a repeated entry within one artifact's own list
 		for _, s := range a.Supersedes {
 			if s == a.ID {
 				issues = append(issues, Issue{a.Path, "supersedes its own id " + s + " — an artifact cannot retire itself (ADR-034)"})
@@ -288,6 +289,10 @@ func checkSupersedes(c *Corpus) []Issue {
 			if _, ok := c.ByID[s]; ok {
 				issues = append(issues, Issue{a.Path, "supersedes " + s + " but that artifact still exists in the corpus — delete it in this change (ADR-034)"})
 			}
+			if claimed[s] {
+				continue
+			}
+			claimed[s] = true
 			claimants[s] = append(claimants[s], a)
 		}
 	}
