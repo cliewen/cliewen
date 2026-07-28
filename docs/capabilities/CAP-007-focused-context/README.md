@@ -4,6 +4,7 @@ type: capability
 status: active
 links: [G-001]
 title: Focused corpus context
+goal: G-001
 ---
 
 # CAP-007 — Focused corpus context
