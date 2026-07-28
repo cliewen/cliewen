@@ -296,6 +296,46 @@ func TestAC052_UnitNegative_RealityMarkerRequiresAnalysisAndFailedClaimLink(t *t
 	assertIssue(t, run(t, files, false), "requires a links edge to the failed capability or live acceptance criterion")
 }
 
+// AC-052 negative: a criterion declared in a draft criteria file is not yet
+// live, so it neither resolves as a link nor carries a reality edge.
+func TestAC052_UnitNegative_DraftCriterionIsNotALiveClaim(t *testing.T) {
+	files := capFiles("draft")
+	files["docs/README.md"] = strings.Replace(files["docs/README.md"], "- [capabilities/]", "- [analysis/](analysis/README.md)\n- [capabilities/]", 1)
+	files["docs/analysis/README.md"] = "# Analysis\n\n<!-- clue:index:start -->\n- [AN-101](AN-101-incident.md)\n<!-- clue:index:end -->\n"
+	files["docs/analysis/AN-101-incident.md"] = "---\nid: AN-101\ntype: analysis\nstatus: active\nlinks: [AC-101]\ntitle: Incident\nreality: contradicted\n---\n"
+	assertIssue(t, run(t, files, false), "requires a links edge to the failed capability or live acceptance criterion")
+
+	c, _ := Scan(writeCorpus(t, files))
+	if gaps := RealityGaps(c); len(gaps) != 0 {
+		t.Fatalf("a draft criterion is no reality gap; got %+v", gaps)
+	}
+}
+
+// AC-051 negative: reversal-cost is bound to provenance, and decisions route
+// cost by record type rather than by the field.
+func TestAC051_UnitNegative_ReversalCostIsBoundToProvenance(t *testing.T) {
+	files := with(validFiles, map[string]string{
+		"docs/goals/G-001-first.md": "---\nid: G-001\ntype: goal\nstatus: accepted\nlinks: []\ntitle: First goal\nreversal-cost: high\n---\n",
+	})
+	assertIssue(t, run(t, files, false), "reversal-cost requires a provenance field")
+
+	files["docs/goals/G-001-first.md"] = "---\nid: G-001\ntype: goal\nstatus: accepted\nlinks: []\ntitle: First goal\nprovenance: verified\nreversal-cost: cheap\n---\n"
+	assertIssue(t, run(t, files, false), "reversal-cost must be low or high")
+
+	files = with(validFiles, map[string]string{
+		"docs/README.md":              "# Corpus\n\n<!-- clue:index:start -->\n- [goals/](goals/README.md)\n- [plans/](plans/README.md)\n- [decisions/](decisions/README.md)\n<!-- clue:index:end -->\n",
+		"docs/decisions/README.md":    "# Decisions\n\n<!-- clue:index:start -->\n- [ADR-001](ADR-001-x.md)\n<!-- clue:index:end -->\n",
+		"docs/decisions/ADR-001-x.md": "---\nid: ADR-001\ntype: decision\nstatus: inferred\nlinks: []\ntitle: X\nreversal-cost: high\n---\n",
+	})
+	issues := run(t, files, false)
+	assertIssue(t, issues, "decisions route cost by record type")
+	for _, is := range issues {
+		if strings.Contains(is.Msg, "reversal-cost requires a provenance field") {
+			t.Fatalf("a decision must not be told to add provenance, which it may not carry either: %v", issues)
+		}
+	}
+}
+
 // AC-023: constraints carry a non-empty source and an enforcement class
 // from machine|agent|human.
 func TestAC023_ConstraintRegisterFieldsLinted(t *testing.T) {

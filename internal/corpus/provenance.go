@@ -17,7 +17,7 @@ type ProvenanceSummary struct {
 	Decisions        []*Artifact
 }
 
-// ProvenanceBacklogFor derives activation blockers and unsigned decisions
+// ProvenanceBacklog derives activation blockers and unsigned decisions
 // directly from the corpus graph; it is never persisted.
 func ProvenanceBacklog(c *Corpus) ProvenanceSummary {
 	var out ProvenanceSummary
@@ -26,15 +26,15 @@ func ProvenanceBacklog(c *Corpus) ProvenanceSummary {
 			out.Decisions = append(out.Decisions, a)
 		}
 	}
-	for _, cap := range c.Artifacts {
-		if cap.Type != "capability" || cap.Status != "active" {
+	for _, capability := range c.Artifacts {
+		if capability.Type != "capability" || capability.Status != "active" {
 			continue
 		}
 		for _, a := range c.Artifacts {
-			if !isHighCostInferred(a) || !inActivationSlice(cap, a) {
+			if !isHighCostInferred(a) || !inActivationSlice(capability, a) {
 				continue
 			}
-			out.Blockers = append(out.Blockers, ActivationBlocker{Artifact: a, Capability: cap})
+			out.Blockers = append(out.Blockers, ActivationBlocker{Artifact: a, Capability: capability})
 		}
 	}
 	seenBlocker := map[*Artifact]bool{}
@@ -60,17 +60,17 @@ func isHighCostInferred(a *Artifact) bool {
 	return a.Type != "decision" && p == "inferred" && a.ReversalCost == "high"
 }
 
-func inActivationSlice(cap, a *Artifact) bool {
-	if cap == a {
+func inActivationSlice(capability, a *Artifact) bool {
+	if capability == a {
 		return true
 	}
-	for _, l := range cap.Links {
+	for _, l := range capability.Links {
 		if l == a.ID {
 			return true
 		}
 	}
 	for _, l := range a.Links {
-		if l == cap.ID {
+		if l == capability.ID {
 			return true
 		}
 	}

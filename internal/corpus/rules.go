@@ -103,7 +103,10 @@ func checkProvenance(c *Corpus) []Issue {
 			issues = append(issues, Issue{a.Path, "decisions route cost by record type and must not carry reversal-cost (ADR-035)"})
 		}
 		if !present {
-			if hasCost {
+			// A decision already got the "must not carry reversal-cost"
+			// issue above; telling it to add provenance too would name a
+			// field decisions are equally forbidden to carry (ADR-010).
+			if hasCost && a.Type != "decision" {
 				issues = append(issues, Issue{a.Path, "reversal-cost requires a provenance field (ADR-035)"})
 			}
 			continue // absent means human-authored
