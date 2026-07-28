@@ -21,14 +21,15 @@ var CoreFields = []string{"id", "type", "status", "links", "title"}
 // Artifact is one markdown file carrying frontmatter identity. The ID is
 // the identity; the path is only the current address (Foundation §4).
 type Artifact struct {
-	ID     string
-	Type   string
-	Status string
-	Links  []string
-	Title  string
-	Path   string // repo-relative, forward slashes
-	Body   string
-	Fields map[string]any // raw frontmatter, for presence checks
+	ID         string
+	Type       string
+	Status     string
+	Links      []string
+	Supersedes []string // IDs this artifact's frontmatter declares retired (ADR-034)
+	Title      string
+	Path       string // repo-relative, forward slashes
+	Body       string
+	Fields     map[string]any // raw frontmatter, for presence checks
 }
 
 // Issue is one validation finding.
@@ -109,6 +110,7 @@ func Scan(root string) (*Corpus, []Issue) {
 			a.Status, _ = fields["status"].(string)
 			a.Title, _ = fields["title"].(string)
 			a.Links, _ = stringList(fields["links"])
+			a.Supersedes, _ = stringList(fields["supersedes"])
 			c.Artifacts = append(c.Artifacts, a)
 			if a.ID != "" {
 				c.ByID[a.ID] = append(c.ByID[a.ID], a)

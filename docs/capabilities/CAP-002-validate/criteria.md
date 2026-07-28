@@ -154,4 +154,24 @@ Feature: clue validate — deterministic corpus judgment
     When the user runs "clue validate --coverage"
     Then it reports that capability as covered
     But a capability with only some criteria satisfied reports partial, and one with none satisfied reports gap
+
+  @AC-049
+  Scenario: A supersedes entry naming a still-live artifact fails loudly
+    Test-type: Unit
+    Given an artifact whose supersedes field names an ID
+    And an artifact carrying that same ID still exists in the corpus
+    When the user runs "clue validate"
+    Then it exits with a non-zero code naming the file and the not-actually-retired ID
+    But once the still-live artifact is deleted and nothing else references it, the corpus passes
+    And any artifact carrying status: retired is rejected outright, since retirement is deletion, not a status
+    And an artifact naming its own ID in supersedes is rejected, since an artifact cannot retire itself
+    And two artifacts both claiming to supersede the same ID are rejected, naming both claimants, rather than one being silently picked
+
+  @AC-050
+  Scenario: A dangling link to a superseded ID names its successor
+    Test-type: Unit
+    Given an artifact whose supersedes field names a retired ID
+    And a separate artifact whose links field still references that retired ID
+    When the user runs "clue validate"
+    Then it exits with a non-zero code naming the retired ID and the successor that superseded it
 ```

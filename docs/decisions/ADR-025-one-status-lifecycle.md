@@ -20,7 +20,7 @@ The validator carried fourteen per-type status vocabularies. Eleven of them were
 
 The exceptions, and why each earns one:
 
-- **goal** — `proposed → accepted → retired`: proposed goals *are* the inbox ([ADR-002](ADR-002-inbox-is-proposed-goals.md)); `proposed` is a distinct meaning, not a draft.
+- **goal** — `proposed → accepted`: proposed goals *are* the inbox ([ADR-002](ADR-002-inbox-is-proposed-goals.md)); `proposed` is a distinct meaning, not a draft, and [ADR-034](ADR-034-retirement-is-deletion.md) removes `retired` as a resting status.
 - **plan** — `draft → active → completed`: `completed` is immutable ([C-008](../constraints/C-008-completed-plans-immutable.md)), a terminal state `retired` does not capture.
 - **decision** — `inferred → verified`: a decision expresses its provenance in `status` ([ADR-010](ADR-010-provenance-field.md)), where `verified` means a human accepted it.
 - **log** — `active`: the decision log is one standing register; its rows, not the file, carry lifecycle ([PDR-003](PDR-003-decision-log.md)).
@@ -28,9 +28,11 @@ The exceptions, and why each earns one:
 
 Every other type — capability, criteria, design, constraint, quality, architecture, analysis, and any adopter-defined type ([ADR-026](ADR-026-adopter-types-default-lifecycle.md)) — uses the default.
 
-**Architecture and analysis move off `verified`-in-status to the default.** Their `verified` was never the decision sense of the word: it marked the single state those records were allowed to hold. Provenance — whether an agent-extracted record has been human-checked — already has its own field for every non-decision type (`provenance: inferred | verified`, [ADR-010](ADR-010-provenance-field.md)), so a second verified-in-status channel was redundant and easy to misread. An architecture or analysis record is `active` while it stands and `retired` when superseded; its immutability as a historical record is a documentation convention, not a status value.
+**`retired` is corrected by [ADR-034](ADR-034-retirement-is-deletion.md): it is not a resting status any file is ever observed holding.** Retiring an artifact of a default-lifecycle type means deleting its file in the same change; the successor's `supersedes:` field carries the pointer forward, and git history is the archive. No committed state on `main` has ever had a file with `status: retired` — the value describes an event, not a place a file sits. The two exceptions are criteria tombstones (the file stays, tagged `@retired`, because a stale test tag must keep failing loudly) and completed plans ([C-008](../constraints/C-008-completed-plans-immutable.md), which is a separate immutable terminal state, not retirement at all).
 
-**Constraint gains `draft`.** Folding constraint into the default widens its vocabulary from `{active, retired}` to `{draft, active, retired}`. This is a harmless widening — no constraint is required to pass through `draft` — that buys one fewer special case.
+**Architecture and analysis move off `verified`-in-status to the default.** Their `verified` was never the decision sense of the word: it marked the single state those records were allowed to hold. Provenance — whether an agent-extracted record has been human-checked — already has its own field for every non-decision type (`provenance: inferred | verified`, [ADR-010](ADR-010-provenance-field.md)), so a second verified-in-status channel was redundant and easy to misread. An architecture or analysis record is `active` while it stands and, per [ADR-034](ADR-034-retirement-is-deletion.md), deleted rather than marked `retired` when superseded; its immutability as a historical record is a documentation convention, not a status value.
+
+**Constraint gains `draft`.** Folding constraint into the default widens its vocabulary from `{active, retired}` to `{draft, active}` (the latter per [ADR-034](ADR-034-retirement-is-deletion.md)'s correction). This is a harmless widening — no constraint is required to pass through `draft` — that buys one fewer special case.
 
 **Carrier:** the `defaultLifecycle` slice and `statusVocabExceptions` map in `internal/corpus/rules.go`, mirrored by the status tables in `docs/README.md` and the `clue init` template.
 

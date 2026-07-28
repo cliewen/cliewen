@@ -16,7 +16,7 @@ accepted-by: []
 
 ## Decision outcome
 
-**A type the validator does not recognize is an adopter extension. It is validated against the default lifecycle `draft → active → retired` ([ADR-025](ADR-025-one-status-lifecycle.md)), not rejected.** `checkStatusVocab` no longer emits `unknown type`; `statusVocabFor` returns the default for any type without a listed exception, and unknown types reach it the same way the built-in default types do.
+**A type the validator does not recognize is an adopter extension. It is validated against the default lifecycle ([ADR-025](ADR-025-one-status-lifecycle.md)), not rejected.** `checkStatusVocab` no longer emits `unknown type`; `statusVocabFor` returns the default for any type without a listed exception, and unknown types reach it the same way the built-in default types do. The default lifecycle itself was `draft → active → retired` when this decision was made; [ADR-034](ADR-034-retirement-is-deletion.md) later corrects it to `draft → active`, and an adopter type reaches that correction the same way it reached the original.
 
 **This re-scopes a check; it does not weaken one ([C-004](../constraints/C-004-never-weaken-checks.md)).** Every other guarantee still applies to an adopter-defined type, unchanged:
 
