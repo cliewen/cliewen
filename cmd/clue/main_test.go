@@ -90,6 +90,33 @@ func TestAC051_CLIReportsInferredDecisionsSeparately(t *testing.T) {
 	}
 }
 
+func TestAC051_CLIReportsActivationBlockerCount(t *testing.T) {
+	root := validCorpus(t)
+	writeFile(t, root, "docs/README.md", "# Corpus\n\n<!-- clue:index:start -->\n- [goals/](goals/README.md)\n- [capabilities/](capabilities/README.md)\n<!-- clue:index:end -->\n")
+	writeFile(t, root, "docs/capabilities/README.md", "# Capabilities\n\n<!-- clue:index:start -->\n- [CAP-101](CAP-101-x/README.md)\n<!-- clue:index:end -->\n")
+	writeFile(t, root, "docs/capabilities/CAP-101-x/README.md", "---\nid: CAP-101\ntype: capability\nstatus: active\nlinks: []\ntitle: X\nprovenance: inferred\nreversal-cost: high\n---\n")
+
+	r, w, err := os.Pipe()
+	if err != nil {
+		t.Fatal(err)
+	}
+	old := os.Stderr
+	os.Stderr = w
+	code := runValidate([]string{root})
+	os.Stderr = old
+	if err := w.Close(); err != nil {
+		t.Fatal(err)
+	}
+	out, err := io.ReadAll(r)
+	_ = r.Close()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if code != 1 || !strings.Contains(string(out), "1 high-cost inferred activation blocker(s)") {
+		t.Fatalf("expected activation-blocker count, code=%d stderr=%q", code, out)
+	}
+}
+
 // AC-023: a valid corpus passes with agent-enforced constraints and their
 // count feeds the OK line as the promotion backlog.
 func TestAC023_AgentConstraintCountReported(t *testing.T) {

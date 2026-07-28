@@ -22,7 +22,7 @@ accepted-by: []
 
 - core frontmatter fields (`id, type, status, links, title`) must be present and non-empty;
 - IDs must be unique across the corpus;
-- every `links` entry must resolve to an artifact or a milestone;
+- every `links` entry must resolve to an artifact, a milestone, or a live acceptance criterion ([ADR-035](ADR-035-bounded-provenance-and-reality-edges.md));
 - the `status` must be a valid default-lifecycle value — a typo like `status: acive` on any type still fails.
 
 What the check stops asserting is that the *set of type names* is closed. That assertion was never a form guarantee; it was a registry Cliewen had no authority to impose on an adopter's domain. Removing it narrows the check to what it can legitimately judge — the shape of each artifact — and hands the choice of vocabulary to the corpus owner, which is precisely PDR-013's division between core and periphery. The one guarantee genuinely given up is that a *misspelled built-in type* (`goad` for `goal`) is no longer caught by name; it is instead caught the moment its status falls outside the default (a misspelled `goal` carrying `status: accepted` still fails, since `accepted` is not a default-lifecycle value). This residual gap is the correct price for an open type system and is smaller than it looks.
