@@ -29,7 +29,7 @@ Each folder below holds one kind of record. A Cliewen change (the `clue-delta` l
 
 ## Status vocabularies
 
-**The default lifecycle is `draft` → `active` → `retired`.** It applies to every artifact type, including your own — a type `clue validate` does not recognize is validated against this default, so you can add your own artifact types under `docs/` without changing the tool. Only the types below differ, each for a stated reason.
+**The default lifecycle is `draft` → `active`.** It applies to every artifact type, including your own — a type `clue validate` does not recognize is validated against this default, so you can add your own artifact types under `docs/` without changing the tool. Only the types below differ, each for a stated reason. There is no `retired`: retiring a default-lifecycle artifact means deleting its file and naming it in a successor's optional `supersedes: [ID, …]` frontmatter field, whose named ID must no longer exist in the corpus — retirement is an event, not a status a file rests in.
 
 | Type | Statuses | Why not the default |
 |---|---|---|

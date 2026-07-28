@@ -28,8 +28,10 @@ type Options struct {
 // does not recognize (ADR-025, ADR-026). Types that need a different shape are
 // listed in statusVocabExceptions. The docs/README.md status table mirrors
 // both; together they keep the `status` field honest (Foundation §7: every
-// field must have a consumer).
-var defaultLifecycle = []string{"draft", "active", "retired"}
+// field must have a consumer). It has no `retired` value: retirement means
+// deleting the file, not holding a status (ADR-034) — a value no committed
+// file may ever carry is not a value the vocabulary should offer.
+var defaultLifecycle = []string{"draft", "active"}
 
 // statusVocabExceptions holds the types whose lifecycle is not the default,
 // each for the reason named in ADR-025.
@@ -271,14 +273,35 @@ func supersededByIndex(c *Corpus) map[string]string {
 // checkSupersedes enforces ADR-034: retiring an artifact means deleting
 // its file in the same change. A supersedes entry naming an ID that
 // still resolves to a live artifact means the retirement was declared
-// but not actually carried out.
+// but not actually carried out. A retired ID claimed by more than one
+// successor is an unresolved ambiguity, not a fact the validator can
+// silently pick a winner for.
 func checkSupersedes(c *Corpus) []Issue {
 	var issues []Issue
+	claimants := map[string][]*Artifact{} // superseded ID -> claiming artifacts
 	for _, a := range c.Artifacts {
 		for _, s := range a.Supersedes {
+			if s == a.ID {
+				issues = append(issues, Issue{a.Path, "supersedes its own id " + s + " — an artifact cannot retire itself (ADR-034)"})
+				continue
+			}
 			if _, ok := c.ByID[s]; ok {
 				issues = append(issues, Issue{a.Path, "supersedes " + s + " but that artifact still exists in the corpus — delete it in this change (ADR-034)"})
 			}
+			claimants[s] = append(claimants[s], a)
+		}
+	}
+	for s, by := range claimants {
+		if len(by) < 2 {
+			continue
+		}
+		var ids []string
+		for _, a := range by {
+			ids = append(ids, a.ID)
+		}
+		sort.Strings(ids)
+		for _, a := range by {
+			issues = append(issues, Issue{a.Path, s + " is claimed as superseded by more than one artifact: " + strings.Join(ids, ", ") + " (ADR-034)"})
 		}
 	}
 	return issues

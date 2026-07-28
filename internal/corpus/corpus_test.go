@@ -130,7 +130,7 @@ func TestUnit_AdopterTypeValidatesAgainstDefault(t *testing.T) {
 	}
 
 	files["docs/goals/G-001-first.md"] = "---\nid: G-001\ntype: risk\nstatus: accepted\nlinks: []\ntitle: An adopter-defined type\n---\n"
-	assertIssue(t, run(t, files, false), "status accepted not allowed for type risk (allowed: draft, active, retired)")
+	assertIssue(t, run(t, files, false), "status accepted not allowed for type risk (allowed: draft, active)")
 }
 
 func TestUnit_LogStatusVocab(t *testing.T) {
@@ -329,14 +329,18 @@ func TestAC049_UnitPositive_SupersedesStillLiveArtifactReported(t *testing.T) {
 	assertIssue(t, issues, "supersedes G-001")
 }
 
-// AC-049 negative: deleting the still-live superseded artifact clears the issue.
+// AC-049 negative: once nothing still links to the deleted artifact and
+// nothing still claims it exists, the whole corpus passes clean.
 func TestAC049_UnitNegative_SupersedesDeletedArtifactClean(t *testing.T) {
 	files := with(validFiles, map[string]string{
-		"docs/goals/G-002-second.md": "---\nid: G-002\ntype: goal\nstatus: accepted\nlinks: []\ntitle: Second goal\nsupersedes: [G-001]\n---\n",
-		"docs/goals/README.md":       "# Goals\n\n<!-- clue:index:start -->\n- [G-002](G-002-second.md)\n<!-- clue:index:end -->\n",
+		"docs/goals/G-002-second.md":   "---\nid: G-002\ntype: goal\nstatus: accepted\nlinks: []\ntitle: Second goal\nsupersedes: [G-001]\n---\n",
+		"docs/goals/README.md":         "# Goals\n\n<!-- clue:index:start -->\n- [G-002](G-002-second.md)\n<!-- clue:index:end -->\n",
+		"docs/plans/P-001-baseline.md": "---\nid: P-001\ntype: plan\nstatus: active\nlinks: [G-002]\ntitle: Baseline\n---\n\n| M-001 | do it | todo |\n",
 	})
 	delete(files, "docs/goals/G-001-first.md")
-	assertNoIssue(t, run(t, files, false), "supersedes G-001")
+	if issues := run(t, files, false); len(issues) != 0 {
+		t.Fatalf("expected a clean corpus after retirement is fully cleaned up, got %v", issues)
+	}
 }
 
 // AC-050: a dangling link to a retired ID names the artifact that
@@ -350,6 +354,38 @@ func TestAC050_UnitPositive_DanglingLinkNamesSuccessor(t *testing.T) {
 	issues := run(t, files, false)
 	assertIssue(t, issues, "G-999")
 	assertIssue(t, issues, "G-002")
+}
+
+// AC-049: a status: retired file is rejected outright for a default-
+// lifecycle type — retirement is deletion, not a resting status the
+// default lifecycle offers. (goal, plan, decision, and log are named
+// ADR-025 exceptions with their own vocabularies and are unaffected.)
+func TestAC049_UnitPositive_RetiredStatusRejectedForDefaultLifecycle(t *testing.T) {
+	files := with(validFiles, map[string]string{
+		"docs/goals/G-001-first.md": "---\nid: G-001\ntype: risk\nstatus: retired\nlinks: []\ntitle: An adopter-defined type\n---\n",
+	})
+	assertIssue(t, run(t, files, false), "status retired not allowed for type risk")
+}
+
+// AC-049: an artifact cannot claim to supersede its own id.
+func TestAC049_UnitPositive_SelfSupersedeRejected(t *testing.T) {
+	files := with(validFiles, map[string]string{
+		"docs/goals/G-001-first.md": "---\nid: G-001\ntype: goal\nstatus: accepted\nlinks: []\ntitle: First goal\nsupersedes: [G-001]\n---\n",
+	})
+	assertIssue(t, run(t, files, false), "supersedes its own id G-001")
+}
+
+// AC-049: two artifacts both claiming to supersede the same retired ID is
+// an unresolved ambiguity, not a fact the validator silently picks a
+// winner for.
+func TestAC049_UnitPositive_ConflictingSupersedesClaimsRejected(t *testing.T) {
+	files := with(validFiles, map[string]string{
+		"docs/goals/G-002-second.md": "---\nid: G-002\ntype: goal\nstatus: accepted\nlinks: []\ntitle: Second goal\nsupersedes: [G-999]\n---\n",
+		"docs/goals/G-003-third.md":  "---\nid: G-003\ntype: goal\nstatus: accepted\nlinks: []\ntitle: Third goal\nsupersedes: [G-999]\n---\n",
+		"docs/goals/README.md":       "# Goals\n\n<!-- clue:index:start -->\n- [G-001](G-001-first.md)\n- [G-002](G-002-second.md)\n- [G-003](G-003-third.md)\n<!-- clue:index:end -->\n",
+	})
+	issues := run(t, files, false)
+	assertIssue(t, issues, "G-999 is claimed as superseded by more than one artifact: G-002, G-003")
 }
 
 // AC-050 negative: repointing the link to the successor clears the issue.

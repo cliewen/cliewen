@@ -15,11 +15,11 @@ G-xxx (goal) → P-xxx/M-xxx (plan/milestone) → CH-xxx (change)
 
 Cross-cutting, checked against every proposal: C-xxx (constraints, including verifiable quality bars — see [ADR-027](decisions/ADR-027-quality-scenarios-are-constraints.md)).
 
-Two optional fields extend the core, each with `checkACTests`/`checkProvenance` as its consumer: `ac-prefix` on a criteria.md namespaces its AC IDs (`<PREFIX>-<digits>`, default `AC` — ADR-009), and `provenance: inferred|verified` marks agent-extracted artifacts awaiting human verification (absent = human-authored; decisions carry provenance in `status` instead — ADR-010).
+Three optional fields extend the core, each with a named consumer: `ac-prefix` on a criteria.md namespaces its AC IDs (`<PREFIX>-<digits>`, default `AC` — ADR-009, consumer `checkACTests`); `provenance: inferred|verified` marks agent-extracted artifacts awaiting human verification (absent = human-authored; decisions carry provenance in `status` instead — ADR-010, consumer `checkProvenance`); and `supersedes: [ID, …]` names an artifact this one's retirement replaced — the ID must no longer exist in the corpus (ADR-034, consumer `checkSupersedes`).
 
 ## Status vocabularies
 
-**The default lifecycle is `draft` → `active` → `retired`.** It applies to every artifact type — including adopter-defined types ([ADR-026](decisions/ADR-026-adopter-types-default-lifecycle.md)) — except the few below that need a different shape for a stated reason ([ADR-025](decisions/ADR-025-one-status-lifecycle.md)). This table mirrors the `defaultLifecycle` slice and `statusVocabExceptions` map in `internal/corpus/rules.go` — the consumer that enforces it. Change them together.
+**The default lifecycle is `draft` → `active`.** It applies to every artifact type — including adopter-defined types ([ADR-026](decisions/ADR-026-adopter-types-default-lifecycle.md)) — except the few below that need a different shape for a stated reason ([ADR-025](decisions/ADR-025-one-status-lifecycle.md)). There is no `retired`: retiring a default-lifecycle artifact means deleting its file in the same change and naming it in a successor's `supersedes:` field, never holding a status a file rests in ([ADR-034](decisions/ADR-034-retirement-is-deletion.md)). This table mirrors the `defaultLifecycle` slice and `statusVocabExceptions` map in `internal/corpus/rules.go` — the consumer that enforces it. Change them together.
 
 | Type | Statuses | Why not the default |
 |---|---|---|
