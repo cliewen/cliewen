@@ -27,10 +27,13 @@ func runContext(args []string, out, errOut io.Writer) int {
 		fmt.Fprintf(errOut, "clue context: %d scan issue(s)\n", len(issues))
 		return 1
 	}
-	artifacts, err := corpus.Context(c, id)
+	artifacts, unfollowed, err := corpus.Context(c, id)
 	if err != nil {
 		fmt.Fprintln(errOut, "clue context:", err)
 		return 1
+	}
+	for _, issue := range unfollowed {
+		fmt.Fprintln(errOut, "clue context:", issue)
 	}
 
 	for i, artifact := range artifacts {

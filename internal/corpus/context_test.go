@@ -24,9 +24,12 @@ func TestAC053_UnitPositive_ContextFollowsTransitiveLinksAndEmbeddedIDs(t *testi
 		t.Fatalf("scan: %v", issues)
 	}
 
-	got, err := Context(c, "AC-101")
+	got, unfollowed, err := Context(c, "AC-101")
 	if err != nil {
 		t.Fatal(err)
+	}
+	if len(unfollowed) != 0 {
+		t.Fatalf("unfollowed edges in a sound corpus: %v", unfollowed)
 	}
 	var paths []string
 	for _, artifact := range got {
@@ -42,7 +45,7 @@ func TestAC053_UnitPositive_ContextFollowsTransitiveLinksAndEmbeddedIDs(t *testi
 		t.Fatalf("context paths = %v, want %v", paths, want)
 	}
 
-	fromMilestone, err := Context(c, "M-101")
+	fromMilestone, _, err := Context(c, "M-101")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -51,12 +54,59 @@ func TestAC053_UnitPositive_ContextFollowsTransitiveLinksAndEmbeddedIDs(t *testi
 	}
 
 	c.ByID["CAP-101"][0].Links = []string{"AN-102", "AN-101"}
-	sameDepth, err := Context(c, "CAP-101")
+	sameDepth, _, err := Context(c, "CAP-101")
 	if err != nil {
 		t.Fatal(err)
 	}
 	if sameDepth[1].Path != "docs/analysis/AN-101-z.md" || sameDepth[2].Path != "docs/analysis/AN-102-a.md" {
 		t.Fatalf("same-depth artifacts not path ordered: %v, %v", sameDepth[1].Path, sameDepth[2].Path)
+	}
+}
+
+// A milestone is declared by its row in a plan's milestone table. Another plan
+// that only mentions the ID in prose — corpus-global numbering continues from
+// the previous campaign — is referencing it, not declaring it.
+func TestAC053_UnitPositive_ContextTreatsProseMilestoneMentionsAsReferences(t *testing.T) {
+	files := contextFiles()
+	files["docs/plans/P-102-successor.md"] = "---\nid: P-102\ntype: plan\nstatus: active\nlinks: [G-101]\ntitle: Successor\n---\n\nMilestone numbering continues from P-101 (M-101).\n\n| M-102 | Next | todo |\n"
+	c, issues := Scan(writeCorpus(t, files))
+	if len(issues) != 0 {
+		t.Fatalf("scan: %v", issues)
+	}
+
+	got, _, err := Context(c, "M-101")
+	if err != nil {
+		t.Fatalf("prose mention made a declared milestone unresolvable: %v", err)
+	}
+	if got[0].ID != "P-101" {
+		t.Fatalf("milestone owner = %s, want P-101", got[0].ID)
+	}
+}
+
+// An edge the slice cannot follow is reported, not fatal: focused reading has
+// to keep working on exactly the corpus a reader is repairing.
+func TestAC053_UnitPositive_ContextReportsUnfollowedEdgesAndKeepsSlicing(t *testing.T) {
+	files := contextFiles()
+	files["docs/analysis/AN-101-z.md"] = "---\nid: AN-101\ntype: analysis\nstatus: active\nlinks: [G-101, CAP-404]\ntitle: Z\n---\n"
+	c, issues := Scan(writeCorpus(t, files))
+	if len(issues) != 0 {
+		t.Fatalf("scan: %v", issues)
+	}
+
+	got, unfollowed, err := Context(c, "AN-101")
+	if err != nil {
+		t.Fatalf("a dangling link ended the slice: %v", err)
+	}
+	var paths []string
+	for _, artifact := range got {
+		paths = append(paths, artifact.Path)
+	}
+	want := []string{"docs/analysis/AN-101-z.md", "docs/goals/G-101-goal.md"}
+	if !reflect.DeepEqual(paths, want) {
+		t.Fatalf("context paths = %v, want %v", paths, want)
+	}
+	if len(unfollowed) != 1 || !strings.Contains(unfollowed[0].Msg, "CAP-404") {
+		t.Fatalf("unfollowed edge not reported: %v", unfollowed)
 	}
 }
 
@@ -66,7 +116,7 @@ func TestAC053_UnitNegative_ContextRejectsUnknownAndAmbiguousIDs(t *testing.T) {
 	if len(issues) != 0 {
 		t.Fatalf("scan: %v", issues)
 	}
-	if _, err := Context(c, "CAP-404"); err == nil || !strings.Contains(err.Error(), "CAP-404") {
+	if _, _, err := Context(c, "CAP-404"); err == nil || !strings.Contains(err.Error(), "CAP-404") {
 		t.Fatalf("unknown ID error = %v", err)
 	}
 
@@ -80,7 +130,7 @@ func TestAC053_UnitNegative_ContextRejectsUnknownAndAmbiguousIDs(t *testing.T) {
 	if len(issues) != 0 {
 		t.Fatalf("scan ambiguous corpus: %v", issues)
 	}
-	if _, err := Context(c, "AC-101"); err == nil || !strings.Contains(err.Error(), "ambiguous") {
+	if _, _, err := Context(c, "AC-101"); err == nil || !strings.Contains(err.Error(), "ambiguous") {
 		t.Fatalf("ambiguous ID error = %v", err)
 	}
 }

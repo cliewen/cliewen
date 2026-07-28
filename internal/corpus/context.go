@@ -2,19 +2,32 @@ package corpus
 
 import (
 	"fmt"
+	"regexp"
 	"sort"
 )
+
+// milestoneRowRe matches a milestone declared in a plan's milestone table:
+// the ID is the first cell of the row. A mention in prose is a reference, not
+// a declaration, so it must not make the ID look ambiguous.
+var milestoneRowRe = regexp.MustCompile(`(?m)^\s*\|\s*(M-\d+)\s*\|`)
 
 // Context returns the deterministic outgoing-link closure rooted at id.
 // Artifact IDs resolve directly; milestone and acceptance-criterion IDs resolve
 // to the plan or criteria artifact that declares them. The root is first and
 // each breadth-first layer is ordered by repository-relative path.
-func Context(c *Corpus, id string) ([]*Artifact, error) {
-	root, err := contextOwner(c, id)
+//
+// A link that resolves to no artifact, or to more than one, is reported as an
+// unfollowed-edge issue instead of ending the slice: focused reading stays
+// available while `clue validate` remains the judge of graph health. Only an
+// unresolvable requested id is an error.
+func Context(c *Corpus, id string) ([]*Artifact, []Issue, error) {
+	owners := contextOwners(c)
+	root, err := owners.resolve(id)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
+	var unfollowed []Issue
 	result := []*Artifact{root}
 	seen := map[string]bool{root.Path: true}
 	layer := []*Artifact{root}
@@ -22,9 +35,10 @@ func Context(c *Corpus, id string) ([]*Artifact, error) {
 		nextByPath := map[string]*Artifact{}
 		for _, artifact := range layer {
 			for _, link := range artifact.Links {
-				target, err := contextOwner(c, link)
+				target, err := owners.resolve(link)
 				if err != nil {
-					return nil, fmt.Errorf("%s links %s: %w", artifact.ID, link, err)
+					unfollowed = append(unfollowed, Issue{artifact.Path, "link " + link + " not followed: " + err.Error()})
+					continue
 				}
 				if !seen[target.Path] {
 					nextByPath[target.Path] = target
@@ -45,42 +59,64 @@ func Context(c *Corpus, id string) ([]*Artifact, error) {
 			layer = append(layer, artifact)
 		}
 	}
-	return result, nil
+	return result, unfollowed, nil
 }
 
-func contextOwner(c *Corpus, id string) (*Artifact, error) {
-	ownersByPath := map[string]*Artifact{}
-	for _, artifact := range c.ByID[id] {
-		ownersByPath[artifact.Path] = artifact
+// contextIndex maps every resolvable identity — artifact IDs plus the
+// milestone and acceptance-criterion IDs declared inside artifact bodies — to
+// the artifacts that declare it, ordered by repository-relative path.
+type contextIndex map[string][]*Artifact
+
+func contextOwners(c *Corpus) contextIndex {
+	byID := map[string]map[string]*Artifact{}
+	declare := func(id string, a *Artifact) {
+		if byID[id] == nil {
+			byID[id] = map[string]*Artifact{}
+		}
+		byID[id][a.Path] = a
 	}
 	for _, artifact := range c.Artifacts {
+		declare(artifact.ID, artifact)
 		switch artifact.Type {
 		case "plan":
-			for _, declared := range milestoneRe.FindAllString(artifact.Body, -1) {
-				if declared == id {
-					ownersByPath[artifact.Path] = artifact
-				}
+			for _, row := range milestoneRowRe.FindAllStringSubmatch(artifact.Body, -1) {
+				declare(row[1], artifact)
 			}
 		case "criteria":
-			for _, match := range acTagRe.FindAllStringSubmatch(artifact.Body, -1) {
-				if match[1]+"-"+match[2] == id {
-					ownersByPath[artifact.Path] = artifact
-				}
+			for _, tag := range acTagRe.FindAllStringSubmatch(artifact.Body, -1) {
+				declare(tag[1]+"-"+tag[2], artifact)
 			}
 		}
 	}
 
-	paths := make([]string, 0, len(ownersByPath))
-	for path := range ownersByPath {
-		paths = append(paths, path)
+	index := contextIndex{}
+	for id, byPath := range byID {
+		paths := make([]string, 0, len(byPath))
+		for path := range byPath {
+			paths = append(paths, path)
+		}
+		sort.Strings(paths)
+		owners := make([]*Artifact, 0, len(paths))
+		for _, path := range paths {
+			owners = append(owners, byPath[path])
+		}
+		index[id] = owners
 	}
-	sort.Strings(paths)
-	switch len(paths) {
+	return index
+}
+
+func (index contextIndex) resolve(id string) (*Artifact, error) {
+	owners := index[id]
+	switch len(owners) {
 	case 0:
 		return nil, fmt.Errorf("ID %s not found", id)
 	case 1:
-		return ownersByPath[paths[0]], nil
+		return owners[0], nil
 	default:
+		paths := make([]string, 0, len(owners))
+		for _, owner := range owners {
+			paths = append(paths, owner.Path)
+		}
 		return nil, fmt.Errorf("ID %s is ambiguous (declared by %v)", id, paths)
 	}
 }
