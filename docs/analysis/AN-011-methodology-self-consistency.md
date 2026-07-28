@@ -40,11 +40,15 @@ This contradicts AC-036's claim that the public operations guide distinguishes s
 
 The canonical `clue-extract` source and both generated copies say activation is per criteria file and that a capability is the smallest phasing unit. ADR-033 and the current `clue-delta` skill allow an active criteria file to carry an individual unproven criterion tagged `@draft`; Human-class criteria also require no code reference. Generation tests prove the copies match their canonical source, so they faithfully reproduce the wrong current instruction.
 
+CAP-003's active criteria state namespaced acceptance IDs, JVM harvesting, and provenance linting; none of them states the activation-granularity rule the skill gets wrong. The reality edge is therefore recorded against the capability rather than against a criterion, and the repair must mint the criterion that names the rule before the contradiction has an executable carrier at all. F1's edge is narrower because AC-036 already claims the property the guide pages break.
+
 ### F3 — Mechanical consistency is narrower than semantic carrier consistency
 
 At the pinned revision, `go run ./cmd/clue validate` passed 108 artifacts, `--coverage` reported all seven capabilities covered, `go test ./...` passed, the guide built, and CI-scope tests passed. Those checks establish corpus form, generated-copy identity, executable evidence, and guide buildability. None inventories every carrier affected when a methodology decision changes a shared contract. The green result was correct under the implemented judge and still insufficient to detect F1 and F2.
 
 This is the foundation's acknowledged semantic-merge edge in a smaller form: Git and generators can keep text synchronized without keeping meaning synchronized.
+
+The repair inherits that limit. Criteria and content-anchor tests that reject today's stale phrases prove F1 and F2 stay fixed; they do not detect the next carrier that falls behind a different shared contract, because no current mechanism derives the set of carriers a given contract has. Anything stronger needs a machine-readable statement of which carriers make which claim, which this audit does not have evidence to design. The general obligation therefore stays agent-enforced prose in the same sense as the constraints `clue validate` reports as awaiting machine checks.
 
 ### F4 — Not every unresolved analysis item is a present inconsistency
 
