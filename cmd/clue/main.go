@@ -113,6 +113,7 @@ func main() {
 func runValidate(args []string) int {
 	fs := flag.NewFlagSet("validate", flag.ExitOnError)
 	forbid := fs.Bool("forbid-changes", false, "fail when /changes contains files")
+	coverage := fs.Bool("coverage", false, "print derived per-capability proof coverage; never a committed registry")
 	_ = fs.Parse(args)
 	root := "."
 	if fs.NArg() > 0 {
@@ -127,6 +128,11 @@ func runValidate(args []string) int {
 		}
 		fmt.Fprintf(os.Stderr, "clue validate: %d issue(s)\n", len(issues))
 		return 1
+	}
+	if *coverage {
+		for _, cc := range corpus.Coverage(c) {
+			fmt.Printf("%s: %s\n", cc.Capability, cc.State)
+		}
 	}
 	notes := ""
 	if n := inferredCount(c); n > 0 {

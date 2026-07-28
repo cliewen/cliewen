@@ -128,4 +128,30 @@ Feature: clue validate — deterministic corpus judgment
     When the user runs "clue validate"
     Then it exits with a non-zero code naming the missing negative evidence
     But a Cucumber scenario tagged e2e and negative makes the criterion covered
+
+  @AC-045
+  Scenario: A Human-class criterion validates without a code test
+    Test-type: Unit
+    Given an active acceptance criterion declaring the Human test type
+    And no Go, JVM, or Cucumber evidence references it
+    When the user runs "clue validate"
+    Then it reports no issue for that criterion
+    But a Human-class criterion additionally declaring "(single-direction)" fails as malformed
+
+  @AC-046
+  Scenario: A @draft criterion is exempt from the active-file test requirement
+    Test-type: Unit
+    Given an active acceptance criterion whose tag line also carries @draft
+    And no test references it
+    When the user runs "clue validate"
+    Then it reports no issue for that criterion
+    But removing @draft from an otherwise untested criterion in an active file restores the "has no test" issue
+
+  @AC-047
+  Scenario: Coverage reports derive per-capability state without a committed registry
+    Test-type: Unit
+    Given a capability whose non-retired criteria are all satisfied, Human-classed, or @draft-exempt
+    When the user runs "clue validate --coverage"
+    Then it reports that capability as covered
+    But a capability with only some criteria satisfied reports partial, and one with none satisfied reports gap
 ```

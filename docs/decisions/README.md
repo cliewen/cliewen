@@ -58,4 +58,5 @@ ADRs and PDRs share the MADR format and two-tier provenance: `inferred` (binding
 - [PDR-015-merging-cuts-the-release](PDR-015-merging-cuts-the-release.md)
 - [PDR-016 — Hosted PR state carries review findings and updater handoffs across agents](PDR-016-pr-state-carries-agent-handoffs.md) · `inferred` · refines PDR-007 clause 2 and supersedes clause 6
 - [PDR-017 — The human merge gate has a concise, durable acceptance brief](PDR-017-merge-gate-has-content.md) · `inferred`
+- [ADR-033-human-proof-and-draft-criteria](ADR-033-human-proof-and-draft-criteria.md)
 <!-- clue:index:end -->
