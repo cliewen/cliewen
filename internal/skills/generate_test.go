@@ -192,10 +192,12 @@ func TestAC055_UnitPositive_AnalysisQualifiesEnvironmentAndPopulationEvidence(t 
 	}
 	for _, want := range []string{
 		"either a clean disposable environment or a prepared environment",
-		"A clean result supports onboarding reproducibility only when it has no unstated local prerequisites",
+		"A clean result supports onboarding reproducibility only when it has no local prerequisites",
+		"any local prerequisite, documented or not, makes the result prepared",
 		"a prepared result names its prerequisites",
 		"versioned population, eligibility rules, exclusions and their reasons, sampling or repetition method, uncertainty",
 		"deterministic-versus-quality boundary",
+		"name the governance or process changes it introduces",
 	} {
 		if !strings.Contains(analysis, want) {
 			t.Errorf("clue-analysis/skill.md does not qualify analysis evidence with %q", want)
@@ -215,6 +217,7 @@ func TestAC055_UnitNegative_AnalysisRejectsUnqualifiedEvidenceClaims(t *testing.
 		"A prepared build proves onboarding reproducibility",
 		"A percentage needs no population or uncertainty boundary",
 		"Treat every quality claim as a deterministic acceptance criterion",
+		"Adoption is neutral scaffolding",
 	} {
 		if strings.Contains(analysis, stale) {
 			t.Errorf("clue-analysis/skill.md still permits unqualified analysis evidence claim %q", stale)
