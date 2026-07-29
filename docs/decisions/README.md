@@ -14,7 +14,7 @@ The CLI reports inferred ADRs and PDRs as decisions awaiting verification, separ
 
 **Records are timeless.** Context states the problem, not the episode: a motivating incident earns at most one sentence, and the change history lives in git log and the plans. Concrete mechanisms appear as decision content — the chosen option, the rejected options, the carrier — never as narrative.
 
-**Carrier rule for method decisions:** a decision that changes the methodology *for adopting projects* — usually a PDR — must name its carrier: the `clue` rule (machine), the skill text (agent), or the init template (default) that ships it. A method decision without a carrier does not reach new projects and is not yet done. The foundation new projects receive has exactly one authoritative form: the output of `clue init` plus the rules of the `clue` binary — and CAP-001's criteria are what hold that output to account.
+**Same-change carrier rule for method decisions:** a decision that changes a methodology contract inventories every live carrier that states the affected contract and updates that complete inventory in the same change. Live carriers include current corpus truth, canonical and generated skills, templates, public or contributor guidance, implementation explanations, CLI text, and distribution metadata. Historical analyses, completed plans, and changelog entries remain pinned history. Focused guards hold stable repaired claims, but no current mechanism derives an arbitrary contract's complete carrier set, so the general obligation remains agent-enforced. The foundation new projects receive has exactly one authoritative form: the output of `clue init` plus the rules of the `clue` binary — and CAP-001's criteria hold that output to account.
 
 <!-- clue:index:start -->
 - [ADR-001 — Implementation language: Go](ADR-001-implementation-language.md) · `verified`
@@ -49,7 +49,7 @@ The CLI reports inferred ADRs and PDRs as decisions awaiting verification, separ
 - [PDR-011 — Plain changes stay outside Cliewen while retaining human merge](PDR-011-plain-changes-bypass-cliewen.md) · `verified`
 - [PDR-012 — Every Cliewen change receives an automatic agentic review before publication](PDR-012-agentic-review-before-publication.md) · `verified`
 - [ADR-024-custom-domain-root](ADR-024-custom-domain-root.md)
-- [PDR-013-explicit-core-red-line](PDR-013-explicit-core-red-line.md)
+- [PDR-013 — Cliewen has an explicit core behind a red line](PDR-013-explicit-core-red-line.md) · `inferred` · thread endpoint refined by PDR-019
 - [ADR-025-one-status-lifecycle](ADR-025-one-status-lifecycle.md)
 - [ADR-026-adopter-types-default-lifecycle](ADR-026-adopter-types-default-lifecycle.md)
 - [ADR-027-quality-scenarios-are-constraints](ADR-027-quality-scenarios-are-constraints.md)
@@ -66,4 +66,5 @@ The CLI reports inferred ADRs and PDRs as decisions awaiting verification, separ
 - [ADR-034-retirement-is-deletion](ADR-034-retirement-is-deletion.md)
 - [ADR-035-bounded-provenance-and-reality-edges](ADR-035-bounded-provenance-and-reality-edges.md)
 - [PDR-018 — Behavior changes remain full until adopter evidence supports a narrower loop](PDR-018-behavior-changes-remain-full.md) · `inferred`
+- [PDR-019 — Methodology contract changes update every live carrier in the same change](PDR-019-methodology-contract-carriers-move-together.md) · `inferred`
 <!-- clue:index:end -->

@@ -19,7 +19,7 @@ Process cannot drive humans, and agents cheat unless mechanically prevented. The
 | **CI** | The wall | Refuses to proceed if not (same binary as local) |
 | **Human** | Decision-maker | Settles what machines cannot check: meaning |
 
-Goodhart guard: **machines enforce form, humans verify meaning.** The linter checks that AC-042 has a test; only PR review checks the test means anything.
+Goodhart guard: **machines enforce form, humans verify meaning.** The linter checks that AC-042 has the evidence its declared proof class requires; only the human merge judges whether executable evidence or a Human acceptance brief actually proves the intended behavior.
 
 ```mermaid
 flowchart TD
@@ -56,7 +56,9 @@ flowchart TD
     P --> CH[CH-xxx change]
     CH --> CAP[CAP-xxx capability]
     CAP --> AC[AC-xxx acceptance criterion]
-    AC --> T[test tag<br/>positive + negative]
+    AC --> E{acceptance evidence}
+    E --> T[test tag<br/>type + direction]
+    E --> H[Human acceptance brief]
     C[C-xxx constraints<br/>including verifiable quality bars] -. checked against every proposal .-> CH
 ```
 

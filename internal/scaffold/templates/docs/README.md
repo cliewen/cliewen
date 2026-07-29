@@ -12,7 +12,8 @@ The red thread `clue validate` walks:
 
 ```
 G-xxx (goal) → P-xxx/M-xxx (plan/milestone) → CH-xxx (change)
-  → CAP-xxx (capability) → AC-xxx (acceptance criterion) → test tag
+  → CAP-xxx (capability) → AC-xxx (acceptance criterion) → acceptance evidence
+    → classified Go/JVM/Cucumber test reference, or Human acceptance brief
 ```
 
 Cross-cutting, checked against every proposal: C-xxx (constraints, including verifiable quality bars).
@@ -23,7 +24,7 @@ Each folder below holds one kind of record. A Cliewen change (the `clue-delta` l
 
 - **Goals** (`goals/`) — who wants the system and why. A new wish enters here as `status: proposed`; a change rarely touches goals.
 - **Plans** (`plans/`) — campaigns with verifiable milestones. Every Cliewen change names the plan item it serves (or declares itself plan-less); the digest updates milestone bookkeeping.
-- **Capabilities** (`capabilities/`) — one folder per capability: `README.md` (what and why), `criteria.md` (acceptance criteria as Gherkin, each tied to tests), `design.md` (how it works). **Design is documented per capability** — a change that alters a capability's behavior updates its criteria and design in the same PR.
+- **Capabilities** (`capabilities/`) — one folder per capability: `README.md` (what and why), `criteria.md` (acceptance criteria as Gherkin, each tied to its declared acceptance evidence), `design.md` (how it works). **Design is documented per capability** — a change that alters a capability's behavior updates its criteria and design in the same PR.
 - **Architecture** (`architecture/`) — the shape of the whole: the expensive-to-change. Updated when a change alters the system's structure or public surface, not for local detail.
 - **Decisions** (`decisions/`) — why things are the way they are. An **ADR** records an architectural decision, a **PDR** a decision about how the project works; both are expensive to reverse. Cheap-and-local-to-reverse decisions are one-line rows in `log.md`. Every decision made during a change is recorded in its digest.
 - **Constraints** (`constraints/`) — rules the system must not break: laws, licenses, policies, and verifiable quality bars (a coverage floor, a response-time bound). Each names its `source` and how it is `enforcement`-checked. Updated when the outside world imposes something or a quality bar moves.

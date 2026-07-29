@@ -21,4 +21,4 @@ Acceptance criteria: [criteria.md](criteria.md) · implementation notes: [design
 
 ## Status note
 
-`active`: implemented and covered by Go tests whose names carry the AC-IDs. The mechanical AC↔test link is the remaining half of P-001/M-002 and lands as its own rule in a later change.
+`active`: implemented and covered by Go tests whose names carry the AC IDs and evidence classifications. AC-009 and its positive and negative unit tests enforce the active-criterion reference rule; criteria declaring a machine proof type additionally require supported evidence classified by that type and direction, unannotated legacy criteria retain one reference, Human-class criteria route proof to the acceptance brief, and `@draft` exempts one criterion. `clue validate` validates these declarations and references but does not execute tests.

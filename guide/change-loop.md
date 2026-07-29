@@ -14,8 +14,8 @@ After classification, start from the smallest durable context that governs the t
 |---|---|
 | Need | Make acceptance-criterion-to-test traceability enforceable rather than conventional |
 | Proposal | CH-003 declared the intended AC↔test contract and served the baseline plan's traceability milestone |
-| Durable capability | [`clue validate`](https://github.com/cliewen/cliewen/tree/main/docs/capabilities/CAP-002-validate) owns criteria such as AC-009, which requires test evidence for every active criterion |
-| Positive and negative evidence | Focused tests show both the missing-test failure and the referenced-test success path |
+| Durable capability | [`clue validate`](https://github.com/cliewen/cliewen/tree/main/docs/capabilities/CAP-002-validate) owns criteria such as AC-009, which requires a supported reference for every active legacy machine-proven criterion |
+| Classified evidence | Focused tests show both the missing-reference failure and referenced-evidence success path; new or revised criteria also declare proof type and evidence direction |
 | Implementation | The validator harvests declared ACs and supported test references, then reports an active AC with no evidence |
 | Digest | The transient CH-003 workspace disappeared; the capability, criteria, decisions, implementation, and tests remained |
 | Acceptance | The branch became PR #2, CI ran the candidate, and a human merge accepted it into `main` |
@@ -38,7 +38,7 @@ When the human wants to review that shape before code exists, they can opt into 
 
 ## 3. Implement
 
-Change the permanent corpus and implementation together. Behavior-changing work names the acceptance criteria it serves. Every active criterion gets focused positive and negative tests in the same change, and every test declares one purpose: an AC ID, unit, sanity, or architecture.
+Change the permanent corpus and implementation together. Behavior-changing work names the acceptance criteria it serves. A new or revised machine-proven criterion declares `Test-type: Unit`, `Integration`, `E2E`, or `Performance` and gets supported Go, JVM, or Cucumber evidence classified by that type and positive/negative direction, unless it records `(single-direction)`. A genuine `Test-type: Human` criterion is named in the acceptance brief as its proof; a not-yet-proven criterion carries `@draft` on its own tag line; an unannotated legacy criterion retains one supported reference. Every test declares one purpose: an AC ID, unit, sanity, or architecture.
 
 Never weaken a test or lint rule to make the build pass. A failing check is evidence about the change.
 

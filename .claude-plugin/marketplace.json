@@ -4,7 +4,7 @@
     "name": "Cliewen",
     "url": "https://github.com/cliewen/cliewen"
   },
-  "description": "Cliewen — a verifiable thread from goal to test for agent-driven development.",
+  "description": "Cliewen — a verifiable thread from goal to acceptance evidence for agent-driven development.",
   "plugins": [
     {
       "name": "cliewen",

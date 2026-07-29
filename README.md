@@ -2,9 +2,9 @@
 
 > Ship agent-written changes without losing the intent.
 
-**Cliewen** is a methodology for repositories where coding agents implement real product changes through pull requests. It keeps requirements, decisions, implementation, and tests connected in Git, and catches missing evidence before merge. **`clue`** is its command-line judge; the **corpus** under `docs/` is the permanent system record that agents maintain with the code.
+**Cliewen** is a methodology for repositories where coding agents implement real product changes through pull requests. It keeps requirements, decisions, implementation, and acceptance evidence connected in Git, and catches missing evidence before merge. **`clue`** is its command-line judge; the **corpus** under `docs/` is the permanent system record that agents maintain with the code.
 
-The name comes from Old English *cliewen*, “ball of thread” — the word that became *clue*. The enforced thread is **goal → capability → acceptance criterion → test**.
+The name comes from Old English *cliewen*, “ball of thread” — the word that became *clue*. The enforced thread is **goal → capability → acceptance criterion → acceptance evidence**: classified executable references for machine-proven criteria or the pull request acceptance brief for genuine Human proof.
 
 SDD frameworks document the *change*; Cliewen documents the *system*. Changes are transient deltas digested into the permanent corpus at merge — `git log docs/` is the provenance archive.
 

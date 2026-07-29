@@ -12,19 +12,20 @@ func capFiles(criteriaStatus string) map[string]string {
 	})
 }
 
-// AC-009: an AC in active criteria without a test fails; with a test it passes.
-func TestAC009_ActiveACWithoutTestFails(t *testing.T) {
+// AC-009 negative: an AC in active criteria without a test fails.
+func TestAC009_UnitNegative_ActiveACWithoutTestFails(t *testing.T) {
 	files := capFiles("active")
 	assertIssue(t, run(t, files, false), "AC-101 has no test")
+}
 
+// AC-009 positive: a supported reference satisfies an active AC, while a
+// whole draft criteria file remains exempt from the active-file contract.
+func TestAC009_UnitPositive_ReferencedACAndDraftFilePass(t *testing.T) {
+	files := capFiles("active")
 	files["pkg/x_test.go"] = "package x\n\nfunc TestAC101_Works(t *testing.T) {}\n"
 	if issues := run(t, files, false); len(issues) != 0 {
 		t.Fatalf("AC-101 has a test; expected no issues, got %v", issues)
 	}
-}
-
-// AC-009 (negative side): draft criteria are exempt from the contract.
-func TestAC009_DraftCriteriaExempt(t *testing.T) {
 	if issues := run(t, capFiles("draft"), false); len(issues) != 0 {
 		t.Fatalf("draft criteria are exempt; expected no issues, got %v", issues)
 	}

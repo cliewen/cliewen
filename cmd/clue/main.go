@@ -42,7 +42,7 @@ func releaseFromModuleVersion(v string) string {
 	return strings.TrimPrefix(base, "v")
 }
 
-const usage = `clue — a verifiable thread from goal to test
+const usage = `clue — a verifiable thread from goal to acceptance evidence
 
 Usage:
   clue init [path]

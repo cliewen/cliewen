@@ -40,7 +40,7 @@
 - [ ] The proposal was committed before implementation, or this is a correctly scoped light change whose proposal is this PR description.
 - [ ] The plan item or plan-less declaration is truthful, and all artifact links resolve.
 - [ ] Decisions are recorded at the right tier, and active constraints were assessed.
-- [ ] Changed active acceptance criteria have positive and negative executable evidence.
+- [ ] Changed active acceptance criteria satisfy the evidence contract: classified positive/negative Go, JVM, or Cucumber evidence at the declared machine proof type (or `(single-direction)`), Human proof named in the acceptance brief, per-criterion `@draft` for a genuine gap, or the legacy one-supported-reference rule.
 - [ ] User-visible impact is described under `[Unreleased]` in `CHANGELOG.md`, or the change has no user-visible impact.
 - [ ] Full-change tasks are complete, plan bookkeeping is current, and no transient `/changes/` workspace remains.
 - [ ] Generated artifacts were regenerated from their canonical sources where applicable.

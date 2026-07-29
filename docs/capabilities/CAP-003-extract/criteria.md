@@ -50,4 +50,13 @@ Feature: Brownfield extraction — namespaced ACs, JVM harvesting, provenance
     Then it exits with a non-zero code naming the file
     But a valid corpus with inferred artifacts passes
     And the OK line reports how many artifacts are born inferred
+
+  @AC-054
+  Scenario: Extraction phases evidence at criterion granularity
+    Test-type: Unit
+    Given a brownfield extraction contains proven and not-yet-proven criteria
+    When the agent records their evidence state
+    Then a genuinely not-yet-proven individual criterion may carry @draft while proven siblings and the capability remain active
+    And a genuine Human-class criterion uses the pull request acceptance brief as proof without a code reference
+    But whole-file draft phasing remains available when the capability's extracted criteria are not ready for active use
 ```
