@@ -194,7 +194,7 @@ func TestAC055_UnitPositive_AnalysisQualifiesEnvironmentAndPopulationEvidence(t 
 		"either a clean disposable environment or a prepared environment",
 		"A clean result supports onboarding reproducibility only when it has no local prerequisites",
 		"any local prerequisite, documented or not, makes the result prepared",
-		"a prepared result names its prerequisites",
+		"A prepared result names its prerequisites",
 		"versioned population, eligibility rules, exclusions and their reasons, sampling or repetition method, uncertainty",
 		"deterministic-versus-quality boundary",
 		"name the governance or process changes it introduces",
