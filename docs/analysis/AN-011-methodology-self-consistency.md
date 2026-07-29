@@ -4,7 +4,7 @@ type: analysis
 status: active
 provenance: inferred
 reversal-cost: low
-links: [G-001, P-008, AC-036, CAP-003, ARCH-003, PDR-013, ADR-032, ADR-033, C-006, P-007]
+links: [G-001, P-008, AC-036, CAP-002, CAP-003, ARCH-003, PDR-013, ADR-032, ADR-033, C-006, P-007]
 title: A green corpus can carry contradictory methodology claims
 reality: contradicted
 ---
@@ -35,6 +35,8 @@ Observed evidence is limited to committed repository state and reproducible loca
 `guide/adoption.md`, `guide/getting-started.md`, and `guide/operations.md` say that `clue validate` detects only one supported acceptance-criterion reference and cannot classify or count the positive and negative pair. The v0.9 judge does classify and count pairs for criteria declaring a test type. `guide/what-is-cliewen.md` simultaneously overstates that every active criterion requires positive and negative code tests, omitting the Human proof class and per-criterion `@draft`, and understates supported harvesting by omitting Cucumber.
 
 The stale public inventory extends beyond those four pages. `guide/design.md` says Human proof has no home, omits Cucumber from the supported carriers, and repeatedly describes test evidence as mandatory for every active criterion. `guide/methodology.md` omits Human from the proof-class vocabulary, while `guide/change-loop.md` gives every active criterion the unconditional positive-and-negative-test rule. `CONTRIBUTING.md` repeats that rule as a normative contributor instruction. CAP-001's `design.md` preserves the old one-reference/counting boundary even though AC-036 claims that the guide distinguishes shipped support from methodology intent. The scaffolded capabilities README tells every adopter that each active criterion has positive and negative tests and otherwise the whole capability stays draft. All of these are live instructions or current design claims, not pinned historical descriptions.
+
+CAP-002's active status note makes another false live capability claim: it says the mechanical AC↔test link remains future work even though AC-009, `checkACTests`, and its positive and negative Go tests already implement that rule. The incident therefore contradicts CAP-002 in addition to AC-036 and CAP-003.
 
 The active ARCH-001 actor explanation and frontmatter-graph diagram also present a test and positive/negative pair as the only acceptance-criterion edge. The `internal/corpus/actests.go` implementation header says every criterion in an active file has a test and documents only Go and JVM carriers even though the code below it implements Human, `@draft`, classified/single-direction evidence, and Cucumber. These implementation-facing explanations are current carriers and need the same content guards as the public prose.
 
