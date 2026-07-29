@@ -195,7 +195,7 @@ func TestAC055_UnitPositive_AnalysisQualifiesEnvironmentAndPopulationEvidence(t 
 		"A clean result supports onboarding reproducibility only when it has no local prerequisites",
 		"any local prerequisite, documented or not, makes the result prepared",
 		"A prepared result names its prerequisites and establishes only what that prepared environment demonstrated",
-		"versioned population, eligibility rules, exclusions and their reasons, sampling or repetition method, uncertainty",
+		"versioned corpus and population, eligibility rules, exclusions and their reasons, sampling or repetition method, uncertainty",
 		"deterministic-versus-quality boundary",
 		"Do not turn an environment-sensitive quality claim into a deterministic acceptance criterion",
 		"name the governance or process changes it introduces",
@@ -217,6 +217,7 @@ func TestAC055_UnitNegative_AnalysisRejectsUnqualifiedEvidenceClaims(t *testing.
 	}
 	for _, stale := range []string{
 		"no unstated local prerequisites",
+		"versioned population, eligibility rules, exclusions and their reasons",
 		"A prepared build proves onboarding reproducibility",
 		"A percentage needs no population or uncertainty boundary",
 		"Treat every quality claim as a deterministic acceptance criterion",

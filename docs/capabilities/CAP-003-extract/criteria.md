@@ -68,7 +68,7 @@ Feature: Brownfield analysis and extraction — evidence, namespaced ACs, JVM ha
     Then it distinguishes the two environments
     And a clean result has no local prerequisites while any local prerequisite makes a result prepared
     And a prepared result names its prerequisites without claiming onboarding reproducibility
-    And a statistical or percentage claim names its versioned population, eligibility rules, exclusions with reasons, sampling or repetition method, uncertainty, and deterministic-versus-quality boundary
+    And a statistical or percentage claim names its versioned corpus and population, eligibility rules, exclusions with reasons, sampling or repetition method, uncertainty, and deterministic-versus-quality boundary
     And adoption analysis names the governance or process changes it introduces
     But an environment-sensitive quality claim is not represented as a deterministic acceptance criterion
     And scaffolding is not described as neutral
