@@ -70,6 +70,10 @@ So a version bump this adopter has not yet attempted starts from 69 blocking cor
 
 The real costs sit next to the ones M-035 anticipated: **a wall that must be forked to be adapted**, and **an upgrade with no path**. Neither is a configuration problem.
 
+## AGENTS.md local-layer assessment
+
+[ADR-013](../decisions/ADR-013-ships-generic-vs-repo-local.md) keeps `AGENTS.md` as the repository-local layer for agent routing and instructions. None of the measured needs belongs there. The binary delivery choice and the copied CI wall are executable workflow concerns: an `AGENTS.md` instruction cannot prevent a wall fork or select how GitHub Actions installs `clue`. The agent-directory symlink and local skills already coexist without an added routing convention, so the adopter has no demonstrated agent-local setting to add to `AGENTS.md` either. The boundary therefore remains appropriate and supplies no reason to add a machine configuration file.
+
 ## Rejected
 
 - **A `cliewen.yaml` configuration file.** Nothing measured needs one. ADR-013's reasoning stands unchanged and is now backed by evidence rather than argument: the two placement questions are solved, and the wall's single real edit is not expressible as configuration.
