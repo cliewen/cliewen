@@ -182,6 +182,47 @@ func TestAC054_UnitNegative_ExtractionRejectsCapabilityOnlyPhasing(t *testing.T)
 	}
 }
 
+func TestAC055_UnitPositive_AnalysisQualifiesEnvironmentAndPopulationEvidence(t *testing.T) {
+	analysis := mustRenderSkill(t, "clue-analysis/skill.md")
+	for _, want := range []string{
+		"either a clean disposable environment or a prepared environment",
+		"A clean result supports onboarding reproducibility only when it has no local prerequisites",
+		"any local prerequisite, documented or not, makes the result prepared",
+		"A prepared result names its prerequisites and establishes only what that prepared environment demonstrated",
+		"versioned corpus and population, eligibility rules, exclusions and their reasons, sampling or repetition method, uncertainty",
+		"deterministic-versus-quality boundary",
+		"Do not turn an environment-sensitive quality claim into a deterministic acceptance criterion",
+		"name the governance or process changes it introduces",
+		"do not describe scaffolding as neutral",
+	} {
+		if !strings.Contains(analysis, want) {
+			t.Errorf("clue-analysis/skill.md does not qualify analysis evidence with %q", want)
+		}
+	}
+}
+
+// The negative direction rejects the weaker forms this obligation can decay
+// into, not invented opposites: an unqualified skill never claims that a
+// percentage needs no population, it simply stops asking for one. Each string
+// below is text the skill would carry again if the rule were relaxed.
+func TestAC055_UnitNegative_AnalysisRejectsUnqualifiedEvidenceClaims(t *testing.T) {
+	analysis := mustRenderSkill(t, "clue-analysis/skill.md")
+	for _, stale := range []string{
+		// The pre-CH-080 order, in which investigation begins straight after
+		// the evidence boundary with no population or adoption qualification.
+		"says otherwise.\n3. Run a **spike**",
+		// A prerequisite that only counts when it is undocumented.
+		"no unstated local prerequisites",
+		"any undocumented local prerequisite",
+		// A population claim untied to the corpus version it was drawn from.
+		"versioned population, eligibility rules, exclusions and their reasons",
+	} {
+		if strings.Contains(analysis, stale) {
+			t.Errorf("clue-analysis/skill.md still permits unqualified analysis evidence claim %q", stale)
+		}
+	}
+}
+
 func TestSanity_MethodologyContractChangesMoveEveryLiveCarrierTogether(t *testing.T) {
 	for _, file := range mustRender(t) {
 		if !strings.HasSuffix(file.relativePath, "/skill.md") {
@@ -385,6 +426,17 @@ func TestUnit_AgenticReviewLoopConvergesOnCurrentCommit(t *testing.T) {
 			t.Errorf("%s does not invoke the automatic agentic review loop", name)
 		}
 	}
+}
+
+func mustRenderSkill(t *testing.T, relativePath string) string {
+	t.Helper()
+	for _, file := range mustRender(t) {
+		if file.relativePath == relativePath {
+			return string(file.content)
+		}
+	}
+	t.Fatalf("%s was not rendered", relativePath)
+	return ""
 }
 
 func mustRender(t *testing.T) []renderedFile {

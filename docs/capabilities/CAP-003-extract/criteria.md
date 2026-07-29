@@ -7,7 +7,7 @@ title: Acceptance criteria for CAP-003
 ---
 
 ```gherkin
-Feature: Brownfield extraction — namespaced ACs, JVM harvesting, provenance
+Feature: Brownfield analysis and extraction — evidence, namespaced ACs, JVM harvesting, provenance
 
   @AC-014
   Scenario: A criteria file declares ACs in its own namespace
@@ -59,4 +59,17 @@ Feature: Brownfield extraction — namespaced ACs, JVM harvesting, provenance
     Then a genuinely not-yet-proven individual criterion may carry @draft while proven siblings and the capability remain active
     And a genuine Human-class criterion uses the pull request acceptance brief as proof without a code reference
     But whole-file draft phasing remains available when the capability's extracted criteria are not ready for active use
+
+  @AC-055
+  Scenario: Analysis qualifies verification environments and population claims
+    Test-type: Unit
+    Given analysis evidence from a clean disposable or prepared environment
+    When the investigator records the evidence boundary
+    Then it distinguishes the two environments
+    And a clean result has no local prerequisites while any local prerequisite makes a result prepared
+    And a prepared result names its prerequisites without claiming onboarding reproducibility
+    And a statistical or percentage claim names its versioned corpus and population, eligibility rules, exclusions with reasons, sampling or repetition method, uncertainty, and deterministic-versus-quality boundary
+    And adoption analysis names the governance or process changes it introduces
+    But an environment-sensitive quality claim is not represented as a deterministic acceptance criterion
+    And scaffolding is not described as neutral
 ```
