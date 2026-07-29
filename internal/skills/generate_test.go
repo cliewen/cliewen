@@ -183,13 +183,7 @@ func TestAC054_UnitNegative_ExtractionRejectsCapabilityOnlyPhasing(t *testing.T)
 }
 
 func TestAC055_UnitPositive_AnalysisQualifiesEnvironmentAndPopulationEvidence(t *testing.T) {
-	analysis := ""
-	for _, file := range mustRender(t) {
-		if file.relativePath == "clue-analysis/skill.md" {
-			analysis = string(file.content)
-			break
-		}
-	}
+	analysis := mustRenderSkill(t, "clue-analysis/skill.md")
 	for _, want := range []string{
 		"either a clean disposable environment or a prepared environment",
 		"A clean result supports onboarding reproducibility only when it has no local prerequisites",
@@ -207,21 +201,21 @@ func TestAC055_UnitPositive_AnalysisQualifiesEnvironmentAndPopulationEvidence(t 
 	}
 }
 
+// The negative direction rejects the weaker forms this obligation can decay
+// into, not invented opposites: an unqualified skill never claims that a
+// percentage needs no population, it simply stops asking for one. Each string
+// below is text the skill would carry again if the rule were relaxed.
 func TestAC055_UnitNegative_AnalysisRejectsUnqualifiedEvidenceClaims(t *testing.T) {
-	analysis := ""
-	for _, file := range mustRender(t) {
-		if file.relativePath == "clue-analysis/skill.md" {
-			analysis = string(file.content)
-			break
-		}
-	}
+	analysis := mustRenderSkill(t, "clue-analysis/skill.md")
 	for _, stale := range []string{
+		// The pre-CH-080 order, in which investigation begins straight after
+		// the evidence boundary with no population or adoption qualification.
+		"says otherwise.\n3. Run a **spike**",
+		// A prerequisite that only counts when it is undocumented.
 		"no unstated local prerequisites",
+		"any undocumented local prerequisite",
+		// A population claim untied to the corpus version it was drawn from.
 		"versioned population, eligibility rules, exclusions and their reasons",
-		"A prepared build proves onboarding reproducibility",
-		"A percentage needs no population or uncertainty boundary",
-		"Treat every quality claim as a deterministic acceptance criterion",
-		"Adoption is neutral scaffolding",
 	} {
 		if strings.Contains(analysis, stale) {
 			t.Errorf("clue-analysis/skill.md still permits unqualified analysis evidence claim %q", stale)
@@ -432,6 +426,17 @@ func TestUnit_AgenticReviewLoopConvergesOnCurrentCommit(t *testing.T) {
 			t.Errorf("%s does not invoke the automatic agentic review loop", name)
 		}
 	}
+}
+
+func mustRenderSkill(t *testing.T, relativePath string) string {
+	t.Helper()
+	for _, file := range mustRender(t) {
+		if file.relativePath == relativePath {
+			return string(file.content)
+		}
+	}
+	t.Fatalf("%s was not rendered", relativePath)
+	return ""
 }
 
 func mustRender(t *testing.T) []renderedFile {
