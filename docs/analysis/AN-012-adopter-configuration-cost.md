@@ -18,7 +18,7 @@ Cliewen may be about to build a configuration interface — a `cliewen.yaml`, a 
 
 The spike inspected the public Robocode Tank Royale repository, the first product repository to adopt Cliewen, pinned at fetched `origin/main` commit `86a4bd58514bcdc4d36f1dd374900e6eae3b29f3` (2026-07-23) — the same revision [AN-010](AN-010-adopter-change-overhead.md) pinned, unchanged since. Its adoption merge is `b7fb320ccec1f4742ef923cb315e7dd84f7e824f` (PR #218). Cliewen was pinned at `c4549ef18b8c3ae13f221e348448cdeb96fe969e`, the accepted `main` this change branched from.
 
-**Every reproduced result in this analysis is from a prepared environment, and none of it is onboarding-reproducibility evidence.** The prerequisites were: an existing local clone of the adopter, a Go 1.26.5 toolchain used to build `clue` from source, and two pre-existing `clue` installations. Reproductions ran on Microsoft Windows NT 10.0.26200 under Git Bash. Two binaries were used deliberately: a source build of `c4549ef`, which reports version `dev` and therefore **skips the skill-drift comparison by design** ([ADR-011](../decisions/ADR-011-version-stamping.md), AC-033), and a released `clue 0.6.0`, used only to observe drift behaviour a released binary would produce. No result here was produced in a clean disposable environment, so nothing in it establishes what a new adopter would experience on first contact.
+**Every reproduced result in this analysis is from a prepared environment, and none of it is onboarding-reproducibility evidence.** The prerequisites were: an existing local clone of the adopter, a Go 1.26.5 toolchain used to build `clue` from source, and a pre-existing released `clue 0.6.0` already on `PATH`. Reproductions ran on Microsoft Windows NT 10.0.26200 under Git Bash. Two binaries were used deliberately: a source build of `c4549ef`, which reports version `dev` and therefore **skips the skill-drift comparison by design** ([ADR-011](../decisions/ADR-011-version-stamping.md), AC-033), and a released `clue 0.6.0`, used only to observe drift behaviour a released binary would produce. No result here was produced in a clean disposable environment, so nothing in it establishes what a new adopter would experience on first contact.
 
 Nothing in the adopter repository was modified. `clue validate` is read-only, so it was run in place; no reproduction required a disposable clone.
 
@@ -50,13 +50,13 @@ Change CH-004 (`e0fb8faaecd283a150af341368027b4a83e9c789`, 2026-07-22) rewrote t
 
 The significant part is not the edit but its permanence. The wall ships as a **copied file**, so an adopter's change to it is a fork, and upstream improvements never arrive. The adopter's copy is missing three things head's template now has:
 
-- **change-scope detection**, so every pull request — including ones touching no corpus file — runs corpus validation;
+- **change-scope detection** — without it, every pull request runs corpus validation, including ones that touch no corpus file at all;
 - the **armed-check warning** step;
 - the **acceptance-brief gate** introduced by P-007/M-024, which fails a Cliewen pull request whose body carries no completed brief.
 
 **Unresolved: was declining to vendor the binary mandatory or a preference?** The commit message attributes the change to Cliewen becoming public, not to a constraint, and the repository cannot say whether committing a multi-megabyte binary into a product repository was unacceptable to the maintainer or merely undesirable once an alternative existed. It is recorded rather than inferred because this adopter's maintainer is the human who selected it. It does not change the finding: a configuration key does not express *how the binary arrives* better than an edit does, and the candidate remedy below addresses the edit under either answer.
 
-The third divergence is the consequential one: the human merge gate M-024 exists to give content is **not enforced on this adopter's pull requests**, and nothing in the repository or in Cliewen reports that absence. The wall's own runs are green and fast — the six most recent all succeeded, in 11 to 14 seconds, through 2026-07-23 — which is precisely why the gap is invisible.
+The third divergence is the consequential one: the human merge gate that M-024 exists to fill with content is **not enforced on this adopter's pull requests**, and nothing in the repository or in Cliewen reports that absence. The wall's own runs are green and fast — the six most recent all succeeded, in 11 to 14 seconds, through 2026-07-23 — which is precisely why the gap is invisible.
 
 ### Version upgrade, not configuration, is the dominant measured cost
 
@@ -85,7 +85,7 @@ Routed by reversal cost, as candidates only — this change decides none of them
 2. **ADR candidate — corpus upgrades have a mechanical path.** A required-field addition like ADR-035's `reversal-cost` should not leave an adopter with dozens of manual edits and no tooling. Corpus format and lint rules, so an ADR under [C-011](../constraints/C-011-decision-records-typed.md).
 3. **PDR candidate — a release that changes corpus obligations states its migration.** Process, not architecture: what a release must tell an adopter about newly required fields and vocabulary narrowing.
 4. **Log-row candidate — `guide/operations.md`'s upgrade procedure is stale.** It names `.github/tools/` files this adopter no longer has. Cheap and local to reverse.
-5. **Reported to the adopter, not a Cliewen decision — the acceptance-brief gate is absent from its wall.** A repository-local fix in Tank Royale, surfaced here because Cliewen's own evidence found it.
+5. **For the adopter, not a Cliewen decision — the acceptance-brief gate is absent from its wall.** A repository-local fix in Tank Royale, recorded here because Cliewen's own evidence found it; candidate 1 would stop the divergence recurring but does not repair this instance.
 
 **Named consumer:** a successor campaign **P-009**, to be proposed after P-008 closes. This analysis has no consumer inside P-008: M-035 forbids implementing an interface, and M-036 is a separate investigation. Candidates 1 and 2 are the intended spine of that campaign; candidate 4 may ride any change touching the guide.
 
