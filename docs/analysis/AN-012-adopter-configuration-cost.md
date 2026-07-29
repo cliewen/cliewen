@@ -44,7 +44,7 @@ The adopter's `.agents/skills/` tree holds twelve skill directories: the five ma
 
 Head `clue validate` reports **no issue about any of the seven**. [ADR-022](../decisions/ADR-022-skill-ownership-marker.md)'s ownership marker holds in practice, and `checkSkillVersions` case-folds the manifest name by design (AC-037), so the two spellings coexist without a host-dependent verdict. Measured cost: zero edits, zero failures. The blessed-extension-point question P-007 deferred has no demonstrated need behind it.
 
-### The one edit the adopter was actually forced into was to the wall, and it forked it
+### The adopter's one wall edit forked it
 
 Change CH-004 (`e0fb8faaecd283a150af341368027b4a83e9c789`, 2026-07-22) rewrote the wall's install step: instead of verifying a `clue` binary vendored under `.github/tools/`, it downloads the release asset directly and verifies it against `SHA256SUMS`. `.github/tools/` no longer exists in the repository.
 
