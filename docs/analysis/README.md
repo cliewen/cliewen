@@ -18,4 +18,5 @@ An incident where the corpus was green but later evidence contradicted it carrie
 - [AN-009-multi-agent-pr-handoff](AN-009-multi-agent-pr-handoff.md)
 - [AN-010 — The first adopter history does not support widening the light tier](AN-010-adopter-change-overhead.md) — pinned Tank Royale history, measured workspace churn, evidence limits, and the PDR-018 consumer
 - [AN-011 — A green corpus can carry contradictory methodology claims](AN-011-methodology-self-consistency.md) — the v0.9 evidence contract implemented in the judge but left stale across core, corpus, architecture, implementation, shipped entry-point, public, contributor, capability, workflow-template, and lifecycle-skill carriers
+- [AN-012 — The adopter needs an upgrade path and a wall it need not fork, not a configuration file](AN-012-adopter-configuration-cost.md) — the three deferred adopter-configuration assumptions priced on the pinned first adopter, two already solved at zero cost, and the forked wall and missing upgrade path found instead
 <!-- clue:index:end -->
