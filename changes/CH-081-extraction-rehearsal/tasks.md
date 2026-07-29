@@ -1,3 +1,11 @@
+---
+id: T-081
+type: tasks
+status: open
+links: [CH-081, P-008]
+title: Tasks for extraction rehearsal
+---
+
 # CH-081 tasks
 
 - [ ] Read the M-034 evidence and existing extraction contract; inventory every live carrier of the extraction workflow boundary.
