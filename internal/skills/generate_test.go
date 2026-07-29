@@ -182,6 +182,46 @@ func TestAC054_UnitNegative_ExtractionRejectsCapabilityOnlyPhasing(t *testing.T)
 	}
 }
 
+func TestAC055_UnitPositive_AnalysisQualifiesEnvironmentAndPopulationEvidence(t *testing.T) {
+	analysis := ""
+	for _, file := range mustRender(t) {
+		if file.relativePath == "clue-analysis/skill.md" {
+			analysis = string(file.content)
+			break
+		}
+	}
+	for _, want := range []string{
+		"either a clean disposable environment or a prepared environment",
+		"A clean result supports onboarding reproducibility only when it has no unstated local prerequisites",
+		"a prepared result names its prerequisites",
+		"versioned population, eligibility rules, exclusions and their reasons, sampling or repetition method, uncertainty",
+		"deterministic-versus-quality boundary",
+	} {
+		if !strings.Contains(analysis, want) {
+			t.Errorf("clue-analysis/skill.md does not qualify analysis evidence with %q", want)
+		}
+	}
+}
+
+func TestAC055_UnitNegative_AnalysisRejectsUnqualifiedEvidenceClaims(t *testing.T) {
+	analysis := ""
+	for _, file := range mustRender(t) {
+		if file.relativePath == "clue-analysis/skill.md" {
+			analysis = string(file.content)
+			break
+		}
+	}
+	for _, stale := range []string{
+		"A prepared build proves onboarding reproducibility",
+		"A percentage needs no population or uncertainty boundary",
+		"Treat every quality claim as a deterministic acceptance criterion",
+	} {
+		if strings.Contains(analysis, stale) {
+			t.Errorf("clue-analysis/skill.md still permits unqualified analysis evidence claim %q", stale)
+		}
+	}
+}
+
 func TestSanity_MethodologyContractChangesMoveEveryLiveCarrierTogether(t *testing.T) {
 	for _, file := range mustRender(t) {
 		if !strings.HasSuffix(file.relativePath, "/skill.md") {
