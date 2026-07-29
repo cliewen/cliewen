@@ -240,12 +240,19 @@ func TestAC056_UnitPositive_ExtractionRehearsesBeforeMutation(t *testing.T) {
 	}
 }
 
+// The negative direction rejects the pre-CH-081 shape this obligation decays
+// back into, not invented opposites: a skill that permits mutation first never
+// says so, it simply stops naming the checkpoint and describes the extraction
+// report as a record written about work already done. Each string below is
+// text the skill carried before the checkpoint existed.
 func TestAC056_UnitNegative_ExtractionRejectsMutationBeforeRehearsal(t *testing.T) {
 	extract := mustRenderSkill(t, "clue-extract/skill.md")
 	for _, stale := range []string{
-		"Begin mutation as soon as the extraction change is proposed",
-		"The extraction report may be written after the target corpus is changed",
-		"human direction is optional before the mutate phase",
+		// The apply list without the rehearsal section.
+		"Apply the **Decision records**, **Repository-local conventions**, and **Review boundary** below.",
+		// The durable report as a free-standing record rather than the
+		// mutate phase's digest of the rehearsal.
+		"`/docs/analysis`:** Record what was found",
 	} {
 		if strings.Contains(extract, stale) {
 			t.Errorf("clue-extract/skill.md permits mutation before rehearsal through %q", stale)
