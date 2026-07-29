@@ -49,7 +49,7 @@ The CLI reports inferred ADRs and PDRs as decisions awaiting verification, separ
 - [PDR-011 — Plain changes stay outside Cliewen while retaining human merge](PDR-011-plain-changes-bypass-cliewen.md) · `verified`
 - [PDR-012 — Every Cliewen change receives an automatic agentic review before publication](PDR-012-agentic-review-before-publication.md) · `verified`
 - [ADR-024-custom-domain-root](ADR-024-custom-domain-root.md)
-- [PDR-013 — Cliewen has an explicit core behind a red line](PDR-013-explicit-core-red-line.md) · `inferred` · thread endpoint refined by PDR-019
+- [PDR-013 — Cliewen has an explicit core behind a red line](PDR-013-explicit-core-red-line.md) · `inferred`
 - [ADR-025-one-status-lifecycle](ADR-025-one-status-lifecycle.md)
 - [ADR-026-adopter-types-default-lifecycle](ADR-026-adopter-types-default-lifecycle.md)
 - [ADR-027-quality-scenarios-are-constraints](ADR-027-quality-scenarios-are-constraints.md)

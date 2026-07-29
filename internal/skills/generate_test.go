@@ -137,6 +137,11 @@ func TestSanity_CommittedSkillsMatchCanonicalSources(t *testing.T) {
 	}
 }
 
+// AC-054 is an extraction-guidance criterion: what it promises is that the
+// canonical clue-extract skill instructs criterion-level phasing, so the
+// rendered skill text is its evidence. The mechanism that guidance relies on
+// is proven separately against the validator — AC-045 for the Human class and
+// AC-046 for per-criterion @draft, both in internal/corpus.
 func TestAC054_UnitPositive_ExtractionSupportsCriterionLevelPhasing(t *testing.T) {
 	extract := ""
 	for _, file := range mustRender(t) {
