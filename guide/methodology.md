@@ -1,6 +1,6 @@
 # The verifiable thread
 
-Cliewen organizes system knowledge as a graph with one red thread from motivation to executable evidence.
+Cliewen organizes system knowledge as a graph with one red thread from motivation to acceptance evidence.
 
 ```mermaid
 flowchart TD
@@ -8,7 +8,9 @@ flowchart TD
     P --> CH[Change<br/>the transient proposal]
     CH --> CAP[Capability<br/>what the system can do]
     CAP --> AC[Acceptance criterion<br/>one verifiable behavior]
-    AC --> T[Test<br/>positive and negative evidence]
+    AC --> E{Acceptance evidence}
+    E --> T[Test reference<br/>type + direction]
+    E --> H[Human acceptance brief]
     C[Constraints<br/>including verifiable quality bars] -. laws checked against every Cliewen change .-> CH
 ```
 
@@ -32,7 +34,7 @@ Once classified, `clue context <id>` resolves an artifact, criterion, or milesto
 
 ## Capability and acceptance criterion
 
-A capability owns three views: a plain-language explanation, Gherkin acceptance criteria, and implementer-facing design. A new or revised active criterion declares its intended proof boundary with `Test-type: Unit`, `Integration`, `E2E`, or `Performance`, and has focused positive and negative evidence at that boundary; a genuinely single-direction scenario says so explicitly. If its meaning changes, the old ID is retired as a tombstone and a new one is minted.
+A capability owns three views: a plain-language explanation, Gherkin acceptance criteria, and implementer-facing design. A new or revised machine-proven criterion declares `Test-type: Unit`, `Integration`, `E2E`, or `Performance` and has supported Go, JVM, or Cucumber evidence classified by that type and positive/negative direction; a genuinely single-direction scenario says so explicitly. `Test-type: Human` routes proof to the pull request acceptance brief and needs no code reference. A genuinely not-yet-proven criterion carries `@draft` on its own tag line without drafting its active siblings or capability, while an unannotated legacy criterion retains the one-supported-reference rule. `clue validate` checks these declarations and references but does not execute tests. If a criterion's meaning changes, the old ID is retired as a tombstone and a new one is minted.
 
 That immutability matters. A test tagged `AC-042` should always mean the same promise, even years later.
 

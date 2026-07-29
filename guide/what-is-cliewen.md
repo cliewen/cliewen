@@ -2,7 +2,7 @@
 
 Cliewen is a methodology and a command-line tool for building software with coding agents while keeping intent, implementation, and evidence connected. Its name comes from the Old English word for a ball of thread: the same word that became *clue*.
 
-The central idea is simple: the durable documentation describes the system as it exists, not a pile of past change requests. A goal leads to a capability, a capability owns acceptance criteria, and each active criterion has focused test evidence. The `clue` command checks that this thread is intact.
+The central idea is simple: the durable documentation describes the system as it exists, not a pile of past change requests. A goal leads to a capability, a capability owns acceptance criteria, and each active criterion reaches its declared acceptance evidence. Machine-proven criteria use supported, classified test references; genuine Human-class criteria use the pull request acceptance brief. The `clue` command checks that this thread is intact.
 
 ## Why another workflow?
 
@@ -13,7 +13,7 @@ Cliewen separates mechanical checks from human judgment. It gives reviewers decl
 - The corpus under `/docs` is the system of record.
 - A branch is a proposal, and a pull request is the authorization boundary: the agent may publish a candidate but cannot accept it into `main`.
 - A full change keeps its working delta in `/changes/CH-xxx-*`; the digest deletes that workspace before merge.
-- The `clue` CLI checks structure, links, and test traceability.
+- The `clue` CLI checks structure, links, and acceptance-evidence traceability without executing tests.
 - A human controls acceptance by merging; this safeguard does not require repeating a code review already completed locally.
 
 The pull request is also where hosted CI becomes enforceable when the repository requires its status check and protects `main`. A pull request without a required check and branch protection only displays CI; the combination is what prevents an agent from silently skipping the gate.
@@ -30,7 +30,7 @@ That combination prevents two common failures of change-centered specifications:
 
 ## What Cliewen is not
 
-Cliewen is not an issue tracker, a project-management service, or a way to remove humans from engineering decisions. It is also not a replacement for tests. It depends on them: every active acceptance criterion must have focused positive and negative tests that show the stated intent is met, and `clue validate` fails when that evidence is missing. It is deliberately repo-native: Markdown, Git, one small binary, and skills that teach agents the workflow. Today `clue` harvests test evidence from Go test names and Java/Kotlin JUnit tags; other frameworks need a supported profile before their references can count.
+Cliewen is not an issue tracker, a project-management service, or a way to remove humans from engineering decisions. It is also not a replacement for test runners: `clue` validates references but does not execute tests. A new or revised machine-proven criterion declares its proof type and needs classified positive and negative evidence through supported Go test names, Java/Kotlin JUnit tags, or Cucumber scenario tags, unless it explicitly records `(single-direction)`. An unannotated legacy criterion keeps the one-supported-reference rule. A genuine `Test-type: Human` criterion is proven by its acceptance-brief line without fake code evidence, while `@draft` exempts only one not-yet-proven criterion inside an otherwise active file.
 
 ## Next
 

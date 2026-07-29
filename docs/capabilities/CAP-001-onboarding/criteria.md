@@ -50,6 +50,7 @@ Feature: Onboarding — install to first green validate
 
   @AC-036
   Scenario: The public guide gives an operator one supported next step
+    Test-type: Unit
     Given a reader has completed the disposable Cliewen trial
     When they open the public guide's operations page
     Then it distinguishes shipped and verified support from methodology intent

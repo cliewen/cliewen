@@ -137,6 +137,100 @@ func TestSanity_CommittedSkillsMatchCanonicalSources(t *testing.T) {
 	}
 }
 
+// AC-054 is an extraction-guidance criterion: what it promises is that the
+// canonical clue-extract skill instructs criterion-level phasing, so the
+// rendered skill text is its evidence. The mechanism that guidance relies on
+// is proven separately against the validator — AC-045 for the Human class and
+// AC-046 for per-criterion @draft, both in internal/corpus.
+func TestAC054_UnitPositive_ExtractionSupportsCriterionLevelPhasing(t *testing.T) {
+	extract := ""
+	for _, file := range mustRender(t) {
+		if file.relativePath == "clue-extract/skill.md" {
+			extract = string(file.content)
+			break
+		}
+	}
+	for _, want := range []string{
+		"Whole-file draft phasing remains available",
+		"tag each genuinely not-yet-proven criterion `@draft`",
+		"`Test-type: Human` criterion is already proven by naming it in the pull request acceptance brief",
+		"supported Go, JVM, or Cucumber evidence",
+		"A capability is therefore not the smallest activation unit",
+	} {
+		if !strings.Contains(extract, want) {
+			t.Errorf("clue-extract/skill.md does not carry criterion-level phasing rule %q", want)
+		}
+	}
+}
+
+func TestAC054_UnitNegative_ExtractionRejectsCapabilityOnlyPhasing(t *testing.T) {
+	extract := ""
+	for _, file := range mustRender(t) {
+		if file.relativePath == "clue-extract/skill.md" {
+			extract = string(file.content)
+			break
+		}
+	}
+	for _, stale := range []string{
+		"Activation is per criteria file, not per criterion",
+		"a capability is the smallest unit a phasing change can take",
+		"Every active acceptance criterion has positive and negative tests, or its capability honestly stays `draft`",
+	} {
+		if strings.Contains(extract, stale) {
+			t.Errorf("clue-extract/skill.md still carries capability-only phasing rule %q", stale)
+		}
+	}
+}
+
+func TestSanity_MethodologyContractChangesMoveEveryLiveCarrierTogether(t *testing.T) {
+	for _, file := range mustRender(t) {
+		if !strings.HasSuffix(file.relativePath, "/skill.md") {
+			continue
+		}
+		content := string(file.content)
+		for _, want := range []string{
+			"A decision that changes a methodology contract inventories every live carrier",
+			"updates that complete inventory in the same change",
+			"Historical analyses, completed plans, and changelog entries remain pinned history",
+			"that general obligation remains agent-enforced",
+		} {
+			if !strings.Contains(content, want) {
+				t.Errorf("%s does not carry same-change methodology-carrier rule %q", file.relativePath, want)
+			}
+		}
+	}
+}
+
+func TestSanity_VerifyRecognizesTheCompleteEvidenceContract(t *testing.T) {
+	verify := ""
+	for _, file := range mustRender(t) {
+		if file.relativePath == "clue-verify/skill.md" {
+			verify = string(file.content)
+			break
+		}
+	}
+	for _, want := range []string{
+		"supported Go, JVM, or Cucumber evidence",
+		"positive/negative direction",
+		"`(single-direction)`",
+		"a genuine `Human` criterion is named in the acceptance brief as its proof",
+		"an individual not-yet-proven criterion carries `@draft`",
+		"an unannotated legacy criterion has its one supported reference",
+	} {
+		if !strings.Contains(verify, want) {
+			t.Errorf("clue-verify/skill.md does not recognize evidence-model case %q", want)
+		}
+	}
+	for _, stale := range []string{
+		"Every active acceptance criterion has positive and negative tests",
+		"its capability honestly stays `draft`",
+	} {
+		if strings.Contains(verify, stale) {
+			t.Errorf("clue-verify/skill.md still carries stale evidence-model rule %q", stale)
+		}
+	}
+}
+
 func TestUnit_ReviewBoundaryRequiresExactHostedHandoff(t *testing.T) {
 	rendered := map[string]string{}
 	for _, file := range mustRender(t) {

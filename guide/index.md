@@ -4,7 +4,7 @@ layout: home
 hero:
   name: Cliewen
   text: Ship agent-written changes without losing the intent
-  tagline: Cliewen keeps requirements, decisions, implementation, and tests connected in Git—and catches missing evidence before merge.
+  tagline: Cliewen keeps requirements, decisions, implementation, and acceptance evidence connected in Git—and catches missing evidence before merge.
   image:
     src: /cliewen-logo.svg
     alt: Cliewen logo
@@ -20,7 +20,7 @@ features:
   - title: For agent-driven pull requests
     details: Built for repositories where coding agents implement real product changes and tests through Git branches and pull requests.
   - title: One thread the repository can check
-    details: Goals lead to capabilities, acceptance criteria, and test evidence. The clue CLI reports broken links and missing evidence locally and in CI.
+    details: Goals lead to capabilities, acceptance criteria, and declared evidence—classified test references or genuine Human proof. The clue CLI reports broken links and missing evidence locally and in CI without executing tests.
   - title: Methodology, judge, and memory
     details: Cliewen is the methodology, clue is its command-line judge, and the corpus under docs is the permanent system record that agents maintain with the code.
   - title: Deliberately visible overhead

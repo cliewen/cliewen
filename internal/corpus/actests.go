@@ -8,15 +8,18 @@ import (
 	"strings"
 )
 
-// The AC↔test contract (P-001/M-002) and the test-purpose taxonomy:
-// every AC declared in an active criteria.md has at least one test, every
-// test that names an AC points at one that exists, and every test declares
-// exactly one purpose (ADR-005, ADR-006). AC IDs are namespaced per
-// criteria file via the optional `ac-prefix` frontmatter field, default
-// `AC` (ADR-009). Go carries the declaration in the function name
-// (TestAC004_…, TestMG010_…, TestUnit_…); JVM test files carry it as
-// @Tag("MG_010"), harvested at file level — per-test purpose enforcement
-// there is the adopting repo's ArchUnit rule (ADR-009).
+// The AC↔acceptance-evidence contract and test-purpose taxonomy:
+// every unannotated legacy AC in active criteria has one supported reference;
+// a machine proof type additionally requires references classified by that
+// type and positive/negative direction, unless it declares single-direction;
+// Human needs no code reference because the acceptance brief is its proof;
+// and @draft exempts only that not-yet-proven criterion. Every code reference
+// names a live AC and every test declares exactly one purpose (ADR-005,
+// ADR-006, ADR-032, ADR-033). AC IDs are namespaced by criteria file via
+// optional `ac-prefix`, default `AC` (ADR-009). Go carries purpose, proof type,
+// and direction in the function name; JVM test files use JUnit tags harvested
+// at file level; Cucumber feature tags are harvested at scenario level.
+// The judge validates those references but does not execute any test runner.
 var (
 	acTagRe        = regexp.MustCompile(`@([A-Z][A-Z0-9]*)-(\d+)\b`)
 	acPrefixRe     = regexp.MustCompile(`^[A-Z][A-Z0-9]*$`)

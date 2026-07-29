@@ -10,7 +10,8 @@ The red thread the linter walks:
 
 ```
 G-xxx (goal) → P-xxx/M-xxx (plan/milestone) → CH-xxx (change)
-  → CAP-xxx (capability) → AC-xxx (acceptance criterion) → test tag
+  → CAP-xxx (capability) → AC-xxx (acceptance criterion) → acceptance evidence
+    → classified Go/JVM/Cucumber test reference, or Human acceptance brief
 ```
 
 Cross-cutting, checked against every proposal: C-xxx (constraints, including verifiable quality bars — see [ADR-027](decisions/ADR-027-quality-scenarios-are-constraints.md)).

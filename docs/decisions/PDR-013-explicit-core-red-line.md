@@ -10,6 +10,8 @@ accepted-by: []
 
 # PDR-013 — Cliewen has an explicit core behind a red line
 
+> **The thread endpoint is refined by [PDR-019](PDR-019-methodology-contract-carriers-move-together.md):** acceptance evidence includes classified executable evidence and the Human acceptance-brief path. The three-element core and red-line rule below remain unchanged.
+
 ## Context and problem statement
 
 Cliewen has grown a corpus of fourteen artifact types, five skills, three change tiers, and a public guide, and every simplification debate so far has been argued case by case without a criterion. The methodology names many protected surfaces but has never said which parts are load-bearing — the parts that, if changed casually, would silently change what a green `clue validate` or a merged PR *means*. Without that statement, simplification has no test ("does the core need it?"), protection has no boundary (everything feels equally sacred, so nothing is), and adopters cannot tell what they may freely extend from what they must not touch. What is Cliewen's core, and what rule protects it?
@@ -20,7 +22,7 @@ Cliewen has grown a corpus of fourteen artifact types, five skills, three change
 
 The core:
 
-1. **The verifiable thread** — the chain goal → plan → change → capability → acceptance criterion → test, in which every durable claim traces to executable evidence.
+1. **The verifiable thread** — originally stated here as goal → plan → change → capability → acceptance criterion → test; PDR-019 refines the endpoint to acceptance evidence so the protected thread includes both classified executable evidence and genuine Human proof.
 2. **The human merge boundary** — an agent never merges its own change; the human merge is the act of acceptance ([C-012](../constraints/C-012-agents-never-merge-own-changes.md)).
 3. **The deterministic judge** — `clue validate` as the machine check of corpus form, enforced as a wall by protected CI.
 

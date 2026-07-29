@@ -14,6 +14,8 @@ A decision that adopts a well-established practice cites it by name and records 
 
 Decision records are timeless: state what is decided and only the enduring context and rationale needed to understand it. Triggering incidents, chronology, conversations, implementation details, and review history belong in the change workspace, PR, and Git history; include a historical fact only when removing it would make the decision unintelligible.
 
+A decision that changes a methodology contract inventories every live carrier that states the affected contract and updates that complete inventory in the same change. Live carriers include current corpus truth, canonical and generated skills, templates, public or contributor guidance, implementation explanations, CLI text, and distribution metadata. Historical analyses, completed plans, and changelog entries remain pinned history. Focused guards hold stable repaired claims, but no current mechanism derives an arbitrary contract's complete carrier set, so the general obligation remains agent-enforced.
+
 <!-- clue:index:start -->
 - [log.md](log.md) — the decision log: cheap-to-reverse decisions as dated rows
 <!-- clue:index:end -->

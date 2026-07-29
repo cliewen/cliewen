@@ -6,7 +6,7 @@ Cliewen works for a new system and for one that already has years of history. Th
 
 Tell the agent what outcome you want. You should not have to mirror every code change into `/docs` by hand. The agent reads `AGENTS.md`, loads the relevant Cliewen skill, and updates the implementation and durable corpus together on the same branch.
 
-`clue validate` checks the parts a machine can judge: artifact structure, links, generated indexes, and traceability from active acceptance criteria to tests. A human still reviews whether the documentation and implementation say the right thing.
+`clue validate` checks the parts a machine can judge: artifact structure, links, generated indexes, and traceability from active acceptance criteria to their declared acceptance evidence. A human still reviews whether the documentation and implementation say the right thing.
 
 This is agent-maintained documentation, not background synchronization. `clue` does not watch a wiki or ticket system, and it does not invent missing intent from code. The change loop requires local validation before a Cliewen pull request is ready for review. Once the [generated CI wall](./ci-wall) is armed and its validation job is a required check, broken traceability blocks merge. Plain changes keep the same required job but do not invoke the corpus validator.
 
@@ -19,11 +19,11 @@ Do not fill every corpus folder because the scaffold created it. A useful first 
 | Goal | Who needs an outcome, and why? |
 | Capability | What must the system be able to do? |
 | Acceptance criterion | What observable example makes the behavior specific enough to accept? |
-| Positive and negative test evidence | Does the behavior work, and does it reject or survive the important counter-case? |
+| Acceptance evidence | Does the behavior work, and does it reject or survive the important counter-case — or, for a genuinely human judgment, does the acceptance brief put that proof in front of the person who merges? |
 
-The criterion carries a stable ID such as `AC-001`. The focused positive and negative tests both reference that ID using the convention for their test framework. Keep the criterion draft until the implementation and both tests are ready, then activate it in the same change.
+The criterion carries a stable ID such as `AC-001`. A new or revised machine-proven criterion declares `Test-type: Unit`, `Integration`, `E2E`, or `Performance`; focused positive and negative evidence both reference its ID and declared type through supported Go test names, JVM JUnit tags, or Cucumber scenario tags. A genuinely one-direction scenario says `(single-direction)`. `Test-type: Human` instead uses the pull request acceptance brief as its proof and needs no code reference. If one criterion is not ready, add `@draft` to that criterion's tag line while its proven siblings and active capability remain active.
 
-`clue validate` checks that an active criterion has at least one supported test reference. It does not count or classify the pair yet. The change loop and review hold the stronger positive-and-negative rule.
+`clue validate` classifies and counts the pair for a declared machine proof type, recognizes explicit single-direction and per-criterion `@draft` cases, treats a Human declaration as requiring no code evidence, and preserves the older one-supported-reference rule for unannotated legacy criteria. It cannot check that the acceptance brief supplies Human proof; the pull request workflow and human merge gate do that. It validates executable evidence references but does not run the tests; the repository's normal test runner remains responsible for execution.
 
 ## Add the wider corpus when it earns its keep
 

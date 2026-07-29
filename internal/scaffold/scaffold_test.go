@@ -62,6 +62,28 @@ func TestAC042_InitOutputIncludesAcceptanceBriefTemplate(t *testing.T) {
 	}
 }
 
+func TestSanity_ScaffoldedEvidenceModelCarriersAgree(t *testing.T) {
+	root, _ := runInto(t)
+	requiredByFile := map[string][]string{
+		"AGENTS.md":                        {"criterion → acceptance evidence", "Human proof in the acceptance brief"},
+		"docs/README.md":                   {"acceptance evidence", "classified Go/JVM/Cucumber test reference", "Human acceptance brief"},
+		"docs/capabilities/README.md":      {"positive/negative direction", "Test-type: Human", "@draft", "one supported reference", "does not execute tests"},
+		"docs/decisions/README.md":         {"inventories every live carrier", "same change", "general obligation remains agent-enforced"},
+		".github/pull_request_template.md": {"classified positive/negative Go, JVM, or Cucumber evidence", "Human proof named in the acceptance brief", "per-criterion `@draft`", "legacy one-supported-reference rule"},
+	}
+	for rel, required := range requiredByFile {
+		content, err := os.ReadFile(filepath.Join(root, filepath.FromSlash(rel)))
+		if err != nil {
+			t.Fatal(err)
+		}
+		for _, want := range required {
+			if !strings.Contains(string(content), want) {
+				t.Errorf("scaffolded %s is missing evidence-model carrier %q", rel, want)
+			}
+		}
+	}
+}
+
 // AC-002 negative: the green result is not vacuous — validate really
 // judges the generated corpus and catches damage to it.
 func TestAC002_DamagedScaffoldIsCaught(t *testing.T) {

@@ -48,6 +48,7 @@ Feature: clue validate — deterministic corpus judgment
 
   @AC-009
   Scenario: An acceptance criterion without a test fails
+    Test-type: Unit
     Given a criteria.md with status active containing an @AC tag
     And no test function whose name references that AC
     When the user runs "clue validate"

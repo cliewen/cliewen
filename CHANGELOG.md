@@ -4,6 +4,10 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 
 ## [Unreleased]
 
+### Fixed
+
+- **Extraction and evidence guidance now matches what `clue validate` already supports.** New or revised machine-proven criteria use classified positive and negative Go, JVM, or Cucumber evidence, with an explicit single-direction exception; genuine Human proof lives in the pull request acceptance brief; and `@draft` can phase one unfinished criterion without holding its capability back. The guide and generated skills now preserve the one-reference rule only for unannotated legacy criteria and say plainly that `clue` validates evidence references but does not execute tests. The protected thread is described consistently as ending in acceptance evidence, so Human proof is no longer excluded from Cliewen's core promise.
+
 ## [0.9.0] - 2026-07-28
 
 The release where Cliewen makes evidence honest from test shape to human acceptance, while focused context keeps the method proportionate to the task.

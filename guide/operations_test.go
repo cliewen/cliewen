@@ -10,21 +10,30 @@ import (
 
 var nextAction = regexp.MustCompile(`(?s)## Next\n\n\[[^\]]+\]\([^\)]+\)\n\z`)
 
-func TestAC036_OperationsGuideStatesSupportedBoundary(t *testing.T) {
-	content, err := os.ReadFile("operations.md")
-	if err != nil {
-		t.Fatal(err)
+func TestAC036_UnitPositive_OperationsGuideStatesSupportedBoundary(t *testing.T) {
+	requiredByPage := map[string][]string{
+		"adoption.md":        {"classifies and counts the pair", "Cucumber", "Test-type: Human", "@draft", "cannot check that the acceptance brief supplies Human proof", "does not run the tests"},
+		"getting-started.md": {"classified positive and negative evidence", "Cucumber", "Test-type: Human", "@draft", "cannot check that the brief supplies the proof", "does not run tests"},
+		"operations.md":      {"Go test names", "Java and Kotlin JUnit", "Cucumber scenario tags", "(single-direction)", "Test-type: Human", "@draft", "does not run your tests", "does not update installed files in the background", "Keep the binary, generated skills, and vendored CI binary on the same release", "Recover without bypassing the evidence", "`clue init` reports a skipped file", "`clue validate` fails", "CI rejects a transient workspace", "Do not delete a rule", "foreign-soil trials, not adoptions"},
+		"what-is-cliewen.md": {"classified positive and negative evidence", "Cucumber", "Test-type: Human", "@draft", "does not execute tests"},
+		"design.md":          {"acceptance criterion → acceptance evidence", "Cucumber", "Human-class", "@draft", "does not execute tests or inspect the pull request acceptance brief"},
+		"methodology.md":     {"Acceptance evidence", "Cucumber", "Test-type: Human", "@draft", "does not execute tests"},
+		"change-loop.md":     {"classified by that type and positive/negative direction", "Cucumber", "Test-type: Human", "@draft", "one supported reference"},
 	}
-	for _, required := range []string{
-		"Go test names", "Java and Kotlin JUnit", "does not run your tests", "does not update installed files in the background", "Keep the binary, generated skills, and vendored CI binary on the same release", "Recover without bypassing the evidence", "foreign-soil trials, not adoptions",
-	} {
-		if !strings.Contains(string(content), required) {
-			t.Errorf("operations guide is missing %q", required)
+	for page, required := range requiredByPage {
+		content, err := os.ReadFile(page)
+		if err != nil {
+			t.Fatal(err)
+		}
+		for _, want := range required {
+			if !strings.Contains(string(content), want) {
+				t.Errorf("%s is missing current evidence-model carrier %q", page, want)
+			}
 		}
 	}
 }
 
-func TestAC036_EachGuidePageEndsWithOnePrimaryAction(t *testing.T) {
+func TestAC036_UnitNegative_MultiplePrimaryActionsAreRejected(t *testing.T) {
 	pages, err := filepath.Glob("*.md")
 	if err != nil {
 		t.Fatal(err)
@@ -40,6 +49,33 @@ func TestAC036_EachGuidePageEndsWithOnePrimaryAction(t *testing.T) {
 	}
 	if nextAction.MatchString("## Next\n\n[first](./one) and [second](./two)\n") {
 		t.Fatal("multiple actions must not satisfy the next-action rule")
+	}
+}
+
+// The evidence-model claims repaired by PDR-019 are stable enough to anchor,
+// so no guide page may drift back to the pre-v0.9 contract.
+func TestSanity_NoGuidePageCarriesAStaleEvidenceModelClaim(t *testing.T) {
+	pages, err := filepath.Glob("*.md")
+	if err != nil {
+		t.Fatal(err)
+	}
+	stale := []string{
+		"does not count or classify the pair",
+		"does not distinguish or count the positive and negative pair",
+		"Every active criterion gets focused positive and negative tests",
+		"every active acceptance criterion must have focused positive and negative tests",
+		"An acceptance criterion whose proof is inherently human has no equivalent home yet",
+	}
+	for _, page := range pages {
+		content, err := os.ReadFile(page)
+		if err != nil {
+			t.Fatal(err)
+		}
+		for _, claim := range stale {
+			if strings.Contains(string(content), claim) {
+				t.Errorf("%s still carries stale evidence-model claim %q", page, claim)
+			}
+		}
 	}
 }
 
