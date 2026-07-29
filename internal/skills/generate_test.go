@@ -223,6 +223,43 @@ func TestAC055_UnitNegative_AnalysisRejectsUnqualifiedEvidenceClaims(t *testing.
 	}
 }
 
+func TestAC056_UnitPositive_ExtractionRehearsesBeforeMutation(t *testing.T) {
+	extract := mustRenderSkill(t, "clue-extract/skill.md")
+	for _, want := range []string{
+		"mandatory report-only pass",
+		"under `/changes/<CH-xxx-slug>/`",
+		"do not change the target source corpus, Cliewen `/docs` corpus, tests, routing, or hosted state",
+		"source formats and entry points, proposed artifact mappings, preserved and minted IDs, confidence and reversal cost, test-purpose work, instruction conflicts, planned deletions, and named plan doors",
+		"An unresolved conflict becomes an `open-questions.md` entry and stops before mutation",
+		"Only explicit human direction begins the existing full extraction change's mutate phase",
+		"digests the rehearsal into the durable extraction report under `/docs/analysis`",
+	} {
+		if !strings.Contains(extract, want) {
+			t.Errorf("clue-extract/skill.md does not require report-only rehearsal detail %q", want)
+		}
+	}
+}
+
+// The negative direction rejects the pre-CH-081 shape this obligation decays
+// back into, not invented opposites: a skill that permits mutation first never
+// says so, it simply stops naming the checkpoint and describes the extraction
+// report as a record written about work already done. Each string below is
+// text the skill carried before the checkpoint existed.
+func TestAC056_UnitNegative_ExtractionRejectsMutationBeforeRehearsal(t *testing.T) {
+	extract := mustRenderSkill(t, "clue-extract/skill.md")
+	for _, stale := range []string{
+		// The apply list without the rehearsal section.
+		"Apply the **Decision records**, **Repository-local conventions**, and **Review boundary** below.",
+		// The durable report as a free-standing record rather than the
+		// mutate phase's digest of the rehearsal.
+		"`/docs/analysis`:** Record what was found",
+	} {
+		if strings.Contains(extract, stale) {
+			t.Errorf("clue-extract/skill.md permits mutation before rehearsal through %q", stale)
+		}
+	}
+}
+
 func TestSanity_MethodologyContractChangesMoveEveryLiveCarrierTogether(t *testing.T) {
 	for _, file := range mustRender(t) {
 		if !strings.HasSuffix(file.relativePath, "/skill.md") {

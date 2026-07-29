@@ -4,6 +4,10 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 
 ## [Unreleased]
 
+### Changed
+
+- **Brownfield adoption now pauses for a safe extraction rehearsal.** Before an agent changes an existing repository's documentation, tests, routing, or source corpus, it writes a report of the intended conversion, IDs, uncertainty, conflicts, deletions, and follow-up doors. Conflicts stop for your decision, and the same proposed change cannot mutate the repository until you explicitly direct it to continue.
+
 ### Fixed
 
 - **Analysis findings now say what their evidence can actually prove.** `clue-analysis` distinguishes a clean disposable environment from a prepared machine with local prerequisites, so a passing prepared build is not presented as onboarding reproducibility. Percentage and statistical claims now declare their versioned corpus and population, eligibility and exclusions, sampling, uncertainty, and quality boundary instead of looking more certain than their evidence permits; adoption analysis also makes governance and process changes explicit instead of treating scaffolding as neutral.
