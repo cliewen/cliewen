@@ -12,11 +12,11 @@ var nextAction = regexp.MustCompile(`(?s)## Next\n\n\[[^\]]+\]\([^\)]+\)\n\z`)
 
 func TestAC036_UnitPositive_OperationsGuideStatesSupportedBoundary(t *testing.T) {
 	requiredByPage := map[string][]string{
-		"adoption.md":        {"classifies and counts the pair", "Cucumber", "Test-type: Human", "@draft", "does not run the tests"},
-		"getting-started.md": {"classified positive and negative evidence", "Cucumber", "Test-type: Human", "@draft", "does not run tests"},
-		"operations.md":      {"Go test names", "Java and Kotlin JUnit", "Cucumber scenario tags", "(single-direction)", "Test-type: Human", "@draft", "does not run your tests", "does not update installed files in the background", "foreign-soil trials, not adoptions"},
+		"adoption.md":        {"classifies and counts the pair", "Cucumber", "Test-type: Human", "@draft", "cannot check that the acceptance brief supplies Human proof", "does not run the tests"},
+		"getting-started.md": {"classified positive and negative evidence", "Cucumber", "Test-type: Human", "@draft", "cannot check that the brief supplies the proof", "does not run tests"},
+		"operations.md":      {"Go test names", "Java and Kotlin JUnit", "Cucumber scenario tags", "(single-direction)", "Test-type: Human", "@draft", "does not run your tests", "does not update installed files in the background", "Recover without bypassing the evidence", "`clue init` reports a skipped file", "`clue validate` fails", "CI rejects a transient workspace", "Do not delete a rule", "foreign-soil trials, not adoptions"},
 		"what-is-cliewen.md": {"classified positive and negative evidence", "Cucumber", "Test-type: Human", "@draft", "does not execute tests"},
-		"design.md":          {"acceptance criterion → acceptance evidence", "Cucumber", "Human-class", "@draft", "does not execute tests"},
+		"design.md":          {"acceptance criterion → acceptance evidence", "Cucumber", "Human-class", "@draft", "does not execute tests or inspect the pull request acceptance brief"},
 		"methodology.md":     {"Acceptance evidence", "Cucumber", "Test-type: Human", "@draft", "does not execute tests"},
 		"change-loop.md":     {"classified by that type and positive/negative direction", "Cucumber", "Test-type: Human", "@draft", "one supported reference"},
 	}

@@ -12,7 +12,7 @@ This index is the register table:
 - [C-003 — Tasks tick immediately; a skipped task carries its reason](C-003-tasks-tick-immediately.md) · `agent`
 - [C-004 — Never weaken a test or a lint rule](C-004-never-weaken-checks.md) · `agent`
 - [C-005 — Every Cliewen proposal declares its plan item or plan-less](C-005-proposal-declares-plan-item.md) · `agent`
-- [C-006 — ADRs are timeless prose; method decisions name their carrier](C-006-adrs-timeless-with-carrier.md) · `agent`
+- [C-006 — Decision records are timeless prose; a method contract moves every live carrier together](C-006-adrs-timeless-with-carrier.md) · `agent`
 - [C-007 — Diagrams are inline Mermaid](C-007-diagrams-inline-mermaid.md) · `agent`
 - [C-008 — Completed plans are immutable](C-008-completed-plans-immutable.md) · `agent`
 - [C-009 — Type-specific frontmatter fields are present](C-009-type-specific-frontmatter.md) · `agent`

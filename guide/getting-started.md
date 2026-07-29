@@ -196,7 +196,7 @@ clue validate: 1 issue(s)
 
 That is the product's job: an active machine-proven promise cannot silently lose its acceptance evidence. This deliberately small example is an unannotated legacy criterion, so one supported reference would satisfy it. To return the demo to green, set the whole criteria file back to `draft`. In a real new or revised criterion, declare `Test-type: Unit`, `Integration`, `E2E`, or `Performance` and add classified positive and negative evidence through supported Go, JVM, or Cucumber carriers; use `(single-direction)` only when one direction is honest. If only that criterion is not ready, put `@draft` on its tag line instead of drafting proven siblings or the capability.
 
-For a criterion whose proof is inherently human, declare `Test-type: Human`; naming it in the pull request acceptance brief is its proof, and no code test is invented. `clue validate` checks the declaration and supported references, including classified pairs, single-direction evidence, Human proof, and `@draft`; it does not run tests, so your normal test runner remains responsible for whether executable evidence passes.
+For a criterion whose proof is inherently human, declare `Test-type: Human`; naming it in the pull request acceptance brief is its proof, and no code test is invented. `clue validate` recognizes the Human declaration and waives code evidence, but it cannot check that the brief supplies the proof — the pull request workflow and human merge gate do that. The judge also checks classified pairs, single-direction declarations, and `@draft`; it does not run tests, so your normal test runner remains responsible for whether executable evidence passes.
 
 ## 4. Remove the experiment or continue
 

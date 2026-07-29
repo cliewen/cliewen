@@ -23,7 +23,7 @@ Do not fill every corpus folder because the scaffold created it. A useful first 
 
 The criterion carries a stable ID such as `AC-001`. A new or revised machine-proven criterion declares `Test-type: Unit`, `Integration`, `E2E`, or `Performance`; focused positive and negative evidence both reference its ID and declared type through supported Go test names, JVM JUnit tags, or Cucumber scenario tags. A genuinely one-direction scenario says `(single-direction)`. `Test-type: Human` instead uses the pull request acceptance brief as its proof and needs no code reference. If one criterion is not ready, add `@draft` to that criterion's tag line while its proven siblings and active capability remain active.
 
-`clue validate` classifies and counts the pair for a declared machine proof type, recognizes the explicit single-direction, Human, and per-criterion `@draft` cases, and preserves the older one-supported-reference rule for unannotated legacy criteria. It validates evidence references but does not run the tests; the repository's normal test runner remains responsible for execution.
+`clue validate` classifies and counts the pair for a declared machine proof type, recognizes explicit single-direction and per-criterion `@draft` cases, treats a Human declaration as requiring no code evidence, and preserves the older one-supported-reference rule for unannotated legacy criteria. It cannot check that the acceptance brief supplies Human proof; the pull request workflow and human merge gate do that. It validates executable evidence references but does not run the tests; the repository's normal test runner remains responsible for execution.
 
 ## Add the wider corpus when it earns its keep
 
