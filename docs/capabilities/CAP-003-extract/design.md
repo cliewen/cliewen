@@ -19,6 +19,7 @@ The extraction itself is the `clue-extract` skill ([ADR-008](../../decisions/ADR
 
 ## Deliberate limits (doors)
 
+- **Rehearsal before mutation** (`clue-extract`): an extraction's first pass writes a branch-local report under `/changes/` and does not alter the target corpus, routing, tests, or hosted state. The report makes mappings, ID preservation or minting, confidence, test-purpose work, instruction conflicts, planned deletions, and plan doors inspectable; unresolved conflicts stop in `open-questions.md`. Only explicit human direction starts the same full change's mutate phase, which digests the rehearsal to `/docs/analysis` ([PDR-020](../../decisions/PDR-020-extraction-rehearsal-before-mutation.md)).
 - Cucumber `.feature` tags are scenario-level proof carriers; other source formats still need a mapping section in the extraction skill.
 - No source-format parsing in clue, ever — a new source is a new mapping section in the skill.
 - No JVM per-method attribution: file-level harvest is the contract; the ArchUnit rule owns granularity.

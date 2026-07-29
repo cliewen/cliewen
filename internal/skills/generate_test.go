@@ -223,6 +223,36 @@ func TestAC055_UnitNegative_AnalysisRejectsUnqualifiedEvidenceClaims(t *testing.
 	}
 }
 
+func TestAC056_UnitPositive_ExtractionRehearsesBeforeMutation(t *testing.T) {
+	extract := mustRenderSkill(t, "clue-extract/skill.md")
+	for _, want := range []string{
+		"mandatory report-only pass",
+		"under `/changes/<CH-xxx-slug>/`",
+		"do not change the target source corpus, Cliewen `/docs` corpus, tests, routing, or hosted state",
+		"source formats and entry points, proposed artifact mappings, preserved and minted IDs, confidence and reversal cost, test-purpose work, instruction conflicts, planned deletions, and named plan doors",
+		"An unresolved conflict becomes an `open-questions.md` entry and stops before mutation",
+		"Only explicit human direction begins the existing full extraction change's mutate phase",
+		"digests the rehearsal into the durable extraction report under `/docs/analysis`",
+	} {
+		if !strings.Contains(extract, want) {
+			t.Errorf("clue-extract/skill.md does not require report-only rehearsal detail %q", want)
+		}
+	}
+}
+
+func TestAC056_UnitNegative_ExtractionRejectsMutationBeforeRehearsal(t *testing.T) {
+	extract := mustRenderSkill(t, "clue-extract/skill.md")
+	for _, stale := range []string{
+		"Begin mutation as soon as the extraction change is proposed",
+		"The extraction report may be written after the target corpus is changed",
+		"human direction is optional before the mutate phase",
+	} {
+		if strings.Contains(extract, stale) {
+			t.Errorf("clue-extract/skill.md permits mutation before rehearsal through %q", stale)
+		}
+	}
+}
+
 func TestSanity_MethodologyContractChangesMoveEveryLiveCarrierTogether(t *testing.T) {
 	for _, file := range mustRender(t) {
 		if !strings.HasSuffix(file.relativePath, "/skill.md") {

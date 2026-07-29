@@ -7,7 +7,15 @@ version: 0.9.0
 
 # clue-extract
 
-Brownfield adoption: transform an existing repository's specification corpus into a Cliewen `/docs` corpus. Use once per adopted repository; the extraction is that repository's first `clue-delta` loop. Apply the **Decision records**, **Repository-local conventions**, and **Review boundary** below.
+Brownfield adoption: transform an existing repository's specification corpus into a Cliewen `/docs` corpus. Use once per adopted repository; the extraction is that repository's first `clue-delta` loop. Apply the **Rehearsal before mutation**, **Decision records**, **Repository-local conventions**, and **Review boundary** below.
+
+## Rehearsal before mutation
+
+After the extraction's full change is proposed, begin with a mandatory report-only pass. Write the rehearsal report under `/changes/<CH-xxx-slug>/`; do not change the target source corpus, Cliewen `/docs` corpus, tests, routing, or hosted state.
+
+The rehearsal report inventories source formats and entry points, proposed artifact mappings, preserved and minted IDs, confidence and reversal cost, test-purpose work, instruction conflicts, planned deletions, and named plan doors. An unresolved conflict becomes an `open-questions.md` entry and stops before mutation.
+
+Only explicit human direction begins the existing full extraction change's mutate phase. That phase digests the rehearsal into the durable extraction report under `/docs/analysis`, then performs the accepted conversion; the ready PR deletes both the transient change workspace and the parallel source corpus.
 
 ## Target contract
 
@@ -21,7 +29,7 @@ The extraction PR is complete only when all of these hold:
 6. **`clue validate` is green before the ready PR opens:** The extracted corpus is judged by the same rules as a greenfield corpus.
 7. **The source corpus dies in the same PR:** Delete parallel specification trees, registries, and source-format skills; Git history is their archive. Two systems of record is zero systems of record.
 8. **Routing is rewritten and reconciled:** Point every assistant entry point the repository carries — `AGENTS.md` and any other assistant-specific entry file, such as `CLAUDE.md` or `.cursor/rules` — to `/docs/README.md` and the installed `clue-*` skills; `AGENTS.md` is the flagship instance of this class, not its only member. Absorb compatible pre-existing instructions as repository-local conventions; record conflicts as open questions.
-9. **An extraction report lands in `/docs/analysis`:** Record what was found, what mapped where, and what was dropped and why.
+9. **An extraction report lands in `/docs/analysis`:** The mutate phase digests the rehearsal into the report, recording what was found, what mapped where, and what was dropped and why.
 10. **Unsolved adoption items become named plan doors:** Never leave a silent gap.
 11. **Every converted file carries exactly one frontmatter block:** When a source file already has frontmatter, the conversion replaces it, folding retained fields into the Cliewen block — even when an invisible prefix such as a UTF-8 byte-order mark hides the opening fence. Strip BOMs; after conversion, sweep the tree for a complete frontmatter block at the start of an artifact body: leftover source frontmatter is an extraction failure, and `clue validate` rejects both shapes.
 12. **The committed extraction receives a clean agentic review:** Run `clue-verify`, including its automatic review loop, before opening the ready extraction PR.

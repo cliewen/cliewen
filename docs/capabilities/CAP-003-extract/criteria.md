@@ -72,4 +72,15 @@ Feature: Brownfield analysis and extraction — evidence, namespaced ACs, JVM ha
     And adoption analysis names the governance or process changes it introduces
     But an environment-sensitive quality claim is not represented as a deterministic acceptance criterion
     And scaffolding is not described as neutral
+
+  @AC-056
+  Scenario: Extraction rehearses before it mutates
+    Test-type: Unit
+    Given an extraction full change has been proposed
+    When the agent begins the extraction
+    Then it first writes a report-only rehearsal under that change's workspace
+    And the rehearsal inventories source formats and entry points, proposed mappings, preserved and minted IDs, confidence and reversal cost, test-purpose work, instruction conflicts, planned deletions, and plan doors
+    And it changes no target source corpus, Cliewen corpus, tests, routing, or hosted state
+    But an unresolved conflict is recorded as an open question and stops before mutation
+    And mutation begins only with explicit human direction and digests the rehearsal into the durable extraction report
 ```
