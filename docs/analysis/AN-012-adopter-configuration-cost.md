@@ -28,7 +28,7 @@ Counts below are of validator issues over one pinned corpus, not a sample: there
 
 ### The runner and action assumptions cost this repository nothing
 
-The vendored wall hardcodes `runs-on: ubuntu-latest` and `actions/checkout@v4`. Across the adopter's six workflows, ten jobs already declare `ubuntu-latest` and one uses an OS matrix; every one of its sixteen action references is a floating major tag, and **no workflow SHA-pins any action**. The wall therefore matches the repository's own established CI conventions exactly. There are no self-hosted runners and no pinning policy for it to violate. Measured cost: zero edits, zero failures.
+The vendored wall hardcodes `runs-on: ubuntu-latest` and `actions/checkout@v4`. Across the adopter's six workflows, ten jobs already declare `ubuntu-latest` and one uses an OS matrix; all twenty-two of its action references are floating major tags, and **no workflow SHA-pins any action**. The wall therefore matches the repository's own established CI conventions exactly. There are no self-hosted runners and no pinning policy for it to violate. Measured cost: zero edits, zero failures.
 
 The install path `/usr/local/bin/clue` was likewise never touched. On GitHub-hosted runners the default user can write there, so the assumption never surfaced. This is evidence about GitHub-hosted runners only; it establishes nothing about a self-hosted or container runner without root.
 
@@ -54,13 +54,15 @@ The significant part is not the edit but its permanence. The wall ships as a **c
 - the **armed-check warning** step;
 - the **acceptance-brief gate** introduced by P-007/M-024, which fails a Cliewen pull request whose body carries no completed brief.
 
-The third is the consequential one: the human merge gate M-024 exists to give content is **not enforced on this adopter's pull requests**, and nothing in the repository or in Cliewen reports that absence. The wall's own runs are green and fast (12s, six consecutive successes through 2026-07-23), which is precisely why the gap is invisible.
+**Unresolved: was declining to vendor the binary mandatory or a preference?** The commit message attributes the change to Cliewen becoming public, not to a constraint, and the repository cannot say whether committing a multi-megabyte binary into a product repository was unacceptable to the maintainer or merely undesirable once an alternative existed. It is recorded rather than inferred because this adopter's maintainer is the human who selected it. It does not change the finding: a configuration key does not express *how the binary arrives* better than an edit does, and the candidate remedy below addresses the edit under either answer.
+
+The third divergence is the consequential one: the human merge gate M-024 exists to give content is **not enforced on this adopter's pull requests**, and nothing in the repository or in Cliewen reports that absence. The wall's own runs are green and fast — the six most recent all succeeded, in 11 to 14 seconds, through 2026-07-23 — which is precisely why the gap is invisible.
 
 ### Version upgrade, not configuration, is the dominant measured cost
 
 The adopter pins `CLUE_VERSION: 0.5.1` and its five managed skills are stamped `0.5.1`; Cliewen's head is four minor versions ahead. Running head `clue validate` against the pinned adopter corpus produces **69 blocking issues**: 68 artifacts whose `provenance: inferred` now requires the `reversal-cost` field [ADR-035](../decisions/ADR-035-bounded-provenance-and-reality-edges.md) introduced in P-007/M-028, and one analysis record whose `status: verified` is no longer in the allowed vocabulary. A **released** head binary would add five skill-drift issues on top; the source build reports `dev` and skips that comparison.
 
-So a version bump this adopter has not yet attempted requires roughly seventy-four corrections, almost all of them one mechanical field addition. Against that, `clue init` is documented as deliberately non-destructive and explicitly "not an updater", and [`guide/operations.md`](../../guide/operations.md)'s manual upgrade procedure still instructs the reader to replace `.github/tools/clue-<version>-linux-amd64` and its `SHA256SUMS` — files this adopter deleted in CH-004. **The documented upgrade path does not match the repository it was written for.**
+So a version bump this adopter has not yet attempted starts from 69 blocking corpus issues — 68 of them the same mechanical field addition, one a vocabulary fix — plus re-vendoring the five managed skills, which is a single act that clears all five drift issues at once. Against that, `clue init` is documented as deliberately non-destructive and explicitly "not an updater", and [`guide/operations.md`](../../guide/operations.md)'s manual upgrade procedure still instructs the reader to replace `.github/tools/clue-<version>-linux-amd64` and its `SHA256SUMS` — files this adopter deleted in CH-004. **The documented upgrade path does not match the repository it was written for.**
 
 ## Finding
 
