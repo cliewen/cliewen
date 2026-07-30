@@ -38,17 +38,8 @@ func harvestJVMEvidence(text, path string, prefixes map[string]bool) ([]jvmEvide
 	var evidence []jvmEvidence
 	var issues []Issue
 	var pending jvmAnnotationBlock
-	inTripleString := false
 
 	for lineNumber, line := range lines {
-		if strings.Count(line, `"""`)%2 == 1 {
-			inTripleString = !inTripleString
-			continue
-		}
-		if inTripleString {
-			continue
-		}
-
 		trimmed := strings.TrimSpace(line)
 		if trimmed == "" {
 			continue
