@@ -7,13 +7,13 @@ This page is for a repository that has finished the disposable trial and is deci
 | Surface | Current support |
 |---|---|
 | `clue` | Versioned release binaries for Windows, macOS, and Linux on amd64 and arm64; source installs are also available through Go |
-| Test evidence | Classified Go test names such as `TestAC001_UnitPositive_…`, Java and Kotlin JUnit tags such as `@Tag("AC_001") @Tag("UNIT") @Tag("POSITIVE")`, and Cucumber scenario tags such as `@AC-001 @e2e @positive` |
+| Test evidence | Classified Go test names such as `TestAC001_UnitPositive_…`; Java and Kotlin executables whose own JUnit method annotations carry `@Tag("AC_001") @Tag("UNIT") @Tag("POSITIVE")`, or whose stable name is `testAC001_UnitPositive_…`; and Cucumber scenario tags such as `@AC-001 @e2e @positive` |
 | Agent guidance | Five generated Cliewen skills in `.agents/skills/`, mirrored to `.claude/skills/` for Claude Code |
 | GitHub CI | `clue init` writes an unarmed GitHub Actions workflow; you vendor the pinned Linux binary and checksum, then require its `validate` check |
 | Validation | `clue validate` checks the repository-local corpus, generated indexes, skill ownership/version drift, and active-criterion evidence declarations and references; `--forbid-changes` also rejects an undigested `/changes/` workspace |
 | Focused context | `clue context <id>` prints the named artifact and its transitive outgoing-link dependencies; criterion and milestone IDs resolve to their declaring artifact |
 
-Cliewen does not run your tests, does not synchronize tickets or wikis, does not update installed files in the background, and does not validate evidence across repositories. It harvests only the supported Go, JVM, and Cucumber conventions above. A different framework needs a supported profile before its references can satisfy `clue validate`; do not treat an arbitrary comment or tag as equivalent evidence.
+Cliewen does not run your tests, does not synchronize tickets or wikis, does not update installed files in the background, and does not validate evidence across repositories. It harvests only the supported Go, JVM, and Cucumber conventions above. On the JVM, all three parts belong to the same executable; class tags and metadata split across methods do not count, and ambiguous or unsupported source syntax is diagnosed instead of guessed. A different framework needs the stable JVM named-executable form or another supported profile before its references can satisfy `clue validate`; do not treat an arbitrary comment or tag as equivalent evidence.
 
 A new or revised machine-proven criterion declares `Test-type: Unit`, `Integration`, `E2E`, or `Performance`, and the validator requires supported evidence classified with that type in positive and negative directions; `(single-direction)` is the explicit narrow exception. An unannotated legacy criterion retains its one-supported-reference rule. `Test-type: Human` uses the pull request acceptance brief rather than code evidence, and `@draft` exempts only the individual criterion that is not yet proven.
 

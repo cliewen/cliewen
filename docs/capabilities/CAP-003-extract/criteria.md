@@ -26,7 +26,7 @@ Feature: Brownfield analysis and extraction — evidence, namespaced ACs, JVM ha
     Then it exits with a non-zero code
     And the output names the file, the foreign tag and the file's namespace
 
-  @AC-016
+  @AC-016 @retired
   Scenario: A JVM test tag satisfies AC coverage
     Given a declared AC MG-101 in active criteria
     And a Kotlin or Java test file containing @Tag("MG_101")
@@ -34,7 +34,7 @@ Feature: Brownfield analysis and extraction — evidence, namespaced ACs, JVM ha
     Then MG-101 counts as tested
     And tags outside every declared namespace are ignored as runner metadata
 
-  @AC-017
+  @AC-017 @retired
   Scenario: A JVM tag referencing an unknown or retired AC fails
     Given a Kotlin test file containing @Tag("MG_999") which no criteria.md declares
     Or a tag referencing an AC retired by tombstone
@@ -83,4 +83,15 @@ Feature: Brownfield analysis and extraction — evidence, namespaced ACs, JVM ha
     And it changes no target source corpus, Cliewen corpus, tests, routing, or hosted state
     But an unresolved conflict is recorded as an open question and stops before mutation
     And mutation begins only with explicit human direction and digests the rehearsal into the durable extraction report
+
+  @AC-058
+  Scenario: JVM evidence uses a conservative executable carrier
+    Test-type: Unit
+    Given a Java or Kotlin executable carries one AC identity, one proof type, and one direction in its JUnit method annotations or stable test name
+    When the user runs "clue validate"
+    Then ordinary, parameterized, repeated, factory, template, and nested JUnit executables receive one statically attributable evidence credit
+    And the named form test<PREFIX><digits>_<Type><Direction>_<description> works without native framework tags
+    And an attached reference to an unknown or retired criterion fails
+    But class-level AC tags, unsupported annotation syntax, and disagreeing tag-and-name carriers receive no credit and produce a diagnostic
+    And structured proximity comments remain ignored
 ```

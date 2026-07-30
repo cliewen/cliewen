@@ -192,4 +192,14 @@ Feature: clue validate — deterministic corpus judgment
     When the user runs "clue validate --reality-gaps"
     Then it lists the affected capability and the analysis that contradicted it
     But reality contradicted on a non-analysis or without a capability or live criterion link fails validation
+
+  @AC-057
+  Scenario: JVM classified evidence belongs to one executable
+    Test-type: Unit
+    Given Java or Kotlin test files containing at least ten acceptance-criterion identities on distinct positive and negative executable methods
+    When the user runs "clue validate"
+    Then each criterion receives only the proof type and direction attached to its own executable
+    And the complete mixed-file fixture passes
+    But tags attached to unrelated methods cannot combine into classified evidence
+    And an ambiguous executable carrying several identities, proof types, or directions receives no classified credit and produces a diagnostic
 ```

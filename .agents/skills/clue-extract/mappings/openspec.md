@@ -19,7 +19,7 @@ Layout: `openspec/config.yaml`, synced truth in `openspec/specs/<capability>/spe
 | Project README purpose statements | `G-xxx` goal(s), `status: accepted` (the repo's existence is the acceptance) |
 | Coverage/quality gates in build config | `C-xxx` constraints (`enforcement: machine`) referencing the enforcing tool |
 | OpenSpec workflow skills (`openspec-*`) | deleted with the source corpus |
-| JUnit `@Tag("XX_NNN")` | untouched — clue normalizes underscores to hyphens at harvest |
+| JUnit `@Tag("XX_NNN")` | keep on the executable together with its literal proof-type and direction tags — clue normalizes underscores to hyphens at harvest; normalize class-level, split-method, dynamic, or multi-line evidence to the supported literal method block or named-executable form |
 | Runner/type tags (`UNIT`, `INTEGRATION`, `E2E`, …) | kept untouched even when no pipeline filters on them yet — they are the runner's namespace, not the methodology's, and the only per-method type carrier where one file mixes test types |
 
 Watch for: the same logical ID written three ways (`[MG-010]`, `` `PG-001` ``, `MG_010`); `## ADDED/MODIFIED Requirements` delta headers in pending changes (apply the delta meaning, don't copy the header); scenario WHEN/THEN bullets mapping to Gherkin When/Then/And.

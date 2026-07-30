@@ -16,6 +16,8 @@ ADR-006 deliberately left a per-criterion test-type annotation unenforced becaus
 
 ## Decision outcome
 
+> **Partially superseded by [ADR-036](ADR-036-jvm-evidence-per-executable.md):** proof classes, paired directions, Go names, and Cucumber scenario tags remain current; JVM classified evidence now belongs to one statically attributable executable rather than a file-level tag cross-product.
+
 An acceptance-criterion scenario that opts into classified evidence declares its required proof class on the first non-blank line of the scenario body: `Test-type: Unit`, `Test-type: Integration`, `Test-type: E2E`, or `Test-type: Performance`. This is a design-time declaration reviewed with the scenario, not a path to a test file. An unannotated legacy scenario keeps ADR-006's one-reference rule; every newly added or materially revised scenario declares a test type.
 
 Each declared class requires one `positive` and one `negative` reference. A scenario whose statement itself has one direction may state `Test-type: <class> (single-direction)` and requires one reference in that class. The exemption is explicit because it is a claim about the scenario, not an absence the checker can infer.
