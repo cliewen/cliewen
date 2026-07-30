@@ -313,7 +313,7 @@ func TestAC058_UnitNegative_UnsupportedJVMEvidenceIsDiagnosedAndIgnored(t *testi
 
 	t.Run("Java constructor is not a method declaration", func(t *testing.T) {
 		files := classifiedJvmFiles(101, 101)
-		files["core/src/test/java/XTest.java"] = "class testAC101_UnitPositive_fake {\n  testAC101_UnitPositive_fake() {}\n}\nclass testAC101_UnitNegative_fake {\n  testAC101_UnitNegative_fake() {}\n}\n"
+		files["core/src/test/java/XTest.java"] = "class testAC101_UnitPositive_fake {\n  testAC101_UnitPositive_fake() {}\n  public testAC101_UnitPositive_fake(int ignored) {}\n}\nclass testAC101_UnitNegative_fake {\n  protected testAC101_UnitNegative_fake() {}\n  private testAC101_UnitNegative_fake(int ignored) {}\n}\n"
 		issues := run(t, files, false)
 		assertIssue(t, issues, "AC-101 has no test")
 		assertIssue(t, issues, "AC-101 has no Unit positive evidence")
