@@ -234,6 +234,7 @@ func unclassifiedJvmEvidence(subject string, acs []string) []jvmEvidence {
 func jvmMethodName(line string, kotlin bool) string {
 	withoutAnnotations := jvmAnnotationCallRe.ReplaceAllString(line, "")
 	withoutAnnotations = jvmAnnotationRe.ReplaceAllString(withoutAnnotations, "")
+	withoutAnnotations = maskJvmQuotedLiterals(withoutAnnotations)
 	if kotlin {
 		if match := jvmKotlinFunRe.FindStringSubmatch(withoutAnnotations); match != nil {
 			if match[1] != "" {
@@ -252,6 +253,34 @@ func jvmMethodName(line string, kotlin bool) string {
 		}
 	}
 	return ""
+}
+
+func maskJvmQuotedLiterals(line string) string {
+	masked := []byte(line)
+	inString, inChar, escaped := false, false, false
+	for i, ch := range masked {
+		if inString || inChar {
+			masked[i] = ' '
+			if escaped {
+				escaped = false
+			} else if ch == '\\' {
+				escaped = true
+			} else if inString && ch == '"' {
+				inString = false
+			} else if inChar && ch == '\'' {
+				inChar = false
+			}
+			continue
+		}
+		if ch == '"' {
+			masked[i] = ' '
+			inString = true
+		} else if ch == '\'' {
+			masked[i] = ' '
+			inChar = true
+		}
+	}
+	return string(masked)
 }
 
 // stripJvmCommentsAndTextBlocks removes comments while preserving quoted
