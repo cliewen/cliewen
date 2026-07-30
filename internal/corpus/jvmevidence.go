@@ -13,7 +13,7 @@ var (
 	jvmTagCallRe        = regexp.MustCompile(`@(?:[A-Za-z_$][A-Za-z0-9_$]*\.)*Tag\s*\(`)
 	jvmClassRe          = regexp.MustCompile(`\b(?:class|interface|enum|object|record)\s+[A-Za-z_$][A-Za-z0-9_$]*`)
 	jvmKotlinFunRe      = regexp.MustCompile(`\bfun\s+(?:` + "`([^`]+)`" + `|([A-Za-z_$][A-Za-z0-9_$]*))\s*\(`)
-	jvmJavaMethodRe     = regexp.MustCompile(`\b([A-Za-z_$][A-Za-z0-9_$]*)\s*\([^;{}]*\)\s*(?:throws\s+[^{=]+)?\s*(?:\{|=)`)
+	jvmJavaMethodRe     = regexp.MustCompile(`(?:^|\s)(?:(?:public|protected|private|static|final|synchronized|abstract|native|strictfp|default)\s+)*(?:<[^>{};]+>\s+)?(?:void|[A-Za-z_$][A-Za-z0-9_$]*(?:\.[A-Za-z_$][A-Za-z0-9_$]*)*)(?:\s*<[^;{}()]+>)?(?:\s*\[\])?\s+([A-Za-z_$][A-Za-z0-9_$]*)\s*\([^;{}]*\)\s*(?:throws\s+[^{=]+)?\s*(?:\{|=)`)
 	jvmNamedRe          = regexp.MustCompile(`^test([A-Z][A-Z0-9]*?)(\d+)_(Unit|Integration|E2E|Performance)(Positive|Negative)(?:_[A-Za-z0-9_$]+)+$`)
 )
 
