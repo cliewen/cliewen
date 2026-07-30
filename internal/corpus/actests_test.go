@@ -234,8 +234,9 @@ func TestAC058_UnitPositive_SupportedJVMExecutableFormsReceiveCredit(t *testing.
 	t.Run("named fallback", func(t *testing.T) {
 		files := classifiedJvmFiles(101, 101)
 		files["core/src/test/java/XTest.java"] = "class XTest {\n  @Test @Tag(\"slow\") void testAC101_UnitPositive_accepts() {}\n  @Test @Tag(\"slow\") void testAC101_UnitNegative_rejects() {}\n}\n"
+		files["core/src/test/kotlin/YTest.kt"] = "class YTest {\n  fun testAC101_UnitPositive_accepts() {}\n  fun testAC101_UnitNegative_rejects() {}\n}\n"
 		if issues := run(t, files, false); len(issues) != 0 {
-			t.Fatalf("stable named JVM executables should receive evidence while unrelated runner tags remain metadata, got %v", issues)
+			t.Fatalf("stable named Java methods and Kotlin functions should receive evidence while unrelated runner tags remain metadata, got %v", issues)
 		}
 	})
 }
@@ -291,6 +292,14 @@ func TestAC058_UnitNegative_UnsupportedJVMEvidenceIsDiagnosedAndIgnored(t *testi
 				t.Fatalf("comments and strings must not become JVM evidence: %v", issues)
 			}
 		}
+	})
+
+	t.Run("Kotlin invocation is not an executable declaration", func(t *testing.T) {
+		files := classifiedJvmFiles(101, 101)
+		files["core/src/test/kotlin/XTest.kt"] = "class XTest {\n  fun helper() {\n    testAC101_UnitPositive_accepts() { println(\"not a test declaration\") }\n  }\n}\n"
+		issues := run(t, files, false)
+		assertIssue(t, issues, "AC-101 has no test")
+		assertIssue(t, issues, "AC-101 has no Unit positive evidence")
 	})
 }
 

@@ -73,7 +73,7 @@ func harvestJVMEvidence(text, path string, prefixes map[string]bool) ([]jvmEvide
 			continue
 		}
 
-		methodName := jvmMethodName(line)
+		methodName := jvmMethodName(line, strings.HasSuffix(path, ".kt"))
 		if methodName != "" {
 			blockEvidence, blockIssues := classifyJvmExecutable(methodName, pending, prefixes, path, lineNumber+1)
 			evidence = append(evidence, blockEvidence...)
@@ -231,14 +231,17 @@ func unclassifiedJvmEvidence(subject string, acs []string) []jvmEvidence {
 	return result
 }
 
-func jvmMethodName(line string) string {
+func jvmMethodName(line string, kotlin bool) string {
 	withoutAnnotations := jvmAnnotationCallRe.ReplaceAllString(line, "")
 	withoutAnnotations = jvmAnnotationRe.ReplaceAllString(withoutAnnotations, "")
-	if match := jvmKotlinFunRe.FindStringSubmatch(withoutAnnotations); match != nil {
-		if match[1] != "" {
-			return match[1]
+	if kotlin {
+		if match := jvmKotlinFunRe.FindStringSubmatch(withoutAnnotations); match != nil {
+			if match[1] != "" {
+				return match[1]
+			}
+			return match[2]
 		}
-		return match[2]
+		return ""
 	}
 	for _, match := range jvmJavaMethodRe.FindAllStringSubmatch(withoutAnnotations, -1) {
 		switch match[1] {
