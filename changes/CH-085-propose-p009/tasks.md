@@ -10,5 +10,5 @@ title: Tasks for CH-085
 
 - [x] Write P-009 `active` with sequential milestones M-037…M-040 and an explicit out-of-campaign section
 - [x] Record the campaign's scope and ordering as a decision-log row
-- [ ] Regenerate the plans index
+- [x] Regenerate the plans index
 - [ ] Run corpus verification
