@@ -88,7 +88,7 @@ func harvestJVMEvidence(text, path string, prefixes map[string]bool) ([]jvmEvide
 		if strings.HasPrefix(trimmed, "@") {
 			continue
 		}
-		if len(pending.tags) > 0 || pending.unsupportedTag {
+		if pending.hasExecutable || len(pending.tags) > 0 || pending.unsupportedTag {
 			acs, _, _ := classifyJvmTags(pending.tags, prefixes)
 			if pending.unsupportedTag {
 				issues = append(issues, Issue{path, "unsupported JVM @Tag syntax near line " + strconv.Itoa(lineNumber+1) + " receives no evidence credit (ADR-036: use a one-line literal @Tag on the executable)"})
@@ -138,7 +138,8 @@ func classifyJvmExecutable(name string, block jvmAnnotationBlock, prefixes map[s
 		return unclassifiedJvmEvidence(subject, tagACs), issues
 	}
 
-	if named && len(block.tags) > 0 {
+	hasTaggedEvidence := len(tagACs) > 0 || len(tagTypes) > 0 || len(tagDirections) > 0
+	if named && hasTaggedEvidence {
 		if !block.hasExecutable || len(tagACs) != 1 || len(tagTypes) != 1 || len(tagDirections) != 1 ||
 			tagACs[0] != nameEvidence.ac || tagTypes[0] != nameEvidence.testType || tagDirections[0] != nameEvidence.direction {
 			issues = append(issues, Issue{path, subject + " has disagreeing or incomplete named and JUnit evidence carriers and receives no classified credit (ADR-036)"})

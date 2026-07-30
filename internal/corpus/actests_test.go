@@ -233,9 +233,9 @@ func TestAC058_UnitPositive_SupportedJVMExecutableFormsReceiveCredit(t *testing.
 
 	t.Run("named fallback", func(t *testing.T) {
 		files := classifiedJvmFiles(101, 101)
-		files["core/src/test/java/XTest.java"] = "class XTest {\n  void testAC101_UnitPositive_accepts() {}\n  void testAC101_UnitNegative_rejects() {}\n}\n"
+		files["core/src/test/java/XTest.java"] = "class XTest {\n  @Test @Tag(\"slow\") void testAC101_UnitPositive_accepts() {}\n  @Test @Tag(\"slow\") void testAC101_UnitNegative_rejects() {}\n}\n"
 		if issues := run(t, files, false); len(issues) != 0 {
-			t.Fatalf("stable named JVM executables should receive evidence without native tags, got %v", issues)
+			t.Fatalf("stable named JVM executables should receive evidence while unrelated runner tags remain metadata, got %v", issues)
 		}
 	})
 }
@@ -262,6 +262,14 @@ func TestAC058_UnitNegative_UnsupportedJVMEvidenceIsDiagnosedAndIgnored(t *testi
 		files := classifiedJvmFiles(101, 101)
 		files["core/src/test/java/XTest.java"] = "class XTest {\n  @Test\n  @Tag(\n    \"AC_101\")\n  void accepts() {}\n}\n"
 		assertIssue(t, run(t, files, false), "unsupported JVM @Tag syntax")
+	})
+
+	t.Run("executable annotation cannot drift", func(t *testing.T) {
+		files := classifiedJvmFiles(101, 101)
+		files["core/src/test/java/XTest.java"] = "class XTest {\n  @Test\n  void multiline(\n  ) {}\n\n  @Tag(\"AC_101\") @Tag(\"unit\") @Tag(\"positive\")\n  void unannotated() {}\n}\n"
+		issues := run(t, files, false)
+		assertIssue(t, issues, "carries JVM AC tags without a supported executable annotation")
+		assertIssue(t, issues, "AC-101 has no Unit positive evidence")
 	})
 
 	t.Run("disagreeing name and tags", func(t *testing.T) {
