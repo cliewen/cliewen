@@ -4,6 +4,10 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 
 ## [Unreleased]
 
+## [0.10.0] - 2026-07-30
+
+The release where adopting into an existing repository pauses to check its own work first, and analysis claims only what its evidence actually proves.
+
 ### Changed
 
 - **Brownfield adoption now pauses for a safe extraction rehearsal.** Before an agent changes an existing repository's documentation, tests, routing, or source corpus, it writes a report of the intended conversion, IDs, uncertainty, conflicts, deletions, and follow-up doors. Conflicts stop for your decision, and the same proposed change cannot mutate the repository until you explicitly direct it to continue.
@@ -13,6 +17,10 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 - **Analysis findings now say what their evidence can actually prove.** `clue-analysis` distinguishes a clean disposable environment from a prepared machine with local prerequisites, so a passing prepared build is not presented as onboarding reproducibility. Percentage and statistical claims now declare their versioned corpus and population, eligibility and exclusions, sampling, uncertainty, and quality boundary instead of looking more certain than their evidence permits; adoption analysis also makes governance and process changes explicit instead of treating scaffolding as neutral.
 
 - **Extraction and evidence guidance now matches what `clue validate` already supports.** New or revised machine-proven criteria use classified positive and negative Go, JVM, or Cucumber evidence, with an explicit single-direction exception; genuine Human proof lives in the pull request acceptance brief; and `@draft` can phase one unfinished criterion without holding its capability back. The guide and generated skills now preserve the one-reference rule only for unannotated legacy criteria and say plainly that `clue` validates evidence references but does not execute tests. The protected thread is described consistently as ending in acceptance evidence, so Human proof is no longer excluded from Cliewen's core promise.
+
+### Install
+
+`curl -fsSL https://cliewen.dev/install.sh | sh` on macOS and Linux, `irm https://cliewen.dev/install.ps1 | iex` on Windows, or `go install github.com/cliewen/cliewen/cmd/clue@v0.10.0`. You can still download a prebuilt binary from the release assets and verify it against `SHA256SUMS` by hand; those asset names are unchanged, so a vendored CI wall pinned to an earlier release keeps working exactly as before. Update vendored Cliewen skills from this release's `.agents/skills/`; a 0.10.0 binary rejects older Cliewen skill versions as drift.
 
 ## [0.9.0] - 2026-07-28
 
