@@ -69,7 +69,7 @@ func TestSanity_ScaffoldedEvidenceModelCarriersAgree(t *testing.T) {
 		"docs/README.md":                   {"acceptance evidence", "classified Go/JVM/Cucumber test reference", "Human acceptance brief"},
 		"docs/capabilities/README.md":      {"positive/negative direction", "Test-type: Human", "@draft", "one supported reference", "does not execute tests"},
 		"docs/decisions/README.md":         {"inventories every live carrier", "same change", "general obligation remains agent-enforced"},
-		".github/pull_request_template.md": {"classified positive/negative Go, JVM, or Cucumber evidence", "Human proof named in the acceptance brief", "per-criterion `@draft`", "legacy one-supported-reference rule"},
+		".github/pull_request_template.md": {"classified positive/negative Go, JVM, or Cucumber evidence", "JVM identity/type/direction attached to the same executable", "Human proof named in the acceptance brief", "per-criterion `@draft`", "legacy one-supported-reference rule"},
 	}
 	for rel, required := range requiredByFile {
 		content, err := os.ReadFile(filepath.Join(root, filepath.FromSlash(rel)))

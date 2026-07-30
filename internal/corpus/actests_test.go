@@ -1,6 +1,10 @@
 package corpus
 
-import "testing"
+import (
+	"fmt"
+	"strings"
+	"testing"
+)
 
 // capFiles extends validFiles with a capability whose criteria declare AC-101.
 func capFiles(criteriaStatus string) map[string]string {
@@ -96,34 +100,6 @@ func TestAC015_ForeignNamespaceTagFails(t *testing.T) {
 	assertIssue(t, issues, "namespace MG")
 }
 
-// AC-016: a JVM @Tag in a declared namespace satisfies coverage; tags
-// outside every namespace are runner metadata.
-func TestAC016_JvmTagSatisfiesCoverage(t *testing.T) {
-	files := nsFiles()
-	files["core/src/test/kotlin/XTest.kt"] = "package x\n\nclass XTest {\n    @Test\n    @Tag(\"MG_101\")\n    @Tag(\"UNIT\")\n    fun `it works`() {}\n}\n"
-	if issues := run(t, files, false); len(issues) != 0 {
-		t.Fatalf("MG-101 has a tagged JVM test; expected no issues, got %v", issues)
-	}
-
-	files["core/src/test/java/YTests.java"] = "class YTests {\n    @Tag(\"INTEGRATION\")\n    void nothingToDeclare() {}\n}\n"
-	if issues := run(t, files, false); len(issues) != 0 {
-		t.Fatalf("runner-only tags are ignored; expected no issues, got %v", issues)
-	}
-}
-
-// AC-017: a JVM tag referencing an unknown or retired AC fails.
-func TestAC017_JvmUnknownOrRetiredTagFails(t *testing.T) {
-	files := nsFiles()
-	files["core/src/test/kotlin/XTest.kt"] = "class XTest {\n    @Tag(\"MG_101\")\n    @Tag(\"MG_999\")\n    fun f() {}\n}\n"
-	issues := run(t, files, false)
-	assertIssue(t, issues, "core/src/test/kotlin/XTest.kt")
-	assertIssue(t, issues, "tag \"MG_999\" references MG-999 which no criteria.md declares")
-
-	files["docs/capabilities/CAP-101-x/criteria.md"] = "---\nid: CAP-101-criteria\ntype: criteria\nstatus: active\nlinks: [CAP-101]\ntitle: X criteria\nac-prefix: MG\n---\n\n```gherkin\nFeature: X\n\n  @MG-101 @retired\n  Scenario: it used to work\n    Then it worked\n```\n"
-	files["core/src/test/kotlin/XTest.kt"] = "class XTest {\n    @Tag(\"MG_101\")\n    fun f() {}\n}\n"
-	assertIssue(t, run(t, files, false), "references retired MG-101")
-}
-
 // AC-011: every test declares its purpose; Unit/Sanity/Arch need no AC.
 func TestAC011_UnclassifiedTestFails(t *testing.T) {
 	files := with(validFiles, map[string]string{
@@ -195,10 +171,166 @@ func TestAC043_SecondTestTypeInScenarioFails(t *testing.T) {
 func TestAC043_UnitPositive_JvmTagsCarryTypeAndDirection(t *testing.T) {
 	files := capFiles("active")
 	files["docs/capabilities/CAP-101-x/criteria.md"] = "---\nid: CAP-101-criteria\ntype: criteria\nstatus: active\nlinks: [CAP-101]\ntitle: X criteria\n---\n\n```gherkin\nFeature: X\n\n  @AC-101\n  Scenario: it works\n    Test-type: Integration\n    Given a thing\n    Then it works\n```\n"
-	files["core/src/test/kotlin/XTest.kt"] = "class XTest {\n    @Tag(\"AC_101\")\n    @Tag(\"integration\")\n    @Tag(\"positive\")\n    fun works() {}\n\n    @Tag(\"AC_101\")\n    @Tag(\"integration\")\n    @Tag(\"negative\")\n    fun rejects() {}\n}\n"
+	files["core/src/test/kotlin/XTest.kt"] = "class XTest {\n    @Test\n    @Tag(\"AC_101\")\n    @Tag(\"integration\")\n    @Tag(\"positive\")\n    fun works() {}\n\n    @Test\n    @Tag(\"AC_101\")\n    @Tag(\"integration\")\n    @Tag(\"negative\")\n    fun rejects() {}\n}\n"
 	if issues := run(t, files, false); len(issues) != 0 {
 		t.Fatalf("JVM tags should satisfy classified coverage, got %v", issues)
 	}
+}
+
+func TestAC057_UnitPositive_MixedJVMMethodsRemainIsolated(t *testing.T) {
+	files := classifiedJvmFiles(101, 110)
+	var java strings.Builder
+	java.WriteString("class MixedTest {\n")
+	for id := 101; id <= 110; id++ {
+		fmt.Fprintf(&java, "  @Test @Tag(\"AC_%d\") @Tag(\"unit\") @Tag(\"positive\") void accepts%d() {}\n", id, id)
+		fmt.Fprintf(&java, "  @Test @Tag(\"AC_%d\") @Tag(\"unit\") @Tag(\"negative\") void rejects%d() {}\n", id, id)
+	}
+	java.WriteString("}\n")
+	files["core/src/test/java/MixedTest.java"] = java.String()
+
+	if issues := run(t, files, false); len(issues) != 0 {
+		t.Fatalf("ten mixed AC pairs should remain attributable to their own methods, got %v", issues)
+	}
+}
+
+func TestAC057_UnitNegative_JVMTagsDoNotCrossProductOrCreditAmbiguity(t *testing.T) {
+	files := classifiedJvmFiles(101, 102)
+	files["core/src/test/kotlin/MixedTest.kt"] = "class MixedTest {\n  @Test @Tag(\"AC_101\") @Tag(\"unit\") @Tag(\"positive\") fun accepts101() {}\n  @Test @Tag(\"AC_102\") @Tag(\"unit\") @Tag(\"negative\") fun rejects102() {}\n}\n"
+	issues := run(t, files, false)
+	assertIssue(t, issues, "AC-101 has no Unit negative evidence")
+	assertIssue(t, issues, "AC-102 has no Unit positive evidence")
+
+	files["core/src/test/kotlin/MixedTest.kt"] = "class MixedTest {\n  @Test @Tag(\"AC_101\") @Tag(\"AC_102\") @Tag(\"unit\") @Tag(\"positive\") fun ambiguous() {}\n}\n"
+	issues = run(t, files, false)
+	assertIssue(t, issues, "ambiguous metadata receives no classified credit")
+	assertIssue(t, issues, "AC-101 has no Unit positive evidence")
+}
+
+func TestAC058_UnitPositive_SupportedJVMExecutableFormsReceiveCredit(t *testing.T) {
+	for name, positiveAnnotation := range map[string]string{
+		"ordinary":      "@Test",
+		"parameterized": "@ParameterizedTest",
+		"repeated":      "@RepeatedTest",
+		"factory":       "@TestFactory",
+		"template":      "@TestTemplate",
+	} {
+		t.Run(name, func(t *testing.T) {
+			files := classifiedJvmFiles(101, 101)
+			files["core/src/test/java/XTest.java"] = "class XTest {\n  " + positiveAnnotation + " @Tag(\"AC_101\") @Tag(\"unit\") @Tag(\"positive\") void accepts() {}\n  @Test @Tag(\"AC_101\") @Tag(\"unit\") @Tag(\"negative\") void rejects() {}\n}\n"
+			if issues := run(t, files, false); len(issues) != 0 {
+				t.Fatalf("%s executable should receive one evidence credit, got %v", name, issues)
+			}
+		})
+	}
+
+	t.Run("nested Kotlin", func(t *testing.T) {
+		files := classifiedJvmFiles(101, 101)
+		files["core/src/test/kotlin/XTest.kt"] = "class XTest {\n  @Nested\n  class Inner {\n    @ParameterizedTest @Tag(\"AC_101\") @Tag(\"unit\") @Tag(\"positive\") fun accepts() {}\n    @RepeatedTest @Tag(\"AC_101\") @Tag(\"unit\") @Tag(\"negative\") fun rejects() {}\n  }\n}\n"
+		if issues := run(t, files, false); len(issues) != 0 {
+			t.Fatalf("nested and parameterized Kotlin methods should receive evidence, got %v", issues)
+		}
+	})
+
+	t.Run("named fallback", func(t *testing.T) {
+		files := classifiedJvmFiles(101, 101)
+		files["core/src/test/java/XTest.java"] = "class XTest {\n  @Test @Tag(\"slow\") void testAC101_UnitPositive_accepts() {}\n  @Test @Tag(\"slow\") void testAC101_UnitNegative_rejects() {}\n}\n"
+		files["core/src/test/kotlin/YTest.kt"] = "class YTest {\n  fun testAC101_UnitPositive_accepts() {}\n  fun testAC101_UnitNegative_rejects() {}\n}\n"
+		if issues := run(t, files, false); len(issues) != 0 {
+			t.Fatalf("stable named Java methods and Kotlin functions should receive evidence while unrelated runner tags remain metadata, got %v", issues)
+		}
+	})
+}
+
+func TestAC058_UnitNegative_UnsupportedJVMEvidenceIsDiagnosedAndIgnored(t *testing.T) {
+	t.Run("unknown and retired references", func(t *testing.T) {
+		files := classifiedJvmFiles(101, 101)
+		files["core/src/test/kotlin/XTest.kt"] = "class XTest {\n  @Test @Tag(\"AC_999\") @Tag(\"unit\") @Tag(\"positive\") fun ghost() {}\n  @Test @Tag(\"AC_101\") @Tag(\"unit\") @Tag(\"positive\") fun accepts() {}\n  @Test @Tag(\"AC_101\") @Tag(\"unit\") @Tag(\"negative\") fun rejects() {}\n}\n"
+		assertIssue(t, run(t, files, false), "references AC-999 which no criteria.md declares")
+
+		files["docs/capabilities/CAP-101-x/criteria.md"] = strings.Replace(files["docs/capabilities/CAP-101-x/criteria.md"], "@AC-101", "@AC-101 @retired", 1)
+		assertIssue(t, run(t, files, false), "references retired AC-101")
+	})
+
+	t.Run("class-level AC", func(t *testing.T) {
+		files := classifiedJvmFiles(101, 101)
+		files["core/src/test/java/XTest.java"] = "@Tag(\"AC_101\") @Tag(\"unit\")\nclass XTest {\n  @Test @Tag(\"positive\") void accepts() {}\n  @Test @Tag(\"negative\") void rejects() {}\n}\n"
+		issues := run(t, files, false)
+		assertIssue(t, issues, "class-level JVM tag \"AC_101\" cannot be attributed")
+		assertIssue(t, issues, "AC-101 has no Unit positive evidence")
+	})
+
+	t.Run("unsupported multiline tag", func(t *testing.T) {
+		files := classifiedJvmFiles(101, 101)
+		files["core/src/test/java/XTest.java"] = "class XTest {\n  @Test\n  @Tag(\n    \"AC_101\")\n  void accepts() {}\n}\n"
+		assertIssue(t, run(t, files, false), "unsupported JVM @Tag syntax")
+	})
+
+	t.Run("executable annotation cannot drift", func(t *testing.T) {
+		files := classifiedJvmFiles(101, 101)
+		files["core/src/test/java/XTest.java"] = "class XTest {\n  @Test\n  void multiline(\n  ) {}\n\n  @Tag(\"AC_101\") @Tag(\"unit\") @Tag(\"positive\")\n  void unannotated() {}\n}\n"
+		issues := run(t, files, false)
+		assertIssue(t, issues, "carries JVM AC tags without a supported executable annotation")
+		assertIssue(t, issues, "AC-101 has no Unit positive evidence")
+	})
+
+	t.Run("disagreeing name and tags", func(t *testing.T) {
+		files := classifiedJvmFiles(101, 101)
+		files["core/src/test/java/XTest.java"] = "class XTest {\n  @Test @Tag(\"AC_101\") @Tag(\"unit\") @Tag(\"positive\") void testAC101_UnitNegative_conflict() {}\n}\n"
+		assertIssue(t, run(t, files, false), "disagreeing or incomplete named and JUnit evidence carriers")
+	})
+
+	t.Run("proximity comments and strings", func(t *testing.T) {
+		files := classifiedJvmFiles(101, 101)
+		files["core/src/test/kotlin/XTest.kt"] = "class XTest {\n  // AC: AC-101 Unit positive\n  // @Test @Tag(\"AC_101\") @Tag(\"unit\") @Tag(\"positive\") fun commented() {}\n  val example = \"@Tag(\\\"AC_101\\\")\"\n  val block = \"\"\"\n    @Test @Tag(\"AC_101\") @Tag(\"unit\") @Tag(\"negative\") fun text() {}\n  \"\"\"\n}\n"
+		issues := run(t, files, false)
+		assertIssue(t, issues, "AC-101 has no test")
+		if len(issues) != 3 {
+			t.Fatalf("comments and strings should leave only the missing test and two missing directions, got %v", issues)
+		}
+		for _, issue := range issues {
+			if strings.Contains(issue.Msg, "commented") || strings.Contains(issue.Msg, "text") {
+				t.Fatalf("comments and strings must not become JVM evidence: %v", issues)
+			}
+		}
+	})
+
+	t.Run("Kotlin invocation is not an executable declaration", func(t *testing.T) {
+		files := classifiedJvmFiles(101, 101)
+		files["core/src/test/kotlin/XTest.kt"] = "class XTest {\n  fun helper() {\n    testAC101_UnitPositive_accepts() { println(\"not a test declaration\") }\n  }\n}\n"
+		issues := run(t, files, false)
+		assertIssue(t, issues, "AC-101 has no test")
+		assertIssue(t, issues, "AC-101 has no Unit positive evidence")
+	})
+
+	t.Run("Java string is not an executable declaration", func(t *testing.T) {
+		files := classifiedJvmFiles(101, 101)
+		files["core/src/test/java/XTest.java"] = "class XTest {\n  String positive = \"testAC101_UnitPositive_fake() {\";\n  String negative = \"testAC101_UnitNegative_fake() {\";\n}\n"
+		issues := run(t, files, false)
+		assertIssue(t, issues, "AC-101 has no test")
+		assertIssue(t, issues, "AC-101 has no Unit positive evidence")
+		assertIssue(t, issues, "AC-101 has no Unit negative evidence")
+	})
+
+	t.Run("Java constructor is not a method declaration", func(t *testing.T) {
+		files := classifiedJvmFiles(101, 101)
+		files["core/src/test/java/XTest.java"] = "class testAC101_UnitPositive_fake {\n  testAC101_UnitPositive_fake() {}\n  public testAC101_UnitPositive_fake(int ignored) {}\n}\nclass testAC101_UnitNegative_fake {\n  protected testAC101_UnitNegative_fake() {}\n  private testAC101_UnitNegative_fake(int ignored) {}\n}\n"
+		issues := run(t, files, false)
+		assertIssue(t, issues, "AC-101 has no test")
+		assertIssue(t, issues, "AC-101 has no Unit positive evidence")
+		assertIssue(t, issues, "AC-101 has no Unit negative evidence")
+	})
+}
+
+func classifiedJvmFiles(first, last int) map[string]string {
+	files := capFiles("active")
+	var criteria strings.Builder
+	criteria.WriteString("---\nid: CAP-101-criteria\ntype: criteria\nstatus: active\nlinks: [CAP-101]\ntitle: X criteria\n---\n\n```gherkin\nFeature: X\n")
+	for id := first; id <= last; id++ {
+		fmt.Fprintf(&criteria, "\n  @AC-%d\n  Scenario: criterion %d\n    Test-type: Unit\n    Given input %d\n    Then result %d\n", id, id, id, id)
+	}
+	criteria.WriteString("```\n")
+	files["docs/capabilities/CAP-101-x/criteria.md"] = criteria.String()
+	return files
 }
 
 func TestAC043_UnitNegative_PerformanceNamesCarryTypeAndDirection(t *testing.T) {

@@ -154,7 +154,7 @@ func TestAC054_UnitPositive_ExtractionSupportsCriterionLevelPhasing(t *testing.T
 		"Whole-file draft phasing remains available",
 		"tag each genuinely not-yet-proven criterion `@draft`",
 		"`Test-type: Human` criterion is already proven by naming it in the pull request acceptance brief",
-		"supported Go, JVM, or Cucumber evidence",
+		"supported Go, per-executable JVM, or Cucumber evidence",
 		"A capability is therefore not the smallest activation unit",
 	} {
 		if !strings.Contains(extract, want) {
@@ -305,6 +305,54 @@ func TestSanity_VerifyRecognizesTheCompleteEvidenceContract(t *testing.T) {
 	} {
 		if strings.Contains(verify, stale) {
 			t.Errorf("clue-verify/skill.md still carries stale evidence-model rule %q", stale)
+		}
+	}
+}
+
+func TestAC058_UnitPositive_GeneratedSkillsStatePerExecutableJVMContract(t *testing.T) {
+	rendered := map[string]string{}
+	for _, file := range mustRender(t) {
+		rendered[file.relativePath] = string(file.content)
+	}
+	required := map[string][]string{
+		"clue-delta/skill.md": {
+			"all three evidence parts attach to the same Java or Kotlin executable",
+			"`test<PREFIX><digits>_<Type><Direction>_<description>`",
+			"class tags, comments, and unrelated methods cannot supply missing parts",
+		},
+		"clue-extract/skill.md": {
+			"normalize each supported Java or Kotlin executable",
+			"dynamic or multi-line tag expressions",
+			"instead of installing an external rule or letting `clue` guess",
+		},
+		"clue-verify/skill.md": {
+			"JVM evidence carries its AC identity, type, and direction on the same Java or Kotlin executable",
+			"literal JUnit method tags or the stable named-executable form",
+		},
+	}
+	for name, fragments := range required {
+		for _, fragment := range fragments {
+			if !strings.Contains(rendered[name], fragment) {
+				t.Errorf("%s does not carry per-executable JVM rule %q", name, fragment)
+			}
+		}
+	}
+}
+
+func TestAC058_UnitNegative_GeneratedSkillsRejectTheObsoleteJVMCarrier(t *testing.T) {
+	for _, file := range mustRender(t) {
+		if !strings.HasSuffix(file.relativePath, "/skill.md") {
+			continue
+		}
+		content := string(file.content)
+		for _, stale := range []string{
+			"install an ArchUnit or equivalent rule enforcing one purpose tag per test",
+			"`clue` only harvests at file level",
+			"JVM test files use JUnit tags harvested at file level",
+		} {
+			if strings.Contains(content, stale) {
+				t.Errorf("%s still carries obsolete JVM evidence rule %q", file.relativePath, stale)
+			}
 		}
 	}
 }

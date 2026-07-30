@@ -16,6 +16,8 @@ Cliewen's AC grammar was global `AC-<digits>`. Brownfield repos arrive with thei
 
 ## Decision outcome
 
+> **Partially superseded by [ADR-036](ADR-036-jvm-evidence-per-executable.md):** the namespace and ID-normalization rules below remain current, but JVM evidence is no longer harvested at file level and extraction no longer delegates purpose enforcement to an ArchUnit rule.
+
 **The AC grammar generalizes to `<PREFIX>-<digits>`, namespaced per criteria file.** A `criteria.md` may declare `ac-prefix: MG` in its frontmatter (uppercase letters/digits, starting with a letter); the default is `AC`, so existing Cliewen corpora are unchanged. Consumer: `checkACTests`.
 
 - **Declaration:** a criteria file declares ACs only in its own namespace — `@MG-010` tag lines in a file with `ac-prefix: MG`. A tag in AC-ID form with the *wrong* prefix for its file is a lint failure (wrong-namespace declaration), which also stops prose tokens from becoming accidental declarations.

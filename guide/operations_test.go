@@ -14,7 +14,7 @@ func TestAC036_UnitPositive_OperationsGuideStatesSupportedBoundary(t *testing.T)
 	requiredByPage := map[string][]string{
 		"adoption.md":        {"classifies and counts the pair", "Cucumber", "Test-type: Human", "@draft", "cannot check that the acceptance brief supplies Human proof", "does not run the tests"},
 		"getting-started.md": {"classified positive and negative evidence", "Cucumber", "Test-type: Human", "@draft", "cannot check that the brief supplies the proof", "does not run tests"},
-		"operations.md":      {"Go test names", "Java and Kotlin JUnit", "Cucumber scenario tags", "(single-direction)", "Test-type: Human", "@draft", "does not run your tests", "does not update installed files in the background", "Keep the binary, generated skills, and vendored CI binary on the same release", "Recover without bypassing the evidence", "`clue init` reports a skipped file", "`clue validate` fails", "CI rejects a transient workspace", "Do not delete a rule", "foreign-soil trials, not adoptions"},
+		"operations.md":      {"Go test names", "Java and Kotlin executables whose own JUnit", "same executable", "Cucumber scenario tags", "(single-direction)", "Test-type: Human", "@draft", "does not run your tests", "does not update installed files in the background", "Keep the binary, generated skills, and vendored CI binary on the same release", "Recover without bypassing the evidence", "`clue init` reports a skipped file", "`clue validate` fails", "CI rejects a transient workspace", "Do not delete a rule", "foreign-soil trials, not adoptions"},
 		"what-is-cliewen.md": {"classified positive and negative evidence", "Cucumber", "Test-type: Human", "@draft", "does not execute tests"},
 		"design.md":          {"acceptance criterion → acceptance evidence", "Cucumber", "Human-class", "@draft", "does not execute tests or inspect the pull request acceptance brief"},
 		"methodology.md":     {"Acceptance evidence", "Cucumber", "Test-type: Human", "@draft", "does not execute tests"},
@@ -28,6 +28,51 @@ func TestAC036_UnitPositive_OperationsGuideStatesSupportedBoundary(t *testing.T)
 		for _, want := range required {
 			if !strings.Contains(string(content), want) {
 				t.Errorf("%s is missing current evidence-model carrier %q", page, want)
+			}
+		}
+	}
+}
+
+func TestAC058_UnitPositive_GuideStatesPerExecutableJVMCarrier(t *testing.T) {
+	requiredByPage := map[string][]string{
+		"adoption.md":        {"per-executable JVM JUnit method tags", "class tags and unrelated methods cannot supply missing parts"},
+		"getting-started.md": {"same Java or Kotlin executable"},
+		"operations.md":      {"stable JVM named-executable form", "metadata split across methods do not count"},
+		"what-is-cliewen.md": {"per-executable Java/Kotlin JUnit method tags", "metadata split across methods"},
+		"design.md":          {"stable JVM named-executable fallback", "diagnoses ambiguous, class-level, or unsupported evidence syntax"},
+		"methodology.md":     {"all three parts on one supported Java or Kotlin executable"},
+		"change-loop.md":     {"same supported Java or Kotlin executable"},
+	}
+	for page, required := range requiredByPage {
+		content, err := os.ReadFile(page)
+		if err != nil {
+			t.Fatal(err)
+		}
+		for _, fragment := range required {
+			if !strings.Contains(string(content), fragment) {
+				t.Errorf("%s is missing per-executable JVM carrier %q", page, fragment)
+			}
+		}
+	}
+}
+
+func TestAC058_UnitNegative_GuideRejectsFileLevelJVMEvidence(t *testing.T) {
+	pages, err := filepath.Glob("*.md")
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, page := range pages {
+		content, err := os.ReadFile(page)
+		if err != nil {
+			t.Fatal(err)
+		}
+		for _, stale := range []string{
+			"JVM per-method purpose enforcement via an ArchUnit rule",
+			"JVM tags are file-level",
+			"file-level JVM harvesting",
+		} {
+			if strings.Contains(string(content), stale) {
+				t.Errorf("%s still carries stale JVM evidence claim %q", page, stale)
 			}
 		}
 	}

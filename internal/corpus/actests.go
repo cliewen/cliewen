@@ -15,10 +15,11 @@ import (
 // Human needs no code reference because the acceptance brief is its proof;
 // and @draft exempts only that not-yet-proven criterion. Every code reference
 // names a live AC and every test declares exactly one purpose (ADR-005,
-// ADR-006, ADR-032, ADR-033). AC IDs are namespaced by criteria file via
-// optional `ac-prefix`, default `AC` (ADR-009). Go carries purpose, proof type,
-// and direction in the function name; JVM test files use JUnit tags harvested
-// at file level; Cucumber feature tags are harvested at scenario level.
+// ADR-006, ADR-032, ADR-033, ADR-036). AC IDs are namespaced by criteria file
+// via optional `ac-prefix`, default `AC` (ADR-009). Go carries purpose, proof type,
+// and direction in the function name; JVM evidence is attributed to one
+// executable by JUnit method tags or a stable method-name fallback (ADR-036);
+// Cucumber feature tags are harvested at scenario level.
 // The judge validates those references but does not execute any test runner.
 var (
 	acTagRe        = regexp.MustCompile(`@([A-Z][A-Z0-9]*)-(\d+)\b`)
@@ -27,7 +28,6 @@ var (
 	fixedPurposeRe = regexp.MustCompile(`^Test(Unit|Sanity|Arch)(_\w*)?$`)
 	acNameRe       = regexp.MustCompile(`^Test([A-Z][A-Z0-9]*?)(\d+)(_\w*)?$`)
 	classifiedGoRe = regexp.MustCompile(`^Test([A-Z][A-Z0-9]*?)(\d+)_(Unit|Integration|E2E|Performance)(Positive|Negative)(_\w*)?$`)
-	jvmTagRe       = regexp.MustCompile(`@Tag\(\s*"([^"]+)"\s*\)`)
 	jvmACRe        = regexp.MustCompile(`^([A-Z][A-Z0-9]*)-(\d+)$`)
 	testTypeRe     = regexp.MustCompile(`^\s*Test-type:\s*(Unit|Integration|E2E|Performance|Human)(\s+\(single-direction\))?\s*$`)
 	featureTagRe   = regexp.MustCompile(`@([A-Za-z][A-Za-z0-9-]*)`)
@@ -211,40 +211,10 @@ func harvestACs(c *Corpus) (declared map[string]acDecl, classified map[string]ma
 			return nil
 		}
 
-		// JVM files: harvest @Tag values at file level (ADR-009). Tags in
-		// a known AC namespace are references; everything else is runner
-		// metadata clue ignores (ADR-006).
-		jvmTags := jvmTagRe.FindAllStringSubmatch(text, -1)
-		jvmTypes, jvmDirections := []string{}, []string{}
-		for _, other := range jvmTags {
-			switch strings.ToLower(other[1]) {
-			case "unit":
-				jvmTypes = append(jvmTypes, "Unit")
-			case "integration":
-				jvmTypes = append(jvmTypes, "Integration")
-			case "e2e":
-				jvmTypes = append(jvmTypes, "E2E")
-			case "performance":
-				jvmTypes = append(jvmTypes, "Performance")
-			case "positive", "negative":
-				jvmDirections = append(jvmDirections, strings.ToLower(other[1]))
-			}
-		}
-		for _, m := range jvmTags {
-			norm := strings.ReplaceAll(m[1], "_", "-")
-			am := jvmACRe.FindStringSubmatch(norm)
-			if am == nil || !prefixes[am[1]] {
-				continue
-			}
-			if len(jvmTypes) == 0 || len(jvmDirections) == 0 {
-				record(relSlash, `tag "`+m[1]+`"`, norm, "", "")
-				continue
-			}
-			for _, typ := range jvmTypes {
-				for _, direction := range jvmDirections {
-					record(relSlash, `tag "`+m[1]+`"`, norm, typ, direction)
-				}
-			}
+		jvmEvidence, jvmIssues := harvestJVMEvidence(text, relSlash, prefixes)
+		issues = append(issues, jvmIssues...)
+		for _, evidence := range jvmEvidence {
+			record(relSlash, evidence.subject, evidence.ac, evidence.testType, evidence.direction)
 		}
 		return nil
 	})
@@ -265,7 +235,7 @@ func checkACTests(c *Corpus) []Issue {
 			issues = append(issues, Issue{d.path, ac + " declares Test-type: Human (single-direction), which the Human class does not use (ADR-033)"})
 		}
 		if live && !exempt && !tested[ac] {
-			issues = append(issues, Issue{d.path, ac + " has no test (convention per ADR-005/ADR-009: a Go test named Test" + strings.ReplaceAll(ac, "-", "") + "_… or a framework tag \"" + strings.ReplaceAll(ac, "-", "_") + "\")"})
+			issues = append(issues, Issue{d.path, ac + " has no test (ADR-005/ADR-036: use a supported Go name, Cucumber scenario tag, or one JVM executable carrying \"" + strings.ReplaceAll(ac, "-", "_") + "\" in literal method tags or its stable test name)"})
 		}
 		if d.status != "active" || d.retired || exempt || d.testType == "" {
 			if live && !exempt && d.invalidType {

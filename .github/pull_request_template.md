@@ -41,7 +41,7 @@
 - [ ] The plan item or plan-less declaration is truthful, and all artifact links resolve.
 - [ ] Decisions are recorded at the right tier, and active constraints were assessed.
 - [ ] Changed active acceptance criteria satisfy the evidence contract, each by one of these routes:
-  - classified positive/negative Go, JVM, or Cucumber evidence at the declared machine proof type, or an explicit `(single-direction)`;
+  - classified positive/negative Go, JVM, or Cucumber evidence at the declared machine proof type, with JVM identity/type/direction attached to the same executable, or an explicit `(single-direction)`;
   - Human proof named in the acceptance brief;
   - per-criterion `@draft` for a genuine gap;
   - the legacy one-supported-reference rule.

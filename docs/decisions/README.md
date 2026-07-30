@@ -68,4 +68,5 @@ The CLI reports inferred ADRs and PDRs as decisions awaiting verification, separ
 - [PDR-018 — Behavior changes remain full until adopter evidence supports a narrower loop](PDR-018-behavior-changes-remain-full.md) · `inferred`
 - [PDR-019 — Methodology contract changes update every live carrier in the same change](PDR-019-methodology-contract-carriers-move-together.md) · `inferred`
 - [PDR-020 — Extraction rehearses before it mutates](PDR-020-extraction-rehearsal-before-mutation.md) · `inferred`
+- [ADR-036-jvm-evidence-per-executable](ADR-036-jvm-evidence-per-executable.md)
 <!-- clue:index:end -->
