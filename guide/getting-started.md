@@ -190,7 +190,7 @@ clue validate: OK (5 artifacts, 1 agent-enforced constraint(s) awaiting machine 
 Now change only `status: draft` to `status: active` in `criteria.md` and run `clue validate` again. The command exits with status 1 and names the broken edge:
 
 ```text
-docs/capabilities/CAP-001-greeting/criteria.md: AC-001 has no test (convention per ADR-005/ADR-009: a Go test named TestAC001_… or a framework tag "AC_001")
+docs/capabilities/CAP-001-greeting/criteria.md: AC-001 has no test (convention per ADR-005/ADR-009: a Go test named TestAC001_… or a framework tag "AC_001"; segmented IDs use the normalized Go/JVM name or underscore tag form)
 clue validate: 1 issue(s)
 ```
 

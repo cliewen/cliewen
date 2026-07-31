@@ -43,8 +43,8 @@ func acceptanceCriterionOwners(c *Corpus) map[string]string {
 			if strings.Contains(line, "@retired") {
 				continue
 			}
-			for _, match := range acTagRe.FindAllStringSubmatch(line, -1) {
-				out[match[1]+"-"+match[2]] = owner
+			for _, id := range canonicalACIDsInLine(line) {
+				out[id] = owner
 			}
 		}
 	}

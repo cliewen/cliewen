@@ -90,8 +90,26 @@ Feature: Brownfield analysis and extraction — evidence, namespaced ACs, JVM ha
     Given a Java or Kotlin executable carries one AC identity, one proof type, and one direction in its JUnit method annotations or stable test name
     When the user runs "clue validate"
     Then ordinary, parameterized, repeated, factory, template, and nested JUnit executables receive one statically attributable evidence credit
-    And the named form test<PREFIX><digits>_<Type><Direction>_<description> works without native framework tags
+    And the named form test<PREFIX><digits><lowercase-suffix>_<Type><Direction>_<description> works without native framework tags, with segmented-prefix hyphens removed
     And an attached reference to an unknown or retired criterion fails
     But class-level AC tags, unsupported annotation syntax, and disagreeing tag-and-name carriers receive no credit and produce a diagnostic
     And structured proximity comments remain ignored
+
+  @AC-060
+  Scenario: Extended criterion identities work through supported evidence carriers
+    Test-type: Unit
+    Given declared IDs SNAP-SQS-001 and ADP-045b
+    When supported Go, JVM, and Cucumber carriers reference those IDs using their documented normalized forms
+    Then each carrier resolves the original canonical identity and classified evidence keeps its proof type and direction
+    And lowercase letter suffixes remain part of the identity
+    But uppercase suffixes, ambiguous normalized prefixes, and malformed normalized forms receive no credit and a diagnostic
+
+  @AC-061
+  Scenario: Extraction preserves and deterministically mints extended criterion identities
+    Test-type: Unit
+    Given a source corpus containing multi-segment and letter-suffixed criterion IDs plus requirements without IDs
+    When the agent performs extraction
+    Then source IDs are copied verbatim and only unlabelled requirements receive the namespace's next numeric IDs in source order
+    And rerunning against the same source state produces the same preserved and minted mapping
+    But extraction never renumbers a source ID to fit the default AC grammar
 ```

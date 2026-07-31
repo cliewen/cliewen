@@ -16,13 +16,13 @@ ADR-006 deliberately left a per-criterion test-type annotation unenforced becaus
 
 ## Decision outcome
 
-> **Partially superseded by [ADR-036](ADR-036-jvm-evidence-per-executable.md):** proof classes, paired directions, Go names, and Cucumber scenario tags remain current; JVM classified evidence now belongs to one statically attributable executable rather than a file-level tag cross-product.
+> **Partially superseded by [ADR-036](ADR-036-jvm-evidence-per-executable.md) and extended by [ADR-037](ADR-037-brownfield-ac-id-grammar.md):** proof classes, paired directions, Go names, and Cucumber scenario tags remain current; JVM classified evidence now belongs to one statically attributable executable rather than a file-level tag cross-product, and segmented or letter-suffixed canonical IDs use ADR-037's carrier normalization.
 
 An acceptance-criterion scenario that opts into classified evidence declares its required proof class on the first non-blank line of the scenario body: `Test-type: Unit`, `Test-type: Integration`, `Test-type: E2E`, or `Test-type: Performance`. This is a design-time declaration reviewed with the scenario, not a path to a test file. An unannotated legacy scenario keeps ADR-006's one-reference rule; every newly added or materially revised scenario declares a test type.
 
 Each declared class requires one `positive` and one `negative` reference. A scenario whose statement itself has one direction may state `Test-type: <class> (single-direction)` and requires one reference in that class. The exemption is explicit because it is a claim about the scenario, not an absence the checker can infer.
 
-Go names carry all three parts: `TestAC042_IntegrationPositive_…` and `TestAC042_IntegrationNegative_…`. JVM files use `@Tag("AC_042")` with `@Tag("integration")` and `@Tag("positive")` or `@Tag("negative")`; Cucumber `.feature` scenarios use the equivalent `@AC-042 @integration @positive` tags. The JVM harvester remains file-level as ADR-009 established. Cucumber tags are scenario-level. `checkACTests` counts only references that match a declared class and reports a missing class or direction.
+Go names carry all three parts: `TestAC042_IntegrationPositive_…` and `TestAC042_IntegrationNegative_…`, with segmented prefixes normalized by removing hyphens and lowercase letter suffixes retained under ADR-037. JVM executables use `@Tag("AC_042")` with `@Tag("integration")` and `@Tag("positive")` or `@Tag("negative")`; Cucumber `.feature` scenarios use the equivalent `@AC-042 @integration @positive` tags. JVM evidence is attributed per executable under ADR-036, not cross-producted at file level. Cucumber tags are scenario-level. `checkACTests` counts only references that match a declared class and reports a missing class or direction.
 
 The purpose taxonomy remains `AC`, `Unit`, `Sanity`, and `Arch`: an AC reference is still a test's one purpose. Test type is runner metadata; positive and negative are evidence direction metadata. Their new consumer is the evidence checker, so they are no longer ignored.
 

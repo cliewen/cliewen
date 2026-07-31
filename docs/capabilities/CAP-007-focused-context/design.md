@@ -8,7 +8,7 @@ title: Focused corpus context design
 
 # Focused corpus context design
 
-`corpus.Context` builds one identity index per call and resolves the requested identity against it: artifact IDs, milestone IDs declared in plan bodies, and acceptance-criterion tags declared in criteria bodies, including retained tombstones. More than one declaring artifact is ambiguous and fails rather than choosing by scan order. Resolution reuses the same ID shapes the validator already recognizes, so `context` consumes the discovery job once parked as `clue locate`.
+`corpus.Context` builds one identity index per call and resolves the requested identity against it: artifact IDs, milestone IDs declared in plan bodies, and acceptance-criterion tags declared in criteria bodies, including retained tombstones. Acceptance-criterion identities use the validator's canonical segmented-prefix, decimal-number, and lowercase-suffix grammar, so `SNAP-SQS-001` and `ADP-045b` resolve without renaming. More than one declaring artifact is ambiguous and fails rather than choosing by scan order. Resolution reuses the same ID shapes the validator already recognizes, so `context` consumes the discovery job once parked as `clue locate`.
 
 A milestone is declared by its row in a plan's milestone table, where the ID is the row's first cell. Plans also name other campaigns' milestones in prose — corpus-global numbering says which range a campaign continues from — and treating a prose mention as a declaration would make ordinary milestone IDs look ambiguous and take every artifact that links them down with the ID.
 

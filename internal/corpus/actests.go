@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"sort"
 	"strings"
 )
 
@@ -15,22 +16,23 @@ import (
 // Human needs no code reference because the acceptance brief is its proof;
 // and @draft exempts only that not-yet-proven criterion. Every code reference
 // names a live AC and every test declares exactly one purpose (ADR-005,
-// ADR-006, ADR-032, ADR-033, ADR-036). AC IDs are namespaced by criteria file
-// via optional `ac-prefix`, default `AC` (ADR-009). Go carries purpose, proof type,
+// ADR-006, ADR-032, ADR-033, ADR-036, ADR-037). AC IDs are namespaced by criteria file
+// via optional `ac-prefix`, default `AC` (ADR-009, ADR-037). Go carries purpose, proof type,
 // and direction in the function name; JVM evidence is attributed to one
 // executable by JUnit method tags or a stable method-name fallback (ADR-036);
 // Cucumber feature tags are harvested at scenario level.
 // The judge validates those references but does not execute any test runner.
 var (
-	acTagRe        = regexp.MustCompile(`@([A-Z][A-Z0-9]*)-(\d+)\b`)
-	acPrefixRe     = regexp.MustCompile(`^[A-Z][A-Z0-9]*$`)
-	testFuncRe     = regexp.MustCompile(`(?m)^func (Test\w*)\s*\(`)
-	fixedPurposeRe = regexp.MustCompile(`^Test(Unit|Sanity|Arch)(_\w*)?$`)
-	acNameRe       = regexp.MustCompile(`^Test([A-Z][A-Z0-9]*?)(\d+)(_\w*)?$`)
-	classifiedGoRe = regexp.MustCompile(`^Test([A-Z][A-Z0-9]*?)(\d+)_(Unit|Integration|E2E|Performance)(Positive|Negative)(_\w*)?$`)
-	jvmACRe        = regexp.MustCompile(`^([A-Z][A-Z0-9]*)-(\d+)$`)
-	testTypeRe     = regexp.MustCompile(`^\s*Test-type:\s*(Unit|Integration|E2E|Performance|Human)(\s+\(single-direction\))?\s*$`)
-	featureTagRe   = regexp.MustCompile(`@([A-Za-z][A-Za-z0-9-]*)`)
+	acPrefixRe           = regexp.MustCompile(`^[A-Z][A-Z0-9]*(-[A-Z][A-Z0-9]*)*$`)
+	acIDRe               = regexp.MustCompile(`^([A-Z][A-Z0-9]*(-[A-Z][A-Z0-9]*)*)-([0-9]+)([a-z]*)$`)
+	acCandidateTagRe     = regexp.MustCompile(`@([A-Za-z][A-Za-z0-9_-]*-[A-Za-z0-9_-]*[0-9][A-Za-z0-9_-]*)`)
+	acCarrierCandidateRe = regexp.MustCompile(`^[A-Za-z][A-Za-z0-9_-]*[-_][A-Za-z0-9_-]*[0-9][A-Za-z0-9_-]*$`)
+	testFuncRe           = regexp.MustCompile(`(?m)^func (Test\w*)\s*\(`)
+	fixedPurposeRe       = regexp.MustCompile(`^Test(Unit|Sanity|Arch)(_\w*)?$`)
+	classifiedGoRe       = regexp.MustCompile(`^Test(.+?)_(Unit|Integration|E2E|Performance)(Positive|Negative)(_\w*)?$`)
+	testTypeRe           = regexp.MustCompile(`^\s*Test-type:\s*(Unit|Integration|E2E|Performance|Human)(\s+\(single-direction\))?\s*$`)
+	featureTagRe         = regexp.MustCompile(`@([A-Za-z][A-Za-z0-9_-]*)`)
+	goOrdinalRe          = regexp.MustCompile(`^[0-9]+[a-z]*$`)
 )
 
 type acDecl struct {
@@ -52,6 +54,7 @@ func harvestACs(c *Corpus) (declared map[string]acDecl, classified map[string]ma
 	// The default namespace is always known, so an undeclared AC-xxx
 	// reference fails as unknown, not as purpose-less.
 	prefixes := map[string]bool{"AC": true}
+	normalizedPrefixes := map[string]string{normalizeACPrefix("AC"): "AC"}
 	for _, a := range c.Artifacts {
 		if a.Type != "criteria" {
 			continue
@@ -60,10 +63,15 @@ func harvestACs(c *Corpus) (declared map[string]acDecl, classified map[string]ma
 		if v, present := a.Fields["ac-prefix"]; present {
 			s, _ := v.(string)
 			if !acPrefixRe.MatchString(s) {
-				issues = append(issues, Issue{a.Path, "ac-prefix must be uppercase letters/digits starting with a letter (ADR-009)"})
+				issues = append(issues, Issue{a.Path, "ac-prefix must be uppercase alphanumeric segments joined by single hyphens, starting with a letter (ADR-037)"})
 				continue
 			}
 			prefix = s
+		}
+		if previous, exists := normalizedPrefixes[normalizeACPrefix(prefix)]; exists && previous != prefix {
+			issues = append(issues, Issue{a.Path, "ac-prefix " + prefix + " collides with " + previous + " after carrier normalization (ADR-037)"})
+		} else {
+			normalizedPrefixes[normalizeACPrefix(prefix)] = prefix
 		}
 		prefixes[prefix] = true
 		// Tag lines are read per line: `@AC-012 @retired` on one line is
@@ -72,9 +80,14 @@ func harvestACs(c *Corpus) (declared map[string]acDecl, classified map[string]ma
 		for i, line := range lines {
 			retired := strings.Contains(line, "@retired")
 			draft := strings.Contains(line, "@draft")
-			for _, m := range acTagRe.FindAllStringSubmatch(line, -1) {
-				ac := m[1] + "-" + m[2]
-				if m[1] != prefix {
+			for _, m := range acCandidateTagRe.FindAllStringSubmatch(line, -1) {
+				ac := m[1]
+				acPrefix, _, _, valid := parseACID(ac)
+				if !valid {
+					issues = append(issues, Issue{a.Path, "tag @" + ac + " is not a canonical acceptance-criterion ID (ADR-037: use <PREFIX>-<digits><lowercase-suffix>)"})
+					continue
+				}
+				if acPrefix != prefix {
 					issues = append(issues, Issue{a.Path, "tag @" + ac + " is outside this file's namespace " + prefix + " (ADR-009: fix the tag or move the AC to its capability)"})
 					continue
 				}
@@ -144,16 +157,22 @@ func harvestACs(c *Corpus) (declared map[string]acDecl, classified map[string]ma
 				if fixedPurposeRe.MatchString(name) {
 					continue // Unit/Sanity/Arch need no AC
 				}
-				if cm := classifiedGoRe.FindStringSubmatch(name); cm != nil && prefixes[cm[1]] {
-					record(relSlash, "test "+name, cm[1]+"-"+cm[2], cm[3], strings.ToLower(cm[4]))
+				if ac, typ, direction, ambiguous, matched := parseGoClassifiedName(name, prefixes); matched {
+					record(relSlash, "test "+name, ac, typ, direction)
+					continue
+				} else if ambiguous {
+					issues = append(issues, Issue{relSlash, "test " + name + " has an ambiguous normalized criterion prefix (ADR-037)"})
 					continue
 				}
-				am := acNameRe.FindStringSubmatch(name)
-				if am == nil || !prefixes[am[1]] {
-					issues = append(issues, Issue{relSlash, "test " + name + " declares no purpose (ADR-006: prefix <ACPREFIX><digits>, Unit, Sanity or Arch)"})
+				if ac, ambiguous, matched := parseGoReference(name, prefixes); matched {
+					record(relSlash, "test "+name, ac, "", "")
 					continue
+				} else if ambiguous {
+					issues = append(issues, Issue{relSlash, "test " + name + " has an ambiguous normalized criterion prefix (ADR-037)"})
+					continue
+				} else {
+					issues = append(issues, Issue{relSlash, "test " + name + " declares no purpose (ADR-006: normalized criterion prefix plus digits, Unit, Sanity or Arch)"})
 				}
-				record(relSlash, "test "+name, am[1]+"-"+am[2], "", "")
 			}
 			return nil
 		}
@@ -189,22 +208,29 @@ func harvestACs(c *Corpus) (declared map[string]acDecl, classified map[string]ma
 					}
 				}
 				for _, tag := range tags {
-					am := jvmACRe.FindStringSubmatch(tag[1])
-					if am == nil || !prefixes[am[1]] {
+					ac, ok := normalizeCarrierACID(tag[1])
+					if !ok {
+						if acCarrierCandidateRe.MatchString(tag[1]) {
+							issues = append(issues, Issue{relSlash, "Cucumber tag " + tag[0] + " is not a supported canonical acceptance-criterion ID (ADR-037)"})
+						}
+						continue
+					}
+					acPrefix, _, _, valid := parseACID(ac)
+					if !valid || !prefixes[acPrefix] {
 						continue
 					}
 					if len(types) > 1 || len(directions) > 1 {
 						issues = append(issues, Issue{relSlash, "Cucumber tag block for " + tag[1] + " must declare at most one test type and direction (ADR-032)"})
-						record(relSlash, "tag "+tag[0], tag[1], "", "")
+						record(relSlash, "tag "+tag[0], ac, "", "")
 						continue
 					}
 					for typ := range types {
 						for direction := range directions {
-							record(relSlash, "tag "+tag[0], tag[1], typ, direction)
+							record(relSlash, "tag "+tag[0], ac, typ, direction)
 						}
 					}
 					if len(types) == 0 || len(directions) == 0 {
-						record(relSlash, "tag "+tag[0], tag[1], "", "")
+						record(relSlash, "tag "+tag[0], ac, "", "")
 					}
 				}
 			}
@@ -220,6 +246,88 @@ func harvestACs(c *Corpus) (declared map[string]acDecl, classified map[string]ma
 	})
 
 	return declared, classified, tested, issues
+}
+
+func parseACID(id string) (prefix, number, suffix string, ok bool) {
+	match := acIDRe.FindStringSubmatch(id)
+	if match == nil {
+		return "", "", "", false
+	}
+	return match[1], match[3], match[4], true
+}
+
+func normalizeACPrefix(prefix string) string {
+	return strings.ReplaceAll(prefix, "-", "")
+}
+
+func normalizeCarrierACID(raw string) (string, bool) {
+	normalized := strings.ReplaceAll(raw, "_", "-")
+	if _, _, _, ok := parseACID(normalized); !ok {
+		return "", false
+	}
+	return normalized, true
+}
+
+func canonicalACIDsInLine(line string) []string {
+	var ids []string
+	for _, match := range acCandidateTagRe.FindAllStringSubmatch(line, -1) {
+		if _, _, _, ok := parseACID(match[1]); ok {
+			ids = append(ids, match[1])
+		}
+	}
+	return ids
+}
+
+func parseGoClassifiedName(name string, prefixes map[string]bool) (ac, testType, direction string, ambiguous, matched bool) {
+	match := classifiedGoRe.FindStringSubmatch(name)
+	if match == nil {
+		return "", "", "", false, false
+	}
+	ac, ambiguous, matched = parseNormalizedACPart(match[1], prefixes)
+	if matched {
+		return ac, match[2], strings.ToLower(match[3]), false, true
+	}
+	return "", "", "", ambiguous, false
+}
+
+func parseGoReference(name string, prefixes map[string]bool) (ac string, ambiguous, matched bool) {
+	if !strings.HasPrefix(name, "Test") {
+		return "", false, false
+	}
+	part := strings.TrimPrefix(name, "Test")
+	if separator := strings.IndexByte(part, '_'); separator >= 0 {
+		part = part[:separator]
+	}
+	return parseNormalizedACPart(part, prefixes)
+}
+
+func parseNormalizedACPart(part string, prefixes map[string]bool) (ac string, ambiguous, matched bool) {
+	if part == "" {
+		return "", false, false
+	}
+	var candidates []string
+	for prefix := range prefixes {
+		normalizedPrefix := normalizeACPrefix(prefix)
+		if !strings.HasPrefix(part, normalizedPrefix) {
+			continue
+		}
+		ordinal := part[len(normalizedPrefix):]
+		if !goOrdinalRe.MatchString(ordinal) {
+			continue
+		}
+		candidate := prefix + "-" + ordinal
+		if _, _, _, ok := parseACID(candidate); ok {
+			candidates = append(candidates, candidate)
+		}
+	}
+	sort.Strings(candidates)
+	if len(candidates) == 1 {
+		return candidates[0], false, true
+	}
+	if len(candidates) > 1 {
+		return "", true, false
+	}
+	return "", false, false
 }
 
 func checkACTests(c *Corpus) []Issue {

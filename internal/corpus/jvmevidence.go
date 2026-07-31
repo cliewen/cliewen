@@ -14,7 +14,7 @@ var (
 	jvmClassRe          = regexp.MustCompile(`\b(?:class|interface|enum|object|record)\s+[A-Za-z_$][A-Za-z0-9_$]*`)
 	jvmKotlinFunRe      = regexp.MustCompile(`\bfun\s+(?:` + "`([^`]+)`" + `|([A-Za-z_$][A-Za-z0-9_$]*))\s*\(`)
 	jvmJavaMethodRe     = regexp.MustCompile(`(?:^|\s)(?:(?:public|protected|private|static|final|synchronized|abstract|native|strictfp|default)\s+)*(?:<[^>{};]+>\s+)?(void|[A-Za-z_$][A-Za-z0-9_$]*(?:\.[A-Za-z_$][A-Za-z0-9_$]*)*)(?:\s*<[^;{}()]+>)?(?:\s*\[\])?\s+([A-Za-z_$][A-Za-z0-9_$]*)\s*\([^;{}]*\)\s*(?:throws\s+[^{=]+)?\s*(?:\{|=)`)
-	jvmNamedRe          = regexp.MustCompile(`^test([A-Z][A-Z0-9]*?)(\d+)_(Unit|Integration|E2E|Performance)(Positive|Negative)(?:_[A-Za-z0-9_$]+)+$`)
+	jvmNamedRe          = regexp.MustCompile(`^test([A-Za-z0-9$]+)_(Unit|Integration|E2E|Performance)(Positive|Negative)(?:_[A-Za-z0-9_$]+)+$`)
 )
 
 type jvmEvidence struct {
@@ -121,8 +121,22 @@ func parseJvmAnnotations(line string) jvmAnnotationBlock {
 func classifyJvmExecutable(name string, block jvmAnnotationBlock, prefixes map[string]bool, path string, lineNumber int) ([]jvmEvidence, []Issue) {
 	subject := "JVM executable " + name
 	tagACs, tagTypes, tagDirections := classifyJvmTags(block.tags, prefixes)
-	nameEvidence, named := namedJvmEvidence(name, subject, prefixes)
+	nameEvidence, named, malformedName := namedJvmEvidence(name, subject, prefixes)
 	var issues []Issue
+	for _, tag := range block.tags {
+		if acCarrierCandidateRe.MatchString(tag) {
+			if _, ok := normalizeCarrierACID(tag); !ok {
+				issues = append(issues, Issue{path, subject + " carries malformed criterion tag \"" + tag + "\" and receives no classified credit (ADR-037)"})
+			}
+		}
+	}
+	if len(issues) > 0 {
+		return unclassifiedJvmEvidence(subject, tagACs), issues
+	}
+	if malformedName {
+		issues = append(issues, Issue{path, subject + " carries a malformed or ambiguous normalized criterion prefix and receives no classified credit (ADR-037)"})
+		return unclassifiedJvmEvidence(subject, tagACs), issues
+	}
 
 	if block.unsupportedTag {
 		issues = append(issues, Issue{path, subject + " uses unsupported JVM @Tag syntax near line " + strconv.Itoa(lineNumber) + " and receives no classified credit (ADR-036)"})
@@ -178,9 +192,11 @@ func classifyJvmTags(tags []string, prefixes map[string]bool) (acs, testTypes, d
 		case "positive", "negative":
 			directionSet[strings.ToLower(tag)] = true
 		default:
-			norm := strings.ReplaceAll(tag, "_", "-")
-			if match := jvmACRe.FindStringSubmatch(norm); match != nil && prefixes[match[1]] {
-				acSet[norm] = true
+			if norm, ok := normalizeCarrierACID(tag); ok {
+				prefix, _, _, _ := parseACID(norm)
+				if prefixes[prefix] {
+					acSet[norm] = true
+				}
 			}
 		}
 	}
@@ -196,17 +212,26 @@ func classifyJvmTags(tags []string, prefixes map[string]bool) (acs, testTypes, d
 	return acs, testTypes, directions
 }
 
-func namedJvmEvidence(name, subject string, prefixes map[string]bool) (jvmEvidence, bool) {
+func namedJvmEvidence(name, subject string, prefixes map[string]bool) (jvmEvidence, bool, bool) {
 	match := jvmNamedRe.FindStringSubmatch(name)
-	if match == nil || !prefixes[match[1]] {
-		return jvmEvidence{}, false
+	if match == nil {
+		return jvmEvidence{}, false, false
+	}
+	ac, _, matched := parseNormalizedACPart(match[1], prefixes)
+	if !matched {
+		for prefix := range prefixes {
+			if strings.HasPrefix(match[1], normalizeACPrefix(prefix)) {
+				return jvmEvidence{}, false, true
+			}
+		}
+		return jvmEvidence{}, false, false
 	}
 	return jvmEvidence{
 		subject:   subject,
-		ac:        match[1] + "-" + match[2],
-		testType:  match[3],
-		direction: strings.ToLower(match[4]),
-	}, true
+		ac:        ac,
+		testType:  match[2],
+		direction: strings.ToLower(match[3]),
+	}, true, false
 }
 
 func unclassifiedJvmEvidence(subject string, acs []string) []jvmEvidence {

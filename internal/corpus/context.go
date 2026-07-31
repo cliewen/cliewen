@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"regexp"
 	"sort"
+	"strings"
 )
 
 // milestoneRowRe matches a milestone declared in a plan's milestone table:
@@ -83,8 +84,10 @@ func contextOwners(c *Corpus) contextIndex {
 				declare(row[1], artifact)
 			}
 		case "criteria":
-			for _, tag := range acTagRe.FindAllStringSubmatch(artifact.Body, -1) {
-				declare(tag[1]+"-"+tag[2], artifact)
+			for _, line := range strings.Split(artifact.Body, "\n") {
+				for _, id := range canonicalACIDsInLine(line) {
+					declare(id, artifact)
+				}
 			}
 		}
 	}

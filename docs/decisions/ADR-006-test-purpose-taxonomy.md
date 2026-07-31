@@ -25,7 +25,7 @@ Not every test verifies an acceptance criterion: coverage backstops, sanity chec
 | `Sanity` | Invariants of the environment or the repo itself (e.g. "this repo's own corpus validates") |
 | `Arch` | Structural/architectural checks (dependency direction, layering) |
 
-Carried per ADR-005's mechanics: a framework tag where tags exist (`@Tag("AC-004")`, `@Tag("unit")`); in Go, the name prefix — `TestAC004_…`, `TestUnit_…`, `TestSanity_…`, `TestArch_…`. A test matching no purpose fails `clue validate` (AC-011). This also tightens the AC reference to a **prefix**: `TestUnit_HandlesAC004Edge` is a unit test that mentions an AC, not an AC test.
+Carried per ADR-005's mechanics: a framework tag where tags exist (`@Tag("AC-004")`, `@Tag("SNAP-SQS-001")`, `@Tag("unit")`); in Go, the normalized name prefix — `TestAC004_…`, `TestSNAPSQS001_…`, `TestUnit_…`, `TestSanity_…`, `TestArch_…`. A test matching no purpose fails `clue validate` (AC-011). This also tightens the AC reference to a **prefix**: `TestUnit_HandlesAC004Edge` is a unit test that mentions an AC, not an AC test. The canonical criterion grammar permits segmented prefixes and lowercase letter suffixes; carrier-specific underscore tags and hyphen-free named prefixes are normalization aliases, not new identities.
 
 **Carrier:** the purpose check in `clue`'s per-language harvesters (machine), plus the taxonomy table in the `clue-delta` skill (agent).
 
