@@ -56,7 +56,7 @@ Several agents may collaborate without serializing everybody else. Separate auth
 
 ## 6. Open the review gate
 
-The pull request is an authorization and protected-integration gate, not a demand for duplicate human code review. A solo developer may already have accepted the local candidate; the PR still prevents the agent that prepared it from accepting its own work. The agent may publish the branch, but it never merges the pull request or pushes to `main`. The human-controlled merge is the acceptance act.
+The pull request is an authorization and protected-integration gate, not a demand for duplicate human code review. A solo developer may already have accepted the local candidate; the PR still prevents the agent that prepared it from accepting its own work. The agent may publish the branch, but it never merges the pull request or pushes to `main`. For a full change, the human-controlled merge commit is the acceptance act; configure the forge to disable squash and rebase-and-merge so the original proposal, implementation, and digest commits remain reachable from `main`. A local rebase before first publication is allowed, but it is not the acceptance mode.
 
 For a full change, the PR starts with an acceptance brief. It asks whether the plan item is still wanted, puts the added or changed criteria and their scenarios in front of the human, and names what merge binds. The review loop adds an advisory verdict for each changed criterion — whether its referenced tests verify the scenario, something adjacent, or leave it undetermined. That is evidence for human judgment, not a semantic claim by `clue validate`: a green build and a fluent agent do not establish that the outcome is right.
 

@@ -18,6 +18,6 @@ Agent-written code outpaces human ability to keep documentation, decisions and a
 
 ## Success looks like
 
-- `git log docs/` in any Cliewen repo is a complete provenance archive.
+- Reachable Git history in any Cliewen repo is a complete provenance archive for a full change, with `git log docs/` exposing the durable corpus history.
 - A build fails when an active machine-proven acceptance criterion lacks its required test reference or a test references no live criterion; Human-class proof remains explicit in the acceptance brief rather than being disguised as code.
 - A new user reaches a green `clue validate` in under 30 minutes ([CAP-001](../capabilities/CAP-001-onboarding/README.md)).

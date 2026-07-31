@@ -13,7 +13,7 @@ Cliewen is organized like a kernel: a small core whose meaning is protected, sur
 ## The three core elements
 
 1. **The verifiable thread.** Goal → plan → change → capability → acceptance criterion → acceptance evidence: every durable claim about the system traces to its declared proof. Machine-proven criteria use supported, classified executable evidence; a genuine Human-class criterion uses the pull request acceptance brief as its evidence carrier. `clue validate` judges declarations and references but does not execute tests or replace the human judgment. The thread is what makes the corpus a system-of-record rather than documentation.
-2. **The human merge boundary.** An agent never merges its own change; the human merge is the act of acceptance ([C-012](../constraints/C-012-agents-never-merge-own-changes.md)). This boundary is what lets agents do the work without owning the truth.
+2. **The human merge boundary.** An agent never merges its own change; for a full Cliewen change, the human-controlled merge commit is the act of acceptance under [PDR-021](../decisions/PDR-021-supported-merge-commit-history.md) and [C-012](../constraints/C-012-agents-never-merge-own-changes.md). This boundary is what lets agents do the work without owning the truth.
 3. **The deterministic judge.** `clue validate` is the machine check of corpus form — same binary locally and in CI, enforced as a wall by branch protection. The judge is what makes "the corpus is well-formed" a fact rather than an opinion.
 
 Remove any one element and the other two stop meaning anything: evidence without a thread is trivia, a thread without the merge boundary is unaccepted, and both without the judge are unenforced.

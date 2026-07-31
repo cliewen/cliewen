@@ -10,6 +10,8 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 
 ### Changed
 
+- **Full Cliewen changes now have one supported pull-request merge shape.** Configure the protected default branch to use a human-controlled merge commit and disable squash and rebase-and-merge, so the proposal, implementation, digest, and durable corpus history remain reachable in Git instead of depending on the forge's pull-request record. The setup guide and disposable branch-protection probe verify the same boundary before adoption.
+
 - **Brownfield criteria keep their stable identities during migration.** `clue validate` now accepts canonical IDs such as `SNAP-SQS-001` and `ADP-045b`, preserves them through links, coverage, retirement, and Go/JVM/Cucumber evidence, and rejects ambiguous or malformed variants instead of forcing a renumbering. The extraction guidance explains the same deterministic preservation and minting rule, so existing test tags can continue to resolve.
 
 ## [0.10.0] - 2026-07-30

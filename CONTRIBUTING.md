@@ -60,6 +60,6 @@ Total Go statement coverage must remain at least 80%. `clue-verify` then automat
 
 For a plain change, complete only the pull-request summary and relevant verification, then open the pull request after the applicable checks pass. For a Cliewen change, also complete the template's proposal, traceability, and Cliewen checklist, and open the pull request only after the applicable checks and automatic agentic review pass. Keep review fixes on the same branch and pull request; for a Cliewen change, each substantive fix invalidates the earlier clean pass.
 
-The branch and pull request are a proposal; merge is acceptance. A human maintainer merges accepted changes. Agents must never merge their own pull requests, create local merge commits into `main`, or push directly to `main`.
+The branch and pull request are a proposal; a human maintainer performs the human-controlled merge commit that accepts a full Cliewen change. Configure the protected default branch to allow merge commits and disable squash and rebase-and-merge, so the proposal, implementation, digest, and durable corpus history remain reachable from `main`. Agents must never merge their own pull requests, create local merge commits into `main`, or push directly to `main`.
 
 Cliewen does not currently require a Contributor License Agreement or Developer Certificate of Origin sign-off.

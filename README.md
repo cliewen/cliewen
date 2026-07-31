@@ -6,7 +6,7 @@
 
 The name comes from Old English *cliewen*, “ball of thread” — the word that became *clue*. The enforced thread is **goal → capability → acceptance criterion → acceptance evidence**: classified executable references for machine-proven criteria or the pull request acceptance brief for genuine Human proof.
 
-SDD frameworks document the *change*; Cliewen documents the *system*. Changes are transient deltas digested into the permanent corpus at merge — `git log docs/` is the provenance archive.
+SDD frameworks document the *change*; Cliewen documents the *system*. Changes are transient deltas digested into the permanent corpus at merge — full Cliewen changes use a human-controlled merge commit so their proposal, implementation, digest, and durable corpus history remain reachable from `main`; reachable Git history is the provenance archive.
 
 ## Install
 
@@ -63,7 +63,7 @@ clue validate
 
 **2. Make your first Cliewen change.** The generated `AGENTS.md` first keeps unrelated editorial work out of Cliewen: a plain change uses an ordinary branch, relevant checks, a PR, and human merge. Work whose meaning belongs in Cliewen follows the change loop in [`clue-delta`](.agents/skills/clue-delta/skill.md): use `clue context <id>` to load the relevant outgoing-link slice, branch, propose in `/changes/CH-001-your-slug/`, implement against the corpus, digest into `docs/`, then run the pre-merge checks and automatic agentic review in [`clue-verify`](.agents/skills/clue-verify/skill.md) before opening a PR. Your coding agent loads broader corpus context only when the task discovers that it needs it.
 
-**3. [Arm the wall](https://cliewen.dev/ci-wall).** The generated workflow runs as the stable required check. Only Markdown outside protected corpus, policy, configuration, and methodology paths is eligible to pass through without Cliewen; every non-Markdown, protected, mixed, empty, or unreadable diff fails closed to the corpus wall. Until you vendor the pinned release binary it expects, those Cliewen changes pass with a visible warning. Once armed, the workflow verifies the pinned binary and runs `clue validate --forbid-changes`; the guide shows how to require that check and prove a failing pull request is blocked.
+**3. [Arm the wall](https://cliewen.dev/ci-wall).** The generated workflow runs as the stable required check. Only Markdown outside protected corpus, policy, configuration, and methodology paths is eligible to pass through without Cliewen; every non-Markdown, protected, mixed, empty, or unreadable diff fails closed to the corpus wall. Until you vendor the pinned release binary it expects, those Cliewen changes pass with a visible warning. Once armed, the workflow verifies the pinned binary and runs `clue validate --forbid-changes`; configure the protected branch for merge commits only, then use the guide's probe to prove both the history boundary and the failing pull-request block.
 
 Adopting a repo with an existing spec corpus instead? That is the [`clue-extract`](.agents/skills/clue-extract/skill.md) skill — a one-time transform into `docs/`, run as the repo's first change loop. Its proposed change starts with a report-only rehearsal; explicit human direction is required before it mutates the repository.
 
