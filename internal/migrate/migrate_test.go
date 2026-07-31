@@ -20,9 +20,22 @@ func TestAC064_UnitPositive_MigrationIsPreviewableIdempotentAndCoordinated(t *te
 	if err != nil {
 		t.Fatal(err)
 	}
+	wantCarriers, err := scaffold.ManagedCarrierFiles()
+	if err != nil {
+		t.Fatal(err)
+	}
+	wantWorkflow := string(wantCarriers[".github/workflows/clue.yml"])
+	wantUses := callerUsesRe.FindStringSubmatch(wantWorkflow)
+	if len(wantUses) == 0 {
+		t.Fatal("embedded caller has no upstream reference")
+	}
+	version, err := scaffold.PairVersion()
+	if err != nil {
+		t.Fatal(err)
+	}
 	workflowText := string(workflow)
-	workflowText = strings.Replace(workflowText, "@v0.10.0", "@v0.9.0", 1)
-	workflowText = strings.Replace(workflowText, "clue-version: 0.10.0", "clue-version: 0.9.0", 1)
+	workflowText = strings.Replace(workflowText, "@"+wantUses[4], "@v0.9.0", 1)
+	workflowText = strings.Replace(workflowText, "clue-version: "+version, "clue-version: 0.9.0", 1)
 	workflowText = strings.Replace(workflowText, `runner: '["ubuntu-latest"]'`, `runner: '["self-hosted"]'`, 1)
 	if err := os.WriteFile(workflowPath, []byte(workflowText), 0o644); err != nil {
 		t.Fatal(err)
@@ -77,7 +90,7 @@ func TestAC064_UnitPositive_MigrationIsPreviewableIdempotentAndCoordinated(t *te
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !bytes.Contains(workflowAfter, []byte(`runner: '["self-hosted"]'`)) || !bytes.Contains(workflowAfter, []byte("clue-version: 0.10.0")) || !bytes.Contains(workflowAfter, []byte("@v0.10.0")) {
+	if !bytes.Contains(workflowAfter, []byte(`runner: '["self-hosted"]'`)) || !bytes.Contains(workflowAfter, []byte("clue-version: "+version)) || !bytes.Contains(workflowAfter, []byte("@"+wantUses[4])) {
 		t.Fatalf("migration did not preserve caller choices and update its owned fields:\n%s", workflowAfter)
 	}
 	mirrorAfter, err := os.ReadFile(mirrorPath)
