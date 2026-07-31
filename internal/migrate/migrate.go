@@ -450,8 +450,7 @@ func planManagedFile(root, rel string, want []byte, result *MigrationPlan) {
 	if bytes.Equal(got, want) {
 		return
 	}
-	legacyRel := strings.TrimPrefix(rel, ".agents/skills/")
-	legacyRel = strings.TrimPrefix(legacyRel, ".claude/skills/")
+	legacyRel := legacyCarrierRel(rel)
 	if digestMatchesLegacy(legacyRel, got) {
 		oldVersion := legacyVersion(legacyRel, got)
 		result.Changes = append(result.Changes, Change{Path: rel, Migration: MigrationManagedCarriers, Description: fmt.Sprintf("replace generated carrier %s with release %s content", legacyRel, oldVersion), Existed: true, Before: got, After: want})
@@ -460,7 +459,20 @@ func planManagedFile(root, rel string, want []byte, result *MigrationPlan) {
 	result.Findings = append(result.Findings, Finding{Path: rel, Migration: MigrationManagedCarriers, Message: "managed carrier differs from every supported generated release; local edits are never overwritten"})
 }
 
+func legacyCarrierRel(rel string) string {
+	legacyRel := strings.TrimPrefix(rel, ".agents/skills/")
+	legacyRel = strings.TrimPrefix(legacyRel, ".claude/skills/")
+	if strings.HasSuffix(legacyRel, "/SKILL.md") {
+		legacyRel = strings.TrimSuffix(legacyRel, "/SKILL.md") + "/skill.md"
+	}
+	return legacyRel
+}
+
 func planCaller(root, rel string, want []byte, target string, result *MigrationPlan) {
+	if hasLinkBoundary(root, rel) {
+		result.Findings = append(result.Findings, Finding{Path: rel, Migration: MigrationManagedCarriers, Message: "thin CI caller is behind a symlink; resolve the repository-owned path before migrating"})
+		return
+	}
 	full := filepath.Join(root, filepath.FromSlash(rel))
 	got, err := os.ReadFile(full)
 	if os.IsNotExist(err) {

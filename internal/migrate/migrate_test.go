@@ -27,6 +27,14 @@ func TestAC064_UnitPositive_MigrationIsPreviewableIdempotentAndCoordinated(t *te
 	if err := os.WriteFile(workflowPath, []byte(workflowText), 0o644); err != nil {
 		t.Fatal(err)
 	}
+	oldSkill, err := os.ReadFile(filepath.Join(root, ".agents", "skills", "clue-analysis", "skill.md"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	mirrorPath := filepath.Join(root, ".claude", "skills", "clue-analysis", "SKILL.md")
+	if err := os.WriteFile(mirrorPath, oldSkill, 0o644); err != nil {
+		t.Fatal(err)
+	}
 
 	preview, err := Plan(root, Options{ReversalCost: "low"})
 	if err != nil {
@@ -37,6 +45,15 @@ func TestAC064_UnitPositive_MigrationIsPreviewableIdempotentAndCoordinated(t *te
 	}
 	if len(preview.Changes) < 2 {
 		t.Fatalf("preview planned %d changes, want corpus and caller changes", len(preview.Changes))
+	}
+	var mirrorPlanned bool
+	for _, change := range preview.Changes {
+		if change.Path == ".claude/skills/clue-analysis/SKILL.md" {
+			mirrorPlanned = true
+		}
+	}
+	if !mirrorPlanned {
+		t.Fatal("recognized old Claude mirror was not included in the migration plan")
 	}
 	docBefore, err := os.ReadFile(filepath.Join(root, "docs", "analysis", "AN-001.md"))
 	if err != nil {
@@ -62,6 +79,13 @@ func TestAC064_UnitPositive_MigrationIsPreviewableIdempotentAndCoordinated(t *te
 	}
 	if !bytes.Contains(workflowAfter, []byte(`runner: '["self-hosted"]'`)) || !bytes.Contains(workflowAfter, []byte("clue-version: 0.10.0")) || !bytes.Contains(workflowAfter, []byte("@v0.10.0")) {
 		t.Fatalf("migration did not preserve caller choices and update its owned fields:\n%s", workflowAfter)
+	}
+	mirrorAfter, err := os.ReadFile(mirrorPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if bytes.Equal(mirrorAfter, oldSkill) || !bytes.Contains(mirrorAfter, []byte("version: 0.10.0")) {
+		t.Fatal("migration did not refresh the recognized Claude mirror")
 	}
 
 	repeat, err := Plan(root, Options{ReversalCost: "low"})
