@@ -114,8 +114,26 @@ func sourceCheckoutRevision() (string, bool) {
 	if !ok {
 		return "", false
 	}
-	root := filepath.Dir(filepath.Dir(filepath.Dir(sourceFile)))
+	return checkoutRevision(filepath.Dir(filepath.Dir(filepath.Dir(sourceFile))))
+}
+
+// checkoutRevision reports root's own HEAD, and only root's own. Every step
+// is a reason to fall back to the release tag rather than emit a commit no
+// adopter could resolve.
+func checkoutRevision(root string) (string, bool) {
 	if !isCliewenCheckout(root) {
+		return "", false
+	}
+	// `git -C` walks up to the nearest enclosing repository, so a tree that
+	// carries no repository of its own answers with an ancestor's HEAD. Go
+	// module zips include `.github/`, so an unpacked module cache entry looks
+	// like this project while belonging to whatever repository happens to
+	// contain GOMODCACHE — a home directory kept in git, most often. That
+	// ancestor's HEAD is clean (this tree is untracked there) and 40 hex
+	// digits long, so nothing below would reject it. Requiring the toplevel
+	// to be root itself is what confines the answer to this checkout.
+	top, err := exec.Command("git", "-C", root, "rev-parse", "--show-toplevel").Output()
+	if err != nil || !sameDirectory(root, strings.TrimSpace(string(top))) {
 		return "", false
 	}
 	output, err := exec.Command("git", "-C", root, "rev-parse", "HEAD").Output()
@@ -132,6 +150,21 @@ func sourceCheckoutRevision() (string, bool) {
 		return "", false
 	}
 	return revision, true
+}
+
+// sameDirectory compares two paths by identity rather than spelling: git
+// answers with forward slashes and a fully resolved path, while root arrives
+// as the compiler recorded it.
+func sameDirectory(a, b string) bool {
+	aInfo, err := os.Stat(filepath.FromSlash(a))
+	if err != nil {
+		return false
+	}
+	bInfo, err := os.Stat(filepath.FromSlash(b))
+	if err != nil {
+		return false
+	}
+	return os.SameFile(aInfo, bInfo)
 }
 
 // isCliewenCheckout reports whether root is this project's own source tree.

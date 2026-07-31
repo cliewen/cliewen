@@ -87,15 +87,40 @@ jobs:
           install_dir="${CLUE_INSTALL_DIRECTORY:-${RUNNER_TEMP}/clue}"
           mkdir -p "$install_dir"
           binary="clue-${CLUE_VERSION}-linux-amd64"
+
+          # Verify exactly the binary about to be executed. `sha256sum -c
+          # --ignore-missing` is the wrong tool here: it checks the listed
+          # files that are present and says nothing about a file that is
+          # present but unlisted, so a binary SHA256SUMS never mentioned
+          # would run unverified whenever any other listed asset happens to
+          # sit beside it. Selecting the entry by name first turns "not
+          # listed" into a failure and makes the extra archive lines inert
+          # by construction rather than by a flag.
+          verify_one() {
+            dir="$1"
+            file="$2"
+            entry="$(awk -v want="$file" '
+              { name = $2; sub(/^\*/, "", name); if (name == want) { print; found++ } }
+              END { exit(found == 1 ? 0 : 1) }
+            ' "$dir/SHA256SUMS")" || {
+              echo "::error title=Checksum entry missing::$dir/SHA256SUMS does not list exactly one entry for $file — the vendored or downloaded pair does not belong to the same release"
+              exit 1
+            }
+            printf '%s\n' "$entry" | (cd "$dir" && sha256sum -c --strict -)
+          }
+
           case "$CLUE_SOURCE" in
             vendored)
-              (cd .github/tools && sha256sum -c --ignore-missing SHA256SUMS)
+              verify_one .github/tools "$binary"
               cp ".github/tools/$binary" "$install_dir/clue"
               ;;
             release)
-              curl --fail --location --silent --show-error "https://github.com/cliewen/cliewen/releases/download/v${CLUE_VERSION}/${binary}" --output "$install_dir/$binary"
-              curl --fail --location --silent --show-error "https://github.com/cliewen/cliewen/releases/download/v${CLUE_VERSION}/SHA256SUMS" --output "$install_dir/SHA256SUMS"
-              (cd "$install_dir" && sha256sum -c --ignore-missing SHA256SUMS)
+              # --proto '=https' --tlsv1.2 confine both the request and every
+              # redirect --location follows; the release host is not ours to
+              # vouch for beyond the protocol it must stay on.
+              curl --proto '=https' --tlsv1.2 --fail --location --silent --show-error "https://github.com/cliewen/cliewen/releases/download/v${CLUE_VERSION}/${binary}" --output "$install_dir/$binary"
+              curl --proto '=https' --tlsv1.2 --fail --location --silent --show-error "https://github.com/cliewen/cliewen/releases/download/v${CLUE_VERSION}/SHA256SUMS" --output "$install_dir/SHA256SUMS"
+              verify_one "$install_dir" "$binary"
               cp "$install_dir/$binary" "$install_dir/clue"
               ;;
           esac
@@ -109,7 +134,7 @@ jobs:
         if: steps.scope.outputs.cliewen == 'true' && (inputs.clue-source == 'release' || steps.armed.outputs.armed == 'true')
         env:
           CLUE_PATH: ${{ steps.clue.outputs.path }}
-        run: "$CLUE_PATH validate --forbid-changes"
+        run: '"$CLUE_PATH" validate --forbid-changes'
 
       - name: Require a completed acceptance brief
         if: github.event_name == 'pull_request' && steps.scope.outputs.cliewen == 'true'

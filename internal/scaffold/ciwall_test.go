@@ -3,6 +3,7 @@ package scaffold
 import (
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"regexp"
 	"slices"
@@ -45,6 +46,10 @@ var (
 	callerRunStep = regexp.MustCompile(`(?m)^\s*-?\s*run:\s*\S`)
 	callerUses    = regexp.MustCompile(`(?m)^\s*-?\s*uses:\s*(\S+)`)
 )
+
+// A line that runs `--ignore-missing`, as opposed to one describing it: the
+// first non-blank character is not `#`.
+var ignoreMissingCall = regexp.MustCompile(`(?m)^\s*[^#\s].*--ignore-missing`)
 
 func readCIWorkflow(t *testing.T, rel string) (string, ciWorkflow) {
 	t.Helper()
@@ -142,6 +147,21 @@ func assertReusableWorkflow(t *testing.T, raw string, workflow ciWorkflow) error
 	}
 	if strings.Contains(raw, "/usr/local/bin") {
 		return fmt.Errorf("validation unit hardcodes a root-only install path")
+	}
+	// `sha256sum -c --ignore-missing` checks the listed files that are
+	// present and is silent about a present file that is unlisted, so it
+	// cannot establish that the binary about to be executed was verified.
+	// The unit must select the entry by name and treat its absence as a
+	// failure; extra release lines are then inert by construction.
+	// Matched on executable lines only: the unit's own comment explains why
+	// the flag is wrong, and that explanation must not read as the defect.
+	if ignoreMissingCall.MatchString(raw) {
+		return fmt.Errorf("validation unit verifies with --ignore-missing, which admits a binary SHA256SUMS does not list")
+	}
+	for _, fragment := range []string{"verify_one", "sha256sum -c --strict -", "does not list exactly one entry"} {
+		if !strings.Contains(raw, fragment) {
+			return fmt.Errorf("validation unit does not verify the executed binary by name: missing %q", fragment)
+		}
 	}
 	return nil
 }
@@ -392,6 +412,92 @@ func TestUnit_WorkflowReferenceRejectsAForeignCheckout(t *testing.T) {
 
 	if !isCliewenCheckout(filepath.Join("..", "..")) {
 		t.Fatal("this project's own checkout was not recognized")
+	}
+}
+
+// writeCliewenSourceTree lays down the two files that identify this project,
+// which is all a module cache entry or an unpacked source archive carries.
+func writeCliewenSourceTree(t *testing.T, root string) {
+	t.Helper()
+	if err := os.MkdirAll(filepath.Join(root, ".github", "workflows"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(root, ".github", "workflows", "clue-validation.yml"), []byte("name: Cliewen validation\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(root, "go.mod"), []byte("module github.com/cliewen/cliewen\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func gitIn(t *testing.T, root string, args ...string) {
+	t.Helper()
+	cmd := exec.Command("git", append([]string{"-C", root}, args...)...)
+	cmd.Env = append(os.Environ(), "GIT_AUTHOR_NAME=t", "GIT_AUTHOR_EMAIL=t@example.com", "GIT_COMMITTER_NAME=t", "GIT_COMMITTER_EMAIL=t@example.com")
+	if out, err := cmd.CombinedOutput(); err != nil {
+		t.Fatalf("git %v: %v\n%s", args, err, out)
+	}
+}
+
+// Unit: a source tree with no repository of its own must not answer with an
+// enclosing repository's HEAD. `git -C` walks up, and Go module zips carry
+// `.github/`, so an unpacked module cache entry under a GOMODCACHE that sits
+// inside any git repository — a home directory kept in git — looks like this
+// project at a clean 40-hex commit that no adopter can resolve. That is the
+// unresolvable reference ADR-038 prefers the release tag over.
+func TestUnit_WorkflowReferenceRejectsAnEnclosingRepository(t *testing.T) {
+	if _, err := exec.LookPath("git"); err != nil {
+		t.Skip("git is not installed")
+	}
+
+	outer := t.TempDir()
+	gitIn(t, outer, "init", "--quiet", ".")
+	if err := os.WriteFile(filepath.Join(outer, "unrelated.txt"), []byte("not this project\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	gitIn(t, outer, "add", "unrelated.txt")
+	gitIn(t, outer, "commit", "--quiet", "-m", "unrelated")
+
+	nested := filepath.Join(outer, "pkg", "mod", "github.com", "cliewen", "cliewen@v0.10.0")
+	writeCliewenSourceTree(t, nested)
+
+	// Arm the trap before asserting it does not fire: every guard other than
+	// the toplevel comparison must pass here, or the case proves nothing.
+	if !isCliewenCheckout(nested) {
+		t.Fatal("the fixture is not recognized as this project, so it cannot exercise the enclosing-repository path")
+	}
+	head, err := exec.Command("git", "-C", nested, "rev-parse", "HEAD").Output()
+	if err != nil {
+		t.Fatalf("the fixture has no enclosing repository to be confused with: %v", err)
+	}
+	outerHead := strings.TrimSpace(string(head))
+	if !workflowRefRe.MatchString(outerHead) {
+		t.Fatalf("the enclosing repository's HEAD %q is not the 40-hex shape that would slip through", outerHead)
+	}
+	if err := exec.Command("git", "-C", nested, "diff", "--quiet", "HEAD").Run(); err != nil {
+		t.Fatal("the enclosing repository is dirty, so the clean-tree guard would have caught this case for the wrong reason")
+	}
+
+	if revision, ok := checkoutRevision(nested); ok {
+		if revision == outerHead {
+			t.Fatalf("emitted the enclosing repository's HEAD %s as the upstream workflow reference", revision)
+		}
+		t.Fatalf("a tree with no repository of its own emitted revision %s", revision)
+	}
+
+	// Control: the same tree, once it is a repository in its own right, is
+	// exactly what this function is supposed to recognize.
+	own := t.TempDir()
+	writeCliewenSourceTree(t, own)
+	gitIn(t, own, "init", "--quiet", ".")
+	gitIn(t, own, "add", ".")
+	gitIn(t, own, "commit", "--quiet", "-m", "source")
+	revision, ok := checkoutRevision(own)
+	if !ok {
+		t.Fatal("this project's own clean checkout was rejected")
+	}
+	if !workflowRefRe.MatchString(revision) {
+		t.Fatalf("own checkout reported %q, want a full commit SHA", revision)
 	}
 }
 

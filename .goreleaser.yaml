@@ -63,10 +63,11 @@ archives:
 
 checksum:
   algorithm: sha256
-  # An adopter's wall runs `sha256sum -c --ignore-missing SHA256SUMS`
-  # against a file it vendored under this exact name. Not renameable.
-  # --ignore-missing is why adding the archives above breaks nothing:
-  # the checksum file lists the upload names, extra lines included.
+  # The upstream validation workflow selects this file's entry for the
+  # binary it is about to execute, by that exact upload name, and fails
+  # when there is no such entry. Not renameable. Selecting one entry is
+  # also why adding the archives above breaks nothing: the checksum file
+  # lists every upload name, and the lines it does not select are inert.
   name_template: "SHA256SUMS"
 
 # There is deliberately no `changelog:` block here.

@@ -6,7 +6,12 @@
 #
 # Its check is deliberately NOT named `validate`: the required check on this
 # repository is ci.yml's `validate`, and a second job by that name would make
-# branch protection ambiguous. Keep this one advisory.
+# branch protection ambiguous. Keep this one out of branch protection.
+#
+# "Advisory" means unrequired, not incapable of failing. It runs the real
+# acceptance-brief gate, so a pull request touching either file below without
+# a completed brief turns this check red — correctly, and for the same reason
+# ci.yml would. Read a red smoke run as a finding, not as noise to override.
 #
 # The push/pull_request runs take the vendored source with nothing vendored,
 # which is the unarmed path — checkout, scope detection, source validation,
