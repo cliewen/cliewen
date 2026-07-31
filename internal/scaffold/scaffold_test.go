@@ -400,6 +400,22 @@ func TestSanity_ScaffoldedRoutingRequiresExactHostedHandoff(t *testing.T) {
 	}
 }
 
+func TestSanity_ScaffoldedRoutingCarriesMergeHistoryBoundary(t *testing.T) {
+	content, err := os.ReadFile(filepath.Join("templates", "AGENTS.md"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, want := range []string{
+		"Full Cliewen changes use the supported merge-commit mode",
+		"squash and rebase-and-merge are unsupported",
+		"full changes use the supported merge-commit mode",
+	} {
+		if !strings.Contains(string(content), want) {
+			t.Errorf("scaffolded routing is missing merge-history contract %q", want)
+		}
+	}
+}
+
 // The CI template's version pin comes from the embedded skills' stamp;
 // no placeholder may survive into the emitted workflow.
 func TestUnit_WorkflowVersionSubstituted(t *testing.T) {

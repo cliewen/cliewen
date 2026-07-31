@@ -158,3 +158,39 @@ func TestAC041_ChangeLoopCoordinatesOnlyTheSharedPR(t *testing.T) {
 		}
 	}
 }
+
+func TestSanity_FullChangeMergeModeIsExplicitAcrossGuidanceAndProbe(t *testing.T) {
+	requiredByPage := map[string][]string{
+		"operations.md": {"Full-change merge", "merge commit", "squash and merge", "rebase and merge", "unsupported"},
+		"change-loop.md": {"human-controlled merge commit", "disable squash and rebase-and-merge", "local rebase before first publication"},
+		"ci-wall.md": {"Create a merge commit", "Squash and merge", "Rebase and merge", ".allow_merge_commit", ".allow_squash_merge", ".allow_rebase_merge", "not ready for a full Cliewen change"},
+		"getting-started.md": {"protected default branch for human-controlled merge commits only"},
+	}
+	for page, required := range requiredByPage {
+		content, err := os.ReadFile(page)
+		if err != nil {
+			t.Fatal(err)
+		}
+		for _, want := range required {
+			if !strings.Contains(string(content), want) {
+				t.Errorf("%s is missing merge-history contract %q", page, want)
+			}
+		}
+	}
+
+	for _, page := range []string{"operations.md", "change-loop.md", "ci-wall.md", "getting-started.md", "what-is-cliewen.md"} {
+		content, err := os.ReadFile(page)
+		if err != nil {
+			t.Fatal(err)
+		}
+		for _, stale := range []string{
+			"merge, squash, and rebase are equivalent",
+			"the merged pull request itself is the historical record",
+			"all pull-request merge shapes preserve the same archive",
+		} {
+			if strings.Contains(string(content), stale) {
+				t.Errorf("%s still claims equivalent merge archives with %q", page, stale)
+			}
+		}
+	}
+}

@@ -202,7 +202,7 @@ For a criterion whose proof is inherently human, declare `Test-type: Human`; nam
 
 The experiment changed only `cliewen-demo`. Leave that directory, then delete it with your file manager or normal directory-removal command to undo the entire trial. Removing the separately installed `clue` binary is not required.
 
-If the failure made sense and you want to use Cliewen, start again in a new project or read the greenfield and brownfield guide before initializing an existing repository. Before real work lands, arm the CI wall so a broken thread cannot merge.
+If the failure made sense and you want to use Cliewen, start again in a new project or read the greenfield and brownfield guide before initializing an existing repository. Before real work lands, configure the protected default branch for human-controlled merge commits only, arm the CI wall, and run its disposable probe so a broken thread or provenance-losing merge cannot land.
 
 ## Next
 

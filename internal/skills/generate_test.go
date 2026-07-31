@@ -544,6 +544,21 @@ func TestUnit_AgenticReviewLoopConvergesOnCurrentCommit(t *testing.T) {
 	}
 }
 
+func TestSanity_GeneratedSkillsCarryMergeHistoryBoundary(t *testing.T) {
+	for _, file := range mustRender(t) {
+		if file.relativePath != "clue-delta/skill.md" && file.relativePath != "clue-verify/skill.md" && file.relativePath != "clue-extract/skill.md" {
+			continue
+		}
+		content := string(file.content)
+		if !strings.Contains(content, "human accepts the ready pull request with a merge commit") {
+			t.Errorf("%s does not state the supported merge-commit acceptance mode", file.relativePath)
+		}
+		if !strings.Contains(content, "disable squash and rebase-and-merge") {
+			t.Errorf("%s does not reject provenance-losing merge modes", file.relativePath)
+		}
+	}
+}
+
 func mustRenderSkill(t *testing.T, relativePath string) string {
 	t.Helper()
 	for _, file := range mustRender(t) {

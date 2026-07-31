@@ -62,6 +62,8 @@ Push the armed workflow on a branch and let its pull request run once. GitHub ne
 
 Then open **Settings → Rules → Rulesets → New ruleset → New branch ruleset**. GitHub's [ruleset instructions](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/creating-rulesets-for-a-repository) and [branch-rule reference](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/available-rules-for-rulesets) describe the current controls.
 
+Before enabling the ruleset, configure the repository's pull-request merge methods to preserve Cliewen history: allow **Create a merge commit**, and disable **Squash and merge** and **Rebase and merge**. A merge commit keeps the exact proposal, implementation, and digest commits reachable from `main`; the other methods can leave the same final tree while losing the reviewed branch chain.
+
 Configure one active ruleset:
 
 | Setting | Value |
@@ -70,6 +72,7 @@ Configure one active ruleset:
 | Enforcement status | `Active` |
 | Bypass list | Empty |
 | Target branches | Include the default branch |
+| Pull-request merge methods | Allow merge commits; disable squash and rebase-and-merge |
 | Restrict deletions | Enabled |
 | Require a pull request before merging | Enabled; zero required approvals is enough for Cliewen's human-controlled merge boundary |
 | Require conversation resolution before merging | Enabled; known agent-review findings remain blocking until their hosted fixes are reviewed |
@@ -79,7 +82,7 @@ Configure one active ruleset:
 
 An empty bypass list matters. A rule that the normal maintainer or automation can silently bypass is not the merge boundary Cliewen assumes. If another ruleset or an older branch-protection rule also targets `main`, GitHub combines them and applies the most restrictive result.
 
-Rulesets are available for public repositories on GitHub Free, while private repositories need a plan that includes them. If the Rulesets menu is unavailable but classic branch protection is offered, configure the same default-branch requirements there: pull requests only, strict `validate` status check, conversation resolution required, administrators included, and force pushes and deletions disabled. If the hosting plan offers neither enforcement surface, the workflow can report failures and agents can warn about unresolved findings, but neither can block integration.
+Rulesets are available for public repositories on GitHub Free, while private repositories need a plan that includes them. If the Rulesets menu is unavailable but classic branch protection is offered, configure the same default-branch requirements there: pull requests only, strict `validate` status check, conversation resolution required, administrators included, force pushes and deletions disabled, merge commits enabled, and squash and rebase-and-merge disabled. If the hosting plan offers neither enforcement surface, the workflow can report failures and agents can warn about unresolved findings, but neither can block integration.
 
 After saving, inspect the effective default-branch rules:
 
@@ -87,11 +90,19 @@ After saving, inspect the effective default-branch rules:
 gh ruleset check --default --repo OWNER/REPOSITORY
 ```
 
-You should see the pull-request requirement, conversation-resolution requirement, required `validate` check, deletion restriction, and force-push block. Do not remove an existing stronger requirement merely to match this minimum.
+You should see the pull-request requirement, conversation-resolution requirement, required `validate` check, deletion restriction, and force-push block. Verify the repository-level merge methods separately because they are not part of the ruleset output:
+
+```sh
+test "$(gh api repos/OWNER/REPOSITORY --jq '.allow_merge_commit')" = true
+test "$(gh api repos/OWNER/REPOSITORY --jq '.allow_squash_merge')" = false
+test "$(gh api repos/OWNER/REPOSITORY --jq '.allow_rebase_merge')" = false
+```
+
+Do not remove an existing stronger requirement merely to match this minimum. If any merge-method check fails, the repository is not ready for a full Cliewen change.
 
 ## 4. Prove failure blocks merge
 
-Do this once in a disposable branch. The probe creates a valid change workspace, so normal validation stays green while the merge-time command fails only because the workspace has not been digested.
+Do this once in a disposable branch. The probe creates a valid change workspace, so normal validation stays green while the merge-time command fails only because the workspace has not been digested. Run it only after the repository-level merge-method checks above pass; the final pull request must be accepted with a merge commit.
 
 ```sh
 git switch main

@@ -10,12 +10,19 @@ This page is for a repository that has finished the disposable trial and is deci
 | Test evidence | Classified Go test names such as `TestAC001_UnitPositive_…` or normalized `TestSNAPSQS001_UnitPositive_…`; Java and Kotlin executables whose own JUnit method annotations carry `@Tag("AC_001") @Tag("UNIT") @Tag("POSITIVE")` or `@Tag("SNAP_SQS_001")`, or whose stable name is `testAC001_UnitPositive_…` or `testSNAPSQS001_UnitPositive_…`; and Cucumber scenario tags such as `@AC-001 @e2e @positive` or `@SNAP-SQS-001 @unit @positive` |
 | Agent guidance | Five generated Cliewen skills in `.agents/skills/`, mirrored to `.claude/skills/` for Claude Code |
 | GitHub CI | `clue init` writes an unarmed GitHub Actions workflow; you vendor the pinned Linux binary and checksum, then require its `validate` check |
+| Full-change merge | Human-controlled merge commits only; disable squash and rebase-and-merge so the proposal, implementation, digest, and durable corpus commits remain reachable from `main` |
 | Validation | `clue validate` checks the repository-local corpus, generated indexes, skill ownership/version drift, and active-criterion evidence declarations and references; `--forbid-changes` also rejects an undigested `/changes/` workspace |
 | Focused context | `clue context <id>` prints the named artifact and its transitive outgoing-link dependencies; criterion and milestone IDs resolve to their declaring artifact |
 
 Cliewen does not run your tests, does not synchronize tickets or wikis, does not update installed files in the background, and does not validate evidence across repositories. It harvests only the supported Go, JVM, and Cucumber conventions above. On the JVM, all three parts belong to the same executable; class tags and metadata split across methods do not count, and ambiguous or unsupported source syntax is diagnosed instead of guessed. A different framework needs the stable JVM named-executable form or another supported profile before its references can satisfy `clue validate`; do not treat an arbitrary comment or tag as equivalent evidence.
 
 A new or revised machine-proven criterion declares `Test-type: Unit`, `Integration`, `E2E`, or `Performance`, and the validator requires supported evidence classified with that type in positive and negative directions; `(single-direction)` is the explicit narrow exception. An unannotated legacy criterion retains its one-supported-reference rule. `Test-type: Human` uses the pull request acceptance brief rather than code evidence, and `@draft` exempts only the individual criterion that is not yet proven.
+
+## Preserve the full-change archive
+
+For a full Cliewen change, configure the protected default branch to allow the hosting provider's **merge commit** mode and disable **squash and merge** and **rebase and merge**. The merge commit keeps the exact proposal, implementation, digest, and durable corpus commits reachable from `main`; squash and rebase-and-merge can produce the same final tree while discarding or rewriting the reviewed branch chain. A local rebase before first publication is allowed, but the human acceptance mode remains a merge commit.
+
+Before adoption, run the [CI wall's branch-protection probe](./ci-wall#_4-prove-failure-blocks-merge) and verify both the protected-branch rules and the repository-level merge-method settings. If the forge cannot enforce this boundary, it is outside Cliewen's supported full-change adoption path rather than an equivalent configuration.
 
 ## Upgrade one coordinated set
 
