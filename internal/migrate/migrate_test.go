@@ -221,6 +221,10 @@ func TestAC064_UnitNegative_MigrationRejectsUnsupportedSyntaxAndOptions(t *testi
 	if after, _, findings := migrateArtifact("invalid-cost.md", invalidCost, "low"); len(findings) != 1 || !bytes.Equal(after, invalidCost) {
 		t.Fatalf("invalid reversal-cost was not refused: findings=%v after=%q", findings, after)
 	}
+	decisionFields := []byte("---\nid: ADR-001\ntype: decision\nstatus: inferred\nlinks: []\ntitle: A\nprovenance: inferred\nreversal-cost: low\n---\n")
+	if after, _, findings := migrateArtifact("decision-fields.md", decisionFields, "low"); len(findings) != 2 || !bytes.Equal(after, decisionFields) {
+		t.Fatalf("decision-only provenance fields were not refused: findings=%v after=%q", findings, after)
+	}
 	crlf := []byte("---\r\nid: AN-001\r\ntype: analysis\r\nstatus: verified\r\nlinks: []\r\ntitle: A\r\nprovenance: inferred\r\n---\r\nbody\r\n")
 	after, _, findings := migrateArtifact("crlf.md", crlf, "low")
 	if len(findings) != 0 || !bytes.Contains(after, []byte("reversal-cost: low\r\n")) || !bytes.Contains(after, []byte("status: active\r\n")) {

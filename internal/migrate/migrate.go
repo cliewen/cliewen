@@ -266,10 +266,21 @@ func migrateArtifact(rel string, before []byte, reversalCost string) ([]byte, []
 	var changes []string
 	var findings []Finding
 	front := text[start:end]
-	if fields.HasReversalCost && fields.ReversalCost != "low" && fields.ReversalCost != "high" {
+	if fields.Type == "decision" && fields.HasReversalCost {
+		findings = append(findings, Finding{Path: rel, Migration: MigrationReversalCost, Message: "decisions route cost by record type and must not carry reversal-cost; resolve it by hand before resuming"})
+	} else if fields.HasReversalCost && fields.ReversalCost != "low" && fields.ReversalCost != "high" {
 		findings = append(findings, Finding{Path: rel, Migration: MigrationReversalCost, Message: "reversal-cost is not low or high; resolve its semantic classification by hand before resuming"})
 	}
-	if fields.Provenance == "inferred" && !fields.HasReversalCost {
+	if fields.Type == "decision" && fields.HasProvenance {
+		findings = append(findings, Finding{Path: rel, Migration: MigrationReversalCost, Message: "decisions carry provenance in status, not in a provenance field; resolve it by hand before resuming"})
+	}
+	if fields.Type != "decision" && fields.HasProvenance && fields.Provenance != "inferred" && fields.Provenance != "verified" {
+		findings = append(findings, Finding{Path: rel, Migration: MigrationReversalCost, Message: "provenance is not inferred or verified; resolve it by hand before resuming"})
+	}
+	if fields.Type != "decision" && fields.HasReversalCost && !fields.HasProvenance {
+		findings = append(findings, Finding{Path: rel, Migration: MigrationReversalCost, Message: "reversal-cost requires a provenance field; resolve it by hand before resuming"})
+	}
+	if fields.Provenance == "inferred" && fields.Type != "decision" && !fields.HasReversalCost {
 		if reversalCost == "" {
 			findings = append(findings, Finding{Path: rel, Migration: MigrationReversalCost, Message: "inferred meaning has no reversal-cost; choose --reversal-cost=low or --reversal-cost=high"})
 		} else if !fields.ProvenanceSimple {
@@ -323,6 +334,7 @@ type artifactFields struct {
 	StatusSimple     bool
 	Provenance       string
 	ProvenanceSimple bool
+	HasProvenance    bool
 	ReversalCost     string
 	HasReversalCost  bool
 }
@@ -365,8 +377,9 @@ func readFrontmatter(text string) (int, int, artifactFields, string, string, boo
 	status, statusOK := field("status")
 	provenance, provenanceOK := field("provenance")
 	reversalCost, _ := field("reversal-cost")
+	_, hasProvenance := raw["provenance"]
 	_, hasCostField := raw["reversal-cost"]
-	return 0, end, artifactFields{Type: typ, Status: status, StatusSimple: statusOK && isSimpleScalar(front, "status", status), Provenance: provenance, ProvenanceSimple: provenanceOK && isSimpleScalar(front, "provenance", provenance), ReversalCost: reversalCost, HasReversalCost: hasCostField}, text[end:], eol, true, nil
+	return 0, end, artifactFields{Type: typ, Status: status, StatusSimple: statusOK && isSimpleScalar(front, "status", status), Provenance: provenance, ProvenanceSimple: provenanceOK && isSimpleScalar(front, "provenance", provenance), HasProvenance: hasProvenance, ReversalCost: reversalCost, HasReversalCost: hasCostField}, text[end:], eol, true, nil
 }
 
 func isSimpleScalar(front, key, value string) bool {
