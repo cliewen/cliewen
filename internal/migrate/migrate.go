@@ -266,6 +266,9 @@ func migrateArtifact(rel string, before []byte, reversalCost string) ([]byte, []
 	var changes []string
 	var findings []Finding
 	front := text[start:end]
+	if fields.HasReversalCost && fields.ReversalCost != "low" && fields.ReversalCost != "high" {
+		findings = append(findings, Finding{Path: rel, Migration: MigrationReversalCost, Message: "reversal-cost is not low or high; resolve its semantic classification by hand before resuming"})
+	}
 	if fields.Provenance == "inferred" && !fields.HasReversalCost {
 		if reversalCost == "" {
 			findings = append(findings, Finding{Path: rel, Migration: MigrationReversalCost, Message: "inferred meaning has no reversal-cost; choose --reversal-cost=low or --reversal-cost=high"})
@@ -283,7 +286,9 @@ func migrateArtifact(rel string, before []byte, reversalCost string) ([]byte, []
 	}
 	if fields.Status == "verified" && fields.Type != "decision" {
 		if fields.Type == "architecture" || fields.Type == "analysis" {
-			if fields.StatusSimple {
+			if !fields.StatusSimple {
+				findings = append(findings, Finding{Path: rel, Migration: MigrationStatusLifecycle, Message: "status syntax is not a safe top-level line; change verified to active by hand before resuming"})
+			} else {
 				updated, replaced := replaceField(front, "status", "active", eol)
 				if !replaced {
 					findings = append(findings, Finding{Path: rel, Migration: MigrationStatusLifecycle, Message: "status syntax is not a safe top-level line; change verified to active by hand before resuming"})
@@ -318,6 +323,7 @@ type artifactFields struct {
 	StatusSimple     bool
 	Provenance       string
 	ProvenanceSimple bool
+	ReversalCost     string
 	HasReversalCost  bool
 }
 
@@ -358,14 +364,22 @@ func readFrontmatter(text string) (int, int, artifactFields, string, string, boo
 	typ, _ := field("type")
 	status, statusOK := field("status")
 	provenance, provenanceOK := field("provenance")
-	_, hasCost := raw["reversal-cost"]
-	return 0, end, artifactFields{Type: typ, Status: status, StatusSimple: statusOK && isSimpleScalar(front, "status", status), Provenance: provenance, ProvenanceSimple: provenanceOK && isSimpleScalar(front, "provenance", provenance), HasReversalCost: hasCost}, text[end:], eol, true, nil
+	reversalCost, _ := field("reversal-cost")
+	_, hasCostField := raw["reversal-cost"]
+	return 0, end, artifactFields{Type: typ, Status: status, StatusSimple: statusOK && isSimpleScalar(front, "status", status), Provenance: provenance, ProvenanceSimple: provenanceOK && isSimpleScalar(front, "provenance", provenance), ReversalCost: reversalCost, HasReversalCost: hasCostField}, text[end:], eol, true, nil
 }
 
 func isSimpleScalar(front, key, value string) bool {
 	for _, match := range fieldLineRe.FindAllStringSubmatch(front, -1) {
 		if match[2] == key {
-			return strings.TrimSpace(match[4]) == value
+			raw := strings.TrimSpace(match[4])
+			if raw == value {
+				return true
+			}
+			if hash := strings.Index(raw, "#"); hash > 0 && (raw[hash-1] == ' ' || raw[hash-1] == '\t') && strings.TrimSpace(raw[:hash]) == value {
+				return true
+			}
+			return false
 		}
 	}
 	return false

@@ -213,6 +213,14 @@ func TestAC064_UnitNegative_MigrationRejectsUnsupportedSyntaxAndOptions(t *testi
 	if _, _, findings := migrateArtifact("broken.md", []byte("---\nid: AN-001\n"), "low"); len(findings) != 1 {
 		t.Fatalf("unclosed frontmatter was not reported: %+v", findings)
 	}
+	quotedStatus := []byte("---\nid: AN-001\ntype: analysis\nstatus: \"verified\"\nlinks: []\ntitle: A\n---\n")
+	if after, _, findings := migrateArtifact("quoted-status.md", quotedStatus, "low"); len(findings) != 1 || !bytes.Equal(after, quotedStatus) {
+		t.Fatalf("ambiguous status syntax was not refused: findings=%v after=%q", findings, after)
+	}
+	invalidCost := []byte("---\nid: AN-001\ntype: analysis\nstatus: active\nlinks: []\ntitle: A\nprovenance: inferred\nreversal-cost: cheap\n---\n")
+	if after, _, findings := migrateArtifact("invalid-cost.md", invalidCost, "low"); len(findings) != 1 || !bytes.Equal(after, invalidCost) {
+		t.Fatalf("invalid reversal-cost was not refused: findings=%v after=%q", findings, after)
+	}
 	crlf := []byte("---\r\nid: AN-001\r\ntype: analysis\r\nstatus: verified\r\nlinks: []\r\ntitle: A\r\nprovenance: inferred\r\n---\r\nbody\r\n")
 	after, _, findings := migrateArtifact("crlf.md", crlf, "low")
 	if len(findings) != 0 || !bytes.Contains(after, []byte("reversal-cost: low\r\n")) || !bytes.Contains(after, []byte("status: active\r\n")) {
