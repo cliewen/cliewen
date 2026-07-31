@@ -124,7 +124,7 @@ func classifyJvmExecutable(name string, block jvmAnnotationBlock, prefixes map[s
 	nameEvidence, named, malformedName := namedJvmEvidence(name, subject, prefixes)
 	var issues []Issue
 	for _, tag := range block.tags {
-		if acCarrierCandidateRe.MatchString(tag) {
+		if inAnyDeclaredNamespace(tag, prefixes) {
 			if _, ok := normalizeCarrierACID(tag); !ok {
 				issues = append(issues, Issue{path, subject + " carries malformed criterion tag \"" + tag + "\" and receives no classified credit (ADR-037)"})
 			}

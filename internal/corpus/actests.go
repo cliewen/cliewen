@@ -23,16 +23,15 @@ import (
 // Cucumber feature tags are harvested at scenario level.
 // The judge validates those references but does not execute any test runner.
 var (
-	acPrefixRe           = regexp.MustCompile(`^[A-Z][A-Z0-9]*(-[A-Z][A-Z0-9]*)*$`)
-	acIDRe               = regexp.MustCompile(`^([A-Z][A-Z0-9]*(-[A-Z][A-Z0-9]*)*)-([0-9]+)([a-z]*)$`)
-	acCandidateTagRe     = regexp.MustCompile(`@([A-Za-z][A-Za-z0-9_-]*[-_][A-Za-z0-9_-]*[0-9][A-Za-z0-9_-]*)`)
-	acCarrierCandidateRe = regexp.MustCompile(`^[A-Za-z][A-Za-z0-9_-]*[-_][A-Za-z0-9_-]*[0-9][A-Za-z0-9_-]*$`)
-	testFuncRe           = regexp.MustCompile(`(?m)^func (Test\w*)\s*\(`)
-	fixedPurposeRe       = regexp.MustCompile(`^Test(Unit|Sanity|Arch)(_\w*)?$`)
-	classifiedGoRe       = regexp.MustCompile(`^Test(.+?)_(Unit|Integration|E2E|Performance)(Positive|Negative)(_\w*)?$`)
-	testTypeRe           = regexp.MustCompile(`^\s*Test-type:\s*(Unit|Integration|E2E|Performance|Human)(\s+\(single-direction\))?\s*$`)
-	featureTagRe         = regexp.MustCompile(`@([A-Za-z][A-Za-z0-9_-]*)`)
-	goOrdinalRe          = regexp.MustCompile(`^[0-9]+[a-z]*$`)
+	acPrefixRe       = regexp.MustCompile(`^[A-Z][A-Z0-9]*(-[A-Z][A-Z0-9]*)*$`)
+	acIDRe           = regexp.MustCompile(`^([A-Z][A-Z0-9]*(-[A-Z][A-Z0-9]*)*)-([0-9]+)([a-z]*)$`)
+	acCandidateTagRe = regexp.MustCompile(`@([A-Za-z][A-Za-z0-9_-]*[-_][A-Za-z0-9_-]*[0-9][A-Za-z0-9_-]*)`)
+	testFuncRe       = regexp.MustCompile(`(?m)^func (Test\w*)\s*\(`)
+	fixedPurposeRe   = regexp.MustCompile(`^Test(Unit|Sanity|Arch)(_\w*)?$`)
+	classifiedGoRe   = regexp.MustCompile(`^Test(.+?)_(Unit|Integration|E2E|Performance)(Positive|Negative)(_\w*)?$`)
+	testTypeRe       = regexp.MustCompile(`^\s*Test-type:\s*(Unit|Integration|E2E|Performance|Human)(\s+\(single-direction\))?\s*$`)
+	featureTagRe     = regexp.MustCompile(`@([A-Za-z][A-Za-z0-9_-]*)`)
+	goOrdinalRe      = regexp.MustCompile(`^[0-9]+[a-z]*$`)
 )
 
 type acDecl struct {
@@ -84,7 +83,11 @@ func harvestACs(c *Corpus) (declared map[string]acDecl, classified map[string]ma
 				ac := m[1]
 				acPrefix, _, _, valid := parseACID(ac)
 				if !valid {
-					issues = append(issues, Issue{a.Path, "tag @" + ac + " is not a canonical acceptance-criterion ID (ADR-037: use <PREFIX>-<digits><lowercase-suffix>)"})
+					// Only a near-miss inside this file's own namespace is a
+					// malformed declaration; any other @token is prose.
+					if inNamespace(ac, prefix) {
+						issues = append(issues, Issue{a.Path, "tag @" + ac + " is not a canonical acceptance-criterion ID (ADR-037: use <PREFIX>-<digits><lowercase-suffix>)"})
+					}
 					continue
 				}
 				if acPrefix != prefix {
@@ -210,7 +213,7 @@ func harvestACs(c *Corpus) (declared map[string]acDecl, classified map[string]ma
 				for _, tag := range tags {
 					ac, ok := normalizeCarrierACID(tag[1])
 					if !ok {
-						if acCarrierCandidateRe.MatchString(tag[1]) {
+						if inAnyDeclaredNamespace(tag[1], prefixes) {
 							issues = append(issues, Issue{relSlash, "Cucumber tag " + tag[0] + " is not a supported canonical acceptance-criterion ID (ADR-037)"})
 						}
 						continue
@@ -254,6 +257,27 @@ func parseACID(id string) (prefix, number, suffix string, ok bool) {
 		return "", "", "", false
 	}
 	return match[1], match[3], match[4], true
+}
+
+// inNamespace reports whether a token that failed the canonical parse is still
+// close enough to a declared namespace to be a malformed criterion reference
+// rather than ordinary prose or runner metadata. Carrier underscores and case
+// are folded in, because those are exactly the near-misses worth diagnosing:
+// `SNAP_SQS_001` and `snap-sqs-001` are wrong spellings of a declared identity,
+// while `java-17` belongs to no namespace at all and stays untouched (ADR-036:
+// tags outside every declared AC namespace remain ordinary runner metadata).
+func inNamespace(raw, prefix string) bool {
+	candidate := strings.ToUpper(strings.ReplaceAll(raw, "_", "-"))
+	return strings.HasPrefix(candidate, strings.ToUpper(prefix)+"-")
+}
+
+func inAnyDeclaredNamespace(raw string, prefixes map[string]bool) bool {
+	for prefix := range prefixes {
+		if inNamespace(raw, prefix) {
+			return true
+		}
+	}
+	return false
 }
 
 func normalizeACPrefix(prefix string) string {

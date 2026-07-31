@@ -190,3 +190,35 @@ func TestAC060_UnitNegative_ExtendedEvidenceRejectsMalformedCarrier(t *testing.T
 `
 	assertIssue(t, run(t, files, false), "Cucumber tag @SNAP_SQS_001B is not a supported canonical acceptance-criterion ID")
 }
+
+// The malformed-carrier diagnostic is scoped to declared namespaces: a tag that
+// merely contains a separator and a digit belongs to the runner, not to the
+// methodology (ADR-036), so widening the criterion grammar must not turn
+// ordinary JUnit and Cucumber tags into validation failures.
+func TestAC060_UnitPositive_TagsOutsideDeclaredNamespacesStayRunnerMetadata(t *testing.T) {
+	ordinary := []string{"java-17", "slow-1", "api-v2", "sprint_14", "release-2", "phase-2b", "JIRA-1234"}
+	for _, tag := range ordinary {
+		files := capFiles("active")
+		files["docs/capabilities/CAP-101-x/criteria.md"] = extendedCriteria("SNAP-SQS", "  @SNAP-SQS-001\n  Scenario: only one declared namespace\n    Test-type: Unit\n    Given a thing\n    Then it works\n")
+		files["pkg/x_test.go"] = "package x\n\nfunc TestSNAPSQS001_UnitPositive_Go(t *testing.T) {}\nfunc TestSNAPSQS001_UnitNegative_Go(t *testing.T) {}\n"
+		files["jvm/OrdinaryTest.java"] = `import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
+
+class OrdinaryTest {
+  @Tag("` + tag + `")
+  @Test
+  void ordinary() {}
+}
+`
+		files["features/ordinary.feature"] = `Feature: ordinary tags
+
+  @` + tag + `
+  Scenario: runner metadata
+    Given a thing
+    Then it works
+`
+		if issues := run(t, files, false); len(issues) != 0 {
+			t.Errorf("tag %q is outside every declared namespace and must stay runner metadata, got %v", tag, issues)
+		}
+	}
+}
