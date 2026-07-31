@@ -240,6 +240,37 @@ func TestAC056_UnitPositive_ExtractionRehearsesBeforeMutation(t *testing.T) {
 	}
 }
 
+func TestAC061_UnitPositive_ExtractionPreservesAndMintsExtendedCriterionIDs(t *testing.T) {
+	extract := mustRenderSkill(t, "clue-extract/skill.md")
+	for _, want := range []string{
+		"keep source IDs verbatim",
+		"one or more uppercase alphanumeric segments joined by single hyphens",
+		"a lowercase letter suffix after its numeric portion",
+		"the next numeric slot after the maximum numeric component already declared",
+		"ignoring letter suffixes for the maximum",
+		"an empty namespace starts at one",
+		"the same source state always mints the same IDs",
+		"preserved and minted mapping",
+	} {
+		if !strings.Contains(extract, want) {
+			t.Errorf("clue-extract/skill.md does not carry extended-ID rule %q", want)
+		}
+	}
+}
+
+func TestAC061_UnitNegative_ExtractionRejectsIDRenumberingAndAdHocMinting(t *testing.T) {
+	extract := mustRenderSkill(t, "clue-extract/skill.md")
+	for _, stale := range []string{
+		"renumber source IDs to fit the default AC grammar",
+		"mint IDs in arbitrary order",
+		"choose a fresh ID independently for each extraction run",
+	} {
+		if strings.Contains(extract, stale) {
+			t.Errorf("clue-extract/skill.md carries an unstable extended-ID rule %q", stale)
+		}
+	}
+}
+
 // The negative direction rejects the pre-CH-081 shape this obligation decays
 // back into, not invented opposites: a skill that permits mutation first never
 // says so, it simply stops naming the checkpoint and describes the extraction
@@ -317,7 +348,7 @@ func TestAC058_UnitPositive_GeneratedSkillsStatePerExecutableJVMContract(t *test
 	required := map[string][]string{
 		"clue-delta/skill.md": {
 			"all three evidence parts attach to the same Java or Kotlin executable",
-			"`test<PREFIX><digits>_<Type><Direction>_<description>`",
+			"`test<PREFIX><digits>[lowercase-suffix]_<Type><Direction>_<description>`",
 			"class tags, comments, and unrelated methods cannot supply missing parts",
 		},
 		"clue-extract/skill.md": {

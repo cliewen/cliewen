@@ -202,4 +202,13 @@ Feature: clue validate — deterministic corpus judgment
     And the complete mixed-file fixture passes
     But tags attached to unrelated methods cannot combine into classified evidence
     And an ambiguous executable carrying several identities, proof types, or directions receives no classified credit and produces a diagnostic
+
+  @AC-059
+  Scenario: Extended criterion identities remain canonical in validation and coverage
+    Test-type: Unit
+    Given active criteria files declare the IDs SNAP-SQS-001 and ADP-045b in their matching namespaces
+    When the user runs "clue validate" and "clue validate --coverage"
+    Then links, retirement tombstones, and derived coverage resolve those exact IDs without renumbering
+    And duplicate IDs, wrong-namespace declarations, malformed near-matches, and colliding normalized prefixes fail with diagnostics
+    But existing <PREFIX>-<digits> IDs remain valid without edits
 ```

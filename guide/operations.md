@@ -7,7 +7,7 @@ This page is for a repository that has finished the disposable trial and is deci
 | Surface | Current support |
 |---|---|
 | `clue` | Versioned release binaries for Windows, macOS, and Linux on amd64 and arm64; source installs are also available through Go |
-| Test evidence | Classified Go test names such as `TestAC001_UnitPositive_…`; Java and Kotlin executables whose own JUnit method annotations carry `@Tag("AC_001") @Tag("UNIT") @Tag("POSITIVE")`, or whose stable name is `testAC001_UnitPositive_…`; and Cucumber scenario tags such as `@AC-001 @e2e @positive` |
+| Test evidence | Classified Go test names such as `TestAC001_UnitPositive_…` or normalized `TestSNAPSQS001_UnitPositive_…`; Java and Kotlin executables whose own JUnit method annotations carry `@Tag("AC_001") @Tag("UNIT") @Tag("POSITIVE")` or `@Tag("SNAP_SQS_001")`, or whose stable name is `testAC001_UnitPositive_…` or `testSNAPSQS001_UnitPositive_…`; and Cucumber scenario tags such as `@AC-001 @e2e @positive` or `@SNAP-SQS-001 @unit @positive` |
 | Agent guidance | Five generated Cliewen skills in `.agents/skills/`, mirrored to `.claude/skills/` for Claude Code |
 | GitHub CI | `clue init` writes an unarmed GitHub Actions workflow; you vendor the pinned Linux binary and checksum, then require its `validate` check |
 | Validation | `clue validate` checks the repository-local corpus, generated indexes, skill ownership/version drift, and active-criterion evidence declarations and references; `--forbid-changes` also rejects an undigested `/changes/` workspace |

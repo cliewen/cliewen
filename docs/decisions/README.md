@@ -69,4 +69,5 @@ The CLI reports inferred ADRs and PDRs as decisions awaiting verification, separ
 - [PDR-019 — Methodology contract changes update every live carrier in the same change](PDR-019-methodology-contract-carriers-move-together.md) · `inferred`
 - [PDR-020 — Extraction rehearses before it mutates](PDR-020-extraction-rehearsal-before-mutation.md) · `inferred`
 - [ADR-036-jvm-evidence-per-executable](ADR-036-jvm-evidence-per-executable.md)
+- [ADR-037-brownfield-ac-id-grammar](ADR-037-brownfield-ac-id-grammar.md)
 <!-- clue:index:end -->
