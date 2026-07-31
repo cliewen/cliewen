@@ -180,4 +180,13 @@ func TestAC060_UnitNegative_ExtendedEvidenceRejectsMalformedCarrier(t *testing.T
 }
 `
 	assertIssue(t, run(t, files, false), "malformed or ambiguous normalized criterion prefix")
+
+	files["features/malformed.feature"] = `Feature: malformed carrier
+
+  @SNAP_SQS_001B @unit @positive
+  Scenario: uppercase suffix is not a carrier alias
+    Given a thing
+    Then it fails
+`
+	assertIssue(t, run(t, files, false), "Cucumber tag @SNAP_SQS_001B is not a supported canonical acceptance-criterion ID")
 }
