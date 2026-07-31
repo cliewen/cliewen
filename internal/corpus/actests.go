@@ -25,7 +25,7 @@ import (
 var (
 	acPrefixRe           = regexp.MustCompile(`^[A-Z][A-Z0-9]*(-[A-Z][A-Z0-9]*)*$`)
 	acIDRe               = regexp.MustCompile(`^([A-Z][A-Z0-9]*(-[A-Z][A-Z0-9]*)*)-([0-9]+)([a-z]*)$`)
-	acCandidateTagRe     = regexp.MustCompile(`@([A-Za-z][A-Za-z0-9_-]*-[A-Za-z0-9_-]*[0-9][A-Za-z0-9_-]*)`)
+	acCandidateTagRe     = regexp.MustCompile(`@([A-Za-z][A-Za-z0-9_-]*[-_][A-Za-z0-9_-]*[0-9][A-Za-z0-9_-]*)`)
 	acCarrierCandidateRe = regexp.MustCompile(`^[A-Za-z][A-Za-z0-9_-]*[-_][A-Za-z0-9_-]*[0-9][A-Za-z0-9_-]*$`)
 	testFuncRe           = regexp.MustCompile(`(?m)^func (Test\w*)\s*\(`)
 	fixedPurposeRe       = regexp.MustCompile(`^Test(Unit|Sanity|Arch)(_\w*)?$`)

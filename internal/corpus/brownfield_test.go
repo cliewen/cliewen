@@ -55,6 +55,14 @@ func TestAC059_UnitNegative_ExtendedIDRulesRejectMalformedAndCollidingForms(t *t
 			}(),
 			want: "not a canonical acceptance-criterion ID",
 		},
+		"underscore declaration": {
+			files: func() map[string]string {
+				files := capFiles("active")
+				files["docs/capabilities/CAP-101-x/criteria.md"] = extendedCriteria("SNAP-SQS", "  @SNAP_SQS_001\n  Scenario: carrier alias is not a declaration\n    Given a thing\n    Then it fails\n")
+				return files
+			}(),
+			want: "not a canonical acceptance-criterion ID",
+		},
 		"normalized prefix collision": {
 			files: func() map[string]string {
 				files := capFiles("active")
