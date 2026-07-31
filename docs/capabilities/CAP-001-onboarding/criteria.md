@@ -74,4 +74,13 @@ Feature: Onboarding — install to first green validate
     And none of the managed Cliewen lifecycle skills appear among its components
     And nothing in the bootstrap pins a "clue" version
     And the plugin tree lies outside every directory the skill generator owns
+
+  @AC-062
+  Scenario: init emits a thin caller for an upstream validation workflow
+    Test-type: Unit
+    Given an empty git repository
+    When the user runs "clue init"
+    Then ".github/workflows/clue.yml" calls Cliewen's reusable validation workflow at the emitting source's 40-hex immutable commit reference, or at its matching protected release tag when module build metadata is unavailable
+    And the caller exposes only the runner, clue source, and install-directory choices while pinning the clue version to the generated pair
+    And the caller contains no copied checkout, scope-detection, warning, acceptance-brief, or validation steps
 ```

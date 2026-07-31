@@ -13,9 +13,12 @@ import (
 	"fmt"
 	"io/fs"
 	"os"
+	"os/exec"
 	"path"
 	"path/filepath"
 	"regexp"
+	"runtime"
+	"runtime/debug"
 	"slices"
 	"sort"
 	"strings"
@@ -29,7 +32,11 @@ var templates embed.FS
 // (ADR-011), so the CI template inherits its pin from them.
 var versionRe = regexp.MustCompile(`(?m)^version:\s*(\S+)`)
 
+var workflowRefRe = regexp.MustCompile(`^[0-9a-f]{40}$`)
+
 const versionPlaceholder = "__CLUE_VERSION__"
+
+const workflowRefPlaceholder = "__CLUE_WORKFLOW_REF__"
 
 // Report lists what a Run did, repo-relative with forward slashes.
 type Report struct {
@@ -53,6 +60,34 @@ func PairVersion() (string, error) {
 	return string(m[1]), nil
 }
 
+// workflowReference returns the immutable source commit that emitted the
+// scaffold when the binary carries Go's VCS build metadata. A binary built
+// from a module version without that metadata falls back to its protected
+// release tag; the guide treats that tag as the release-reference contract.
+func workflowReference(version string) string {
+	if info, ok := debug.ReadBuildInfo(); ok {
+		for _, setting := range info.Settings {
+			if setting.Key == "vcs.revision" && workflowRefRe.MatchString(setting.Value) {
+				return setting.Value
+			}
+		}
+	}
+	// `go test` does not carry VCS settings into its test binary. A source
+	// checkout still has an unambiguous repository root at the file path the
+	// binary was built from, so recover the revision for source builds without
+	// ever asking the target repository being scaffolded for its own HEAD.
+	if _, sourceFile, _, ok := runtime.Caller(0); ok {
+		repoRoot := filepath.Dir(filepath.Dir(filepath.Dir(sourceFile)))
+		cmd := exec.Command("git", "-C", repoRoot, "rev-parse", "HEAD")
+		if output, err := cmd.Output(); err == nil {
+			if revision := strings.TrimSpace(string(output)); workflowRefRe.MatchString(revision) {
+				return revision
+			}
+		}
+	}
+	return "v" + version
+}
+
 // Run emits the convention into root. Existing files are never touched
 // except taxonomy README index blocks, which are regenerated between
 // their clue:index markers (prose outside the markers is preserved).
@@ -62,6 +97,7 @@ func Run(root string) (*Report, error) {
 		return nil, err
 	}
 	rep := &Report{}
+	workflowRef := workflowReference(version)
 	links := map[string]string{}
 	err = fs.WalkDir(templates, "templates", func(p string, d fs.DirEntry, err error) error {
 		if err != nil || d.IsDir() {
@@ -73,6 +109,7 @@ func Run(root string) (*Report, error) {
 			return rerr
 		}
 		data = []byte(strings.ReplaceAll(string(data), versionPlaceholder, version))
+		data = []byte(strings.ReplaceAll(string(data), workflowRefPlaceholder, workflowRef))
 		for _, target := range targetsFor(rel) {
 			if werr := writeIfAbsent(root, target, data, rep, links); werr != nil {
 				return werr

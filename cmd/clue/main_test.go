@@ -332,12 +332,11 @@ func TestSanity_ReleaseWorkflowIsCrossPlatform(t *testing.T) {
 }
 
 // Sanity: the published asset names are an append-only contract (ADR-030).
-// internal/scaffold/templates/github/workflows/clue.yml is vendored into
-// every repository that ran `clue init`; it verifies SHA256SUMS and then
-// runs `install -m 0755 clue-${CLUE_VERSION}-linux-amd64`. A renamed asset
-// breaks all of them at their next CI run, with no change in those
-// repositories to explain it — so the release config and the scaffolded
-// wall must keep naming the same file.
+// The upstream reusable workflow is called by every thin caller that ran
+// `clue init`; it verifies SHA256SUMS and stages clue-${CLUE_VERSION}-linux-
+// amd64. A renamed asset breaks all of them at their next CI run, with no
+// change in those repositories to explain it — so the release config and the
+// upstream validation unit must keep naming the same file.
 func TestSanity_ReleaseKeepsTheAssetNamesTheAdopterWallInstalls(t *testing.T) {
 	cfg := readGoreleaserConfig(t)
 
@@ -359,14 +358,42 @@ func TestSanity_ReleaseKeepsTheAssetNamesTheAdopterWallInstalls(t *testing.T) {
 		t.Fatalf("the bare asset name renders as %q, not clue-<version>-linux-amd64 — the vendored wall installs the latter", rendered)
 	}
 
-	wall, err := os.ReadFile(filepath.Join("..", "..", "internal", "scaffold", "templates", "github", "workflows", "clue.yml"))
+	wall, err := os.ReadFile(filepath.Join("..", "..", ".github", "workflows", "clue-validation.yml"))
 	if err != nil {
-		t.Fatalf("scaffolded CI wall template not found: %v", err)
+		t.Fatalf("upstream validation workflow not found: %v", err)
 	}
 	for _, want := range []string{"clue-${CLUE_VERSION}-linux-amd64", "SHA256SUMS"} {
 		if !strings.Contains(string(wall), want) {
-			t.Errorf("the scaffolded wall no longer references %q — it and the release config must name the same asset", want)
+			t.Errorf("the upstream validation workflow no longer references %q — it and the release config must name the same asset", want)
 		}
+	}
+}
+
+func TestSanity_ReleaseIncludesReusableValidationUnit(t *testing.T) {
+	root := filepath.Join("..", "..")
+	data, err := os.ReadFile(filepath.Join(root, ".github", "workflows", "clue-validation.yml"))
+	if err != nil {
+		t.Fatalf("reusable validation workflow not found: %v", err)
+	}
+	wf := string(data)
+	for _, want := range []string{"workflow_call:", "clue-source:", "clue-install-directory:", "clue validate --forbid-changes", "actions/checkout@"} {
+		if !strings.Contains(wf, want) {
+			t.Errorf("reusable validation workflow is missing %q", want)
+		}
+	}
+	if !regexp.MustCompile(`(?m)^\s*- uses: actions/checkout@[0-9a-f]{40}`).MatchString(wf) {
+		t.Error("reusable validation workflow does not pin checkout to a full commit SHA")
+	}
+	caller, err := os.ReadFile(filepath.Join(root, "internal", "scaffold", "templates", "github", "workflows", "clue.yml"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	callerText := string(caller)
+	if !strings.Contains(callerText, "cliewen/cliewen/.github/workflows/clue-validation.yml@__CLUE_WORKFLOW_REF__") {
+		t.Error("scaffolded caller does not carry the reusable workflow reference placeholder")
+	}
+	if strings.Contains(callerText, "actions/checkout@") || strings.Contains(callerText, "clue validate --forbid-changes") {
+		t.Error("scaffolded caller copied upstream validation logic")
 	}
 }
 

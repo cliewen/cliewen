@@ -71,4 +71,5 @@ The CLI reports inferred ADRs and PDRs as decisions awaiting verification, separ
 - [ADR-036-jvm-evidence-per-executable](ADR-036-jvm-evidence-per-executable.md)
 - [ADR-037-brownfield-ac-id-grammar](ADR-037-brownfield-ac-id-grammar.md)
 - [PDR-021-supported-merge-commit-history](PDR-021-supported-merge-commit-history.md)
+- [ADR-038-upstream-validation-workflow](ADR-038-upstream-validation-workflow.md)
 <!-- clue:index:end -->

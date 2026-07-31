@@ -2,7 +2,7 @@
 id: ADR-018
 type: decision
 status: verified
-links: [P-002, CAP-001, ADR-011, ADR-013, ADR-021]
+links: [P-002, CAP-001, ADR-011, ADR-013, ADR-021, ADR-038]
 title: The init scaffolding is embedded in the clue binary
 author: agent
 accepted-by: Flemming N. Larsen (2026-07-18, PR #20 review conversation)
@@ -28,6 +28,6 @@ accepted-by: Flemming N. Larsen (2026-07-18, PR #20 review conversation)
 
 - The **skills are duplicated** into the template tree as generated distribution artifacts; a Sanity test holds both trees to their shared canonical render, so drift between the authored sources, canonical skills, and what `init` emits fails the build.
 - The `.github/` workflow template is stored under a `github/` path and mapped to its dotted target at emit time.
-- The CI template's `CLUE_VERSION` pin is substituted from the embedded skills' version stamp — the pair version (ADR-011) has a single carrier.
+- The CI caller's `clue-version` pin is substituted from the embedded skills' version stamp — the pair version (ADR-011) has a single carrier — and its reusable-workflow reference is substituted from the emitting source commit when build metadata is available.
 - `init` emits the skills twice in the target repo: `.agents/skills/` as the canonical location and a `.claude/skills/` mirror in the Claude Code spelling (`SKILL.md`), matching the layout proven in the first adopter repo.
 - Template changes reach users only through a release — the same doctrine as the skills: released binaries and their scaffolding never disagree.

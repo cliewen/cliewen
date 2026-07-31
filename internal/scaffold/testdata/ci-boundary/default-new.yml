@@ -1,0 +1,16 @@
+name: clue
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  validate:
+    name: validate
+    uses: cliewen/cliewen/.github/workflows/clue-validation.yml@bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+    with:
+      runner: '["ubuntu-latest"]'
+      clue-version: 0.10.0
+      clue-source: vendored
+      clue-install-directory: ''

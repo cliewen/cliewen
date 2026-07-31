@@ -416,39 +416,27 @@ func TestSanity_ScaffoldedRoutingCarriesMergeHistoryBoundary(t *testing.T) {
 	}
 }
 
-// The CI template's version pin comes from the embedded skills' stamp;
-// no placeholder may survive into the emitted workflow.
+// The CI caller's version pin comes from the embedded skills' stamp, and its
+// reusable-workflow reference comes from the build's immutable source commit.
+// No placeholder may survive into the emitted workflow.
 func TestUnit_WorkflowVersionSubstituted(t *testing.T) {
 	root, _ := runInto(t)
 	data, err := os.ReadFile(filepath.Join(root, ".github", "workflows", "clue.yml"))
 	if err != nil {
 		t.Fatal(err)
 	}
-	if strings.Contains(string(data), versionPlaceholder) {
-		t.Fatal("workflow still contains the version placeholder")
+	if strings.Contains(string(data), versionPlaceholder) || strings.Contains(string(data), workflowRefPlaceholder) {
+		t.Fatal("workflow still contains a scaffold placeholder")
 	}
 	version, err := PairVersion()
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !strings.Contains(string(data), "CLUE_VERSION: "+version) {
-		t.Fatalf("workflow does not pin CLUE_VERSION to %s", version)
+	if !strings.Contains(string(data), "clue-version: "+version) {
+		t.Fatalf("workflow does not pin clue-version to %s", version)
 	}
-	for _, want := range []string{
-		"Detect Cliewen change",
-		"cliewen=false",
-		"cliewen=true",
-		"docs/",
-		"changes/",
-		"grep -Eqv '\\.md$'",
-		"AGENTS\\.md",
-		".agents/",
-		"CHANGELOG\\.md",
-		"steps.scope.outputs.cliewen == 'true'",
-	} {
-		if !strings.Contains(string(data), want) {
-			t.Errorf("workflow does not contain plain-change scope boundary %q", want)
-		}
+	if !regexp.MustCompile(`clue-validation\.yml@[0-9a-f]{40}`).Match(data) {
+		t.Fatal("workflow does not pin the reusable validation unit to a full commit reference")
 	}
 }
 
@@ -472,8 +460,7 @@ func extractGrepPattern(t *testing.T, workflow, invocation string) *regexp.Regex
 // merged history. The empty and diff-failure branches are pure shell and stay
 // covered by their fail-closed encoding here.
 func TestUnit_ScaffoldWallClassifierClassifiesByShippedPatterns(t *testing.T) {
-	root, _ := runInto(t)
-	data, err := os.ReadFile(filepath.Join(root, ".github", "workflows", "clue.yml"))
+	data, err := os.ReadFile(filepath.Join("..", "..", ".github", "workflows", "clue-validation.yml"))
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -23,7 +23,7 @@ accepted-by: []
 - A full change may opt into a spec-first pause after Propose; it records the pause in tasks and waits for human direction. The ordinary ready-PR loop remains the default.
 - Work needed to implement, continue, review, or hand off a change belongs in a corpus artifact, change workspace, or pull request. An agent's private memory is never an authoritative carrier.
 
-**Carrier:** the `clue-delta` and `clue-verify` source templates and their shared durable-work fragment (agent); the pull-request template (human/default); CI and the scaffolded CI wall (machine/default); CAP-006 criteria and tests (evidence); and the public guide (human explanation).
+**Carrier:** the `clue-delta` and `clue-verify` source templates and their shared durable-work fragment (agent); the pull-request template (human/default); the upstream reusable workflow and its scaffolded thin caller (machine/default); CAP-006 criteria and tests (evidence); and the public guide (human explanation).
 
 ### Rejected: make the scenario-resolution verdict a blocking check
 

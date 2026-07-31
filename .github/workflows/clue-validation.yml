@@ -1,0 +1,120 @@
+# This is the upstream-owned validation unit called by the thin workflow
+# emitted into adopter repositories. It runs in the caller's repository and
+# event context; only the runner and the demonstrated clue acquisition choices
+# are inputs. Keep the action reference immutable and keep the job name stable.
+name: Cliewen validation
+
+on:
+  workflow_call:
+    inputs:
+      runner:
+        description: JSON array of GitHub-hosted or self-hosted runner labels
+        required: false
+        type: string
+        default: '["ubuntu-latest"]'
+      clue-version:
+        description: Bare clue release version whose binary or release asset is used
+        required: true
+        type: string
+      clue-source:
+        description: vendored for a checked-in binary or release for a downloaded binary
+        required: false
+        type: string
+        default: vendored
+      clue-install-directory:
+        description: Writable directory for the verified clue executable; empty uses RUNNER_TEMP
+        required: false
+        type: string
+        default: ''
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: validate
+    runs-on: ${{ fromJSON(inputs.runner) }}
+    env:
+      CLUE_VERSION: ${{ inputs.clue-version }}
+      CLUE_SOURCE: ${{ inputs.clue-source }}
+      CLUE_INSTALL_DIRECTORY: ${{ inputs.clue-install-directory }}
+    steps:
+      - uses: actions/checkout@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          fetch-depth: 0
+
+      - name: Detect Cliewen change
+        id: scope
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: |
+          if ! git diff --name-only "$BASE_SHA" "$GITHUB_SHA" > "$RUNNER_TEMP/changed-files"; then
+            echo "cliewen=true" >> "$GITHUB_OUTPUT"
+          elif [ ! -s "$RUNNER_TEMP/changed-files" ]; then
+            echo "cliewen=true" >> "$GITHUB_OUTPUT"
+          elif grep -Eqv '\.md$' "$RUNNER_TEMP/changed-files"; then
+            echo "cliewen=true" >> "$GITHUB_OUTPUT"
+          elif grep -Eq '^(docs/|changes/|\.agents/|\.claude/|\.github/|AGENTS\.md$|CHANGELOG\.md$|CONTRIBUTING\.md$|SECURITY\.md$|CODE_OF_CONDUCT\.md$)' "$RUNNER_TEMP/changed-files"; then
+            echo "cliewen=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "cliewen=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Validate clue source choice
+        if: steps.scope.outputs.cliewen == 'true'
+        run: |
+          case "$CLUE_SOURCE" in
+            vendored|release) ;;
+            *) echo "::error title=Unsupported clue source::Use clue-source=vendored or clue-source=release"; exit 1 ;;
+          esac
+
+      - name: Check whether the wall is armed
+        if: steps.scope.outputs.cliewen == 'true' && inputs.clue-source == 'vendored'
+        id: armed
+        run: |
+          if [ -f ".github/tools/clue-${CLUE_VERSION}-linux-amd64" ] && [ -f ".github/tools/SHA256SUMS" ]; then
+            echo "armed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "armed=false" >> "$GITHUB_OUTPUT"
+            echo "::warning title=Corpus wall not armed::No matching vendored clue and SHA256SUMS were found under .github/tools/ — corpus validation was SKIPPED. Arm it with the release asset for v${CLUE_VERSION}, or set clue-source to release."
+          fi
+
+      - name: Acquire and verify clue
+        if: steps.scope.outputs.cliewen == 'true' && (inputs.clue-source == 'release' || steps.armed.outputs.armed == 'true')
+        id: clue
+        run: |
+          set -eu
+          install_dir="${CLUE_INSTALL_DIRECTORY:-${RUNNER_TEMP}/clue}"
+          mkdir -p "$install_dir"
+          binary="clue-${CLUE_VERSION}-linux-amd64"
+          case "$CLUE_SOURCE" in
+            vendored)
+              (cd .github/tools && sha256sum -c --ignore-missing SHA256SUMS)
+              cp ".github/tools/$binary" "$install_dir/clue"
+              ;;
+            release)
+              curl --fail --location --silent --show-error "https://github.com/cliewen/cliewen/releases/download/v${CLUE_VERSION}/${binary}" --output "$install_dir/$binary"
+              curl --fail --location --silent --show-error "https://github.com/cliewen/cliewen/releases/download/v${CLUE_VERSION}/SHA256SUMS" --output "$install_dir/SHA256SUMS"
+              (cd "$install_dir" && sha256sum -c --ignore-missing SHA256SUMS)
+              cp "$install_dir/$binary" "$install_dir/clue"
+              ;;
+          esac
+          chmod 0755 "$install_dir/clue"
+          echo "path=$install_dir/clue" >> "$GITHUB_OUTPUT"
+          "$install_dir/clue" version
+
+      # --forbid-changes is the digest-before-merge gate: main (and any PR
+      # at merge time) must not contain the transient /changes tree.
+      - name: clue validate --forbid-changes
+        if: steps.scope.outputs.cliewen == 'true' && (inputs.clue-source == 'release' || steps.armed.outputs.armed == 'true')
+        env:
+          CLUE_PATH: ${{ steps.clue.outputs.path }}
+        run: "$CLUE_PATH validate --forbid-changes"
+
+      - name: Require a completed acceptance brief
+        if: github.event_name == 'pull_request' && steps.scope.outputs.cliewen == 'true'
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: |
+          printf '%s' "$PR_BODY" | grep -Fq '## Acceptance brief' || { echo 'FAIL: Cliewen PRs need an acceptance brief'; exit 1; }
+          ! printf '%s' "$PR_BODY" | grep -Fq '<!-- REQUIRED' || { echo 'FAIL: replace every acceptance-brief REQUIRED placeholder'; exit 1; }

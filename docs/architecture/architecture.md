@@ -35,7 +35,7 @@ flowchart TD
     H -->|supported merge commit = acceptance| D[/docs corpus<br/>system-of-record/]
     H -->|merge plain change| R[Repository state<br/>outside corpus]
     D -->|working memory| A
-    W[CI wall<br/>same binary] -.enforces.- C
+    W[CI wall<br/>upstream workflow + thin caller] -.enforces.- C
 ```
 
 ## Three artifact lifetime classes
