@@ -12,13 +12,17 @@ CI without branch protection is a dashboard. Branch protection without the valid
 
 ## 1. Choose the caller inputs
 
-Open `.github/workflows/clue.yml`. It should contain one `uses:` reference to `cliewen/cliewen/.github/workflows/clue-validation.yml` at a full commit SHA, the generated `clue-version`, and the four inputs `runner`, `clue-source`, and `clue-install-directory`. Use the exact generated version; do not substitute `latest`.
+Open `.github/workflows/clue.yml`. It should contain one `uses:` reference to `cliewen/cliewen/.github/workflows/clue-validation.yml` at an immutable reference, and four inputs: the generated `clue-version` plus the three local policy choices `runner`, `clue-source`, and `clue-install-directory`. Use the exact generated version; do not substitute `latest`.
 
 The default caller uses `runner: '["ubuntu-latest"]'`, `clue-source: vendored`, and an empty `clue-install-directory`, which stages the verified executable in the runner's temporary directory without requiring root. A repository that needs a self-hosted/no-root runner changes only the caller's runner-label JSON and writable install directory. A repository that downloads the release instead of committing `.github/tools/` changes only `clue-source: release`; the upstream workflow downloads the matching binary and `SHA256SUMS` over HTTPS and verifies the checksum before execution.
 
+Prefer an install directory outside the checkout. An empty value uses the runner's temporary directory, which is cleaned between runs; a path inside the workspace such as `.cliewen/bin` leaves an untracked executable in the working tree, and on a persistent self-hosted runner it survives into the next run. If your policy requires a path inside the workspace, add it to `.gitignore`.
+
+The checksum and the binary come from the same release, so verification catches a truncated or corrupted download rather than establishing independent trust in the release itself. That is the same guarantee the published install scripts give.
+
 The reusable workflow owns its action references and all validation steps. Do not copy its checkout, scope, warning, acceptance-brief, or `clue validate` steps into the caller. Updating the one upstream reference is the reviewed upgrade that imports those fixes while retaining the caller's local choices.
 
-Release binaries built with VCS metadata emit the reusable workflow's source commit as the reference. A module build without VCS metadata emits the corresponding `vX.Y.Z` release tag; protect release tags from force updates, and replace a tag with the exact source SHA when your hosting policy requires SHA-only references.
+Release binaries emit the reusable workflow's source commit as the reference. A binary built without usable VCS metadata — installed with `go install`, or built from a modified tree — emits the corresponding `vX.Y.Z` release tag instead, because a commit it cannot vouch for would leave your CI unable to resolve the workflow at all. Both forms are immutable; protect release tags from force updates, and replace a tag with the exact source SHA when your hosting policy requires SHA-only references.
 
 ## 2. Arm the pinned judge
 

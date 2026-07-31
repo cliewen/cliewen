@@ -417,8 +417,12 @@ func TestSanity_ScaffoldedRoutingCarriesMergeHistoryBoundary(t *testing.T) {
 }
 
 // The CI caller's version pin comes from the embedded skills' stamp, and its
-// reusable-workflow reference comes from the build's immutable source commit.
-// No placeholder may survive into the emitted workflow.
+// reusable-workflow reference resolves to one of the two immutable forms
+// ADR-038 admits — the emitting source commit, or the release tag a build
+// without usable VCS metadata falls back to. Which one depends on how the
+// test binary was built, so the assertion is on immutability, not on the
+// commit form; requiring a SHA here would fail every build made outside a
+// clean checkout of this repository. No placeholder may survive either way.
 func TestUnit_WorkflowVersionSubstituted(t *testing.T) {
 	root, _ := runInto(t)
 	data, err := os.ReadFile(filepath.Join(root, ".github", "workflows", "clue.yml"))
@@ -435,8 +439,8 @@ func TestUnit_WorkflowVersionSubstituted(t *testing.T) {
 	if !strings.Contains(string(data), "clue-version: "+version) {
 		t.Fatalf("workflow does not pin clue-version to %s", version)
 	}
-	if !regexp.MustCompile(`clue-validation\.yml@[0-9a-f]{40}`).Match(data) {
-		t.Fatal("workflow does not pin the reusable validation unit to a full commit reference")
+	if !regexp.MustCompile(`clue-validation\.yml@(?:[0-9a-f]{40}|v[0-9]+\.[0-9]+\.[0-9]+)\b`).Match(data) {
+		t.Fatal("workflow does not pin the reusable validation unit to a commit or release tag")
 	}
 }
 

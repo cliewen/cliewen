@@ -5,10 +5,13 @@
 #
 # The `bare` archive's name_template is a PUBLIC CONTRACT, not an
 # implementation detail. Every repository that has run `clue init` carries
-# .github/workflows/clue.yml, which downloads `clue-<version>-linux-amd64`
-# by name and runs `install -m 0755` on it. Renaming these assets breaks
-# all of them at their next CI run, with no change in those repositories to
-# explain it. Assets are append-only: a new channel may add, never rename.
+# .github/workflows/clue.yml, a thin caller for the upstream validation
+# workflow (ADR-038); that workflow resolves `clue-<version>-linux-amd64` by
+# name — vendored under .github/tools/ or downloaded from the release —
+# verifies it against SHA256SUMS, and stages it in a writable directory.
+# Renaming these assets breaks all of them at their next CI run, with no
+# change in those repositories to explain it. Assets are append-only: a new
+# channel may add, never rename.
 # TestSanity_ReleaseKeepsTheAssetNamesTheAdopterWallInstalls holds this.
 version: 2
 

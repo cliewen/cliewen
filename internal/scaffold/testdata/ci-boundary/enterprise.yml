@@ -1,3 +1,6 @@
+# The demonstrated enterprise shape (AN-014): approved self-hosted labels, the
+# release source instead of a committed binary, and a writable staging path
+# that needs no root and lies outside the checkout.
 name: clue
 
 on:
@@ -13,4 +16,4 @@ jobs:
       runner: '["self-hosted","linux","x64","approved"]'
       clue-version: 0.10.0
       clue-source: release
-      clue-install-directory: .cliewen/bin
+      clue-install-directory: /opt/cliewen-runner/bin

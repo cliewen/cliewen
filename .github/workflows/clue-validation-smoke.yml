@@ -1,0 +1,75 @@
+# Dogfood for the unit adopters depend on (ADR-038). `clue-validation.yml` is
+# `workflow_call`-only, so nothing in this repository would otherwise execute
+# it: a shell typo, a bad `if:` expression, or a step output renamed on one
+# side would reach every adopter's CI having never run once. This caller is
+# the same thin shape `clue init` emits, so the delegation is exercised too.
+#
+# Its check is deliberately NOT named `validate`: the required check on this
+# repository is ci.yml's `validate`, and a second job by that name would make
+# branch protection ambiguous. Keep this one advisory.
+#
+# The push/pull_request runs take the vendored source with nothing vendored,
+# which is the unarmed path — checkout, scope detection, source validation,
+# the warning, and the acceptance-brief gate all execute for real. Acquisition
+# and `--forbid-changes` need a published release, so they are on the manual
+# trigger: the pair version is not published until the tag that carries it,
+# and a released binary judging an unreleased skill stamp reports drift by
+# design. Dispatch with `clue-source: release` and a released version to
+# exercise download, checksum verification, staging, and validation.
+name: Validation unit smoke
+
+on:
+  pull_request:
+    paths:
+      - .github/workflows/clue-validation.yml
+      - .github/workflows/clue-validation-smoke.yml
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/clue-validation.yml
+      - .github/workflows/clue-validation-smoke.yml
+  workflow_dispatch:
+    inputs:
+      clue-source:
+        description: vendored exercises the unarmed path; release exercises download, checksum, and validation
+        required: false
+        type: choice
+        options: [vendored, release]
+        default: vendored
+      clue-version:
+        description: Published release version to acquire; empty uses the repository's current pair version
+        required: false
+        type: string
+        default: ''
+
+permissions:
+  contents: read
+
+jobs:
+  # The pair version has one carrier (ADR-011). Reading it here rather than
+  # writing a literal keeps this workflow from becoming a second one that
+  # silently lags the skills it is supposed to match.
+  pin:
+    name: pin
+    runs-on: ubuntu-latest
+    outputs:
+      clue-version: ${{ steps.pair.outputs.version }}
+    steps:
+      - uses: actions/checkout@820762786026740c76f36085b0efc47a31fe5020 # v7
+      - name: Read the pair version
+        id: pair
+        run: |
+          set -eu
+          version="$(sed -n 's/^version: *//p' .agents/skills/clue-delta/skill.md | head -n 1)"
+          [ -n "$version" ] || { echo 'FAIL: the skills carry no version stamp'; exit 1; }
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+  smoke:
+    name: smoke
+    needs: pin
+    uses: ./.github/workflows/clue-validation.yml
+    with:
+      runner: '["ubuntu-latest"]'
+      clue-version: ${{ inputs.clue-version || needs.pin.outputs.clue-version }}
+      clue-source: ${{ inputs.clue-source || 'vendored' }}
+      clue-install-directory: ''
