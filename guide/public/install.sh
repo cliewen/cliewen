@@ -103,8 +103,13 @@ main() {
     (cd "$tmp" && sha256sum -c --ignore-missing SHA256SUMS >/dev/null) \
       || die "checksum verification failed for ${asset} — nothing was installed"
   elif command -v shasum >/dev/null 2>&1; then
-    expected=$(grep " ${asset}\$" "${tmp}/SHA256SUMS" | awk '{print $1}')
-    [ -n "$expected" ] || die "${asset} has no line in SHA256SUMS"
+    # Select the line by exact name. A grep pattern would read the dots in
+    # the version as wildcards, and two matching lines would quietly make
+    # $expected two hashes, which compares unequal for the wrong reason.
+    expected=$(awk -v want="$asset" '
+      { name = $2; sub(/^\*/, "", name); if (name == want) { print $1; found++ } }
+      END { exit(found == 1 ? 0 : 1) }
+    ' "${tmp}/SHA256SUMS") || die "${asset} has no unique line in SHA256SUMS"
     actual=$(shasum -a 256 "${tmp}/${asset}" | awk '{print $1}')
     [ "$expected" = "$actual" ] || die "checksum verification failed for ${asset} — nothing was installed"
   else

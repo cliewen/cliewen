@@ -28,7 +28,7 @@ func TestAC042_AcceptanceBriefCarriesHumanMergeQuestions(t *testing.T) {
 func TestAC042_CIRejectsUnfilledAcceptanceBrief(t *testing.T) {
 	for _, rel := range []string{
 		filepath.Join("..", "..", ".github", "workflows", "ci.yml"),
-		filepath.Join("..", "..", "internal", "scaffold", "templates", "github", "workflows", "clue.yml"),
+		filepath.Join("..", "..", ".github", "workflows", "clue-validation.yml"),
 	} {
 		data, err := os.ReadFile(rel)
 		if err != nil {

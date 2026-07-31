@@ -40,6 +40,8 @@ New or revised machine-proven acceptance criteria declare `Test-type: Unit`, `In
 
 Before review, digest a full change into the permanent corpus, update its plan bookkeeping and release-relevant [`CHANGELOG.md`](CHANGELOG.md) entry where applicable, and remove its `/changes/` workspace. Plain editorial changes add no release note. The final tree proposed for merge must not contain transient change files.
 
+The generated `.github/workflows/clue.yml` is a thin caller for Cliewen's upstream reusable validation workflow. Keep runner labels, binary source, and writable install-directory choices in that caller; do not copy validation steps or action references into it. A reusable-workflow reference update is the reviewed path for importing upstream scope, warning, acceptance-brief, and digest-gate fixes.
+
 ## Verify Locally
 
 For a plain change, run only checks relevant to its changed surface. A guide-Markdown-only edit runs `git diff --check` and `npm run guide:build`.

@@ -16,3 +16,5 @@ Agents may independently implement, review, and repair changes without losing wo
 ## Why
 
 The human merge boundary of [G-001](../../goals/G-001-verifiable-thread.md) can accept only hosted state. A private finding or local fix is invisible to the next agent and to the human, while a global change lock would needlessly serialize independent work.
+
+The stable `validate` handoff stays in the adopter-owned caller while the upstream reusable workflow carries validation and acceptance-brief repairs, so an update does not require copying the wall's logic ([ADR-038](../../decisions/ADR-038-upstream-validation-workflow.md)).

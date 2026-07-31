@@ -25,3 +25,5 @@ The layered guide, layers kept strictly separate:
 4. **Book** — the why; depth, secondary.
 
 `clue init` exists since CH-020; how the command and the guide realize the layers is [design.md](design.md), the mechanical path is held by the tested criteria in [criteria.md](criteria.md), and the 30-minute end-to-end promise is [C-015](../../constraints/C-015-onboarding-under-30-minutes.md).
+
+The emitted CI caller delegates its validation wall to Cliewen's immutable upstream reusable workflow while keeping runner and binary-acquisition choices local to the adopter ([ADR-038](../../decisions/ADR-038-upstream-validation-workflow.md)).

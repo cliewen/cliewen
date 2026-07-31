@@ -50,4 +50,13 @@ Feature: Collaborative pull-request handoffs
     When the agent prepares its ready pull request
     Then the acceptance brief's criteria line names that criterion and states that the brief is its proof
     But a change touching no Human-class criterion leaves the brief's existing criteria line unchanged
+
+  @AC-063
+  Scenario: An upstream workflow update leaves adopter choices in the caller
+    Test-type: Unit
+    Given two versions of a thin caller that differ only in the reusable workflow commit reference
+    When the adopter updates that reference
+    Then the runner, clue source, install directory, and clue version choices remain unchanged
+    And the upstream workflow still owns scope detection, the armed warning, the acceptance-brief gate, and the "clue validate --forbid-changes" step
+    And the branch-protection probe can identify the same stable "validate" check
 ```

@@ -1,20 +1,9 @@
-# The corpus wall: the same clue that judges the corpus locally judges
-# every PR and every push to main. Job name `validate` is the required
-# status check once branch protection is enabled.
-#
-# The wall arms itself when a clue release binary is vendored under
-# .github/tools/ together with the release's SHA256SUMS file:
-#
-#   gh release download v__CLUE_VERSION__ --repo cliewen/cliewen \
-#     --pattern 'clue-__CLUE_VERSION__-linux-amd64' --pattern 'SHA256SUMS' \
-#     --dir .github/tools
-#
-# Until then the job passes with a visible warning, so a fresh
-# `clue init` repo is not red before its first change — but an unarmed
-# wall stays loudly unarmed on every run. Once armed, the checksum is
-# verified before every run, so CI never executes an unverified binary.
-# When the clue repo is public and reachable from CI, you can replace
-# the vendoring with a direct `gh release download` step.
+# The caller is deliberately small. The validation logic lives in Cliewen's
+# reusable workflow, so an adopter changes only this reference and the local
+# runner or binary-source choices when its repository policy requires it.
+# The reference is replaced with the binary's source commit when build VCS
+# metadata is available; a released module build falls back to its protected
+# release tag.
 name: clue
 
 on:
@@ -23,63 +12,15 @@ on:
   push:
     branches: [main]
 
+permissions:
+  contents: read
+
 jobs:
   validate:
     name: validate
-    runs-on: ubuntu-latest
-    env:
-      CLUE_VERSION: __CLUE_VERSION__
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Detect Cliewen change
-        id: scope
-        env:
-          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
-        run: |
-          if ! git diff --name-only "$BASE_SHA" "$GITHUB_SHA" > "$RUNNER_TEMP/changed-files"; then
-            echo "cliewen=true" >> "$GITHUB_OUTPUT"
-          elif [ ! -s "$RUNNER_TEMP/changed-files" ]; then
-            echo "cliewen=true" >> "$GITHUB_OUTPUT"
-          elif grep -Eqv '\.md$' "$RUNNER_TEMP/changed-files"; then
-            echo "cliewen=true" >> "$GITHUB_OUTPUT"
-          elif grep -Eq '^(docs/|changes/|\.agents/|\.claude/|\.github/|AGENTS\.md$|CHANGELOG\.md$|CONTRIBUTING\.md$|SECURITY\.md$|CODE_OF_CONDUCT\.md$)' "$RUNNER_TEMP/changed-files"; then
-            echo "cliewen=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "cliewen=false" >> "$GITHUB_OUTPUT"
-          fi
-
-      - name: Check whether the wall is armed
-        if: steps.scope.outputs.cliewen == 'true'
-        id: armed
-        run: |
-          if [ -f ".github/tools/clue-${CLUE_VERSION}-linux-amd64" ]; then
-            echo "armed=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "armed=false" >> "$GITHUB_OUTPUT"
-            echo "::warning title=Corpus wall not armed::No vendored clue under .github/tools/ — corpus validation was SKIPPED. Arm it with: gh release download v${CLUE_VERSION} --repo cliewen/cliewen --pattern 'clue-${CLUE_VERSION}-linux-amd64' --pattern 'SHA256SUMS' --dir .github/tools"
-          fi
-
-      - name: Verify and install vendored clue ${{ env.CLUE_VERSION }}
-        if: steps.scope.outputs.cliewen == 'true' && steps.armed.outputs.armed == 'true'
-        run: |
-          cd .github/tools
-          sha256sum -c --ignore-missing SHA256SUMS
-          install -m 0755 "clue-${CLUE_VERSION}-linux-amd64" /usr/local/bin/clue
-          clue version
-
-      # --forbid-changes is the digest-before-merge gate: main (and any
-      # PR at merge time) must not contain the transient /changes tree.
-      - name: clue validate
-        if: steps.scope.outputs.cliewen == 'true' && steps.armed.outputs.armed == 'true'
-        run: clue validate --forbid-changes
-
-      - name: Require a completed acceptance brief
-        if: github.event_name == 'pull_request' && steps.scope.outputs.cliewen == 'true'
-        env:
-          PR_BODY: ${{ github.event.pull_request.body }}
-        run: |
-          printf '%s' "$PR_BODY" | grep -Fq '## Acceptance brief' || { echo 'FAIL: Cliewen PRs need an acceptance brief'; exit 1; }
-          ! printf '%s' "$PR_BODY" | grep -Fq '<!-- REQUIRED' || { echo 'FAIL: replace every acceptance-brief REQUIRED placeholder'; exit 1; }
+    uses: cliewen/cliewen/.github/workflows/clue-validation.yml@__CLUE_WORKFLOW_REF__
+    with:
+      runner: '["ubuntu-latest"]'
+      clue-version: __CLUE_VERSION__
+      clue-source: vendored
+      clue-install-directory: ''

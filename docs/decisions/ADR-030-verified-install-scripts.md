@@ -2,7 +2,7 @@
 id: ADR-030
 type: decision
 status: inferred
-links: [CAP-001, CAP-004, C-015, ADR-011, ADR-012]
+links: [CAP-001, CAP-004, C-015, ADR-011, ADR-012, ADR-038]
 title: Installation is a checksum-verifying script, and release asset names are an append-only contract
 author: agent
 accepted-by: []
@@ -16,7 +16,7 @@ Getting `clue` onto a machine takes six manual steps: read a platform table, dow
 
 The obvious answer is a package manager per platform. Only one of them is straightforward: winget covers Windows. Homebrew appears to cover macOS *and* Linux from a single formula, but formula generation is deprecated in the release tooling, and its replacement — casks — is macOS-only. Every remaining Linux channel needs infrastructure this project does not have: `.deb` and `.rpm` need a hosted apt or yum repository to become one command, Snap needs a store account and review, AUR and Nix reach one distribution each.
 
-There is a second problem underneath. The release publishes **bare binaries**, and `internal/scaffold/templates/github/workflows/clue.yml` — the CI wall vendored into every repository that has run `clue init` — verifies `SHA256SUMS` and then runs `install -m 0755 "clue-${CLUE_VERSION}-linux-amd64"`. Any channel that repackages the release must not disturb those names.
+There is a second problem underneath. The release publishes **bare binaries**, and `internal/scaffold/templates/github/workflows/clue.yml` — the thin caller emitted into every repository that has run `clue init` — delegates to the upstream reusable workflow, which verifies `SHA256SUMS` and stages `clue-${CLUE_VERSION}-linux-amd64` without assuming a root-only install path. Any channel that repackages the release must not disturb those names.
 
 ## Decision outcome
 
@@ -24,7 +24,7 @@ There is a second problem underneath. The release publishes **bare binaries**, a
 
 - **The scripts are the primary channel.** `guide/public/install.sh` serves macOS and Linux; `install.ps1` serves Windows. They deploy with the guide site, so `https://cliewen.dev/install.sh` needs no repository, account, or credential that does not already exist. Each detects the host, resolves the release, downloads the published asset, and **verifies it against `SHA256SUMS` before writing anything** — a failed comparison aborts with nothing installed. Neither needs elevation: both target a directory the user owns.
 - **Verification is what makes the pattern acceptable.** Piping a network fetch into a shell is defensible only when what it installs is checked against checksums the project published separately, and when the script is served from the project's own domain over TLS and can be read before it is run. A script that skipped the checksum would be strictly worse than the manual steps it replaces, because it would remove the one step that was protecting the user while keeping the appearance of convenience.
-- **Assets are append-only.** Every release publishes both shapes under one `SHA256SUMS`: the bare binaries under their exact existing names `clue-<version>-<os>-<arch>[.exe]`, and archives for the package managers that will follow. A new channel may add assets; it may never rename or remove one. The adopters' wall reads its checksums with `--ignore-missing`, so additional lines are inert. The install scripts consume the same names, so the contract now has two dependents rather than one.
+- **Assets are append-only.** Every release publishes both shapes under one `SHA256SUMS`: the bare binaries under their exact existing names `clue-<version>-<os>-<arch>[.exe]`, and archives for the package managers that will follow. A new channel may add assets; it may never rename or remove one. The upstream reusable workflow selects the entry for the binary it is about to execute and fails when the file lists no such entry, so additional lines are inert without a present-but-unlisted binary being admitted unverified. The install scripts consume the same names, so the contract now has two kinds of dependents rather than one.
 - **The manual download stays documented.** It is the route for a host where neither script can run, and it is where the asset names are written down for a human.
 - **Release notes are unaffected.** The release tooling's own changelog generation is disabled and the body is the extracted `CHANGELOG.md` section, preserving [ADR-012](ADR-012-release-notes-from-changelog.md) exactly.
 

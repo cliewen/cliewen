@@ -3,6 +3,13 @@
 // CI workflow template (CAP-001). The templates are embedded so an
 // installed binary is self-contained — no network, no checkout (ADR-018).
 //
+// One value is not embeddable: the emitted CI caller must name the upstream
+// validation workflow at an immutable reference (ADR-038). It comes from Go's
+// VCS build metadata, and for builds Go leaves unstamped from this package's
+// own source checkout, which a source build still has on disk. That is a read
+// of the emitting tree, never of the repository being scaffolded, and it falls
+// back to the release tag rather than guess.
+//
 // The template tree lives here rather than in a repo-root dotted folder
 // because the Go toolchain ignores directories starting with "." or "_",
 // which puts them out of go:embed's reach.
@@ -13,9 +20,12 @@ import (
 	"fmt"
 	"io/fs"
 	"os"
+	"os/exec"
 	"path"
 	"path/filepath"
 	"regexp"
+	"runtime"
+	"runtime/debug"
 	"slices"
 	"sort"
 	"strings"
@@ -29,7 +39,11 @@ var templates embed.FS
 // (ADR-011), so the CI template inherits its pin from them.
 var versionRe = regexp.MustCompile(`(?m)^version:\s*(\S+)`)
 
+var workflowRefRe = regexp.MustCompile(`^[0-9a-f]{40}$`)
+
 const versionPlaceholder = "__CLUE_VERSION__"
+
+const workflowRefPlaceholder = "__CLUE_WORKFLOW_REF__"
 
 // Report lists what a Run did, repo-relative with forward slashes.
 type Report struct {
@@ -53,6 +67,122 @@ func PairVersion() (string, error) {
 	return string(m[1]), nil
 }
 
+// workflowReference returns the immutable reference an emitted caller uses
+// for the upstream validation unit: the source commit that built this binary
+// when that commit can be named honestly, and the protected release tag
+// otherwise (ADR-038). Both forms are immutable; a wrong commit is worse than
+// the tag, because an adopter's CI fails to resolve it with nothing in their
+// repository to explain why. Every path below therefore prefers the tag over
+// a revision it cannot vouch for.
+func workflowReference(version string) string {
+	tag := "v" + version
+	if info, ok := debug.ReadBuildInfo(); ok {
+		var revision string
+		var modified bool
+		for _, setting := range info.Settings {
+			switch setting.Key {
+			case "vcs.revision":
+				revision = setting.Value
+			case "vcs.modified":
+				modified = setting.Value == "true"
+			}
+		}
+		// A dirty tree's revision names a commit whose validation workflow is
+		// not the one this binary was built from, so it would hand an adopter
+		// a reference to content they were never given.
+		if modified {
+			return tag
+		}
+		if workflowRefRe.MatchString(revision) {
+			return revision
+		}
+	}
+	if revision, ok := sourceCheckoutRevision(); ok {
+		return revision
+	}
+	return tag
+}
+
+// sourceCheckoutRevision recovers the emitting commit for a build Go left
+// without VCS metadata: `go test` does not stamp its test binaries, and a
+// module built from the cache has no repository to stamp from. It reads only
+// the checkout this package was compiled from — never the repository being
+// scaffolded — and reports nothing unless that checkout is positively this
+// project at a commit whose tracked content still matches it.
+func sourceCheckoutRevision() (string, bool) {
+	_, sourceFile, _, ok := runtime.Caller(0)
+	if !ok {
+		return "", false
+	}
+	return checkoutRevision(filepath.Dir(filepath.Dir(filepath.Dir(sourceFile))))
+}
+
+// checkoutRevision reports root's own HEAD, and only root's own. Every step
+// is a reason to fall back to the release tag rather than emit a commit no
+// adopter could resolve.
+func checkoutRevision(root string) (string, bool) {
+	if !isCliewenCheckout(root) {
+		return "", false
+	}
+	// `git -C` walks up to the nearest enclosing repository, so a tree that
+	// carries no repository of its own answers with an ancestor's HEAD. Go
+	// module zips include `.github/`, so an unpacked module cache entry looks
+	// like this project while belonging to whatever repository happens to
+	// contain GOMODCACHE — a home directory kept in git, most often. That
+	// ancestor's HEAD is clean (this tree is untracked there) and 40 hex
+	// digits long, so nothing below would reject it. Requiring the toplevel
+	// to be root itself is what confines the answer to this checkout.
+	top, err := exec.Command("git", "-C", root, "rev-parse", "--show-toplevel").Output()
+	if err != nil || !sameDirectory(root, strings.TrimSpace(string(top))) {
+		return "", false
+	}
+	output, err := exec.Command("git", "-C", root, "rev-parse", "HEAD").Output()
+	if err != nil {
+		return "", false
+	}
+	revision := strings.TrimSpace(string(output))
+	if !workflowRefRe.MatchString(revision) {
+		return "", false
+	}
+	// Uncommitted tracked changes mean HEAD does not describe the validation
+	// workflow this binary would have an adopter call.
+	if err := exec.Command("git", "-C", root, "diff", "--quiet", "HEAD").Run(); err != nil {
+		return "", false
+	}
+	return revision, true
+}
+
+// sameDirectory compares two paths by identity rather than spelling: git
+// answers with forward slashes and a fully resolved path, while root arrives
+// as the compiler recorded it.
+func sameDirectory(a, b string) bool {
+	aInfo, err := os.Stat(filepath.FromSlash(a))
+	if err != nil {
+		return false
+	}
+	bInfo, err := os.Stat(filepath.FromSlash(b))
+	if err != nil {
+		return false
+	}
+	return os.SameFile(aInfo, bInfo)
+}
+
+// isCliewenCheckout reports whether root is this project's own source tree.
+// A module cache entry or an extracted source archive can sit inside an
+// unrelated git repository, and that repository's HEAD is not a reference any
+// adopter can resolve — so identity is established from the tree's own
+// contents before git is consulted at all.
+func isCliewenCheckout(root string) bool {
+	if _, err := os.Stat(filepath.Join(root, ".github", "workflows", "clue-validation.yml")); err != nil {
+		return false
+	}
+	mod, err := os.ReadFile(filepath.Join(root, "go.mod"))
+	if err != nil {
+		return false
+	}
+	return strings.Contains(string(mod), "module github.com/cliewen/cliewen")
+}
+
 // Run emits the convention into root. Existing files are never touched
 // except taxonomy README index blocks, which are regenerated between
 // their clue:index markers (prose outside the markers is preserved).
@@ -62,6 +192,7 @@ func Run(root string) (*Report, error) {
 		return nil, err
 	}
 	rep := &Report{}
+	workflowRef := workflowReference(version)
 	links := map[string]string{}
 	err = fs.WalkDir(templates, "templates", func(p string, d fs.DirEntry, err error) error {
 		if err != nil || d.IsDir() {
@@ -73,6 +204,7 @@ func Run(root string) (*Report, error) {
 			return rerr
 		}
 		data = []byte(strings.ReplaceAll(string(data), versionPlaceholder, version))
+		data = []byte(strings.ReplaceAll(string(data), workflowRefPlaceholder, workflowRef))
 		for _, target := range targetsFor(rel) {
 			if werr := writeIfAbsent(root, target, data, rep, links); werr != nil {
 				return werr

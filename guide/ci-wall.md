@@ -1,17 +1,32 @@
 # Make CI enforce Cliewen
 
-`clue init` gives you a GitHub Actions workflow, but it starts unarmed. The job runs and warns, yet it skips corpus validation until the pinned Linux release binary and its checksum file are committed under `.github/tools/`.
+`clue init` gives you a thin GitHub Actions caller for Cliewen's upstream reusable validation workflow. The caller starts unarmed when it uses the default vendored source, so the job warns and skips corpus validation until the pinned Linux release binary and its checksum file are committed under `.github/tools/`.
 
-There are two separate jobs here:
+There are three separate jobs here:
 
-1. Arm the workflow so hosted CI runs the same judge you use locally.
-2. Protect `main` so a failed `validate` check actually blocks integration.
+1. Choose the caller inputs that your runner and binary-delivery policy require.
+2. Arm the upstream workflow so hosted CI runs the same judge you use locally.
+3. Protect `main` so a failed `validate` check actually blocks integration.
 
 CI without branch protection is a dashboard. Branch protection without the validator cannot see a broken Cliewen thread. You need both.
 
-## 1. Vendor the pinned judge
+## 1. Choose the caller inputs
 
-Open `.github/workflows/clue.yml` and read `CLUE_VERSION`. Use that exact release; do not substitute `latest`. The examples below use `0.7.0`.
+Open `.github/workflows/clue.yml`. It should contain one `uses:` reference to `cliewen/cliewen/.github/workflows/clue-validation.yml` at an immutable reference, and four inputs: the generated `clue-version` plus the three local policy choices `runner`, `clue-source`, and `clue-install-directory`. Use the exact generated version; do not substitute `latest`.
+
+The default caller uses `runner: '["ubuntu-latest"]'`, `clue-source: vendored`, and an empty `clue-install-directory`, which stages the verified executable in the runner's temporary directory without requiring root. A repository that needs a self-hosted/no-root runner changes only the caller's runner-label JSON and writable install directory. A repository that downloads the release instead of committing `.github/tools/` changes only `clue-source: release`; the upstream workflow downloads the matching binary and `SHA256SUMS` over HTTPS and verifies the checksum before execution.
+
+Prefer an install directory outside the checkout. An empty value uses the runner's temporary directory, which is cleaned between runs; a path inside the workspace such as `.cliewen/bin` leaves an untracked executable in the working tree, and on a persistent self-hosted runner it survives into the next run. If your policy requires a path inside the workspace, add it to `.gitignore`.
+
+The checksum and the binary come from the same release, so verification catches a truncated or corrupted download rather than establishing independent trust in the release itself. That is the same guarantee the published install scripts give.
+
+The reusable workflow owns its action references and all validation steps. Do not copy its checkout, scope, warning, acceptance-brief, or `clue validate` steps into the caller. Updating the one upstream reference is the reviewed upgrade that imports those fixes while retaining the caller's local choices.
+
+Release binaries emit the reusable workflow's source commit as the reference. A binary built without usable VCS metadata — installed with `go install`, or built from a modified tree — emits the corresponding `vX.Y.Z` release tag instead, because a commit it cannot vouch for would leave your CI unable to resolve the workflow at all. Both forms are immutable; protect release tags from force updates, and replace a tag with the exact source SHA when your hosting policy requires SHA-only references.
+
+## 2. Arm the pinned judge
+
+The default vendored path keeps the release asset and checksum file in the repository. The examples below use `0.7.0`; replace it with the `clue-version` in your caller.
 
 Create the tools directory, then download the Linux amd64 binary and the release checksum file:
 
@@ -37,28 +52,29 @@ The runner is Linux amd64 even when you develop on Windows or macOS. Verify the 
 | macOS | Run `shasum -a 256 .github/tools/clue-0.7.0-linux-amd64`, then compare it with the matching line in `.github/tools/SHA256SUMS` |
 | Linux | Run `(cd .github/tools && sha256sum -c --ignore-missing SHA256SUMS)` |
 
-Commit both files with the generated workflow:
+Commit both files with the generated caller:
 
 ```sh
 git add .github/workflows/clue.yml .github/tools/SHA256SUMS .github/tools/clue-0.7.0-linux-amd64
 git commit -m "Arm the Cliewen CI wall"
 ```
 
-Do not edit `CLUE_VERSION` without replacing both vendored files from the matching release. The workflow verifies the checksum again on every Cliewen run before it installs or executes the binary.
+Do not edit `clue-version` without replacing both vendored files from the matching release. The upstream workflow verifies the checksum again on every Cliewen run before it stages or executes the binary. The staging directory is caller-selected and defaults to `RUNNER_TEMP`; it is never assumed to be `/usr/local/bin`.
 
-## 2. Know what armed means
+## 3. Know what armed means
 
 | State | What the `validate` job does | Can it protect the corpus? |
 |---|---|---|
 | Unarmed | Reports a warning and skips `clue validate` | No |
-| Armed | Verifies the vendored checksum, installs `clue`, prints its version, and runs `clue validate --forbid-changes` for Cliewen changes | Yes, once the check is required |
+| Armed | Verifies the vendored checksum, stages `clue` in the selected writable directory, prints its version, and runs `clue validate --forbid-changes` for Cliewen changes | Yes, once the check is required |
+| Release source | Downloads the matching binary and `SHA256SUMS`, verifies the checksum, stages `clue`, and runs `clue validate --forbid-changes` for Cliewen changes | Yes, once the check is required |
 | Plain Markdown change | Keeps the stable `validate` job green without running the corpus validator | Yes; the same required check still exists |
 
 The `--forbid-changes` flag is the digest boundary. A pull request with a transient `/changes/CH-xxx-*` workspace is unfinished, even if ordinary validation passes. The hosted check turns red until the change is digested into the permanent corpus and the workspace is removed.
 
-## 3. Require the check on GitHub
+## 4. Require the check on GitHub
 
-Push the armed workflow on a branch and let its pull request run once. GitHub needs a recent `validate` check before it can offer that check as a ruleset requirement.
+Push the caller and let its pull request run once. GitHub needs a recent check before it can offer it as a ruleset requirement. The caller and reusable job are both named `validate`; select the exact check GitHub displays, which may be qualified as `validate / validate`.
 
 Then open **Settings → Rules → Rulesets → New ruleset → New branch ruleset**. GitHub's [ruleset instructions](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/creating-rulesets-for-a-repository) and [branch-rule reference](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/available-rules-for-rulesets) describe the current controls.
 
@@ -76,7 +92,7 @@ Configure one active ruleset:
 | Require a pull request before merging | Enabled; zero required approvals is enough for Cliewen's human-controlled merge boundary |
 | ↳ Allowed merge methods | `Merge` only; clear `Squash` and `Rebase` so the reviewed branch chain survives acceptance |
 | Require conversation resolution before merging | Enabled; known agent-review findings remain blocking until their hosted fixes are reviewed |
-| Require status checks to pass | Add `validate`; require the branch to be up to date before merging |
+| Require status checks to pass | Add the exact `validate` check displayed by the caller; require the branch to be up to date before merging |
 | Expected source | Select GitHub Actions when GitHub offers a source for the recent `validate` check |
 | Block force pushes | Enabled |
 
@@ -90,7 +106,7 @@ After saving, inspect the effective default-branch rules:
 gh ruleset check --default --repo OWNER/REPOSITORY
 ```
 
-You should see the pull-request requirement with merge commits as its only allowed merge method, the conversation-resolution requirement, required `validate` check, deletion restriction, and force-push block.
+You should see the pull-request requirement with merge commits as its only allowed merge method, the conversation-resolution requirement, the exact required `validate` check, deletion restriction, and force-push block.
 
 The ruleset's allowed merge method is what enforces the boundary on the default branch. The repository-wide merge-method settings are a second, broader surface: they decide which buttons GitHub offers anywhere in the repository, including branches no ruleset targets. Align them too, so nobody is offered a button that the default branch will reject:
 
@@ -102,7 +118,7 @@ Expect `merge: true`, `squash: false`, and `rebase: false`. Set them under **Set
 
 Do not remove an existing stronger requirement merely to match this minimum. If the default branch still permits squash or rebase-and-merge, the repository is not ready for a full Cliewen change.
 
-## 4. Prove failure blocks merge
+## 5. Prove failure blocks merge
 
 Do this once in a disposable branch. The probe creates a valid change workspace, so normal validation stays green while the merge-time command fails only because the workspace has not been digested. Run it only after the merge-method checks above pass; the final pull request must be accepted with a merge commit.
 
@@ -157,6 +173,8 @@ git branch -D probe/cliewen-wall
 ```
 
 ## Other forges
+
+The reusable caller and upstream validation unit are GitHub Actions support. Other forges are outside this workflow contract unless they can provide an equivalent reusable-workflow boundary and the same immutable reference, checksum, stable-check, and protected-merge guarantees.
 
 Forge menus differ, so copy the contract rather than GitHub's labels:
 
