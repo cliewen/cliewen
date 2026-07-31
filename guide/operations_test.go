@@ -161,9 +161,9 @@ func TestAC041_ChangeLoopCoordinatesOnlyTheSharedPR(t *testing.T) {
 
 func TestSanity_FullChangeMergeModeIsExplicitAcrossGuidanceAndProbe(t *testing.T) {
 	requiredByPage := map[string][]string{
-		"operations.md": {"Full-change merge", "merge commit", "squash and merge", "rebase and merge", "unsupported"},
-		"change-loop.md": {"human-controlled merge commit", "disable squash and rebase-and-merge", "local rebase before first publication"},
-		"ci-wall.md": {"Create a merge commit", "Squash and merge", "Rebase and merge", ".allow_merge_commit", ".allow_squash_merge", ".allow_rebase_merge", "not ready for a full Cliewen change"},
+		"operations.md":      {"Full-change merge", "Human-controlled merge commits only", "disable **squash and merge** and **rebase and merge**", "outside Cliewen's supported full-change adoption path"},
+		"change-loop.md":     {"human-controlled merge commit", "disable squash and rebase-and-merge", "local rebase before first publication"},
+		"ci-wall.md":         {"Create a merge commit", "Squash and merge", "Rebase and merge", ".allow_merge_commit", ".allow_squash_merge", ".allow_rebase_merge", "not ready for a full Cliewen change"},
 		"getting-started.md": {"protected default branch for human-controlled merge commits only"},
 	}
 	for page, required := range requiredByPage {
@@ -178,19 +178,45 @@ func TestSanity_FullChangeMergeModeIsExplicitAcrossGuidanceAndProbe(t *testing.T
 		}
 	}
 
+	// The forge's pull-request record is not the system of record. This exact
+	// sentence made that claim before CH-090 and must not come back.
 	for _, page := range []string{"operations.md", "change-loop.md", "ci-wall.md", "getting-started.md", "what-is-cliewen.md"} {
 		content, err := os.ReadFile(page)
 		if err != nil {
 			t.Fatal(err)
 		}
-		for _, stale := range []string{
-			"merge, squash, and rebase are equivalent",
-			"the merged pull request itself is the historical record",
-			"all pull-request merge shapes preserve the same archive",
-		} {
-			if strings.Contains(string(content), stale) {
-				t.Errorf("%s still claims equivalent merge archives with %q", page, stale)
+		if strings.Contains(string(content), "the merged pull request itself is the historical record") {
+			t.Errorf("%s again treats the pull request as the provenance archive", page)
+		}
+	}
+
+	// Guarding a list of equivalence phrasings nobody has written yet catches
+	// nothing. The invariant that does hold: a page cannot raise squash or
+	// rebase-and-merge without also placing them outside the support boundary,
+	// so no page can describe them as an equivalent way to accept a full change.
+	pages, err := filepath.Glob("*.md")
+	if err != nil {
+		t.Fatal(err)
+	}
+	boundaryMarkers := []string{"unsupported", "disable", "outside", "not ready"}
+	for _, page := range pages {
+		content, err := os.ReadFile(page)
+		if err != nil {
+			t.Fatal(err)
+		}
+		lowered := strings.ToLower(string(content))
+		if !strings.Contains(lowered, "squash") && !strings.Contains(lowered, "rebase and merge") && !strings.Contains(lowered, "rebase-and-merge") {
+			continue
+		}
+		carriesBoundary := false
+		for _, marker := range boundaryMarkers {
+			if strings.Contains(lowered, marker) {
+				carriesBoundary = true
+				break
 			}
+		}
+		if !carriesBoundary {
+			t.Errorf("%s names squash or rebase-and-merge without stating that they fall outside the supported full-change merge mode", page)
 		}
 	}
 }

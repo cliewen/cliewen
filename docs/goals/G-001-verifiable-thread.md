@@ -2,7 +2,7 @@
 id: G-001
 type: goal
 status: accepted
-links: [PDR-021]
+links: []
 title: A verifiable thread from goal to acceptance evidence
 ---
 

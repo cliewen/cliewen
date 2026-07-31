@@ -1,6 +1,8 @@
 package mergehistory
 
 import (
+	"errors"
+	"io/fs"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -26,9 +28,12 @@ func TestSanity_MergeModesDoNotPreserveTheSameArchive(t *testing.T) {
 	} {
 		t.Run(mode.name, func(t *testing.T) {
 			history := createChangeHistory(t)
-			if mode.name != "merge-commit" {
-				advanceMain(t, history.root)
-			}
+			// All three modes start from the same diverged state: `main` moved on
+			// while the change was under review. That is the realistic case, and
+			// comparing the modes from anything else would be unfair — with an
+			// undiverged `main`, a rebase is a no-op that trivially preserves the
+			// commits it is meant to rewrite.
+			advanceMain(t, history.root)
 
 			var head string
 			switch mode.name {
@@ -47,6 +52,8 @@ func TestSanity_MergeModesDoNotPreserveTheSameArchive(t *testing.T) {
 				runGit(t, history.root, "switch", "main")
 				runGit(t, history.root, "merge", "--ff-only", "feature")
 				head = revision(t, history.root, "HEAD")
+			default:
+				t.Fatalf("unhandled integration mode %q", mode.name)
 			}
 
 			for _, commit := range []struct {
@@ -63,7 +70,7 @@ func TestSanity_MergeModesDoNotPreserveTheSameArchive(t *testing.T) {
 				}
 			}
 
-			if _, err := os.Stat(filepath.Join(history.root, "changes", "CH-090-fixture")); !os.IsNotExist(err) {
+			if _, err := os.Stat(filepath.Join(history.root, "changes", "CH-090-fixture")); !errors.Is(err, fs.ErrNotExist) {
 				t.Fatalf("digested change workspace still exists: %v", err)
 			}
 			if _, err := os.Stat(filepath.Join(history.root, "docs", "digest.md")); err != nil {
@@ -75,6 +82,9 @@ func TestSanity_MergeModesDoNotPreserveTheSameArchive(t *testing.T) {
 
 func createChangeHistory(t *testing.T) changeHistory {
 	t.Helper()
+	if _, err := exec.LookPath("git"); err != nil {
+		t.Skipf("git is not on PATH: %v", err)
+	}
 	root := t.TempDir()
 	runGit(t, root, "init")
 	runGit(t, root, "branch", "-M", "main")
@@ -140,7 +150,14 @@ func runGit(t *testing.T, root string, args ...string) string {
 	t.Helper()
 	cmd := exec.Command("git", args...)
 	cmd.Dir = root
-	cmd.Env = append(os.Environ(), "GIT_CONFIG_NOSYSTEM=1")
+	// The fixture must reproduce the three merge outcomes on any machine, so it
+	// runs against no system or global configuration: a maintainer's global
+	// commit.gpgsign, core.hooksPath, or merge defaults would otherwise decide
+	// whether these commits can be created at all.
+	cmd.Env = append(os.Environ(),
+		"GIT_CONFIG_NOSYSTEM=1",
+		"GIT_CONFIG_GLOBAL="+os.DevNull,
+	)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		t.Fatalf("git %s failed: %v\n%s", strings.Join(args, " "), err, output)
