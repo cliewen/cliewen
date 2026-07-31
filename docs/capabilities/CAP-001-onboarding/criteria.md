@@ -83,4 +83,14 @@ Feature: Onboarding — install to first green validate
     Then ".github/workflows/clue.yml" calls Cliewen's reusable validation workflow at the emitting source's 40-hex immutable commit reference, or at its matching protected release tag when module build metadata is unavailable
     And the caller exposes only the runner, clue source, and install-directory choices while pinning the clue version to the generated pair
     And the caller contains no copied checkout, scope-detection, warning, acceptance-brief, or validation steps
+
+  @AC-064
+  Scenario: A corpus migration previews and applies one safe coordinated upgrade
+    Test-type: Unit
+    Given a repository with an older corpus shape, recognized older generated carriers, and a thin caller at an older immutable reference
+    When the user runs "clue migrate"
+    Then it reports the exact corpus, generated-skill, mirror, and caller transformations without changing a file
+    And "clue migrate --apply --reversal-cost=low" applies the complete preflighted plan while preserving unrelated prose and caller-owned choices
+    And a second run is a no-op
+    But missing semantic choices, ambiguous syntax, interrupted source changes, and locally modified carriers fail without partial writes
 ```

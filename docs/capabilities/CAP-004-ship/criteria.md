@@ -84,4 +84,12 @@ Feature: clue ships — a versioned binary and versioned skills, drift made lint
     Then the skill joins the managed set exactly as a lowercase "skill.md" would, so the verdict does not depend on the host filesystem
     And a single directory holding two case-variants of the manifest name is reported as a named ambiguity rather than silently resolving to one
     But that ambiguity is reported for an unmarked third-party skill too, because ownership cannot be read until the manifest is resolved
+
+  @AC-065
+  Scenario: A release that changes corpus obligations names migration guidance
+    Test-type: Unit
+    Given a release tag whose first-parent diff changes the versioned migration registry
+    When the release workflow extracts the changelog section
+    Then it requires a non-empty "### Migration" section before publishing
+    But a release that does not change the migration registry keeps the ordinary release-notes requirement without inventing migration guidance
 ```

@@ -40,7 +40,7 @@ The script detects your operating system and architecture, downloads the matchin
 
 The Go route installs under `$(go env GOPATH)/bin`, which you may need to add to `PATH` yourself; it reports `dev` rather than a release version unless you install a tagged version.
 
-Upgrading later means re-running the same command. That moves the binary only — for a repository already using Cliewen it is half an upgrade, and [Operate safely](./operations) explains why the resulting drift report is the check working.
+Upgrading later means re-running the same command. That moves the binary only — for a repository already using Cliewen it is half an upgrade; preview and apply the coordinated corpus and carrier migration with `clue migrate`, as [Operate safely](./operations) explains.
 
 ### Download a binary instead
 

@@ -66,6 +66,26 @@ jobs:
             exit 1
           fi
 
+      # A migration registry change changes what an adopter must do before
+      # their next green validate. Do not publish that contract without a
+      # visible section in the same user-facing release notes.
+      - name: Require migration guidance when the migration registry changed
+        run: |
+          if git diff --quiet "${GITHUB_SHA}^" "${GITHUB_SHA}" -- internal/migrate; then
+            echo "The migration registry did not change in this release."
+            exit 0
+          fi
+          if ! awk '
+            /^### Migration$/ { found = 1; next }
+            found && /^### / { exit }
+            found && /[^[:space:]]/ { content = 1 }
+            END { exit !content }
+          ' release-notes.md; then
+            echo "CHANGELOG.md has no non-empty '### Migration' section although internal/migrate changed; document the adopter upgrade path before tagging (ADR-039)" >&2
+            exit 1
+          fi
+          echo "Migration guidance is present for the changed registry."
+
       # A release has two version inputs — the tag and the skills' own
       # frontmatter stamp — and ADR-011 makes their disagreement a failure.
       # Run the judge stamped exactly as the published binary will be, so

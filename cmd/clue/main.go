@@ -13,6 +13,7 @@ import (
 	"strings"
 
 	"github.com/cliewen/cliewen/internal/corpus"
+	"github.com/cliewen/cliewen/internal/migrate"
 )
 
 // version is the release stamp, injected at build time via
@@ -74,6 +75,12 @@ Commands:
              Acceptance-criterion and milestone IDs resolve to the artifact
              that declares them. Path defaults to ".".
 
+  migrate    Preview a versioned corpus and managed-carrier migration; use
+             --apply to write the complete safe plan and
+             --reversal-cost=low|high to resolve missing inferred-meaning routing.
+             Existing prose and locally modified generated files are never
+             overwritten. Path defaults to ".".
+
   validate   Scan docs/ and changes/ under path (default ".") and check
              the frontmatter graph: core fields, unique IDs, link
              resolution, status vocabularies, folder READMEs, index
@@ -109,6 +116,8 @@ func main() {
 		os.Exit(runScaffold(os.Args[2:], os.Stdout, os.Stderr))
 	case "context":
 		os.Exit(runContext(os.Args[2:], os.Stdout, os.Stderr))
+	case "migrate":
+		os.Exit(runMigrate(os.Args[2:], os.Stdout, os.Stderr))
 	case "validate":
 		os.Exit(runValidate(os.Args[2:]))
 	case "version", "--version":
@@ -119,6 +128,66 @@ func main() {
 		fmt.Fprintf(os.Stderr, "clue: unknown command %q\n\n%s", os.Args[1], usage)
 		os.Exit(2)
 	}
+}
+
+func runMigrate(args []string, out, errOut io.Writer) int {
+	fs := flag.NewFlagSet("migrate", flag.ContinueOnError)
+	fs.SetOutput(errOut)
+	apply := fs.Bool("apply", false, "write the complete migration plan after preflight")
+	reversalCost := fs.String("reversal-cost", "", "explicitly classify missing inferred-artifact routing as low or high")
+	if err := fs.Parse(args); err != nil {
+		return 2
+	}
+	root := "."
+	if fs.NArg() > 0 {
+		root = fs.Arg(0)
+	}
+	if fs.NArg() > 1 {
+		fmt.Fprintln(errOut, "clue migrate: expected at most one repository path")
+		return 2
+	}
+
+	plan, err := migrate.Plan(root, migrate.Options{ReversalCost: *reversalCost})
+	if err != nil {
+		fmt.Fprintf(errOut, "clue migrate: %v\n", err)
+		return 2
+	}
+	mode := "preview"
+	if *apply {
+		mode = "apply"
+	}
+	fmt.Fprintf(out, "clue migrate: %s for target pair %s\n", mode, plan.Target)
+	for _, notice := range plan.Notices {
+		fmt.Fprintf(out, "notice %s: %s\n", notice.Path, notice.Message)
+	}
+	for _, change := range plan.Changes {
+		fmt.Fprintf(out, "%s %s: %s\n", change.Migration, change.Path, change.Description)
+	}
+	for _, finding := range plan.Findings {
+		fmt.Fprintf(out, "finding %s %s: %s\n", finding.Migration, finding.Path, finding.Message)
+	}
+	if len(plan.Findings) > 0 {
+		fmt.Fprintf(out, "clue migrate: %d finding(s); no files changed\n", len(plan.Findings))
+		return 1
+	}
+	if !*apply {
+		if len(plan.Changes) == 0 {
+			fmt.Fprintln(out, "clue migrate: no changes needed")
+		} else {
+			fmt.Fprintf(out, "clue migrate: %d file(s) would change; preview only\n", len(plan.Changes))
+		}
+		return 0
+	}
+	if err := migrate.Apply(root, plan); err != nil {
+		fmt.Fprintf(errOut, "clue migrate: %v\n", err)
+		return 1
+	}
+	if len(plan.Changes) == 0 {
+		fmt.Fprintln(out, "clue migrate: no changes needed")
+	} else {
+		fmt.Fprintf(out, "clue migrate: applied %d file(s)\n", len(plan.Changes))
+	}
+	return 0
 }
 
 func runValidate(args []string) int {

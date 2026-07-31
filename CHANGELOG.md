@@ -4,6 +4,10 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 
 ## [Unreleased]
 
+### Migration
+
+- **Corpus-contract upgrades now have a safe path.** Preview `clue migrate` before writing; apply the complete plan with an explicit `--reversal-cost=low|high` choice. It updates deterministic corpus fields, recognized generated skills and mirrors, and the thin CI caller together, while reporting ambiguous syntax and local edits without overwriting them. `clue init` remains non-destructive.
+
 ### Fixed
 
 - **Java and Kotlin tests can no longer borrow acceptance evidence from unrelated methods in the same file.** `clue validate` now credits a JVM criterion, proof type, and positive or negative direction only when all three belong to one supported executable through literal JUnit method tags or a stable test name. Parameterized and nested JUnit tests are handled explicitly; class-level, ambiguous, dynamic, or otherwise unsupported evidence syntax is diagnosed instead of guessed. Brownfield extraction no longer promises an external ArchUnit rule that it did not install.

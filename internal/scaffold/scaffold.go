@@ -67,6 +67,43 @@ func PairVersion() (string, error) {
 	return string(m[1]), nil
 }
 
+// ManagedCarrierFiles returns the generated carrier files that a migration
+// may refresh in an adopted repository. It deliberately excludes the docs
+// taxonomy and AGENTS.md: those are repository-owned prose, while these files
+// are the five generated skills, their Claude mirror, and the thin workflow
+// caller emitted by init.
+func ManagedCarrierFiles() (map[string][]byte, error) {
+	version, err := PairVersion()
+	if err != nil {
+		return nil, err
+	}
+	workflowRef := workflowReference(version)
+	files := map[string][]byte{}
+	err = fs.WalkDir(templates, "templates", func(p string, d fs.DirEntry, walkErr error) error {
+		if walkErr != nil || d.IsDir() {
+			return walkErr
+		}
+		rel := strings.TrimPrefix(p, "templates/")
+		if !strings.HasPrefix(rel, "skills/") && rel != "github/workflows/clue.yml" {
+			return nil
+		}
+		data, readErr := templates.ReadFile(p)
+		if readErr != nil {
+			return readErr
+		}
+		data = []byte(strings.ReplaceAll(string(data), versionPlaceholder, version))
+		data = []byte(strings.ReplaceAll(string(data), workflowRefPlaceholder, workflowRef))
+		for _, target := range targetsFor(rel) {
+			files[target] = append([]byte(nil), data...)
+		}
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return files, nil
+}
+
 // workflowReference returns the immutable reference an emitted caller uses
 // for the upstream validation unit: the source commit that built this binary
 // when that commit can be named honestly, and the protected release tag

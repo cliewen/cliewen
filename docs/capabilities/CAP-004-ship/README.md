@@ -13,7 +13,7 @@ goal: G-002
 
 `clue` reports a release version (`clue version` / `clue --version`), stamped at build time from the release tag. Every Cliewen agent skill declares `cliewen-skill: true` and carries a matching `version:` in its frontmatter ([ADR-022](../../decisions/ADR-022-skill-ownership-marker.md)); `clue validate` scopes the version set to those marked skills, so unrelated skills can coexist under `.agents/skills/`. A marked skill without a stamp fails, marked skills that disagree on a version fail, and a *released* `clue` whose marked skills differ from the binary fails as drift (a `dev` build skips that last comparison — it has no release to drift from). The standalone skills are generated from skill-specific templates and shared instruction fragments; repository tests also reject drift between those canonical sources and either distributed skill tree.
 
-A tagged release (`vX.Y.Z`) builds cross-platform binaries — linux/darwin/windows × amd64/arm64 — each stamped with the version, published as a GitHub release for `go install` and `gh release download`.
+A tagged release (`vX.Y.Z`) builds cross-platform binaries — linux/darwin/windows × amd64/arm64 — each stamped with the version, published as a GitHub release for `go install` and `gh release download`. When a release changes corpus obligations, its notes name the supported `clue migrate` path before adopters upgrade.
 
 ## Why
 
