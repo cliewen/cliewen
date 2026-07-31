@@ -97,7 +97,7 @@ func TestAC064_UnitPositive_MigrationIsPreviewableIdempotentAndCoordinated(t *te
 	if err != nil {
 		t.Fatal(err)
 	}
-	if bytes.Equal(mirrorAfter, oldSkill) || !bytes.Contains(mirrorAfter, []byte("version: 0.10.0")) {
+	if bytes.Equal(mirrorAfter, oldSkill) || !bytes.Contains(mirrorAfter, []byte("version: "+version)) {
 		t.Fatal("migration did not refresh the recognized Claude mirror")
 	}
 
@@ -250,17 +250,21 @@ func TestAC064_UnitNegative_MigrationRejectsCopiedOrAmbiguousCaller(t *testing.T
 	if err != nil {
 		t.Fatal(err)
 	}
+	version, err := scaffold.PairVersion()
+	if err != nil {
+		t.Fatal(err)
+	}
 	embedded := want[".github/workflows/clue.yml"]
 	current := string(embedded)
 	for _, input := range []string{
 		current + "\njobs:\n  extra:\n    steps:\n      - run: echo copied\n",
 		strings.Replace(current, "clue-version:", "clue-version:\n  duplicate:", 1),
 	} {
-		if _, _, ok, message := updateCaller([]byte(input), embedded, "0.10.0"); ok || message == "" {
+		if _, _, ok, message := updateCaller([]byte(input), embedded, version); ok || message == "" {
 			t.Fatalf("ambiguous caller was accepted: %q", message)
 		}
 	}
-	if _, _, ok, message := updateCaller(embedded, []byte("name: broken\n"), "0.10.0"); ok || !strings.Contains(message, "embedded") {
+	if _, _, ok, message := updateCaller(embedded, []byte("name: broken\n"), version); ok || !strings.Contains(message, "embedded") {
 		t.Fatalf("invalid embedded caller was accepted: %q", message)
 	}
 }
