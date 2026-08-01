@@ -27,7 +27,7 @@ Agent-authored decisions are born `status: inferred` and become truth only when 
 
 **Carrier:** the promotion paragraph in `docs/decisions/README.md` (ships as `clue init` template prose per [ADR-013](ADR-013-ships-generic-vs-repo-local.md)); the `clue-verify` checklist item already binds the two-tier rule and stays as written — only the mechanics of *who edits the file* changed.
 
-Applied retroactively in the change that introduces this ADR: [ADR-011](ADR-011-version-stamping.md) (accepted with PR #6) and [ADR-012](ADR-012-release-notes-from-changelog.md) (accepted with PR #7) flip to `verified`. This ADR itself ships `inferred` and is promoted by its own PR's approval — the rule demonstrating itself.
+Applied retroactively in the change that introduces this ADR: [ADR-011](ADR-011-version-stamping.md) (accepted with PR [#6](https://github.com/cliewen/cliewen/pull/6)) and [ADR-012](ADR-012-release-notes-from-changelog.md) (accepted with PR [#7](https://github.com/cliewen/cliewen/pull/7)) flip to `verified`. This ADR itself ships `inferred` and is promoted by its own PR's approval — the rule demonstrating itself.
 
 ### Rejected: humans edit the frontmatter themselves
 

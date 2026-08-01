@@ -6,7 +6,12 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 
 ### Migration
 
+- **External references must now name what they point at.** A bare forge number such as `#42` fails validation: it silently means "this repository" and is wrong the moment it does not. Write the full address of the target instead — a pull request, an issue, a wiki page, and a published document are all written the same way, so nothing assumes a particular forge. Citations that stay inside your repository are untouched: an artifact keeps its bare ID and a file its relative path. `clue migrate` reports every unqualified reference with its file and line but never repairs one, because nothing in the file says which repository was meant and guessing would make a wrong reference look deliberate. An ordinal or a colour literal written bare in prose — `the #1 cause`, `#777777` — is read as a citation for the same reason a real one is, so put it in a code span, which is ordinary markdown practice anyway. A citation of an artifact in another repository's corpus is written `clue:owner/repo/ID`, with the revision that was proven when it points at foreign acceptance evidence; a half-written one now fails rather than sitting there looking complete.
 - **Corpus-contract upgrades now have a safe path.** Preview `clue migrate` before writing; apply the complete plan with an explicit `--reversal-cost=low|high` choice. It updates deterministic corpus fields, recognized generated skills and mirrors, and the thin CI caller together, while reporting ambiguous syntax and local edits without overwriting them. `clue init` remains non-destructive.
+
+### Added
+
+- **`clue refs` checks whether the addresses your corpus points at still work.** It resolves each one and reports it as reachable, restricted, redirected, gone, or unreachable. Only a gone address is an error. A restricted one — a private repository, an internal wiki — is a normal, permanent answer rather than a problem, and an outage or a timeout is reported as unknown, so someone else's downtime can never condemn a corpus that has not changed. Redirected addresses are listed with their new location and rewritten only when you ask with `--apply`; addresses inside a completed plan are reported but never rewritten, because they record what was observed at the time. This command deliberately runs outside `clue validate` and must never be a required check.
 
 ### Fixed
 

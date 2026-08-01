@@ -14,7 +14,7 @@ Cliewen may require a full proposal workspace for ordinary product changes witho
 
 ## Evidence boundary
 
-The spike inspected the public Robocode Tank Royale repository, the first product repository to adopt Cliewen, from its adoption merge `b7fb320ccec1f4742ef923cb315e7dd84f7e824f` (PR #218) through fetched `origin/main` commit `86a4bd58514bcdc4d36f1dd374900e6eae3b29f3`, pinned on 2026-07-28. That boundary contains five accepted first-parent units between 2026-07-19 and 2026-07-23: four merge commits for PRs #219…#222 and one direct commit. Measurements were reproduced on Microsoft Windows NT 10.0.26200.0 with PowerShell 7.6.4, Git 2.55.0.windows.3, and GitHub CLI against the hosted pull-request metadata.
+The spike inspected the public Robocode Tank Royale repository, the first product repository to adopt Cliewen, from its adoption merge `b7fb320ccec1f4742ef923cb315e7dd84f7e824f` (PR [#218](https://github.com/robocode-dev/tank-royale/pull/218)) through fetched `origin/main` commit `86a4bd58514bcdc4d36f1dd374900e6eae3b29f3`, pinned on 2026-07-28. That boundary contains five accepted first-parent units between 2026-07-19 and 2026-07-23: four merge commits for PRs [#219](https://github.com/robocode-dev/tank-royale/pull/219)…[#222](https://github.com/robocode-dev/tank-royale/pull/222) and one direct commit. Measurements were reproduced on Microsoft Windows NT 10.0.26200.0 with PowerShell 7.6.4, Git 2.55.0.windows.3, and GitHub CLI against the hosted pull-request metadata.
 
 An accepted unit is one first-parent mutation of `main`. For a merge, commit count and churn cover commits reachable from the pull request's second parent but not its first parent; for the direct commit, they cover that commit. `git show --numstat` supplies line churn. `changes/` is transient process material, `docs/` is durable corpus material, generated Cliewen skills are reported separately, and every other path is product or repository material. Binary rows have no line count. The numbers establish versioned activity, not author effort or maintainer intent.
 
@@ -22,11 +22,11 @@ An accepted unit is one first-parent mutation of `main`. For a merge, commit cou
 
 | Accepted unit | Hosted tier claim or observable shape | Branch commits | Transient `changes/` churn | Durable corpus churn | Other churn |
 |---|---|---:|---:|---:|---:|
-| CH-002 / PR #219 | Full workspace; criteria and plan meaning reconciled to shipped behavior | 3 | +102 / -102 | +49 / -15 | 0 |
-| CH-003 / PR #220 | PR explicitly claims light; four provenance flags promoted | 1 | 0 | +4 / -4 | 0 |
-| CH-004 / PR #221 | PR explicitly claims light; generated skills, CI installation, and plan bookkeeping changed | 1 | 0 | +2 / -2 | skills +187 / -63; repository +9 / -14 |
+| CH-002 / PR [#219](https://github.com/robocode-dev/tank-royale/pull/219) | Full workspace; criteria and plan meaning reconciled to shipped behavior | 3 | +102 / -102 | +49 / -15 | 0 |
+| CH-003 / PR [#220](https://github.com/robocode-dev/tank-royale/pull/220) | PR explicitly claims light; four provenance flags promoted | 1 | 0 | +4 / -4 | 0 |
+| CH-004 / PR [#221](https://github.com/robocode-dev/tank-royale/pull/221) | PR explicitly claims light; generated skills, CI installation, and plan bookkeeping changed | 1 | 0 | +2 / -2 | skills +187 / -63; repository +9 / -14 |
 | Dependency update `5173b3f9` | Direct commit with no associated pull request | 1 | 0 | 0 | repository +7 / -7 |
-| CH-005 / PR #222 | Full workspace; a new plan and decision-log row added | 3 | +42 / -42 | +27 / -1 | 0 |
+| CH-005 / PR [#222](https://github.com/robocode-dev/tank-royale/pull/222) | Full workspace; a new plan and decision-log row added | 3 | +42 / -42 | +27 / -1 | 0 |
 
 The two full semantic changes authored 144 transient lines and deleted the same workspace during digest, against 76 durable corpus additions: 1.89 transient lines per durable line added. Each used three branch commits, while both hosted light changes used one. Across all five accepted units the median transient churn is zero because three units carried no workspace.
 

@@ -92,4 +92,24 @@ Feature: clue ships — a versioned binary and versioned skills, drift made lint
     When the release workflow extracts the changelog section
     Then it requires a non-empty "### Migration" section before publishing
     But a release that does not change the migration registry keeps the ordinary release-notes requirement without inventing migration guidance
+
+  @AC-068
+  Scenario: Resolving external addresses reports without condemning
+    Test-type: Unit
+    Given corpus addresses that answer 200, a bare 403, a redirect with a location, 404 whose owner root still answers, 404 whose owner root does not, a 403 carrying a rate-limit header, and a timeout
+    When the user runs "clue refs"
+    Then they are classified reachable, restricted, redirected, restricted, gone, unreachable, and unreachable in that order
+    And only the gone address makes the command exit non-zero
+    But restricted and unreachable never fail the run, because neither says the corpus is wrong
+    And a clue: identity is never resolved
+
+  @AC-069
+  Scenario: A rewrite is offered, never taken behind the human
+    Test-type: Unit
+    Given a redirected address in an ordinary artifact and a redirected address in a completed plan
+    When the user runs "clue refs" and then "clue refs --apply"
+    Then the preview writes nothing and names both, marking the completed plan as pinned history
+    And --apply rewrites only the ordinary artifact, to the location its host gave
+    But the completed plan is left exactly as it was, because its address is part of what was observed
+    And a gone address is never rewritten, since no correct replacement exists to offer
 ```

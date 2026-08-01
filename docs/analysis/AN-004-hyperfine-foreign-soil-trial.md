@@ -49,7 +49,7 @@ The inferred goal is: let users compare command performance credibly across repe
 
 Likely capabilities are command definition and parameter expansion; setup, warmup, preparation, benchmark, conclusion, and cleanup scheduling; platform-specific process timing; statistical summarization and comparison; terminal presentation and warnings; and structured result export. These boundaries are navigationally useful but are not presented as maintainer-approved taxonomy.
 
-Issue #788 can map to a `draft` Cliewen plan because the owner explicitly names it as unfinished planning and describes three intended features plus two possible behavior changes. The rest of the issue and pull-request queue cannot safely become milestones merely because it is active.
+Issue [#788](https://github.com/sharkdp/hyperfine/issues/788) can map to a `draft` Cliewen plan because the owner explicitly names it as unfinished planning and describes three intended features plus two possible behavior changes. The rest of the issue and pull-request queue cannot safely become milestones merely because it is active.
 
 ## Native verification
 
@@ -96,7 +96,7 @@ This adjustment is deliberately narrower than all candidate changes from AN-003.
 ## Rejected interpretations
 
 - **The README is the accepted goal.** It is an authoritative product description, but the credibility language in the candidate goal is an inference.
-- **Every active issue or pull request is plan evidence.** Issue #788 is explicit draft planning; other activity remains demand or proposed work until accepted.
+- **Every active issue or pull request is plan evidence.** Issue [#788](https://github.com/sharkdp/hyperfine/issues/788) is explicit draft planning; other activity remains demand or proposed work until accepted.
 - **PowerShell proves the test suite is broken.** The repository's Windows CI uses Bash semantics, and the exact Git for Windows Bash environment passes.
 - **A passing Bash run makes the PowerShell failure irrelevant.** The failure exposes an undeclared environmental dependency and proves why reproduction conditions matter.
 - **The unqualified `bash` rerun is Windows evidence.** It resolved to WSL and tested Linux, so it was discarded.

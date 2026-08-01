@@ -40,7 +40,7 @@ func validCorpus(t *testing.T) string {
 
 // AC-004: exit 0 on a valid corpus.
 func TestAC004_ExitCodeZeroOnValidCorpus(t *testing.T) {
-	if code := runValidate([]string{validCorpus(t)}); code != 0 {
+	if code := runValidate([]string{validCorpus(t)}, io.Discard); code != 0 {
 		t.Fatalf("expected exit 0, got %d", code)
 	}
 }
@@ -49,7 +49,7 @@ func TestAC004_ExitCodeZeroOnValidCorpus(t *testing.T) {
 func TestAC005_ExitCodeOneOnBrokenCorpus(t *testing.T) {
 	root := validCorpus(t)
 	writeFile(t, root, "docs/goals/G-001-first.md", "---\nid: G-001\ntype: goal\nlinks: []\ntitle: First goal\n---\n")
-	if code := runValidate([]string{root}); code != 1 {
+	if code := runValidate([]string{root}, io.Discard); code != 1 {
 		t.Fatalf("expected exit 1, got %d", code)
 	}
 }
@@ -58,7 +58,7 @@ func TestAC005_ExitCodeOneOnBrokenCorpus(t *testing.T) {
 func TestAC051_LowCostInferredArtifactsAreAccepted(t *testing.T) {
 	root := validCorpus(t)
 	writeFile(t, root, "docs/goals/G-001-first.md", "---\nid: G-001\ntype: goal\nstatus: accepted\nlinks: []\ntitle: First goal\nprovenance: inferred\nreversal-cost: low\n---\n")
-	if code := runValidate([]string{root}); code != 0 {
+	if code := runValidate([]string{root}, io.Discard); code != 0 {
 		t.Fatalf("inferred provenance is valid; expected exit 0, got %d", code)
 	}
 	c, _ := corpus.Scan(root)
@@ -104,7 +104,7 @@ func TestAC051_CLIReportsActivationBlockerCount(t *testing.T) {
 	}
 	old := os.Stderr
 	os.Stderr = w
-	code := runValidate([]string{root})
+	code := runValidate([]string{root}, io.Discard)
 	os.Stderr = old
 	if err := w.Close(); err != nil {
 		t.Fatal(err)
@@ -126,7 +126,7 @@ func TestAC023_AgentConstraintCountReported(t *testing.T) {
 	writeFile(t, root, "docs/README.md", "# Corpus\n\n<!-- clue:index:start -->\n- [goals/](goals/README.md)\n- [constraints/](constraints/README.md)\n<!-- clue:index:end -->\n")
 	writeFile(t, root, "docs/constraints/README.md", "# Constraints\n\n<!-- clue:index:start -->\n- [C-001](C-001-rule.md)\n<!-- clue:index:end -->\n")
 	writeFile(t, root, "docs/constraints/C-001-rule.md", "---\nid: C-001\ntype: constraint\nstatus: active\nlinks: []\ntitle: A rule\nsource: AGENTS.md\nenforcement: agent\n---\n")
-	if code := runValidate([]string{root}); code != 0 {
+	if code := runValidate([]string{root}, io.Discard); code != 0 {
 		t.Fatalf("an agent-enforced constraint is valid; expected exit 0, got %d", code)
 	}
 	c, _ := corpus.Scan(root)
@@ -203,11 +203,11 @@ func TestAC033_RunValidateThreadsVersionIntoDriftRule(t *testing.T) {
 	old := version
 	defer func() { version = old }()
 	version = "0.2.0"
-	if code := runValidate([]string{root}); code != 1 {
+	if code := runValidate([]string{root}, io.Discard); code != 1 {
 		t.Fatalf("clue 0.2.0 against skills at 0.1.0: expected exit 1 (drift), got %d", code)
 	}
 	version = "0.1.0"
-	if code := runValidate([]string{root}); code != 0 {
+	if code := runValidate([]string{root}, io.Discard); code != 0 {
 		t.Fatalf("clue 0.1.0 against skills at 0.1.0: expected exit 0, got %d", code)
 	}
 }
@@ -678,35 +678,11 @@ func TestSanity_ReleaseRunsTheJudgeStampedAsTheTag(t *testing.T) {
 // the two versions.
 func runValidateCapturingStdout(t *testing.T, args []string) (int, string) {
 	t.Helper()
-	r, w, err := os.Pipe()
-	if err != nil {
-		t.Fatalf("pipe: %v", err)
-	}
-	defer func() { _ = r.Close() }()
-	// Drain while validate writes: a pipe holds one buffer's worth, so
-	// reading only after the writer closes would deadlock the moment the
-	// corpus reports more issues than that.
-	type captured struct {
-		out string
-		err error
-	}
-	done := make(chan captured, 1)
-	go func() {
-		out, readErr := io.ReadAll(r)
-		done <- captured{string(out), readErr}
-	}()
-	old := os.Stdout
-	defer func() { os.Stdout = old }()
-	os.Stdout = w
-	code := runValidate(args)
-	if err := w.Close(); err != nil {
-		t.Fatalf("close pipe: %v", err)
-	}
-	got := <-done
-	if got.err != nil {
-		t.Fatalf("read pipe: %v", got.err)
-	}
-	return code, got.out
+	// The command writes to the writer it is given, so capturing it needs no
+	// pipe, no goroutine draining it, and no swap of the process's stdout.
+	var out bytes.Buffer
+	code := runValidate(args, &out)
+	return code, out.String()
 }
 
 type communityIssueForm struct {
@@ -1067,10 +1043,10 @@ func TestSanity_SkillsCarryNoDocIDs(t *testing.T) {
 func TestAC008_ForbidChangesFlagExitCodes(t *testing.T) {
 	root := validCorpus(t)
 	writeFile(t, root, "changes/CH-009-x/proposal.md", "---\nid: CH-009\ntype: change\nstatus: open\nlinks: []\ntitle: X\n---\n")
-	if code := runValidate([]string{root}); code != 0 {
+	if code := runValidate([]string{root}, io.Discard); code != 0 {
 		t.Fatalf("without the gate: expected exit 0, got %d", code)
 	}
-	if code := runValidate([]string{"--forbid-changes", root}); code != 1 {
+	if code := runValidate([]string{"--forbid-changes", root}, io.Discard); code != 1 {
 		t.Fatalf("with the gate: expected exit 1, got %d", code)
 	}
 }

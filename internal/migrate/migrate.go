@@ -18,6 +18,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/cliewen/cliewen/internal/corpus"
 	"github.com/cliewen/cliewen/internal/scaffold"
 	"gopkg.in/yaml.v3"
 )
@@ -31,6 +32,12 @@ const (
 	MigrationStatusLifecycle = "MIG-002"
 	// MigrationManagedCarriers refreshes generated skills and the thin caller.
 	MigrationManagedCarriers = "MIG-003"
+	// MigrationQualifiedReferences reports bare forge references. It never
+	// repairs one: nothing in the file says which repository was meant, and
+	// defaulting to the adopter's own slug would convert a confidently wrong
+	// reference into a confidently wrong qualified one that no later check
+	// can question.
+	MigrationQualifiedReferences = "MIG-004"
 )
 
 // Options controls planning. Preview is the default; applying a plan is a
@@ -51,6 +58,7 @@ var orderedMigrations = []MigrationDefinition{
 	{ID: MigrationReversalCost, Description: "add explicit inferred-meaning reversal routing"},
 	{ID: MigrationStatusLifecycle, Description: "map historical architecture and analysis status to the default lifecycle"},
 	{ID: MigrationManagedCarriers, Description: "refresh generated skills, mirrors, and the thin CI caller"},
+	{ID: MigrationQualifiedReferences, Description: "report external references that name no repository"},
 }
 
 // Registry returns the migration order without exposing mutable package state.
@@ -178,6 +186,7 @@ func Plan(root string, opts Options) (MigrationPlan, error) {
 		return MigrationPlan{}, err
 	}
 	planCarriers(root, target, carriers, &result)
+	planQualifiedReferences(root, &result)
 	sortPlan(&result)
 	return result, nil
 }
@@ -803,4 +812,32 @@ func sortPlan(plan *MigrationPlan) {
 		return plan.Findings[i].Message < plan.Findings[j].Message
 	})
 	sort.Slice(plan.Notices, func(i, j int) bool { return plan.Notices[i].Path < plan.Notices[j].Path })
+}
+
+// planQualifiedReferences reports every external reference that names no
+// repository, in the same shape the registry uses for semantic cases.
+//
+// This migration is deliberately report-only. A bare forge number cannot be
+// qualified mechanically: the file does not say which repository was meant,
+// and the one reference already known to be wrong in a Cliewen corpus resolved
+// perfectly in the wrong namespace. Guessing the adopter's own slug would
+// cement exactly that mistake behind a form no later check can question. The
+// adopter resolves each one in a reviewed change.
+func planQualifiedReferences(root string, result *MigrationPlan) {
+	// Scan's second return is the parse-level issue list, not a fatal: an
+	// adopter's pre-upgrade corpus is exactly where a stray file without
+	// frontmatter is likely, and treating that as a reason to report nothing
+	// would silence the migration for the population it exists to serve. The
+	// artifacts it did parse are still every artifact it could read.
+	scanned, _ := corpus.Scan(root)
+	if scanned == nil {
+		return
+	}
+	for _, issue := range corpus.BareReferenceIssues(scanned) {
+		result.Findings = append(result.Findings, Finding{
+			Path:      issue.Path,
+			Migration: MigrationQualifiedReferences,
+			Message:   issue.Msg + "; this cannot be repaired mechanically, because nothing here says which repository was meant",
+		})
+	}
 }

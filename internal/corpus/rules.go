@@ -74,6 +74,8 @@ func Validate(c *Corpus, opts Options) []Issue {
 	issues = append(issues, checkSupersedes(c)...)
 	issues = append(issues, checkFolderReadmes(c)...)
 	issues = append(issues, checkIndexes(c)...)
+	issues = append(issues, checkExternalReferences(c)...)
+	issues = append(issues, checkForeignPointers(c)...)
 	issues = append(issues, checkACTests(c)...)
 	issues = append(issues, checkProvenance(c)...)
 	issues = append(issues, checkReality(c)...)

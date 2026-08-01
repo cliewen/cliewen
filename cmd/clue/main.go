@@ -14,6 +14,7 @@ import (
 
 	"github.com/cliewen/cliewen/internal/corpus"
 	"github.com/cliewen/cliewen/internal/migrate"
+	"github.com/cliewen/cliewen/internal/refs"
 )
 
 // version is the release stamp, injected at build time via
@@ -49,6 +50,7 @@ Usage:
   clue init [path]
   clue scaffold [path]
   clue context <id> [path]
+  clue refs [--apply] [--timeout=<duration>] [path]
   clue validate [--forbid-changes] [--coverage] [--reality-gaps] [path]
   clue version
 
@@ -81,6 +83,16 @@ Commands:
              Existing prose and locally modified generated files are never
              overwritten. Path defaults to ".".
 
+  refs       Resolve the external addresses docs/ and changes/ point at,
+             classifying each: reachable, restricted (it exists, this
+             runner may not read it), redirected, gone, or unreachable.
+             Only "gone" is an error; an outage elsewhere never
+             condemns a corpus. Use
+             --apply to rewrite redirected addresses in place. A clue:
+             identity is never followed. Never make this a required
+             check: another host's uptime must not gate a merge.
+             Path defaults to ".".
+
   validate   Scan docs/ and changes/ under path (default ".") and check
              the frontmatter graph: core fields, unique IDs, link
              resolution, status vocabularies, folder READMEs, index
@@ -88,7 +100,10 @@ Commands:
 
              --forbid-changes  fail when /changes contains files — the
                                digest-before-merge gate used by CI.
-             --coverage        print derived proof coverage by capability.
+             --coverage        print derived proof coverage by capability,
+                               then any pointer to proof in another
+                               repository, listed apart as named but
+                               locally unproven.
              --reality-gaps    print capabilities contradicted by incident
                                analyses after their corpus was green.
 
@@ -118,8 +133,10 @@ func main() {
 		os.Exit(runContext(os.Args[2:], os.Stdout, os.Stderr))
 	case "migrate":
 		os.Exit(runMigrate(os.Args[2:], os.Stdout, os.Stderr))
+	case "refs":
+		os.Exit(runRefs(os.Args[2:], os.Stdout, os.Stderr))
 	case "validate":
-		os.Exit(runValidate(os.Args[2:]))
+		os.Exit(runValidate(os.Args[2:], os.Stdout))
 	case "version", "--version":
 		os.Exit(runVersion(os.Stdout))
 	case "help", "--help", "-h":
@@ -190,7 +207,10 @@ func runMigrate(args []string, out, errOut io.Writer) int {
 	return 0
 }
 
-func runValidate(args []string) int {
+// runValidate takes its writer so the command's own output is observable: a
+// criterion that describes what a user sees is only proven when a test reads
+// what the command actually printed.
+func runValidate(args []string, out io.Writer) int {
 	fs := flag.NewFlagSet("validate", flag.ExitOnError)
 	forbid := fs.Bool("forbid-changes", false, "fail when /changes contains files")
 	coverage := fs.Bool("coverage", false, "print derived per-capability proof coverage; never a committed registry")
@@ -206,7 +226,7 @@ func runValidate(args []string) int {
 	provenance := corpus.ProvenanceBacklog(c)
 	if len(issues) > 0 {
 		for _, is := range issues {
-			fmt.Println(is)
+			fmt.Fprintln(out, is)
 		}
 		fmt.Fprintf(os.Stderr, "clue validate: %d issue(s)", len(issues))
 		if len(provenance.BlockerArtifacts) > 0 {
@@ -220,12 +240,18 @@ func runValidate(args []string) int {
 	}
 	if *coverage {
 		for _, cc := range corpus.Coverage(c) {
-			fmt.Printf("%s: %s\n", cc.Capability, cc.State)
+			fmt.Fprintf(out, "%s: %s\n", cc.Capability, cc.State)
+		}
+		// A pointer to proof in another repository is listed apart from
+		// coverage, never inside it. Naming it says a human can go and look;
+		// counting it would be importing a verdict this judge cannot see.
+		for _, p := range corpus.ForeignPointers(c) {
+			fmt.Fprintf(out, "%s: named but locally unproven\n", p)
 		}
 	}
 	if *realityGaps {
 		for _, gap := range corpus.RealityGaps(c) {
-			fmt.Printf("%s: contradicted by %s\n", gap.Capability, strings.Join(gap.Analyses, ", "))
+			fmt.Fprintf(out, "%s: contradicted by %s\n", gap.Capability, strings.Join(gap.Analyses, ", "))
 		}
 	}
 	notes := ""
@@ -238,7 +264,7 @@ func runValidate(args []string) int {
 	if n := agentConstraintCount(c); n > 0 {
 		notes += fmt.Sprintf(", %d agent-enforced constraint(s) awaiting machine checks", n)
 	}
-	fmt.Printf("clue validate: OK (%d artifacts%s)\n", len(c.Artifacts), notes)
+	fmt.Fprintf(out, "clue validate: OK (%d artifacts%s)\n", len(c.Artifacts), notes)
 	return 0
 }
 
@@ -258,4 +284,96 @@ func agentConstraintCount(c *corpus.Corpus) int {
 		}
 	}
 	return n
+}
+
+// runRefs resolves the corpus's external addresses.
+//
+// ADR-040 keeps this outside the judge on purpose: it needs the network, so
+// its answer can differ between two runs over the same revision. Only a gone
+// reference is an error — restricted and unreachable say nothing about whether
+// the corpus is correct, and treating them as failures would let someone
+// else's outage, or the absence of a credential, block unrelated work.
+func runRefs(args []string, out, errOut io.Writer) int {
+	fs := flag.NewFlagSet("refs", flag.ContinueOnError)
+	fs.SetOutput(errOut)
+	apply := fs.Bool("apply", false, "rewrite redirected addresses in place")
+	timeout := fs.Duration("timeout", 0, "per-request budget (default 10s)")
+	if err := fs.Parse(args); err != nil {
+		return 2
+	}
+	root := "."
+	if fs.NArg() > 0 {
+		root = fs.Arg(0)
+	}
+	if fs.NArg() > 1 {
+		fmt.Fprintln(errOut, "clue refs: expected at most one repository path")
+		return 2
+	}
+
+	report, err := refs.Resolve(root, refs.Options{Apply: *apply, Timeout: *timeout})
+
+	// The findings are printed before the error is handled. A rewrite that
+	// fails part-way has already resolved every address, and discarding that
+	// would throw away the whole network run — including any gone reference —
+	// leaving the user with an error and no idea which files were touched.
+	for _, r := range report.References {
+		switch r.Result {
+		case refs.Reachable:
+			continue // the ordinary case is not worth a line
+		case refs.Redirected:
+			note := ""
+			if r.Frozen {
+				note = "  [pinned history — --apply leaves it alone; decide by hand]"
+			}
+			fmt.Fprintf(out, "%s:%d: redirected %s -> %s%s\n", r.Path, r.Line, r.URL, r.Target, note)
+		case refs.Gone:
+			fmt.Fprintf(out, "%s:%d: gone %s\n", r.Path, r.Line, r.URL)
+		case refs.Restricted:
+			fmt.Fprintf(out, "%s:%d: restricted %s\n", r.Path, r.Line, r.URL)
+		case refs.Unreachable:
+			detail := r.Detail
+			if detail != "" {
+				detail = " (" + detail + ")"
+			}
+			fmt.Fprintf(out, "%s:%d: unreachable %s%s\n", r.Path, r.Line, r.URL, detail)
+		}
+	}
+
+	if err != nil {
+		fmt.Fprintf(errOut, "clue refs: %v\n", err)
+		return 2
+	}
+
+	// Redirects are split by what --apply can actually do with them. A redirect
+	// inside pinned history is reported and left alone, so counting it towards
+	// the advice would tell the user to run a command that will not touch it.
+	frozen, rewritable := 0, 0
+	for _, r := range report.References {
+		if r.Result == refs.Redirected {
+			if r.Frozen {
+				frozen++
+			} else {
+				rewritable++
+			}
+		}
+	}
+
+	counts := report.Counts()
+	mode := "preview"
+	if report.Applied {
+		mode = "applied"
+	}
+	fmt.Fprintf(out, "clue refs: %s — %d reachable, %d restricted, %d redirected, %d gone, %d unreachable\n",
+		mode, counts[refs.Reachable], counts[refs.Restricted], counts[refs.Redirected],
+		counts[refs.Gone], counts[refs.Unreachable])
+	if frozen > 0 {
+		fmt.Fprintf(out, "clue refs: %d redirected address(es) sit in pinned history and are never rewritten; decide those by hand\n", frozen)
+	}
+	if rewritable > 0 && !report.Applied {
+		fmt.Fprintln(out, "clue refs: rerun with --apply to rewrite the redirected addresses")
+	}
+	if report.HasErrors() {
+		return 1
+	}
+	return 0
 }
