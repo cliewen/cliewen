@@ -8,12 +8,13 @@ title: Tasks for CH-095
 
 # Tasks
 
-- [ ] Record the ADR: the qualified-reference notation, the judge's offline form rule, the separated resolver and its four outcomes, the foreign-evidence pointer, and the rejections that stay closed
-- [ ] Revise M-044's exit criterion to the broader boundary this change implements, citing the ADR as its backing decision
-- [ ] Add the criteria this change is judged by, with positive and negative evidence for each: the form rule, the resolver's classification, and the foreign-evidence pointer
-- [ ] Implement the judge's form rule: a bare forge reference fails, a qualified forge reference and a full URL pass, a foreign corpus ID is qualified by repository, and code fences and headings are never mistaken for references
-- [ ] Repair every unqualified reference in this corpus, naming the repository each one actually meant
-- [ ] Implement the resolver command: preview by default, explicit write, four outcomes (reachable, redirected, gone, unreachable), a redirect offered as a rewrite, and an unreachable target reported as unknown rather than invalid
-- [ ] Implement the foreign-evidence pointer: repository, pinned revision, and identifier, treated as named but locally unproven, never as coverage and never as an imported verdict
-- [ ] Move every live carrier together: capability README, criteria and design, canonical and generated skills, scaffold templates, public and contributor guidance, implementation explanations, and `[Unreleased]`
-- [ ] Run the complete change verification: build, vet, the full test suite, `clue validate`, and the guide build
+- [x] Record the ADR: the qualified-reference notation, the judge's offline form rule, the separated resolver and its outcomes, the foreign-evidence pointer, and the rejections that stay closed
+- [x] Revise M-044's exit criterion to the broader boundary this change implements, citing the ADR as its backing decision
+- [x] Add the criteria this change is judged by, with positive and negative evidence for each: AC-066 and AC-067 for the form rule and the pointer, AC-068 and AC-069 for the resolver's classification and its rewrite boundary
+- [x] Implement the judge's form rule: a bare forge reference fails with the line a reader opens to, while fenced code, code spans, link targets, labelled links, anchors, colour literals, `clue:` identities, and every local citation pass untouched
+- [x] Repair every unqualified reference in this corpus, naming the repository each one actually meant
+- [x] Implement the resolver command: preview by default, explicit write, five outcomes, a credential sent only where it is honoured, and pinned history reported but never rewritten
+- [x] Implement the foreign-evidence pointer: repository, pinned revision, and identifier, parsed as an identity the resolver never follows
+- [x] Add the report-only adopter migration and confirm it against both live adopters without writing to either
+- [x] Move every live carrier together: the verify checklist, the analysis skill, both generated skill trees, and `[Unreleased]`
+- [x] Run the complete change verification: build, vet, the full test suite, and `clue validate`
