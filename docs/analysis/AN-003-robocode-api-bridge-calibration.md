@@ -68,7 +68,7 @@ Compatibility is probabilistic and population-based: score variance, robot-speci
 
 ### F4 — The repository's working plan is distributed and partially stale
 
-The root TODO says the event-dispatch redesign and Bot API upgrade are uncommitted, although the referenced changes are present in the latest commits. Open issue #5 and the missing compatibility report also lag or omit the newest experiment state. A plan inferred from only one carrier would be wrong; the likely direction above required reconciling prose with history and executable structure.
+The root TODO says the event-dispatch redesign and Bot API upgrade are uncommitted, although the referenced changes are present in the latest commits. Open issue [#5](https://github.com/robocode-dev/robocode-api-bridge/issues/5) and the missing compatibility report also lag or omit the newest experiment state. A plan inferred from only one carrier would be wrong; the likely direction above required reconciling prose with history and executable structure.
 
 ### F5 — Applying the change skill would introduce governance, not merely structure
 
