@@ -10,7 +10,6 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
-	"github.com/cliewen/cliewen/internal/corpus"
 	"io/fs"
 	"os"
 	"path"
@@ -19,6 +18,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/cliewen/cliewen/internal/corpus"
 	"github.com/cliewen/cliewen/internal/scaffold"
 	"gopkg.in/yaml.v3"
 )

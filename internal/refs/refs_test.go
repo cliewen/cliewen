@@ -46,6 +46,11 @@ func forge(t *testing.T) *httptest.Server {
 		w.WriteHeader(http.StatusNotFound)
 	})
 	mux.HandleFunc("/owner", func(w http.ResponseWriter, r *http.Request) {})
+	// Siblings sharing the redirected address's prefix. Each answers 200, so
+	// each is classified reachable and must survive a neighbouring rewrite.
+	mux.HandleFunc("/owner/live/moved.git", func(w http.ResponseWriter, r *http.Request) {})
+	mux.HandleFunc("/owner/live/movedx", func(w http.ResponseWriter, r *http.Request) {})
+	mux.HandleFunc("/owner/live/moved/deeper/page", func(w http.ResponseWriter, r *http.Request) {})
 	// A deleted target whose owner is gone too.
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusNotFound)
@@ -312,5 +317,56 @@ func TestAC069_UnitNegative_AnAddressEndingASentenceIsStillRewritten(t *testing.
 				t.Fatalf("the rewrite was skipped:\n%q", got)
 			}
 		})
+	}
+}
+
+func TestAC069_UnitNegative_ASiblingSharingAPrefixIsNeverCorrupted(t *testing.T) {
+	// Every character admitted as a boundary is a way for a classified address
+	// to be substituted into a longer one the run never looked at. These are
+	// the shapes that hazard actually takes.
+	srv := forge(t)
+	for _, sibling := range []string{
+		"/owner/live/moved.git",
+		"/owner/live/movedx",
+		"/owner/live/moved/deeper/page",
+		// A fragment and a query string are deliberately absent: neither
+		// reaches the server as a distinct resource, so an address carrying
+		// one is the same target and is meant to move with it.
+	} {
+		t.Run(sibling, func(t *testing.T) {
+			line := "see " + srv.URL + "/owner/live/moved and " + srv.URL + sibling + "\n"
+			root := corpusWith(t, map[string]string{
+				"analysis/AN-001.md": "---\ntype: analysis\nstatus: active\n---\n\n" + line,
+			})
+			if _, err := Resolve(root, Options{Apply: true, Client: srv.Client()}); err != nil {
+				t.Fatal(err)
+			}
+			got, err := os.ReadFile(filepath.Join(root, "docs", "analysis", "AN-001.md"))
+			if err != nil {
+				t.Fatal(err)
+			}
+			if !strings.Contains(string(got), srv.URL+sibling) {
+				t.Fatalf("the sibling address was corrupted:\n%q", got)
+			}
+		})
+	}
+}
+
+func TestAC069_UnitNegative_ACarriageReturnDoesNotSkipTheRewrite(t *testing.T) {
+	// A checkout without LF normalisation is the one environment where the
+	// skipped-but-reported-applied regression would recur silently.
+	srv := forge(t)
+	root := corpusWith(t, map[string]string{
+		"analysis/AN-001.md": "---\r\ntype: analysis\r\nstatus: active\r\n---\r\n\r\nSee " + srv.URL + "/owner/live/moved\r\n",
+	})
+	if _, err := Resolve(root, Options{Apply: true, Client: srv.Client()}); err != nil {
+		t.Fatal(err)
+	}
+	got, err := os.ReadFile(filepath.Join(root, "docs", "analysis", "AN-001.md"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(string(got), "/owner/live/ok") {
+		t.Fatalf("a CRLF line skipped the rewrite:\n%q", got)
 	}
 }

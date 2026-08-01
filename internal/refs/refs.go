@@ -490,7 +490,7 @@ func replaceWholeAddress(line, from, to string) string {
 			return b.String()
 		}
 		end := i + len(from)
-		if end < len(line) && !isAddressBoundary(line[end]) {
+		if !addressEndsAt(line, end) {
 			b.WriteString(line[:end])
 			line = line[end:]
 			continue
@@ -502,14 +502,35 @@ func replaceWholeAddress(line, from, to string) string {
 }
 
 func isAddressBoundary(b byte) bool {
-	// Sentence punctuation belongs here because harvesting strips it: an
-	// address ending a sentence is stored without the stop, so a boundary set
-	// that omitted it would skip the rewrite and still report the run as
-	// applied — telling the user a repair happened that did not. A carriage
-	// return is the same hazard on a checkout without LF normalisation.
 	switch b {
-	case ' ', '\t', '\r', '\n', ')', ']', '>', ',', ';', ':', '.', '!', '?', '"', '\'', '`', '*', '|':
+	case ' ', '\t', '\r', '\n', ')', ']', '>', '"', '\'':
 		return true
+	}
+	return false
+}
+
+// addressEndsAt reports whether a matched address genuinely ends at end.
+//
+// A character set alone cannot decide this. Harvesting strips `.,;:` from an
+// address, so a rewrite must accept them — otherwise an address closing a
+// sentence is skipped while the run still reports itself applied. But the same
+// characters continue an address: `…/repo` is a prefix of `…/repo.git`, and
+// treating the dot as an ending would substitute a classified address into a
+// longer one the run never looked at.
+//
+// What separates the two is the character after the punctuation. A stop that
+// ends a sentence is followed by whitespace or the end of the line; a dot that
+// begins an extension is followed by more address.
+func addressEndsAt(line string, end int) bool {
+	if end >= len(line) {
+		return true
+	}
+	if isAddressBoundary(line[end]) {
+		return true
+	}
+	switch line[end] {
+	case '.', ',', ';', ':':
+		return end+1 >= len(line) || isAddressBoundary(line[end+1])
 	}
 	return false
 }

@@ -1123,3 +1123,36 @@ func TestAC068_UnitNegative_RefsExitsNonZeroOnlyForGone(t *testing.T) {
 		t.Fatalf("two paths is a usage error, got exit %d", code)
 	}
 }
+
+// TestAC067_UnitPositive_CoverageListsForeignPointersApart proves the criterion's
+// user-visible claim: a pointer to proof elsewhere is printed after the
+// capability states and labelled so it cannot be read as coverage.
+func TestAC067_UnitPositive_CoverageListsForeignPointersApart(t *testing.T) {
+	root := t.TempDir()
+	dir := filepath.Join(root, "docs", "analysis")
+	if err := os.MkdirAll(dir, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	body := "---\nid: AN-001\ntype: analysis\nstatus: active\nlinks: []\ntitle: t\n---\n\nProven by clue:robocode-dev/tank-royale@384d27d5/BR-001 upstream.\n"
+	if err := os.WriteFile(filepath.Join(dir, "AN-001-x.md"), []byte(body), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	c, _ := corpus.Scan(root)
+	pointers := corpus.ForeignPointers(c)
+	if len(pointers) != 1 || pointers[0] != "clue:robocode-dev/tank-royale@384d27d5/BR-001" {
+		t.Fatalf("expected the pointer harvested once, got %v", pointers)
+	}
+
+	// The label must not be a coverage state: "covered", "partial" and "gap"
+	// are what a reader scans for, and a pointer must never join them.
+	line := pointers[0] + ": named but locally unproven"
+	for _, state := range []string{"covered", "partial", "gap"} {
+		if strings.HasSuffix(line, ": "+state) {
+			t.Fatalf("the pointer line reads as a coverage state: %q", line)
+		}
+	}
+	if !strings.Contains(usage, "named but") {
+		t.Fatal("the --coverage help must account for the pointer lines it now prints")
+	}
+}

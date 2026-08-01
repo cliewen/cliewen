@@ -83,11 +83,11 @@ Commands:
              Existing prose and locally modified generated files are never
              overwritten. Path defaults to ".".
 
-  refs       Resolve the external addresses docs/ and changes/ point at and
-             classify
-             each: reachable, restricted (it exists, this runner may not
-             read it), redirected, gone, or unreachable. Only "gone" is an
-             error; an outage elsewhere never condemns a corpus. Use
+  refs       Resolve the external addresses docs/ and changes/ point at,
+             classifying each: reachable, restricted (it exists, this
+             runner may not read it), redirected, gone, or unreachable.
+             Only "gone" is an error; an outage elsewhere never
+             condemns a corpus. Use
              --apply to rewrite redirected addresses in place. A clue:
              identity is never followed. Never make this a required
              check: another host's uptime must not gate a merge.
@@ -100,7 +100,10 @@ Commands:
 
              --forbid-changes  fail when /changes contains files — the
                                digest-before-merge gate used by CI.
-             --coverage        print derived proof coverage by capability.
+             --coverage        print derived proof coverage by capability,
+                               then any pointer to proof in another
+                               repository, listed apart as named but
+                               locally unproven.
              --reality-gaps    print capabilities contradicted by incident
                                analyses after their corpus was green.
 
