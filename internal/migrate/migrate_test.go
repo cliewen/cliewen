@@ -2,6 +2,8 @@ package migrate
 
 import (
 	"bytes"
+	"crypto/sha256"
+	"encoding/hex"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -242,6 +244,77 @@ func TestAC064_UnitNegative_MigrationRejectsUnsupportedSyntaxAndOptions(t *testi
 	after, _, findings := migrateArtifact("crlf.md", crlf, "low")
 	if len(findings) != 0 || !bytes.Contains(after, []byte("reversal-cost: low\r\n")) || !bytes.Contains(after, []byte("status: active\r\n")) {
 		t.Fatalf("CRLF frontmatter was not migrated without a finding: findings=%v\n%s", findings, after)
+	}
+}
+
+func TestAC064_UnitPositive_MigrationEditsOnlyTopLevelFields(t *testing.T) {
+	// An indented key belongs to a nested mapping or to block scalar content.
+	// It is not the artifact's field, and editing it would both rewrite user
+	// content and leave the real field unmigrated.
+	nested := []byte("---\nid: AN-001\ntype: analysis\nsource:\n  provenance: inferred\n  status: verified\n  note: keep\nstatus: verified\nlinks: []\ntitle: A\nprovenance: inferred\n---\n\nbody\n")
+	want := []byte("---\nid: AN-001\ntype: analysis\nsource:\n  provenance: inferred\n  status: verified\n  note: keep\nstatus: active\nlinks: []\ntitle: A\nprovenance: inferred\nreversal-cost: low\n---\n\nbody\n")
+	after, changes, findings := migrateArtifact("docs/analysis/AN-001.md", nested, "low")
+	if len(findings) != 0 || len(changes) != 2 {
+		t.Fatalf("nested keys blocked the real fields: changes=%v findings=%v", changes, findings)
+	}
+	if !bytes.Equal(after, want) {
+		t.Fatalf("migration did not edit the top-level fields:\n got %s\nwant %s", after, want)
+	}
+}
+
+func TestAC064_UnitNegative_MigrationRefusesFieldsItCannotAnchor(t *testing.T) {
+	// A key repeated at the top level has no single owner, so there is no safe
+	// line to rewrite. Refuse rather than guess at the first or last one.
+	duplicate := []byte("---\nid: AN-001\ntype: analysis\nstatus: verified\nstatus: verified\nlinks: []\ntitle: A\n---\n")
+	if after, changes, findings := migrateArtifact("duplicate.md", duplicate, "low"); len(findings) == 0 || len(changes) != 0 || !bytes.Equal(after, duplicate) {
+		t.Fatalf("a repeated top-level field was migrated: changes=%v findings=%v\n%s", changes, findings, after)
+	}
+}
+
+func TestAC064_UnitPositive_MigrationPreservesEveryUntouchedLineEnding(t *testing.T) {
+	// The migration rewrites the fields it owns, not the file's line endings.
+	// A mixed-ending artifact must come back with each untouched line — prose
+	// included — terminated exactly as it was.
+	before := []byte("---\nid: AN-001\ntype: analysis\nstatus: verified\r\nlinks: []\ntitle: A\nprovenance: inferred\r\n---\n\nprose with LF\nprose with CRLF\r\nfinal LF\n")
+	want := []byte("---\nid: AN-001\ntype: analysis\nstatus: active\r\nlinks: []\ntitle: A\nprovenance: inferred\r\nreversal-cost: low\r\n---\n\nprose with LF\nprose with CRLF\r\nfinal LF\n")
+
+	after, changes, findings := migrateArtifact("docs/analysis/AN-001.md", before, "low")
+	if len(findings) != 0 {
+		t.Fatalf("mixed line endings were reported as a finding: %+v", findings)
+	}
+	if len(changes) != 2 {
+		t.Fatalf("changes = %v, want the reversal-cost insert and the status replacement", changes)
+	}
+	if !bytes.Equal(after, want) {
+		t.Fatalf("line endings were not preserved:\n got %q\nwant %q", after, want)
+	}
+}
+
+func TestAC064_UnitPositive_LegacyReleasesAreReportedOldestFirst(t *testing.T) {
+	// The manifest's own order names the release, so bytes shared by several
+	// releases resolve to the earliest one regardless of how the version
+	// strings would compare. A lexicographic sort would answer 0.10.0 here.
+	shared := []byte("shared carrier bytes\n")
+	digest := sha256.Sum256(shared)
+	rel := "clue-test/skill.md"
+	restore := legacyDigests
+	t.Cleanup(func() { legacyDigests = restore })
+	legacyDigests = []releaseManifest{
+		{Version: "0.9.0", Files: map[string]string{rel: hex.EncodeToString(digest[:])}},
+		{Version: "0.10.0", Files: map[string]string{rel: hex.EncodeToString(digest[:])}},
+	}
+
+	if got := legacyVersion(rel, shared); got != "0.9.0" {
+		t.Fatalf("legacyVersion = %q, want the earliest release 0.9.0", got)
+	}
+	if got := legacyVersion(rel, []byte("locally edited\n")); got != "" {
+		t.Fatalf("legacyVersion = %q, want \"\" for bytes no release published", got)
+	}
+	if got := releaseDigest("0.10.0", rel); got == "" {
+		t.Fatal("releaseDigest did not find a release the manifest lists")
+	}
+	if got := releaseDigest("0.10.0", "clue-absent/skill.md"); got != "" {
+		t.Fatalf("releaseDigest = %q for a file the release never shipped", got)
 	}
 }
 

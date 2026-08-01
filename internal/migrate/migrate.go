@@ -92,34 +92,44 @@ type MigrationPlan struct {
 }
 
 var (
-	frontmatterStart = "---\n"
-	fieldLineRe      = regexp.MustCompile(`(?m)^([ \t]*)([A-Za-z][A-Za-z0-9_-]*):([ \t]*)([^\r\n]*)(\r?\n|$)`)
-	callerUsesRe     = regexp.MustCompile(`(?m)^([ \t]*)uses:([ \t]*)(cliewen/cliewen/\.github/workflows/clue-validation\.yml)@([^\s#]+)([ \t]*(?:#.*)?)(\r?\n|$)`)
-	callerVersionRe  = regexp.MustCompile(`(?m)^([ \t]*)clue-version:([ \t]*)([^\s#]+)([ \t]*(?:#.*)?)(\r?\n|$)`)
+	fieldLineRe     = regexp.MustCompile(`(?m)^([ \t]*)([A-Za-z][A-Za-z0-9_-]*):([ \t]*)([^\r\n]*)(\r?\n|$)`)
+	callerUsesRe    = regexp.MustCompile(`(?m)^([ \t]*)uses:([ \t]*)(cliewen/cliewen/\.github/workflows/clue-validation\.yml)@([^\s#]+)([ \t]*(?:#.*)?)(\r?\n|$)`)
+	callerVersionRe = regexp.MustCompile(`(?m)^([ \t]*)clue-version:([ \t]*)([^\s#]+)([ \t]*(?:#.*)?)(\r?\n|$)`)
 )
+
+// releaseManifest is one published release's generated-carrier digests.
+type releaseManifest struct {
+	Version string
+	Files   map[string]string
+}
 
 // legacyDigests is the committed release manifest for generated carriers.
 // A carrier is replaceable only when its bytes match the release that wrote
 // it. This is what distinguishes an old generated file from a locally edited
 // one without a hidden state file or a destructive overwrite.
-var legacyDigests = map[string]map[string]string{
-	"0.5.1": {
+//
+// It is an ordered, append-only list rather than a map: releases are reported
+// oldest-first, and ordering them by comparison would need semver parsing that
+// a lexicographic sort gets wrong the moment a minor reaches two digits
+// (0.10.0 before 0.9.0). Append each new release at the end.
+var legacyDigests = []releaseManifest{
+	{Version: "0.5.1", Files: map[string]string{
 		"clue-analysis/skill.md":            "9dc9cbf5482dfce9ba78bcc47eae205ab7f65a29061c5614580fbcfb704d430f",
 		"clue-delta/skill.md":               "a6ede82283531f71edb53773a7cad477ceae1a7cd97957d74be0f12dec4a9ddc",
 		"clue-extract/mappings/openspec.md": "a6d40a7d9b213d58c935b1d343dcb27e3efacde7b1e8a80745c60e724bbc68e4",
 		"clue-extract/skill.md":             "98730f6edc2f2170ce1179d3f907ab127db9baab4b1ddedc68718deac1411bd1",
 		"clue-plan/skill.md":                "b23af904b43543cfe2616fc7273b9f630105230983a844de415c393024acb048",
 		"clue-verify/skill.md":              "788a1d6219248f8f8cd169d2858f20617aae036a7f56c06099f199c8e0776b76",
-	},
-	"0.6.0": {
+	}},
+	{Version: "0.6.0", Files: map[string]string{
 		"clue-analysis/skill.md":            "fb97a73b58a466b45d8d47f9cb3a7b3e54d73c9c93877e23637e827fe7bdb6e7",
 		"clue-delta/skill.md":               "322c9d3bbce9580ba2b0091a2bbf4743eea3c283f5c679af7c4eb7a122ed364f",
 		"clue-extract/mappings/openspec.md": "3673fe7bb66237d8d73c42158581c9ed33c5c53cb3aa89bdbde6312151dd37ea",
 		"clue-extract/skill.md":             "d197867a2a33a5adf8d827c9823313a111ff5d19660e9eb7f6d237cdf9cfc1f3",
 		"clue-plan/skill.md":                "deb6221dd6b612eac16c8d36acdc8f93807bc02c2bf1c3827f5a1e45e6dba2d7",
 		"clue-verify/skill.md":              "e2e078899834b9e5719e300aedb80dec470d2675c6188927f77c69af57e94a34",
-	},
-	"0.7.0": {
+	}},
+	{Version: "0.7.0", Files: map[string]string{
 		"clue-analysis/skill.md":            "6194cb804f08133ef3b3e87c39a7616bf9cb2115fe759598e796ba66df967dd4",
 		"clue-delta/skill.md":               "e336c2df69fc1be9d5aeebe81b3989dae65187703172ff283120c5aff76e73bc",
 		"clue-extract/mappings/madr.md":     "96dfb83213387ab16b4927870b21533646eeb8fadae164555cdeccd51fe503e5",
@@ -127,8 +137,8 @@ var legacyDigests = map[string]map[string]string{
 		"clue-extract/skill.md":             "960a77ba250367bca319e708272b78fdeed01683adef5c83c55d6d0f8b4d584e",
 		"clue-plan/skill.md":                "0a2b4e3a7c8dbe63247087e08942b3211c42e7d6693de4751fa842a5ebc87497",
 		"clue-verify/skill.md":              "faa1b050e5a440d00ee7cff110aca4e1516507f7c8b035ac2e4b36d51f068bed",
-	},
-	"0.8.0": {
+	}},
+	{Version: "0.8.0", Files: map[string]string{
 		"clue-analysis/skill.md":            "8a4967df0c74e6fe2b3ef6f857a925d8798ed16152d3ebf503bc64abaab34c5b",
 		"clue-delta/skill.md":               "2fd3516de8b8ab9bc7f1fe24e7fca42df5c33b6fbed8c3ce08fb1317e87c347c",
 		"clue-extract/mappings/madr.md":     "96dfb83213387ab16b4927870b21533646eeb8fadae164555cdeccd51fe503e5",
@@ -136,8 +146,8 @@ var legacyDigests = map[string]map[string]string{
 		"clue-extract/skill.md":             "070b5bf6ff4fd6159166d645d01693de0404e42124cbbcc5dcfd14139ba3af64",
 		"clue-plan/skill.md":                "af8dee537456644e99607a702da136467f7fd8967bea950fe8b5a3e5bf6f8661",
 		"clue-verify/skill.md":              "44fc206073addf90763def2ca682a86ddbf10395e0dfa72332bda56da094bfec",
-	},
-	"0.9.0": {
+	}},
+	{Version: "0.9.0", Files: map[string]string{
 		"clue-analysis/skill.md":            "c472b39311b43cd2c2c8bba1c7de9e1361bf2465de3dc3f6cf3879c5fcf0377f",
 		"clue-delta/skill.md":               "a229f48814099930a7df5781b1302bbc97bb602f2179e56f5942218a8b518145",
 		"clue-extract/mappings/madr.md":     "96dfb83213387ab16b4927870b21533646eeb8fadae164555cdeccd51fe503e5",
@@ -145,7 +155,7 @@ var legacyDigests = map[string]map[string]string{
 		"clue-extract/skill.md":             "ef0bc657288a1d5adec5d8980a8c705aff4c9f964d9eb27fd62987bd9cabadb0",
 		"clue-plan/skill.md":                "bf6a4e4cd1fa5b6ed8b318687f5da51c0837415e66ae9e48c1c34ff4b2c7e324",
 		"clue-verify/skill.md":              "23a409a732255da58412785f7b06fe52923966fe16bcd23250369faf09c920b6",
-	},
+	}},
 }
 
 // Plan scans the target and returns the complete deterministic migration.
@@ -255,8 +265,8 @@ func planCorpus(root string, opts Options, result *MigrationPlan) error {
 }
 
 func migrateArtifact(rel string, before []byte, reversalCost string) ([]byte, []string, []Finding) {
-	text := strings.ReplaceAll(string(before), "\r\n", "\n")
-	start, end, fields, _, eol, ok, err := readFrontmatter(text)
+	text := string(before)
+	end, fields, ok, err := readFrontmatter(text)
 	if err != nil {
 		return before, nil, []Finding{{Path: rel, Migration: MigrationReversalCost, Message: "frontmatter is ambiguous; resolve it before migration: " + err.Error()}}
 	}
@@ -265,7 +275,7 @@ func migrateArtifact(rel string, before []byte, reversalCost string) ([]byte, []
 	}
 	var changes []string
 	var findings []Finding
-	front := text[start:end]
+	front := text[:end]
 	if fields.Type == "decision" && fields.HasReversalCost {
 		findings = append(findings, Finding{Path: rel, Migration: MigrationReversalCost, Message: "decisions route cost by record type and must not carry reversal-cost; resolve it by hand before resuming"})
 	} else if fields.HasReversalCost && fields.ReversalCost != "low" && fields.ReversalCost != "high" {
@@ -286,7 +296,7 @@ func migrateArtifact(rel string, before []byte, reversalCost string) ([]byte, []
 		} else if !fields.ProvenanceSimple {
 			findings = append(findings, Finding{Path: rel, Migration: MigrationReversalCost, Message: "provenance syntax is not a plain scalar; add reversal-cost by hand before resuming"})
 		} else {
-			updated, inserted := insertAfterField(front, "provenance", "reversal-cost: "+reversalCost, eol)
+			updated, inserted := insertAfterField(front, "provenance", "reversal-cost: "+reversalCost)
 			if !inserted {
 				findings = append(findings, Finding{Path: rel, Migration: MigrationReversalCost, Message: "provenance field is not a safe top-level line; add reversal-cost by hand before resuming"})
 			} else {
@@ -300,7 +310,7 @@ func migrateArtifact(rel string, before []byte, reversalCost string) ([]byte, []
 			if !fields.StatusSimple {
 				findings = append(findings, Finding{Path: rel, Migration: MigrationStatusLifecycle, Message: "status syntax is not a safe top-level line; change verified to active by hand before resuming"})
 			} else {
-				updated, replaced := replaceField(front, "status", "active", eol)
+				updated, replaced := replaceField(front, "status", "active")
 				if !replaced {
 					findings = append(findings, Finding{Path: rel, Migration: MigrationStatusLifecycle, Message: "status syntax is not a safe top-level line; change verified to active by hand before resuming"})
 				} else {
@@ -321,11 +331,7 @@ func migrateArtifact(rel string, before []byte, reversalCost string) ([]byte, []
 	if len(changes) == 0 {
 		return before, nil, nil
 	}
-	updated := text[:start] + front + text[end:]
-	if strings.Contains(string(before), "\r\n") {
-		updated = strings.ReplaceAll(updated, "\n", "\r\n")
-	}
-	return []byte(updated), changes, nil
+	return []byte(front + text[end:]), changes, nil
 }
 
 type artifactFields struct {
@@ -339,31 +345,52 @@ type artifactFields struct {
 	HasReversalCost  bool
 }
 
-func readFrontmatter(text string) (int, int, artifactFields, string, string, bool, error) {
-	eol := "\n"
-	if strings.Contains(text, "\r\n") {
-		eol = "\r\n"
-		text = strings.ReplaceAll(text, "\r\n", "\n")
+// openingFence reports the byte length of the leading `---` line, accepting
+// either line ending so a CRLF artifact is read as-is rather than normalized.
+func openingFence(text string) (int, bool) {
+	switch {
+	case strings.HasPrefix(text, "---\r\n"):
+		return len("---\r\n"), true
+	case strings.HasPrefix(text, "---\n"):
+		return len("---\n"), true
 	}
-	if !strings.HasPrefix(text, frontmatterStart) {
-		return 0, 0, artifactFields{}, text, eol, false, nil
+	return 0, false
+}
+
+// splitFrontmatter locates the frontmatter block by scanning lines in the
+// original text. It never rewrites line endings: every terminator the file
+// already had — including a mixed set — is left exactly where it was, and
+// edits below reuse the terminator of the line they touch.
+func splitFrontmatter(text string) (int, string, bool, error) {
+	openLength, ok := openingFence(text)
+	if !ok {
+		return 0, "", false, nil
 	}
-	rest := text[len(frontmatterStart):]
-	endOffset := strings.Index(rest, "\n---\n")
-	closingLength := len("\n---\n")
-	if endOffset < 0 {
-		if strings.HasSuffix(rest, "\n---") {
-			endOffset = len(rest) - len("\n---")
-			closingLength = len("\n---")
-		} else {
-			return 0, 0, artifactFields{}, text, eol, false, errors.New("frontmatter closing fence is missing")
+	for pos := openLength; pos <= len(text); {
+		line, next := text[pos:], len(text)
+		if lineEnd := strings.IndexByte(line, '\n'); lineEnd >= 0 {
+			line, next = line[:lineEnd], pos+lineEnd+1
 		}
+		if strings.TrimSuffix(line, "\r") == "---" {
+			return next, text[openLength:pos], true, nil
+		}
+		if next == pos {
+			break
+		}
+		pos = next
 	}
-	end := len(frontmatterStart) + endOffset + closingLength
+	return 0, "", false, errors.New("frontmatter closing fence is missing")
+}
+
+func readFrontmatter(text string) (int, artifactFields, bool, error) {
+	end, inner, ok, err := splitFrontmatter(text)
+	if err != nil || !ok {
+		return 0, artifactFields{}, false, err
+	}
 	front := text[:end]
 	var raw map[string]any
-	if err := yaml.Unmarshal([]byte(text[len(frontmatterStart):len(frontmatterStart)+endOffset]), &raw); err != nil {
-		return 0, 0, artifactFields{}, text, eol, false, err
+	if err := yaml.Unmarshal([]byte(inner), &raw); err != nil {
+		return 0, artifactFields{}, false, err
 	}
 	field := func(name string) (string, bool) {
 		value, exists := raw[name]
@@ -379,54 +406,82 @@ func readFrontmatter(text string) (int, int, artifactFields, string, string, boo
 	reversalCost, _ := field("reversal-cost")
 	_, hasProvenance := raw["provenance"]
 	_, hasCostField := raw["reversal-cost"]
-	return 0, end, artifactFields{Type: typ, Status: status, StatusSimple: statusOK && isSimpleScalar(front, "status", status), Provenance: provenance, ProvenanceSimple: provenanceOK && isSimpleScalar(front, "provenance", provenance), HasProvenance: hasProvenance, ReversalCost: reversalCost, HasReversalCost: hasCostField}, text[end:], eol, true, nil
+	return end, artifactFields{Type: typ, Status: status, StatusSimple: statusOK && isSimpleScalar(front, "status", status), Provenance: provenance, ProvenanceSimple: provenanceOK && isSimpleScalar(front, "provenance", provenance), HasProvenance: hasProvenance, ReversalCost: reversalCost, HasReversalCost: hasCostField}, true, nil
+}
+
+// topLevelField returns the submatch indexes of the one unindented line
+// declaring key. An indented match belongs to a nested mapping or to block
+// scalar content, and editing it would silently rewrite something other than
+// the field being migrated; several top-level matches are equally ambiguous.
+// Both cases return false so the caller raises a finding instead of writing.
+func topLevelField(front, key string) ([]int, bool) {
+	var found [][]int
+	for _, match := range fieldLineRe.FindAllStringSubmatchIndex(front, -1) {
+		if match[3] != match[2] {
+			continue
+		}
+		if front[match[4]:match[5]] != key {
+			continue
+		}
+		found = append(found, match)
+	}
+	if len(found) != 1 {
+		return nil, false
+	}
+	return found[0], true
+}
+
+// trailingComment returns the ` # …` remainder of a field value, which a
+// replacement must carry over. A `#` not preceded by whitespace is part of
+// the scalar, not a comment.
+func trailingComment(rawValue string) string {
+	hash := strings.Index(rawValue, "#")
+	if hash <= 0 || (rawValue[hash-1] != ' ' && rawValue[hash-1] != '\t') {
+		return ""
+	}
+	return " " + rawValue[hash:]
 }
 
 func isSimpleScalar(front, key, value string) bool {
-	for _, match := range fieldLineRe.FindAllStringSubmatch(front, -1) {
-		if match[2] == key {
-			raw := strings.TrimSpace(match[4])
-			if raw == value {
-				return true
-			}
-			if hash := strings.Index(raw, "#"); hash > 0 && (raw[hash-1] == ' ' || raw[hash-1] == '\t') && strings.TrimSpace(raw[:hash]) == value {
-				return true
-			}
-			return false
-		}
+	match, ok := topLevelField(front, key)
+	if !ok {
+		return false
+	}
+	raw := strings.TrimSpace(front[match[8]:match[9]])
+	if raw == value {
+		return true
+	}
+	if comment := trailingComment(raw); comment != "" {
+		return strings.TrimSpace(strings.TrimSuffix(raw, strings.TrimPrefix(comment, " "))) == value
 	}
 	return false
 }
 
-func insertAfterField(front, key, line, eol string) (string, bool) {
-	for _, match := range fieldLineRe.FindAllStringSubmatchIndex(front, -1) {
-		if front[match[4]:match[5]] != key {
-			continue
-		}
-		end := match[1]
-		return front[:end] + line + eol + front[end:], true
+func insertAfterField(front, key, line string) (string, bool) {
+	match, ok := topLevelField(front, key)
+	if !ok {
+		return front, false
 	}
-	return front, false
+	// Reuse the anchor line's own terminator so an inserted line matches the
+	// file it lands in instead of imposing one ending on the whole artifact.
+	eol := front[match[10]:match[11]]
+	if eol == "" {
+		return front, false
+	}
+	end := match[1]
+	return front[:end] + line + eol + front[end:], true
 }
 
-func replaceField(front, key, value, eol string) (string, bool) {
-	for _, match := range fieldLineRe.FindAllStringSubmatchIndex(front, -1) {
-		if front[match[4]:match[5]] != key {
-			continue
-		}
-		lineStart, lineEnd := match[0], match[1]
-		prefix := front[lineStart:match[8]]
-		rawValue := front[match[8]:match[9]]
-		suffix := ""
-		if hash := strings.Index(rawValue, "#"); hash >= 0 {
-			suffix = rawValue[hash:]
-		}
-		if suffix != "" {
-			suffix = " " + suffix
-		}
-		return front[:lineStart] + prefix + value + suffix + eol + front[lineEnd:], true
+func replaceField(front, key, value string) (string, bool) {
+	match, ok := topLevelField(front, key)
+	if !ok {
+		return front, false
 	}
-	return front, false
+	lineStart, lineEnd := match[0], match[1]
+	prefix := front[lineStart:match[8]]
+	suffix := trailingComment(front[match[8]:match[9]])
+	eol := front[match[10]:match[11]]
+	return front[:lineStart] + prefix + value + suffix + eol + front[lineEnd:], true
 }
 
 func migrationForArtifact(changes []string) string {
@@ -462,7 +517,7 @@ func planManagedFile(root, rel string, want []byte, result *MigrationPlan) {
 		}
 		legacyRel := strings.TrimPrefix(rel, ".agents/skills/")
 		if legacyRel != rel {
-			if oldVersion := skillVersion(root, legacyRel); oldVersion != "" && legacyDigests[oldVersion][legacyRel] == "" {
+			if oldVersion := skillVersion(root, legacyRel); oldVersion != "" && releaseDigest(oldVersion, legacyRel) == "" {
 				result.Changes = append(result.Changes, Change{Path: rel, Migration: MigrationManagedCarriers, Description: fmt.Sprintf("add generated carrier from release %s content", oldVersion), After: want})
 				return
 			}
@@ -478,8 +533,7 @@ func planManagedFile(root, rel string, want []byte, result *MigrationPlan) {
 		return
 	}
 	legacyRel := legacyCarrierRel(rel)
-	if digestMatchesLegacy(legacyRel, got) {
-		oldVersion := legacyVersion(legacyRel, got)
+	if oldVersion := legacyVersion(legacyRel, got); oldVersion != "" {
 		result.Changes = append(result.Changes, Change{Path: rel, Migration: MigrationManagedCarriers, Description: fmt.Sprintf("replace generated carrier %s with release %s content", legacyRel, oldVersion), Existed: true, Before: got, After: want})
 		return
 	}
@@ -554,15 +608,15 @@ func replaceMatch(text string, match []int, value string, start, end int) string
 	return text[:match[start]] + value + text[match[end]:]
 }
 
-func digestMatchesLegacy(rel string, data []byte) bool {
-	digest := sha256.Sum256(data)
-	hexDigest := hex.EncodeToString(digest[:])
-	for _, files := range legacyDigests {
-		if files[rel] == hexDigest {
-			return true
+// releaseDigest returns the digest a named release published for rel, or ""
+// when that release did not ship the file.
+func releaseDigest(version, rel string) string {
+	for _, release := range legacyDigests {
+		if release.Version == version {
+			return release.Files[rel]
 		}
 	}
-	return false
+	return ""
 }
 
 func skillVersion(root, rel string) string {
@@ -578,20 +632,19 @@ func skillVersion(root, rel string) string {
 	return legacyVersion(skillRel, data)
 }
 
+// legacyVersion names the earliest release that published these exact bytes
+// for rel, or "" when no supported release did. Identical bytes can span
+// several releases; the manifest's own order decides, so the answer does not
+// depend on how release strings compare.
 func legacyVersion(rel string, data []byte) string {
 	digest := sha256.Sum256(data)
 	hexDigest := hex.EncodeToString(digest[:])
-	versions := make([]string, 0, len(legacyDigests))
-	for version, files := range legacyDigests {
-		if files[rel] == hexDigest {
-			versions = append(versions, version)
+	for _, release := range legacyDigests {
+		if release.Files[rel] == hexDigest {
+			return release.Version
 		}
 	}
-	sort.Strings(versions)
-	if len(versions) == 0 {
-		return "unknown"
-	}
-	return versions[0]
+	return ""
 }
 
 func linkedAncestor(root, rel string) bool {
