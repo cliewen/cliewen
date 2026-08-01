@@ -311,11 +311,11 @@ func runRefs(args []string, out, errOut io.Writer) int {
 	}
 
 	report, err := refs.Resolve(root, refs.Options{Apply: *apply, Timeout: *timeout})
-	if err != nil {
-		fmt.Fprintf(errOut, "clue refs: %v\n", err)
-		return 2
-	}
 
+	// The findings are printed before the error is handled. A rewrite that
+	// fails part-way has already resolved every address, and discarding that
+	// would throw away the whole network run — including any gone reference —
+	// leaving the user with an error and no idea which files were touched.
 	for _, r := range report.References {
 		switch r.Result {
 		case refs.Reachable:
@@ -339,6 +339,25 @@ func runRefs(args []string, out, errOut io.Writer) int {
 		}
 	}
 
+	if err != nil {
+		fmt.Fprintf(errOut, "clue refs: %v\n", err)
+		return 2
+	}
+
+	// Redirects are split by what --apply can actually do with them. A redirect
+	// inside pinned history is reported and left alone, so counting it towards
+	// the advice would tell the user to run a command that will not touch it.
+	frozen, rewritable := 0, 0
+	for _, r := range report.References {
+		if r.Result == refs.Redirected {
+			if r.Frozen {
+				frozen++
+			} else {
+				rewritable++
+			}
+		}
+	}
+
 	counts := report.Counts()
 	mode := "preview"
 	if report.Applied {
@@ -347,7 +366,10 @@ func runRefs(args []string, out, errOut io.Writer) int {
 	fmt.Fprintf(out, "clue refs: %s — %d reachable, %d restricted, %d redirected, %d gone, %d unreachable\n",
 		mode, counts[refs.Reachable], counts[refs.Restricted], counts[refs.Redirected],
 		counts[refs.Gone], counts[refs.Unreachable])
-	if counts[refs.Redirected] > 0 && !report.Applied {
+	if frozen > 0 {
+		fmt.Fprintf(out, "clue refs: %d redirected address(es) sit in pinned history and are never rewritten; decide those by hand\n", frozen)
+	}
+	if rewritable > 0 && !report.Applied {
 		fmt.Fprintln(out, "clue refs: rerun with --apply to rewrite the redirected addresses")
 	}
 	if report.HasErrors() {

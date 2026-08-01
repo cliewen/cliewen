@@ -1,9 +1,72 @@
 package corpus
 
 import (
+	"go/parser"
+	"go/token"
+	"os"
+	"path/filepath"
+	"strconv"
 	"strings"
 	"testing"
 )
+
+// TestAC068_UnitNegative_TheJudgeCannotReachTheNetwork pins ADR-040's central
+// constraint structurally rather than by behaviour.
+//
+// The decision's whole shape rests on the judge staying offline: a verdict that
+// depended on another system's present state would stop being reproducible
+// against a pinned revision, and would let someone else's outage condemn a
+// corpus that has not changed. Every test around it exercises what the judge
+// says, and all of them would stay green if a later change imported net/http
+// here. This one reads the import graph instead, so the one refactor that would
+// quietly undo the decision fails loudly.
+func TestAC068_UnitNegative_TheJudgeCannotReachTheNetwork(t *testing.T) {
+	const module = "github.com/cliewen/cliewen"
+	root := filepath.Join("..", "..")
+	// os/exec joins the list: shelling out to curl or gh would reach the network
+	// just as effectively as dialling it directly.
+	forbidden := map[string]bool{"net": true, "net/http": true, "os/exec": true}
+
+	seen := map[string]bool{}
+	var visit func(pkg string, chain []string)
+	visit = func(pkg string, chain []string) {
+		if seen[pkg] {
+			return
+		}
+		seen[pkg] = true
+		dir := filepath.Join(root, filepath.FromSlash(strings.TrimPrefix(pkg, module+"/")))
+		entries, err := os.ReadDir(dir)
+		if err != nil {
+			t.Fatalf("reading %s: %v", pkg, err)
+		}
+		for _, e := range entries {
+			name := e.Name()
+			// Test files are excluded deliberately: this very test imports the
+			// parser, and a test binary is not what ships.
+			if e.IsDir() || !strings.HasSuffix(name, ".go") || strings.HasSuffix(name, "_test.go") {
+				continue
+			}
+			f, err := parser.ParseFile(token.NewFileSet(), filepath.Join(dir, name), nil, parser.ImportsOnly)
+			if err != nil {
+				t.Fatalf("parsing %s/%s: %v", pkg, name, err)
+			}
+			for _, imp := range f.Imports {
+				path, err := strconv.Unquote(imp.Path.Value)
+				if err != nil {
+					t.Fatalf("import path in %s/%s: %v", pkg, name, err)
+				}
+				if forbidden[path] {
+					t.Errorf("the judge must stay offline, but %s reaches %q via %s\n(ADR-040: resolving a target lives in internal/refs, never here)",
+						pkg, path, strings.Join(append(chain, pkg), " -> "))
+				}
+				if strings.HasPrefix(path, module+"/") {
+					visit(path, append(chain, pkg))
+				}
+			}
+		}
+	}
+	visit(module+"/internal/corpus", nil)
+}
 
 // scanBody is the unit under test for the form rule: it decides where a '#'
 // can be a citation at all.

@@ -371,11 +371,44 @@ var (
 	// **https://x/y** matched nothing at all and a rotted address inside
 	// emphasis or a tight table row was invisible.
 	bareURLRe = regexp.MustCompile("(^|[\\s(*`|\"'\\[])(https?://[^\\s)\\]<>]+)")
+	// mdLabelRe matches the label half of a markdown link. Only a bracketed run
+	// followed by '(' counts, so ordinary bracketed prose is untouched.
+	mdLabelRe = regexp.MustCompile(`\[([^\]]*)\]\(`)
 )
 
+// maskNonAddressSpans blanks the spans in which an http address is content
+// rather than a citation, preserving length so positions stay meaningful.
+//
+// Two spans qualify. A code span is a literal — the same reading the judge
+// applies — so `git clone https://host/owner/repo` is an example, not a
+// reference. A link label is prose: ADR-040 keeps link text free precisely so a
+// readable name survives, and `[https://old/a](https://new/a)` displays the old
+// address deliberately. Only the half that resolves is the reference.
+//
+// Harvesting and rewriting both read this one function. Written separately they
+// would drift, and a span excluded on the way in but visible on the way out is
+// exactly how --apply edits text the run never classified.
+func maskNonAddressSpans(line string) string {
+	out := []byte(corpus.BlankCodeSpans(line))
+	// The label's brackets and the '](' that follows survive, so mdTargetRe
+	// still sees a whole link and the target is harvested as before.
+	for _, m := range mdLabelRe.FindAllSubmatchIndex(out, -1) {
+		for i := m[2]; i < m[3]; i++ {
+			out[i] = ' '
+		}
+	}
+	return string(out)
+}
+
 // harvest collects every http(s) address in corpus prose, under docs/ and
-// changes/ alike, so the resolver answers about the same corpus the judge
-// validated.
+// changes/ alike.
+//
+// It reads every markdown file in those trees, which is deliberately wider than
+// the judge: an artifact without frontmatter, and a folder README, are never
+// validated but their addresses rot exactly the same way. The two commands
+// therefore answer about overlapping rather than identical sets, and this one
+// is the larger — which is the right way round for a link check that can never
+// gate anything.
 //
 // A clue: identity is deliberately not collected. It names a corpus artifact
 // in another repository, and following it would mean knowing where that
@@ -393,8 +426,8 @@ func harvest(root string) ([]Reference, error) {
 }
 
 // harvestTree collects addresses under one corpus tree. Both docs/ and
-// changes/ are read, because the judge validates the form in both and a
-// resolver that saw less would answer about a different corpus.
+// changes/ are read, because the judge enforces the form in both and a
+// resolver that saw less would leave a whole tree unchecked.
 func harvestTree(root, tree string, refs *[]Reference) error {
 	err := filepath.Walk(tree, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
@@ -422,11 +455,11 @@ func harvestTree(root, tree string, refs *[]Reference) error {
 			if inFence {
 				continue
 			}
-			// A code span is content, not a citation — the same reading the
-			// judge applies. Without this a literal command example such as
-			// `git clone https://host/owner/repo` would be classified and,
-			// under --apply, rewritten inside the example.
-			for _, u := range addressesIn(corpus.BlankCodeSpans(line)) {
+			// Code spans and link labels are content, not citations. Without
+			// this a literal command example, or an address shown as a link's
+			// readable name, would be classified and — under --apply —
+			// rewritten where it was only ever being displayed.
+			for _, u := range addressesIn(maskNonAddressSpans(line)) {
 				*refs = append(*refs, Reference{Path: rel, Line: i + 1, URL: u, Frozen: frozen})
 			}
 		}
@@ -520,11 +553,12 @@ func rewrite(root string, refs []Reference) error {
 // replaceWholeAddress swaps an address only where it ends there, so a shorter
 // address is never substituted into a longer one that shares its prefix.
 func replaceWholeAddress(line, from, to string) string {
-	// Occurrences are found on a copy with code spans blanked, and applied to
-	// the original. Harvesting skips a code span, so an address that also
-	// appears bare on the same line must not drag the literal example along
-	// with it.
-	mask := corpus.BlankCodeSpans(line)
+	// Occurrences are found on a masked copy and applied to the original, using
+	// the same mask harvesting used. An address that appears both as content
+	// and as a genuine reference on one line must not drag the content along
+	// with it — a literal command example, or a link's readable name, stays as
+	// written.
+	mask := maskNonAddressSpans(line)
 	var b strings.Builder
 	offset := 0
 	for {

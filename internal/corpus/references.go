@@ -158,10 +158,10 @@ var bareURLRe = regexp.MustCompile(`[a-zA-Z][a-zA-Z0-9+.-]*://[^\s)\]]+`)
 // stripNonReferenceSpans blanks every span in which a '#' cannot be a
 // reference, preserving length so positions stay meaningful.
 func stripNonReferenceSpans(line string) string {
-	// addressedLinkRe runs first: it consumes the whole link, so a label that
-	// happens to carry a forge number is never left behind for the bare-
-	// reference scan.
 	line = BlankCodeSpans(line)
+	// addressedLinkRe leads the list: it consumes the whole link, so a label
+	// that happens to carry a forge number is never left behind for the bare-
+	// reference scan.
 	for _, re := range []*regexp.Regexp{addressedLinkRe, linkTargetRe, autolinkRe, bareURLRe, clueRefRe} {
 		line = re.ReplaceAllStringFunc(line, blank)
 	}

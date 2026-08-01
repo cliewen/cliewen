@@ -95,6 +95,99 @@ func TestAC068_UnitNegative_RefsExitsNonZeroOnlyForGone(t *testing.T) {
 	}
 }
 
+// TestAC069_UnitNegative_AFailedRewriteStillReportsWhatWasFound holds the
+// findings ahead of the error. A rewrite that fails part-way has already paid
+// for the whole network run, and dropping it would leave the user an error with
+// no idea which addresses were classified — or which files were already
+// written.
+func TestAC069_UnitNegative_AFailedRewriteStillReportsWhatWasFound(t *testing.T) {
+	mux := http.NewServeMux()
+	mux.HandleFunc("/owner/live/ok", func(w http.ResponseWriter, r *http.Request) {})
+	mux.HandleFunc("/owner/live/moved", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Location", "/owner/live/ok")
+		w.WriteHeader(http.StatusMovedPermanently)
+	})
+	srv := httptest.NewServer(mux)
+	defer srv.Close()
+
+	root := t.TempDir()
+	full := filepath.Join(root, filepath.FromSlash("docs/analysis/AN-001-x.md"))
+	if err := os.MkdirAll(filepath.Dir(full), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	body := "---\nid: AN-001\ntype: analysis\nstatus: active\nlinks: []\ntitle: t\n---\n\nsee " + srv.URL + "/owner/live/moved\n"
+	if err := os.WriteFile(full, []byte(body), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	// A read-only artifact is the simplest reachable write failure.
+	if err := os.Chmod(full, 0o444); err != nil {
+		t.Skipf("cannot make the file read-only here: %v", err)
+	}
+	t.Cleanup(func() { _ = os.Chmod(full, 0o644) })
+
+	var out, errOut bytes.Buffer
+	code := runRefs([]string{"--apply", root}, &out, &errOut)
+	if code != 2 {
+		t.Skipf("this platform allowed the write; exit %d, output %q", code, out.String())
+	}
+	if !strings.Contains(out.String(), "redirected") {
+		t.Fatalf("the classification must survive the write failure, got:\n%s", out.String())
+	}
+	if !strings.Contains(errOut.String(), "clue refs:") {
+		t.Fatalf("the failure must still be reported, got:\n%s", errOut.String())
+	}
+}
+
+// TestAC069_UnitNegative_FrozenRedirectsDoNotAdvertiseApply reads the summary
+// rather than the per-reference line. --apply cannot touch a redirect inside
+// pinned history, so telling the user to rerun with it names a command that
+// will do nothing, and the count alone does not say why.
+func TestAC069_UnitNegative_FrozenRedirectsDoNotAdvertiseApply(t *testing.T) {
+	mux := http.NewServeMux()
+	mux.HandleFunc("/owner/live/ok", func(w http.ResponseWriter, r *http.Request) {})
+	mux.HandleFunc("/owner/live/moved", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Location", "/owner/live/ok")
+		w.WriteHeader(http.StatusMovedPermanently)
+	})
+	srv := httptest.NewServer(mux)
+	defer srv.Close()
+
+	root := t.TempDir()
+	full := filepath.Join(root, filepath.FromSlash("docs/plans/P-003-x.md"))
+	if err := os.MkdirAll(filepath.Dir(full), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	before := "---\nid: P-003\ntype: plan\nstatus: completed\nlinks: []\ntitle: t\n---\n\nthe guide at " + srv.URL + "/owner/live/moved returned HTTP 200\n"
+	if err := os.WriteFile(full, []byte(before), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	var out, errOut bytes.Buffer
+	if code := runRefs([]string{root}, &out, &errOut); code != 0 {
+		t.Fatalf("a redirect is not an error, got exit %d: %s", code, out.String())
+	}
+	got := out.String()
+	if strings.Contains(got, "rerun with --apply") {
+		t.Fatalf("the only redirect is pinned history; --apply would not touch it:\n%s", got)
+	}
+	if !strings.Contains(got, "pinned history and are never rewritten") {
+		t.Fatalf("the summary must say why the redirect is not actionable:\n%s", got)
+	}
+
+	// And the run it advises against genuinely writes nothing.
+	out.Reset()
+	if code := runRefs([]string{"--apply", root}, &out, &errOut); code != 0 {
+		t.Fatalf("--apply over pinned history is not an error, got exit %d: %s", code, out.String())
+	}
+	after, err := os.ReadFile(full)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if string(after) != before {
+		t.Fatalf("pinned history was rewritten:\n%q", after)
+	}
+}
+
 // TestAC069_UnitPositive_PinnedHistoryIsMarkedInTheReport reads the printed
 // note. The criterion describes user-visible output, and deleting the marker
 // left every other test green.

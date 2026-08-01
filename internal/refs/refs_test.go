@@ -434,6 +434,57 @@ func TestAC069_UnitNegative_ACodeSpanIsContentNotACitation(t *testing.T) {
 	}
 }
 
+// TestAC069_UnitNegative_ALinkLabelIsContentNotACitation guards the other half
+// of the same rule. ADR-040 keeps link text free so a readable name survives, so
+// an address displayed as a label is being shown, not pointed at — only the half
+// that resolves is the reference. Harvesting the label classified it separately
+// and, under --apply, rewrote the name a human deliberately wrote.
+func TestAC069_UnitNegative_ALinkLabelIsContentNotACitation(t *testing.T) {
+	srv := forge(t)
+	target := srv.URL + "/owner/live/moved"
+	for _, tc := range []struct {
+		name  string
+		label string
+	}{
+		// A label naming a deleted address. Were it harvested it would be gone
+		// — the one outcome that fails anything — so a corpus whose only fault
+		// is a descriptive label would report an error it does not have.
+		{"a label differing from its target", srv.URL + "/nobody/vanished"},
+		// The harder rewrite: the same address twice on one line, once as a
+		// name and once as the reference. Substituting both would edit text the
+		// run never classified.
+		{"a label repeating its target", target},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			label := tc.label
+			root := corpusWith(t, map[string]string{
+				"analysis/AN-001.md": "---\ntype: analysis\nstatus: active\n---\n\nsee [" + label + "](" + target + ") for the move\n",
+			})
+			report, err := Resolve(root, Options{Apply: true, Client: srv.Client()})
+			if err != nil {
+				t.Fatal(err)
+			}
+			if len(report.References) != 1 {
+				t.Fatalf("only the target resolves; got %v", report.References)
+			}
+			if got := report.References[0].URL; got != target {
+				t.Fatalf("expected the target %q, got %q", target, got)
+			}
+			if report.HasErrors() {
+				t.Fatal("a descriptive label must not make the corpus an error")
+			}
+			got, err := os.ReadFile(filepath.Join(root, "docs", "analysis", "AN-001.md"))
+			if err != nil {
+				t.Fatal(err)
+			}
+			want := "see [" + label + "](" + srv.URL + "/owner/live/ok) for the move"
+			if !strings.Contains(string(got), want) {
+				t.Fatalf("the target is rewritten and the label left alone.\nwant: %q\ngot:  %q", want, got)
+			}
+		})
+	}
+}
+
 func TestAC068_UnitPositive_AnEmphasisedOrQuotedAddressIsStillSeen(t *testing.T) {
 	// A silent miss cannot fail a corpus, but a rotted address inside bold
 	// text or a tight table row would be invisible, which is worse than noisy.
