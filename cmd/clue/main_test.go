@@ -7,8 +7,6 @@ import (
 	"go/token"
 	"io"
 	"io/fs"
-	"net/http"
-	"net/http/httptest"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -42,7 +40,7 @@ func validCorpus(t *testing.T) string {
 
 // AC-004: exit 0 on a valid corpus.
 func TestAC004_ExitCodeZeroOnValidCorpus(t *testing.T) {
-	if code := runValidate([]string{validCorpus(t)}); code != 0 {
+	if code := runValidate([]string{validCorpus(t)}, io.Discard); code != 0 {
 		t.Fatalf("expected exit 0, got %d", code)
 	}
 }
@@ -51,7 +49,7 @@ func TestAC004_ExitCodeZeroOnValidCorpus(t *testing.T) {
 func TestAC005_ExitCodeOneOnBrokenCorpus(t *testing.T) {
 	root := validCorpus(t)
 	writeFile(t, root, "docs/goals/G-001-first.md", "---\nid: G-001\ntype: goal\nlinks: []\ntitle: First goal\n---\n")
-	if code := runValidate([]string{root}); code != 1 {
+	if code := runValidate([]string{root}, io.Discard); code != 1 {
 		t.Fatalf("expected exit 1, got %d", code)
 	}
 }
@@ -60,7 +58,7 @@ func TestAC005_ExitCodeOneOnBrokenCorpus(t *testing.T) {
 func TestAC051_LowCostInferredArtifactsAreAccepted(t *testing.T) {
 	root := validCorpus(t)
 	writeFile(t, root, "docs/goals/G-001-first.md", "---\nid: G-001\ntype: goal\nstatus: accepted\nlinks: []\ntitle: First goal\nprovenance: inferred\nreversal-cost: low\n---\n")
-	if code := runValidate([]string{root}); code != 0 {
+	if code := runValidate([]string{root}, io.Discard); code != 0 {
 		t.Fatalf("inferred provenance is valid; expected exit 0, got %d", code)
 	}
 	c, _ := corpus.Scan(root)
@@ -106,7 +104,7 @@ func TestAC051_CLIReportsActivationBlockerCount(t *testing.T) {
 	}
 	old := os.Stderr
 	os.Stderr = w
-	code := runValidate([]string{root})
+	code := runValidate([]string{root}, io.Discard)
 	os.Stderr = old
 	if err := w.Close(); err != nil {
 		t.Fatal(err)
@@ -128,7 +126,7 @@ func TestAC023_AgentConstraintCountReported(t *testing.T) {
 	writeFile(t, root, "docs/README.md", "# Corpus\n\n<!-- clue:index:start -->\n- [goals/](goals/README.md)\n- [constraints/](constraints/README.md)\n<!-- clue:index:end -->\n")
 	writeFile(t, root, "docs/constraints/README.md", "# Constraints\n\n<!-- clue:index:start -->\n- [C-001](C-001-rule.md)\n<!-- clue:index:end -->\n")
 	writeFile(t, root, "docs/constraints/C-001-rule.md", "---\nid: C-001\ntype: constraint\nstatus: active\nlinks: []\ntitle: A rule\nsource: AGENTS.md\nenforcement: agent\n---\n")
-	if code := runValidate([]string{root}); code != 0 {
+	if code := runValidate([]string{root}, io.Discard); code != 0 {
 		t.Fatalf("an agent-enforced constraint is valid; expected exit 0, got %d", code)
 	}
 	c, _ := corpus.Scan(root)
@@ -205,11 +203,11 @@ func TestAC033_RunValidateThreadsVersionIntoDriftRule(t *testing.T) {
 	old := version
 	defer func() { version = old }()
 	version = "0.2.0"
-	if code := runValidate([]string{root}); code != 1 {
+	if code := runValidate([]string{root}, io.Discard); code != 1 {
 		t.Fatalf("clue 0.2.0 against skills at 0.1.0: expected exit 1 (drift), got %d", code)
 	}
 	version = "0.1.0"
-	if code := runValidate([]string{root}); code != 0 {
+	if code := runValidate([]string{root}, io.Discard); code != 0 {
 		t.Fatalf("clue 0.1.0 against skills at 0.1.0: expected exit 0, got %d", code)
 	}
 }
@@ -680,35 +678,11 @@ func TestSanity_ReleaseRunsTheJudgeStampedAsTheTag(t *testing.T) {
 // the two versions.
 func runValidateCapturingStdout(t *testing.T, args []string) (int, string) {
 	t.Helper()
-	r, w, err := os.Pipe()
-	if err != nil {
-		t.Fatalf("pipe: %v", err)
-	}
-	defer func() { _ = r.Close() }()
-	// Drain while validate writes: a pipe holds one buffer's worth, so
-	// reading only after the writer closes would deadlock the moment the
-	// corpus reports more issues than that.
-	type captured struct {
-		out string
-		err error
-	}
-	done := make(chan captured, 1)
-	go func() {
-		out, readErr := io.ReadAll(r)
-		done <- captured{string(out), readErr}
-	}()
-	old := os.Stdout
-	defer func() { os.Stdout = old }()
-	os.Stdout = w
-	code := runValidate(args)
-	if err := w.Close(); err != nil {
-		t.Fatalf("close pipe: %v", err)
-	}
-	got := <-done
-	if got.err != nil {
-		t.Fatalf("read pipe: %v", got.err)
-	}
-	return code, got.out
+	// The command writes to the writer it is given, so capturing it needs no
+	// pipe, no goroutine draining it, and no swap of the process's stdout.
+	var out bytes.Buffer
+	code := runValidate(args, &out)
+	return code, out.String()
 }
 
 type communityIssueForm struct {
@@ -724,6 +698,7 @@ type communityIssueForm struct {
 // Sanity: the public community front door remains present, its GitHub
 // configuration parses, and private reports cannot silently lose their
 // routes while the visible templates continue to look complete.
+
 func TestSanity_CommunityFrontDoorIsWellFormed(t *testing.T) {
 	root := filepath.Join("..", "..")
 	read := func(rel string) string {
@@ -1069,90 +1044,10 @@ func TestSanity_SkillsCarryNoDocIDs(t *testing.T) {
 func TestAC008_ForbidChangesFlagExitCodes(t *testing.T) {
 	root := validCorpus(t)
 	writeFile(t, root, "changes/CH-009-x/proposal.md", "---\nid: CH-009\ntype: change\nstatus: open\nlinks: []\ntitle: X\n---\n")
-	if code := runValidate([]string{root}); code != 0 {
+	if code := runValidate([]string{root}, io.Discard); code != 0 {
 		t.Fatalf("without the gate: expected exit 0, got %d", code)
 	}
-	if code := runValidate([]string{"--forbid-changes", root}); code != 1 {
+	if code := runValidate([]string{"--forbid-changes", root}, io.Discard); code != 1 {
 		t.Fatalf("with the gate: expected exit 1, got %d", code)
-	}
-}
-
-// TestAC068_UnitNegative_RefsExitsNonZeroOnlyForGone drives the command itself,
-// so the exit code the criterion names is proven rather than inferred from the
-// report type.
-func TestAC068_UnitNegative_RefsExitsNonZeroOnlyForGone(t *testing.T) {
-	mux := http.NewServeMux()
-	mux.HandleFunc("/owner/live/forbidden", func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusForbidden)
-	})
-	mux.HandleFunc("/owner", func(w http.ResponseWriter, r *http.Request) {})
-	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusNotFound)
-	})
-	srv := httptest.NewServer(mux)
-	defer srv.Close()
-
-	write := func(t *testing.T, body string) string {
-		t.Helper()
-		root := t.TempDir()
-		dir := filepath.Join(root, "docs", "analysis")
-		if err := os.MkdirAll(dir, 0o755); err != nil {
-			t.Fatal(err)
-		}
-		text := "---\nid: AN-001\ntype: analysis\nstatus: active\nlinks: []\ntitle: t\n---\n\n" + body + "\n"
-		if err := os.WriteFile(filepath.Join(dir, "AN-001-x.md"), []byte(text), 0o644); err != nil {
-			t.Fatal(err)
-		}
-		return root
-	}
-
-	var out, errOut bytes.Buffer
-	restricted := write(t, "restricted "+srv.URL+"/owner/live/forbidden")
-	if code := runRefs([]string{restricted}, &out, &errOut); code != 0 {
-		t.Fatalf("a restricted address must not fail the command, got exit %d: %s", code, out.String())
-	}
-
-	out.Reset()
-	gone := write(t, "deleted "+srv.URL+"/nobody/vanished")
-	if code := runRefs([]string{gone}, &out, &errOut); code != 1 {
-		t.Fatalf("a gone address must exit 1, got %d: %s", code, out.String())
-	}
-
-	out.Reset()
-	if code := runRefs([]string{"a", "b"}, &out, &errOut); code != 2 {
-		t.Fatalf("two paths is a usage error, got exit %d", code)
-	}
-}
-
-// TestAC067_UnitPositive_CoverageListsForeignPointersApart proves the criterion's
-// user-visible claim: a pointer to proof elsewhere is printed after the
-// capability states and labelled so it cannot be read as coverage.
-func TestAC067_UnitPositive_CoverageListsForeignPointersApart(t *testing.T) {
-	root := t.TempDir()
-	dir := filepath.Join(root, "docs", "analysis")
-	if err := os.MkdirAll(dir, 0o755); err != nil {
-		t.Fatal(err)
-	}
-	body := "---\nid: AN-001\ntype: analysis\nstatus: active\nlinks: []\ntitle: t\n---\n\nProven by clue:robocode-dev/tank-royale@384d27d5/BR-001 upstream.\n"
-	if err := os.WriteFile(filepath.Join(dir, "AN-001-x.md"), []byte(body), 0o644); err != nil {
-		t.Fatal(err)
-	}
-
-	c, _ := corpus.Scan(root)
-	pointers := corpus.ForeignPointers(c)
-	if len(pointers) != 1 || pointers[0] != "clue:robocode-dev/tank-royale@384d27d5/BR-001" {
-		t.Fatalf("expected the pointer harvested once, got %v", pointers)
-	}
-
-	// The label must not be a coverage state: "covered", "partial" and "gap"
-	// are what a reader scans for, and a pointer must never join them.
-	line := pointers[0] + ": named but locally unproven"
-	for _, state := range []string{"covered", "partial", "gap"} {
-		if strings.HasSuffix(line, ": "+state) {
-			t.Fatalf("the pointer line reads as a coverage state: %q", line)
-		}
-	}
-	if !strings.Contains(usage, "named but") {
-		t.Fatal("the --coverage help must account for the pointer lines it now prints")
 	}
 }

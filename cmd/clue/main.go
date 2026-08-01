@@ -136,7 +136,7 @@ func main() {
 	case "refs":
 		os.Exit(runRefs(os.Args[2:], os.Stdout, os.Stderr))
 	case "validate":
-		os.Exit(runValidate(os.Args[2:]))
+		os.Exit(runValidate(os.Args[2:], os.Stdout))
 	case "version", "--version":
 		os.Exit(runVersion(os.Stdout))
 	case "help", "--help", "-h":
@@ -207,7 +207,10 @@ func runMigrate(args []string, out, errOut io.Writer) int {
 	return 0
 }
 
-func runValidate(args []string) int {
+// runValidate takes its writer so the command's own output is observable: a
+// criterion that describes what a user sees is only proven when a test reads
+// what the command actually printed.
+func runValidate(args []string, out io.Writer) int {
 	fs := flag.NewFlagSet("validate", flag.ExitOnError)
 	forbid := fs.Bool("forbid-changes", false, "fail when /changes contains files")
 	coverage := fs.Bool("coverage", false, "print derived per-capability proof coverage; never a committed registry")
@@ -223,7 +226,7 @@ func runValidate(args []string) int {
 	provenance := corpus.ProvenanceBacklog(c)
 	if len(issues) > 0 {
 		for _, is := range issues {
-			fmt.Println(is)
+			fmt.Fprintln(out, is)
 		}
 		fmt.Fprintf(os.Stderr, "clue validate: %d issue(s)", len(issues))
 		if len(provenance.BlockerArtifacts) > 0 {
@@ -237,18 +240,18 @@ func runValidate(args []string) int {
 	}
 	if *coverage {
 		for _, cc := range corpus.Coverage(c) {
-			fmt.Printf("%s: %s\n", cc.Capability, cc.State)
+			fmt.Fprintf(out, "%s: %s\n", cc.Capability, cc.State)
 		}
 		// A pointer to proof in another repository is listed apart from
 		// coverage, never inside it. Naming it says a human can go and look;
 		// counting it would be importing a verdict this judge cannot see.
 		for _, p := range corpus.ForeignPointers(c) {
-			fmt.Printf("%s: named but locally unproven\n", p)
+			fmt.Fprintf(out, "%s: named but locally unproven\n", p)
 		}
 	}
 	if *realityGaps {
 		for _, gap := range corpus.RealityGaps(c) {
-			fmt.Printf("%s: contradicted by %s\n", gap.Capability, strings.Join(gap.Analyses, ", "))
+			fmt.Fprintf(out, "%s: contradicted by %s\n", gap.Capability, strings.Join(gap.Analyses, ", "))
 		}
 	}
 	notes := ""
@@ -261,7 +264,7 @@ func runValidate(args []string) int {
 	if n := agentConstraintCount(c); n > 0 {
 		notes += fmt.Sprintf(", %d agent-enforced constraint(s) awaiting machine checks", n)
 	}
-	fmt.Printf("clue validate: OK (%d artifacts%s)\n", len(c.Artifacts), notes)
+	fmt.Fprintf(out, "clue validate: OK (%d artifacts%s)\n", len(c.Artifacts), notes)
 	return 0
 }
 

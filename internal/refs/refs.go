@@ -336,7 +336,11 @@ var (
 	fenceRe    = regexp.MustCompile("^\\s*(```|~~~)")
 	mdTargetRe = regexp.MustCompile(`\]\((https?://[^)\s]+)\)`)
 	autolinkRe = regexp.MustCompile(`<(https?://[^>\s]+)>`)
-	bareURLRe  = regexp.MustCompile(`(^|[\s(])(https?://[^\s)\]<>]+)`)
+	// The excluded characters are the ones that end an address in prose but
+	// are not among the sentence stops addressesIn trims. Admitting them
+	// harvests a target no host has — `…/page."` is requested as `…/page.%22`,
+	// answers 404, and is condemned as gone, failing a corpus that is right.
+	bareURLRe = regexp.MustCompile("(^|[\\s(])(https?://[^\\s)\\]<>\"'!?*`|]+)")
 )
 
 // harvest collects every http(s) address in corpus prose, under docs/ and
@@ -528,9 +532,25 @@ func addressEndsAt(line string, end int) bool {
 	if isAddressBoundary(line[end]) {
 		return true
 	}
-	switch line[end] {
+	// A run of them counts too: an ellipsis, or a stop inside a table cell,
+	// is still the end of the address rather than the start of an extension.
+	i := end
+	for i < len(line) && isTrimmedStop(line[i]) {
+		i++
+	}
+	if i == end {
+		return false
+	}
+	return i >= len(line) || isAddressBoundary(line[i])
+}
+
+// isTrimmedStop reports the punctuation addressesIn strips from a harvested
+// address. Exactly this set may follow a match and still mean the address
+// ended there.
+func isTrimmedStop(b byte) bool {
+	switch b {
 	case '.', ',', ';', ':':
-		return end+1 >= len(line) || isAddressBoundary(line[end+1])
+		return true
 	}
 	return false
 }

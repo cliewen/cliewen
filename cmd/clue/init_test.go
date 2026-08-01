@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"io"
 	"os"
 	"path/filepath"
 	"strings"
@@ -16,7 +17,7 @@ func TestAC002_InitThenValidateExitsZero(t *testing.T) {
 	if code := runInit([]string{root}, &out, &out); code != 0 {
 		t.Fatalf("init: expected exit 0, got %d\n%s", code, out.String())
 	}
-	if code := runValidate([]string{root}); code != 0 {
+	if code := runValidate([]string{root}, io.Discard); code != 0 {
 		t.Fatalf("validate after init: expected exit 0, got %d", code)
 	}
 }
@@ -36,7 +37,7 @@ func TestAC003_ValidateExitsNonZeroOnBrokenScaffold(t *testing.T) {
 	if code := runInit([]string{root}, &out, &out); code != 0 { // re-index the new artifact
 		t.Fatalf("re-init: expected exit 0, got %d", code)
 	}
-	if code := runValidate([]string{root}); code != 1 {
+	if code := runValidate([]string{root}, io.Discard); code != 1 {
 		t.Fatalf("expected exit 1 on dangling link, got %d", code)
 	}
 }
