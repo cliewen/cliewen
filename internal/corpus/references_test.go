@@ -237,3 +237,11 @@ func TestAC066_UnitNegative_ADoubleBacktickSpanIsStillContent(t *testing.T) {
 		t.Fatalf("expected the bare reference outside an unclosed run, got %v", got)
 	}
 }
+
+func TestAC066_UnitNegative_AnUnclosedRunDoesNotBlindTheRestOfTheLine(t *testing.T) {
+	// Literal backticks with no closing partner are text, not an opener that
+	// swallows what follows: a genuine span later on the line is still content.
+	if got := scanBody(t, "``unclosed, then `#42` in a real span"); len(got) != 0 {
+		t.Fatalf("expected the later span to be masked, got %v", got)
+	}
+}

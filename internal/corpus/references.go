@@ -126,9 +126,10 @@ func BlankCodeSpans(line string) string {
 			}
 		}
 		if i == open+width {
-			// No closing run of the same length: the backticks are literal
-			// text, not a span.
-			break
+			// No closing run of the same length: these backticks are literal
+			// text rather than an opener. Scanning continues past them, so a
+			// genuine span later on the same line is still masked.
+			continue
 		}
 	}
 	return string(out)
