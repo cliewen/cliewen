@@ -1,7 +1,7 @@
 ---
 id: P-009
 type: plan
-status: active
+status: completed
 links: [G-001, AN-012, AN-013, AN-014, ADR-005, ADR-009, ADR-032, PDR-020]
 title: Cliewen closes migration blockers and distributed boundaries
 ---
