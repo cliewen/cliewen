@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+	"time"
 )
 
 // corpusWith writes a docs tree containing one artifact per entry.
@@ -196,5 +197,72 @@ func TestAC069_UnitNegative_CredentialGoesOnlyToItsIssuer(t *testing.T) {
 	}
 	if got := hostToken("github.com"); got != "secret" {
 		t.Fatalf("the issuing host should receive the credential, got %q", got)
+	}
+}
+
+func TestAC068_UnitNegative_ATimeoutIsUnknownAndDoesNotFail(t *testing.T) {
+	// A host that never answers must be reported as unknown: the corpus did
+	// not change, and someone else's outage cannot condemn it.
+	slow := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		time.Sleep(300 * time.Millisecond)
+	}))
+	t.Cleanup(slow.Close)
+	root := corpusWith(t, map[string]string{
+		"analysis/AN-001.md": "---\ntype: analysis\nstatus: active\n---\n\nslow " + slow.URL + "/owner/thing\n",
+	})
+	report, err := Resolve(root, Options{Client: slow.Client(), Timeout: 20 * time.Millisecond})
+	if err != nil {
+		t.Fatal(err)
+	}
+	got := resultFor(t, report, "/owner/thing")
+	if got.Result != Unreachable {
+		t.Fatalf("expected unreachable, got %s", got.Result)
+	}
+	if report.HasErrors() {
+		t.Fatal("an unreachable address must not fail the run")
+	}
+}
+
+func TestAC069_UnitNegative_PreviewWritesNothing(t *testing.T) {
+	// The preview/write split is the safety property the whole --apply design
+	// rests on, so it is asserted rather than assumed.
+	srv := forge(t)
+	before := "---\ntype: analysis\nstatus: active\n---\n\nmoved " + srv.URL + "/owner/live/moved\n"
+	root := corpusWith(t, map[string]string{"analysis/AN-001.md": before})
+
+	report, err := Resolve(root, Options{Client: srv.Client()})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if report.Applied {
+		t.Fatal("a preview must not report that it wrote")
+	}
+	after, err := os.ReadFile(filepath.Join(root, "docs", "analysis", "AN-001.md"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if string(after) != before {
+		t.Fatalf("a preview wrote to the corpus:\n%q", after)
+	}
+}
+
+func TestAC069_UnitNegative_ARenamedPrefixDoesNotCorruptLongerAddresses(t *testing.T) {
+	// A renamed repository's address is a prefix of every address below it.
+	// Replacing by plain substring would rewrite a longer address the run
+	// never classified.
+	srv := forge(t)
+	line := "see " + srv.URL + "/owner/live/moved and " + srv.URL + "/owner/live/moved/deeper/page\n"
+	root := corpusWith(t, map[string]string{
+		"analysis/AN-001.md": "---\ntype: analysis\nstatus: active\n---\n\n" + line,
+	})
+	if _, err := Resolve(root, Options{Apply: true, Client: srv.Client()}); err != nil {
+		t.Fatal(err)
+	}
+	got, err := os.ReadFile(filepath.Join(root, "docs", "analysis", "AN-001.md"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(string(got), "/owner/live/moved/deeper/page") {
+		t.Fatalf("the longer address was corrupted by a prefix rewrite:\n%q", got)
 	}
 }

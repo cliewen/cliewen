@@ -215,20 +215,20 @@ Feature: clue validate — deterministic corpus judgment
   @AC-066
   Scenario: An external reference names its target or the corpus fails
     Test-type: Unit
-    Given corpus prose containing a bare forge number, a full URL, a link whose label carries a forge number, a heading anchor, a colour literal, a fenced block, and a clue: identity
+    Given corpus prose containing a bare forge number, a full URL, a link whose label carries a forge number, a heading anchor, a colour literal in a code span, a fenced block, and a clue: identity
     When the user runs "clue validate"
     Then only the bare forge number fails, naming the file and the line a reader opens to
     And the failure says to write the full URL of what the reference points at
-    But a full URL, a labelled link, an anchor, a colour literal, fenced content, and a clue: identity produce no finding
+    But a full URL, a labelled link, an anchor, a fenced or code-span colour literal, fenced content, and a clue: identity produce no finding
     And a corpus artifact cited by its bare ID and a file cited by a relative path are untouched
 
   @AC-067
   Scenario: Foreign acceptance evidence is named but never counted
     Test-type: Unit
-    Given an active criterion whose evidence is the pointer clue:owner/repo@revision/ID
-    When the user runs "clue validate" and "clue validate --coverage"
-    Then the pointer resolves as a well-formed foreign identity naming its repository, revision, and criterion
-    And coverage counts it as named but locally unproven
-    But it is never counted as classified evidence and never imported as a verdict
-    And a pointer missing its revision, its repository, or its identifier fails as malformed
+    Given corpus prose carrying the pointer clue:owner/repo@revision/ID and a second pointer that opens clue: without completing the form
+    When the user runs "clue validate"
+    Then the well-formed pointer is accepted as a foreign identity naming its repository, revision, and identifier
+    And the malformed pointer fails, naming the line and the form it should take
+    But neither is ever counted as classified evidence, because the judge cannot see a run in another repository
+    And a well-formed pointer is reportable as named-but-locally-unproven without becoming coverage
 ```

@@ -46,7 +46,7 @@ clue:robocode-dev/tank-royale@384d27d5/BR-001
 
 **References that stay inside the repository are untouched.** A corpus artifact keeps its bare ID and a file its relative path, exactly as before. Neither gains a scheme, a slug, or an absolute URL. The rule reaches only what points outward.
 
-Fenced code, inline code spans, heading anchors such as `#4-resume-game`, and colour literals such as `#777777` are not references and are never read as one.
+Fenced code, inline code spans, link targets, and heading anchors such as `#4-resume-game` are not references and are never read as one. A colour literal carrying a hex letter is excluded by the same rule that excludes an anchor. An all-digit colour such as `#777777` is indistinguishable from an issue number by shape alone, and it is read as a reference: excluding runs of that length would silence the numbers adopters actually cite, and a rule that cannot see the common case is not worth the rare false positive it avoids. A colour literal in prose belongs in a code span, which is ordinary markdown practice.
 
 This rule needs no network. It returns the same verdict offline, on a pinned revision, in a year.
 

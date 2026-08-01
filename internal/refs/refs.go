@@ -293,6 +293,12 @@ func request(client *http.Client, method, raw string) (Outcome, string, string, 
 	defer resp.Body.Close()
 	switch {
 	case resp.StatusCode == http.StatusUnauthorized, resp.StatusCode == http.StatusForbidden:
+		// A throttled forge answers 403 too. Calling that "restricted" would
+		// report every affected address as probably-private and destroy the
+		// signal separating the two outcomes exists to preserve.
+		if resp.Header.Get("Retry-After") != "" || resp.Header.Get("X-RateLimit-Remaining") == "0" {
+			return Unreachable, "", "rate limited", true
+		}
 		return Restricted, "", "", true
 	case resp.StatusCode == http.StatusNotFound, resp.StatusCode == http.StatusGone:
 		return Gone, "", "", true
@@ -341,8 +347,20 @@ var (
 // avoid.
 func harvest(root string) ([]Reference, error) {
 	var refs []Reference
-	docs := filepath.Join(root, "docs")
-	err := filepath.Walk(docs, func(path string, info os.FileInfo, err error) error {
+	var walkErr error
+	for _, dir := range []string{"docs", "changes"} {
+		if err := harvestTree(root, filepath.Join(root, dir), &refs); err != nil {
+			walkErr = err
+		}
+	}
+	return refs, walkErr
+}
+
+// harvestTree collects addresses under one corpus tree. Both docs/ and
+// changes/ are read, because the judge validates the form in both and a
+// resolver that saw less would answer about a different corpus.
+func harvestTree(root, tree string, refs *[]Reference) error {
+	err := filepath.Walk(tree, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
@@ -369,15 +387,15 @@ func harvest(root string) ([]Reference, error) {
 				continue
 			}
 			for _, u := range addressesIn(line) {
-				refs = append(refs, Reference{Path: rel, Line: i + 1, URL: u, Frozen: frozen})
+				*refs = append(*refs, Reference{Path: rel, Line: i + 1, URL: u, Frozen: frozen})
 			}
 		}
 		return nil
 	})
 	if os.IsNotExist(err) {
-		return nil, nil
+		return nil
 	}
-	return refs, err
+	return err
 }
 
 func addressesIn(line string) []string {
@@ -428,15 +446,65 @@ func rewrite(root string, refs []Reference) error {
 		if err != nil {
 			return err
 		}
-		text := string(data)
+		// Rewriting by plain substring replacement corrupts two things. A
+		// renamed repository's address is a prefix of every address below it,
+		// so replacing it would rewrite a longer address that was never
+		// classified. And a fenced block is deliberately not harvested, so
+		// editing inside one would change an example or a quoted log the run
+		// never looked at. Replacing on the classified lines only, matched to
+		// the end of the address, avoids both.
+		lines := strings.Split(string(data), "\n")
+		byLine := map[int][]Reference{}
 		for _, r := range list {
-			text = strings.ReplaceAll(text, r.URL, r.Target)
+			byLine[r.Line] = append(byLine[r.Line], r)
 		}
-		if err := os.WriteFile(full, []byte(text), 0o644); err != nil {
+		for n, refsOnLine := range byLine {
+			if n < 1 || n > len(lines) {
+				continue
+			}
+			// Longest first, so a prefix never consumes a longer sibling.
+			sort.Slice(refsOnLine, func(i, j int) bool {
+				return len(refsOnLine[i].URL) > len(refsOnLine[j].URL)
+			})
+			for _, r := range refsOnLine {
+				lines[n-1] = replaceWholeAddress(lines[n-1], r.URL, r.Target)
+			}
+		}
+		if err := os.WriteFile(full, []byte(strings.Join(lines, "\n")), 0o644); err != nil {
 			return err
 		}
 	}
 	return nil
+}
+
+// replaceWholeAddress swaps an address only where it ends there, so a shorter
+// address is never substituted into a longer one that shares its prefix.
+func replaceWholeAddress(line, from, to string) string {
+	var b strings.Builder
+	for {
+		i := strings.Index(line, from)
+		if i < 0 {
+			b.WriteString(line)
+			return b.String()
+		}
+		end := i + len(from)
+		if end < len(line) && !isAddressBoundary(line[end]) {
+			b.WriteString(line[:end])
+			line = line[end:]
+			continue
+		}
+		b.WriteString(line[:i])
+		b.WriteString(to)
+		line = line[end:]
+	}
+}
+
+func isAddressBoundary(b byte) bool {
+	switch b {
+	case ' ', '\t', ')', ']', '>', ',', ';', '"', '\'':
+		return true
+	}
+	return false
 }
 
 // apiEquivalent maps a github.com web address to the API address that answers

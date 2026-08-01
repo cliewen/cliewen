@@ -824,8 +824,13 @@ func sortPlan(plan *MigrationPlan) {
 // cement exactly that mistake behind a form no later check can question. The
 // adopter resolves each one in a reviewed change.
 func planQualifiedReferences(root string, result *MigrationPlan) {
-	scanned, err := corpus.Scan(root)
-	if err != nil {
+	// Scan's second return is the parse-level issue list, not a fatal: an
+	// adopter's pre-upgrade corpus is exactly where a stray file without
+	// frontmatter is likely, and treating that as a reason to report nothing
+	// would silence the migration for the population it exists to serve. The
+	// artifacts it did parse are still every artifact it could read.
+	scanned, _ := corpus.Scan(root)
+	if scanned == nil {
 		return
 	}
 	for _, issue := range corpus.BareReferenceIssues(scanned) {

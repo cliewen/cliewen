@@ -1,6 +1,9 @@
 package corpus
 
-import "testing"
+import (
+	"strings"
+	"testing"
+)
 
 // scanBody is the unit under test for the form rule: it decides where a '#'
 // can be a citation at all.
@@ -22,15 +25,18 @@ func TestAC066_UnitPositive_BareForgeReferenceIsTheOnlyFinding(t *testing.T) {
 }
 
 func TestAC066_UnitPositive_LineNamesWhatAReaderOpens(t *testing.T) {
-	// The reported line is offset by where the body starts in the file, so a
-	// finding points at the reference rather than several lines above it.
-	body := "first\nsecond\nthe bare PR #12 lives here\n"
-	refs := scanBareForgeRefs(body)
-	if len(refs) != 1 {
-		t.Fatalf("expected one reference, got %d", len(refs))
+	// The finding must name the line in the file, not the offset within the
+	// body: frontmatter sits above it, so an unoffset number points several
+	// lines too high and sends a reader to the wrong place.
+	c := corpusWithBody(t, "first\nsecond\nthe bare PR #12 lives here")
+	issues := checkExternalReferences(c)
+	if len(issues) != 1 {
+		t.Fatalf("expected one finding, got %v", issues)
 	}
-	if refs[0].line != 3 {
-		t.Fatalf("expected the third body line, got %d", refs[0].line)
+	// The fixture closes its frontmatter on line 9 and leaves line 10 blank,
+	// so the body's third line is the file's thirteenth.
+	if !strings.Contains(issues[0].Msg, "line 13:") {
+		t.Fatalf("expected the file line, got %q", issues[0].Msg)
 	}
 }
 
@@ -76,18 +82,54 @@ func TestAC067_UnitPositive_CrossRepositoryIdentityNeedsNoRevision(t *testing.T)
 	}
 }
 
-func TestAC067_UnitNegative_MalformedPointersDoNotParse(t *testing.T) {
-	cases := []struct{ name, text string }{
+func TestAC067_UnitNegative_MalformedPointersFailValidation(t *testing.T) {
+	for _, c := range []struct{ name, text string }{
 		{"no repository", "clue:tank-royale/BR-001"},
 		{"no identifier", "clue:robocode-dev/tank-royale@384d27d5/"},
 		{"lowercase identifier", "clue:robocode-dev/tank-royale/br-001"},
-		{"no scheme", "robocode-dev/tank-royale/BR-001"},
-	}
-	for _, c := range cases {
+	} {
 		t.Run(c.name, func(t *testing.T) {
-			if m := clueRefRe.FindStringSubmatch(c.text); m != nil {
-				t.Fatalf("expected no parse, got %v", m)
+			c2 := corpusWithBody(t, "proven by "+c.text+" upstream")
+			issues := checkForeignPointers(c2)
+			if len(issues) != 1 {
+				t.Fatalf("expected the malformed pointer to fail, got %v", issues)
+			}
+			if !strings.Contains(issues[0].Msg, "malformed") || !strings.Contains(issues[0].Msg, "line ") {
+				t.Fatalf("expected a malformed diagnostic naming the line, got %q", issues[0].Msg)
 			}
 		})
 	}
+}
+
+func TestAC067_UnitPositive_WellFormedPointerPassesAndIsReportable(t *testing.T) {
+	c := corpusWithBody(t, "proven by clue:robocode-dev/tank-royale@384d27d5/BR-001 upstream")
+	if issues := checkForeignPointers(c); len(issues) != 0 {
+		t.Fatalf("a well-formed pointer must not fail, got %v", issues)
+	}
+	got := ForeignPointers(c)
+	if len(got) != 1 || got[0] != "clue:robocode-dev/tank-royale@384d27d5/BR-001" {
+		t.Fatalf("expected the pointer reportable as named-but-unproven, got %v", got)
+	}
+	// The pointer is a citation, never local proof: it must not reach the
+	// classified-evidence path at all.
+	if len(checkACTests(c)) != 0 {
+		t.Fatal("a foreign pointer must never enter classified evidence")
+	}
+}
+
+// corpusWithBody builds a one-artifact corpus whose frontmatter is real, so
+// the reported line is the line a reader opens to rather than a body offset.
+func corpusWithBody(t *testing.T, body string) *Corpus {
+	t.Helper()
+	text := "---\nid: AN-001\ntype: analysis\nstatus: active\nlinks: []\ntitle: t\nprovenance: inferred\nreversal-cost: low\n---\n\n" + body + "\n"
+	fields, parsed, ok, err := parseFrontmatter(text)
+	if err != nil || !ok {
+		t.Fatalf("fixture frontmatter did not parse: %v", err)
+	}
+	a := &Artifact{Path: "docs/analysis/AN-001-x.md", Body: parsed, Fields: fields,
+		BodyLine: strings.Count(text[:len(text)-len(parsed)], "\n") + 1}
+	a.ID, _ = fields["id"].(string)
+	a.Type, _ = fields["type"].(string)
+	a.Status, _ = fields["status"].(string)
+	return &Corpus{Artifacts: []*Artifact{a}, ByID: map[string][]*Artifact{a.ID: {a}}}
 }

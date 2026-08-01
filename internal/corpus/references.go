@@ -2,6 +2,7 @@ package corpus
 
 import (
 	"regexp"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -141,10 +142,18 @@ func isReferencePosition(line string, start, end int) bool {
 			return false
 		}
 	}
-	// Three or six digits are the shapes a hex colour takes. Requiring such a
-	// literal to sit in a code span is ordinary markdown practice and is what
-	// keeps this from guessing: outside one, the digits are read as a
-	// reference and the author qualifies or fences them.
+	// A colour literal carrying any hex letter is already excluded above, because
+	// the digits run into a word character. What remains ambiguous is an
+	// all-digit colour such as #777777, which is indistinguishable from an
+	// issue number by shape alone.
+	//
+	// It is read as a reference, deliberately. Excluding three- and six-digit
+	// runs would silence exactly the numbers adopters actually cite — the live
+	// corpora here carry #202, #218, #224 — and a rule that cannot see the
+	// common case is not worth the rare false positive it avoids. An all-digit
+	// colour in prose belongs in a code span or a fence, which is ordinary
+	// markdown practice and is where every colour in these corpora already
+	// sits.
 	return true
 }
 
@@ -162,3 +171,59 @@ func itoa(n int) string { return strconv.Itoa(n) }
 // `clue validate` runs, so a repository never sees two different answers about
 // the same reference.
 func BareReferenceIssues(c *Corpus) []Issue { return checkExternalReferences(c) }
+
+// malformedClueRe matches a clue: token that opens the identity form but does
+// not complete it. The judge must say so rather than ignore it: a pointer that
+// silently does nothing is worse than none, because the criterion it sits on
+// looks like it named its foreign proof.
+var malformedClueRe = regexp.MustCompile(`\bclue:\S*`)
+
+// checkForeignPointers reports clue: pointers that do not parse.
+//
+// A well-formed pointer is deliberately not evidence. It names a repository, a
+// revision, and an identifier so a reader can go and look; the judge cannot
+// see that run, so the pointer never becomes coverage and never becomes an
+// imported verdict. Test-type: Human remains the proof of record.
+func checkForeignPointers(c *Corpus) []Issue {
+	var issues []Issue
+	for _, a := range c.Artifacts {
+		inFence := false
+		for i, line := range strings.Split(a.Body, "\n") {
+			if fenceRe.MatchString(line) {
+				inFence = !inFence
+				continue
+			}
+			if inFence {
+				continue
+			}
+			bare := inlineCodeRe.ReplaceAllStringFunc(line, blank)
+			for _, tok := range malformedClueRe.FindAllString(bare, -1) {
+				tok = strings.TrimRight(tok, ".,;:)]")
+				if clueRefRe.MatchString(tok) {
+					continue
+				}
+				issues = append(issues, Issue{a.Path, "line " + itoa(a.BodyLine+i) +
+					": foreign pointer " + tok + " is malformed; name the repository, the revision, and the identifier as clue:owner/repo@revision/ID"})
+			}
+		}
+	}
+	return issues
+}
+
+// ForeignPointers returns every well-formed foreign-evidence pointer declared
+// in the corpus, so a coverage report can name what is proven elsewhere
+// without ever counting it as local proof.
+func ForeignPointers(c *Corpus) []string {
+	var out []string
+	seen := map[string]bool{}
+	for _, a := range c.Artifacts {
+		for _, m := range clueRefRe.FindAllString(a.Body, -1) {
+			if !seen[m] {
+				seen[m] = true
+				out = append(out, m)
+			}
+		}
+	}
+	sort.Strings(out)
+	return out
+}

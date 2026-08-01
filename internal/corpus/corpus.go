@@ -31,7 +31,7 @@ type Artifact struct {
 	Title        string
 	Path         string // repo-relative, forward slashes
 	Body         string
-	BodyLine     int    // 1-based line in the file where Body begins
+	BodyLine     int            // 1-based line in the file where Body begins
 	Fields       map[string]any // raw frontmatter, for presence checks
 }
 
