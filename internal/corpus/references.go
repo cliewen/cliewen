@@ -2,6 +2,7 @@ package corpus
 
 import (
 	"regexp"
+	"strconv"
 	"strings"
 )
 
@@ -38,7 +39,10 @@ func checkExternalReferences(c *Corpus) []Issue {
 	var issues []Issue
 	for _, a := range c.Artifacts {
 		for _, ref := range scanBareForgeRefs(a.Body) {
-			issues = append(issues, Issue{a.Path, "bare forge reference " + ref.text +
+			// The line is part of the finding: a corpus file is long, the same
+			// number can appear more than once in it, and an adopter repairing
+			// a migration report should not have to search for the occurrence.
+			issues = append(issues, Issue{a.Path, "line " + itoa(ref.line) + ": bare forge reference " + ref.text +
 				" names no repository; write the full URL of what it points at (ADR-040)"})
 		}
 	}
@@ -150,3 +154,5 @@ func isWordByte(b byte) bool {
 		(b >= 'A' && b <= 'Z') ||
 		(b >= '0' && b <= '9')
 }
+
+func itoa(n int) string { return strconv.Itoa(n) }
