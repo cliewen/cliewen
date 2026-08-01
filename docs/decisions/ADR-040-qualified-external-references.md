@@ -24,15 +24,37 @@ So the question is not whether to check external references. It is where each ha
 
 **An external reference names its target, and the judge enforces only that. Resolving the target is a separate command that never gates a merge.**
 
-*Naming, enforced offline.* A forge reference is written `owner/repo#N`. Anything else external is written as a full URL. A corpus ID belonging to another repository is qualified by that repository. A bare `#N` in corpus prose is a validation failure, because it asserts a namespace it does not name. The qualification is itself the notation: a reference that names its repository or carries a scheme is external by construction, and nothing further marks it. Fenced code, headings, and anchors are not references and are never read as one.
+*Naming, enforced offline.* A forge reference is written `owner/repo#N`. Anything else external — a wiki page, a published document, a site — is written as a full URL. A corpus ID belonging to another repository is qualified by that repository. A bare `#N` in corpus prose is a validation failure, because it asserts a namespace it does not name.
+
+**References that stay inside the repository are untouched.** A corpus artifact is cited by its bare ID and a file by a relative path, exactly as before: identity is the ID and the path is only its current address, and neither gains a slug, a prefix, or an absolute URL. The rule reaches only what points outward. One exception is deliberate: a forge number names its repository even when it means this one, because `#N` is the single shape already written wrongly in this corpus — offline nothing distinguishes a local number from a foreign one, and online a wrong-but-existing number resolves perfectly. Requiring the author to state the repository is what surfaces the mistake at the moment it is made.
+
+The qualification is itself the notation: a reference that names its repository or carries a scheme is external by construction, and nothing further marks it. Fenced code, inline code spans, link targets, heading anchors such as `#4-resume-game`, and colour literals such as `#777777` are not references and are never read as one.
 
 This rule needs no network. It returns the same verdict offline, on a pinned revision, in a year.
 
-*Resolving, separated and advisory.* A distinct command resolves the qualified references the judge has already validated, and classifies each into exactly four outcomes: **reachable**, **redirected**, **gone**, and **unreachable**. A redirect reports its new target and is offered as a rewrite; like `clue migrate`, the command previews by default and writes only when explicitly told to, so a moved target becomes a reviewed corpus edit rather than a silent one. **Unreachable is not a failure.** A timeout, an outage, or a rate limit reports an unknown, because the corpus did not change and must not be condemned by weather elsewhere. Only **gone** is an error, and it is an error the command reports — never a verdict `clue validate` reaches.
+*Resolving, separated and advisory.* A distinct command resolves the qualified references the judge has already validated, and classifies each into exactly five outcomes:
+
+- **reachable** — the target answered and is there.
+- **restricted** — the target answered `401` or `403`. It exists; this runner may not read it. A private wiki or an internal tracker lands here permanently and correctly, and it is not a finding. Authentication is a property of where the command runs, never of the corpus, so nothing is recorded to excuse it.
+- **redirected** — the target moved. The new location is reported and offered as a rewrite.
+- **gone** — `404` or `410`. The reference points at nothing. This is the error.
+- **unreachable** — a timeout, a DNS failure, a rate limit. Reported as unknown.
+
+Separating `restricted` from `unreachable` is what keeps the report worth reading: without it, every private target reports unknown forever and a genuine outage hides in that noise. The server already states the difference, so no corpus annotation has to.
+
+Like `clue migrate`, the command previews by default and writes only when explicitly told to, so a moved target becomes a reviewed corpus edit rather than a silent one. **Neither `restricted` nor `unreachable` is a failure.** The corpus did not change and must not be condemned by weather elsewhere, or by where the command happened to run. Only **gone** is an error, and it is an error the command reports — never a verdict `clue validate` reaches.
 
 The resolver may inform and may open findings where humans read them. It may not be a required status check. Making it one would put another organisation's uptime between a change and its merge, which is exactly the coupling this separation exists to prevent.
 
 *Foreign acceptance evidence.* A criterion whose real proof is a run in another repository names the repository, the pinned revision, and the identifier. The judge treats it as **named but locally unproven**: never coverage, never an imported verdict. `Test-type: Human` remains the proof of record, and this pointer sits beside it. The pinned revision is what keeps the claim honest — it states which state was proven, not what a branch shows today.
+
+## Adoption
+
+This narrows a corpus obligation, so the release carrying it ships a migration under ADR-039 — and that migration reports, it does not repair. A bare `#N` cannot be qualified mechanically: nothing in the file says which repository was meant, and defaulting to the adopter's own slug would cement precisely the mistake this rule exists to catch, converting a confidently wrong reference into a confidently wrong *qualified* reference that no later check can question. The migration therefore lists every bare reference with its file and line and stops, in the same shape ADR-039 already uses for semantic cases; the adopter resolves them in a reviewed change.
+
+The resolver may assist that work by reporting what each bare number resolves to in the repository being migrated. That is information for the human deciding, not a decision the tool takes.
+
+An adopter that has not upgraded is unaffected. The obligation arrives with the release, on the adopter's schedule, which is what the versioned-migration contract is for.
 
 ## Rejected: resolve references inside `clue validate`
 
