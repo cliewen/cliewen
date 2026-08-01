@@ -24,15 +24,33 @@ So the question is not whether to check external references. It is where each ha
 
 **An external reference names its target, and the judge enforces only that. Resolving the target is a separate command that never gates a merge.**
 
-*Naming, enforced offline.* A forge reference is written `owner/repo#N`. Anything else external — a wiki page, a published document, a site — is written as a full URL. A corpus ID belonging to another repository is qualified by that repository. A bare `#N` in corpus prose is a validation failure, because it asserts a namespace it does not name.
+The notation follows URI conventions rather than inventing a private one, and it separates the two things Cliewen already keeps apart: an **address**, which says where something currently lives, and an **identity**, which says what something is.
 
-**References that stay inside the repository are untouched.** A corpus artifact is cited by its bare ID and a file by a relative path, exactly as before: identity is the ID and the path is only its current address, and neither gains a slug, a prefix, or an absolute URL. The rule reaches only what points outward. One exception is deliberate: a forge number names its repository even when it means this one, because `#N` is the single shape already written wrongly in this corpus — offline nothing distinguishes a local number from a foreign one, and online a wrong-but-existing number resolves perfectly. Requiring the author to state the repository is what surfaces the mistake at the moment it is made.
+*Anything with an address is written as a full URL.* A pull request, an issue, a wiki page, a published document, a site — all of them, in ordinary markdown link syntax, which is already a URI. This replaces the forge shorthand `owner/repo#N`, and the reason is that the shorthand names no host: it silently assumes one forge, so a resolver has to guess a base address, and a self-hosted or non-GitHub target cannot be written at all. A full URL states the host, resolves without assumption, and treats a wiki and a forge issue identically. AN-013 already contains the evidence: the only two references in this corpus that were not wrong are the two carrying a full URL.
 
-The qualification is itself the notation: a reference that names its repository or carries a scheme is external by construction, and nothing further marks it. Fenced code, inline code spans, link targets, heading anchors such as `#4-resume-game`, and colour literals such as `#777777` are not references and are never read as one.
+The readable label survives — link text is free, so `[cliewen/cliewen#96](https://github.com/cliewen/cliewen/pull/96)` keeps the familiar shorthand where a human reads it while the target stays unambiguous.
+
+*A bare `#N` is a validation failure.* It asserts a namespace it does not name, and it is the one shape already written wrongly here: offline nothing distinguishes a local number from a foreign one, and online a wrong-but-existing number resolves perfectly, so no later check can question it. Requiring an address surfaces the mistake at the moment it is made.
+
+*An identity in another repository is written with a `clue:` scheme.* A corpus ID is an identity, not an address — Cliewen's own rule is that the ID is the identity and the path is only its current address — so answering with a URL would be the wrong kind of answer. The scheme says what the reference is, and the rest says which corpus it belongs to:
+
+```
+clue:robocode-dev/tank-royale/CAP-001
+```
+
+A foreign acceptance-evidence pointer is the same identity with the revision that was proven:
+
+```
+clue:robocode-dev/tank-royale@384d27d5/BR-001
+```
+
+**References that stay inside the repository are untouched.** A corpus artifact keeps its bare ID and a file its relative path, exactly as before. Neither gains a scheme, a slug, or an absolute URL. The rule reaches only what points outward.
+
+Fenced code, inline code spans, heading anchors such as `#4-resume-game`, and colour literals such as `#777777` are not references and are never read as one.
 
 This rule needs no network. It returns the same verdict offline, on a pinned revision, in a year.
 
-*Resolving, separated and advisory.* A distinct command resolves the qualified references the judge has already validated, and classifies each into exactly five outcomes:
+*Resolving, separated and advisory.* A distinct command resolves the URLs the judge has already validated, and classifies each into exactly five outcomes. A `clue:` identity is not resolved: it names a corpus artifact in another repository, and following it would require knowing where that repository currently lives, which is the address coupling this notation exists to avoid.
 
 - **reachable** — the target answered and is there.
 - **restricted** — the target answered `401` or `403`. It exists; this runner may not read it. A private wiki or an internal tracker lands here permanently and correctly, and it is not a finding. Authentication is a property of where the command runs, never of the corpus, so nothing is recorded to excuse it.
