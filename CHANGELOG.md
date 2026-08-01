@@ -4,6 +4,10 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 
 ## [Unreleased]
 
+## [0.11.0] - 2026-08-01
+
+The release where a reference that leaves the repository has to say where it goes, and checking whether it still arrives stays out of the judge.
+
 ### Migration
 
 - **External references must now name what they point at.** A bare forge number such as `#42` fails validation: it silently means "this repository" and is wrong the moment it does not. Write the full address of the target instead — a pull request, an issue, a wiki page, and a published document are all written the same way, so nothing assumes a particular forge. Citations that stay inside your repository are untouched: an artifact keeps its bare ID and a file its relative path. `clue migrate` reports every unqualified reference with its file and line but never repairs one, because nothing in the file says which repository was meant and guessing would make a wrong reference look deliberate. An ordinal or a colour literal written bare in prose — `the #1 cause`, `#777777` — is read as a citation for the same reason a real one is, so put it in a code span, which is ordinary markdown practice anyway. A citation of an artifact in another repository's corpus is written `clue:owner/repo/ID`, with the revision that was proven when it points at foreign acceptance evidence; a half-written one now fails rather than sitting there looking complete.
@@ -24,6 +28,10 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 - **Full Cliewen changes now have one supported pull-request merge shape.** Configure the protected default branch to use a human-controlled merge commit and disable squash and rebase-and-merge, so the proposal, implementation, digest, and durable corpus history remain reachable in Git instead of depending on the forge's pull-request record. The setup guide and disposable branch-protection probe verify the same boundary before adoption.
 
 - **Brownfield criteria keep their stable identities during migration.** `clue validate` now accepts canonical IDs such as `SNAP-SQS-001` and `ADP-045b`, preserves them through links, coverage, retirement, and Go/JVM/Cucumber evidence, and rejects ambiguous or malformed variants instead of forcing a renumbering. The extraction guidance explains the same deterministic preservation and minting rule, so existing test tags can continue to resolve.
+
+### Install
+
+`curl -fsSL https://cliewen.dev/install.sh | sh` on macOS and Linux, `irm https://cliewen.dev/install.ps1 | iex` on Windows, or `go install github.com/cliewen/cliewen/cmd/clue@v0.11.0`. You can still download a prebuilt binary from the release assets and verify it against `SHA256SUMS` by hand; those asset names are unchanged, so a vendored CI wall pinned to an earlier release keeps working exactly as before. Update vendored Cliewen skills from this release's `.agents/skills/`; a 0.11.0 binary rejects older Cliewen skill versions as drift. Upgrading an existing repository takes one more step than usual this time: run `clue migrate` to preview the corpus and carrier upgrade, and expect it to list any external reference that names no repository — it reports those and repairs none, because nothing in the file says which repository was meant.
 
 ## [0.10.0] - 2026-07-30
 
