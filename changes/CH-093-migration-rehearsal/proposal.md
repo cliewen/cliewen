@@ -10,7 +10,9 @@ title: Rehearse a representative brownfield migration without mutation
 
 ## What
 
-This full change serves P-009 milestone M-042 by running the mandatory report-only `clue-extract` rehearsal against the clean local Robocode Tank Royale checkout at pinned revision `384d27d55176a2d2ad4668ac381852e629e4540a`, the public adopter revision already used by AN-013.
+This full change serves P-009 milestone M-042 by running the mandatory report-only `clue-extract` rehearsal against the clean local Robocode Tank Royale checkout, the repository the human named as this milestone's representative target. Two revisions are pinned: the head pin `384d27d55176a2d2ad4668ac381852e629e4540a`, the public adopter revision already used by AN-013, and the source pin `4e579878fd6667fab3b75515b6e68135a935c8df`, the last state carrying the parallel `openspec/` corpus before adoption removed it.
+
+Because that target is already adopted, the rehearsal is retrospective: it reconstructs a conversion that happened between the two pins rather than previewing a pending one. The exit items this cannot exercise are recorded as narrower boundaries rather than claimed.
 
 The rehearsal will inventory the source formats and entry points, artifact mappings, preserved and minted criterion IDs, confidence and reversal cost, test-purpose work, instruction conflicts, governance effects, planned deletions, CI and installation constraints, current-to-target corpus migration, merge-mode compatibility, and named follow-up doors. It will record Cliewen's deterministic validation separately from the target repository's own test and build results, including whether each result came from a clean disposable or prepared environment.
 
