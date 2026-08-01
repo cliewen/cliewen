@@ -18,6 +18,8 @@ G-xxx (goal) → P-xxx/M-xxx (plan/milestone) → CH-xxx (change)
 
 Cross-cutting, checked against every proposal: C-xxx (constraints, including verifiable quality bars).
 
+When a released `clue` adds or narrows a corpus obligation, preview `clue migrate` and apply its complete plan only after resolving any semantic or local-edit findings. `clue init` remains a non-destructive materializer, not an updater.
+
 ## What lives where — and when a change updates it
 
 Each folder below holds one kind of record. A Cliewen change (the `clue-delta` loop) updates, in the same branch and PR as the code, every record its work touches:

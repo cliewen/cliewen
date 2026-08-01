@@ -90,6 +90,19 @@ jobs:
             exit 1
           fi
 
+      - name: Require migration guidance before tagging
+        if: steps.check.outputs.release == 'true'
+        run: |
+          if git diff --quiet "${GITHUB_SHA}^" "${GITHUB_SHA}" -- internal/migrate; then
+            exit 0
+          fi
+          awk '
+            /^### Migration$/ { found = 1; next }
+            found && /^### / { exit }
+            found && /[^[:space:]]/ { content = 1 }
+            END { exit !content }
+          ' "${RUNNER_TEMP}/notes.md" || { echo "::error title=No migration guidance::The release changes internal/migrate but its CHANGELOG section has no non-empty ### Migration section (ADR-039)" >&2; exit 1; }
+
       - name: Tag the merge commit
         if: steps.check.outputs.release == 'true'
         env:

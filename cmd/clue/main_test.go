@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"go/ast"
 	"go/parser"
 	"go/token"
@@ -13,6 +14,7 @@ import (
 	"testing"
 
 	"github.com/cliewen/cliewen/internal/corpus"
+	"github.com/cliewen/cliewen/internal/scaffold"
 	"gopkg.in/yaml.v3"
 )
 
@@ -471,6 +473,67 @@ func TestSanity_ReleaseNotesComeFromChangelog(t *testing.T) {
 	// only place the failure above was visible.
 	if !strings.Contains(wf, "gh release view") {
 		t.Error("release workflow never reads back the published body — ADR-012's one-to-one map must be verified against the release page, not just requested")
+	}
+}
+
+func TestAC065_UnitPositive_ReleaseWorkflowRequiresMigrationGuidance(t *testing.T) {
+	wf := readReleaseWorkflow(t)
+	for _, required := range []string{
+		"internal/migrate",
+		"Require migration guidance when the migration registry changed",
+		"### Migration",
+		"release-notes.md",
+	} {
+		if !strings.Contains(wf, required) {
+			t.Errorf("release workflow is missing migration guidance guard %q", required)
+		}
+	}
+}
+
+func TestAC065_UnitNegative_ReleaseWorkflowCannotSkipChangedRegistryGuidance(t *testing.T) {
+	wf := readReleaseWorkflow(t)
+	guard := `git diff --quiet "${GITHUB_SHA}^" "${GITHUB_SHA}" -- internal/migrate`
+	if !strings.Contains(wf, guard) || !strings.Contains(wf, "exit !content") {
+		t.Fatal("a migration-registry change can reach publishing without checking for non-empty migration notes")
+	}
+}
+
+func TestAC064_CLI_MigratePreviewAndApply(t *testing.T) {
+	root := t.TempDir()
+	if _, err := scaffold.Run(root); err != nil {
+		t.Fatal(err)
+	}
+	artifact := "---\nid: AN-101\ntype: analysis\nstatus: verified\nlinks: []\ntitle: Historical analysis\nprovenance: inferred\n---\n\nThe operator's prose remains intact.\n"
+	writeFile(t, root, "docs/analysis/AN-101.md", artifact)
+
+	before, err := os.ReadFile(filepath.Join(root, "docs", "analysis", "AN-101.md"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	var out, errOut strings.Builder
+	if code := runMigrate([]string{"--reversal-cost=low", root}, &out, &errOut); code != 0 {
+		t.Fatalf("preview exit code = %d, stderr=%q, stdout=%q", code, errOut.String(), out.String())
+	}
+	if !strings.Contains(out.String(), "preview only") || !strings.Contains(out.String(), "docs/analysis/AN-101.md") {
+		t.Fatalf("preview output does not name the planned change: %q", out.String())
+	}
+	if after, err := os.ReadFile(filepath.Join(root, "docs", "analysis", "AN-101.md")); err != nil || !bytes.Equal(after, before) {
+		t.Fatal("preview changed a file")
+	}
+
+	out.Reset()
+	errOut.Reset()
+	if code := runMigrate([]string{"--apply", "--reversal-cost=low", root}, &out, &errOut); code != 0 {
+		t.Fatalf("apply exit code = %d, stderr=%q, stdout=%q", code, errOut.String(), out.String())
+	}
+	if !strings.Contains(out.String(), "applied") {
+		t.Fatalf("apply output does not report a write: %q", out.String())
+	}
+
+	out.Reset()
+	errOut.Reset()
+	if code := runMigrate([]string{root}, &out, &errOut); code != 0 || !strings.Contains(out.String(), "no changes needed") {
+		t.Fatalf("second run was not a no-op: code=%d stderr=%q stdout=%q", code, errOut.String(), out.String())
 	}
 }
 

@@ -19,7 +19,7 @@ The method's first enforced requirement is its own accessibility — instant usa
 
 The layered guide, layers kept strictly separate:
 
-1. **Command (seconds):** `clue init` materializes the whole convention — `/docs` taxonomy, README indexes, skills, CI workflow — in one call.
+1. **Command (seconds):** `clue init` materializes the whole convention — `/docs` taxonomy, README indexes, skills, CI workflow — in one call; `clue migrate` later upgrades a released corpus through a previewed, safe plan.
 2. **Quickstart (5 minutes):** one page — install, `clue init`, first change loop, watch `validate` go green.
 3. **Skills** — learned during use.
 4. **Book** — the why; depth, secondary.

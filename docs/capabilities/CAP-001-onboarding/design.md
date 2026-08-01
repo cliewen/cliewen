@@ -19,6 +19,12 @@ title: Design for CAP-001 onboarding
 - **A symlinked directory is never written through** (AC-038): sharing an assistant's skills across checkouts makes `.claude/skills` — or `.claude`, or even `.agents/skills` — a symlink into a tree that belongs to more than this repository. Before emitting a file, `init` walks the target's ancestor directories *below* the root and skips the subtree when any of them is a link, reporting it as `linked` rather than folding it into the never-overwrite `exists` line: an empty mirror is then an informed choice rather than a mystery. The root itself is never inspected — a checkout reached through a link is ordinary — and nothing else the run emits is affected. This is emission only: `clue validate` still resolves a skill manifest through a link by design ([ADR-028](../../decisions/ADR-028-deterministic-skill-manifest.md)).
 - **The template-vs-validator contract is a test, not discipline**: AC-002's test runs `clue validate` over a fresh `init` output, so a validator rule the templates violate fails the build the moment it lands.
 
+## The migration command
+
+`clue migrate` is the upgrade path for an adopted repository whose released binary has moved the corpus contract. It previews by default and applies only a complete preflighted plan. `MIG-001` adds `reversal-cost` only after the operator supplies the explicit low/high routing choice; `MIG-002` maps the historical architecture and analysis `status: verified` value to `active`; `MIG-003` refreshes recognized generated skill releases, their existing Claude mirror, and the thin caller's upstream reference and pair version. Every edit is line-preserving or wholly generator-owned, so local prose and caller choices survive.
+
+The command never overwrites a generated file whose bytes are not in the supported release manifest, never guesses a semantic status, never follows a symlinked mirror, and never creates a hidden migration state file. A finding blocks the entire write set; after the operator resolves it, rerunning the command resumes from the target's content. `clue init` remains the materializer for missing convention files.
+
 ## The guide
 
 The quickstart page lives in the repo README; the command is the guide's most important layer and must not require reading anything. Layers, kept strictly separate:

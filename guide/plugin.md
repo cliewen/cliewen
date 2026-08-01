@@ -35,7 +35,7 @@ The plugin and the install script install the same binary from the same release,
 | At a terminal, or scripting a machine | [`install.sh` or `install.ps1`](./getting-started#_1-install-clue) |
 | Setting up CI | The [pinned, checksum-verified binary](./ci-wall) the generated workflow installs — never a plugin |
 
-Upgrading `clue` moves the binary only. For a repository already using Cliewen that is half an upgrade, and the drift report you get afterwards is the check working; [Operate safely](./operations) explains how to finish the job.
+Upgrading `clue` moves the binary only. For a repository already using Cliewen that is half an upgrade; preview and apply the coordinated repository migration with `clue migrate`, and use the drift report as the check that the pair still needs work. [Operate safely](./operations) explains the recovery boundary.
 
 ## Next
 
