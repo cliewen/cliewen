@@ -50,6 +50,7 @@ Usage:
   clue init [path]
   clue scaffold [path]
   clue context <id> [path]
+  clue refs [--apply] [--timeout=<duration>] [path]
   clue validate [--forbid-changes] [--coverage] [--reality-gaps] [path]
   clue version
 
@@ -87,8 +88,9 @@ Commands:
              read it), redirected, gone, or unreachable. Only "gone" is an
              error; an outage elsewhere never condemns a corpus. Use
              --apply to rewrite redirected addresses in place. A clue:
-             identity is never followed. Never make this a required check
-             (ADR-040). Path defaults to ".".
+             identity is never followed. Never make this a required
+             check: another host's uptime must not gate a merge.
+             Path defaults to ".".
 
   validate   Scan docs/ and changes/ under path (default ".") and check
              the frontmatter graph: core fields, unique IDs, link

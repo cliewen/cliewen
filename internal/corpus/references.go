@@ -43,7 +43,7 @@ func checkExternalReferences(c *Corpus) []Issue {
 			// number can appear more than once in it, and an adopter repairing
 			// a migration report should not have to search for the occurrence.
 			issues = append(issues, Issue{a.Path, "line " + itoa(a.BodyLine+ref.line-1) + ": bare forge reference " + ref.text +
-				" names no repository; write the full URL of what it points at (ADR-040)"})
+				" names no repository; write the full URL of what it points at"})
 		}
 	}
 	return issues
