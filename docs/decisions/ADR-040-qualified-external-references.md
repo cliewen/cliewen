@@ -46,6 +46,10 @@ clue:robocode-dev/tank-royale@384d27d5/BR-001
 
 **References that stay inside the repository are untouched.** A corpus artifact keeps its bare ID and a file its relative path, exactly as before. Neither gains a scheme, a slug, or an absolute URL. The rule reaches only what points outward.
 
+**The command and the scheme are written in a code span; a citation is not.** `clue` is an ordinary English noun as well as this tool's name, so prose naming the command or showing the notation puts it in backticks — which is ordinary markdown for a literal token and is what keeps a sentence like "the clue: it was the deployment order" from being read as a broken pointer. A real citation is prose, not a literal, and carries no backticks. That is the whole distinction the scan needs: a bare `clue:owner/repo/ID` in running text is a claim about where proof lives, and the same token inside a code span or a fence is an example of the form.
+
+The judge does not depend on the convention being followed. A token that names no path is not treated as an attempted pointer at all, so prose keeps working even when someone forgets the backticks; the convention is what makes the corpus readable, and the path requirement is what makes it safe.
+
 Fenced code, inline code spans, link targets, and heading anchors such as `#4-resume-game` are not references and are never read as one. A colour literal carrying a hex letter is excluded by the same rule that excludes an anchor. An all-digit colour such as `#777777` is indistinguishable from an issue number by shape alone, and it is read as a reference: excluding runs of that length would silence the numbers adopters actually cite, and a rule that cannot see the common case is not worth the rare false positive it avoids. A colour literal in prose belongs in a code span, which is ordinary markdown practice.
 
 This rule needs no network. It returns the same verdict offline, on a pinned revision, in a year.
