@@ -186,3 +186,34 @@ func TestAC067_UnitNegative_ASchemeWithNoNamespaceIsMalformed(t *testing.T) {
 		t.Fatalf("expected the token named, got %q", issues[0].Msg)
 	}
 }
+
+func TestAC066_UnitPositive_TheChecksAreWiredIntoTheJudge(t *testing.T) {
+	// Both criteria say "when the user runs clue validate". Without this, the
+	// checks could be unregistered and every other test would stay green.
+	c := corpusWithBody(t, "a bare PR #96 and a broken clue:BR-001 pointer")
+	var found int
+	for _, issue := range Validate(c, Options{}) {
+		if strings.Contains(issue.Msg, "bare forge reference #96") ||
+			strings.Contains(issue.Msg, "clue:BR-001 is malformed") {
+			found++
+		}
+	}
+	if found != 2 {
+		t.Fatalf("expected both checks to run inside Validate, matched %d of 2", found)
+	}
+}
+
+func TestAC067_UnitNegative_CapitalisedProseIsNotAPointer(t *testing.T) {
+	// The identity half requires the digits a corpus ID carries, so a
+	// capitalised word after the scheme is prose, not a broken pointer.
+	for _, prose := range []string{
+		"The clue:Index was a red herring.",
+		"See https://example.com/search/clue:Overview for context.",
+	} {
+		t.Run(prose, func(t *testing.T) {
+			if issues := checkForeignPointers(corpusWithBody(t, prose)); len(issues) != 0 {
+				t.Fatalf("expected no finding, got %v", issues)
+			}
+		})
+	}
+}

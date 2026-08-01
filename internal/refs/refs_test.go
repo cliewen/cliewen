@@ -457,3 +457,26 @@ func TestAC068_UnitPositive_AnEmphasisedOrQuotedAddressIsStillSeen(t *testing.T)
 		})
 	}
 }
+
+func TestAC069_UnitNegative_ARewriteNeverReachesIntoACodeSpan(t *testing.T) {
+	// The same address bare and in an example on one line: the citation moves,
+	// the literal does not.
+	srv := forge(t)
+	line := "See " + srv.URL + "/owner/live/moved — run `git clone " + srv.URL + "/owner/live/moved` to fetch it.\n"
+	root := corpusWith(t, map[string]string{
+		"analysis/AN-001.md": "---\ntype: analysis\nstatus: active\n---\n\n" + line,
+	})
+	if _, err := Resolve(root, Options{Apply: true, Client: srv.Client()}); err != nil {
+		t.Fatal(err)
+	}
+	got, err := os.ReadFile(filepath.Join(root, "docs", "analysis", "AN-001.md"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(string(got), "See "+srv.URL+"/owner/live/ok") {
+		t.Fatalf("the citation was not rewritten:\n%q", got)
+	}
+	if !strings.Contains(string(got), "git clone "+srv.URL+"/owner/live/moved`") {
+		t.Fatalf("the example inside the code span was rewritten:\n%q", got)
+	}
+}

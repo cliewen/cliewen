@@ -187,9 +187,10 @@ func BareReferenceIssues(c *Corpus) []Issue { return checkExternalReferences(c) 
 //
 // Neither half matches ordinary English. "clue" is a common noun as well as
 // this tool's name, so "The clue: it was the deployment order" is followed by a
-// space, and an index marker continues in lowercase with no path — so neither
-// is read as a broken pointer.
-var malformedClueRe = regexp.MustCompile(`\bclue:(?:\S*/\S*|[A-Z][A-Za-z0-9-]*)`)
+// space, and an index marker continues in lowercase with no path. The identity
+// half requires the digits a corpus ID carries, so a capitalised word after the
+// scheme — "clue:Index", or a clause opening without a space — is prose too.
+var malformedClueRe = regexp.MustCompile(`\bclue:(?:\S*/\S*|[A-Z][A-Za-z0-9]*-[0-9]+[a-z]?)`)
 
 // checkForeignPointers reports clue: pointers that do not parse.
 //
@@ -260,7 +261,12 @@ func citableLines(body string) []citableLine {
 		if inFence {
 			continue
 		}
-		out = append(out, citableLine{text: inlineCodeRe.ReplaceAllStringFunc(line, blank), n: i + 1})
+		// URLs are blanked as well as code spans: an address whose path happens
+		// to contain the scheme — a forge search link, say — is a target, not a
+		// citation attempt.
+		masked := inlineCodeRe.ReplaceAllStringFunc(line, blank)
+		masked = bareURLRe.ReplaceAllStringFunc(masked, blank)
+		out = append(out, citableLine{text: masked, n: i + 1})
 	}
 	return out
 }

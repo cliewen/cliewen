@@ -211,11 +211,48 @@ func probe(client *http.Client, raw string) (Outcome, string, string) {
 		res, target, detail = r2, t2, d2
 	}
 	if res == Gone {
+		// A credential can settle what the web host refuses to say, but only
+		// in this direction: it may turn gone into restricted and never
+		// supplies a rewrite target.
+		if askPrivately(client, raw) {
+			return Restricted, "", "a credential can read this target; the web host answers 404 because it is private"
+		}
 		if owner, live := ownerAnswers(client, raw); live {
 			return Restricted, "", "owner " + owner + " answers but the target does not; likely private rather than deleted"
 		}
 	}
 	return res, target, detail
+}
+
+// askPrivately reports whether a credential can see a target the web host
+// denies. A bearer token is inert on the web host, whose pages authenticate by
+// session cookie, so the question is put to the API instead — and the answer is
+// read only as "it exists". Nothing it returns reaches the corpus.
+func askPrivately(client *http.Client, raw string) bool {
+	u, err := url.Parse(raw)
+	if err != nil {
+		return false
+	}
+	tok := hostToken(u.Host)
+	if tok == "" {
+		return false
+	}
+	api := apiEquivalent(u)
+	if api == "" {
+		return false
+	}
+	req, err := http.NewRequest(http.MethodGet, api, nil)
+	if err != nil {
+		return false
+	}
+	req.Header.Set("Authorization", "Bearer "+tok)
+	req.Header.Set("Accept", "application/vnd.github+json")
+	resp, err := client.Do(req)
+	if err != nil {
+		return false
+	}
+	defer resp.Body.Close()
+	return resp.StatusCode >= 200 && resp.StatusCode < 300
 }
 
 // ownerAnswers reports whether the address's owner root still exists. It is
@@ -261,26 +298,12 @@ func request(client *http.Client, method, raw string) (Outcome, string, string, 
 	if err != nil {
 		return Unreachable, "", err.Error(), false
 	}
-	// A credential turns a private target from an oblique 404 into a plain
-	// answer — but only where the credential is honoured. A bearer token is
-	// inert on github.com, whose web pages authenticate by session cookie, so
-	// it is worth sending only when the address has an API equivalent to ask
-	// instead. Where it has none, the plain web request is made with no
-	// credential and no API media type: attaching either would hand a token to
-	// a request that cannot use it, and the JSON media type makes the web host
-	// answer 406 to a page that is perfectly fine.
-	//
-	// The corpus still stores the plain address. This is how the resolver
-	// asks, not what the corpus says.
-	if tok := hostToken(req.URL.Host); tok != "" {
-		if api := apiEquivalent(req.URL); api != "" {
-			if r, err := http.NewRequest(method, api, nil); err == nil {
-				req = r
-				req.Header.Set("Authorization", "Bearer "+tok)
-				req.Header.Set("Accept", "application/vnd.github+json")
-			}
-		}
-	}
+	// No credential and no API host here. This function's answer can become a
+	// rewrite target, and an API redirect names an API address — writing that
+	// into the corpus would replace a readable link with an internal one, and
+	// only for whoever happened to have a token set. Asking with a credential
+	// is confined to askPrivately, whose answer can only ever narrow gone to
+	// restricted and never supplies a target.
 	resp, err := client.Do(req)
 	if err != nil {
 		var uerr *url.Error
@@ -495,22 +518,29 @@ func rewrite(root string, refs []Reference) error {
 // replaceWholeAddress swaps an address only where it ends there, so a shorter
 // address is never substituted into a longer one that shares its prefix.
 func replaceWholeAddress(line, from, to string) string {
+	// Occurrences are found on a copy with code spans blanked, and applied to
+	// the original. Harvesting skips a code span, so an address that also
+	// appears bare on the same line must not drag the literal example along
+	// with it.
+	mask := inlineCodeRe.ReplaceAllStringFunc(line, blankRun)
 	var b strings.Builder
+	offset := 0
 	for {
-		i := strings.Index(line, from)
+		i := strings.Index(mask[offset:], from)
 		if i < 0 {
-			b.WriteString(line)
+			b.WriteString(line[offset:])
 			return b.String()
 		}
+		i += offset
 		end := i + len(from)
-		if !addressEndsAt(line, end) {
-			b.WriteString(line[:end])
-			line = line[end:]
+		if !addressEndsAt(mask, end) {
+			b.WriteString(line[offset:end])
+			offset = end
 			continue
 		}
-		b.WriteString(line[:i])
+		b.WriteString(line[offset:i])
 		b.WriteString(to)
-		line = line[end:]
+		offset = end
 	}
 }
 
