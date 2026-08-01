@@ -197,7 +197,7 @@ func TestAC064_UnitNegative_MigrationRejectsChangedSourceAfterPreview(t *testing
 
 func TestAC064_UnitPositive_MigrationRegistryIsOrdered(t *testing.T) {
 	registry := Registry()
-	want := []string{MigrationReversalCost, MigrationStatusLifecycle, MigrationManagedCarriers}
+	want := []string{MigrationReversalCost, MigrationStatusLifecycle, MigrationManagedCarriers, MigrationQualifiedReferences}
 	if len(registry) != len(want) {
 		t.Fatalf("registry has %d entries, want %d", len(registry), len(want))
 	}
@@ -472,4 +472,51 @@ func repositoryRoot(t *testing.T) string {
 		t.Fatal("cannot locate migration fixture")
 	}
 	return filepath.Clean(filepath.Join(filepath.Dir(file), "..", ".."))
+}
+
+// TestAC064_UnitNegative_BareReferencesAreReportedNeverRepaired covers the
+// report-only migration: a bare forge reference is named with its file and
+// line, and nothing is written. Repairing one would mean guessing which
+// repository was meant, which is how a confidently wrong reference becomes a
+// confidently wrong qualified one.
+func TestAC064_UnitNegative_BareReferencesAreReportedNeverRepaired(t *testing.T) {
+	root := t.TempDir()
+	docs := filepath.Join(root, "docs", "analysis")
+	if err := os.MkdirAll(docs, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	body := "---\nid: AN-001\ntype: analysis\nstatus: active\nlinks: []\ntitle: t\nprovenance: inferred\nreversal-cost: low\n---\n\nTracked by issue #202 upstream.\n"
+	file := filepath.Join(docs, "AN-001-x.md")
+	if err := os.WriteFile(file, []byte(body), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	plan, err := Plan(root, Options{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	var found *Finding
+	for i := range plan.Findings {
+		if plan.Findings[i].Migration == MigrationQualifiedReferences {
+			found = &plan.Findings[i]
+		}
+	}
+	if found == nil {
+		t.Fatal("expected the bare reference to be reported")
+	}
+	if !strings.Contains(found.Message, "#202") || !strings.Contains(found.Message, "line ") {
+		t.Fatalf("expected the number and its line, got %q", found.Message)
+	}
+	for _, c := range plan.Changes {
+		if c.Migration == MigrationQualifiedReferences {
+			t.Fatal("a bare reference must never be repaired mechanically")
+		}
+	}
+	after, err := os.ReadFile(file)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if string(after) != body {
+		t.Fatal("the file was modified by a report-only migration")
+	}
 }

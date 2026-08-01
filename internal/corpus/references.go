@@ -156,3 +156,9 @@ func isWordByte(b byte) bool {
 }
 
 func itoa(n int) string { return strconv.Itoa(n) }
+
+// BareReferenceIssues exposes the form findings to callers outside the judge —
+// notably the migration that reports them to an adopter. It is the same scan
+// `clue validate` runs, so a repository never sees two different answers about
+// the same reference.
+func BareReferenceIssues(c *Corpus) []Issue { return checkExternalReferences(c) }
