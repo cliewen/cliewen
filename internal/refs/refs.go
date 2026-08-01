@@ -106,21 +106,24 @@ func Resolve(root string, opts Options) (Report, error) {
 	if err != nil {
 		return Report{}, err
 	}
-	client := opts.Client
-	if client == nil {
-		timeout := opts.Timeout
-		if timeout == 0 {
-			timeout = defaultTimeout
+	timeout := opts.Timeout
+	if timeout == 0 {
+		timeout = defaultTimeout
+	}
+	client := &http.Client{Timeout: timeout}
+	if opts.Client != nil {
+		c := *opts.Client
+		client = &c
+		if client.Timeout == 0 {
+			client.Timeout = timeout
 		}
-		client = &http.Client{
-			Timeout: timeout,
-			// Redirects are the finding, not something to follow silently: a
-			// followed hop would report the destination as reachable and the
-			// stale reference would survive unnoticed.
-			CheckRedirect: func(*http.Request, []*http.Request) error {
-				return http.ErrUseLastResponse
-			},
-		}
+	}
+	// Not following redirects is the behaviour, not a default: a followed hop
+	// reports the destination as reachable and lets the stale reference
+	// survive unnoticed. An injected client gets the same policy, so no caller
+	// — including a test — can quietly turn the finding off.
+	client.CheckRedirect = func(*http.Request, []*http.Request) error {
+		return http.ErrUseLastResponse
 	}
 	workers := opts.Workers
 	if workers == 0 {

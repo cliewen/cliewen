@@ -211,4 +211,24 @@ Feature: clue validate — deterministic corpus judgment
     Then links, retirement tombstones, and derived coverage resolve those exact IDs without renumbering
     And duplicate IDs, wrong-namespace declarations, malformed near-matches, and colliding normalized prefixes fail with diagnostics
     But existing <PREFIX>-<digits> IDs remain valid without edits
+
+  @AC-066
+  Scenario: An external reference names its target or the corpus fails
+    Test-type: Unit
+    Given corpus prose containing a bare forge number, a full URL, a link whose label carries a forge number, a heading anchor, a colour literal, a fenced block, and a clue: identity
+    When the user runs "clue validate"
+    Then only the bare forge number fails, naming the file and the line a reader opens to
+    And the failure says to write the full URL of what the reference points at
+    But a full URL, a labelled link, an anchor, a colour literal, fenced content, and a clue: identity produce no finding
+    And a corpus artifact cited by its bare ID and a file cited by a relative path are untouched
+
+  @AC-067
+  Scenario: Foreign acceptance evidence is named but never counted
+    Test-type: Unit
+    Given an active criterion whose evidence is the pointer clue:owner/repo@revision/ID
+    When the user runs "clue validate" and "clue validate --coverage"
+    Then the pointer resolves as a well-formed foreign identity naming its repository, revision, and criterion
+    And coverage counts it as named but locally unproven
+    But it is never counted as classified evidence and never imported as a verdict
+    And a pointer missing its revision, its repository, or its identifier fails as malformed
 ```
