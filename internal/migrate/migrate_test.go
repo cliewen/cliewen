@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"crypto/sha256"
 	"encoding/hex"
+	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -583,10 +584,16 @@ func tagExists(t *testing.T, root, tag string) bool {
 
 func gitShow(t *testing.T, root, spec string) ([]byte, error) {
 	t.Helper()
-	var out bytes.Buffer
+	var out, errOut bytes.Buffer
 	cmd := exec.Command("git", "-C", root, "show", spec)
 	cmd.Stdout = &out
+	// Without this the caller reports "exit status 128" for every failure,
+	// which names neither the path nor the reason. git already says both.
+	cmd.Stderr = &errOut
 	if err := cmd.Run(); err != nil {
+		if msg := strings.TrimSpace(errOut.String()); msg != "" {
+			return nil, fmt.Errorf("%s: %s", err, msg)
+		}
 		return nil, err
 	}
 	return out.Bytes(), nil

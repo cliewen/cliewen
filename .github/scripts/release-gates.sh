@@ -94,13 +94,27 @@ fi
 # and a carrier whose bytes did not change between releases is still recognized
 # through the older entry it already matches. What this catches is the failure
 # that actually shipped — a release recorded nowhere.
+#
+# Like every other gate here, it reads <head-ref> and not the working tree. A
+# digest taken off disk is a digest of bytes no tag will publish, and the error
+# text invites you to paste it into the manifest — which would record a claim
+# about the release that is false the moment it is written, and is precisely the
+# falsification the Go guard exists to catch.
+carriers=$(git ls-tree -r --name-only "$head" -- .agents/skills | sed -n 's|^\.agents/skills/\(.*\.md\)$|\1|p' | sort)
+if [ -z "$carriers" ]; then
+  echo "::error title=No generated carriers::${head} contains no .agents/skills/**.md; the manifest gate cannot judge a release whose carriers are absent" >&2
+  exit 1
+fi
+
+manifest=$(git show "${head}:internal/migrate/migrate.go")
+
 missing=0
-for f in $(cd .agents/skills && find . -name '*.md' | sed 's|^\./||' | sort); do
-  want=$(sha256sum ".agents/skills/${f}" | cut -d' ' -f1)
-  if ! grep -Fq "\"${f}\":" internal/migrate/migrate.go; then
+for f in $carriers; do
+  want=$(git show "${head}:.agents/skills/${f}" | sha256sum | cut -d' ' -f1)
+  if ! printf '%s\n' "$manifest" | grep -Fq "\"${f}\":"; then
     echo "::error title=Carrier missing from the release manifest::${f} is not listed in legacyDigests (internal/migrate/migrate.go); add it to the ${v} entry with digest ${want}" >&2
     missing=1
-  elif ! grep -Fq "\"${want}\"" internal/migrate/migrate.go; then
+  elif ! printf '%s\n' "$manifest" | grep -Fq "\"${want}\""; then
     echo "::error title=Release manifest is stale::${f} has digest ${want} but no entry in legacyDigests carries it; the ${v} entry must record this release's carriers" >&2
     missing=1
   fi
