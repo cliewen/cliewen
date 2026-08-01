@@ -32,8 +32,11 @@ var clueRefRe = regexp.MustCompile(`\bclue:([A-Za-z0-9_.-]+)/([A-Za-z0-9_.-]+)(@
 // checkExternalReferences reports every bare forge number in corpus prose.
 //
 // A reference is only sought where one can be written: fenced blocks, inline
-// code spans, and link targets are content rather than citation, and heading
-// anchors and colour literals merely share the character. Each exclusion is
+// code spans, and link targets are content rather than citation, and a heading
+// anchor merely shares the character. A colour literal carrying a hex letter is
+// excluded by the same rule as an anchor; an all-digit one is read as a
+// reference on purpose, because excluding runs of that length would silence the
+// three-digit issue numbers adopters actually cite. Each exclusion is
 // mechanical, so the same file yields the same verdict offline, on a pinned
 // revision, in a year.
 func checkExternalReferences(c *Corpus) []Issue {
@@ -187,22 +190,13 @@ var malformedClueRe = regexp.MustCompile(`\bclue:\S*`)
 func checkForeignPointers(c *Corpus) []Issue {
 	var issues []Issue
 	for _, a := range c.Artifacts {
-		inFence := false
-		for i, line := range strings.Split(a.Body, "\n") {
-			if fenceRe.MatchString(line) {
-				inFence = !inFence
-				continue
-			}
-			if inFence {
-				continue
-			}
-			bare := inlineCodeRe.ReplaceAllStringFunc(line, blank)
-			for _, tok := range malformedClueRe.FindAllString(bare, -1) {
+		for _, line := range citableLines(a.Body) {
+			for _, tok := range malformedClueRe.FindAllString(line.text, -1) {
 				tok = strings.TrimRight(tok, ".,;:)]")
 				if clueRefRe.MatchString(tok) {
 					continue
 				}
-				issues = append(issues, Issue{a.Path, "line " + itoa(a.BodyLine+i) +
+				issues = append(issues, Issue{a.Path, "line " + itoa(a.BodyLine+line.n-1) +
 					": foreign pointer " + tok + " is malformed; name the repository, the revision, and the identifier as clue:owner/repo@revision/ID"})
 			}
 		}
@@ -213,17 +207,47 @@ func checkForeignPointers(c *Corpus) []Issue {
 // ForeignPointers returns every well-formed foreign-evidence pointer declared
 // in the corpus, so a coverage report can name what is proven elsewhere
 // without ever counting it as local proof.
+//
+// It reads the same lines the malformed check reads. A pointer inside a fence
+// or a code span is documentation showing the form, not a claim that something
+// was proven, and reporting it would put an example into a coverage summary.
 func ForeignPointers(c *Corpus) []string {
 	var out []string
 	seen := map[string]bool{}
 	for _, a := range c.Artifacts {
-		for _, m := range clueRefRe.FindAllString(a.Body, -1) {
-			if !seen[m] {
-				seen[m] = true
-				out = append(out, m)
+		for _, line := range citableLines(a.Body) {
+			for _, m := range clueRefRe.FindAllString(line.text, -1) {
+				if !seen[m] {
+					seen[m] = true
+					out = append(out, m)
+				}
 			}
 		}
 	}
 	sort.Strings(out)
+	return out
+}
+
+type citableLine struct {
+	text string
+	n    int
+}
+
+// citableLines yields the body lines on which a citation can occur, with fenced
+// blocks dropped and code spans blanked. Both foreign-pointer paths read it, so
+// they can never disagree about whether an example counts as a claim.
+func citableLines(body string) []citableLine {
+	var out []citableLine
+	inFence := false
+	for i, line := range strings.Split(body, "\n") {
+		if fenceRe.MatchString(line) {
+			inFence = !inFence
+			continue
+		}
+		if inFence {
+			continue
+		}
+		out = append(out, citableLine{text: inlineCodeRe.ReplaceAllStringFunc(line, blank), n: i + 1})
+	}
 	return out
 }

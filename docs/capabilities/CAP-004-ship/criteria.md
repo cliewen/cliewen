@@ -96,9 +96,9 @@ Feature: clue ships — a versioned binary and versioned skills, drift made lint
   @AC-068
   Scenario: Resolving external addresses reports without condemning
     Test-type: Unit
-    Given corpus addresses that answer 200, 403, a redirect with a location, 404 whose owner root still answers, 404 whose owner root does not, and a timeout
+    Given corpus addresses that answer 200, a bare 403, a redirect with a location, 404 whose owner root still answers, 404 whose owner root does not, a 403 carrying a rate-limit header, and a timeout
     When the user runs "clue refs"
-    Then they are classified reachable, restricted, redirected, restricted, gone, and unreachable in that order
+    Then they are classified reachable, restricted, redirected, restricted, gone, unreachable, and unreachable in that order
     And only the gone address makes the command exit non-zero
     But restricted and unreachable never fail the run, because neither says the corpus is wrong
     And a clue: identity is never resolved

@@ -226,9 +226,10 @@ Feature: clue validate — deterministic corpus judgment
   Scenario: Foreign acceptance evidence is named but never counted
     Test-type: Unit
     Given corpus prose carrying the pointer clue:owner/repo@revision/ID and a second pointer that opens clue: without completing the form
-    When the user runs "clue validate"
+    When the user runs "clue validate" and "clue validate --coverage"
     Then the well-formed pointer is accepted as a foreign identity naming its repository, revision, and identifier
     And the malformed pointer fails, naming the line and the form it should take
     But neither is ever counted as classified evidence, because the judge cannot see a run in another repository
-    And a well-formed pointer is reportable as named-but-locally-unproven without becoming coverage
+    And --coverage lists it as named but locally unproven, apart from the per-capability states rather than inside them
+    And a pointer written inside a fence or a code span is an example of the form, never a claim that something was proven
 ```

@@ -64,21 +64,37 @@ func TestAC066_UnitNegative_QualifiedAndNonReferenceFormsAreNotFindings(t *testi
 }
 
 func TestAC067_UnitPositive_ForeignEvidencePointerIsWellFormed(t *testing.T) {
-	m := clueRefRe.FindStringSubmatch("proven by clue:robocode-dev/tank-royale@384d27d5/BR-001 there")
-	if m == nil {
-		t.Fatal("expected the pointer to parse")
+	c := corpusWithBody(t, "proven by clue:robocode-dev/tank-royale@384d27d5/BR-001 there")
+	if issues := checkForeignPointers(c); len(issues) != 0 {
+		t.Fatalf("a pointer naming repository, revision and identifier must pass, got %v", issues)
 	}
-	if m[1] != "robocode-dev" || m[2] != "tank-royale" || m[3] != "@384d27d5" || m[4] != "BR-001" {
-		t.Fatalf("expected owner, repo, revision and identifier, got %q", m[1:])
+	got := ForeignPointers(c)
+	if len(got) != 1 || got[0] != "clue:robocode-dev/tank-royale@384d27d5/BR-001" {
+		t.Fatalf("expected the pointer reported once, got %v", got)
 	}
 }
 
 func TestAC067_UnitPositive_CrossRepositoryIdentityNeedsNoRevision(t *testing.T) {
 	// A plain cross-repository citation names an identity; only an
 	// acceptance-evidence pointer pins the state that was proven.
-	m := clueRefRe.FindStringSubmatch("see clue:robocode-dev/tank-royale/CAP-001 upstream")
-	if m == nil || m[3] != "" || m[4] != "CAP-001" {
-		t.Fatalf("expected a revisionless identity, got %v", m)
+	c := corpusWithBody(t, "see clue:robocode-dev/tank-royale/CAP-001 upstream")
+	if issues := checkForeignPointers(c); len(issues) != 0 {
+		t.Fatalf("a revisionless identity must pass, got %v", issues)
+	}
+	if got := ForeignPointers(c); len(got) != 1 || got[0] != "clue:robocode-dev/tank-royale/CAP-001" {
+		t.Fatalf("expected the identity reported, got %v", got)
+	}
+}
+
+func TestAC067_UnitNegative_AnExampleInAFenceIsNotAClaim(t *testing.T) {
+	// Documentation showing the form must not appear in a coverage summary as
+	// though something had been proven.
+	c := corpusWithBody(t, "The form is:\n\n```\nclue:robocode-dev/tank-royale@384d27d5/BR-001\n```\n\nand `clue:owner/repo/ID` inline.")
+	if got := ForeignPointers(c); len(got) != 0 {
+		t.Fatalf("a fenced or code-span example must not be reported as a claim, got %v", got)
+	}
+	if issues := checkForeignPointers(c); len(issues) != 0 {
+		t.Fatalf("an example must not be judged malformed either, got %v", issues)
 	}
 }
 

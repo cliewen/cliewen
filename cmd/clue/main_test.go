@@ -7,6 +7,8 @@ import (
 	"go/token"
 	"io"
 	"io/fs"
+	"net/http"
+	"net/http/httptest"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -1072,5 +1074,52 @@ func TestAC008_ForbidChangesFlagExitCodes(t *testing.T) {
 	}
 	if code := runValidate([]string{"--forbid-changes", root}); code != 1 {
 		t.Fatalf("with the gate: expected exit 1, got %d", code)
+	}
+}
+
+// TestAC068_UnitNegative_RefsExitsNonZeroOnlyForGone drives the command itself,
+// so the exit code the criterion names is proven rather than inferred from the
+// report type.
+func TestAC068_UnitNegative_RefsExitsNonZeroOnlyForGone(t *testing.T) {
+	mux := http.NewServeMux()
+	mux.HandleFunc("/owner/live/forbidden", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusForbidden)
+	})
+	mux.HandleFunc("/owner", func(w http.ResponseWriter, r *http.Request) {})
+	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusNotFound)
+	})
+	srv := httptest.NewServer(mux)
+	defer srv.Close()
+
+	write := func(t *testing.T, body string) string {
+		t.Helper()
+		root := t.TempDir()
+		dir := filepath.Join(root, "docs", "analysis")
+		if err := os.MkdirAll(dir, 0o755); err != nil {
+			t.Fatal(err)
+		}
+		text := "---\nid: AN-001\ntype: analysis\nstatus: active\nlinks: []\ntitle: t\n---\n\n" + body + "\n"
+		if err := os.WriteFile(filepath.Join(dir, "AN-001-x.md"), []byte(text), 0o644); err != nil {
+			t.Fatal(err)
+		}
+		return root
+	}
+
+	var out, errOut bytes.Buffer
+	restricted := write(t, "restricted "+srv.URL+"/owner/live/forbidden")
+	if code := runRefs([]string{restricted}, &out, &errOut); code != 0 {
+		t.Fatalf("a restricted address must not fail the command, got exit %d: %s", code, out.String())
+	}
+
+	out.Reset()
+	gone := write(t, "deleted "+srv.URL+"/nobody/vanished")
+	if code := runRefs([]string{gone}, &out, &errOut); code != 1 {
+		t.Fatalf("a gone address must exit 1, got %d: %s", code, out.String())
+	}
+
+	out.Reset()
+	if code := runRefs([]string{"a", "b"}, &out, &errOut); code != 2 {
+		t.Fatalf("two paths is a usage error, got exit %d", code)
 	}
 }

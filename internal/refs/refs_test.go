@@ -266,3 +266,51 @@ func TestAC069_UnitNegative_ARenamedPrefixDoesNotCorruptLongerAddresses(t *testi
 		t.Fatalf("the longer address was corrupted by a prefix rewrite:\n%q", got)
 	}
 }
+
+func TestAC068_UnitNegative_AThrottleIsNotARefusal(t *testing.T) {
+	// A rate-limited 403 classified as restricted would report every affected
+	// address as probably-private, destroying the signal that separating the
+	// two outcomes exists to preserve.
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Retry-After", "60")
+		w.WriteHeader(http.StatusForbidden)
+	}))
+	t.Cleanup(srv.Close)
+	root := corpusWith(t, map[string]string{
+		"analysis/AN-001.md": "---\ntype: analysis\nstatus: active\n---\n\nthrottled " + srv.URL + "/owner/thing\n",
+	})
+	report, err := Resolve(root, Options{Client: srv.Client()})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := resultFor(t, report, "/owner/thing").Result; got != Unreachable {
+		t.Fatalf("a throttled 403 must be unknown, not a refusal: got %s", got)
+	}
+	if report.HasErrors() {
+		t.Fatal("a throttle must not fail the run")
+	}
+}
+
+func TestAC069_UnitNegative_AnAddressEndingASentenceIsStillRewritten(t *testing.T) {
+	// Harvesting strips trailing sentence punctuation, so a boundary set that
+	// omitted it would skip the rewrite and still report the run as applied —
+	// telling the user a repair happened that did not.
+	srv := forge(t)
+	for _, suffix := range []string{".", ",", ":", ")", ""} {
+		t.Run("ends with "+suffix, func(t *testing.T) {
+			root := corpusWith(t, map[string]string{
+				"analysis/AN-001.md": "---\ntype: analysis\nstatus: active\n---\n\nSee " + srv.URL + "/owner/live/moved" + suffix + "\n",
+			})
+			if _, err := Resolve(root, Options{Apply: true, Client: srv.Client()}); err != nil {
+				t.Fatal(err)
+			}
+			got, err := os.ReadFile(filepath.Join(root, "docs", "analysis", "AN-001.md"))
+			if err != nil {
+				t.Fatal(err)
+			}
+			if !strings.Contains(string(got), "/owner/live/ok") {
+				t.Fatalf("the rewrite was skipped:\n%q", got)
+			}
+		})
+	}
+}

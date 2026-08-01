@@ -339,7 +339,9 @@ var (
 	bareURLRe  = regexp.MustCompile(`(^|[\s(])(https?://[^\s)\]<>]+)`)
 )
 
-// harvest collects every http(s) address in corpus prose.
+// harvest collects every http(s) address in corpus prose, under docs/ and
+// changes/ alike, so the resolver answers about the same corpus the judge
+// validated.
 //
 // A clue: identity is deliberately not collected. It names a corpus artifact
 // in another repository, and following it would mean knowing where that
@@ -500,8 +502,13 @@ func replaceWholeAddress(line, from, to string) string {
 }
 
 func isAddressBoundary(b byte) bool {
+	// Sentence punctuation belongs here because harvesting strips it: an
+	// address ending a sentence is stored without the stop, so a boundary set
+	// that omitted it would skip the rewrite and still report the run as
+	// applied — telling the user a repair happened that did not. A carriage
+	// return is the same hazard on a checkout without LF normalisation.
 	switch b {
-	case ' ', '\t', ')', ']', '>', ',', ';', '"', '\'':
+	case ' ', '\t', '\r', '\n', ')', ']', '>', ',', ';', ':', '.', '!', '?', '"', '\'', '`', '*', '|':
 		return true
 	}
 	return false

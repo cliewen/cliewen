@@ -83,7 +83,8 @@ Commands:
              Existing prose and locally modified generated files are never
              overwritten. Path defaults to ".".
 
-  refs       Resolve the external addresses docs/ points at and classify
+  refs       Resolve the external addresses docs/ and changes/ point at and
+             classify
              each: reachable, restricted (it exists, this runner may not
              read it), redirected, gone, or unreachable. Only "gone" is an
              error; an outage elsewhere never condemns a corpus. Use
@@ -234,6 +235,12 @@ func runValidate(args []string) int {
 	if *coverage {
 		for _, cc := range corpus.Coverage(c) {
 			fmt.Printf("%s: %s\n", cc.Capability, cc.State)
+		}
+		// A pointer to proof in another repository is listed apart from
+		// coverage, never inside it. Naming it says a human can go and look;
+		// counting it would be importing a verdict this judge cannot see.
+		for _, p := range corpus.ForeignPointers(c) {
+			fmt.Printf("%s: named but locally unproven\n", p)
 		}
 	}
 	if *realityGaps {
