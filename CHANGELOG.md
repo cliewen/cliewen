@@ -4,6 +4,10 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 
 ## [Unreleased]
 
+### Changed
+
+- **The skills now say when a plan closes.** Marking a milestone done already belonged in the implementing change's merge digest; closing the plan is the same bookkeeping, and nothing said so. The change that completes a campaign's last milestone now also sets that plan `completed` in the same digest, and designates a successor plan there when one is decided — not having decided one is no reason to keep a finished plan open. Because a completed plan is immutable, every milestone's evidence must be in the table before that digest lands. The generated skills, the AGENTS.md routing hub, the plan folder's README, and the public change-loop guide all state it, so an agent meets the same rule wherever it looks.
+
 ## [0.11.2] - 2026-08-01
 
 The release that lets 0.10.0 repositories upgrade at all.

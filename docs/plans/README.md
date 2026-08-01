@@ -2,6 +2,8 @@
 
 The campaign layer: P-xxx plans with M-xxx milestones. This folder is **flat** — status lives in frontmatter, never in folder names. Plans live on `main`, mutate continuously (bookkeeping in merge digests; semantic changes only via their own change + ADR), and are **frozen, never deleted** when their goal is reached: a completed plan is immutable and this index doubles as the project's achievement overview.
 
+**Closing is bookkeeping too.** The change that completes the last milestone sets the plan `completed` in its digest, not a separate PR — a campaign is over the moment its last milestone is evidenced, and leaving it `active` makes this index claim work is in flight that is not. A successor is designated in that same digest when one is decided; P-008 named P-009 as it closed, while P-005 and P-006 closed naming none. Because the closed plan is immutable afterwards, every milestone's evidence belongs in the table before the digest lands.
+
 <!-- clue:index:start -->
 - [P-002 — Cliewen leaves home](P-002-leaves-home.md) · `completed` (2026-07-18)
 - [P-001 — Elaboration baseline](P-001-elaboration-baseline.md) · `completed` (2026-07-13)
