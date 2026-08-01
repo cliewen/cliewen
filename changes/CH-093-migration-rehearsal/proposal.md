@@ -16,7 +16,7 @@ Because that target is already adopted, the rehearsal is retrospective: it recon
 
 The rehearsal will inventory the source formats and entry points, artifact mappings, preserved and minted criterion IDs, confidence and reversal cost, test-purpose work, instruction conflicts, governance effects, planned deletions, CI and installation constraints, current-to-target corpus migration, merge-mode compatibility, and named follow-up doors. It will record Cliewen's deterministic validation separately from the target repository's own test and build results, including whether each result came from a clean disposable or prepared environment.
 
-The target checkout, this repository's durable `/docs` corpus, tests, routing, and hosted state remain unchanged. The rehearsal report is transient evidence under this change workspace; any unresolved conflict becomes an open question and stops before mutation or a durable extraction report.
+The target checkout, tests, routing, and hosted state remain unchanged. The rehearsal report was drafted as transient evidence under this change workspace; on 2026-08-01 the human answered OQ-003 by directing that it survive the merge, so this change's one durable corpus addition is the rehearsal analysis artifact AN-015, landed under explicit human direction rather than under PDR-020's mutate phase, which this change still does not authorize. Any unresolved conflict becomes an open question and stops before mutation.
 
 ## Why
 

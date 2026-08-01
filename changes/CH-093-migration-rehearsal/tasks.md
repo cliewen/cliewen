@@ -15,7 +15,7 @@ title: Tasks for CH-093
 - [x] Record every unresolved conflict in open-questions.md and stop before mutation; otherwise state why the report supports or narrows migration readiness
 - [x] Record the human selection of the target, both pins, and the retrospective limit of a rehearsal run against an already-adopted repository
 - [x] State per M-042 exit conjunct which are met and which single conjunct is unmet, and separate the limits of this already-adopted target from the milestone's exit list
-- [ ] Obtain the human answer to OQ-004: whether this narrower support boundary closes the migration-readiness phase, or whether a second rehearsal against an unconverted target carrying stable source IDs is needed first
-- [ ] Obtain the human answer to OQ-003, and if it directs a durable `/docs/analysis` landing, amend `proposal.md` to bring that artifact inside this change's declared scope before writing it
-- [ ] Land whatever OQ-003 directs: the report as a durable artifact and OQ-001/OQ-002 as named P-009 doors or recorded decisions
+- [x] Obtain the human answer to OQ-004: the phase closes once the Tank Royale wall replacement lands; the fixture corpus is the future door for stable-ID and checkpoint exercise (2026-08-01)
+- [x] Obtain the human answer to OQ-003 — yes, the evidence must be traceable — and amend `proposal.md` to bring the durable artifact inside this change's declared scope before writing it
+- [x] Land what OQ-003 directs: the report as durable AN-015, with the OQ-001/OQ-002 answers and both Tank Royale doors recorded in it
 - [ ] Run the complete change verification with a clean worktree and a passing `clue validate`
