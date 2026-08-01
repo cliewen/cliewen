@@ -6,6 +6,7 @@ import (
 	"encoding/hex"
 	"os"
 	"path/filepath"
+	"regexp"
 	"runtime"
 	"strings"
 	"testing"
@@ -518,5 +519,93 @@ func TestAC064_UnitNegative_BareReferencesAreReportedNeverRepaired(t *testing.T)
 	}
 	if string(after) != body {
 		t.Fatal("the file was modified by a report-only migration")
+	}
+}
+
+// TestAC064_UnitNegative_TheManifestCarriesTheStampedRelease is the guard that
+// was missing when this defect shipped.
+//
+// legacyDigests is hand-maintained and append-only: a generated carrier is
+// recognized as replaceable only when its bytes match the release that wrote
+// it. Cutting a release therefore has to append that release's digests, and
+// nothing enforced it. The 0.10.0 cut did not, and the omission was invisible
+// for a whole release — every check stayed green, because the gap only appears
+// one release later, in someone else's repository. A Tank Royale carrier
+// byte-identical to Cliewen's own v0.10.0 was reported as locally edited, and
+// the finding blocked the entire write set, so no adopter on 0.10.0 could
+// migrate at all.
+//
+// The assertion is deliberately about this repository's committed state rather
+// than a fixture: the manifest must name the version the skills are stamped
+// with, and its digests must be the digests of the carriers actually committed
+// here. That makes a forgotten append fail in the release change itself, where
+// it costs a red run instead of a spent version number.
+func TestAC064_UnitNegative_TheManifestCarriesTheStampedRelease(t *testing.T) {
+	_, thisFile, _, ok := runtime.Caller(0)
+	if !ok {
+		t.Fatal("cannot locate the test file")
+	}
+	root := filepath.Join(filepath.Dir(thisFile), "..", "..")
+
+	stamp, err := os.ReadFile(filepath.Join(root, "internal", "skills", "source", "shared", "frontmatter.md.tmpl"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	// \r is tolerated: a checkout that landed the template with CRLF should
+	// fail on a stale digest, not on an unreadable stamp.
+	m := regexp.MustCompile(`(?m)^version:[ \t]*(\S+)[ \t\r]*$`).FindSubmatch(stamp)
+	if m == nil {
+		t.Fatal("the shared frontmatter carries no bare version stamp")
+	}
+	version := string(m[1])
+
+	var entry *releaseManifest
+	for i := range legacyDigests {
+		if legacyDigests[i].Version == version {
+			entry = &legacyDigests[i]
+		}
+	}
+	if entry == nil {
+		t.Fatalf("the skills are stamped %s but legacyDigests has no entry for it; append this release's digests (migrate.go) or an adopter on %s can never be recognized as unedited", version, version)
+	}
+
+	// Every committed carrier must be in the entry, and match. A missing file
+	// is as damaging as a wrong digest: both make a pristine carrier look
+	// locally edited, and a finding blocks the whole write set.
+	carriers := filepath.Join(root, ".agents", "skills")
+	seen := map[string]bool{}
+	err = filepath.Walk(carriers, func(path string, info os.FileInfo, err error) error {
+		if err != nil || info.IsDir() || !strings.HasSuffix(path, ".md") {
+			return err
+		}
+		rel, err := filepath.Rel(carriers, path)
+		if err != nil {
+			return err
+		}
+		rel = filepath.ToSlash(rel)
+		seen[rel] = true
+		data, err := os.ReadFile(path)
+		if err != nil {
+			return err
+		}
+		sum := sha256.Sum256(data)
+		want := hex.EncodeToString(sum[:])
+		got, listed := entry.Files[rel]
+		if !listed {
+			t.Errorf("%s is committed but absent from the %s manifest entry; add %q: %q", rel, version, rel, want)
+			return nil
+		}
+		if got != want {
+			t.Errorf("%s digest in the %s manifest entry is stale.\n  manifest: %s\n  committed: %s\n(regenerate the skills, then update the entry)", rel, version, got, want)
+		}
+		return nil
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	for rel := range entry.Files {
+		if !seen[rel] {
+			t.Errorf("the %s manifest entry names %s, which is not a committed carrier", version, rel)
+		}
 	}
 }

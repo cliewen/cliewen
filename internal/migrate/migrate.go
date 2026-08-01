@@ -164,6 +164,33 @@ var legacyDigests = []releaseManifest{
 		"clue-plan/skill.md":                "bf6a4e4cd1fa5b6ed8b318687f5da51c0837415e66ae9e48c1c34ff4b2c7e324",
 		"clue-verify/skill.md":              "23a409a732255da58412785f7b06fe52923966fe16bcd23250369faf09c920b6",
 	}},
+	{Version: "0.10.0", Files: map[string]string{
+		"clue-analysis/skill.md":            "ba8034351ddd23cd798d3bd024f8bb96dc04ee144cd58c9f0ad0b16ec832292d",
+		"clue-delta/skill.md":               "3a73f16e42caf9f232abe435374acc87bf28fb9f0039849e2dd61f1fb30503de",
+		"clue-extract/mappings/madr.md":     "96dfb83213387ab16b4927870b21533646eeb8fadae164555cdeccd51fe503e5",
+		"clue-extract/mappings/openspec.md": "d58fc65df6f240197e291cd48b250f11676e6d9992147934cd87800ccd58905d",
+		"clue-extract/skill.md":             "814ca9d06a9d10630593603f938ff6c0ee631ccafb1366ddd9b024e731c0be45",
+		"clue-plan/skill.md":                "2b498fba3343f1fe336291b56776fa3467b397a15e6704608a9c5946d52dc7f3",
+		"clue-verify/skill.md":              "26328abab11cc271b1dc88bf05660d4ad523ae1dddc2d746874794902f9575b6",
+	}},
+	{Version: "0.11.0", Files: map[string]string{
+		"clue-analysis/skill.md":            "53f2eb7297fb250a70299a851998cd3177965a7d5596f135ea648130e01de3c1",
+		"clue-delta/skill.md":               "95b34bfd7c4b80e145fa63a5522688264b02be4849dd9fb5550a825f510f6b2e",
+		"clue-extract/mappings/madr.md":     "96dfb83213387ab16b4927870b21533646eeb8fadae164555cdeccd51fe503e5",
+		"clue-extract/mappings/openspec.md": "1144b08bad8e752d8286efd6f6a0085f179729c728bc7ec56e19b0f5694578e9",
+		"clue-extract/skill.md":             "b9b4698b7b143c8f386ce61712c712df71a5e299a906be1831a7cba6504d6e27",
+		"clue-plan/skill.md":                "2130fc3367272b608644a454b3d1347f6efe8e437b072fa5a46e4ec9c52a5e40",
+		"clue-verify/skill.md":              "2e03bd7a0ba62137d08a4c5251dc6bc113c2e52e1202b5f6405f26063a32f758",
+	}},
+	{Version: "0.11.1", Files: map[string]string{
+		"clue-analysis/skill.md":            "da2bca2a539526465f7fbd890114769ac01dc8bbd54d2b4ce71ca0066dc43383",
+		"clue-delta/skill.md":               "ad03ae828f011d85bc727d551a75b898a7bf7e115f866cc7a559941bb1c7bbc0",
+		"clue-extract/mappings/madr.md":     "96dfb83213387ab16b4927870b21533646eeb8fadae164555cdeccd51fe503e5",
+		"clue-extract/mappings/openspec.md": "1144b08bad8e752d8286efd6f6a0085f179729c728bc7ec56e19b0f5694578e9",
+		"clue-extract/skill.md":             "980620da48cd322f7e9ef28877a17c413c881d84baa1ac18e26d2723383d9472",
+		"clue-plan/skill.md":                "c54196129a07c3f1afc9baf08836bce6ff71f6a1e19a322c3ce229d5f11aff0e",
+		"clue-verify/skill.md":              "4e679988d7f0f86d4714d75a6889b200e863709261c01342aae84a4e936f1c06",
+	}},
 }
 
 // Plan scans the target and returns the complete deterministic migration.

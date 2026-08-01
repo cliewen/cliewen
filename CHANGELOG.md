@@ -4,6 +4,18 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 
 ## [Unreleased]
 
+## [0.11.1] - 2026-08-01
+
+The release that lets 0.10.0 repositories upgrade at all.
+
+### Fixed
+
+- **`clue migrate` no longer refuses to upgrade a repository running 0.10.0 or 0.11.0.** The command recognizes a generated skill as safe to replace by matching its bytes against the release that wrote it, and the published digests for those two releases were never recorded. An untouched skill was therefore reported as locally edited, and because a finding blocks the whole write set, nothing was upgraded — not the skills, not the pinned `clue-version`, not the CI caller. If your last upgrade said your managed carriers "differ from every supported generated release", they did not; run `clue migrate` again with this release. Nothing was ever written incorrectly, and no repository needs repair.
+
+### Install
+
+`curl -fsSL https://cliewen.dev/install.sh | sh` on macOS and Linux, `irm https://cliewen.dev/install.ps1 | iex` on Windows, or `go install github.com/cliewen/cliewen/cmd/clue@v0.11.1`. You can still download a prebuilt binary from the release assets and verify it against `SHA256SUMS` by hand; those asset names are unchanged, so a vendored CI wall pinned to an earlier release keeps working exactly as before. Update vendored Cliewen skills from this release's `.agents/skills/`; a 0.11.1 binary rejects older Cliewen skill versions as drift. Upgrading an existing repository takes one more step than usual: run `clue migrate` to preview the corpus and carrier upgrade, and expect it to list any external reference that names no repository — it reports those and repairs none, because nothing in the file says which repository was meant.
+
 ## [0.11.0] - 2026-08-01
 
 The release where a reference that leaves the repository has to say where it goes, and checking whether it still arrives stays out of the judge.
