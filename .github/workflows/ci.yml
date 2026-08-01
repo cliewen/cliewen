@@ -79,3 +79,20 @@ jobs:
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
         run: git diff --check "$BASE_SHA" "$GITHUB_SHA"
+      # The release gates, run while the release is still a proposal. They are
+      # a no-op for every change that does not raise the version stamp.
+      #
+      # This is the check that was missing. The gates ran only after the merge,
+      # and tagging fires only on the merge that raises the stamp — so a
+      # release PR that could never be tagged still looked mergeable, and the
+      # failure arrived when the version was already committed and could no
+      # longer be retried. That cost 0.11.1.
+      #
+      # tag-on-merge remains the authority: if the base is unresolvable this
+      # step is skipped and the merge-time run is still there, which is exactly
+      # today's behaviour rather than a weaker one.
+      - name: Release gates
+        if: steps.scope.outputs.diffok == 'true'
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: .github/scripts/release-gates.sh "$BASE_SHA" "$GITHUB_SHA"

@@ -70,38 +70,14 @@ jobs:
             echo "release=true" >> "$GITHUB_OUTPUT"
           fi
 
-      # A tag with no user-facing notes cannot be released at all: the
-      # release workflow fails at its extraction step (ADR-012). Failing
-      # here instead means a missing section costs a red run, not a spent
-      # version number that can never be reused.
-      - name: Require user-facing notes before tagging
+      # The gates themselves live in a script the pull request runs too, so a
+      # release that could never be tagged fails while it is still a proposal.
+      # Reaching this point with a missing section means the same script passed
+      # on the PR and the merge changed something — not that the check was
+      # skipped.
+      - name: Run the release gates before tagging
         if: steps.check.outputs.release == 'true'
-        env:
-          VERSION: ${{ steps.version.outputs.v }}
-        run: |
-          awk -v ver="$VERSION" '
-            BEGIN { header = "## [" ver "]" }
-            !found { if (index($0, header) == 1) found = 1; next }
-            /^## \[/ { exit }
-            { print }
-          ' CHANGELOG.md > "${RUNNER_TEMP}/notes.md"
-          if ! grep -q '[^[:space:]]' "${RUNNER_TEMP}/notes.md"; then
-            echo "::error title=No release notes::CHANGELOG.md has no '## [${VERSION}]' section with content; the stamp was raised without user-facing notes (ADR-012)" >&2
-            exit 1
-          fi
-
-      - name: Require migration guidance before tagging
-        if: steps.check.outputs.release == 'true'
-        run: |
-          if git diff --quiet "${GITHUB_SHA}^" "${GITHUB_SHA}" -- internal/migrate; then
-            exit 0
-          fi
-          awk '
-            /^### Migration$/ { found = 1; next }
-            found && /^### / { exit }
-            found && /[^[:space:]]/ { content = 1 }
-            END { exit !content }
-          ' "${RUNNER_TEMP}/notes.md" || { echo "::error title=No migration guidance::The release changes internal/migrate but its CHANGELOG section has no non-empty ### Migration section (ADR-039)" >&2; exit 1; }
+        run: .github/scripts/release-gates.sh "${GITHUB_SHA}^" "${GITHUB_SHA}"
 
       - name: Tag the merge commit
         if: steps.check.outputs.release == 'true'

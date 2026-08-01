@@ -569,10 +569,34 @@ func TestSanity_TagOnMergeDerivesTheVersionAndStartsTheRelease(t *testing.T) {
 	if !strings.Contains(wf, `git diff --quiet "${GITHUB_SHA}^" "${GITHUB_SHA}" -- "$tmpl"`) {
 		t.Errorf("tag-on-merge does not gate releases on %s changing in the pushed commit — an ordinary merge can otherwise tag its own checkout", stamp)
 	}
-	// A spent version number cannot be reused, so a missing changelog
-	// section must stop the tag rather than the publish.
-	if !strings.Contains(wf, "CHANGELOG.md") {
-		t.Error("tag-on-merge does not require a CHANGELOG section — a stamp raised without notes would burn a tag that can never release (ADR-012)")
+	// A spent version number cannot be reused, so a missing changelog section
+	// must stop the tag rather than the publish. The checks themselves live in
+	// a script now, because running them only here was too late: tagging fires
+	// only on the merge that raises the stamp, so a release rejected at this
+	// point cannot be retried — the version is abandoned. 0.11.1 was lost that
+	// way. The same script therefore runs on the pull request, and both callers
+	// are asserted, because a gate that exists in only one of them is the exact
+	// failure this pins.
+	const gates = ".github/scripts/release-gates.sh"
+	if !strings.Contains(wf, gates) {
+		t.Errorf("tag-on-merge does not run %s — a stamp raised without notes would burn a tag that can never release (ADR-012)", gates)
+	}
+	ci, err := os.ReadFile(filepath.Join("..", "..", ".github", "workflows", "ci.yml"))
+	if err != nil {
+		t.Fatalf("CI workflow not found: %v", err)
+	}
+	if !strings.Contains(string(ci), gates) {
+		t.Errorf("CI does not run %s — the release gates would run only after the merge, where a rejected version can no longer be retried", gates)
+	}
+	script, err := os.ReadFile(filepath.Join("..", "..", gates))
+	if err != nil {
+		t.Fatalf("release gates script not found: %v", err)
+	}
+	if !strings.Contains(string(script), "CHANGELOG.md") {
+		t.Error("the release gates do not read CHANGELOG.md — a stamp raised without notes would burn a tag that can never release (ADR-012)")
+	}
+	if !strings.Contains(string(script), "internal/migrate") {
+		t.Error("the release gates do not require migration guidance for a release that changes internal/migrate (ADR-039)")
 	}
 }
 

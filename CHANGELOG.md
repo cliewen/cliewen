@@ -4,9 +4,13 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 
 ## [Unreleased]
 
-## [0.11.1] - 2026-08-01
+## [0.11.2] - 2026-08-01
 
 The release that lets 0.10.0 repositories upgrade at all.
+
+### Migration
+
+- **If your last upgrade was refused, run `clue migrate` again.** On 0.10.0 and 0.11.0 the command could report your generated skills as locally edited when they were untouched, and a finding stops the whole plan — so nothing was upgraded, including the pinned `clue-version` and the CI caller. Rerunning with this release plans the work normally. Nothing was written incorrectly and no repository needs repair. A skill you really did edit is still reported and never overwritten, exactly as before.
 
 ### Fixed
 
@@ -14,7 +18,7 @@ The release that lets 0.10.0 repositories upgrade at all.
 
 ### Install
 
-`curl -fsSL https://cliewen.dev/install.sh | sh` on macOS and Linux, `irm https://cliewen.dev/install.ps1 | iex` on Windows, or `go install github.com/cliewen/cliewen/cmd/clue@v0.11.1`. You can still download a prebuilt binary from the release assets and verify it against `SHA256SUMS` by hand; those asset names are unchanged, so a vendored CI wall pinned to an earlier release keeps working exactly as before. Update vendored Cliewen skills from this release's `.agents/skills/`; a 0.11.1 binary rejects older Cliewen skill versions as drift. Upgrading an existing repository takes one more step than usual: run `clue migrate` to preview the corpus and carrier upgrade, and expect it to list any external reference that names no repository — it reports those and repairs none, because nothing in the file says which repository was meant.
+`curl -fsSL https://cliewen.dev/install.sh | sh` on macOS and Linux, `irm https://cliewen.dev/install.ps1 | iex` on Windows, or `go install github.com/cliewen/cliewen/cmd/clue@v0.11.2`. You can still download a prebuilt binary from the release assets and verify it against `SHA256SUMS` by hand; those asset names are unchanged, so a vendored CI wall pinned to an earlier release keeps working exactly as before. Update vendored Cliewen skills from this release's `.agents/skills/`; a 0.11.2 binary rejects older Cliewen skill versions as drift. Upgrading an existing repository takes one more step than usual: run `clue migrate` to preview the corpus and carrier upgrade, and expect it to list any external reference that names no repository — it reports those and repairs none, because nothing in the file says which repository was meant.
 
 ## [0.11.0] - 2026-08-01
 
