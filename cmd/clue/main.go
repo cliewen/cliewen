@@ -14,6 +14,7 @@ import (
 
 	"github.com/cliewen/cliewen/internal/corpus"
 	"github.com/cliewen/cliewen/internal/migrate"
+	"github.com/cliewen/cliewen/internal/refs"
 )
 
 // version is the release stamp, injected at build time via
@@ -81,6 +82,14 @@ Commands:
              Existing prose and locally modified generated files are never
              overwritten. Path defaults to ".".
 
+  refs       Resolve the external addresses docs/ points at and classify
+             each: reachable, restricted (it exists, this runner may not
+             read it), redirected, gone, or unreachable. Only "gone" is an
+             error; an outage elsewhere never condemns a corpus. Use
+             --apply to rewrite redirected addresses in place. A clue:
+             identity is never followed. Never make this a required check
+             (ADR-040). Path defaults to ".".
+
   validate   Scan docs/ and changes/ under path (default ".") and check
              the frontmatter graph: core fields, unique IDs, link
              resolution, status vocabularies, folder READMEs, index
@@ -118,6 +127,8 @@ func main() {
 		os.Exit(runContext(os.Args[2:], os.Stdout, os.Stderr))
 	case "migrate":
 		os.Exit(runMigrate(os.Args[2:], os.Stdout, os.Stderr))
+	case "refs":
+		os.Exit(runRefs(os.Args[2:], os.Stdout, os.Stderr))
 	case "validate":
 		os.Exit(runValidate(os.Args[2:]))
 	case "version", "--version":
@@ -258,4 +269,74 @@ func agentConstraintCount(c *corpus.Corpus) int {
 		}
 	}
 	return n
+}
+
+// runRefs resolves the corpus's external addresses.
+//
+// ADR-040 keeps this outside the judge on purpose: it needs the network, so
+// its answer can differ between two runs over the same revision. Only a gone
+// reference is an error — restricted and unreachable say nothing about whether
+// the corpus is correct, and treating them as failures would let someone
+// else's outage, or the absence of a credential, block unrelated work.
+func runRefs(args []string, out, errOut io.Writer) int {
+	fs := flag.NewFlagSet("refs", flag.ContinueOnError)
+	fs.SetOutput(errOut)
+	apply := fs.Bool("apply", false, "rewrite redirected addresses in place")
+	timeout := fs.Duration("timeout", 0, "per-request budget (default 10s)")
+	if err := fs.Parse(args); err != nil {
+		return 2
+	}
+	root := "."
+	if fs.NArg() > 0 {
+		root = fs.Arg(0)
+	}
+	if fs.NArg() > 1 {
+		fmt.Fprintln(errOut, "clue refs: expected at most one repository path")
+		return 2
+	}
+
+	report, err := refs.Resolve(root, refs.Options{Apply: *apply, Timeout: *timeout})
+	if err != nil {
+		fmt.Fprintf(errOut, "clue refs: %v\n", err)
+		return 2
+	}
+
+	for _, r := range report.References {
+		switch r.Result {
+		case refs.Reachable:
+			continue // the ordinary case is not worth a line
+		case refs.Redirected:
+			note := ""
+			if r.Frozen {
+				note = "  [pinned history — --apply leaves it alone; decide by hand]"
+			}
+			fmt.Fprintf(out, "%s:%d: redirected %s -> %s%s\n", r.Path, r.Line, r.URL, r.Target, note)
+		case refs.Gone:
+			fmt.Fprintf(out, "%s:%d: gone %s\n", r.Path, r.Line, r.URL)
+		case refs.Restricted:
+			fmt.Fprintf(out, "%s:%d: restricted %s\n", r.Path, r.Line, r.URL)
+		case refs.Unreachable:
+			detail := r.Detail
+			if detail != "" {
+				detail = " (" + detail + ")"
+			}
+			fmt.Fprintf(out, "%s:%d: unreachable %s%s\n", r.Path, r.Line, r.URL, detail)
+		}
+	}
+
+	counts := report.Counts()
+	mode := "preview"
+	if report.Applied {
+		mode = "applied"
+	}
+	fmt.Fprintf(out, "clue refs: %s — %d reachable, %d restricted, %d redirected, %d gone, %d unreachable\n",
+		mode, counts[refs.Reachable], counts[refs.Restricted], counts[refs.Redirected],
+		counts[refs.Gone], counts[refs.Unreachable])
+	if counts[refs.Redirected] > 0 && !report.Applied {
+		fmt.Fprintln(out, "clue refs: rerun with --apply to rewrite the redirected addresses")
+	}
+	if report.HasErrors() {
+		return 1
+	}
+	return 0
 }
