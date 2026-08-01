@@ -336,11 +336,12 @@ var (
 	fenceRe    = regexp.MustCompile("^\\s*(```|~~~)")
 	mdTargetRe = regexp.MustCompile(`\]\((https?://[^)\s]+)\)`)
 	autolinkRe = regexp.MustCompile(`<(https?://[^>\s]+)>`)
-	// The excluded characters are the ones that end an address in prose but
-	// are not among the sentence stops addressesIn trims. Admitting them
-	// harvests a target no host has — `…/page."` is requested as `…/page.%22`,
-	// answers 404, and is condemned as gone, failing a corpus that is right.
-	bareURLRe = regexp.MustCompile("(^|[\\s(])(https?://[^\\s)\\]<>\"'!?*`|]+)")
+	// The class stays permissive: `?` opens a query string and `'` appears in
+	// real paths, so excluding them truncates a legitimate address into one no
+	// host has, which then answers 404 and condemns a corpus that is right.
+	// Trailing prose punctuation is removed afterwards instead, where it can be
+	// stripped as a run rather than guessed at by character class.
+	bareURLRe = regexp.MustCompile(`(^|[\s(])(https?://[^\s)\]<>]+)`)
 )
 
 // harvest collects every http(s) address in corpus prose, under docs/ and
@@ -408,7 +409,7 @@ func addressesIn(line string) []string {
 	seen := map[string]bool{}
 	var out []string
 	add := func(u string) {
-		u = strings.TrimRight(u, ".,;:")
+		u = strings.TrimRight(u, trailingProse)
 		if u == "" || seen[u] {
 			return
 		}
@@ -505,6 +506,16 @@ func replaceWholeAddress(line, from, to string) string {
 	}
 }
 
+// trailingProse is the punctuation a sentence can leave on the end of a bare
+// address. Harvesting strips it and rewriting must accept it: these two uses
+// read one list, because a character stripped on the way in but unrecognised on
+// the way out silently skips a rewrite while the run still reports itself
+// applied.
+//
+// A question mark is deliberately absent. It opens a query string, so treating
+// it as prose would truncate a legitimate address into one no host has.
+const trailingProse = ".,;:!*`|"
+
 func isAddressBoundary(b byte) bool {
 	switch b {
 	case ' ', '\t', '\r', '\n', ')', ']', '>', '"', '\'':
@@ -546,13 +557,9 @@ func addressEndsAt(line string, end int) bool {
 
 // isTrimmedStop reports the punctuation addressesIn strips from a harvested
 // address. Exactly this set may follow a match and still mean the address
-// ended there.
+// ended there, which is why both sides read the same list.
 func isTrimmedStop(b byte) bool {
-	switch b {
-	case '.', ',', ';', ':':
-		return true
-	}
-	return false
+	return strings.IndexByte(trailingProse, b) >= 0
 }
 
 // apiEquivalent maps a github.com web address to the API address that answers

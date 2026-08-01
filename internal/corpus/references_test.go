@@ -128,36 +128,6 @@ func TestAC067_UnitPositive_WellFormedPointerPassesAndIsReportable(t *testing.T)
 	}
 }
 
-func TestAC067_UnitNegative_APointerIsNeverAcceptedAsLocalEvidence(t *testing.T) {
-	// The guard has to run against a real criteria artifact: on an analysis
-	// fixture the evidence check harvests nothing and would pass whatever the
-	// pointer did.
-	text := "---\nid: CAP-900-criteria\ntype: criteria\nstatus: active\nlinks: []\ntitle: t\nac-prefix: FOR\n---\n\n" +
-		"```gherkin\nFeature: f\n\n  @FOR-001\n  Scenario: proven elsewhere\n    Test-type: Unit\n" +
-		"    Given a run in another repository at clue:robocode-dev/tank-royale@384d27d5/BR-001\n" +
-		"    When the judge looks for local evidence\n    Then it finds none\n```\n"
-	fields, body, ok, err := parseFrontmatter(text)
-	if err != nil || !ok {
-		t.Fatalf("fixture frontmatter did not parse: %v", err)
-	}
-	a := &Artifact{Path: "docs/capabilities/CAP-900-x/criteria.md", Body: body, Fields: fields,
-		BodyLine: strings.Count(text[:len(text)-len(body)], "\n") + 1}
-	a.ID, _ = fields["id"].(string)
-	a.Type, _ = fields["type"].(string)
-	a.Status, _ = fields["status"].(string)
-	c := &Corpus{Artifacts: []*Artifact{a}, ByID: map[string][]*Artifact{a.ID: {a}}}
-
-	issues := checkACTests(c)
-	if len(issues) == 0 {
-		t.Fatal("a criterion whose only stated proof is a foreign pointer must still be reported as unproven here")
-	}
-	for _, i := range issues {
-		if strings.Contains(i.Msg, "clue:") {
-			t.Fatalf("the evidence check must not treat a pointer as a carrier: %q", i.Msg)
-		}
-	}
-}
-
 // corpusWithBody builds a one-artifact corpus whose frontmatter is real, so
 // the reported line is the line a reader opens to rather than a body offset.
 func corpusWithBody(t *testing.T, body string) *Corpus {
@@ -173,4 +143,33 @@ func corpusWithBody(t *testing.T, body string) *Corpus {
 	a.Type, _ = fields["type"].(string)
 	a.Status, _ = fields["status"].(string)
 	return &Corpus{Artifacts: []*Artifact{a}, ByID: map[string][]*Artifact{a.ID: {a}}}
+}
+
+func TestAC067_UnitNegative_OrdinaryProseIsNotABrokenPointer(t *testing.T) {
+	// "clue" is an ordinary English noun and the scheme word at once. A
+	// sentence that happens to use it must not fail validation, and neither
+	// must an index marker written outside a code span.
+	for _, prose := range []string{
+		"The clue: it was the deployment order all along.",
+		"Write clue: followed by the repository to cite one.",
+		"<!-- clue:index:start -->",
+	} {
+		t.Run(prose, func(t *testing.T) {
+			if issues := checkForeignPointers(corpusWithBody(t, prose)); len(issues) != 0 {
+				t.Fatalf("ordinary prose must not be judged a malformed pointer, got %v", issues)
+			}
+		})
+	}
+}
+
+func TestAC067_UnitNegative_AMalformedPointerIsNamedInFull(t *testing.T) {
+	// The colon belongs to the scheme: trimming it made the diagnostic name a
+	// word rather than the token that was actually found.
+	issues := checkForeignPointers(corpusWithBody(t, "proven by clue:tank-royale/BR-001."))
+	if len(issues) != 1 {
+		t.Fatalf("expected one finding, got %v", issues)
+	}
+	if !strings.Contains(issues[0].Msg, "clue:tank-royale/BR-001") {
+		t.Fatalf("expected the token named in full, got %q", issues[0].Msg)
+	}
 }

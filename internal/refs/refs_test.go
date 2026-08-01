@@ -301,7 +301,7 @@ func TestAC069_UnitNegative_AnAddressEndingASentenceIsStillRewritten(t *testing.
 	// omitted it would skip the rewrite and still report the run as applied —
 	// telling the user a repair happened that did not.
 	srv := forge(t)
-	for _, suffix := range []string{".", ",", ":", ")", ""} {
+	for _, suffix := range []string{".", ",", ":", ")", "!", "|", "...", ""} {
 		t.Run("ends with "+suffix, func(t *testing.T) {
 			root := corpusWith(t, map[string]string{
 				"analysis/AN-001.md": "---\ntype: analysis\nstatus: active\n---\n\nSee " + srv.URL + "/owner/live/moved" + suffix + "\n",
@@ -345,6 +345,11 @@ func TestAC069_UnitNegative_ASiblingSharingAPrefixIsNeverCorrupted(t *testing.T)
 			if err != nil {
 				t.Fatal(err)
 			}
+			// Both halves of the trade-off, or the test guards nothing: a
+			// rewrite that never happens also leaves the sibling intact.
+			if !strings.Contains(string(got), "/owner/live/ok") {
+				t.Fatalf("the classified address was not rewritten:\n%q", got)
+			}
 			if !strings.Contains(string(got), srv.URL+sibling) {
 				t.Fatalf("the sibling address was corrupted:\n%q", got)
 			}
@@ -368,5 +373,38 @@ func TestAC069_UnitNegative_ACarriageReturnDoesNotSkipTheRewrite(t *testing.T) {
 	}
 	if !strings.Contains(string(got), "/owner/live/ok") {
 		t.Fatalf("a CRLF line skipped the rewrite:\n%q", got)
+	}
+}
+
+func TestAC068_UnitNegative_AQueryStringIsPartOfTheAddress(t *testing.T) {
+	// A question mark opens a query string, not a sentence. Treating it as
+	// prose truncates a legitimate address into one no host has, which then
+	// answers 404 and condemns a corpus that is right.
+	mux := http.NewServeMux()
+	mux.HandleFunc("/items", func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Query().Get("name") == "" {
+			w.WriteHeader(http.StatusNotFound)
+		}
+	})
+	mux.HandleFunc("/owner", func(w http.ResponseWriter, r *http.Request) {})
+	srv := httptest.NewServer(mux)
+	t.Cleanup(srv.Close)
+
+	full := srv.URL + "/items?name=remote-containers"
+	root := corpusWith(t, map[string]string{
+		"analysis/AN-001.md": "---\ntype: analysis\nstatus: active\n---\n\n" +
+			"bare " + full + "\nlinked [label](" + full + ")\n",
+	})
+	report, err := Resolve(root, Options{Client: srv.Client()})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if report.HasErrors() {
+		t.Fatalf("a query-string address must not be condemned: %v", report.References)
+	}
+	for _, r := range report.References {
+		if r.URL != full {
+			t.Fatalf("expected the whole address, got %q", r.URL)
+		}
 	}
 }

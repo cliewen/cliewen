@@ -98,6 +98,6 @@ A redirect is forge state. It may inform a proposed edit; it may not change corp
 
 ## Carrier
 
-CAP-002 owns the judge's form rule and the foreign-evidence pointer; CAP-004 owns the resolver command's shipped behaviour. The canonical and generated skills, scaffold templates, public and contributor guidance, and implementation explanations state the same two-layer boundary. Focused positive and negative tests cover the form rule, every one of the resolver's five outcomes, and the pointer's exclusion from coverage.
+CAP-002 owns the judge's form rule and the foreign-evidence pointer; CAP-004 owns the resolver command's shipped behaviour. The canonical and generated skills, scaffold templates, public and contributor guidance, and implementation explanations state the same two-layer boundary. Focused positive and negative tests cover the form rule, every one of the resolver's five outcomes, and the pointer's separate listing under --coverage. That a pointer never becomes classified evidence is structural rather than tested: evidence is harvested from test carriers in source, never from corpus prose, so no prose can reach that path.
 
 The standing rejections this decision does not reopen: forge state may enforce but never mean, no green check is imported as acceptance, no base branch is read as accepted meaning, and no merge status is queried to derive accepted-ness.

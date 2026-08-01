@@ -179,7 +179,13 @@ func BareReferenceIssues(c *Corpus) []Issue { return checkExternalReferences(c) 
 // not complete it. The judge must say so rather than ignore it: a pointer that
 // silently does nothing is worse than none, because the criterion it sits on
 // looks like it named its foreign proof.
-var malformedClueRe = regexp.MustCompile(`\bclue:\S*`)
+// The path separator is what makes a token an attempt rather than a word.
+// "clue" is an ordinary English noun, so a sentence such as "The clue: it was
+// the deployment order" must not be read as a broken pointer, and neither must
+// an index marker written outside a code span. Every malformed shape the
+// criterion names — a missing repository, a missing identifier, a lowercase
+// one — still carries a slash, so requiring it costs no real diagnostic.
+var malformedClueRe = regexp.MustCompile(`\bclue:\S*/\S*`)
 
 // checkForeignPointers reports clue: pointers that do not parse.
 //
@@ -192,7 +198,10 @@ func checkForeignPointers(c *Corpus) []Issue {
 	for _, a := range c.Artifacts {
 		for _, line := range citableLines(a.Body) {
 			for _, tok := range malformedClueRe.FindAllString(line.text, -1) {
-				tok = strings.TrimRight(tok, ".,;:)]")
+				// Sentence punctuation is trimmed, but never the colon: it is
+				// part of the scheme, and stripping it made the diagnostic name
+				// a word instead of the token that was found.
+				tok = strings.TrimRight(tok, ".,;)]")
 				if clueRefRe.MatchString(tok) {
 					continue
 				}
