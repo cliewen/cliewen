@@ -35,7 +35,14 @@ if git diff --quiet "$base" "$head" -- "$tmpl"; then
   exit 0
 fi
 
-v=$(sed -n 's/^version:[[:space:]]*//p' "$tmpl" | head -n 1)
+# Everything the gates judge is read out of <head-ref> rather than the working
+# tree. Both callers happen to have <head-ref> checked out, so this changes
+# nothing in CI — but a script that takes a ref and then reads whatever is on
+# disk answers about the wrong release the moment it is run anywhere else, and
+# reports a pass while doing it. Replaying a past merge to check this gate would
+# have silently graded the current checkout. A gate that quietly grades the
+# wrong thing is the failure this whole change exists to remove.
+v=$(git show "${head}:${tmpl}" | sed -n 's/^version:[[:space:]]*//p' | head -n 1)
 if ! printf '%s' "$v" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$'; then
   echo "::error title=Unreadable version stamp::${tmpl} does not carry a bare semver version; got '${v}'" >&2
   exit 1
@@ -43,12 +50,13 @@ fi
 echo "This change raises the version stamp to ${v}; checking it could be released."
 
 notes=$(mktemp)
-awk -v ver="$v" '
+trap 'rm -f "$notes"' EXIT
+git show "${head}:CHANGELOG.md" | awk -v ver="$v" '
   BEGIN { header = "## [" ver "]" }
   !found { if (index($0, header) == 1) found = 1; next }
   /^## \[/ { exit }
   { print }
-' CHANGELOG.md > "$notes"
+' > "$notes"
 
 # A tag with no user-facing notes cannot be released at all: the release
 # workflow fails at its extraction step (ADR-012). Failing here instead means a
