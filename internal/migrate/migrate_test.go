@@ -262,6 +262,53 @@ func TestAC064_UnitPositive_MigrationEditsOnlyTopLevelFields(t *testing.T) {
 	}
 }
 
+func TestAC064_UnitPositive_MigrationCoversREADMEsThatAreArtifacts(t *testing.T) {
+	// A folder README is prose, but a capability's README carries frontmatter
+	// and the validator judges it like any other artifact. Skipping every file
+	// named README.md let `clue migrate` report a clean plan while
+	// `clue validate` still failed on the very field MIG-001 exists to add.
+	root := migrationFixture(t, "")
+	write := func(rel, content string) {
+		t.Helper()
+		full := filepath.Join(root, filepath.FromSlash(rel))
+		if err := os.MkdirAll(filepath.Dir(full), 0o755); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.WriteFile(full, []byte(content), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+	capability := "docs/capabilities/CAP-009-example/README.md"
+	write(capability, "---\nid: CAP-009\ntype: capability\nstatus: active\nlinks: []\ntitle: Example capability\nprovenance: inferred\n---\n\nProse body.\n")
+	// Prose README, and one whose leading `---` never closes: corpus.Scan
+	// treats both as prose, so neither may become a change or a finding.
+	write("docs/capabilities/README.md", "# Capabilities\n\nNo frontmatter here.\n")
+	write("docs/capabilities/CAP-009-example/notes/README.md", "---\nnot a frontmatter block\n\nprose\n")
+
+	plan, err := Plan(root, Options{ReversalCost: "high"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(plan.Findings) != 0 {
+		t.Fatalf("prose READMEs produced findings: %+v", plan.Findings)
+	}
+	var planned *Change
+	for i, change := range plan.Changes {
+		if change.Path == capability {
+			planned = &plan.Changes[i]
+		}
+		if strings.HasSuffix(change.Path, "capabilities/README.md") || strings.Contains(change.Path, "notes/README.md") {
+			t.Fatalf("a prose README was migrated: %+v", change)
+		}
+	}
+	if planned == nil {
+		t.Fatalf("capability README with inferred provenance was not migrated: %+v", plan.Changes)
+	}
+	if !bytes.Contains(planned.After, []byte("reversal-cost: high")) || !bytes.Contains(planned.After, []byte("Prose body.")) {
+		t.Fatalf("capability README migration is wrong:\n%s", planned.After)
+	}
+}
+
 func TestAC064_UnitNegative_MigrationRefusesFieldsItCannotAnchor(t *testing.T) {
 	// A key repeated at the top level has no single owner, so there is no safe
 	// line to rewrite. Refuse rather than guess at the first or last one.

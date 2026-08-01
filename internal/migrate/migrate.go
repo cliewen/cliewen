@@ -239,7 +239,7 @@ func planCorpus(root string, opts Options, result *MigrationPlan) error {
 		if walkErr != nil {
 			return walkErr
 		}
-		if entry.IsDir() || !strings.HasSuffix(entry.Name(), ".md") || entry.Name() == "README.md" {
+		if entry.IsDir() || !strings.HasSuffix(entry.Name(), ".md") {
 			return nil
 		}
 		rel, err := filepath.Rel(root, filePath)
@@ -248,12 +248,21 @@ func planCorpus(root string, opts Options, result *MigrationPlan) error {
 		}
 		rel = filepath.ToSlash(rel)
 		if hasLinkBoundary(root, rel) {
-			result.Findings = append(result.Findings, Finding{Path: rel, Migration: MigrationStatusLifecycle, Message: "corpus artifact is behind a symlink; resolve the repository-owned path before migrating"})
+			// Classify before reporting, so a prose README behind a link does
+			// not block the plan. An unreadable one is exactly what the
+			// finding is for, so a failed read reports rather than skips.
+			data, readErr := os.ReadFile(filePath)
+			if readErr != nil || isArtifactFile(entry.Name(), data) {
+				result.Findings = append(result.Findings, Finding{Path: rel, Migration: MigrationStatusLifecycle, Message: "corpus artifact is behind a symlink; resolve the repository-owned path before migrating"})
+			}
 			return nil
 		}
 		before, err := os.ReadFile(filePath)
 		if err != nil {
 			return err
+		}
+		if !isArtifactFile(entry.Name(), before) {
+			return nil
 		}
 		after, changes, findings := migrateArtifact(rel, before, opts.ReversalCost)
 		result.Findings = append(result.Findings, findings...)
@@ -262,6 +271,21 @@ func planCorpus(root string, opts Options, result *MigrationPlan) error {
 		}
 		return nil
 	})
+}
+
+// isArtifactFile reports whether a walked docs file participates in the
+// migration. Only READMEs need the test: a folder README is prose, but a
+// capability's README carries frontmatter and is as much an artifact as any
+// other file the validator judges. corpus.Scan draws the line at a complete
+// frontmatter block — an unclosed one counts as prose there — so drawing it
+// the same way here keeps the migration from reporting a file that
+// clue validate accepts, and from silently skipping one it rejects.
+func isArtifactFile(name string, data []byte) bool {
+	if name != "README.md" {
+		return true
+	}
+	_, _, ok, err := splitFrontmatter(string(data))
+	return ok && err == nil
 }
 
 func migrateArtifact(rel string, before []byte, reversalCost string) ([]byte, []string, []Finding) {
