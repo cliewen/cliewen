@@ -182,14 +182,19 @@ var legacyDigests = []releaseManifest{
 		"clue-plan/skill.md":                "2130fc3367272b608644a454b3d1347f6efe8e437b072fa5a46e4ec9c52a5e40",
 		"clue-verify/skill.md":              "2e03bd7a0ba62137d08a4c5251dc6bc113c2e52e1202b5f6405f26063a32f758",
 	}},
-	{Version: "0.11.1", Files: map[string]string{
-		"clue-analysis/skill.md":            "da2bca2a539526465f7fbd890114769ac01dc8bbd54d2b4ce71ca0066dc43383",
-		"clue-delta/skill.md":               "ad03ae828f011d85bc727d551a75b898a7bf7e115f866cc7a559941bb1c7bbc0",
+	// 0.11.1 is deliberately absent. Its stamp merged, but the tagging gate
+	// rejected the release for missing migration guidance, so no tag and no
+	// artifacts were ever published. No repository can be carrying 0.11.1
+	// carriers, and listing digests for a release that does not exist would
+	// invite a later reader to trust a version they cannot install.
+	{Version: "0.11.2", Files: map[string]string{
+		"clue-analysis/skill.md":            "d1683922661b8ca9618110184f7bd7722f1af34a2e1e034fd74214c20033f9e1",
+		"clue-delta/skill.md":               "fecad3c155534b07ca22d16cfcf1a6c25fa9b0aacf9d29545d80f705254f76b7",
 		"clue-extract/mappings/madr.md":     "96dfb83213387ab16b4927870b21533646eeb8fadae164555cdeccd51fe503e5",
 		"clue-extract/mappings/openspec.md": "1144b08bad8e752d8286efd6f6a0085f179729c728bc7ec56e19b0f5694578e9",
-		"clue-extract/skill.md":             "980620da48cd322f7e9ef28877a17c413c881d84baa1ac18e26d2723383d9472",
-		"clue-plan/skill.md":                "c54196129a07c3f1afc9baf08836bce6ff71f6a1e19a322c3ce229d5f11aff0e",
-		"clue-verify/skill.md":              "4e679988d7f0f86d4714d75a6889b200e863709261c01342aae84a4e936f1c06",
+		"clue-extract/skill.md":             "d65bef335a7bd4bc40e86931c2ed757ddf908166c80616613f51f1a01d32c7b0",
+		"clue-plan/skill.md":                "c10aa23feeb26f96bcc3d8698a6780e10ecd29e4e83d775b44b341133168ce46",
+		"clue-verify/skill.md":              "0d5e3b4e627ec5891b552b5602af5731b0d3a582bf19fc828ea32c0f543c9543",
 	}},
 }
 
