@@ -4,9 +4,10 @@ import (
 	"bytes"
 	"crypto/sha256"
 	"encoding/hex"
+	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
-	"regexp"
 	"runtime"
 	"strings"
 	"testing"
@@ -522,90 +523,78 @@ func TestAC064_UnitNegative_BareReferencesAreReportedNeverRepaired(t *testing.T)
 	}
 }
 
-// TestAC064_UnitNegative_TheManifestCarriesTheStampedRelease is the guard that
-// was missing when this defect shipped.
+// TestAC064_UnitNegative_ManifestEntriesMatchTheReleaseTheyName checks the one
+// thing about legacyDigests that is true at every moment.
 //
-// legacyDigests is hand-maintained and append-only: a generated carrier is
-// recognized as replaceable only when its bytes match the release that wrote
-// it. Cutting a release therefore has to append that release's digests, and
-// nothing enforced it. The 0.10.0 cut did not, and the omission was invisible
-// for a whole release — every check stayed green, because the gap only appears
-// one release later, in someone else's repository. A Tank Royale carrier
-// byte-identical to Cliewen's own v0.10.0 was reported as locally edited, and
-// the finding blocked the entire write set, so no adopter on 0.10.0 could
-// migrate at all.
+// The manifest is hand-maintained and append-only: a generated carrier is
+// replaceable only when its bytes match the release that wrote it. Each entry
+// is therefore a claim about a published tag, and the claim is verifiable —
+// the tag is in this repository.
 //
-// The assertion is deliberately about this repository's committed state rather
-// than a fixture: the manifest must name the version the skills are stamped
-// with, and its digests must be the digests of the carriers actually committed
-// here. That makes a forgotten append fail in the release change itself, where
-// it costs a red run instead of a spent version number.
-func TestAC064_UnitNegative_TheManifestCarriesTheStampedRelease(t *testing.T) {
+// The first version of this guard compared the entry for the *stamped* version
+// against the working tree instead, and that was wrong in a way worth recording.
+// Between releases the working tree legitimately diverges from the last release,
+// so an ordinary skill edit failed the test, and its advice — update the entry —
+// would have rewritten the record of what v0.11.2 actually shipped. A guard that
+// tells you to falsify the data it protects is worse than no guard.
+//
+// The missing-entry half genuinely only holds while a release is being cut, so
+// it moved to .github/scripts/release-gates.sh, which knows it is looking at a
+// release because the stamp changed.
+func TestAC064_UnitNegative_ManifestEntriesMatchTheReleaseTheyName(t *testing.T) {
 	_, thisFile, _, ok := runtime.Caller(0)
 	if !ok {
 		t.Fatal("cannot locate the test file")
 	}
 	root := filepath.Join(filepath.Dir(thisFile), "..", "..")
 
-	stamp, err := os.ReadFile(filepath.Join(root, "internal", "skills", "source", "shared", "frontmatter.md.tmpl"))
-	if err != nil {
-		t.Fatal(err)
+	checked := 0
+	for _, entry := range legacyDigests {
+		tag := "v" + entry.Version
+		if !tagExists(t, root, tag) {
+			// A shallow clone or a fork without tags cannot answer, and
+			// failing there would punish the checkout rather than the data.
+			t.Logf("%s not present in this checkout; skipping", tag)
+			continue
+		}
+		checked++
+		for rel, want := range entry.Files {
+			data, err := gitShow(t, root, tag+":.agents/skills/"+rel)
+			if err != nil {
+				t.Errorf("the %s manifest entry names %s, which %s does not contain: %v", entry.Version, rel, tag, err)
+				continue
+			}
+			sum := sha256.Sum256(data)
+			if got := hex.EncodeToString(sum[:]); got != want {
+				t.Errorf("%s digest in the %s manifest entry does not match what %s published.\n  manifest: %s\n  %s:  %s",
+					rel, entry.Version, tag, want, tag, got)
+			}
+		}
 	}
-	// \r is tolerated: a checkout that landed the template with CRLF should
-	// fail on a stale digest, not on an unreadable stamp.
-	m := regexp.MustCompile(`(?m)^version:[ \t]*(\S+)[ \t\r]*$`).FindSubmatch(stamp)
-	if m == nil {
-		t.Fatal("the shared frontmatter carries no bare version stamp")
+	if checked == 0 {
+		t.Skip("no release tags in this checkout")
 	}
-	version := string(m[1])
+}
 
-	var entry *releaseManifest
-	for i := range legacyDigests {
-		if legacyDigests[i].Version == version {
-			entry = &legacyDigests[i]
-		}
-	}
-	if entry == nil {
-		t.Fatalf("the skills are stamped %s but legacyDigests has no entry for it; append this release's digests (migrate.go) or an adopter on %s can never be recognized as unedited", version, version)
-	}
+func tagExists(t *testing.T, root, tag string) bool {
+	t.Helper()
+	cmd := exec.Command("git", "-C", root, "rev-parse", "-q", "--verify", "refs/tags/"+tag)
+	return cmd.Run() == nil
+}
 
-	// Every committed carrier must be in the entry, and match. A missing file
-	// is as damaging as a wrong digest: both make a pristine carrier look
-	// locally edited, and a finding blocks the whole write set.
-	carriers := filepath.Join(root, ".agents", "skills")
-	seen := map[string]bool{}
-	err = filepath.Walk(carriers, func(path string, info os.FileInfo, err error) error {
-		if err != nil || info.IsDir() || !strings.HasSuffix(path, ".md") {
-			return err
+func gitShow(t *testing.T, root, spec string) ([]byte, error) {
+	t.Helper()
+	var out, errOut bytes.Buffer
+	cmd := exec.Command("git", "-C", root, "show", spec)
+	cmd.Stdout = &out
+	// Without this the caller reports "exit status 128" for every failure,
+	// which names neither the path nor the reason. git already says both.
+	cmd.Stderr = &errOut
+	if err := cmd.Run(); err != nil {
+		if msg := strings.TrimSpace(errOut.String()); msg != "" {
+			return nil, fmt.Errorf("%s: %s", err, msg)
 		}
-		rel, err := filepath.Rel(carriers, path)
-		if err != nil {
-			return err
-		}
-		rel = filepath.ToSlash(rel)
-		seen[rel] = true
-		data, err := os.ReadFile(path)
-		if err != nil {
-			return err
-		}
-		sum := sha256.Sum256(data)
-		want := hex.EncodeToString(sum[:])
-		got, listed := entry.Files[rel]
-		if !listed {
-			t.Errorf("%s is committed but absent from the %s manifest entry; add %q: %q", rel, version, rel, want)
-			return nil
-		}
-		if got != want {
-			t.Errorf("%s digest in the %s manifest entry is stale.\n  manifest: %s\n  committed: %s\n(regenerate the skills, then update the entry)", rel, version, got, want)
-		}
-		return nil
-	})
-	if err != nil {
-		t.Fatal(err)
+		return nil, err
 	}
-	for rel := range entry.Files {
-		if !seen[rel] {
-			t.Errorf("the %s manifest entry names %s, which is not a committed carrier", version, rel)
-		}
-	}
+	return out.Bytes(), nil
 }
