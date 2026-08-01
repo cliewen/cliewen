@@ -408,3 +408,52 @@ func TestAC068_UnitNegative_AQueryStringIsPartOfTheAddress(t *testing.T) {
 		}
 	}
 }
+
+func TestAC069_UnitNegative_ACodeSpanIsContentNotACitation(t *testing.T) {
+	// A literal command example is content. Classifying it would let --apply
+	// rewrite the example itself when the host redirects.
+	srv := forge(t)
+	body := "Run `git clone " + srv.URL + "/owner/live/moved` to start.\n"
+	root := corpusWith(t, map[string]string{
+		"analysis/AN-001.md": "---\ntype: analysis\nstatus: active\n---\n\n" + body,
+	})
+	report, err := Resolve(root, Options{Apply: true, Client: srv.Client()})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(report.References) != 0 {
+		t.Fatalf("a code span must not be harvested, got %v", report.References)
+	}
+	got, err := os.ReadFile(filepath.Join(root, "docs", "analysis", "AN-001.md"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(string(got), "/owner/live/moved") {
+		t.Fatalf("the example was rewritten:\n%q", got)
+	}
+}
+
+func TestAC068_UnitPositive_AnEmphasisedOrQuotedAddressIsStillSeen(t *testing.T) {
+	// A silent miss cannot fail a corpus, but a rotted address inside bold
+	// text or a tight table row would be invisible, which is worse than noisy.
+	srv := forge(t)
+	for _, shape := range []string{
+		"**" + srv.URL + "/nobody/vanished**",
+		"\"" + srv.URL + "/nobody/vanished\"",
+		"|" + srv.URL + "/nobody/vanished|",
+	} {
+		t.Run(shape, func(t *testing.T) {
+			root := corpusWith(t, map[string]string{
+				"analysis/AN-001.md": "---\ntype: analysis\nstatus: active\n---\n\nsee " + shape + "\n",
+			})
+			report, err := Resolve(root, Options{Client: srv.Client()})
+			if err != nil {
+				t.Fatal(err)
+			}
+			got := resultFor(t, report, "/nobody/vanished")
+			if got.URL != srv.URL+"/nobody/vanished" {
+				t.Fatalf("expected the address without its wrapper, got %q", got.URL)
+			}
+		})
+	}
+}

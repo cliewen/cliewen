@@ -173,3 +173,16 @@ func TestAC067_UnitNegative_AMalformedPointerIsNamedInFull(t *testing.T) {
 		t.Fatalf("expected the token named in full, got %q", issues[0].Msg)
 	}
 }
+
+func TestAC067_UnitNegative_ASchemeWithNoNamespaceIsMalformed(t *testing.T) {
+	// The shape a reader is most likely to write by hand names no repository
+	// at all. Reading it as prose would let a criterion look as though it had
+	// cited its foreign proof while the judge said nothing.
+	issues := checkForeignPointers(corpusWithBody(t, "proven by clue:BR-001 upstream"))
+	if len(issues) != 1 {
+		t.Fatalf("expected the namespace-less pointer to fail, got %v", issues)
+	}
+	if !strings.Contains(issues[0].Msg, "clue:BR-001") {
+		t.Fatalf("expected the token named, got %q", issues[0].Msg)
+	}
+}

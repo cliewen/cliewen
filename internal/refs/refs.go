@@ -341,7 +341,11 @@ var (
 	// host has, which then answers 404 and condemns a corpus that is right.
 	// Trailing prose punctuation is removed afterwards instead, where it can be
 	// stripped as a run rather than guessed at by character class.
-	bareURLRe = regexp.MustCompile(`(^|[\s(])(https?://[^\s)\]<>]+)`)
+	// The leading class admits the punctuation that can precede an address in
+	// prose, so a bold or quoted address is still seen. Without it,
+	// **https://x/y** matched nothing at all and a rotted address inside
+	// emphasis or a tight table row was invisible.
+	bareURLRe = regexp.MustCompile("(^|[\\s(*`|\"'\\[])(https?://[^\\s)\\]<>]+)")
 )
 
 // harvest collects every http(s) address in corpus prose, under docs/ and
@@ -393,7 +397,11 @@ func harvestTree(root, tree string, refs *[]Reference) error {
 			if inFence {
 				continue
 			}
-			for _, u := range addressesIn(line) {
+			// A code span is content, not a citation — the same reading the
+			// judge applies. Without this a literal command example such as
+			// `git clone https://host/owner/repo` would be classified and,
+			// under --apply, rewritten inside the example.
+			for _, u := range addressesIn(inlineCodeRe.ReplaceAllStringFunc(line, blankRun)) {
 				*refs = append(*refs, Reference{Path: rel, Line: i + 1, URL: u, Frozen: frozen})
 			}
 		}
@@ -514,7 +522,12 @@ func replaceWholeAddress(line, from, to string) string {
 //
 // A question mark is deliberately absent. It opens a query string, so treating
 // it as prose would truncate a legitimate address into one no host has.
-const trailingProse = ".,;:!*`|"
+//
+// Quotes are present: a quoted address leaves its closing quote attached, and
+// requesting it percent-encoded answers 404 — condemning a corpus that is
+// right. They are already address ends on the rewrite side, so including them
+// is what keeps the two halves agreeing.
+const trailingProse = ".,;:!*`|\"'"
 
 func isAddressBoundary(b byte) bool {
 	switch b {
@@ -611,3 +624,9 @@ func isFrozen(text string) bool {
 	s := statusRe.FindStringSubmatch(text)
 	return t != nil && s != nil && t[1] == "plan" && s[1] == "completed"
 }
+
+// inlineCodeRe matches a backtick span, and blankRun replaces one with spaces
+// of the same length so positions on the line stay meaningful.
+var inlineCodeRe = regexp.MustCompile("`[^`]*`")
+
+func blankRun(s string) string { return strings.Repeat(" ", len(s)) }

@@ -179,13 +179,17 @@ func BareReferenceIssues(c *Corpus) []Issue { return checkExternalReferences(c) 
 // not complete it. The judge must say so rather than ignore it: a pointer that
 // silently does nothing is worse than none, because the criterion it sits on
 // looks like it named its foreign proof.
-// The path separator is what makes a token an attempt rather than a word.
-// "clue" is an ordinary English noun, so a sentence such as "The clue: it was
-// the deployment order" must not be read as a broken pointer, and neither must
-// an index marker written outside a code span. Every malformed shape the
-// criterion names — a missing repository, a missing identifier, a lowercase
-// one — still carries a slash, so requiring it costs no real diagnostic.
-var malformedClueRe = regexp.MustCompile(`\bclue:\S*/\S*`)
+// A token counts as an attempt when it carries a path, or when it opens with
+// something shaped like a corpus identity. The second half matters: `clue:BR-001`
+// is the shape a reader is most likely to write by hand, it names no repository
+// at all, and reading it as prose would let a criterion look as though it had
+// cited its foreign proof while the judge said nothing.
+//
+// Neither half matches ordinary English. "clue" is a common noun as well as
+// this tool's name, so "The clue: it was the deployment order" is followed by a
+// space, and an index marker continues in lowercase with no path — so neither
+// is read as a broken pointer.
+var malformedClueRe = regexp.MustCompile(`\bclue:(?:\S*/\S*|[A-Z][A-Za-z0-9-]*)`)
 
 // checkForeignPointers reports clue: pointers that do not parse.
 //
