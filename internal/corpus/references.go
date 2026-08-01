@@ -42,7 +42,7 @@ func checkExternalReferences(c *Corpus) []Issue {
 			// The line is part of the finding: a corpus file is long, the same
 			// number can appear more than once in it, and an adopter repairing
 			// a migration report should not have to search for the occurrence.
-			issues = append(issues, Issue{a.Path, "line " + itoa(ref.line) + ": bare forge reference " + ref.text +
+			issues = append(issues, Issue{a.Path, "line " + itoa(a.BodyLine+ref.line-1) + ": bare forge reference " + ref.text +
 				" names no repository; write the full URL of what it points at (ADR-040)"})
 		}
 	}

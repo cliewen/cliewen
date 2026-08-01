@@ -31,6 +31,7 @@ type Artifact struct {
 	Title        string
 	Path         string // repo-relative, forward slashes
 	Body         string
+	BodyLine     int    // 1-based line in the file where Body begins
 	Fields       map[string]any // raw frontmatter, for presence checks
 }
 
@@ -106,7 +107,10 @@ func Scan(root string) (*Corpus, []Issue) {
 				}
 				return nil
 			}
-			a := &Artifact{Path: rel, Body: body, Fields: fields}
+			// BodyLine is where Body starts in the file, so a finding that
+			// names a line names the line a reader opens to.
+			a := &Artifact{Path: rel, Body: body, Fields: fields,
+				BodyLine: strings.Count(text[:len(text)-len(body)], "\n") + 1}
 			a.ID, _ = fields["id"].(string)
 			a.Type, _ = fields["type"].(string)
 			a.Status, _ = fields["status"].(string)
