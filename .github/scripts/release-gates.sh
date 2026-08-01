@@ -80,4 +80,34 @@ if ! git diff --quiet "$base" "$head" -- internal/migrate; then
   fi
 fi
 
+# A release must record what its generated carriers look like, or every adopter
+# already on it is told their pristine skills are locally edited and `clue
+# migrate` refuses the whole write set. 0.10.0 shipped without this and the gap
+# was invisible until an adopter tried to upgrade a release later.
+#
+# This half of the check only makes sense while a release is being cut: between
+# releases the working tree is meant to differ from the last published one.
+#
+# It asks whether each digest appears in the manifest at all, not whether it sits
+# in this version's entry. That is deliberate: a partial written by hand is
+# caught by the Go guard, which verifies every entry against the tag it names,
+# and a carrier whose bytes did not change between releases is still recognized
+# through the older entry it already matches. What this catches is the failure
+# that actually shipped — a release recorded nowhere.
+missing=0
+for f in $(cd .agents/skills && find . -name '*.md' | sed 's|^\./||' | sort); do
+  want=$(sha256sum ".agents/skills/${f}" | cut -d' ' -f1)
+  if ! grep -Fq "\"${f}\":" internal/migrate/migrate.go; then
+    echo "::error title=Carrier missing from the release manifest::${f} is not listed in legacyDigests (internal/migrate/migrate.go); add it to the ${v} entry with digest ${want}" >&2
+    missing=1
+  elif ! grep -Fq "\"${want}\"" internal/migrate/migrate.go; then
+    echo "::error title=Release manifest is stale::${f} has digest ${want} but no entry in legacyDigests carries it; the ${v} entry must record this release's carriers" >&2
+    missing=1
+  fi
+done
+if [ "$missing" -ne 0 ]; then
+  echo "::error title=No manifest entry for ${v}::Cutting ${v} without its carrier digests leaves every adopter on ${v} unable to migrate off it (ADR-028)" >&2
+  exit 1
+fi
+
 echo "Release gates pass for ${v}."
