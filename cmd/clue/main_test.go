@@ -698,7 +698,6 @@ type communityIssueForm struct {
 // Sanity: the public community front door remains present, its GitHub
 // configuration parses, and private reports cannot silently lose their
 // routes while the visible templates continue to look complete.
-
 func TestSanity_CommunityFrontDoorIsWellFormed(t *testing.T) {
 	root := filepath.Join("..", "..")
 	read := func(rel string) string {

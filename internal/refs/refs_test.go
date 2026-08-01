@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 )
@@ -478,5 +479,56 @@ func TestAC069_UnitNegative_ARewriteNeverReachesIntoACodeSpan(t *testing.T) {
 	}
 	if !strings.Contains(string(got), "git clone "+srv.URL+"/owner/live/moved`") {
 		t.Fatalf("the example inside the code span was rewritten:\n%q", got)
+	}
+}
+
+// recordingTransport notes every request so a test can assert where a
+// credential went, and where it did not.
+type recordingTransport struct {
+	base  http.RoundTripper
+	mu    sync.Mutex
+	calls []*http.Request
+}
+
+func (r *recordingTransport) RoundTrip(req *http.Request) (*http.Response, error) {
+	r.mu.Lock()
+	r.calls = append(r.calls, req.Clone(req.Context()))
+	r.mu.Unlock()
+	return r.base.RoundTrip(req)
+}
+
+func TestAC069_UnitNegative_ACredentialNeverReachesTheOrdinaryRequest(t *testing.T) {
+	// The credential is confined to one question that can only narrow gone to
+	// restricted. An ordinary request carrying it, or an API answer supplying a
+	// target, would put an address in the corpus that depends on who ran the
+	// command.
+	t.Setenv("GITHUB_TOKEN", "secret")
+	srv := forge(t)
+	rec := &recordingTransport{base: srv.Client().Transport}
+	client := &http.Client{Transport: rec}
+
+	root := corpusWith(t, map[string]string{
+		"analysis/AN-001.md": "---\ntype: analysis\nstatus: active\n---\n\n" +
+			"moved " + srv.URL + "/owner/live/moved\ngone " + srv.URL + "/nobody/vanished\n",
+	})
+	report, err := Resolve(root, Options{Client: client})
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, call := range rec.calls {
+		if call.Header.Get("Authorization") != "" {
+			t.Fatalf("an ordinary request carried a credential: %s", call.URL)
+		}
+		if strings.Contains(call.URL.Host, "api.github.com") {
+			t.Fatalf("an ordinary request reached an API host: %s", call.URL)
+		}
+	}
+	if got := resultFor(t, report, "/owner/live/moved"); !strings.HasSuffix(got.Target, "/owner/live/ok") {
+		t.Fatalf("expected the web location as the target, got %q", got.Target)
+	}
+	for _, r := range report.References {
+		if r.Result == Restricted && r.Target != "" {
+			t.Fatalf("a restricted result must supply no rewrite target, got %q", r.Target)
+		}
 	}
 }

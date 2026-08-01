@@ -20,6 +20,8 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/cliewen/cliewen/internal/corpus"
 )
 
 // Outcome is how a target answered. ADR-040 fixes these five and their
@@ -424,7 +426,7 @@ func harvestTree(root, tree string, refs *[]Reference) error {
 			// judge applies. Without this a literal command example such as
 			// `git clone https://host/owner/repo` would be classified and,
 			// under --apply, rewritten inside the example.
-			for _, u := range addressesIn(inlineCodeRe.ReplaceAllStringFunc(line, blankRun)) {
+			for _, u := range addressesIn(corpus.BlankCodeSpans(line)) {
 				*refs = append(*refs, Reference{Path: rel, Line: i + 1, URL: u, Frozen: frozen})
 			}
 		}
@@ -522,7 +524,7 @@ func replaceWholeAddress(line, from, to string) string {
 	// the original. Harvesting skips a code span, so an address that also
 	// appears bare on the same line must not drag the literal example along
 	// with it.
-	mask := inlineCodeRe.ReplaceAllStringFunc(line, blankRun)
+	mask := corpus.BlankCodeSpans(line)
 	var b strings.Builder
 	offset := 0
 	for {
@@ -654,9 +656,3 @@ func isFrozen(text string) bool {
 	s := statusRe.FindStringSubmatch(text)
 	return t != nil && s != nil && t[1] == "plan" && s[1] == "completed"
 }
-
-// inlineCodeRe matches a backtick span, and blankRun replaces one with spaces
-// of the same length so positions on the line stay meaningful.
-var inlineCodeRe = regexp.MustCompile("`[^`]*`")
-
-func blankRun(s string) string { return strings.Repeat(" ", len(s)) }

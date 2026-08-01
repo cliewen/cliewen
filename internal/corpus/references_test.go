@@ -217,3 +217,23 @@ func TestAC067_UnitNegative_CapitalisedProseIsNotAPointer(t *testing.T) {
 		})
 	}
 }
+
+func TestAC066_UnitNegative_ADoubleBacktickSpanIsStillContent(t *testing.T) {
+	// A span opens and closes with runs of the same length, so a literal that
+	// itself contains a backtick is one span rather than three.
+	for _, body := range []string{
+		"See ``the #96 form`` above.",
+		"Use ``a `nested` #42 example`` here.",
+	} {
+		t.Run(body, func(t *testing.T) {
+			if got := scanBody(t, body); len(got) != 0 {
+				t.Fatalf("expected no finding inside a code span, got %v", got)
+			}
+		})
+	}
+	// A lone run with no closing partner is literal text, not an open span
+	// swallowing the rest of the line.
+	if got := scanBody(t, "``unclosed and then a bare PR #96 here"); len(got) != 1 {
+		t.Fatalf("expected the bare reference outside an unclosed run, got %v", got)
+	}
+}

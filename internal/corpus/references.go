@@ -82,10 +82,57 @@ func scanBareForgeRefs(body string) []bareRef {
 	return found
 }
 
-// inlineCodeRe matches a backtick span. Colour literals and anchors belong in
-// code spans by ordinary markdown practice, which is what makes this exclusion
-// carry most of the ambiguity without a special case for either.
-var inlineCodeRe = regexp.MustCompile("`[^`]*`")
+// BlankCodeSpans replaces every inline code span with spaces of the same
+// length, so a caller can find positions on the result and apply them to the
+// original. Colour literals, anchors and literal command examples belong in
+// code spans by ordinary markdown practice, which is what lets one exclusion
+// carry most of the ambiguity.
+//
+// A span opens with a run of backticks and closes with a run of the same
+// length, so “a `b` c“ is one span rather than three. Go's regexp has no
+// backreferences, and a pattern that assumed single backticks left a
+// double-backtick literal exposed — which meant an address inside one could be
+// rewritten in place.
+//
+// It is exported so the resolver reads exactly what the judge reads: the two
+// were written separately once, and disagreed.
+func BlankCodeSpans(line string) string {
+	out := []byte(line)
+	for i := 0; i < len(out); {
+		if out[i] != '`' {
+			i++
+			continue
+		}
+		open := i
+		for i < len(out) && out[i] == '`' {
+			i++
+		}
+		width := i - open
+		for j := i; j < len(out); {
+			if out[j] != '`' {
+				j++
+				continue
+			}
+			runStart := j
+			for j < len(out) && out[j] == '`' {
+				j++
+			}
+			if j-runStart == width {
+				for k := open; k < j; k++ {
+					out[k] = ' '
+				}
+				i = j
+				break
+			}
+		}
+		if i == open+width {
+			// No closing run of the same length: the backticks are literal
+			// text, not a span.
+			break
+		}
+	}
+	return string(out)
+}
 
 // linkTargetRe matches the target half of a markdown link. A qualified URL
 // ending in a fragment is the correct form, so its own '#' must never be read
@@ -113,7 +160,8 @@ func stripNonReferenceSpans(line string) string {
 	// addressedLinkRe runs first: it consumes the whole link, so a label that
 	// happens to carry a forge number is never left behind for the bare-
 	// reference scan.
-	for _, re := range []*regexp.Regexp{inlineCodeRe, addressedLinkRe, linkTargetRe, autolinkRe, bareURLRe, clueRefRe} {
+	line = BlankCodeSpans(line)
+	for _, re := range []*regexp.Regexp{addressedLinkRe, linkTargetRe, autolinkRe, bareURLRe, clueRefRe} {
 		line = re.ReplaceAllStringFunc(line, blank)
 	}
 	return line
@@ -264,7 +312,7 @@ func citableLines(body string) []citableLine {
 		// URLs are blanked as well as code spans: an address whose path happens
 		// to contain the scheme — a forge search link, say — is a target, not a
 		// citation attempt.
-		masked := inlineCodeRe.ReplaceAllStringFunc(line, blank)
+		masked := BlankCodeSpans(line)
 		masked = bareURLRe.ReplaceAllStringFunc(masked, blank)
 		out = append(out, citableLine{text: masked, n: i + 1})
 	}

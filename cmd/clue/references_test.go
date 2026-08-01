@@ -94,3 +94,55 @@ func TestAC068_UnitNegative_RefsExitsNonZeroOnlyForGone(t *testing.T) {
 		t.Fatalf("two paths is a usage error, got exit %d", code)
 	}
 }
+
+// TestAC069_UnitPositive_PinnedHistoryIsMarkedInTheReport reads the printed
+// note. The criterion describes user-visible output, and deleting the marker
+// left every other test green.
+func TestAC069_UnitPositive_PinnedHistoryIsMarkedInTheReport(t *testing.T) {
+	mux := http.NewServeMux()
+	mux.HandleFunc("/owner/live/ok", func(w http.ResponseWriter, r *http.Request) {})
+	mux.HandleFunc("/owner/live/moved", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Location", "/owner/live/ok")
+		w.WriteHeader(http.StatusMovedPermanently)
+	})
+	srv := httptest.NewServer(mux)
+	defer srv.Close()
+
+	root := t.TempDir()
+	for rel, body := range map[string]string{
+		"docs/analysis/AN-001-x.md": "---\nid: AN-001\ntype: analysis\nstatus: active\nlinks: []\ntitle: t\n---\n\nordinary " + srv.URL + "/owner/live/moved\n",
+		"docs/plans/P-003-x.md":     "---\nid: P-003\ntype: plan\nstatus: completed\nlinks: []\ntitle: t\n---\n\nthe guide at " + srv.URL + "/owner/live/moved returned HTTP 200\n",
+	} {
+		full := filepath.Join(root, filepath.FromSlash(rel))
+		if err := os.MkdirAll(filepath.Dir(full), 0o755); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.WriteFile(full, []byte(body), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	var out, errOut bytes.Buffer
+	if code := runRefs([]string{root}, &out, &errOut); code != 0 {
+		t.Fatalf("a redirect is not an error, got exit %d: %s", code, out.String())
+	}
+	got := out.String()
+	var ordinary, frozen string
+	for _, ln := range strings.Split(got, "\n") {
+		switch {
+		case strings.Contains(ln, "AN-001"):
+			ordinary = ln
+		case strings.Contains(ln, "P-003"):
+			frozen = ln
+		}
+	}
+	if ordinary == "" || frozen == "" {
+		t.Fatalf("expected both redirects named, got:\n%s", got)
+	}
+	if !strings.Contains(frozen, "pinned history") {
+		t.Fatalf("the completed plan must be marked as pinned history: %q", frozen)
+	}
+	if strings.Contains(ordinary, "pinned history") {
+		t.Fatalf("an ordinary artifact must not be marked pinned: %q", ordinary)
+	}
+}
