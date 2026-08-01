@@ -73,4 +73,5 @@ The CLI reports inferred ADRs and PDRs as decisions awaiting verification, separ
 - [PDR-021-supported-merge-commit-history](PDR-021-supported-merge-commit-history.md)
 - [ADR-038-upstream-validation-workflow](ADR-038-upstream-validation-workflow.md)
 - [ADR-039-versioned-corpus-migrations](ADR-039-versioned-corpus-migrations.md)
+- [ADR-040-qualified-external-references](ADR-040-qualified-external-references.md)
 <!-- clue:index:end -->
