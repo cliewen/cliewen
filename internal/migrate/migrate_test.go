@@ -122,6 +122,111 @@ func TestAC064_UnitPositive_MigrationIsPreviewableIdempotentAndCoordinated(t *te
 	}
 }
 
+// TestUnit_CarrierPreviewNamesTheReleaseItWrites pins the direction of the
+// MIG-003 preview line.
+//
+// The preview used to read "replace generated carrier clue-plan/skill.md with
+// release 0.11.2 content" while writing the target's bytes — it named the
+// release it recognized, which is the one release those bytes are certainly
+// not. An adopter upgrading from 0.11.2 would read that as a downgrade and be
+// right to refuse it. The recognized release is still worth saying, because it
+// is why the replacement is safe; it just is not the source of the content.
+func TestUnit_CarrierPreviewNamesTheReleaseItWrites(t *testing.T) {
+	root := migrationFixture(t, "")
+	repoRoot := repositoryRoot(t)
+
+	const legacy = "v0.11.2"
+	if !tagExists(t, repoRoot, legacy) {
+		t.Skipf("%s not present in this checkout", legacy)
+	}
+	old, err := gitShow(t, repoRoot, legacy+":.agents/skills/clue-analysis/skill.md")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(root, ".agents", "skills", "clue-analysis", "skill.md"), old, 0o644); err != nil {
+		t.Fatal(err)
+	}
+	target, err := scaffold.PairVersion()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	preview, err := Plan(root, Options{ReversalCost: "low"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	var got string
+	for _, change := range preview.Changes {
+		if change.Path == ".agents/skills/clue-analysis/skill.md" {
+			got = change.Description
+		}
+	}
+	if got == "" {
+		t.Fatalf("recognized 0.11.2 carrier was not planned for replacement: %+v", preview.Changes)
+	}
+	if !strings.Contains(got, "with release "+target+" content") {
+		t.Errorf("preview does not name the release it writes:\n  got:  %s\n  want it to contain: with release %s content", got, target)
+	}
+	if !strings.Contains(got, "recognized as release 0.11.2") {
+		t.Errorf("preview dropped the release it recognized:\n  got: %s", got)
+	}
+	if strings.Contains(got, "with release 0.11.2 content") {
+		t.Errorf("preview still names the recognized release as the source of the bytes:\n  got: %s", got)
+	}
+}
+
+// TestUnit_AddedCarrierPreviewNamesTheReleaseItWrites covers the other half of
+// the same defect, where it was worse.
+//
+// When a release introduces a carrier its predecessor never shipped, the plan
+// adds it and used to describe it as "from release <old> content" — naming, as
+// the source of the bytes, the one release that is known not to contain the
+// file at all. clue-extract/mappings/madr.md first shipped in 0.7.0, so a
+// 0.6.0 repository reaches exactly this branch.
+func TestUnit_AddedCarrierPreviewNamesTheReleaseItWrites(t *testing.T) {
+	root := migrationFixture(t, "")
+	repoRoot := repositoryRoot(t)
+
+	const legacy = "v0.6.0"
+	if !tagExists(t, repoRoot, legacy) {
+		t.Skipf("%s not present in this checkout", legacy)
+	}
+	old, err := gitShow(t, repoRoot, legacy+":.agents/skills/clue-extract/skill.md")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(root, ".agents", "skills", "clue-extract", "skill.md"), old, 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Remove(filepath.Join(root, ".agents", "skills", "clue-extract", "mappings", "madr.md")); err != nil {
+		t.Fatal(err)
+	}
+	target, err := scaffold.PairVersion()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	preview, err := Plan(root, Options{ReversalCost: "low"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	var got string
+	for _, change := range preview.Changes {
+		if change.Path == ".agents/skills/clue-extract/mappings/madr.md" {
+			got = change.Description
+		}
+	}
+	if got == "" {
+		t.Fatalf("carrier absent from 0.6.0 was not planned as an add: changes=%+v findings=%+v", preview.Changes, preview.Findings)
+	}
+	if !strings.Contains(got, "release "+target+" content") {
+		t.Errorf("preview does not name the release it writes:\n  got:  %s\n  want it to contain: release %s content", got, target)
+	}
+	if strings.Contains(got, "release 0.6.0 content") {
+		t.Errorf("preview names a release that never published this file as the source of its bytes:\n  got: %s", got)
+	}
+}
+
 func TestAC064_UnitNegative_MigrationRefusesAmbiguousAndModifiedInputs(t *testing.T) {
 	root := migrationFixture(t, `---
 id: AN-001

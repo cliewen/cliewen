@@ -4,6 +4,10 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 
 ## [Unreleased]
 
+## [0.12.0] - 2026-08-02
+
+The release where an adopted repository stops handing Claude Code the manuals without the instruction to open them.
+
 ### Migration
 
 - **If you use Claude Code, your repository is probably missing its entry point.** Claude Code reads `CLAUDE.md` and never `AGENTS.md`, so until now an adopted repository gave it the five lifecycle skills and none of the routing that says when to use them. `clue migrate` now reports this, in both shapes it takes: no `CLAUDE.md` at all, or one that exists without importing the hub. Neither is repaired for you. For a missing file, run `clue init` — it creates the pointer and, as always, overwrites nothing else. For a `CLAUDE.md` you already wrote, add a line containing just the import — `@AGENTS.md` at the repository root, `@../AGENTS.md` if your entry point lives in `.claude/`, because Claude Code resolves an import against the folder of the file holding it; that file is yours and no Cliewen command edits it. The report names the spelling for the file it found, and it stays quiet for an entry point that already reaches the hub — including one that names the import inside a sentence, which Claude Code loads just as it loads a line of its own, and one that is a symlink to the hub. The report is a notice, not a blocker: an upgrade still applies normally while you decide.
@@ -15,6 +19,14 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 ### Changed
 
 - **The skills now say when a plan closes.** Marking a milestone done already belonged in the implementing change's merge digest; closing the plan is the same bookkeeping, and nothing said so. The change that completes a campaign's last milestone now also sets that plan `completed` in the same digest, and designates a successor plan there when one is decided — not having decided one is no reason to keep a finished plan open. Because a completed plan is immutable, every milestone's evidence must be in the table before that digest lands. The generated skills, the AGENTS.md routing hub, the plan folder's README, and the public change-loop guide all state it, so an agent meets the same rule wherever it looks, and the pre-merge verification checklist now asks for the closure instead of accepting a ticked milestone as complete bookkeeping. Existing repositories pick this up in the refreshed skills; a repository's own `AGENTS.md` and `docs/` prose are yours, so `clue init` and `clue migrate` leave them untouched — the new wording reaches those files only in newly initialized repositories.
+
+### Fixed
+
+- **`clue migrate` now tells you which release it is about to write.** Its preview line for a generated skill named the release it *recognized* your copy as, not the one whose bytes it writes — so upgrading from 0.11.2 read "replace generated carrier clue-plan/skill.md with release 0.11.2 content", which looks like a downgrade and was reason enough to refuse the upgrade. The line now names both facts in the places they belong: what it recognized, and what it writes. For a file your release never shipped at all, the add line no longer credits that older release with content it does not contain. Which bytes get written has not changed — only the description of them, and a preview you cannot trust is worse than no preview.
+
+### Install
+
+`curl -fsSL https://cliewen.dev/install.sh | sh` on macOS and Linux, `irm https://cliewen.dev/install.ps1 | iex` on Windows, or `go install github.com/cliewen/cliewen/cmd/clue@v0.12.0`. You can still download a prebuilt binary from the release assets and verify it against `SHA256SUMS` by hand; those asset names are unchanged, so a vendored CI wall pinned to an earlier release keeps working exactly as before. Update vendored Cliewen skills from this release's `.agents/skills/`; a 0.12.0 binary rejects older Cliewen skill versions as drift. Upgrading an existing repository: run `clue migrate` to preview the corpus and carrier upgrade, and read the notices — this release adds one about your Claude Code entry point, and it is the first thing to act on if your team uses Claude Code at all.
 
 ## [0.11.2] - 2026-08-01
 
