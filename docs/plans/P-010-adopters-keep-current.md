@@ -2,11 +2,13 @@
 id: P-010
 type: plan
 status: active
-links: [G-001, G-002, AN-007, AN-011, AN-013, ADR-011, ADR-021, ADR-022, ADR-031, ADR-039, PDR-019, PDR-022, C-013]
+links: [P-009, G-001, G-002, AN-007, AN-011, AN-013, ADR-011, ADR-021, ADR-022, ADR-031, ADR-039, PDR-019, PDR-022, C-008, C-013]
 title: Cliewen makes staying current something an adopter notices
 ---
 
 # P-010 — Cliewen makes staying current something an adopter notices
+
+This campaign is [P-009](P-009-migration-readiness.md)'s successor, and it is designated here rather than in P-009's own digest because CH-099 deliberately closed that campaign without naming one and [C-008](../constraints/C-008-completed-plans-immutable.md) freezes it afterwards. The forward link can only live on this side of the boundary.
 
 P-009 gave corpus releases a previewable mechanical upgrade path and closed on it. What it did not give anyone was a reason to run that path, or a place to learn it exists. `clue migrate` is named in an adopted repository — in three of the five skills, in the emitted `CLAUDE.md`, and in the emitted `docs/README.md` — but never as something to go and do: the skills mention it only inside the shared local-conventions paragraph, as a precondition of a change already under way, so an agent asked to bring a repository up to date meets no entry point. The word "upgrade" occurs in none of the five generated skills or their canonical sources, and the emitted routing hub names neither upgrading, migrating, nor versions — and that hub is the adopter's file, which `clue init` never overwrites and `clue migrate` never rewrites, so routing added there reaches new repositories only. Only skills reach an adopter who has already onboarded.
 
