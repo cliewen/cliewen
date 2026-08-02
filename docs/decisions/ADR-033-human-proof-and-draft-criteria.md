@@ -1,11 +1,11 @@
 ---
 id: ADR-033
 type: decision
-status: inferred
+status: verified
 links: [ADR-032, ADR-007, ADR-025, CAP-002, CAP-006, PDR-017, P-007]
 title: Human proof class, a per-criterion draft exemption, and derived coverage
 author: agent
-accepted-by: []
+accepted-by: Flemming N. Larsen (2026-08-02, conversation)
 ---
 
 # ADR-033 — Human proof class, a per-criterion draft exemption, and derived coverage

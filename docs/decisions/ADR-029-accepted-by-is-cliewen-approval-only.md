@@ -1,11 +1,11 @@
 ---
 id: ADR-029
 type: decision
-status: inferred
+status: verified
 links: [P-006, PDR-004, C-009]
 title: accepted-by records only approval given under Cliewen's merge boundary
 author: agent
-accepted-by: []
+accepted-by: Flemming N. Larsen (2026-08-02, conversation)
 ---
 
 # ADR-029 — `accepted-by` records only approval given under Cliewen's merge boundary

@@ -1,11 +1,11 @@
 ---
 id: ADR-027
 type: decision
-status: inferred
+status: verified
 links: [P-005, ADR-025, ADR-026, ADR-017, C-014, C-015]
 title: Quality scenarios are constraints — the quality type folds into the register
 author: agent
-accepted-by: []
+accepted-by: Flemming N. Larsen (2026-08-02, conversation)
 ---
 
 # ADR-027 — Quality scenarios are constraints

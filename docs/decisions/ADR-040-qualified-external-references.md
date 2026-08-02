@@ -1,11 +1,11 @@
 ---
 id: ADR-040
 type: decision
-status: inferred
+status: verified
 links: [P-009, AN-013, ADR-005, ADR-009, ADR-039, C-013, CAP-002, CAP-004]
 title: External references name their target, and resolving them stays outside the judge
 author: agent
-accepted-by: []
+accepted-by: Flemming N. Larsen (2026-08-02, conversation)
 ---
 
 # ADR-040 — External references name their target, and resolving them stays outside the judge

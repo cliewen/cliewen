@@ -1,11 +1,11 @@
 ---
 id: ADR-031
 type: decision
-status: inferred
+status: verified
 links: [CAP-001, CAP-004, C-015, ADR-011, ADR-022, ADR-030]
 title: The Claude Code plugin ships a bootstrap, and the managed skills never ride in it
 author: agent
-accepted-by: []
+accepted-by: Flemming N. Larsen (2026-08-02, conversation)
 ---
 
 # ADR-031 — The plugin ships a bootstrap, not the skills

@@ -1,11 +1,11 @@
 ---
 id: ADR-034
 type: decision
-status: inferred
+status: verified
 links: [ADR-025, PDR-003, C-008, CAP-002, P-007]
 title: Retirement is deletion; supersedes carries the pointer forward
 author: agent
-accepted-by: []
+accepted-by: Flemming N. Larsen (2026-08-02, conversation)
 ---
 
 # ADR-034 — Retirement is deletion; supersedes carries the pointer forward

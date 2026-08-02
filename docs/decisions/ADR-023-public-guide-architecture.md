@@ -1,11 +1,11 @@
 ---
 id: ADR-023
 type: decision
-status: inferred
+status: verified
 links: [G-003, P-003, CAP-001, PDR-009]
 title: The public guide is an isolated VitePress site with a visibility-gated Pages deployment
 author: agent
-accepted-by: []
+accepted-by: Flemming N. Larsen (2026-08-02, conversation)
 ---
 
 # ADR-023 — Public guide architecture

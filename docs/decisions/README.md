@@ -45,34 +45,34 @@ The CLI reports inferred ADRs and PDRs as decisions awaiting verification, separ
 - [PDR-009-going-public](PDR-009-going-public.md)
 - [ADR-022-skill-ownership-marker](ADR-022-skill-ownership-marker.md)
 - [PDR-010 — Community participation enters through structured intake, private safety channels, and human review](PDR-010-community-participation.md) · `verified` · PDR-011 removes Cliewen fields from plain PRs
-- [ADR-023-public-guide-architecture](ADR-023-public-guide-architecture.md)
+- [ADR-023 — The public guide is an isolated VitePress site with a visibility-gated Pages deployment](ADR-023-public-guide-architecture.md) · `verified`
 - [PDR-011 — Plain changes stay outside Cliewen while retaining human merge](PDR-011-plain-changes-bypass-cliewen.md) · `verified`
 - [PDR-012 — Every Cliewen change receives an automatic agentic review before publication](PDR-012-agentic-review-before-publication.md) · `verified`
 - [ADR-024-custom-domain-root](ADR-024-custom-domain-root.md)
-- [PDR-013 — Cliewen has an explicit core behind a red line](PDR-013-explicit-core-red-line.md) · `inferred`
-- [ADR-025-one-status-lifecycle](ADR-025-one-status-lifecycle.md)
-- [ADR-026-adopter-types-default-lifecycle](ADR-026-adopter-types-default-lifecycle.md)
-- [ADR-027-quality-scenarios-are-constraints](ADR-027-quality-scenarios-are-constraints.md)
-- [ADR-028-deterministic-skill-manifest](ADR-028-deterministic-skill-manifest.md)
-- [ADR-029-accepted-by-is-cliewen-approval-only](ADR-029-accepted-by-is-cliewen-approval-only.md)
-- [PDR-014-distribution-reopens-on-the-active-campaign](PDR-014-distribution-reopens-on-the-active-campaign.md)
-- [ADR-030-verified-install-scripts](ADR-030-verified-install-scripts.md)
-- [ADR-031-plugin-ships-a-bootstrap-only](ADR-031-plugin-ships-a-bootstrap-only.md)
-- [ADR-032 — Acceptance criteria declare classified proof and paired directions](ADR-032-classified-ac-evidence.md) · `inferred`
-- [PDR-015-merging-cuts-the-release](PDR-015-merging-cuts-the-release.md)
-- [PDR-016 — Hosted PR state carries review findings and updater handoffs across agents](PDR-016-pr-state-carries-agent-handoffs.md) · `inferred` · refines PDR-007 clause 2 and supersedes clause 6
-- [PDR-017 — The human merge gate has a concise, durable acceptance brief](PDR-017-merge-gate-has-content.md) · `inferred`
-- [ADR-033-human-proof-and-draft-criteria](ADR-033-human-proof-and-draft-criteria.md)
-- [ADR-034-retirement-is-deletion](ADR-034-retirement-is-deletion.md)
-- [ADR-035-bounded-provenance-and-reality-edges](ADR-035-bounded-provenance-and-reality-edges.md)
-- [PDR-018 — Behavior changes remain full until adopter evidence supports a narrower loop](PDR-018-behavior-changes-remain-full.md) · `inferred`
-- [PDR-019 — Methodology contract changes update every live carrier in the same change](PDR-019-methodology-contract-carriers-move-together.md) · `inferred`
-- [PDR-020 — Extraction rehearses before it mutates](PDR-020-extraction-rehearsal-before-mutation.md) · `inferred`
-- [ADR-036-jvm-evidence-per-executable](ADR-036-jvm-evidence-per-executable.md)
-- [ADR-037-brownfield-ac-id-grammar](ADR-037-brownfield-ac-id-grammar.md)
-- [PDR-021-supported-merge-commit-history](PDR-021-supported-merge-commit-history.md)
-- [ADR-038-upstream-validation-workflow](ADR-038-upstream-validation-workflow.md)
-- [ADR-039-versioned-corpus-migrations](ADR-039-versioned-corpus-migrations.md)
-- [ADR-040-qualified-external-references](ADR-040-qualified-external-references.md)
-- [PDR-022-vendor-entry-points-only-point](PDR-022-vendor-entry-points-only-point.md)
+- [PDR-013 — Cliewen has an explicit core behind a red line](PDR-013-explicit-core-red-line.md) · `verified`
+- [ADR-025 — One default status lifecycle — draft → active → retired — plus named exceptions](ADR-025-one-status-lifecycle.md) · `verified`
+- [ADR-026 — Unknown artifact types are adopter extensions, validated against the default lifecycle](ADR-026-adopter-types-default-lifecycle.md) · `verified`
+- [ADR-027 — Quality scenarios are constraints — the quality type folds into the register](ADR-027-quality-scenarios-are-constraints.md) · `verified`
+- [ADR-028 — A skill's manifest is resolved by case-folded name, so the judge reaches one verdict on every filesystem](ADR-028-deterministic-skill-manifest.md) · `verified`
+- [ADR-029 — accepted-by records only approval given under Cliewen's merge boundary](ADR-029-accepted-by-is-cliewen-approval-only.md) · `verified`
+- [PDR-014 — Installation distribution reopens on the active campaign, not a successor plan](PDR-014-distribution-reopens-on-the-active-campaign.md) · `verified`
+- [ADR-030 — Installation is a checksum-verifying script, and release asset names are an append-only contract](ADR-030-verified-install-scripts.md) · `verified`
+- [ADR-031 — The Claude Code plugin ships a bootstrap, and the managed skills never ride in it](ADR-031-plugin-ships-a-bootstrap-only.md) · `verified`
+- [ADR-032 — Acceptance criteria declare classified proof and paired directions](ADR-032-classified-ac-evidence.md) · `verified`
+- [PDR-015 — Merging the release pull request cuts the release; the tag is derived, not performed](PDR-015-merging-cuts-the-release.md) · `verified`
+- [PDR-016 — Hosted PR state carries review findings and updater handoffs across agents](PDR-016-pr-state-carries-agent-handoffs.md) · `verified` · refines PDR-007 clause 2 and supersedes clause 6
+- [PDR-017 — The human merge gate has a concise, durable acceptance brief](PDR-017-merge-gate-has-content.md) · `verified`
+- [ADR-033 — Human proof class, a per-criterion draft exemption, and derived coverage](ADR-033-human-proof-and-draft-criteria.md) · `verified`
+- [ADR-034 — Retirement is deletion; supersedes carries the pointer forward](ADR-034-retirement-is-deletion.md) · `verified`
+- [ADR-035 — Cost bounds inferred provenance and incident analyses return an edge from reality](ADR-035-bounded-provenance-and-reality-edges.md) · `verified`
+- [PDR-018 — Behavior changes remain full until adopter evidence supports a narrower loop](PDR-018-behavior-changes-remain-full.md) · `verified`
+- [PDR-019 — Methodology contract changes update every live carrier in the same change](PDR-019-methodology-contract-carriers-move-together.md) · `verified`
+- [PDR-020 — Extraction rehearses before it mutates](PDR-020-extraction-rehearsal-before-mutation.md) · `verified`
+- [ADR-036 — JVM evidence is credited only from one statically attributable executable](ADR-036-jvm-evidence-per-executable.md) · `verified`
+- [ADR-037 — Brownfield criterion IDs preserve segmented prefixes and letter suffixes](ADR-037-brownfield-ac-id-grammar.md) · `verified`
+- [PDR-021 — Full Cliewen changes are accepted with a merge commit that preserves their branch history](PDR-021-supported-merge-commit-history.md) · `verified`
+- [ADR-038 — The CI wall is an upstream reusable workflow with a thin caller](ADR-038-upstream-validation-workflow.md) · `verified`
+- [ADR-039 — Versioned corpus migrations plan safe mechanical upgrades](ADR-039-versioned-corpus-migrations.md) · `verified`
+- [ADR-040 — External references name their target, and resolving them stays outside the judge](ADR-040-qualified-external-references.md) · `verified`
+- [PDR-022 — A scaffolded vendor entry point may exist, and it may only point at AGENTS.md](PDR-022-vendor-entry-points-only-point.md) · `verified`
 <!-- clue:index:end -->

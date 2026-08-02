@@ -1,11 +1,11 @@
 ---
 id: ADR-028
 type: decision
-status: inferred
+status: verified
 links: [P-006, G-001, C-013, ARCH-003, CAP-004, ADR-022]
 title: A skill's manifest is resolved by case-folded name, so the judge reaches one verdict on every filesystem
 author: agent
-accepted-by: []
+accepted-by: Flemming N. Larsen (2026-08-02, conversation)
 ---
 
 # ADR-028 — Deterministic skill-manifest resolution

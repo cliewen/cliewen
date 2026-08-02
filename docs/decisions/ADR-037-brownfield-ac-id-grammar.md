@@ -1,11 +1,11 @@
 ---
 id: ADR-037
 type: decision
-status: inferred
+status: verified
 links: [P-009, M-038, ADR-009, CAP-002, CAP-003]
 title: Brownfield criterion IDs preserve segmented prefixes and letter suffixes
 author: agent
-accepted-by: []
+accepted-by: Flemming N. Larsen (2026-08-02, conversation)
 ---
 
 # ADR-037 — Brownfield criterion IDs preserve segmented prefixes and letter suffixes

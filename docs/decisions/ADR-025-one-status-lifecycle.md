@@ -1,11 +1,11 @@
 ---
 id: ADR-025
 type: decision
-status: inferred
+status: verified
 links: [P-005, ADR-010, ADR-002, C-008, PDR-003]
 title: One default status lifecycle — draft → active → retired — plus named exceptions
 author: agent
-accepted-by: []
+accepted-by: Flemming N. Larsen (2026-08-02, conversation)
 ---
 
 # ADR-025 — One default status lifecycle

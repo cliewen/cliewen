@@ -1,11 +1,11 @@
 ---
 id: PDR-015
 type: decision
-status: inferred
+status: verified
 links: [CAP-004, ADR-011, ADR-012, C-012]
 title: Merging the release pull request cuts the release; the tag is derived, not performed
 author: agent
-accepted-by: []
+accepted-by: Flemming N. Larsen (2026-08-02, conversation)
 ---
 
 # PDR-015 — Merging cuts the release

@@ -1,11 +1,11 @@
 ---
 id: ADR-032
 type: decision
-status: inferred
+status: verified
 links: [ADR-005, ADR-006, CAP-002, CAP-003, P-007]
 title: Acceptance criteria declare classified proof and paired directions
 author: agent
-accepted-by: []
+accepted-by: Flemming N. Larsen (2026-08-02, conversation)
 ---
 
 # ADR-032 — Acceptance criteria declare classified proof and paired directions

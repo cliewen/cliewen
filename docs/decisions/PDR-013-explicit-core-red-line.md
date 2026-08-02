@@ -1,11 +1,11 @@
 ---
 id: PDR-013
 type: decision
-status: inferred
+status: verified
 links: [G-001, P-005, PDR-006, C-012, C-013]
 title: Cliewen has an explicit core behind a red line; everything else is periphery adopters may extend
 author: agent
-accepted-by: []
+accepted-by: Flemming N. Larsen (2026-08-02, conversation)
 ---
 
 # PDR-013 — Cliewen has an explicit core behind a red line

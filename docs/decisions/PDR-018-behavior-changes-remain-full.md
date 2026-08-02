@@ -1,11 +1,11 @@
 ---
 id: PDR-018
 type: decision
-status: inferred
+status: verified
 links: [G-001, P-007, M-029, AN-008, AN-010, PDR-002, PDR-011]
 title: Behavior changes remain full until adopter evidence supports a narrower loop
 author: agent
-accepted-by: []
+accepted-by: Flemming N. Larsen (2026-08-02, conversation)
 ---
 
 # PDR-018 — Behavior changes remain full until adopter evidence supports a narrower loop

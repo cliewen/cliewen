@@ -1,11 +1,11 @@
 ---
 id: PDR-022
 type: decision
-status: inferred
+status: verified
 links: [G-001, CAP-001, ADR-018, ADR-031, PDR-019, C-006, C-013]
 title: A scaffolded vendor entry point may exist, and it may only point at AGENTS.md
 author: agent
-accepted-by: []
+accepted-by: Flemming N. Larsen (2026-08-02, conversation)
 ---
 
 # PDR-022 — A scaffolded vendor entry point may exist, and it may only point at AGENTS.md
