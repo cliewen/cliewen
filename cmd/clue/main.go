@@ -258,8 +258,9 @@ func runValidate(args []string, out io.Writer) int {
 	// No command clears this count: index regeneration preserves any row
 	// whose target still exists, so every repair is by hand. Listing the rows
 	// is what makes the number actionable (ADR-041).
+	fillerRows := corpus.IndexRowBacklog(c)
 	if *indexRows {
-		for _, row := range corpus.IndexRowBacklog(c) {
+		for _, row := range fillerRows {
 			fmt.Fprintf(out, "%s: %s states only its own link\n", row.Readme, row.Target)
 		}
 	}
@@ -273,7 +274,7 @@ func runValidate(args []string, out io.Writer) int {
 	if n := agentConstraintCount(c); n > 0 {
 		notes += fmt.Sprintf(", %d agent-enforced constraint(s) awaiting machine checks", n)
 	}
-	if n := len(corpus.IndexRowBacklog(c)); n > 0 {
+	if n := len(fillerRows); n > 0 {
 		notes += fmt.Sprintf(", %d index row(s) stating only their own link", n)
 	}
 	fmt.Fprintf(out, "clue validate: OK (%d artifacts%s)\n", len(c.Artifacts), notes)
