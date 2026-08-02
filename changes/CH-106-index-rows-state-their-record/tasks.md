@@ -13,19 +13,19 @@ title: Tasks for CH-106
 - [x] Establish how a counted population is reported: `ProvenanceBacklog` and `agentConstraintCount` feed the OK line in `cmd/clue/main.go`; `Issue` has no severity, so a counter never goes through `checkIndexes`.
 - [x] Narrow the scope — drop verbatim-title judging and `regenIndex` normalization, record both as resolved with their reasons.
 - [x] Withdraw the M-049 declaration and state the change plan-less with its reasoning.
-- [ ] **Stopped for a human answer to Q1** — count or fail. It changes what the judge fails on, which is a core carrier under C-013.
-
-Once Q1 is answered:
-
-- [ ] Write the ADR: the emitted row format, the judge's decided behaviour, and both rejections (title grading, row normalization) with the `scaffold.go` contract as the reason for the second.
-- [ ] Add the acceptance criterion for the emitted row format to the capability that owns index regeneration — confirm whether that is CAP-002 or CAP-005 before writing — with its `Test-type` and paired positive/negative evidence.
-- [ ] Teach `regenIndex` to emit `- [<id> — <title>](<file>) · \`<status>\`` for missing entries, reading the target's frontmatter. Curated rows keep surviving unchanged; assert that in the negative test.
-- [ ] Add the acceptance criterion for the counted population to CAP-002's criteria, with paired evidence.
-- [ ] Add `corpus.IndexRowBacklog` as a sibling of `ProvenanceBacklog` and one `notes` clause in `cmd/clue/main.go`. Do not touch `checkIndexes` (C-004: no existing check is weakened or repurposed to fit this).
-- [ ] Skip rows whose target is a folder README — `docs/README.md`'s block links `goals/README.md` and its siblings, which carry no artifact identity of this shape.
-- [ ] Compare against parsed frontmatter fields, never raw lines: ADR-001 and ADR-002 carry YAML-quoted titles because their values contain colons, and a line-level compare reports both as false positives. Cover that case with a negative test.
-- [ ] List the counted rows behind a flag, following the `--reality-gaps` precedent, since no command clears this count.
-- [ ] Register the constraint with `enforcement: machine` and its `source`.
-- [ ] Update every live carrier that states the index-block contract in this same change (C-006): `docs/README.md`, `docs/decisions/README.md` prose if it must state the rule, and `internal/scaffold/templates/docs/decisions/README.md`.
-- [ ] `[Unreleased]` changelog entry under C-002: the emitted index row format changes for adopters and the judge reports a new population.
-- [ ] Digest: regenerate indexes, confirm no existing row moved, delete this workspace.
+- [x] Q1 answered by the human: the judge counts and does not fail. Recorded as ADR-041.
+- [x] Write [ADR-041](../../docs/decisions/ADR-041-index-rows-state-their-record.md): the emitted row format, the counted population, and both rejections with the `scaffold.go` contract as the reason for the second.
+- [x] Add AC-073 to CAP-005's criteria with `Test-type: Unit` — the appended row states its record.
+- [x] Teach `regenIndex` to emit `- [<id> — <title>](<file>) · \`<status>\`` for missing entries via the shared `corpus.RowIdentity`. Curated rows survive unchanged; asserted in the negative test.
+- [x] Add AC-074 to CAP-002's criteria with `Test-type: Unit` — filler rows are counted and listed, never failed on.
+- [x] Add `corpus.IndexRowBacklog` as a sibling of `ProvenanceBacklog`, plus the `--index-rows` flag and one `notes` clause in `cmd/clue/main.go`. `checkIndexes` keeps its behaviour; the only edit to it lifts its inline taxonomy-README predicate into `isTaxonomyReadme` so the judge and the count read one definition rather than two.
+- [x] Skip rows whose target is a subfolder README, and rows carrying more than one link.
+- [x] Compare against parsed frontmatter, never raw lines. The AC-073 positive test uses a YAML-quoted title containing a colon, which is the case that produced false positives when this was checked by hand.
+- [x] Paired evidence in the declared class for both criteria: `TestAC073_UnitPositive_…` / `TestAC073_UnitNegative_…` in `internal/scaffold/regen_test.go`, `TestAC074_UnitPositive_…` / `TestAC074_UnitNegative_…` in `cmd/clue/main_test.go`.
+- [x] Update `TestUnit_CrlfReadmeKeepsItsLineEndings`, whose expected string ended at the closing link paren and so encoded the old row format. Its purpose is line endings; the assertion is now the full new row plus `\r\n`, equally strict and still proving CRLF (C-004: the check is not weakened, and no other test was touched to make this pass).
+- [x] Register [C-016](../../docs/constraints/C-016-index-rows-state-their-record.md) with `enforcement: machine` and its `source`.
+- [x] Repair this repository's own three filler rows — `AN-009` in the analysis index, `ARCH-003` in the architecture index, `G-003` in the goals index. CH-105 repaired the decisions index only; the new count found the rest, which is the count doing its job on its first run.
+- [x] Update every live carrier stating the index contract in this same change (C-006): CAP-005's README and design, CAP-002's design, CAP-001's design. `architecture.md` names the command without claiming a row format and needs no edit; the analysis records are pinned history.
+- [x] `[Unreleased]` changelog entry under C-002 — the emitted row format and the new counted population are both user-visible.
+- [x] Verify: `go build`, `go vet`, `gofmt -l`, `go test ./...`, coverage 82.8% against C-014's 80% floor, and `clue validate` reporting 0 index rows on this corpus.
+- [x] Digest: regenerate indexes (`clue scaffold` appended ADR-041 and C-016 in the new format, which is the change proving itself), confirm no pre-existing row moved, delete this workspace.

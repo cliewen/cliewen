@@ -359,6 +359,15 @@ func checkFolderReadmes(c *Corpus) []Issue {
 	return issues
 }
 
+// isTaxonomyReadme reports whether rel is one of the READMEs carrying a
+// generated index block: docs/README.md and each docs/<folder>/README.md.
+// The judge and the filler-row count read the same set.
+func isTaxonomyReadme(rel string) bool {
+	parts := strings.Split(rel, "/")
+	return rel == "docs/README.md" ||
+		(len(parts) == 3 && parts[0] == "docs" && parts[2] == "README.md")
+}
+
 // checkIndexes enforces the generated-index contract on the taxonomy
 // READMEs (docs/README.md and each docs/<folder>/README.md): index
 // markers must exist, every link inside the block must resolve to a
@@ -367,10 +376,7 @@ func checkFolderReadmes(c *Corpus) []Issue {
 func checkIndexes(c *Corpus) []Issue {
 	var issues []Issue
 	for _, rel := range c.MDFiles {
-		parts := strings.Split(rel, "/")
-		isTaxonomyReadme := rel == "docs/README.md" ||
-			(len(parts) == 3 && parts[0] == "docs" && parts[2] == "README.md")
-		if !isTaxonomyReadme {
+		if !isTaxonomyReadme(rel) {
 			continue
 		}
 		text := c.Contents[rel]

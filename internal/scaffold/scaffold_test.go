@@ -612,7 +612,7 @@ func TestUnit_CrlfReadmeKeepsItsLineEndings(t *testing.T) {
 	if !strings.HasPrefix(text, proseCRLF) {
 		t.Fatalf("CRLF prose outside the markers was rewritten:\n%q", text)
 	}
-	if !strings.Contains(text, "](G-001-first.md)\r\n") {
+	if !strings.Contains(text, "](G-001-first.md) · `proposed`\r\n") {
 		t.Fatalf("generated index line does not use the file's CRLF endings:\n%q", text)
 	}
 }

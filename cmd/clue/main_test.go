@@ -1074,3 +1074,42 @@ func TestAC008_ForbidChangesFlagExitCodes(t *testing.T) {
 		t.Fatalf("with the gate: expected exit 1, got %d", code)
 	}
 }
+
+// AC-074: the judge counts an index row whose label only restates its own
+// link, names it behind --index-rows, and still exits 0 — the row is the
+// tool's own former output in a file the adopter owns, so it is reported and
+// never failed on (ADR-041).
+func TestAC074_UnitPositive_FillerIndexRowIsCountedAndListed(t *testing.T) {
+	root := validCorpus(t)
+	writeFile(t, root, "docs/goals/README.md", "# Goals\n\n<!-- clue:index:start -->\n- [G-001-first](G-001-first.md)\n<!-- clue:index:end -->\n")
+	code, out := runValidateCapturingStdout(t, []string{"--index-rows", root})
+	if code != 0 {
+		t.Fatalf("a filler row is counted, never failed on; expected exit 0, got %d, output=%q", code, out)
+	}
+	if !strings.Contains(out, "1 index row(s) stating only their own link") {
+		t.Fatalf("expected the filler row counted on the OK line, output=%q", out)
+	}
+	if !strings.Contains(out, "docs/goals/README.md: G-001-first.md states only its own link") {
+		t.Fatalf("expected --index-rows to name the row, output=%q", out)
+	}
+}
+
+// AC-074 negative: a row stating its record, a subfolder row, and a curated
+// row covering several targets are all left alone — the count names generated
+// filler and never grades curated prose.
+func TestAC074_UnitNegative_StatedSubfolderAndMultiLinkRowsAreNotCounted(t *testing.T) {
+	root := validCorpus(t)
+	writeFile(t, root, "docs/goals/README.md", "# Goals\n\n<!-- clue:index:start -->\n- [G-001 — First goal](G-001-first.md) · `accepted`\n- [G-002-second](G-002-second.md) and [G-003-third](G-003-third.md)\n<!-- clue:index:end -->\n")
+	writeFile(t, root, "docs/goals/G-002-second.md", "---\nid: G-002\ntype: goal\nstatus: accepted\nlinks: []\ntitle: Second goal\n---\n")
+	writeFile(t, root, "docs/goals/G-003-third.md", "---\nid: G-003\ntype: goal\nstatus: accepted\nlinks: []\ntitle: Third goal\n---\n")
+	code, out := runValidateCapturingStdout(t, []string{"--index-rows", root})
+	if code != 0 {
+		t.Fatalf("expected exit 0, got %d, output=%q", code, out)
+	}
+	if strings.Contains(out, "index row(s) stating only their own link") {
+		t.Fatalf("no row here is generated filler; expected no count, output=%q", out)
+	}
+	if strings.Contains(out, "states only its own link") {
+		t.Fatalf("expected nothing listed, output=%q", out)
+	}
+}
