@@ -2,7 +2,7 @@
 id: CAP-004-design
 type: design
 status: active
-links: [CAP-004, ADR-011, ADR-012, ADR-021, ADR-022, ADR-030, ADR-038, ADR-039]
+links: [CAP-004, ADR-011, ADR-012, ADR-021, ADR-022, ADR-030, ADR-038, ADR-039, ADR-040, ADR-042]
 title: Design for CAP-004 clue ships
 ---
 
@@ -55,10 +55,19 @@ Installation is a checksum-verifying script published with the guide ([ADR-030](
 - **No background upgrade** — cutting a release edits the shared generated-skill frontmatter source, regenerates the five skill artifacts, and tags; the release gate rejects a tag whose bump was forgotten. `clue migrate` is the explicit reviewed updater for the supported corpus and managed-carrier migrations; `clue init` still skips existing files, and unknown or locally modified carriers remain a human repair rather than an overwrite.
 - **A dry run cannot prove the release page** — `--skip=publish` produces the full artifact set, which is how asset names and the checksum format are checked before a tag is spent, but it creates no release, so it can say nothing about the body. v0.8.0 shipped a blank page with every dry run and every structural assertion green. Anything about what a release *displays* is proven by a published release and by the post-publish verification, never by a local run.
 - **Release assets are append-only** — a new distribution channel may add assets; it may never rename or remove one, because the bare binary names are executed by a workflow vendored into repositories we do not control, and by the published install scripts ([ADR-030](../../decisions/ADR-030-verified-install-scripts.md)). A rename surfaces in an adopter's CI as a broken run with no local change to explain it, and in a stranger's terminal as a failed install.
+- **The release list is one host's** — the check asks GitHub, where Cliewen publishes. A mirror or a private redistribution has no way to answer it, and the check reports "could not tell" rather than being wrong; making the source configurable is its own change.
 - **No package manager leads** — Homebrew formula generation is deprecated upstream and casks are macOS-only, so none covers all three platforms. winget and a macOS cask are wanted additions, each its own change; neither blocks a working install.
 - **Upgrades are half an upgrade** — re-running the install script moves the binary, never the committed skills, so it produces a legitimate drift report in an already-adopted repository. The coordinated set stays a reviewed change, as `guide/operations.md` states.
 - **The install scripts are not exercised by CI** — their contract with the asset names is tested, and both were run end to end against a real release before merge (`install.ps1` under Windows PowerShell 5.1 *and* PowerShell 7, since only 5.1 ships with Windows and the two differ in how they expose a redirect), but no job installs `clue` on three operating systems on every push. The operational proof stays the first user on a platform.
 - **The `.exe` suffix is goreleaser behaviour, not configuration** — `install.ps1` and the release agree that the Windows asset ends in `.exe`, and `TestSanity_InstallScriptsUseTheReleaseAssetContract` holds the script to it, but nothing in `.goreleaser.yaml` states it: the suffix comes from the archive pipe carrying the build's extension. Both tests stay green if that behaviour ever changes, and the Windows install would 404. Proving it needs a job that actually runs goreleaser and asserts the six emitted names — the same job the previous limit describes.
+
+## Reporting a newer release
+
+`internal/release.Check` reads one fact from the published release list — the newest tag — and returns a report rather than an error, because every way of failing to get that fact means "could not tell" and none of them says anything about the repository. `clue latest` prints it: both versions, and when behind, one installation route resolved from the running machine (the PowerShell script on Windows, the shell script on macOS and Linux, `go install` pinned to the named release where `.goreleaser.yaml` publishes no asset) followed by the `clue migrate` preview-and-apply sequence. A source build reports `dev` and is exempt from the comparison, the same exemption the drift rule makes and for the same reason.
+
+Everything reaching outside the process is injected — the network, the clock, the cache directory, and the platform — so all three routes and every degradation are proven without a live service and without three machines. The answer is cached at `<user cache dir>/cliewen/latest-release.json` for 24 hours; missing, stale, unparseable, future-stamped, and unwritable are one outcome, absence, since a cache that can fail a command is worse than no cache. An unknown answer is never cached, so an outage cannot silence the next call.
+
+The command is outside the judge permanently and must never be a required status check, and it writes no file in the repository with or without flags ([ADR-042](../../decisions/ADR-042-release-check-outside-the-judge.md)). `--quiet` prints one line when behind and nothing otherwise, for the session-start use M-047 builds on.
 
 ## Resolving external addresses
 

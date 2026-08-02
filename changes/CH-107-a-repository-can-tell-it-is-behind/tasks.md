@@ -19,6 +19,6 @@ title: Tasks for CH-107
 - [ ] Wire `clue latest [--quiet] [--timeout=<duration>]` into the CLI and its usage text (AC-075, AC-076)
 - [x] Extend the drift message with the resolving command and the pinning route (AC-079)
 - [x] Prove all five criteria with focused positive and negative unit evidence, no test reaching a live service
-- [ ] State the same contract in `guide/operations.md`, `guide/getting-started.md`, and CAP-004's README and design
-- [ ] Add the `[Unreleased]` changelog entry
+- [x] State the same contract in `guide/operations.md`, `guide/getting-started.md`, and CAP-004's README and design
+- [x] Add the `[Unreleased]` changelog entry
 - [ ] Run `clue-verify`, including its agentic review loop, and open the ready pull request
