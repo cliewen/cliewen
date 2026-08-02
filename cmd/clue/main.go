@@ -9,12 +9,14 @@ import (
 	"io"
 	"os"
 	"regexp"
+	"runtime"
 	"runtime/debug"
 	"strings"
 
 	"github.com/cliewen/cliewen/internal/corpus"
 	"github.com/cliewen/cliewen/internal/migrate"
 	"github.com/cliewen/cliewen/internal/refs"
+	"github.com/cliewen/cliewen/internal/release"
 )
 
 // version is the release stamp, injected at build time via
@@ -52,6 +54,7 @@ Usage:
   clue context <id> [path]
   clue refs [--apply] [--timeout=<duration>] [path]
   clue validate [--forbid-changes] [--coverage] [--reality-gaps] [path]
+  clue latest [--quiet] [--timeout=<duration>]
   clue version
 
 Commands:
@@ -107,6 +110,22 @@ Commands:
              --reality-gaps    print capabilities contradicted by incident
                                analyses after their corpus was green.
 
+  latest     Report whether a newer clue release exists, and how to install
+             it on the machine this is running on — the PowerShell script on
+             Windows, the shell script on macOS and Linux, go install where
+             no prebuilt asset exists — followed by the clue migrate sequence
+             that moves the repository with it. Reaches the network, so it is
+             never part of a validation verdict and must never be a required
+             check. It writes no file in the repository and never replaces
+             the binary. Being unable to tell — offline, a timeout, a rate
+             limit, an unrecognized answer — is reported calmly and exits 0.
+             The answer is cached in the user's cache directory for a day.
+
+             --quiet           print one line when behind and nothing when
+                               current, for a session start where output is
+                               context.
+             --timeout=<dur>   request budget (default 3s).
+
   version    Print the release version this clue was built from.
 
 Exit codes: 0 corpus valid · 1 issues found · 2 usage error
@@ -137,6 +156,11 @@ func main() {
 		os.Exit(runRefs(os.Args[2:], os.Stdout, os.Stderr))
 	case "validate":
 		os.Exit(runValidate(os.Args[2:], os.Stdout))
+	case "latest":
+		os.Exit(runLatest(os.Args[2:], os.Stdout, os.Stderr, release.Options{
+			Current:  version,
+			Platform: release.Platform{OS: runtime.GOOS, Arch: runtime.GOARCH},
+		}))
 	case "version", "--version":
 		os.Exit(runVersion(os.Stdout))
 	case "help", "--help", "-h":
@@ -280,6 +304,64 @@ func runValidate(args []string, out io.Writer) int {
 	fmt.Fprintf(out, "clue validate: OK (%d artifacts%s)\n", len(c.Artifacts), notes)
 	return 0
 }
+
+// runLatest reports whether a newer release exists (AC-075, AC-076, AC-077).
+//
+// It takes the check's options from its caller rather than building them, so a
+// test can supply the platform and the network the run sees; main supplies the
+// real ones. It never returns non-zero for a network answer: only a usage
+// error fails, because nothing this command learns is a defect in the
+// repository (ADR-042).
+func runLatest(args []string, out, errOut io.Writer, opts release.Options) int {
+	fs := flag.NewFlagSet("latest", flag.ContinueOnError)
+	fs.SetOutput(errOut)
+	quiet := fs.Bool("quiet", false, "print one line when behind and nothing when current")
+	timeout := fs.Duration("timeout", 0, "request budget (default 3s)")
+	if err := fs.Parse(args); err != nil {
+		return 2
+	}
+	if fs.NArg() > 0 {
+		// The check reads no repository, so a path would be a silent no-op
+		// rather than the scoping the other commands give it.
+		fmt.Fprintln(errOut, "clue latest: takes no path — it reports on the installed clue, not on a repository")
+		return 2
+	}
+	if *timeout != 0 {
+		opts.Timeout = *timeout
+	}
+
+	report := release.Check(opts)
+
+	switch {
+	case report.Known && report.Behind:
+		if *quiet {
+			fmt.Fprintf(out, "clue %s is behind %s — run \"clue latest\" for the upgrade recipe\n", report.Current, report.Latest)
+			return 0
+		}
+		fmt.Fprintf(out, "clue %s — %s is available\n\n", report.Current, report.Latest)
+		fmt.Fprintln(out, "install it on this machine:")
+		for _, line := range report.Recipe {
+			fmt.Fprintf(out, "  %s\n", line)
+		}
+		fmt.Fprintln(out, "\nthen move this repository with it, in a reviewed change:")
+		fmt.Fprintln(out, "  clue migrate          # preview the corpus and carrier upgrade")
+		fmt.Fprintln(out, "  clue migrate --apply  # write it")
+	case *quiet:
+		// Current, or unable to tell. Neither is worth a line where the output
+		// is a coding agent's context.
+	case !report.Known:
+		fmt.Fprintf(out, "clue %s — could not reach the release list; nothing to report\n", report.Current)
+	case !isRelease(report.Current):
+		fmt.Fprintf(out, "clue %s — the newest release is %s; a source build has no release to compare\n", report.Current, report.Latest)
+	default:
+		fmt.Fprintf(out, "clue %s — this is the newest release\n", report.Current)
+	}
+	return 0
+}
+
+// isRelease reports whether a version stamp names a release at all. The same
+// exemption the drift rule makes: a source build has nothing to compare.
+func isRelease(v string) bool { return v != "" && v != "dev" }
 
 // runVersion prints the release stamp (AC-019). "dev" for source builds.
 func runVersion(w io.Writer) int {

@@ -223,6 +223,42 @@ func TestAC033_DevMatchingAndUnmarkedSkillsDoNotDrift(t *testing.T) {
 	}
 }
 
+// TestAC079_UnitPositive_DriftNamesTheWayOutAndTheWayToStay reads the message
+// itself: the old wording stated the disagreement and left the reader to guess
+// which side to move (ADR-042).
+func TestAC079_UnitPositive_DriftNamesTheWayOutAndTheWayToStay(t *testing.T) {
+	root := t.TempDir()
+	writeSkill(t, root, "clue-delta", markedSkill("0.11.2"))
+	issues := checkSkillVersions(&Corpus{Root: root}, "0.12.0")
+	if len(issues) != 1 {
+		t.Fatalf("expected exactly the drift issue, got %v", issues)
+	}
+	msg := issues[0].Msg
+	for _, want := range []string{
+		"0.11.2", "0.12.0", // both versions, as before
+		`"clue latest"`,       // what reports the upgrade
+		`"clue migrate"`,      // what moves the repository
+		"install clue 0.11.2", // and the route for staying where you are
+	} {
+		if !strings.Contains(msg, want) {
+			t.Fatalf("expected %q in the drift message, got %q", want, msg)
+		}
+	}
+}
+
+// TestAC079_UnitNegative_TheRuleItselfIsUnchanged holds the other direction:
+// what the message says changed, not what the rule decides.
+func TestAC079_UnitNegative_TheRuleItselfIsUnchanged(t *testing.T) {
+	root := t.TempDir()
+	writeSkill(t, root, "clue-delta", markedSkill("0.11.2"))
+	if issues := checkSkillVersions(&Corpus{Root: root}, "0.11.2"); len(issues) != 0 {
+		t.Fatalf("a matching release must stay silent, got %v", issues)
+	}
+	if anyMsg(checkSkillVersions(&Corpus{Root: root}, "dev"), "clue latest") {
+		t.Fatal("a dev build has no release to drift from and must say nothing")
+	}
+}
+
 // AC-037: a manifest named SKILL.md joins the managed set exactly as a
 // lowercase skill.md would, so the verdict does not depend on the host
 // filesystem. The drift finding names the actual manifest file, which the

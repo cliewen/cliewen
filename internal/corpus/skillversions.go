@@ -154,7 +154,14 @@ func checkSkillVersions(c *Corpus, binaryVersion string) []Issue {
 	if consistent && binaryVersion != "" && binaryVersion != "dev" {
 		for _, s := range skills {
 			if s.version != binaryVersion {
-				issues = append(issues, Issue{s.path, "skill version " + s.version + " != clue " + binaryVersion + " (drift — reinstall the skills or clue)"})
+				// AC-079: the message names both ways out. "Reinstall the
+				// skills or clue" stated the disagreement and left the reader
+				// to guess which side to move — and never said that staying on
+				// the release this repository carries is a legitimate answer
+				// (ADR-042).
+				issues = append(issues, Issue{s.path, "skill version " + s.version + " != clue " + binaryVersion +
+					` (drift — run "clue latest" for the upgrade recipe, then "clue migrate" to move this repository; or install clue ` +
+					s.version + " to stay on the release this repository carries)"})
 			}
 		}
 	}
