@@ -154,6 +154,6 @@ Feature: clue ships — a versioned binary and versioned skills, drift made lint
     Given a released clue whose version differs from its marked Cliewen skills
     When the user runs "clue validate"
     Then the drift issue names the command that reports the upgrade and the command that moves the repository
-    And it names the route for a repository deliberately staying on the release it carries
+    And it names both halves of staying on the release the repository carries — the matching binary and the pinned CI caller
     But it still fails the run and still names both versions, because what the rule decides has not changed
 ```

@@ -15,7 +15,7 @@ Process cannot drive humans, and agents cheat unless mechanically prevented. The
 | Actor | Role | One-liner |
 |---|---|---|
 | **Skills** (`.agents/skills/clue-*`) | Process knowledge | Tell the agent what the next right step is |
-| **CLI (`clue`)** | Deterministic judge | Tells everyone whether it was done right; also materializes the starting point (`clue init`, [ADR-018](../decisions/ADR-018-init-templates-embedded.md)), resolves what the corpus points at outside itself without ever reaching a verdict (`clue refs`), regenerates the index blocks (`clue scaffold`, [ADR-019](../decisions/ADR-019-init-regenerates-indexes.md)), and previews or applies safe release migrations (`clue migrate`, [ADR-039](../decisions/ADR-039-versioned-corpus-migrations.md)) |
+| **CLI (`clue`)** | Deterministic judge | Tells everyone whether it was done right; also materializes the starting point (`clue init`, [ADR-018](../decisions/ADR-018-init-templates-embedded.md)), resolves what the corpus points at outside itself without ever reaching a verdict (`clue refs`), reports whether a newer release exists and how to install it here — reaching the network, writing nothing, and never reaching a verdict either (`clue latest`, [ADR-042](../decisions/ADR-042-release-check-outside-the-judge.md)), regenerates the index blocks (`clue scaffold`, [ADR-019](../decisions/ADR-019-init-regenerates-indexes.md)), and previews or applies safe release migrations (`clue migrate`, [ADR-039](../decisions/ADR-039-versioned-corpus-migrations.md)) |
 | **CI** | The wall | Refuses to proceed if not (same binary as local) |
 | **Human** | Decision-maker | Settles what machines cannot check: meaning |
 

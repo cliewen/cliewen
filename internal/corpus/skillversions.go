@@ -160,8 +160,8 @@ func checkSkillVersions(c *Corpus, binaryVersion string) []Issue {
 				// the release this repository carries is a legitimate answer
 				// (ADR-042).
 				issues = append(issues, Issue{s.path, "skill version " + s.version + " != clue " + binaryVersion +
-					` (drift — run "clue latest" for the upgrade recipe, then "clue migrate" to move this repository; or install clue ` +
-					s.version + " to stay on the release this repository carries)"})
+					` (drift — run "clue latest" for the upgrade recipe, then "clue migrate" to move this repository; or stay on ` +
+					s.version + ": install clue " + s.version + " and pin the CI caller with clue-version=" + s.version + ")"})
 			}
 		}
 	}

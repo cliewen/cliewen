@@ -238,7 +238,8 @@ func TestAC079_UnitPositive_DriftNamesTheWayOutAndTheWayToStay(t *testing.T) {
 		"0.11.2", "0.12.0", // both versions, as before
 		`"clue latest"`,       // what reports the upgrade
 		`"clue migrate"`,      // what moves the repository
-		"install clue 0.11.2", // and the route for staying where you are
+		"install clue 0.11.2", // the binary for staying where you are
+		"clue-version=0.11.2", // and the caller pin that keeps CI on it
 	} {
 		if !strings.Contains(msg, want) {
 			t.Fatalf("expected %q in the drift message, got %q", want, msg)

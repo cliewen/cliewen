@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"testing"
 	"time"
@@ -195,6 +196,53 @@ func TestAC078_UnitPositive_AFreshCacheCostsNoRequest(t *testing.T) {
 	}
 	if !second.Known || second.Latest != "0.12.0" {
 		t.Fatalf("expected the cached answer, got %+v", second)
+	}
+}
+
+// redirectUserCacheDir points os.UserCacheDir at a temporary directory, per
+// platform, so the default path can be exercised without writing into the real
+// one. Without this the default branch is never executed by any test, and the
+// clause it implements — never inside the repository — would survive being
+// changed to a relative path.
+func redirectUserCacheDir(t *testing.T) string {
+	t.Helper()
+	dir := t.TempDir()
+	switch runtime.GOOS {
+	case "windows":
+		t.Setenv("LocalAppData", dir)
+	case "darwin":
+		t.Setenv("HOME", dir)
+		dir = filepath.Join(dir, "Library", "Caches")
+	default:
+		t.Setenv("XDG_CACHE_HOME", dir)
+	}
+	return dir
+}
+
+// TestAC078_UnitPositive_TheDefaultCacheIsOutsideTheRepository executes the
+// path a real run takes: no cache directory given, and the working directory
+// is a repository that must be left untouched.
+func TestAC078_UnitPositive_TheDefaultCacheIsOutsideTheRepository(t *testing.T) {
+	cacheRoot := redirectUserCacheDir(t)
+	repo := t.TempDir()
+	t.Chdir(repo)
+
+	net := serving(http.StatusOK, `{"tag_name":"v0.12.0"}`)
+	got := Check(Options{Current: "0.11.2", Platform: Platform{"linux", "amd64"}, Client: net.client()})
+	if !got.Known || !got.Behind {
+		t.Fatalf("expected a known newer release, got %+v", got)
+	}
+
+	want := filepath.Join(cacheRoot, "cliewen", "latest-release.json")
+	if _, err := os.Stat(want); err != nil {
+		t.Fatalf("expected the answer cached at %s: %v", want, err)
+	}
+	entries, err := os.ReadDir(repo)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(entries) != 0 {
+		t.Fatalf("the cache was written into the working repository: %v", entries)
 	}
 }
 

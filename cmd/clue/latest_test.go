@@ -5,8 +5,10 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/cliewen/cliewen/internal/release"
 )
@@ -112,6 +114,97 @@ func TestAC075_UnitNegative_LatestReadsNoRepositoryAndWritesNothing(t *testing.T
 	}
 }
 
+// TestAC075_UnitPositive_TheTimeoutFlagReachesTheRequest holds the budget the
+// usage text promises: the deadline the client applies is observable on the
+// request, so removing the wiring cannot stay green.
+func TestAC075_UnitPositive_TheTimeoutFlagReachesTheRequest(t *testing.T) {
+	var budget time.Duration
+	var seen bool
+	rt := deadlineReading{observed: func(d time.Duration, ok bool) { budget, seen = d, ok }}
+	opts := latestOptions(t, "0.11.2", release.Platform{OS: "linux", Arch: "amd64"}, rt)
+	if code, _, _ := runLatestCapturing(t, []string{"--timeout=50ms"}, opts); code != 0 {
+		t.Fatalf("expected exit 0, got %d", code)
+	}
+	if !seen {
+		t.Fatal("the request carried no deadline — the flag never reached the client")
+	}
+	if budget <= 0 || budget > 50*time.Millisecond {
+		t.Fatalf("expected a budget of at most the 50ms asked for, got %v", budget)
+	}
+}
+
+// deadlineReading reports the request's remaining budget, which is how the
+// client's timeout becomes visible from inside a round trip.
+type deadlineReading struct {
+	observed func(time.Duration, bool)
+}
+
+func (d deadlineReading) RoundTrip(r *http.Request) (*http.Response, error) {
+	if deadline, ok := r.Context().Deadline(); ok {
+		d.observed(time.Until(deadline), true)
+	} else {
+		d.observed(0, false)
+	}
+	return answering{status: http.StatusOK, body: `{"tag_name":"v0.12.0"}`}.RoundTrip(r)
+}
+
+// TestSanity_TheRoutesAreTheOnesActuallyPublished binds the recipe to its two
+// sources of truth. The build matrix decides which machines have a prebuilt
+// binary at all, and the install scripts are the commands the guide publishes;
+// a route that drifts from either sends the user — by definition the one on the
+// least-supported machine — to a command that fails in their terminal.
+func TestSanity_TheRoutesAreTheOnesActuallyPublished(t *testing.T) {
+	cfg := readGoreleaserConfig(t)
+	if len(cfg.Builds) == 0 {
+		t.Fatal("the release config declares no build")
+	}
+	published := cfg.Builds[0]
+
+	// Every machine the release builds for must get a script route, and a
+	// machine outside the matrix must get the source route.
+	for _, goos := range published.Goos {
+		for _, goarch := range published.Goarch {
+			route := routeFor(t, release.Platform{OS: goos, Arch: goarch})
+			if strings.Contains(route, "go install") {
+				t.Errorf("%s/%s is a published release asset but the check offers the source route: %q", goos, goarch, route)
+			}
+		}
+	}
+	for _, p := range []release.Platform{{OS: "linux", Arch: "386"}, {OS: "freebsd", Arch: "amd64"}, {OS: "openbsd", Arch: "arm64"}} {
+		if route := routeFor(t, p); !strings.Contains(route, "go install") {
+			t.Errorf("%s/%s has no published asset but the check offers %q", p.OS, p.Arch, route)
+		}
+	}
+
+	// The two script routes are the commands the guide publishes, character
+	// for character: the check must not invent a third spelling.
+	quickstart, err := os.ReadFile(filepath.Join("..", "..", "guide", "getting-started.md"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, p := range []release.Platform{{OS: "windows", Arch: "amd64"}, {OS: "linux", Arch: "amd64"}} {
+		route := routeFor(t, p)
+		if !strings.Contains(string(quickstart), route) {
+			t.Errorf("%s/%s is offered %q, which the quickstart does not publish", p.OS, p.Arch, route)
+		}
+	}
+}
+
+// routeFor is the single route the check would print on one machine.
+func routeFor(t *testing.T, p release.Platform) string {
+	t.Helper()
+	got := release.Check(release.Options{
+		Current:  "0.0.1",
+		Platform: p,
+		Client:   &http.Client{Transport: answering{status: http.StatusOK, body: `{"tag_name":"v0.12.0"}`}},
+		CacheDir: t.TempDir(),
+	})
+	if len(got.Recipe) != 1 {
+		t.Fatalf("%s/%s: expected exactly one route, got %v", p.OS, p.Arch, got.Recipe)
+	}
+	return got.Recipe[0]
+}
+
 // TestAC076_UnitPositive_QuietSaysOneLineWhenBehind is the shape a session
 // start can afford.
 func TestAC076_UnitPositive_QuietSaysOneLineWhenBehind(t *testing.T) {
@@ -158,27 +251,43 @@ func TestAC076_UnitNegative_QuietIsSilentWhenThereIsNothingToSay(t *testing.T) {
 func TestAC077_UnitPositive_NotBeingAbleToTellExitsZeroAndSaysSo(t *testing.T) {
 	cases := map[string]answering{
 		"offline":           {err: offline{}},
+		"timeout":           {err: timedOut{}},
 		"rate limit":        {status: http.StatusForbidden, body: `{"message":"API rate limit exceeded"}`},
 		"unrecognized body": {status: http.StatusOK, body: `<html>maintenance</html>`},
 	}
 	for name, net := range cases {
-		opts := latestOptions(t, "0.11.2", release.Platform{OS: "linux", Arch: "amd64"}, net)
-		code, out, errOut := runLatestCapturing(t, nil, opts)
-		if code != 0 {
-			t.Fatalf("%s: an unanswerable check is not a failure, got exit %d", name, code)
-		}
-		if errOut != "" {
-			t.Fatalf("%s: nothing belongs on stderr, got %q", name, errOut)
-		}
-		if !strings.Contains(out, "could not reach the release list") {
-			t.Fatalf("%s: expected a calm report, got:\n%s", name, out)
-		}
-		// The one thing it must never do is claim the repository is current.
-		if strings.Contains(out, "newest release") {
-			t.Fatalf("%s: an unknown answer claimed the repository is current:\n%s", name, out)
+		for _, args := range [][]string{nil, {"--quiet"}} {
+			opts := latestOptions(t, "0.11.2", release.Platform{OS: "linux", Arch: "amd64"}, net)
+			code, out, errOut := runLatestCapturing(t, args, opts)
+			if code != 0 {
+				t.Fatalf("%s %v: an unanswerable check is not a failure, got exit %d", name, args, code)
+			}
+			if errOut != "" {
+				t.Fatalf("%s %v: nothing belongs on stderr, got %q", name, args, errOut)
+			}
+			if len(args) > 0 {
+				if out != "" {
+					t.Fatalf("%s: the quiet run must print nothing at all, got %q", name, out)
+				}
+				continue
+			}
+			if !strings.Contains(out, "could not reach the release list") {
+				t.Fatalf("%s: expected a calm report, got:\n%s", name, out)
+			}
+			// The one thing it must never do is claim the repository is current.
+			if strings.Contains(out, "newest release") {
+				t.Fatalf("%s: an unknown answer claimed the repository is current:\n%s", name, out)
+			}
 		}
 	}
 }
+
+// timedOut is a request that exceeded its budget, which the command must read
+// exactly as it reads an outage.
+type timedOut struct{}
+
+func (timedOut) Error() string { return "context deadline exceeded" }
+func (timedOut) Timeout() bool { return true }
 
 // TestAC077_UnitNegative_AKnownAnswerStillReports keeps the silence honest: it
 // is the degradation that is quiet, not the command.
