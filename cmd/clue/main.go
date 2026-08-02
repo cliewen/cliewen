@@ -215,6 +215,7 @@ func runValidate(args []string, out io.Writer) int {
 	forbid := fs.Bool("forbid-changes", false, "fail when /changes contains files")
 	coverage := fs.Bool("coverage", false, "print derived per-capability proof coverage; never a committed registry")
 	realityGaps := fs.Bool("reality-gaps", false, "print capabilities contradicted by incident analyses; never a committed registry")
+	indexRows := fs.Bool("index-rows", false, "print index rows that only restate their own link; never a committed registry")
 	_ = fs.Parse(args)
 	root := "."
 	if fs.NArg() > 0 {
@@ -254,6 +255,15 @@ func runValidate(args []string, out io.Writer) int {
 			fmt.Fprintf(out, "%s: contradicted by %s\n", gap.Capability, strings.Join(gap.Analyses, ", "))
 		}
 	}
+	// No command clears this count: index regeneration preserves any row
+	// whose target still exists, so every repair is by hand. Listing the rows
+	// is what makes the number actionable (ADR-041).
+	fillerRows := corpus.IndexRowBacklog(c)
+	if *indexRows {
+		for _, row := range fillerRows {
+			fmt.Fprintf(out, "%s: %s states only its own link\n", row.Readme, row.Target)
+		}
+	}
 	notes := ""
 	if n := len(provenance.BlockerArtifacts); n > 0 {
 		notes += fmt.Sprintf(", %d high-cost inferred activation blocker(s)", n)
@@ -263,6 +273,9 @@ func runValidate(args []string, out io.Writer) int {
 	}
 	if n := agentConstraintCount(c); n > 0 {
 		notes += fmt.Sprintf(", %d agent-enforced constraint(s) awaiting machine checks", n)
+	}
+	if n := len(fillerRows); n > 0 {
+		notes += fmt.Sprintf(", %d index row(s) stating only their own link", n)
 	}
 	fmt.Fprintf(out, "clue validate: OK (%d artifacts%s)\n", len(c.Artifacts), notes)
 	return 0

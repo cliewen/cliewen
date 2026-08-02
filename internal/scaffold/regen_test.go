@@ -218,3 +218,88 @@ func TestAC027_NoDocsTreeIsAnErrorAndCreatesNothing(t *testing.T) {
 		t.Fatalf("scaffold created files in an empty root: %v", entries)
 	}
 }
+
+// AC-073: an appended index row states the record it links — id, title, and
+// status — rather than restating the filename the link already carries. The
+// title here is YAML-quoted because its value contains a colon; the row must
+// spell the parsed value, never the quoting.
+func TestAC073_UnitPositive_AppendedRowStatesItsRecord(t *testing.T) {
+	root, _ := runInto(t)
+	readme := filepath.Join(root, "docs", "goals", "README.md")
+	prose := "# Goals\n\n<!-- clue:index:start -->\n<!-- clue:index:end -->\n"
+	if err := os.WriteFile(readme, []byte(prose), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	artifact := "---\nid: G-001\ntype: goal\nstatus: proposed\nlinks: []\ntitle: \"First goal: it carries a colon\"\n---\n"
+	if err := os.WriteFile(filepath.Join(root, "docs", "goals", "G-001-first.md"), []byte(artifact), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := Regen(root); err != nil {
+		t.Fatal(err)
+	}
+	got, err := os.ReadFile(readme)
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := "- [G-001 — First goal: it carries a colon](G-001-first.md) · `proposed`"
+	if !strings.Contains(string(got), want) {
+		t.Fatalf("appended row does not state the record:\nwant %q\ngot:\n%s", want, got)
+	}
+	if issues := validateAt(t, root); len(issues) > 0 {
+		t.Fatalf("expected green after regen, got: %v", issues)
+	}
+}
+
+// AC-073 negative: a target with no readable identity falls back to the plain
+// link instead of emitting a half-formed row, and a subfolder row states a
+// section rather than a record so it carries no title or status.
+func TestAC073_UnitNegative_UnreadableIdentityAndSubfolderRowsStayPlain(t *testing.T) {
+	root, _ := runInto(t)
+	readme := filepath.Join(root, "docs", "goals", "README.md")
+	prose := "# Goals\n\n<!-- clue:index:start -->\n<!-- clue:index:end -->\n"
+	if err := os.WriteFile(readme, []byte(prose), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(root, "docs", "goals", "G-002-broken.md"), []byte("# no frontmatter at all\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	// Frontmatter carrying an id and title but no status must degrade the same
+	// way: a row is the stated shape or the plain link, never a third form
+	// carrying an empty status badge.
+	noStatus := "---\nid: G-004\ntype: goal\nlinks: []\ntitle: Statusless goal\n---\n"
+	if err := os.WriteFile(filepath.Join(root, "docs", "goals", "G-004-statusless.md"), []byte(noStatus), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.MkdirAll(filepath.Join(root, "docs", "extra"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(root, "docs", "extra", "README.md"), []byte("# Extra\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := Regen(root); err != nil {
+		t.Fatal(err)
+	}
+	got, err := os.ReadFile(readme)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if want := "- [G-002-broken](G-002-broken.md)\n"; !strings.Contains(string(got), want) {
+		t.Fatalf("unreadable identity must fall back to the plain link, want %q, got:\n%s", want, got)
+	}
+	if strings.Contains(string(got), "G-002-broken.md) ·") {
+		t.Fatalf("a row with no readable identity must carry no status:\n%s", got)
+	}
+	if want := "- [G-004-statusless](G-004-statusless.md)\n"; !strings.Contains(string(got), want) {
+		t.Fatalf("an artifact without a status must fall back to the plain link, want %q, got:\n%s", want, got)
+	}
+	if strings.Contains(string(got), "· ``") {
+		t.Fatalf("no row may carry an empty status badge:\n%s", got)
+	}
+	rootReadme, err := os.ReadFile(filepath.Join(root, "docs", "README.md"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if want := "- [extra/](extra/README.md)"; !strings.Contains(string(rootReadme), want) {
+		t.Fatalf("subfolder row must stay plain, want %q, got:\n%s", want, rootReadme)
+	}
+}

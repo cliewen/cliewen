@@ -232,4 +232,13 @@ Feature: clue validate — deterministic corpus judgment
     But neither is ever counted as classified evidence, because the judge cannot see a run in another repository
     And --coverage lists it as named but locally unproven, apart from the per-capability states rather than inside them
     And a pointer written inside a fence or a code span is an example of the form, never a claim that something was proven
+
+  @AC-074
+  Scenario: Index rows that state only their own link are counted, never failed on
+    Test-type: Unit
+    Given a taxonomy README whose index row labels its link with the target's own filename
+    When the user runs "clue validate"
+    Then the run exits zero and the OK line counts the row as stating only its own link
+    And "clue validate --index-rows" names the README and the target a reader opens to
+    But a row stating its record's id and title, a row referencing a subfolder README, and a curated row covering several targets are never counted
 ```

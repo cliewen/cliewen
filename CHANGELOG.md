@@ -4,7 +4,13 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 
 ## [Unreleased]
 
-## [0.12.0] - 2026-08-02
+### Changed
+
+- **A new index row now tells you what it links to.** When `clue init` or `clue scaffold` added a row for an artifact you had just written, it labelled the link with the file's own name — `- [ADR-039-versioned-corpus-migrations](ADR-039-versioned-corpus-migrations.md)` — which says nothing the link did not already say, and left the folder's index unable to show a record's title or status without opening every file. A new row now states the record: its `id — title` as its frontmatter spells it, then its status. Rows you already have are left exactly as they are, curated wording and all, so nothing you wrote is rewritten; this changes only the rows added from now on. An artifact whose frontmatter cannot be read still gets the plain link rather than a half-formed row.
+
+### Added
+
+- **`clue validate` counts index rows that only restate their own link.** These accumulated in every repository, one per artifact, because the generator wrote them — so they are reported on the OK line and never failed on, and `clue validate --index-rows` names the file and target for each one. Upgrading cannot turn a green repository red because of them. Nothing repairs these rows for you: regeneration deliberately preserves any row whose target still exists, so the count goes down as you edit them by hand.
 
 The release where an adopted repository stops handing Claude Code the manuals without the instruction to open them.
 

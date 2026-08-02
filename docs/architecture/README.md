@@ -5,5 +5,5 @@ System scope: the whole, the cross-cutting, the expensive-to-change. Per-capabil
 <!-- clue:index:start -->
 - [architecture.md](architecture.md) — actors, lifetime classes, the frontmatter graph
 - [skills.md](skills.md) — the skills layer: why the set looks like it does, hand-offs, rules for future skills
-- [core](core.md)
+- [ARCH-003 — The Cliewen core — three load-bearing elements, a red line, and an extensible periphery](core.md) · `active`
 <!-- clue:index:end -->

@@ -29,6 +29,8 @@ import (
 	"slices"
 	"sort"
 	"strings"
+
+	"github.com/cliewen/cliewen/internal/corpus"
 )
 
 //go:embed all:templates
@@ -527,12 +529,24 @@ func regenIndex(root, rel string) (bool, error) {
 		}
 	}
 	sort.Strings(missing)
+	dir := path.Dir(rel)
 	for _, t := range missing {
-		label := strings.TrimSuffix(t, ".md")
 		if strings.HasSuffix(t, "/README.md") {
-			label = path.Dir(t) + "/"
+			// A subfolder row states a section, not a record: there is no
+			// frontmatter identity to carry.
+			lines = append(lines, "- ["+path.Dir(t)+"/]("+t+")")
+			continue
 		}
-		lines = append(lines, "- ["+label+"]("+t+")")
+		// An appended row states the record it links — its id, its title, and
+		// its status — rather than restating the filename the link already
+		// carries (ADR-041). An artifact whose frontmatter cannot be read
+		// falls back to the plain link: index generation reports nothing and
+		// fails on nothing, and the judge is what names a malformed artifact.
+		if id, ok := corpus.RowIdentity(filepath.Join(root, filepath.FromSlash(path.Join(dir, t)))); ok {
+			lines = append(lines, "- ["+id.ID+" — "+id.Title+"]("+t+") · `"+id.Status+"`")
+			continue
+		}
+		lines = append(lines, "- ["+strings.TrimSuffix(t, ".md")+"]("+t+")")
 	}
 
 	block := indexStart + eol
