@@ -38,6 +38,11 @@ const (
 	// reference into a confidently wrong qualified one that no later check
 	// can question.
 	MigrationQualifiedReferences = "MIG-004"
+	// MigrationClaudeEntryPoint reports a Claude Code entry point that never
+	// reaches AGENTS.md. It never repairs one: the missing case is already
+	// solved by re-running the non-destructive init, and an entry point the
+	// adopter wrote themselves is their prose (PDR-022).
+	MigrationClaudeEntryPoint = "MIG-005"
 )
 
 // Options controls planning. Preview is the default; applying a plan is a
@@ -59,6 +64,7 @@ var orderedMigrations = []MigrationDefinition{
 	{ID: MigrationStatusLifecycle, Description: "map historical architecture and analysis status to the default lifecycle"},
 	{ID: MigrationManagedCarriers, Description: "refresh generated skills, mirrors, and the thin CI caller"},
 	{ID: MigrationQualifiedReferences, Description: "report external references that name no repository"},
+	{ID: MigrationClaudeEntryPoint, Description: "report a Claude Code entry point that never reaches the routing hub"},
 }
 
 // Registry returns the migration order without exposing mutable package state.
@@ -86,8 +92,9 @@ type Finding struct {
 // Notice is an explicitly non-blocking boundary, such as a missing Claude
 // mirror that init never materialized or a symlinked mirror outside the repo.
 type Notice struct {
-	Path    string
-	Message string
+	Path      string
+	Migration string
+	Message   string
 }
 
 // MigrationPlan is the complete preflight result. Changes contain exact before/after
@@ -219,6 +226,7 @@ func Plan(root string, opts Options) (MigrationPlan, error) {
 	}
 	planCarriers(root, target, carriers, &result)
 	planQualifiedReferences(root, &result)
+	planClaudeEntryPoint(root, &result)
 	sortPlan(&result)
 	return result, nil
 }
@@ -570,14 +578,14 @@ func planCarriers(root, target string, expected map[string][]byte, result *Migra
 
 func planManagedFile(root, rel string, want []byte, result *MigrationPlan) {
 	if hasLinkBoundary(root, rel) {
-		result.Notices = append(result.Notices, Notice{Path: rel, Message: "managed carrier is behind a symlink; migration does not write through that boundary"})
+		result.Notices = append(result.Notices, Notice{Path: rel, Migration: MigrationManagedCarriers, Message: "managed carrier is behind a symlink; migration does not write through that boundary"})
 		return
 	}
 	full := filepath.Join(root, filepath.FromSlash(rel))
 	got, err := os.ReadFile(full)
 	if os.IsNotExist(err) {
 		if strings.HasPrefix(rel, ".claude/") {
-			result.Notices = append(result.Notices, Notice{Path: rel, Message: "managed mirror is not present; init or its symlink boundary owns materialization"})
+			result.Notices = append(result.Notices, Notice{Path: rel, Migration: MigrationManagedCarriers, Message: "managed mirror is not present; init or its symlink boundary owns materialization"})
 			return
 		}
 		legacyRel := strings.TrimPrefix(rel, ".agents/skills/")
@@ -843,7 +851,19 @@ func sortPlan(plan *MigrationPlan) {
 		}
 		return plan.Findings[i].Message < plan.Findings[j].Message
 	})
-	sort.Slice(plan.Notices, func(i, j int) bool { return plan.Notices[i].Path < plan.Notices[j].Path })
+	// Notices tiebreak like findings do. Path alone leaves two notices about
+	// the same file in whatever order planning happened to append them, and
+	// sort.Slice is not stable — a preview that reordered itself between runs
+	// would look like the target changed when nothing did.
+	sort.Slice(plan.Notices, func(i, j int) bool {
+		if plan.Notices[i].Path != plan.Notices[j].Path {
+			return plan.Notices[i].Path < plan.Notices[j].Path
+		}
+		if plan.Notices[i].Migration != plan.Notices[j].Migration {
+			return plan.Notices[i].Migration < plan.Notices[j].Migration
+		}
+		return plan.Notices[i].Message < plan.Notices[j].Message
+	})
 }
 
 // planQualifiedReferences reports every external reference that names no
@@ -872,4 +892,186 @@ func planQualifiedReferences(root string, result *MigrationPlan) {
 			Message:   issue.Msg + "; this cannot be repaired mechanically, because nothing here says which repository was meant",
 		})
 	}
+}
+
+// entryPointLocation is a place Claude Code loads a project entry point from,
+// with the import that reaches the routing hub from there. An import path is
+// relative to the file holding it, so the two locations do not accept the same
+// line: under `.claude/`, a bare `@AGENTS.md` names `.claude/AGENTS.md`, which
+// no scaffold emits and no session ever loads.
+type entryPointLocation struct {
+	rel      string
+	spelling string
+	importRe *regexp.Regexp
+}
+
+// entryPointLocations are the places Claude Code loads a project entry point
+// from. Both are loaded when both exist, so the hub is reachable as soon as
+// any one of them imports it.
+var entryPointLocations = []entryPointLocation{
+	{rel: "CLAUDE.md", spelling: "@AGENTS.md", importRe: hubImportRe("")},
+	{rel: ".claude/CLAUDE.md", spelling: "@../AGENTS.md", importRe: hubImportRe("../")},
+}
+
+// hubImportRe matches an import of the routing hub that resolves to the root
+// AGENTS.md from a file at the given directory offset. An import is a path
+// token, not a line: Claude Code reads `@path` anywhere in the prose, so a
+// sentence like "See @AGENTS.md for the rules" routes the session exactly as a
+// bare line does. The token must stand alone, because a path run together with
+// the text around it is a different path, and one Claude Code would fail to
+// load. Code spans and fences are excluded before matching, not here.
+func hubImportRe(offset string) *regexp.Regexp {
+	return regexp.MustCompile(`(?m)(?:^|[ \t])@(?:\./)?` + regexp.QuoteMeta(offset) + `AGENTS\.md(?:[ \t]|$)`)
+}
+
+// planClaudeEntryPoint reports an adopted repository whose Claude Code
+// sessions never receive the routing hub, and repairs nothing (PDR-022).
+// Claude Code reads CLAUDE.md and not AGENTS.md, so without a bridge the
+// adopter's agent lists the lifecycle skills and is never told when to invoke
+// them — it holds the manuals with no instruction to open them.
+//
+// Neither case is a Finding. A missing pointer must not block a carrier
+// upgrade: refusing to refresh an adopter's skills until they add a vendor
+// file would be a hard stop out of all proportion to a notice.
+func planClaudeEntryPoint(root string, result *MigrationPlan) {
+	hub := filepath.Join(root, "AGENTS.md")
+	var present []entryPointLocation
+	for _, loc := range entryPointLocations {
+		full := filepath.Join(root, filepath.FromSlash(loc.rel))
+		info, err := os.Lstat(full)
+		if err != nil {
+			continue
+		}
+		// A symlink to the hub is the vendor's other documented bridge, and
+		// reading through it would find AGENTS.md, which of course imports no
+		// copy of itself. Only that target routes: a link to anything else is
+		// judged on the content it resolves to, like any other file.
+		if info.Mode()&fs.ModeSymlink != 0 && linksToHub(full, hub) {
+			return
+		}
+		data, err := os.ReadFile(full)
+		if err != nil {
+			// The file is there and nothing loads from it — a dangling link,
+			// or one the operator cannot read. Reporting it as absent would
+			// send them to `clue init`, which skips what already exists.
+			present = append(present, loc)
+			continue
+		}
+		if loc.importRe.MatchString(outsideCode(string(data))) {
+			return
+		}
+		present = append(present, loc)
+	}
+	if len(present) > 0 {
+		result.Notices = append(result.Notices, Notice{
+			Path:      present[0].rel,
+			Migration: MigrationClaudeEntryPoint,
+			Message:   fmt.Sprintf("exists but never imports AGENTS.md, so Claude Code reads no routing; add a line containing just `%s` — migration does not edit a file you wrote", present[0].spelling),
+		})
+		return
+	}
+	result.Notices = append(result.Notices, Notice{
+		Path:      entryPointLocations[0].rel,
+		Migration: MigrationClaudeEntryPoint,
+		Message:   "absent, so Claude Code reads no routing; run `clue init` to materialize the pointer, which never overwrites an existing file",
+	})
+}
+
+// linksToHub reports whether an entry point is a symlink resolving to the
+// repository's own AGENTS.md. Both sides are resolved, so a checkout reached
+// through a link — a worktree, a shared tree — compares equal to itself.
+func linksToHub(entry, hub string) bool {
+	target, err := filepath.EvalSymlinks(entry)
+	if err != nil {
+		return false
+	}
+	resolved, err := filepath.EvalSymlinks(hub)
+	if err != nil {
+		return false
+	}
+	return target == resolved
+}
+
+// outsideCode blanks the two places Claude Code's import parser does not look
+// — fenced code blocks and inline code spans — leaving the prose it does read.
+// An import shown as an example must not be mistaken for one that loads:
+// reporting a routed repository is noise, while reading an example as the real
+// thing leaves the gap unreported, which is the failure this migration exists
+// to catch. Line structure is preserved so the caller still matches per line.
+func outsideCode(doc string) string {
+	lines := strings.Split(strings.ReplaceAll(doc, "\r\n", "\n"), "\n")
+	var fence string // the open fence's marker run, empty outside a block
+	for i, line := range lines {
+		marker := fenceMarker(line)
+		if fence == "" {
+			if marker != "" {
+				fence = marker
+				lines[i] = ""
+				continue
+			}
+			lines[i] = blankCodeSpans(line)
+			continue
+		}
+		// Only a fence of the same character and at least the opening
+		// length closes the block, so a markdown example wrapped in ````
+		// keeps the ``` inside it fenced rather than flipping the state.
+		// A closing fence also carries no info string: a ```go line inside
+		// a fenced example is content, and reading it as the end of the
+		// block would hand the rest of the example back to the matcher as
+		// prose — the direction that reports a repository routed when
+		// nothing loads.
+		if marker != "" && marker[0] == fence[0] && len(marker) >= len(fence) && closesFence(line, marker) {
+			fence = ""
+		}
+		lines[i] = ""
+	}
+	return strings.Join(lines, "\n")
+}
+
+// fenceMarker returns the leading backtick or tilde run of a fence line, or ""
+// when the line opens or closes nothing.
+func fenceMarker(line string) string {
+	trimmed := strings.TrimLeft(line, " \t")
+	if trimmed == "" || (trimmed[0] != '`' && trimmed[0] != '~') {
+		return ""
+	}
+	run := len(trimmed) - len(strings.TrimLeft(trimmed, string(trimmed[0])))
+	if run < 3 {
+		return ""
+	}
+	return trimmed[:run]
+}
+
+// closesFence reports whether a fence line is bare — nothing after its marker
+// run but whitespace. Only a bare fence ends a block; a run followed by an
+// info string opens one, so inside an open block it is content.
+func closesFence(line, marker string) bool {
+	rest := strings.TrimLeft(line, " \t")
+	return strings.TrimSpace(strings.TrimPrefix(rest, marker)) == ""
+}
+
+// blankCodeSpans removes backtick-delimited spans from one line of prose. A
+// span closes on a run of the same length, and an unclosed run opens nothing —
+// the same reading that makes `@AGENTS.md` in backticks a mention rather than
+// an import.
+func blankCodeSpans(line string) string {
+	var out strings.Builder
+	for i := 0; i < len(line); {
+		if line[i] != '`' {
+			out.WriteByte(line[i])
+			i++
+			continue
+		}
+		run := len(line[i:]) - len(strings.TrimLeft(line[i:], "`"))
+		if end := strings.Index(line[i+run:], strings.Repeat("`", run)); end >= 0 {
+			// A space, not nothing: removing the span outright would join
+			// the text on either side into a token neither side wrote.
+			out.WriteByte(' ')
+			i += run + end + run
+			continue
+		}
+		out.WriteString(line[i : i+run])
+		i += run
+	}
+	return out.String()
 }
