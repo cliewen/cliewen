@@ -60,13 +60,16 @@ type Report struct {
 	Current string // the running release, as given
 	Latest  string // the newest published release, bare semver
 	Known   bool   // false when the release list could not be read
-	// Comparable is false when the running stamp is not a release this
-	// command can compare — a source build, or a stamp it cannot read. It is
-	// what keeps "up to date" and "could not tell" distinguishable, which is
-	// the whole reason this command exists.
-	Comparable bool
-	Behind     bool     // the running release is older than Latest
-	Recipe     []string // the installation route for this platform, one command per line
+	// SourceBuild is a build with no release to compare: the stamp is "dev"
+	// or absent. Comparable is false for that and for a stamp this command
+	// cannot read as a release. Both state a fact about the running binary
+	// and are set whether or not the release list answered, so a caller
+	// cannot read an outage as an unreadable stamp — keeping "up to date" and
+	// "could not tell" apart is the whole reason this command exists.
+	SourceBuild bool
+	Comparable  bool
+	Behind      bool     // the running release is older than Latest
+	Recipe      []string // the installation route for this platform, one command per line
 }
 
 // cached is the stored answer. Only the tag and when it was fetched are kept:
@@ -88,7 +91,14 @@ func Check(opts Options) Report {
 		ttl = defaultTTL
 	}
 
-	report := Report{Current: opts.Current}
+	// What the running binary is does not depend on whether the release list
+	// answered, so it is settled before anything reaches the network.
+	current, prerelease, comparable := parseCurrent(opts.Current)
+	report := Report{
+		Current:     opts.Current,
+		SourceBuild: opts.Current == "" || opts.Current == "dev",
+		Comparable:  comparable,
+	}
 
 	tag, ok := readCache(opts.CacheDir, now(), ttl)
 	if !ok {
@@ -114,9 +124,10 @@ func Check(opts Options) Report {
 	}
 	report.Latest = fmt.Sprintf("%d.%d.%d", latest[0], latest[1], latest[2])
 	report.Known = true
-	current, comparable := parseCurrent(opts.Current)
-	report.Comparable = comparable
-	report.Behind = comparable && older(current, latest)
+	// A pre-release orders before the release it names: 0.13.0-rc1 is behind
+	// 0.13.0, and the moment the final ships is exactly when its user needs to
+	// hear that.
+	report.Behind = comparable && (older(current, latest) || (current == latest && prerelease))
 	if report.Behind {
 		report.Recipe = recipe(opts.Platform, report.Latest)
 	}
@@ -151,19 +162,24 @@ func prebuilt(p Platform) bool {
 	return p.Arch == "amd64" || p.Arch == "arm64"
 }
 
-// parseCurrent reads the running stamp. Unlike a tag from the network it is
-// local, it never reaches the printed recipe, and it may legitimately carry a
-// pre-release or build suffix — a release candidate is stamped 0.13.0-rc1 —
-// so the suffix is trimmed before comparing. A source build reports "dev" and
-// has no release to compare at all, the same exemption the drift rule makes.
-func parseCurrent(v string) ([3]int, bool) {
+// parseCurrent reads the running stamp, and reports whether it named a
+// pre-release. Unlike a tag from the network it is local, it never reaches the
+// printed recipe, and it may legitimately carry a pre-release or build suffix
+// — a release candidate is stamped 0.13.0-rc1 — so the suffix is trimmed
+// before comparing. A "-" suffix is a pre-release and orders before the
+// release whose numbers it carries; "+" is build metadata and orders with it.
+// A source build reports "dev" and has no release to compare at all, the same
+// exemption the drift rule makes.
+func parseCurrent(v string) (numbers [3]int, prerelease, ok bool) {
 	if v == "" || v == "dev" {
-		return [3]int{}, false
+		return [3]int{}, false, false
 	}
 	if i := strings.IndexAny(v, "-+"); i >= 0 {
+		prerelease = v[i] == '-'
 		v = v[:i]
 	}
-	return parseVersion(v)
+	numbers, ok = parseVersion(v)
+	return numbers, prerelease && ok, ok
 }
 
 // older compares two releases by their numbers.

@@ -359,7 +359,7 @@ func runLatest(args []string, out, errOut io.Writer, opts release.Options) int {
 		// is a coding agent's context.
 	case !report.Known:
 		fmt.Fprintf(out, "clue %s — could not reach the release list; nothing to report\n", report.Current)
-	case !isRelease(report.Current):
+	case report.SourceBuild:
 		fmt.Fprintf(out, "clue %s — the newest release is %s; a source build has no release to compare\n", report.Current, report.Latest)
 	case !report.Comparable:
 		// The host answered and the running stamp could not be read as a
@@ -371,10 +371,6 @@ func runLatest(args []string, out, errOut io.Writer, opts release.Options) int {
 	}
 	return 0
 }
-
-// isRelease reports whether a version stamp names a release at all. The same
-// exemption the drift rule makes: a source build has nothing to compare.
-func isRelease(v string) bool { return v != "" && v != "dev" }
 
 // runVersion prints the release stamp (AC-019). "dev" for source builds.
 func runVersion(w io.Writer) int {
