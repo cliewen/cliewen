@@ -74,7 +74,9 @@ func TestAC072_UnitNegative_ARoutedEntryPointProducesNoNotice(t *testing.T) {
 	}{
 		{name: "root import", rel: "CLAUDE.md", body: "# Entry point\n\n@AGENTS.md\n\n## Mine\n\nUse plan mode under `src/billing/`.\n"},
 		{name: "relative spelling", rel: "CLAUDE.md", body: "@./AGENTS.md\n"},
-		{name: "the .claude location", rel: ".claude/CLAUDE.md", body: "@AGENTS.md\n"},
+		// An import resolves against the directory of the file holding it, so
+		// the parent hop is what reaches the hub from `.claude/`.
+		{name: "the .claude location", rel: ".claude/CLAUDE.md", body: "@../AGENTS.md\n"},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			root := migrationFixture(t, "")
@@ -91,11 +93,52 @@ func TestAC072_UnitNegative_ARoutedEntryPointProducesNoNotice(t *testing.T) {
 	t.Run("one location routes while the other does not", func(t *testing.T) {
 		root := migrationFixture(t, "")
 		writeEntryPoint(t, root, "CLAUDE.md", "# Ours\n\nNo import here.\n")
-		writeEntryPoint(t, root, ".claude/CLAUDE.md", "@AGENTS.md\n")
+		writeEntryPoint(t, root, ".claude/CLAUDE.md", "@../AGENTS.md\n")
 		if notice := entryPointNotice(t, root); notice != nil {
 			t.Fatalf("a routed repository was reported anyway: %s", notice.Message)
 		}
 	})
+
+	// The other documented bridge: the entry point is the hub. Reading through
+	// the link finds AGENTS.md, which imports no copy of itself, so a check
+	// that only looked at content would report a repository that is routed.
+	t.Run("a symlink to the hub", func(t *testing.T) {
+		root := migrationFixture(t, "")
+		writeEntryPoint(t, root, "AGENTS.md", "# Hub\n\nRouting lives here.\n")
+		symlinkOrSkip(t, filepath.Join(root, "AGENTS.md"), filepath.Join(root, "CLAUDE.md"))
+		if notice := entryPointNotice(t, root); notice != nil {
+			t.Fatalf("an entry point symlinked to the hub was reported anyway: %s", notice.Message)
+		}
+	})
+}
+
+// AC-072 positive: an import is resolved from the file that holds it, so the
+// spelling that routes at the root loads nothing under `.claude/` — it names
+// `.claude/AGENTS.md`, a file nothing emits. Accepting it would be the failure
+// this migration exists to catch: a report of routing that never arrives.
+func TestAC072_UnitPositive_AnImportThatResolvesNowhereIsReported(t *testing.T) {
+	root := migrationFixture(t, "")
+	writeEntryPoint(t, root, ".claude/CLAUDE.md", "@AGENTS.md\n")
+	notice := entryPointNotice(t, root)
+	if notice == nil {
+		t.Fatal("an import resolving to a file that does not exist was read as routing")
+	}
+	if notice.Path != ".claude/CLAUDE.md" {
+		t.Errorf("the notice names %q rather than the file that carries the broken import", notice.Path)
+	}
+	if !strings.Contains(notice.Message, "@../AGENTS.md") {
+		t.Errorf("the notice does not name the spelling that reaches the hub from there: %s", notice.Message)
+	}
+}
+
+// symlinkOrSkip creates newname -> oldname, or skips on a host that cannot
+// make symlinks at all (an unprivileged Windows shell). The behavior is then
+// untestable here, not broken.
+func symlinkOrSkip(t *testing.T, oldname, newname string) {
+	t.Helper()
+	if err := os.Symlink(oldname, newname); err != nil {
+		t.Skip("this host cannot create a symlink: ", err)
+	}
 }
 
 // AC-072: the migration reports and never repairs, in preview or in apply.

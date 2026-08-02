@@ -882,16 +882,33 @@ func planQualifiedReferences(root string, result *MigrationPlan) {
 	}
 }
 
+// entryPointLocation is a place Claude Code loads a project entry point from,
+// with the import that reaches the routing hub from there. An import path is
+// relative to the file holding it, so the two locations do not accept the same
+// line: under `.claude/`, a bare `@AGENTS.md` names `.claude/AGENTS.md`, which
+// no scaffold emits and no session ever loads.
+type entryPointLocation struct {
+	rel      string
+	spelling string
+	importRe *regexp.Regexp
+}
+
 // entryPointLocations are the places Claude Code loads a project entry point
 // from. Both are loaded when both exist, so the hub is reachable as soon as
 // any one of them imports it.
-var entryPointLocations = []string{"CLAUDE.md", ".claude/CLAUDE.md"}
+var entryPointLocations = []entryPointLocation{
+	{rel: "CLAUDE.md", spelling: "@AGENTS.md", importRe: hubImportRe("")},
+	{rel: ".claude/CLAUDE.md", spelling: "@../AGENTS.md", importRe: hubImportRe("../")},
+}
 
-// hubImportRe matches a bare import of the routing hub. Only a line that is
-// the import loads anything: Claude Code skips imports inside code spans and
-// fenced blocks, so a path mentioned in backticks reads like a working pointer
-// and loads nothing.
-var hubImportRe = regexp.MustCompile(`(?m)^[ \t]*@\.?/?AGENTS\.md[ \t]*\r?$`)
+// hubImportRe matches an import of the routing hub that resolves to the root
+// AGENTS.md from a file at the given directory offset. Only a line that is the
+// import loads anything: Claude Code skips imports inside code spans and fenced
+// blocks, so a path mentioned in backticks reads like a working pointer and
+// loads nothing.
+func hubImportRe(offset string) *regexp.Regexp {
+	return regexp.MustCompile(`(?m)^[ \t]*@(?:\./)?` + regexp.QuoteMeta(offset) + `AGENTS\.md[ \t]*\r?$`)
+}
 
 // planClaudeEntryPoint reports an adopted repository whose Claude Code
 // sessions never receive the routing hub, and repairs nothing (PDR-022).
@@ -903,40 +920,62 @@ var hubImportRe = regexp.MustCompile(`(?m)^[ \t]*@\.?/?AGENTS\.md[ \t]*\r?$`)
 // upgrade: refusing to refresh an adopter's skills until they add a vendor
 // file would be a hard stop out of all proportion to a notice.
 func planClaudeEntryPoint(root string, result *MigrationPlan) {
-	var present []string
-	for _, rel := range entryPointLocations {
-		full := filepath.Join(root, filepath.FromSlash(rel))
+	hub := filepath.Join(root, "AGENTS.md")
+	var present []entryPointLocation
+	for _, loc := range entryPointLocations {
+		full := filepath.Join(root, filepath.FromSlash(loc.rel))
 		info, err := os.Lstat(full)
 		if err != nil {
 			continue
 		}
 		// A symlink to the hub is the vendor's other documented bridge, and
-		// following it would find no import in what is literally AGENTS.md.
-		if info.Mode()&fs.ModeSymlink != 0 {
+		// reading through it would find AGENTS.md, which of course imports no
+		// copy of itself. Only that target routes: a link to anything else is
+		// judged on the content it resolves to, like any other file.
+		if info.Mode()&fs.ModeSymlink != 0 && linksToHub(full, hub) {
 			return
 		}
 		data, err := os.ReadFile(full)
 		if err != nil {
+			// The file is there and nothing loads from it — a dangling link,
+			// or one the operator cannot read. Reporting it as absent would
+			// send them to `clue init`, which skips what already exists.
+			present = append(present, loc)
 			continue
 		}
-		if hubImportRe.MatchString(outsideFences(string(data))) {
+		if loc.importRe.MatchString(outsideFences(string(data))) {
 			return
 		}
-		present = append(present, rel)
+		present = append(present, loc)
 	}
 	if len(present) > 0 {
 		result.Notices = append(result.Notices, Notice{
-			Path:      present[0],
+			Path:      present[0].rel,
 			Migration: MigrationClaudeEntryPoint,
-			Message:   "exists but never imports AGENTS.md, so Claude Code reads no routing; add a bare `@AGENTS.md` line — migration does not edit a file you wrote",
+			Message:   fmt.Sprintf("exists but never imports AGENTS.md, so Claude Code reads no routing; add a line containing just `%s` — migration does not edit a file you wrote", present[0].spelling),
 		})
 		return
 	}
 	result.Notices = append(result.Notices, Notice{
-		Path:      entryPointLocations[0],
+		Path:      entryPointLocations[0].rel,
 		Migration: MigrationClaudeEntryPoint,
 		Message:   "absent, so Claude Code reads no routing; run `clue init` to materialize the pointer, which never overwrites an existing file",
 	})
+}
+
+// linksToHub reports whether an entry point is a symlink resolving to the
+// repository's own AGENTS.md. Both sides are resolved, so a checkout reached
+// through a link — a worktree, a shared tree — compares equal to itself.
+func linksToHub(entry, hub string) bool {
+	target, err := filepath.EvalSymlinks(entry)
+	if err != nil {
+		return false
+	}
+	resolved, err := filepath.EvalSymlinks(hub)
+	if err != nil {
+		return false
+	}
+	return target == resolved
 }
 
 // outsideFences blanks fenced code blocks, so an import shown as an example

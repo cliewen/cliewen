@@ -55,6 +55,26 @@ func TestAC071_UnitPositive_InitEmitsAnEntryPointThatOnlyPoints(t *testing.T) {
 	}
 }
 
+// Every emitted text file ends with a newline. An adopter's repository is
+// linted, reviewed, and diffed by tools that all treat a missing final
+// newline as damage, and the scaffold must not be the thing that introduces
+// it on the first commit.
+func TestSanity_EmittedTextFilesEndWithANewline(t *testing.T) {
+	root, rep := runInto(t)
+	for _, rel := range rep.Created {
+		if !strings.HasSuffix(rel, ".md") && !strings.HasSuffix(rel, ".yml") {
+			continue
+		}
+		data, err := os.ReadFile(filepath.Join(root, filepath.FromSlash(rel)))
+		if err != nil {
+			t.Fatal(err)
+		}
+		if len(data) == 0 || data[len(data)-1] != '\n' {
+			t.Errorf("emitted %s does not end with a newline", rel)
+		}
+	}
+}
+
 // AC-071 negative: an adopter who already keeps a CLAUDE.md keeps every byte
 // of it. The file is theirs on arrival — that is what makes emitting a
 // vendor's flagship file honest rather than a claim on their repository.

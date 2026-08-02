@@ -108,7 +108,7 @@ Feature: Onboarding — install to first green validate
     Test-type: Unit
     Given an adopted repository whose Claude Code entry point is missing or imports nothing
     When the user runs "clue migrate"
-    Then the plan reports that Claude Code reads no routing and names "clue init" as the remedy
-    And a "CLAUDE.md" that imports the hub produces no such report
+    Then the plan reports that Claude Code reads no routing and names the remedy for that shape — "clue init" for an absent file, the import line for one the adopter wrote
+    And a "CLAUDE.md" that imports the hub produces no such report, whether by an import that resolves to it from that file's own directory or by being a symlink to the hub
     But no run writes or rewrites that file, with or without "--apply"
 ```
