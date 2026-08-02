@@ -42,8 +42,24 @@ fi
 # reports a pass while doing it. Replaying a past merge to check this gate would
 # have silently graded the current checkout. A gate that quietly grades the
 # wrong thing is the failure this whole change exists to remove.
-v=$(git show "${head}:${tmpl}" | sed -n 's/^version:[[:space:]]*//p' | head -n 1)
-if ! printf '%s' "$v" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+#
+# Each blob is read into a variable and searched with a here-string, never
+# piped into a reader that can stop early. Under `set -o pipefail` such a
+# pipeline reports failure whenever the reader finds what it needs and exits
+# before the writer has finished: the writer dies of SIGPIPE — `git show` exits
+# 255, `printf` 141 — and that status becomes the pipeline's, so a value that is
+# present reads as missing. Whether it happens is decided by whether the
+# remaining bytes still fit in the reader's buffer and the pipe's, which is to
+# say by scheduling and by how large the file has grown. So it passes locally
+# and fails in CI, or passes for years and then stops. A gate whose answer
+# depends on that is worse than no gate: it blocked a release whose manifest was
+# complete, and the same race can pass a release whose manifest is not.
+#
+# The two pipelines further down are not this shape — `sort`, `sha256sum` and
+# `cut` all consume their input to the end, so no writer is ever cut off.
+tmpl_body=$(git show "${head}:${tmpl}")
+v=$(awk 'sub(/^version:[[:space:]]*/, "") { print; exit }' <<<"$tmpl_body")
+if ! grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$' <<<"$v"; then
   echo "::error title=Unreadable version stamp::${tmpl} does not carry a bare semver version; got '${v}'" >&2
   exit 1
 fi
@@ -51,12 +67,13 @@ echo "This change raises the version stamp to ${v}; checking it could be release
 
 notes=$(mktemp)
 trap 'rm -f "$notes"' EXIT
-git show "${head}:CHANGELOG.md" | awk -v ver="$v" '
+changelog=$(git show "${head}:CHANGELOG.md")
+awk -v ver="$v" '
   BEGIN { header = "## [" ver "]" }
   !found { if (index($0, header) == 1) found = 1; next }
   /^## \[/ { exit }
   { print }
-' > "$notes"
+' <<<"$changelog" > "$notes"
 
 # A tag with no user-facing notes cannot be released at all: the release
 # workflow fails at its extraction step (ADR-012). Failing here instead means a
@@ -108,14 +125,10 @@ fi
 
 manifest=$(git show "${head}:internal/migrate/migrate.go")
 
-# The manifest is searched with a here-string rather than `printf | grep -q`.
-# Under `set -o pipefail` that pipeline reports failure whenever grep finds its
-# match early enough to exit before printf finishes writing — printf then dies
-# of SIGPIPE and its 141 becomes the pipeline's status, so a digest that is
-# present reads as missing. It is a race, so it passes locally and fails in CI,
-# or the reverse. A gate whose answer depends on scheduling is worse than no
-# gate: this one blocked a release whose manifest was complete, and the same
-# race can pass a release whose manifest is not.
+# Here-strings, for the reason given where the version stamp is read: `grep -q`
+# exits on its first match, and piping into it under `set -o pipefail` makes a
+# present digest read as missing. This is the site where that actually cost a
+# release run.
 missing=0
 for f in $carriers; do
   want=$(git show "${head}:.agents/skills/${f}" | sha256sum | cut -d' ' -f1)
