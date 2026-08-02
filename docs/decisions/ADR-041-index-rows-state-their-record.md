@@ -26,7 +26,7 @@ The repair for the generator is obvious. The harder question is what a judge sho
 
 - **The generator reads frontmatter.** An appended row is `- [<id> — <title>](<file>) · \`<status>\``, spelling the *parsed* frontmatter values. A title whose value contains a colon is YAML-quoted in the file, and the row carries the value, not the quoting.
 - **A subfolder row states a section, not a record.** `docs/README.md`'s block links folder READMEs, which carry no artifact identity of this shape; those rows stay plain.
-- **An unreadable artifact degrades to the plain link.** Index generation reports nothing and fails on nothing; naming a malformed artifact is the judge's job, and a generator that refused to emit a row would turn one bad file into a missing index entry.
+- **An artifact missing any of id, title, or status degrades to the plain link.** A row is one shape or the other and never a third carrying an empty status badge. Index generation reports nothing and fails on nothing; naming a malformed artifact is the judge's job, and a generator that refused to emit a row would turn one bad file into a missing index entry.
 - **The judge counts filler and does not fail on it.** `clue validate` reports rows whose label equals the target's filename stem as a population on its OK line, and `--index-rows` names them. It is a count, not an `Issue`.
 - **Nothing existing is rewritten.** Regeneration keeps preserving every row whose target still exists.
 

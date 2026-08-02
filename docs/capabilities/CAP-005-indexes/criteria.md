@@ -34,6 +34,6 @@ Feature: Index generation — clue scaffold
     When the index block is regenerated
     Then the appended row states the artifact's id, its title, and its status
     And a title whose value contains a colon is spelled as the parsed value, not as its YAML quoting
-    But an artifact whose frontmatter carries no readable id and title falls back to the plain link
+    But an artifact missing any of a readable id, title, and status falls back to the plain link, rather than a row carrying an empty status
     And a row referencing a subfolder README carries no title or status, because it states a section rather than a record
 ```

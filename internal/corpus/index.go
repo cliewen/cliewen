@@ -20,10 +20,12 @@ type IndexRowIdentity struct {
 // RowIdentity reads the identity an index row states for the artifact file at
 // p. The values come from parsed frontmatter and never from raw lines: a title
 // whose value contains a colon is YAML-quoted in the file, and a row spells the
-// value, not the quoting. A file without a readable id and title returns false
-// so the caller emits the plain link rather than a half-formed row — reading a
-// malformed artifact is the judge's job to report, not index generation's job
-// to fail on.
+// value, not the quoting.
+//
+// All three of id, title, and status must be readable, or this returns false
+// and the caller emits the plain link. A row is one shape or the other, never a
+// third carrying an empty status badge — an artifact missing a core field is
+// the judge's to report, not index generation's to half-render.
 func RowIdentity(p string) (IndexRowIdentity, bool) {
 	raw, err := os.ReadFile(p)
 	if err != nil {
@@ -36,7 +38,7 @@ func RowIdentity(p string) (IndexRowIdentity, bool) {
 	id, _ := fields["id"].(string)
 	title, _ := fields["title"].(string)
 	status, _ := fields["status"].(string)
-	if id == "" || title == "" {
+	if id == "" || title == "" || status == "" {
 		return IndexRowIdentity{}, false
 	}
 	return IndexRowIdentity{ID: id, Title: title, Status: status}, true

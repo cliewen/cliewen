@@ -263,6 +263,13 @@ func TestAC073_UnitNegative_UnreadableIdentityAndSubfolderRowsStayPlain(t *testi
 	if err := os.WriteFile(filepath.Join(root, "docs", "goals", "G-002-broken.md"), []byte("# no frontmatter at all\n"), 0o644); err != nil {
 		t.Fatal(err)
 	}
+	// Frontmatter carrying an id and title but no status must degrade the same
+	// way: a row is the stated shape or the plain link, never a third form
+	// carrying an empty status badge.
+	noStatus := "---\nid: G-004\ntype: goal\nlinks: []\ntitle: Statusless goal\n---\n"
+	if err := os.WriteFile(filepath.Join(root, "docs", "goals", "G-004-statusless.md"), []byte(noStatus), 0o644); err != nil {
+		t.Fatal(err)
+	}
 	if err := os.MkdirAll(filepath.Join(root, "docs", "extra"), 0o755); err != nil {
 		t.Fatal(err)
 	}
@@ -281,6 +288,12 @@ func TestAC073_UnitNegative_UnreadableIdentityAndSubfolderRowsStayPlain(t *testi
 	}
 	if strings.Contains(string(got), "G-002-broken.md) ·") {
 		t.Fatalf("a row with no readable identity must carry no status:\n%s", got)
+	}
+	if want := "- [G-004-statusless](G-004-statusless.md)\n"; !strings.Contains(string(got), want) {
+		t.Fatalf("an artifact without a status must fall back to the plain link, want %q, got:\n%s", want, got)
+	}
+	if strings.Contains(string(got), "· ``") {
+		t.Fatalf("no row may carry an empty status badge:\n%s", got)
 	}
 	rootReadme, err := os.ReadFile(filepath.Join(root, "docs", "README.md"))
 	if err != nil {

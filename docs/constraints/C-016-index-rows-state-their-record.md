@@ -12,7 +12,7 @@ enforcement: machine
 
 Given a taxonomy README's `clue:index` block, when index generation appends a row for an artifact, then the row states the artifact's own `id — title` from its frontmatter followed by its `status` — never the target's filename restated as a label.
 
-A row referencing a subfolder README states a section rather than a record and carries no title or status. An artifact whose frontmatter carries no readable id and title falls back to the plain link, because index generation reports nothing and fails on nothing; naming a malformed artifact is the judge's job.
+A row referencing a subfolder README states a section rather than a record and carries no title or status. An artifact missing any of a readable id, title, and status falls back to the plain link — a row is one shape or the other, never a third carrying an empty status badge — because index generation reports nothing and fails on nothing; naming a malformed artifact is the judge's job.
 
 The rule governs a row's opening only. Curated text after the status — supersession notes, section descriptions — is part of the contract rather than an exception to it, and regeneration preserves every row whose target still exists.
 
