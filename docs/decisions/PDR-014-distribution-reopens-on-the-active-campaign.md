@@ -1,11 +1,11 @@
 ---
 id: PDR-014
 type: decision
-status: inferred
+status: verified
 links: [P-007, CAP-001, C-015, ADR-030, PDR-008]
 title: Installation distribution reopens on the active campaign, not a successor plan
 author: agent
-accepted-by: []
+accepted-by: Flemming N. Larsen (2026-08-02, conversation)
 ---
 
 # PDR-014 — Installation distribution reopens on the active campaign

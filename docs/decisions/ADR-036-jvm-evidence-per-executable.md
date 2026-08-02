@@ -1,11 +1,11 @@
 ---
 id: ADR-036
 type: decision
-status: inferred
+status: verified
 links: [ADR-005, ADR-006, ADR-009, ADR-032, CAP-002, CAP-003, P-009]
 title: JVM evidence is credited only from one statically attributable executable
 author: agent
-accepted-by: []
+accepted-by: Flemming N. Larsen (2026-08-02, conversation)
 ---
 
 # ADR-036 — JVM evidence is credited only from one statically attributable executable

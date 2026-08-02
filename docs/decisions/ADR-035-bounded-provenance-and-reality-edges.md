@@ -1,11 +1,11 @@
 ---
 id: ADR-035
 type: decision
-status: inferred
+status: verified
 links: [ADR-010, PDR-004, CAP-002, CAP-003, AN-007, P-007]
 title: Cost bounds inferred provenance and incident analyses return an edge from reality
 author: agent
-accepted-by: []
+accepted-by: Flemming N. Larsen (2026-08-02, conversation)
 ---
 
 # ADR-035 — Cost bounds inferred provenance and incident analyses return an edge from reality

@@ -1,11 +1,11 @@
 ---
 id: ADR-026
 type: decision
-status: inferred
+status: verified
 links: [PDR-013, ADR-025, C-004]
 title: Unknown artifact types are adopter extensions, validated against the default lifecycle
 author: agent
-accepted-by: []
+accepted-by: Flemming N. Larsen (2026-08-02, conversation)
 ---
 
 # ADR-026 — Adopter-defined types validate against the default lifecycle

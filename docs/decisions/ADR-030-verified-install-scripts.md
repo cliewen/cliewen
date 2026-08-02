@@ -1,11 +1,11 @@
 ---
 id: ADR-030
 type: decision
-status: inferred
+status: verified
 links: [CAP-001, CAP-004, C-015, ADR-011, ADR-012, ADR-038]
 title: Installation is a checksum-verifying script, and release asset names are an append-only contract
 author: agent
-accepted-by: []
+accepted-by: Flemming N. Larsen (2026-08-02, conversation)
 ---
 
 # ADR-030 — Verified install scripts and append-only release assets

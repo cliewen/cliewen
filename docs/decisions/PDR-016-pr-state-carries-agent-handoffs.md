@@ -1,11 +1,11 @@
 ---
 id: PDR-016
 type: decision
-status: inferred
+status: verified
 links: [G-001, AN-009, PDR-007, PDR-012, C-012, CAP-006]
 title: Hosted PR state carries review findings and updater handoffs across agents
 author: agent
-accepted-by: []
+accepted-by: Flemming N. Larsen (2026-08-02, conversation)
 ---
 
 # PDR-016 — Hosted PR state carries review findings and updater handoffs across agents

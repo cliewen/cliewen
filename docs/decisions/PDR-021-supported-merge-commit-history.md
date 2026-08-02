@@ -1,11 +1,11 @@
 ---
 id: PDR-021
 type: decision
-status: inferred
+status: verified
 links: [G-001, P-009, M-039, AN-014, PDR-007, PDR-016, ARCH-001, ARCH-003, C-012]
 title: Full Cliewen changes are accepted with a merge commit that preserves their branch history
 author: agent
-accepted-by: []
+accepted-by: Flemming N. Larsen (2026-08-02, conversation)
 ---
 
 # PDR-021 — Full Cliewen changes are accepted with a merge commit that preserves their branch history
