@@ -55,6 +55,15 @@ func TestAC072_UnitPositive_MigrateReportsAnEntryPointThatNeverReachesTheHub(t *
 			want:    "never imports AGENTS.md",
 		},
 		{
+			// A closing fence carries no info string, so the ```go line is
+			// content rather than the end of the block. Reading it as the
+			// end would hand the rest of the example back as prose and call
+			// this repository routed when nothing loads.
+			name:    "an example whose inner fence names a language",
+			content: "# Ours\n\nAn entry point looks like this:\n\n```\n```go\n@AGENTS.md\n```\n\nOurs does not.\n",
+			want:    "never imports AGENTS.md",
+		},
+		{
 			// The path token must stand alone. Claude Code would try to load
 			// `AGENTS.mdx`, and `x@AGENTS.md` is not a path it reads at all.
 			name:    "a longer path that only starts the same way",

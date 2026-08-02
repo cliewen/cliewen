@@ -1003,7 +1003,12 @@ func outsideCode(doc string) string {
 		// Only a fence of the same character and at least the opening
 		// length closes the block, so a markdown example wrapped in ````
 		// keeps the ``` inside it fenced rather than flipping the state.
-		if marker != "" && marker[0] == fence[0] && len(marker) >= len(fence) {
+		// A closing fence also carries no info string: a ```go line inside
+		// a fenced example is content, and reading it as the end of the
+		// block would hand the rest of the example back to the matcher as
+		// prose — the direction that reports a repository routed when
+		// nothing loads.
+		if marker != "" && marker[0] == fence[0] && len(marker) >= len(fence) && closesFence(line, marker) {
 			fence = ""
 		}
 		lines[i] = ""
@@ -1023,6 +1028,14 @@ func fenceMarker(line string) string {
 		return ""
 	}
 	return trimmed[:run]
+}
+
+// closesFence reports whether a fence line is bare — nothing after its marker
+// run but whitespace. Only a bare fence ends a block; a run followed by an
+// info string opens one, so inside an open block it is content.
+func closesFence(line, marker string) bool {
+	rest := strings.TrimLeft(line, " \t")
+	return strings.TrimSpace(strings.TrimPrefix(rest, marker)) == ""
 }
 
 // blankCodeSpans removes backtick-delimited spans from one line of prose. A
