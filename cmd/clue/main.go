@@ -157,10 +157,7 @@ func main() {
 	case "validate":
 		os.Exit(runValidate(os.Args[2:], os.Stdout))
 	case "latest":
-		os.Exit(runLatest(os.Args[2:], os.Stdout, os.Stderr, release.Options{
-			Current:  version,
-			Platform: release.Platform{OS: runtime.GOOS, Arch: runtime.GOARCH},
-		}))
+		os.Exit(runLatest(os.Args[2:], os.Stdout, os.Stderr, runtimeCheck()))
 	case "version", "--version":
 		os.Exit(runVersion(os.Stdout))
 	case "help", "--help", "-h":
@@ -303,6 +300,17 @@ func runValidate(args []string, out io.Writer) int {
 	}
 	fmt.Fprintf(out, "clue validate: OK (%d artifacts%s)\n", len(c.Artifacts), notes)
 	return 0
+}
+
+// runtimeCheck is the real machine's options: the running stamp and the host
+// this binary was built for. It is a named function rather than a literal at
+// the call site so a test can assert that the platform a user's run reports on
+// is the one they are actually running (AC-075).
+func runtimeCheck() release.Options {
+	return release.Options{
+		Current:  version,
+		Platform: release.Platform{OS: runtime.GOOS, Arch: runtime.GOARCH},
+	}
 }
 
 // runLatest reports whether a newer release exists (AC-075, AC-076, AC-077).

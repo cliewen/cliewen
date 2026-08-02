@@ -4,7 +4,7 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 
 ## [Unreleased]
 
-The release where an adopted repository stops handing Claude Code the manuals without the instruction to open them.
+The release where a repository can finally ask whether it is behind — and where an adopted repository stops handing Claude Code the manuals without the instruction to open them.
 
 ### Added
 

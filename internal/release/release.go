@@ -11,6 +11,7 @@ package release
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"os"
@@ -97,7 +98,16 @@ func Check(opts Options) Report {
 		return report
 	}
 
-	report.Latest = strings.TrimPrefix(tag, "v")
+	// The reported version is rebuilt from the numbers that were validated,
+	// never echoed from the answer. What this command prints is a command the
+	// user is told to run, so no byte of it may come from the network
+	// unexamined — a tag is accepted only if it is exactly three numbers, and
+	// then only those numbers are used.
+	latest, ok := parseVersion(tag)
+	if !ok {
+		return report
+	}
+	report.Latest = fmt.Sprintf("%d.%d.%d", latest[0], latest[1], latest[2])
 	report.Known = true
 	report.Behind = olderThan(opts.Current, report.Latest)
 	if report.Behind {
@@ -154,20 +164,25 @@ func olderThan(current, latest string) bool {
 	return false
 }
 
-// parseVersion reads major.minor.patch, discarding any pre-release or build
-// suffix. A version it cannot read is not an error: it makes the comparison
-// unknown, and unknown means nothing is reported.
+// parseVersion reads exactly major.minor.patch, with an optional leading "v"
+// and nothing else. A pre-release or build suffix is refused rather than
+// trimmed: the published newest release never carries one, and accepting a
+// suffix would mean the string that was checked and the string that is printed
+// are not the same string. Anything it cannot read is not an error — it makes
+// the answer unknown, and unknown reports nothing.
 func parseVersion(v string) ([3]int, bool) {
 	var out [3]int
 	v = strings.TrimPrefix(v, "v")
-	if i := strings.IndexAny(v, "-+"); i >= 0 {
-		v = v[:i]
-	}
 	parts := strings.Split(v, ".")
 	if len(parts) != 3 {
 		return out, false
 	}
 	for i, p := range parts {
+		// Atoi accepts a sign and Go's underscores; only decimal digits are a
+		// version component, and an empty part is not one either.
+		if p == "" || strings.ContainsFunc(p, func(r rune) bool { return r < '0' || r > '9' }) {
+			return out, false
+		}
 		n, err := strconv.Atoi(p)
 		if err != nil || n < 0 {
 			return out, false

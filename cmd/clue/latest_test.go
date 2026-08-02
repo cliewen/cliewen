@@ -5,7 +5,9 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"os/exec"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"testing"
 	"time"
@@ -128,7 +130,9 @@ func TestAC075_UnitPositive_TheTimeoutFlagReachesTheRequest(t *testing.T) {
 	if !seen {
 		t.Fatal("the request carried no deadline — the flag never reached the client")
 	}
-	if budget <= 0 || budget > 50*time.Millisecond {
+	// Only the upper bound carries the proof: without the wiring the budget is
+	// the 3s default. A lower bound would only measure the runner's load.
+	if budget > 50*time.Millisecond {
 		t.Fatalf("expected a budget of at most the 50ms asked for, got %v", budget)
 	}
 }
@@ -146,6 +150,40 @@ func (d deadlineReading) RoundTrip(r *http.Request) (*http.Response, error) {
 		d.observed(0, false)
 	}
 	return answering{status: http.StatusOK, body: `{"tag_name":"v0.12.0"}`}.RoundTrip(r)
+}
+
+// TestAC075_UnitNegative_TheRealRunReportsOnTheRealMachine holds the one part
+// of the wiring every other test injects past. A transposed field or a missing
+// dispatch entry would leave the injected half fully proven and the shipped
+// command reporting on a machine nobody is running.
+func TestAC075_UnitNegative_TheRealRunReportsOnTheRealMachine(t *testing.T) {
+	opts := runtimeCheck()
+	if opts.Platform.OS != runtime.GOOS || opts.Platform.Arch != runtime.GOARCH {
+		t.Fatalf("the check reports on %s/%s, not on the machine it runs on (%s/%s)",
+			opts.Platform.OS, opts.Platform.Arch, runtime.GOOS, runtime.GOARCH)
+	}
+	if opts.Current != version {
+		t.Fatalf("the check compares %q, not the running stamp %q", opts.Current, version)
+	}
+	// The command must also be reachable: the usage text promises it, and a
+	// missing dispatch entry would make that promise a 404 in the terminal.
+	if !strings.Contains(usage, "clue latest") {
+		t.Fatal("the usage text does not name clue latest")
+	}
+	// Running the built command is the only way to prove the dispatch entry
+	// exists. A 1ms budget guarantees the answer is "could not tell" whether
+	// or not this machine has a network, which is the outcome being asserted:
+	// silence and exit 0. The cache is redirected so the run leaves no state.
+	cmd := exec.Command("go", "run", ".", "latest", "--quiet", "--timeout=1ms")
+	cache := t.TempDir()
+	cmd.Env = append(os.Environ(), "XDG_CACHE_HOME="+cache, "LocalAppData="+cache)
+	out, err := cmd.CombinedOutput()
+	if err != nil {
+		t.Fatalf("clue latest must exit 0 even when nothing answers: %v\n%s", err, out)
+	}
+	if len(out) != 0 {
+		t.Fatalf("a quiet run that could not tell must print nothing, got:\n%s", out)
+	}
 }
 
 // TestSanity_TheRoutesAreTheOnesActuallyPublished binds the recipe to its two
