@@ -863,57 +863,6 @@ func sortPlan(plan *MigrationPlan) {
 // perfectly in the wrong namespace. Guessing the adopter's own slug would
 // cement exactly that mistake behind a form no later check can question. The
 // adopter resolves each one in a reviewed change.
-// entryPointLocations are the places Claude Code loads a project entry point
-// from, in the order it resolves them.
-var entryPointLocations = []string{"CLAUDE.md", ".claude/CLAUDE.md"}
-
-// hubImportRe matches a bare import of the routing hub. Claude Code skips
-// imports inside code spans and fences, so only a line that is the import
-// actually loads the hub; a path mentioned in backticks loads nothing.
-var hubImportRe = regexp.MustCompile(`(?m)^\s*@\.?/?AGENTS\.md\s*$`)
-
-// planClaudeEntryPoint reports an adopted repository whose Claude Code
-// sessions never receive the routing hub, and repairs nothing (PDR-022).
-// Claude Code reads CLAUDE.md and not AGENTS.md, so without a bridge the
-// adopter's agent lists the lifecycle skills and is never told when to invoke
-// them — it holds the manuals with no instruction to open them.
-//
-// Neither case is a Finding. A missing pointer must not block a carrier
-// upgrade: refusing to refresh an adopter's skills until they add a vendor
-// file would be a hard stop out of all proportion to a notice.
-func planClaudeEntryPoint(root string, result *MigrationPlan) {
-	for _, rel := range entryPointLocations {
-		full := filepath.Join(root, filepath.FromSlash(rel))
-		info, err := os.Lstat(full)
-		if err != nil {
-			continue
-		}
-		// A symlink to the hub is the vendor's other documented bridge, and
-		// following it would find no import in what is literally AGENTS.md.
-		if info.Mode()&fs.ModeSymlink != 0 {
-			return
-		}
-		data, err := os.ReadFile(full)
-		if err != nil {
-			continue
-		}
-		if hubImportRe.Match(data) {
-			return
-		}
-		result.Notices = append(result.Notices, Notice{
-			Path:      rel,
-			Migration: MigrationClaudeEntryPoint,
-			Message:   "exists but never imports AGENTS.md, so Claude Code reads no routing; add a bare `@AGENTS.md` line — migration does not edit a file you wrote",
-		})
-		return
-	}
-	result.Notices = append(result.Notices, Notice{
-		Path:      entryPointLocations[0],
-		Migration: MigrationClaudeEntryPoint,
-		Message:   "absent, so Claude Code reads no routing; run `clue init` to materialize the pointer, which never overwrites an existing file",
-	})
-}
-
 func planQualifiedReferences(root string, result *MigrationPlan) {
 	// Scan's second return is the parse-level issue list, not a fatal: an
 	// adopter's pre-upgrade corpus is exactly where a stray file without
@@ -931,4 +880,81 @@ func planQualifiedReferences(root string, result *MigrationPlan) {
 			Message:   issue.Msg + "; this cannot be repaired mechanically, because nothing here says which repository was meant",
 		})
 	}
+}
+
+// entryPointLocations are the places Claude Code loads a project entry point
+// from. Both are loaded when both exist, so the hub is reachable as soon as
+// any one of them imports it.
+var entryPointLocations = []string{"CLAUDE.md", ".claude/CLAUDE.md"}
+
+// hubImportRe matches a bare import of the routing hub. Only a line that is
+// the import loads anything: Claude Code skips imports inside code spans and
+// fenced blocks, so a path mentioned in backticks reads like a working pointer
+// and loads nothing.
+var hubImportRe = regexp.MustCompile(`(?m)^[ \t]*@\.?/?AGENTS\.md[ \t]*\r?$`)
+
+// planClaudeEntryPoint reports an adopted repository whose Claude Code
+// sessions never receive the routing hub, and repairs nothing (PDR-022).
+// Claude Code reads CLAUDE.md and not AGENTS.md, so without a bridge the
+// adopter's agent lists the lifecycle skills and is never told when to invoke
+// them — it holds the manuals with no instruction to open them.
+//
+// Neither case is a Finding. A missing pointer must not block a carrier
+// upgrade: refusing to refresh an adopter's skills until they add a vendor
+// file would be a hard stop out of all proportion to a notice.
+func planClaudeEntryPoint(root string, result *MigrationPlan) {
+	var present []string
+	for _, rel := range entryPointLocations {
+		full := filepath.Join(root, filepath.FromSlash(rel))
+		info, err := os.Lstat(full)
+		if err != nil {
+			continue
+		}
+		// A symlink to the hub is the vendor's other documented bridge, and
+		// following it would find no import in what is literally AGENTS.md.
+		if info.Mode()&fs.ModeSymlink != 0 {
+			return
+		}
+		data, err := os.ReadFile(full)
+		if err != nil {
+			continue
+		}
+		if hubImportRe.MatchString(outsideFences(string(data))) {
+			return
+		}
+		present = append(present, rel)
+	}
+	if len(present) > 0 {
+		result.Notices = append(result.Notices, Notice{
+			Path:      present[0],
+			Migration: MigrationClaudeEntryPoint,
+			Message:   "exists but never imports AGENTS.md, so Claude Code reads no routing; add a bare `@AGENTS.md` line — migration does not edit a file you wrote",
+		})
+		return
+	}
+	result.Notices = append(result.Notices, Notice{
+		Path:      entryPointLocations[0],
+		Migration: MigrationClaudeEntryPoint,
+		Message:   "absent, so Claude Code reads no routing; run `clue init` to materialize the pointer, which never overwrites an existing file",
+	})
+}
+
+// outsideFences blanks fenced code blocks, so an import shown as an example
+// is not mistaken for one that loads. Reporting a routed repository would be
+// noise; treating an example as the real thing would leave the gap unreported,
+// which is the failure this migration exists to catch.
+func outsideFences(doc string) string {
+	lines := strings.Split(doc, "\n")
+	var fenced bool
+	for i, line := range lines {
+		if trimmed := strings.TrimSpace(line); strings.HasPrefix(trimmed, "```") || strings.HasPrefix(trimmed, "~~~") {
+			fenced = !fenced
+			lines[i] = ""
+			continue
+		}
+		if fenced {
+			lines[i] = ""
+		}
+	}
+	return strings.Join(lines, "\n")
 }

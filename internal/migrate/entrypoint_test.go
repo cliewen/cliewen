@@ -40,6 +40,11 @@ func TestAC072_UnitPositive_MigrateReportsAnEntryPointThatNeverReachesTheHub(t *
 			content: "# Ours\n\nThe rules live in `@AGENTS.md`.\n",
 			want:    "never imports AGENTS.md",
 		},
+		{
+			name:    "shown as an example in a fence",
+			content: "# Ours\n\nTo route an agent here you would write:\n\n```markdown\n@AGENTS.md\n```\n\nWe have not done that.\n",
+			want:    "never imports AGENTS.md",
+		},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			root := migrationFixture(t, "")
@@ -79,6 +84,18 @@ func TestAC072_UnitNegative_ARoutedEntryPointProducesNoNotice(t *testing.T) {
 			}
 		})
 	}
+
+	// Claude Code loads both locations when both exist, so one of them
+	// carrying the import is enough. Reporting the other would be a notice
+	// about a repository that is already routed.
+	t.Run("one location routes while the other does not", func(t *testing.T) {
+		root := migrationFixture(t, "")
+		writeEntryPoint(t, root, "CLAUDE.md", "# Ours\n\nNo import here.\n")
+		writeEntryPoint(t, root, ".claude/CLAUDE.md", "@AGENTS.md\n")
+		if notice := entryPointNotice(t, root); notice != nil {
+			t.Fatalf("a routed repository was reported anyway: %s", notice.Message)
+		}
+	})
 }
 
 // AC-072: the migration reports and never repairs, in preview or in apply.
