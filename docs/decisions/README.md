@@ -49,7 +49,7 @@ The CLI reports inferred ADRs and PDRs as decisions awaiting verification, separ
 - [PDR-011 — Plain changes stay outside Cliewen while retaining human merge](PDR-011-plain-changes-bypass-cliewen.md) · `verified`
 - [PDR-012 — Every Cliewen change receives an automatic agentic review before publication](PDR-012-agentic-review-before-publication.md) · `verified`
 - [ADR-024-custom-domain-root](ADR-024-custom-domain-root.md)
-- [PDR-013 — Cliewen has an explicit core behind a red line](PDR-013-explicit-core-red-line.md) · `verified`
+- [PDR-013 — Cliewen has an explicit core behind a red line; everything else is periphery adopters may extend](PDR-013-explicit-core-red-line.md) · `verified`
 - [ADR-025 — One default status lifecycle — draft → active → retired — plus named exceptions](ADR-025-one-status-lifecycle.md) · `verified`
 - [ADR-026 — Unknown artifact types are adopter extensions, validated against the default lifecycle](ADR-026-adopter-types-default-lifecycle.md) · `verified`
 - [ADR-027 — Quality scenarios are constraints — the quality type folds into the register](ADR-027-quality-scenarios-are-constraints.md) · `verified`
@@ -61,7 +61,7 @@ The CLI reports inferred ADRs and PDRs as decisions awaiting verification, separ
 - [ADR-032 — Acceptance criteria declare classified proof and paired directions](ADR-032-classified-ac-evidence.md) · `verified`
 - [PDR-015 — Merging the release pull request cuts the release; the tag is derived, not performed](PDR-015-merging-cuts-the-release.md) · `verified`
 - [PDR-016 — Hosted PR state carries review findings and updater handoffs across agents](PDR-016-pr-state-carries-agent-handoffs.md) · `verified` · refines PDR-007 clause 2 and supersedes clause 6
-- [PDR-017 — The human merge gate has a concise, durable acceptance brief](PDR-017-merge-gate-has-content.md) · `verified`
+- [PDR-017 — The merge gate carries an acceptance brief, and the review loop adds an advisory scenario-resolution step](PDR-017-merge-gate-has-content.md) · `verified`
 - [ADR-033 — Human proof class, a per-criterion draft exemption, and derived coverage](ADR-033-human-proof-and-draft-criteria.md) · `verified`
 - [ADR-034 — Retirement is deletion; supersedes carries the pointer forward](ADR-034-retirement-is-deletion.md) · `verified`
 - [ADR-035 — Cost bounds inferred provenance and incident analyses return an edge from reality](ADR-035-bounded-provenance-and-reality-edges.md) · `verified`
