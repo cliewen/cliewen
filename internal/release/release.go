@@ -57,11 +57,16 @@ type Options struct {
 // Report is what a check found. It never carries an error: a check that could
 // not reach the release list reports Known == false and says so calmly.
 type Report struct {
-	Current string   // the running release, as given
-	Latest  string   // the newest published release, bare semver
-	Known   bool     // false when the release list could not be read
-	Behind  bool     // the running release is older than Latest
-	Recipe  []string // the installation route for this platform, one command per line
+	Current string // the running release, as given
+	Latest  string // the newest published release, bare semver
+	Known   bool   // false when the release list could not be read
+	// Comparable is false when the running stamp is not a release this
+	// command can compare — a source build, or a stamp it cannot read. It is
+	// what keeps "up to date" and "could not tell" distinguishable, which is
+	// the whole reason this command exists.
+	Comparable bool
+	Behind     bool     // the running release is older than Latest
+	Recipe     []string // the installation route for this platform, one command per line
 }
 
 // cached is the stored answer. Only the tag and when it was fetched are kept:
@@ -109,7 +114,9 @@ func Check(opts Options) Report {
 	}
 	report.Latest = fmt.Sprintf("%d.%d.%d", latest[0], latest[1], latest[2])
 	report.Known = true
-	report.Behind = olderThan(opts.Current, report.Latest)
+	current, comparable := parseCurrent(opts.Current)
+	report.Comparable = comparable
+	report.Behind = comparable && older(current, latest)
 	if report.Behind {
 		report.Recipe = recipe(opts.Platform, report.Latest)
 	}
@@ -144,18 +151,23 @@ func prebuilt(p Platform) bool {
 	return p.Arch == "amd64" || p.Arch == "arm64"
 }
 
-// olderThan compares two bare semver releases. A source build reports "dev"
-// and has no release to compare, so it is never behind — the same exemption
-// the drift rule makes, for the same reason: there is nothing to compare with.
-func olderThan(current, latest string) bool {
-	if current == "" || current == "dev" || latest == "" {
-		return false
+// parseCurrent reads the running stamp. Unlike a tag from the network it is
+// local, it never reaches the printed recipe, and it may legitimately carry a
+// pre-release or build suffix — a release candidate is stamped 0.13.0-rc1 —
+// so the suffix is trimmed before comparing. A source build reports "dev" and
+// has no release to compare at all, the same exemption the drift rule makes.
+func parseCurrent(v string) ([3]int, bool) {
+	if v == "" || v == "dev" {
+		return [3]int{}, false
 	}
-	c, okC := parseVersion(current)
-	l, okL := parseVersion(latest)
-	if !okC || !okL {
-		return false
+	if i := strings.IndexAny(v, "-+"); i >= 0 {
+		v = v[:i]
 	}
+	return parseVersion(v)
+}
+
+// older compares two releases by their numbers.
+func older(c, l [3]int) bool {
 	for i := range c {
 		if c[i] != l[i] {
 			return c[i] < l[i]

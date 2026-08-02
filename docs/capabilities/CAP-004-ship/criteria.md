@@ -138,6 +138,7 @@ Feature: clue ships — a versioned binary and versioned skills, drift made lint
     Then every run exits 0 and writes nothing to standard error
     And the quiet runs print nothing at all
     But the ordinary runs say the release list could not be reached rather than claiming the repository is current
+    And a running stamp the command cannot read as a release is reported as uncomparable rather than as current, while a pre-release stamp is compared as its release numbers
 
   @AC-078
   Scenario: The answer is cached outside the repository, and a broken cache is absence

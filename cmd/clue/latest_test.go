@@ -173,10 +173,18 @@ func TestAC075_UnitNegative_TheRealRunReportsOnTheRealMachine(t *testing.T) {
 	// Running the built command is the only way to prove the dispatch entry
 	// exists. A 1ms budget guarantees the answer is "could not tell" whether
 	// or not this machine has a network, which is the outcome being asserted:
-	// silence and exit 0. The cache is redirected so the run leaves no state.
-	cmd := exec.Command("go", "run", ".", "latest", "--quiet", "--timeout=1ms")
-	cache := t.TempDir()
-	cmd.Env = append(os.Environ(), "XDG_CACHE_HOME="+cache, "LocalAppData="+cache)
+	// silence and exit 0.
+	//
+	// It is built with the ordinary environment and only then run with a
+	// redirected cache: the toolchain derives its own build cache from the
+	// same directory, so redirecting before the build would recompile the
+	// world into a temporary directory and delete it again.
+	binary := filepath.Join(t.TempDir(), "clue"+exeSuffix())
+	if out, err := exec.Command("go", "build", "-o", binary, ".").CombinedOutput(); err != nil {
+		t.Fatalf("building the command failed: %v\n%s", err, out)
+	}
+	cmd := exec.Command(binary, "latest", "--quiet", "--timeout=1ms")
+	cmd.Env = append(os.Environ(), redirectedCacheEnv(t.TempDir())...)
 	out, err := cmd.CombinedOutput()
 	if err != nil {
 		t.Fatalf("clue latest must exit 0 even when nothing answers: %v\n%s", err, out)
@@ -184,6 +192,27 @@ func TestAC075_UnitNegative_TheRealRunReportsOnTheRealMachine(t *testing.T) {
 	if len(out) != 0 {
 		t.Fatalf("a quiet run that could not tell must print nothing, got:\n%s", out)
 	}
+}
+
+// redirectedCacheEnv points the child's os.UserCacheDir at dir, per platform:
+// darwin consults neither XDG_CACHE_HOME nor LocalAppData, so a run there
+// would otherwise read and write the developer's own cache.
+func redirectedCacheEnv(dir string) []string {
+	switch runtime.GOOS {
+	case "windows":
+		return []string{"LocalAppData=" + dir}
+	case "darwin":
+		return []string{"HOME=" + dir}
+	default:
+		return []string{"XDG_CACHE_HOME=" + dir}
+	}
+}
+
+func exeSuffix() string {
+	if runtime.GOOS == "windows" {
+		return ".exe"
+	}
+	return ""
 }
 
 // TestSanity_TheRoutesAreTheOnesActuallyPublished binds the recipe to its two
@@ -326,6 +355,35 @@ type timedOut struct{}
 
 func (timedOut) Error() string { return "context deadline exceeded" }
 func (timedOut) Timeout() bool { return true }
+
+// TestAC077_UnitNegative_AnUnreadableStampIsNotReportedAsCurrent covers the
+// case that looks like an answer and is not one: the host replied, and the
+// running stamp is not a release this command can compare. Claiming currency
+// there would collapse the very distinction the command exists to make.
+func TestAC077_UnitNegative_AnUnreadableStampIsNotReportedAsCurrent(t *testing.T) {
+	for _, current := range []string{"0.11", "0.11.2.3", "garbage"} {
+		opts := latestOptions(t, current, release.Platform{OS: "linux", Arch: "amd64"},
+			answering{status: http.StatusOK, body: `{"tag_name":"v0.12.0"}`})
+		code, out, errOut := runLatestCapturing(t, nil, opts)
+		if code != 0 || errOut != "" {
+			t.Fatalf("%q: expected a clean exit, got %d with stderr %q", current, code, errOut)
+		}
+		if strings.Contains(out, "this is the newest release") {
+			t.Fatalf("%q: a stamp that cannot be compared was reported as current:\n%s", current, out)
+		}
+		if !strings.Contains(out, "cannot be compared") || !strings.Contains(out, "0.12.0") {
+			t.Fatalf("%q: expected the newest release named and the comparison declined, got:\n%s", current, out)
+		}
+	}
+	// A pre-release stamp is comparable — it is trimmed, not refused — so the
+	// user who is most likely to be behind is still told so.
+	opts := latestOptions(t, "0.11.2-rc1", release.Platform{OS: "linux", Arch: "amd64"},
+		answering{status: http.StatusOK, body: `{"tag_name":"v0.12.0"}`})
+	_, out, _ := runLatestCapturing(t, nil, opts)
+	if !strings.Contains(out, "0.12.0 is available") {
+		t.Fatalf("a release candidate must still be told it is behind, got:\n%s", out)
+	}
+}
 
 // TestAC077_UnitNegative_AKnownAnswerStillReports keeps the silence honest: it
 // is the degradation that is quiet, not the command.

@@ -361,6 +361,11 @@ func runLatest(args []string, out, errOut io.Writer, opts release.Options) int {
 		fmt.Fprintf(out, "clue %s — could not reach the release list; nothing to report\n", report.Current)
 	case !isRelease(report.Current):
 		fmt.Fprintf(out, "clue %s — the newest release is %s; a source build has no release to compare\n", report.Current, report.Latest)
+	case !report.Comparable:
+		// The host answered and the running stamp could not be read as a
+		// release. Saying "you are current" here would be the one thing this
+		// command exists to stop: a repository unable to tell, being reassured.
+		fmt.Fprintf(out, "clue %s — the newest release is %s; this build's version cannot be compared with it\n", report.Current, report.Latest)
 	default:
 		fmt.Fprintf(out, "clue %s — this is the newest release\n", report.Current)
 	}
