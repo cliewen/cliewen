@@ -851,7 +851,19 @@ func sortPlan(plan *MigrationPlan) {
 		}
 		return plan.Findings[i].Message < plan.Findings[j].Message
 	})
-	sort.Slice(plan.Notices, func(i, j int) bool { return plan.Notices[i].Path < plan.Notices[j].Path })
+	// Notices tiebreak like findings do. Path alone leaves two notices about
+	// the same file in whatever order planning happened to append them, and
+	// sort.Slice is not stable — a preview that reordered itself between runs
+	// would look like the target changed when nothing did.
+	sort.Slice(plan.Notices, func(i, j int) bool {
+		if plan.Notices[i].Path != plan.Notices[j].Path {
+			return plan.Notices[i].Path < plan.Notices[j].Path
+		}
+		if plan.Notices[i].Migration != plan.Notices[j].Migration {
+			return plan.Notices[i].Migration < plan.Notices[j].Migration
+		}
+		return plan.Notices[i].Message < plan.Notices[j].Message
+	})
 }
 
 // planQualifiedReferences reports every external reference that names no
