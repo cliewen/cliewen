@@ -22,8 +22,9 @@ func TestAC071_UnitPositive_InitEmitsAnEntryPointThatOnlyPoints(t *testing.T) {
 		t.Fatal(err)
 	}
 	content := string(entry)
-	// The import must stand alone: Claude Code skips imports inside code
-	// spans and fences, so a mention in backticks would silently load nothing.
+	// The emitted import is a line of its own. Claude Code also reads one
+	// from inside a sentence, but not from a code span or a fence, and a
+	// bare line is the shape no later edit can accidentally quote away.
 	var imported bool
 	for _, line := range strings.Split(content, "\n") {
 		if strings.TrimSpace(line) == "@AGENTS.md" {

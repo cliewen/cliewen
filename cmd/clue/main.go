@@ -175,11 +175,7 @@ func runMigrate(args []string, out, errOut io.Writer) int {
 	}
 	fmt.Fprintf(out, "clue migrate: %s for target pair %s\n", mode, plan.Target)
 	for _, notice := range plan.Notices {
-		if notice.Migration != "" {
-			fmt.Fprintf(out, "notice %s %s: %s\n", notice.Migration, notice.Path, notice.Message)
-			continue
-		}
-		fmt.Fprintf(out, "notice %s: %s\n", notice.Path, notice.Message)
+		fmt.Fprintf(out, "notice %s %s: %s\n", notice.Migration, notice.Path, notice.Message)
 	}
 	for _, change := range plan.Changes {
 		fmt.Fprintf(out, "%s %s: %s\n", change.Migration, change.Path, change.Description)

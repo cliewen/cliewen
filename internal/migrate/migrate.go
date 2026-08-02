@@ -902,12 +902,14 @@ var entryPointLocations = []entryPointLocation{
 }
 
 // hubImportRe matches an import of the routing hub that resolves to the root
-// AGENTS.md from a file at the given directory offset. Only a line that is the
-// import loads anything: Claude Code skips imports inside code spans and fenced
-// blocks, so a path mentioned in backticks reads like a working pointer and
-// loads nothing.
+// AGENTS.md from a file at the given directory offset. An import is a path
+// token, not a line: Claude Code reads `@path` anywhere in the prose, so a
+// sentence like "See @AGENTS.md for the rules" routes the session exactly as a
+// bare line does. The token must stand alone, because a path run together with
+// the text around it is a different path, and one Claude Code would fail to
+// load. Code spans and fences are excluded before matching, not here.
 func hubImportRe(offset string) *regexp.Regexp {
-	return regexp.MustCompile(`(?m)^[ \t]*@(?:\./)?` + regexp.QuoteMeta(offset) + `AGENTS\.md[ \t]*\r?$`)
+	return regexp.MustCompile(`(?m)(?:^|[ \t])@(?:\./)?` + regexp.QuoteMeta(offset) + `AGENTS\.md(?:[ \t]|$)`)
 }
 
 // planClaudeEntryPoint reports an adopted repository whose Claude Code
@@ -943,7 +945,7 @@ func planClaudeEntryPoint(root string, result *MigrationPlan) {
 			present = append(present, loc)
 			continue
 		}
-		if loc.importRe.MatchString(outsideFences(string(data))) {
+		if loc.importRe.MatchString(outsideCode(string(data))) {
 			return
 		}
 		present = append(present, loc)
@@ -978,22 +980,73 @@ func linksToHub(entry, hub string) bool {
 	return target == resolved
 }
 
-// outsideFences blanks fenced code blocks, so an import shown as an example
-// is not mistaken for one that loads. Reporting a routed repository would be
-// noise; treating an example as the real thing would leave the gap unreported,
-// which is the failure this migration exists to catch.
-func outsideFences(doc string) string {
-	lines := strings.Split(doc, "\n")
-	var fenced bool
+// outsideCode blanks the two places Claude Code's import parser does not look
+// — fenced code blocks and inline code spans — leaving the prose it does read.
+// An import shown as an example must not be mistaken for one that loads:
+// reporting a routed repository is noise, while reading an example as the real
+// thing leaves the gap unreported, which is the failure this migration exists
+// to catch. Line structure is preserved so the caller still matches per line.
+func outsideCode(doc string) string {
+	lines := strings.Split(strings.ReplaceAll(doc, "\r\n", "\n"), "\n")
+	var fence string // the open fence's marker run, empty outside a block
 	for i, line := range lines {
-		if trimmed := strings.TrimSpace(line); strings.HasPrefix(trimmed, "```") || strings.HasPrefix(trimmed, "~~~") {
-			fenced = !fenced
-			lines[i] = ""
+		marker := fenceMarker(line)
+		if fence == "" {
+			if marker != "" {
+				fence = marker
+				lines[i] = ""
+				continue
+			}
+			lines[i] = blankCodeSpans(line)
 			continue
 		}
-		if fenced {
-			lines[i] = ""
+		// Only a fence of the same character and at least the opening
+		// length closes the block, so a markdown example wrapped in ````
+		// keeps the ``` inside it fenced rather than flipping the state.
+		if marker != "" && marker[0] == fence[0] && len(marker) >= len(fence) {
+			fence = ""
 		}
+		lines[i] = ""
 	}
 	return strings.Join(lines, "\n")
+}
+
+// fenceMarker returns the leading backtick or tilde run of a fence line, or ""
+// when the line opens or closes nothing.
+func fenceMarker(line string) string {
+	trimmed := strings.TrimLeft(line, " \t")
+	if trimmed == "" || (trimmed[0] != '`' && trimmed[0] != '~') {
+		return ""
+	}
+	run := len(trimmed) - len(strings.TrimLeft(trimmed, string(trimmed[0])))
+	if run < 3 {
+		return ""
+	}
+	return trimmed[:run]
+}
+
+// blankCodeSpans removes backtick-delimited spans from one line of prose. A
+// span closes on a run of the same length, and an unclosed run opens nothing —
+// the same reading that makes `@AGENTS.md` in backticks a mention rather than
+// an import.
+func blankCodeSpans(line string) string {
+	var out strings.Builder
+	for i := 0; i < len(line); {
+		if line[i] != '`' {
+			out.WriteByte(line[i])
+			i++
+			continue
+		}
+		run := len(line[i:]) - len(strings.TrimLeft(line[i:], "`"))
+		if end := strings.Index(line[i+run:], strings.Repeat("`", run)); end >= 0 {
+			// A space, not nothing: removing the span outright would join
+			// the text on either side into a token neither side wrote.
+			out.WriteByte(' ')
+			i += run + end + run
+			continue
+		}
+		out.WriteString(line[i : i+run])
+		i += run
+	}
+	return out.String()
 }

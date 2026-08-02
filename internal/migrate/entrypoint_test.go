@@ -45,6 +45,22 @@ func TestAC072_UnitPositive_MigrateReportsAnEntryPointThatNeverReachesTheHub(t *
 			content: "# Ours\n\nTo route an agent here you would write:\n\n```markdown\n@AGENTS.md\n```\n\nWe have not done that.\n",
 			want:    "never imports AGENTS.md",
 		},
+		{
+			// A fence wrapping a fence: the inner ``` does not close the
+			// outer ````, so everything between them is still an example.
+			// Reading the inner block as prose would call this repository
+			// routed when nothing loads.
+			name:    "an example that shows a fence inside a fence",
+			content: "# Ours\n\nAn entry point looks like this:\n\n````markdown\n```\n@AGENTS.md\n```\n````\n\nOurs does not.\n",
+			want:    "never imports AGENTS.md",
+		},
+		{
+			// The path token must stand alone. Claude Code would try to load
+			// `AGENTS.mdx`, and `x@AGENTS.md` is not a path it reads at all.
+			name:    "a longer path that only starts the same way",
+			content: "# Ours\n\n@AGENTS.mdx\n",
+			want:    "never imports AGENTS.md",
+		},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			root := migrationFixture(t, "")
@@ -74,6 +90,15 @@ func TestAC072_UnitNegative_ARoutedEntryPointProducesNoNotice(t *testing.T) {
 	}{
 		{name: "root import", rel: "CLAUDE.md", body: "# Entry point\n\n@AGENTS.md\n\n## Mine\n\nUse plan mode under `src/billing/`.\n"},
 		{name: "relative spelling", rel: "CLAUDE.md", body: "@./AGENTS.md\n"},
+		// Claude Code reads an import as a path token anywhere in the prose,
+		// not only from a line that is nothing else. A repository routed this
+		// way is routed, and telling its adopter to add the import they
+		// already have is the mirror of the failure this migration catches.
+		{name: "named in a sentence", rel: "CLAUDE.md", body: "# Ours\n\nSee @AGENTS.md for the routing rules, then read the skill.\n"},
+		{name: "named in a list item", rel: "CLAUDE.md", body: "# Ours\n\n- routing: @AGENTS.md\n"},
+		// A code span earlier on the line is skipped by the parser; the
+		// import after it still loads.
+		{name: "after a code span", rel: "CLAUDE.md", body: "Run `make it` before pushing, and follow @AGENTS.md\n"},
 		// An import resolves against the directory of the file holding it, so
 		// the parent hop is what reaches the hub from `.claude/`.
 		{name: "the .claude location", rel: ".claude/CLAUDE.md", body: "@../AGENTS.md\n"},
