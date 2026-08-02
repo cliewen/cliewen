@@ -4,6 +4,8 @@ Skills are Cliewen's process-knowledge layer. They tell a coding agent what the 
 
 `clue init` installs the skills under `.agents/skills/` and emits an `AGENTS.md` routing hub. The routing file classifies plain work before loading the corpus; a plain change uses no Cliewen skill. For Cliewen work, the agent loads the relevant skill and follows a complete workflow without requiring a long prompt from the user.
 
+Assistants disagree about which file they load, so init also emits the bridges that make the hub reachable: the skills are mirrored to `.claude/skills/`, and a `CLAUDE.md` imports `AGENTS.md` because Claude Code reads that name and not this one. The bridge only points — every rule stays in the hub, where every assistant sees it, and the emitted file is yours to extend with genuinely Claude-specific instructions.
+
 ## The lifecycle set
 
 | Skill | Use it when | Durable output or hand-off |

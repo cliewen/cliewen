@@ -93,4 +93,22 @@ Feature: Onboarding — install to first green validate
     And "clue migrate --apply --reversal-cost=low" applies the complete preflighted plan while preserving unrelated prose and caller-owned choices
     And a second run is a no-op
     But missing semantic choices, ambiguous syntax, interrupted source changes, and locally modified carriers fail without partial writes
+
+  @AC-071
+  Scenario: init emits a Claude Code entry point that only points at the hub
+    Test-type: Unit
+    Given an empty git repository
+    When the user runs "clue init"
+    Then a root "CLAUDE.md" imports "AGENTS.md" and says that rules belong in the hub
+    And it duplicates no sentence of the hub it points at
+    And a repository whose "CLAUDE.md" already exists keeps it byte-for-byte and sees it reported as skipped
+
+  @AC-072
+  Scenario: migrate reports an entry point that never reaches the hub
+    Test-type: Unit
+    Given an adopted repository whose Claude Code entry point is missing or imports nothing
+    When the user runs "clue migrate"
+    Then the plan reports that Claude Code reads no routing and names "clue init" as the remedy
+    And a "CLAUDE.md" that imports the hub produces no such report
+    But no run writes or rewrites that file, with or without "--apply"
 ```

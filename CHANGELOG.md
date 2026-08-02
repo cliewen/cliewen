@@ -4,6 +4,14 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 
 ## [Unreleased]
 
+### Migration
+
+- **If you use Claude Code, your repository is probably missing its entry point.** Claude Code reads `CLAUDE.md` and never `AGENTS.md`, so until now an adopted repository gave it the five lifecycle skills and none of the routing that says when to use them. `clue migrate` now reports this, in both shapes it takes: no `CLAUDE.md` at all, or one that exists without importing the hub. Neither is repaired for you. For a missing file, run `clue init` — it creates the pointer and, as always, overwrites nothing else. For a `CLAUDE.md` you already wrote, add a line containing just `@AGENTS.md`; that file is yours and no Cliewen command edits it. The report is a notice, not a blocker: an upgrade still applies normally while you decide.
+
+### Added
+
+- **`clue init` emits a `CLAUDE.md` that points at `AGENTS.md`.** It exists because Claude Code loads that filename and not the cross-agent one, and it contains nothing but the import and the reason for it — every rule stays in `AGENTS.md`, where every assistant sees the same text. The file is yours from the moment it lands: add Claude-specific instructions below the import if you want them, and neither `clue init` nor `clue migrate` will touch it again.
+
 ### Changed
 
 - **The skills now say when a plan closes.** Marking a milestone done already belonged in the implementing change's merge digest; closing the plan is the same bookkeeping, and nothing said so. The change that completes a campaign's last milestone now also sets that plan `completed` in the same digest, and designates a successor plan there when one is decided — not having decided one is no reason to keep a finished plan open. Because a completed plan is immutable, every milestone's evidence must be in the table before that digest lands. The generated skills, the AGENTS.md routing hub, the plan folder's README, and the public change-loop guide all state it, so an agent meets the same rule wherever it looks, and the pre-merge verification checklist now asks for the closure instead of accepting a ticked milestone as complete bookkeeping. Existing repositories pick this up in the refreshed skills; a repository's own `AGENTS.md` and `docs/` prose are yours, so `clue init` and `clue migrate` leave them untouched — the new wording reaches those files only in newly initialized repositories.

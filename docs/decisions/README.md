@@ -74,4 +74,5 @@ The CLI reports inferred ADRs and PDRs as decisions awaiting verification, separ
 - [ADR-038-upstream-validation-workflow](ADR-038-upstream-validation-workflow.md)
 - [ADR-039-versioned-corpus-migrations](ADR-039-versioned-corpus-migrations.md)
 - [ADR-040-qualified-external-references](ADR-040-qualified-external-references.md)
+- [PDR-022-vendor-entry-points-only-point](PDR-022-vendor-entry-points-only-point.md)
 <!-- clue:index:end -->

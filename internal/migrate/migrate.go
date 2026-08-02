@@ -38,6 +38,11 @@ const (
 	// reference into a confidently wrong qualified one that no later check
 	// can question.
 	MigrationQualifiedReferences = "MIG-004"
+	// MigrationClaudeEntryPoint reports a Claude Code entry point that never
+	// reaches AGENTS.md. It never repairs one: the missing case is already
+	// solved by re-running the non-destructive init, and an entry point the
+	// adopter wrote themselves is their prose (PDR-022).
+	MigrationClaudeEntryPoint = "MIG-005"
 )
 
 // Options controls planning. Preview is the default; applying a plan is a
@@ -59,6 +64,7 @@ var orderedMigrations = []MigrationDefinition{
 	{ID: MigrationStatusLifecycle, Description: "map historical architecture and analysis status to the default lifecycle"},
 	{ID: MigrationManagedCarriers, Description: "refresh generated skills, mirrors, and the thin CI caller"},
 	{ID: MigrationQualifiedReferences, Description: "report external references that name no repository"},
+	{ID: MigrationClaudeEntryPoint, Description: "report a Claude Code entry point that never reaches the routing hub"},
 }
 
 // Registry returns the migration order without exposing mutable package state.
@@ -86,8 +92,9 @@ type Finding struct {
 // Notice is an explicitly non-blocking boundary, such as a missing Claude
 // mirror that init never materialized or a symlinked mirror outside the repo.
 type Notice struct {
-	Path    string
-	Message string
+	Path      string
+	Migration string
+	Message   string
 }
 
 // MigrationPlan is the complete preflight result. Changes contain exact before/after
@@ -219,6 +226,7 @@ func Plan(root string, opts Options) (MigrationPlan, error) {
 	}
 	planCarriers(root, target, carriers, &result)
 	planQualifiedReferences(root, &result)
+	planClaudeEntryPoint(root, &result)
 	sortPlan(&result)
 	return result, nil
 }
@@ -570,14 +578,14 @@ func planCarriers(root, target string, expected map[string][]byte, result *Migra
 
 func planManagedFile(root, rel string, want []byte, result *MigrationPlan) {
 	if hasLinkBoundary(root, rel) {
-		result.Notices = append(result.Notices, Notice{Path: rel, Message: "managed carrier is behind a symlink; migration does not write through that boundary"})
+		result.Notices = append(result.Notices, Notice{Path: rel, Migration: MigrationManagedCarriers, Message: "managed carrier is behind a symlink; migration does not write through that boundary"})
 		return
 	}
 	full := filepath.Join(root, filepath.FromSlash(rel))
 	got, err := os.ReadFile(full)
 	if os.IsNotExist(err) {
 		if strings.HasPrefix(rel, ".claude/") {
-			result.Notices = append(result.Notices, Notice{Path: rel, Message: "managed mirror is not present; init or its symlink boundary owns materialization"})
+			result.Notices = append(result.Notices, Notice{Path: rel, Migration: MigrationManagedCarriers, Message: "managed mirror is not present; init or its symlink boundary owns materialization"})
 			return
 		}
 		legacyRel := strings.TrimPrefix(rel, ".agents/skills/")
@@ -855,6 +863,57 @@ func sortPlan(plan *MigrationPlan) {
 // perfectly in the wrong namespace. Guessing the adopter's own slug would
 // cement exactly that mistake behind a form no later check can question. The
 // adopter resolves each one in a reviewed change.
+// entryPointLocations are the places Claude Code loads a project entry point
+// from, in the order it resolves them.
+var entryPointLocations = []string{"CLAUDE.md", ".claude/CLAUDE.md"}
+
+// hubImportRe matches a bare import of the routing hub. Claude Code skips
+// imports inside code spans and fences, so only a line that is the import
+// actually loads the hub; a path mentioned in backticks loads nothing.
+var hubImportRe = regexp.MustCompile(`(?m)^\s*@\.?/?AGENTS\.md\s*$`)
+
+// planClaudeEntryPoint reports an adopted repository whose Claude Code
+// sessions never receive the routing hub, and repairs nothing (PDR-022).
+// Claude Code reads CLAUDE.md and not AGENTS.md, so without a bridge the
+// adopter's agent lists the lifecycle skills and is never told when to invoke
+// them — it holds the manuals with no instruction to open them.
+//
+// Neither case is a Finding. A missing pointer must not block a carrier
+// upgrade: refusing to refresh an adopter's skills until they add a vendor
+// file would be a hard stop out of all proportion to a notice.
+func planClaudeEntryPoint(root string, result *MigrationPlan) {
+	for _, rel := range entryPointLocations {
+		full := filepath.Join(root, filepath.FromSlash(rel))
+		info, err := os.Lstat(full)
+		if err != nil {
+			continue
+		}
+		// A symlink to the hub is the vendor's other documented bridge, and
+		// following it would find no import in what is literally AGENTS.md.
+		if info.Mode()&fs.ModeSymlink != 0 {
+			return
+		}
+		data, err := os.ReadFile(full)
+		if err != nil {
+			continue
+		}
+		if hubImportRe.Match(data) {
+			return
+		}
+		result.Notices = append(result.Notices, Notice{
+			Path:      rel,
+			Migration: MigrationClaudeEntryPoint,
+			Message:   "exists but never imports AGENTS.md, so Claude Code reads no routing; add a bare `@AGENTS.md` line — migration does not edit a file you wrote",
+		})
+		return
+	}
+	result.Notices = append(result.Notices, Notice{
+		Path:      entryPointLocations[0],
+		Migration: MigrationClaudeEntryPoint,
+		Message:   "absent, so Claude Code reads no routing; run `clue init` to materialize the pointer, which never overwrites an existing file",
+	})
+}
+
 func planQualifiedReferences(root string, result *MigrationPlan) {
 	// Scan's second return is the parse-level issue list, not a fatal: an
 	// adopter's pre-upgrade corpus is exactly where a stray file without

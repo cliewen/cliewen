@@ -99,7 +99,8 @@ cliewen-demo/
 ├── .claude/skills/       Claude Code mirror of those skills
 ├── .github/workflows/    the thin CI caller
 ├── docs/                 the permanent corpus
-└── AGENTS.md             routing instructions for coding agents
+├── AGENTS.md             routing instructions for coding agents
+└── CLAUDE.md             a pointer, because Claude Code does not read AGENTS.md
 ```
 
 `clue init` copies defaults but does not take ownership of your repository. You and your agent own the corpus prose and repository-specific instructions. `clue scaffold` and repeated `clue init` regenerate only the marked README index blocks; existing files are otherwise skipped, never replaced. The copied skills and workflow are versioned repository files, not background-managed services.
