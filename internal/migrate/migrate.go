@@ -581,11 +581,17 @@ func planCarriers(root, target string, expected map[string][]byte, result *Migra
 			planCaller(root, rel, want, target, result)
 			continue
 		}
-		planManagedFile(root, rel, want, result)
+		planManagedFile(root, rel, want, target, result)
 	}
 }
 
-func planManagedFile(root, rel string, want []byte, result *MigrationPlan) {
+// planManagedFile takes target because a preview must name the release whose
+// bytes it is about to write. Both descriptions below used to name the release
+// the carrier was *recognized* as, which is the one fact about the write that
+// is certainly not true of it: the bytes are always the target's. An adopter
+// upgrading from 0.11.2 read "with release 0.11.2 content" and had every reason
+// to think the migration was rewriting them backwards.
+func planManagedFile(root, rel string, want []byte, target string, result *MigrationPlan) {
 	if hasLinkBoundary(root, rel) {
 		result.Notices = append(result.Notices, Notice{Path: rel, Migration: MigrationManagedCarriers, Message: "managed carrier is behind a symlink; migration does not write through that boundary"})
 		return
@@ -600,7 +606,11 @@ func planManagedFile(root, rel string, want []byte, result *MigrationPlan) {
 		legacyRel := strings.TrimPrefix(rel, ".agents/skills/")
 		if legacyRel != rel {
 			if oldVersion := skillVersion(root, legacyRel); oldVersion != "" && releaseDigest(oldVersion, legacyRel) == "" {
-				result.Changes = append(result.Changes, Change{Path: rel, Migration: MigrationManagedCarriers, Description: fmt.Sprintf("add generated carrier from release %s content", oldVersion), After: want})
+				// oldVersion is the release the sibling skill is recognized as,
+				// and it is here precisely because that release did not publish
+				// this file. Naming it as the source of the bytes was doubly
+				// wrong; it belongs in the clause that says why the add is safe.
+				result.Changes = append(result.Changes, Change{Path: rel, Migration: MigrationManagedCarriers, Description: fmt.Sprintf("add generated carrier with release %s content; the skill is recognized as release %s, which did not publish this file", target, oldVersion), After: want})
 				return
 			}
 		}
@@ -616,7 +626,7 @@ func planManagedFile(root, rel string, want []byte, result *MigrationPlan) {
 	}
 	legacyRel := legacyCarrierRel(rel)
 	if oldVersion := legacyVersion(legacyRel, got); oldVersion != "" {
-		result.Changes = append(result.Changes, Change{Path: rel, Migration: MigrationManagedCarriers, Description: fmt.Sprintf("replace generated carrier %s with release %s content", legacyRel, oldVersion), Existed: true, Before: got, After: want})
+		result.Changes = append(result.Changes, Change{Path: rel, Migration: MigrationManagedCarriers, Description: fmt.Sprintf("replace generated carrier %s, recognized as release %s, with release %s content", legacyRel, oldVersion, target), Existed: true, Before: got, After: want})
 		return
 	}
 	result.Findings = append(result.Findings, Finding{Path: rel, Migration: MigrationManagedCarriers, Message: "managed carrier differs from every supported generated release; local edits are never overwritten"})
