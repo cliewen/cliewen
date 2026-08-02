@@ -46,6 +46,8 @@ Never weaken a test or lint rule to make the build pass. A failing check is evid
 
 Once every implementation task is complete or explicitly infeasible, update durable documentation, decisions, indexes, plan bookkeeping, and release notes for shipped behavior or workflow changes. Then delete the `/changes` workspace.
 
+Plan bookkeeping includes closing the plan. When a change completes a campaign's last milestone, the same digest sets that plan `completed` — a campaign is over once its last milestone is evidenced, and leaving it open makes the plan index claim work is in flight that is not. A successor plan is designated in that digest when one is decided; not having decided one is no reason to keep the finished plan open.
+
 Deletion is the digest: the proposal has been absorbed into the current system truth, and Git retains the delta. `main` never contains `/changes`.
 
 ## 5. Verify and review
