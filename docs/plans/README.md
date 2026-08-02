@@ -14,4 +14,5 @@ The campaign layer: P-xxx plans with M-xxx milestones. This folder is **flat** �
 - [P-007 — Cliewen hardens its core](P-007-core-hardening.md) · `completed`
 - [P-008 — Cliewen agrees with itself before widening its promises](P-008-self-consistency.md) · `completed`
 - [P-009 — Cliewen closes migration blockers and distributed boundaries](P-009-migration-readiness.md) · `completed`
+- [P-010 — Cliewen makes staying current something an adopter notices](P-010-adopters-keep-current.md) · `active`
 <!-- clue:index:end -->
