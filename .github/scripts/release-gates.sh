@@ -108,13 +108,21 @@ fi
 
 manifest=$(git show "${head}:internal/migrate/migrate.go")
 
+# The manifest is searched with a here-string rather than `printf | grep -q`.
+# Under `set -o pipefail` that pipeline reports failure whenever grep finds its
+# match early enough to exit before printf finishes writing — printf then dies
+# of SIGPIPE and its 141 becomes the pipeline's status, so a digest that is
+# present reads as missing. It is a race, so it passes locally and fails in CI,
+# or the reverse. A gate whose answer depends on scheduling is worse than no
+# gate: this one blocked a release whose manifest was complete, and the same
+# race can pass a release whose manifest is not.
 missing=0
 for f in $carriers; do
   want=$(git show "${head}:.agents/skills/${f}" | sha256sum | cut -d' ' -f1)
-  if ! printf '%s\n' "$manifest" | grep -Fq "\"${f}\":"; then
+  if ! grep -Fq "\"${f}\":" <<<"$manifest"; then
     echo "::error title=Carrier missing from the release manifest::${f} is not listed in legacyDigests (internal/migrate/migrate.go); add it to the ${v} entry with digest ${want}" >&2
     missing=1
-  elif ! printf '%s\n' "$manifest" | grep -Fq "\"${want}\""; then
+  elif ! grep -Fq "\"${want}\"" <<<"$manifest"; then
     echo "::error title=Release manifest is stale::${f} has digest ${want} but no entry in legacyDigests carries it; the ${v} entry must record this release's carriers" >&2
     missing=1
   fi
