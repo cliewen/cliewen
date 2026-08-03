@@ -68,8 +68,12 @@ type Report struct {
 	// "could not tell" apart is the whole reason this command exists.
 	SourceBuild bool
 	Comparable  bool
-	Behind      bool     // the running release is older than Latest
-	Recipe      []string // the installation route for this platform, one command per line
+	Behind      bool // the running release is older than Latest
+	// Ahead is a running stamp newer than anything published: an unreleased
+	// build. It is kept apart from "current" because calling it the newest
+	// release would state a fact about a version the release list never named.
+	Ahead  bool
+	Recipe []string // the installation route for this platform, one command per line
 }
 
 // cached is the stored answer. Only the tag and when it was fetched are kept:
@@ -128,6 +132,9 @@ func Check(opts Options) Report {
 	// 0.13.0, and the moment the final ships is exactly when its user needs to
 	// hear that.
 	report.Behind = comparable && (older(current, latest) || (current == latest && prerelease))
+	// A pre-release of an unpublished version — 0.13.0-rc1 while 0.12.0 is
+	// newest — is ahead, not current: its numbers name nothing published.
+	report.Ahead = comparable && !report.Behind && older(latest, current)
 	if report.Behind {
 		report.Recipe = recipe(opts.Platform, report.Latest)
 	}

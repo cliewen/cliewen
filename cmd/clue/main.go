@@ -366,6 +366,11 @@ func runLatest(args []string, out, errOut io.Writer, opts release.Options) int {
 		// release. Saying "you are current" here would be the one thing this
 		// command exists to stop: a repository unable to tell, being reassured.
 		fmt.Fprintf(out, "clue %s — the newest release is %s; this build's version cannot be compared with it\n", report.Current, report.Latest)
+	case report.Ahead:
+		// An unreleased build: a release candidate, or a local tag ahead of the
+		// list. Nothing to catch up with, but it is not the newest release
+		// either, and saying it is would state a fact the list never gave.
+		fmt.Fprintf(out, "clue %s — nothing newer is published; the newest release is %s\n", report.Current, report.Latest)
 	default:
 		fmt.Fprintf(out, "clue %s — this is the newest release\n", report.Current)
 	}

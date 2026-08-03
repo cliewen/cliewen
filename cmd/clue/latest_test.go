@@ -383,6 +383,47 @@ func TestAC077_UnitNegative_AnUnreadableStampIsNotReportedAsCurrent(t *testing.T
 	if !strings.Contains(out, "0.12.0 is available") {
 		t.Fatalf("a release candidate must still be told it is behind, got:\n%s", out)
 	}
+	// And the day the release it is a candidate for ships, it is behind that —
+	// the numbers are equal, so only the ordering rule reports it.
+	opts = latestOptions(t, "0.12.0-rc1", release.Platform{OS: "linux", Arch: "amd64"},
+		answering{status: http.StatusOK, body: `{"tag_name":"v0.12.0"}`})
+	_, out, _ = runLatestCapturing(t, nil, opts)
+	if !strings.Contains(out, "0.12.0 is available") {
+		t.Fatalf("a candidate for the release that just shipped must be told it is behind, got:\n%s", out)
+	}
+}
+
+// TestAC077_UnitNegative_AnUnpublishedBuildIsNotCalledTheNewestRelease covers
+// the stamp that is newer than the list: a release candidate for a version that
+// has not shipped, or a local tag ahead of it. There is nothing to catch up
+// with, but calling it the newest release states a fact about a version the
+// release list never named.
+func TestAC077_UnitNegative_AnUnpublishedBuildIsNotCalledTheNewestRelease(t *testing.T) {
+	for _, current := range []string{"0.13.0", "0.13.0-rc1"} {
+		opts := latestOptions(t, current, release.Platform{OS: "linux", Arch: "amd64"},
+			answering{status: http.StatusOK, body: `{"tag_name":"v0.12.0"}`})
+		code, out, errOut := runLatestCapturing(t, nil, opts)
+		if code != 0 || errOut != "" {
+			t.Fatalf("%q: expected a clean exit, got %d with stderr %q", current, code, errOut)
+		}
+		if strings.Contains(out, "this is the newest release") {
+			t.Fatalf("%q: an unpublished build was called the newest release:\n%s", current, out)
+		}
+		if !strings.Contains(out, "nothing newer is published") || !strings.Contains(out, "0.12.0") {
+			t.Fatalf("%q: expected the newest published release named, got:\n%s", current, out)
+		}
+		if strings.Contains(out, "install.sh") || strings.Contains(out, "go install") {
+			t.Fatalf("%q: nothing to catch up with, so no route: %s", current, out)
+		}
+	}
+	// The build-metadata stamp of an ordinary release is that release, so it
+	// still gets the plain answer.
+	opts := latestOptions(t, "0.12.0+dirty", release.Platform{OS: "linux", Arch: "amd64"},
+		answering{status: http.StatusOK, body: `{"tag_name":"v0.12.0"}`})
+	_, out, _ := runLatestCapturing(t, nil, opts)
+	if !strings.Contains(out, "this is the newest release") {
+		t.Fatalf("build metadata orders with its release, got:\n%s", out)
+	}
 }
 
 // TestAC077_UnitNegative_AKnownAnswerStillReports keeps the silence honest: it

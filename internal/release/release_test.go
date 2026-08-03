@@ -122,6 +122,69 @@ func TestAC075_UnitNegative_ACurrentOrSourceBuildIsNotBehind(t *testing.T) {
 	}
 }
 
+// TestAC077_UnitPositive_ACandidateIsBehindTheReleaseItNames holds the
+// ordering rule: a pre-release carries the numbers of the release it is a
+// candidate for, and the moment that release ships is exactly when its user
+// needs to hear it. Comparing by numbers alone would call them equal and say
+// nothing.
+func TestAC077_UnitPositive_ACandidateIsBehindTheReleaseItNames(t *testing.T) {
+	for _, current := range []string{"0.13.0-rc1", "0.13.0-alpha.2", "v0.13.0-rc1"} {
+		net := serving(http.StatusOK, `{"tag_name":"v0.13.0"}`)
+		got := Check(Options{
+			Current:  current,
+			Platform: Platform{"linux", "amd64"},
+			Client:   net.client(),
+			CacheDir: t.TempDir(),
+		})
+		if !got.Behind {
+			t.Fatalf("%q: a candidate for 0.13.0 is behind 0.13.0, got %+v", current, got)
+		}
+		if got.Ahead {
+			t.Fatalf("%q: a candidate for a published release is not ahead of it", current)
+		}
+		if len(got.Recipe) != 1 || !strings.Contains(got.Recipe[0], "install.sh") {
+			t.Fatalf("%q: expected the route for this machine, got %v", current, got.Recipe)
+		}
+	}
+}
+
+// TestAC077_UnitNegative_BuildMetadataAndUnpublishedNumbersAreNotBehind holds
+// the other side of the same rule. "+" is build metadata: it orders with the
+// release it decorates, not before it. And a stamp whose numbers are newer
+// than anything published is not behind — but it is not the newest release
+// either, because the list never named it.
+func TestAC077_UnitNegative_BuildMetadataAndUnpublishedNumbersAreNotBehind(t *testing.T) {
+	cases := []struct {
+		current    string
+		tag        string
+		wantAhead  bool
+		wantReason string
+	}{
+		{"0.13.0+dirty", "v0.13.0", false, "build metadata orders with its release"},
+		{"0.13.0+build.7", "v0.13.0", false, "build metadata orders with its release"},
+		{"0.13.0", "v0.12.0", true, "newer numbers than anything published"},
+		{"0.13.0-rc1", "v0.12.0", true, "a candidate for an unpublished release"},
+	}
+	for _, c := range cases {
+		net := serving(http.StatusOK, `{"tag_name":"`+c.tag+`"}`)
+		got := Check(Options{
+			Current:  c.current,
+			Platform: Platform{"linux", "amd64"},
+			Client:   net.client(),
+			CacheDir: t.TempDir(),
+		})
+		if got.Behind {
+			t.Fatalf("%q vs %s: must not be behind (%s), got %+v", c.current, c.tag, c.wantReason, got)
+		}
+		if len(got.Recipe) != 0 {
+			t.Fatalf("%q vs %s: nothing to catch up with, so no recipe: %v", c.current, c.tag, got.Recipe)
+		}
+		if got.Ahead != c.wantAhead {
+			t.Fatalf("%q vs %s: Ahead = %v, want %v (%s)", c.current, c.tag, got.Ahead, c.wantAhead, c.wantReason)
+		}
+	}
+}
+
 // TestAC077_UnitPositive_EveryDegradationIsUnknown covers all four the
 // milestone names. Each means "could not tell", and that is one answer.
 func TestAC077_UnitPositive_EveryDegradationIsUnknown(t *testing.T) {
