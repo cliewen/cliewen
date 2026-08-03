@@ -72,6 +72,19 @@ func Registry() []MigrationDefinition {
 	return append([]MigrationDefinition(nil), orderedMigrations...)
 }
 
+// ReleasedVersions returns the releases the carrier manifest records, oldest
+// first. The manifest gains one entry per release and is committed, so this is
+// the repository's own answer to "which versions shipped" — available without
+// the tag list and without the network, which is what lets an ordinary test
+// hold a promise about every past release.
+func ReleasedVersions() []string {
+	out := make([]string, 0, len(legacyDigests))
+	for _, r := range legacyDigests {
+		out = append(out, r.Version)
+	}
+	return out
+}
+
 // Change is one file replacement in a complete migration plan.
 type Change struct {
 	Path        string
