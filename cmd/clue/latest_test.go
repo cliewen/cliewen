@@ -393,6 +393,32 @@ func TestAC077_UnitNegative_AnUnreadableStampIsNotReportedAsCurrent(t *testing.T
 	}
 }
 
+// TestAC077_UnitNegative_ASourceBuildIsNotCalledTheNewestRelease covers the
+// stamp every source build and every "go run ./cmd/clue" carries. It has no
+// release to compare, which is the same exemption the drift rule makes — and
+// the answer to "no release to compare" is never "you are current".
+func TestAC077_UnitNegative_ASourceBuildIsNotCalledTheNewestRelease(t *testing.T) {
+	for _, current := range []string{"dev", ""} {
+		opts := latestOptions(t, current, release.Platform{OS: "linux", Arch: "amd64"},
+			answering{status: http.StatusOK, body: `{"tag_name":"v0.12.0"}`})
+		code, out, errOut := runLatestCapturing(t, nil, opts)
+		if code != 0 || errOut != "" {
+			t.Fatalf("%q: expected a clean exit, got %d with stderr %q", current, code, errOut)
+		}
+		if strings.Contains(out, "this is the newest release") {
+			t.Fatalf("%q: a source build was reported as current:\n%s", current, out)
+		}
+		if !strings.Contains(out, "source build") || !strings.Contains(out, "0.12.0") {
+			t.Fatalf("%q: expected the newest release named and the comparison declined, got:\n%s", current, out)
+		}
+		// Nothing to catch up with either: a source build is not behind a
+		// release it was never cut from.
+		if strings.Contains(out, "install.sh") || strings.Contains(out, "is available") {
+			t.Fatalf("%q: a source build must not be handed an upgrade route:\n%s", current, out)
+		}
+	}
+}
+
 // TestAC077_UnitNegative_AnUnpublishedBuildIsNotCalledTheNewestRelease covers
 // the stamp that is newer than the list: a release candidate for a version that
 // has not shipped, or a local tag ahead of it. There is nothing to catch up

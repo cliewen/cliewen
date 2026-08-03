@@ -229,9 +229,47 @@ func TestAC077_UnitNegative_AnUnknownAnswerIsNeverCached(t *testing.T) {
 	if entries, _ := os.ReadDir(dir); len(entries) != 0 {
 		t.Fatalf("an unknown answer was written to the cache: %v", entries)
 	}
+	// The other way an answer becomes unknown is a reply that arrived and was
+	// not recognized. It must not be stored either — a cached tag nothing can
+	// read would cost a request on every call and teach nothing.
+	odd := serving(http.StatusOK, `{"tag_name":"nightly"}`)
+	if got := Check(Options{Current: "0.11.2", Client: odd.client(), CacheDir: dir}); got.Known {
+		t.Fatalf("expected unknown, got %+v", got)
+	}
+	if entries, _ := os.ReadDir(dir); len(entries) != 0 {
+		t.Fatalf("an unrecognized answer was written to the cache: %v", entries)
+	}
 	up := serving(http.StatusOK, `{"tag_name":"v0.12.0"}`)
 	if got := Check(Options{Current: "0.11.2", Client: up.client(), CacheDir: dir}); !got.Known {
 		t.Fatalf("the next call must ask again, got %+v", got)
+	}
+}
+
+// TestAC077_UnitNegative_AnErrorStatusIsNotAnAnswer holds the guard the other
+// degradation fixtures never reach: each of those carries a body that fails to
+// parse anyway, so the status check itself is never what produces "could not
+// tell". A rate limit, a proxy error page, or a mirror's error envelope can
+// carry a perfectly well-formed tag, and reading it would let this command
+// report a release the release list never gave.
+func TestAC077_UnitNegative_AnErrorStatusIsNotAnAnswer(t *testing.T) {
+	for _, status := range []int{
+		http.StatusForbidden,
+		http.StatusTooManyRequests,
+		http.StatusNotFound,
+		http.StatusInternalServerError,
+	} {
+		dir := t.TempDir()
+		net := serving(status, `{"tag_name":"v9.9.9"}`)
+		got := Check(Options{Current: "0.11.2", Client: net.client(), CacheDir: dir})
+		if got.Known {
+			t.Fatalf("status %d: a well-formed tag on an error status is not an answer, got %+v", status, got)
+		}
+		if got.Behind || got.Latest != "" {
+			t.Fatalf("status %d: nothing may be reported from it, got %+v", status, got)
+		}
+		if entries, _ := os.ReadDir(dir); len(entries) != 0 {
+			t.Fatalf("status %d: it must not be cached either: %v", status, entries)
+		}
 	}
 }
 
