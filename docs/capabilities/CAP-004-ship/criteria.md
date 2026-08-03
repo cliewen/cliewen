@@ -112,4 +112,49 @@ Feature: clue ships — a versioned binary and versioned skills, drift made lint
     And --apply rewrites only the ordinary artifact, to the location its host gave
     But the completed plan is left exactly as it was, because its address is part of what was observed
     And a gone address is never rewritten, since no correct replacement exists to offer
+
+  @AC-075
+  Scenario: A newer release is reported with the route for the machine it is running on
+    Test-type: Unit
+    Given a released clue whose version is behind the newest published release
+    When the user runs "clue latest" on Windows, on macOS or Linux, and on a platform with no prebuilt asset
+    Then each run names both versions and prints exactly one installation route — the PowerShell script, the shell script, and "go install" pinned to that release
+    And each run also prints the coordinated migrate preview-and-apply sequence, because moving the binary alone produces drift rather than resolving it
+    But no run writes a file in the repository, with or without flags, and no run replaces the binary
+
+  @AC-076
+  Scenario: The quiet mode is silent unless there is something to say
+    Test-type: Unit
+    Given a released clue behind the newest release and the same clue already on it
+    When the user runs "clue latest --quiet" in each
+    Then the run that is behind prints one line naming the newer release
+    But the run that is current prints nothing at all, and both exit 0
+
+  @AC-077
+  Scenario: Not being able to tell is never a failure
+    Test-type: Unit
+    Given a release host that is offline, one that never answers within the timeout, one that answers with a rate limit, and one that answers with a body the command does not recognize
+    When the user runs "clue latest" and "clue latest --quiet" against each
+    Then every run exits 0 and writes nothing to standard error
+    And the quiet runs print nothing at all
+    But the ordinary runs say the release list could not be reached rather than claiming the repository is current
+    And a running stamp the command cannot read as a release is reported as uncomparable rather than as current, while a pre-release stamp is compared as its release numbers and ordered before the release it names, build metadata orders with the release it decorates, and a stamp newer than anything published is reported as unpublished rather than as the newest release
+
+  @AC-078
+  Scenario: The answer is cached outside the repository, and a broken cache is absence
+    Test-type: Unit
+    Given a cached answer inside its lifetime, one older than its lifetime, and a cache file whose bytes cannot be read as an answer
+    When the user runs "clue latest" against each
+    Then the fresh cache is used and no request is made, and the stale and unreadable caches ask the host and store what it said
+    And the cache is written under the user's cache directory, never inside the repository
+    But a cache that cannot be read or written never fails the command, because a cache that can fail a command is worse than no cache
+
+  @AC-079
+  Scenario: The drift report names the way out and the way to stay
+    Test-type: Unit
+    Given a released clue whose version differs from its marked Cliewen skills
+    When the user runs "clue validate"
+    Then the drift issue names the command that reports the upgrade and the command that moves the repository
+    And it names both halves of staying on the release the repository carries — the matching binary and the pinned CI caller
+    But it still fails the run and still names both versions, because what the rule decides has not changed
 ```

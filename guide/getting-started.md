@@ -42,6 +42,8 @@ The Go route installs under `$(go env GOPATH)/bin`, which you may need to add to
 
 Upgrading later means re-running the same command. That moves the binary only — for a repository already using Cliewen it is half an upgrade; preview and apply the coordinated corpus and carrier migration with `clue migrate`, as [Operate safely](./operations) explains.
 
+To find out whether there is anything to upgrade to, run `clue latest`. It reports the newest release and, when you are behind, the installation route for the machine you are on plus the `clue migrate` sequence that moves the repository. It installs nothing, writes nothing in your repository, and exits 0 even when it cannot reach the network — so it is safe to run from a script or a coding agent's session start, where `--quiet` keeps it silent unless there is something to say.
+
 ### Download a binary instead
 
 To install by hand — or on a machine where neither script can run — open the [latest Cliewen release](https://github.com/cliewen/cliewen/releases/latest) and download `SHA256SUMS` plus the binary for your machine into an otherwise empty download directory:

@@ -154,11 +154,46 @@ func checkSkillVersions(c *Corpus, binaryVersion string) []Issue {
 	if consistent && binaryVersion != "" && binaryVersion != "dev" {
 		for _, s := range skills {
 			if s.version != binaryVersion {
-				issues = append(issues, Issue{s.path, "skill version " + s.version + " != clue " + binaryVersion + " (drift — reinstall the skills or clue)"})
+				// AC-079: the message names both ways out. "Reinstall the
+				// skills or clue" stated the disagreement and left the reader
+				// to guess which side to move — and never said that staying on
+				// the release this repository carries is a legitimate answer
+				// (ADR-042).
+				stay := ""
+				if bareSemver(s.version) {
+					// The half that names things to run repeats a string the
+					// corpus supplies, so it is written only for a stamp that
+					// is three plain numbers. A stamp carrying anything else is
+					// still named as the fact it is, never as an instruction —
+					// the same gate ADR-042 puts on the release list.
+					stay = "; or stay on " + s.version + ": install clue " + s.version +
+						" and pin the CI caller with clue-version=" + s.version
+				}
+				issues = append(issues, Issue{s.path, "skill version " + s.version + " != clue " + binaryVersion +
+					` (drift — run "clue latest" for the upgrade recipe, then "clue migrate" to move this repository` +
+					stay + ")"})
 			}
 		}
 	}
 	return issues
+}
+
+// bareSemver reports whether v is exactly three decimal numbers separated by
+// dots — the shape every published release stamp has. It gates the half of the
+// drift message that reads as things to run: a version string is corpus
+// content, and text shaped as a command is written only from text that was
+// checked (ADR-042).
+func bareSemver(v string) bool {
+	parts := strings.Split(v, ".")
+	if len(parts) != 3 {
+		return false
+	}
+	for _, p := range parts {
+		if p == "" || strings.ContainsFunc(p, func(r rune) bool { return r < '0' || r > '9' }) {
+			return false
+		}
+	}
+	return true
 }
 
 // findSkillManifest resolves a skill's manifest inside dir by matching an entry
