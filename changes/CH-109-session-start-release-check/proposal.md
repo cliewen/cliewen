@@ -1,7 +1,7 @@
 ---
 id: CH-109
 type: change
-status: active
+status: open
 links: [P-010, CAP-001, CAP-004, PDR-022, ADR-042, ADR-018, C-013]
 title: A coding agent learns a release is available when its session starts
 ---
