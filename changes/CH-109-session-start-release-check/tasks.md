@@ -17,4 +17,13 @@ title: Tasks — a coding agent learns a release is available when its session s
 - [x] Prove AC-083 and AC-084 in both directions with focused Unit tests, including that no vendor configuration is emitted
 - [x] Update CAP-001 README and design, CAP-004 design, `guide/operations.md`, `guide/getting-started.md`, and the migration inventory to state the same contract
 - [x] Add the `[Unreleased]` changelog entry and its migration note
-- [ ] Ask the human to observe a real session reading the hub and running the check, and record the verdict in the acceptance brief (AC-085)
+- [x] Ask the human to observe a real session reading the hub and running the check (AC-085) — **run 2026-08-03 and failed.** The hub reached the session's context and the agent read past the instruction into the requested work; a second finding came with it, that the installed binary predated `clue latest`, so the instruction would have produced an unknown-command error rather than the promised one line or silence. `open-questions.md` Q2 holds both.
+- [x] Write Q2 and revise PDR-023 in place: the tool carries the notice, the hub carries the instruction (unmerged and unaccepted, so revised rather than superseded; renamed to match)
+- [x] Add the update notifier — `release.Notice` and `release.QuietLine` beside the existing check, gated in `main` by command, terminal, `CI`, and `CLUE_NO_UPDATE_NOTIFIER`, printed to standard error after the command it rode in on
+- [x] Restate AC-085 as an observable criterion about a session learning it is behind by either channel, and add AC-086 and AC-087 to CAP-004 for the notice and its gate
+- [x] Prove AC-086 and AC-087 in both directions, including that the two callers share one phrasing and that the gate still lets every workflow command through
+- [x] Sharpen the hub's trigger in both carriers, name the notifier beside it, and read an unknown-command error as the answer
+- [x] Revise M-047 a second time and record why prose alone did not carry it; update CAP-001 README and design, CAP-004 design, both guides, and the `[Unreleased]` entry
+- [x] Answer Q3 — the notifier's terminal gate excluded every coding-agent session, so the mechanism reached nobody it was built for
+- [x] Remove the terminal condition from the gate, revise PDR-023 in place, and restate AC-086 and AC-087; prove the notice survives a pipe, that standard output and the exit code do not move, and that no repository file is written
+- [ ] Ask the human to observe a fresh session learning the repository is behind, and record the verdict in the acceptance brief (AC-085 retest — not this session, which knows the criterion is under test)

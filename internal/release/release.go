@@ -141,6 +141,43 @@ func Check(opts Options) Report {
 	return report
 }
 
+// AmbientBudget is the request budget for a check nobody asked for. It is
+// shorter than the requested check's, because a notice that rides along with
+// an ordinary command must never be something the user can feel; the day-long
+// cache means it is paid at most once a day (PDR-023).
+const AmbientBudget = time.Second
+
+// QuietLine is the one-line form of a behind report: what `clue latest
+// --quiet` prints, and what a workflow command's ambient notice prints. Both
+// callers share it so there is one phrasing of this fact rather than two that
+// drift.
+func QuietLine(r Report) string {
+	return fmt.Sprintf("clue %s is behind %s — run \"clue latest\" for the upgrade recipe", r.Current, r.Latest)
+}
+
+// Notice is the ambient advisory a workflow command prints when a newer
+// release exists, and "" when there is nothing to say (PDR-023).
+//
+// It is the same check the command exposes, with a shorter budget and one
+// caller-facing difference: only "behind" produces a line. Current, ahead, a
+// source build, an unreadable stamp, and every way of failing to reach the
+// release list are all silence — the caller did not ask, so anything other
+// than the one fact worth interrupting for is noise.
+//
+// Whether a notice may be printed at all is the caller's gate, not this
+// function's: reading the environment and which command ran belongs where
+// those live.
+func Notice(opts Options) string {
+	if opts.Timeout == 0 {
+		opts.Timeout = AmbientBudget
+	}
+	report := Check(opts)
+	if !report.Known || !report.Behind {
+		return ""
+	}
+	return QuietLine(report)
+}
+
 // recipe is the installation route for one machine. Printing all three would
 // make every reader skip past two wrong lines to find theirs (ADR-042).
 func recipe(p Platform, version string) []string {

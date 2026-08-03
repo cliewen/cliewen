@@ -142,10 +142,11 @@ Feature: Onboarding — install to first green validate
     But no run writes or rewrites that hub, with or without "--apply"
 
   @AC-085
-  Scenario: a real session reads the hub and asks whether the repository is behind
+  Scenario: a real session learns the repository is behind
     Test-type: Human
-    Given a repository whose hub carries the instruction
-    When a human starts a coding-agent session in it
-    Then the agent runs the quiet release check before starting the requested work
-    And a current repository produces no line, while a behind one produces exactly one
+    Given a behind repository whose hub carries the instruction and whose clue carries the notifier
+    When a human starts a coding-agent session in it and the session runs any ordinary clue workflow command
+    Then the session is told the repository is behind, in exactly one line, without the human saying anything about releases
+    And a current repository produces no such line, so the absence of one is informative
+    But the evidence is what the session did, not what the hub says: an agent that skipped the instruction and learned it anyway from the notifier is this criterion passing, and neither channel reporting it is this criterion failing
 ```
