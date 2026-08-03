@@ -12,6 +12,7 @@ Assistants disagree about which file they load, so init also emits the bridges t
 |---|---|---|
 | `clue-analysis` | Risk or an unknown should be investigated before committing to a design | Verified findings under `/docs/analysis`, then a plan or change |
 | `clue-plan` | A goal needs a campaign or an active plan needs a semantic revision | A plan with verifiable milestones, then `clue-delta` |
+| `clue-upgrade` | An already-onboarded repository needs to check or take up a newer release | A human-authorized, reviewed coordinated upgrade, or a clear decision to wait |
 | `clue-delta` | A light or full Cliewen change will mutate `main` | A complete branch, digested corpus, and verified pull request |
 | `clue-verify` | A Cliewen pull request is about to open or update | A locally verified and automatically agent-reviewed candidate, then the review hand-off |
 | `clue-extract` | An existing repository needs a one-time brownfield conversion | An inferred corpus reviewed through its first change loop |

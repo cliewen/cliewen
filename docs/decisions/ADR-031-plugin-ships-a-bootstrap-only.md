@@ -14,7 +14,7 @@ accepted-by: Flemming N. Larsen (2026-08-02, conversation)
 
 Cliewen is built for people working inside a coding agent, and Claude Code has a native distribution channel — a plugin marketplace, added with `/plugin marketplace add owner/repo` and backed by nothing more than a JSON file in a repository the user can already read. [ADR-030](ADR-030-verified-install-scripts.md) removed the six manual install steps for a human at a terminal. It did nothing for the reader already in a session, who must still leave it, find the guide, and run a shell command against [C-015](../constraints/C-015-onboarding-under-30-minutes.md)'s thirty-minute budget.
 
-The obvious plugin to build is the one that arrives with Cliewen's five lifecycle skills already loaded. That is the shape of nearly every plugin in circulation, and it is the shape this decision refuses.
+The obvious plugin to build is the one that arrives with Cliewen's six managed skills already loaded. That is the shape of nearly every plugin in circulation, and it is the shape this decision refuses.
 
 Cliewen's skills are not portable helpers. `clue init` writes them into `.agents/skills/` as committed repository files, each stamped with the version of the binary that wrote it ([ADR-022](ADR-022-skill-ownership-marker.md)), and a released `clue` fails validation when its own version and its marked skills disagree ([ADR-011](ADR-011-version-stamping.md)). That drift check is scoped to `.agents/skills/`, and it is what makes a green `clue validate` mean something: the judge, the guidance, and the corpus conventions are the same generation.
 
@@ -27,7 +27,7 @@ So the failure is not that bundled skills would be redundant. It is that they wo
 **The marketplace ships one plugin, the plugin ships one skill, and that skill's whole job is to get a real `clue` onto the machine and then stop.**
 
 - **The bootstrap is thin on purpose.** It detects the host, installs `clue` through the channels ADR-030 published, confirms the binary reports a release version rather than `dev`, and asks before running `clue init`. Everything after that comes from the repository.
-- **The five lifecycle skills are never plugin components.** `clue init` is the only supported writer of Cliewen skills, and `.agents/skills/` is the only place they are valid. This is the load-bearing half of the decision; the rest is packaging.
+- **The six managed skills are never plugin components.** `clue init` is the only supported writer of Cliewen skills, and `.agents/skills/` is the only place they are valid. This is the load-bearing half of the decision; the rest is packaging.
 - **The bootstrap pins no `clue` version.** It installs the newest release. A version literal inside a channel that nobody remembers to bump is precisely the drift ADR-011 exists to detect, and it would hand new users a stale binary at the exact moment they have no way to know it.
 - **The plugin manifest omits `version`.** Claude Code then treats the commit as the version, so the plugin has no hand-maintained stamp to forget. The cost is accepted openly: users are offered an update whenever this repository's default branch moves, even for changes that do not touch the plugin. A bootstrap this small is a fair trade against a second number that can contradict the binary, which is the failure ADR-011 was written after.
 - **Installing the plugin is not consent to scaffold.** `clue init` writes into the user's repository, so the bootstrap asks first. A plugin install authorizes the plugin, nothing further.
@@ -37,7 +37,7 @@ The negative rule is the one that needs a carrier, because nothing about a plugi
 
 **Carrier:** `.claude-plugin/marketplace.json` and `plugins/cliewen/`; `guide/plugin.md`; AC-039 on [CAP-001](../capabilities/CAP-001-onboarding/criteria.md), whose tests read the committed plugin tree so a bundled lifecycle skill or a pinned version fails here rather than in a stranger's session.
 
-### Rejected: ship the five lifecycle skills in the plugin
+### Rejected: ship the six managed skills in the plugin
 
 The default shape of a plugin, and the reason this record exists. It is rejected because it breaks the drift guarantee: the copies land in the plugin cache where `checkSkillVersions` cannot reach them, they carry one version across every repository the user opens, and a repository pinned to a different release would be advised by skills it never installed and cannot validate. The convenience is real and the failure is silent, which is the worst pairing available.
 

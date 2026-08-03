@@ -1,6 +1,7 @@
 ---
 id: CH-108
-type: change-proposal
+type: change
+status: open
 links: [P-010, M-046, CAP-001, CAP-004, ADR-021, ADR-022, ADR-031, ADR-039]
 title: Upgrade routing reaches repositories that have already onboarded
 ---

@@ -49,7 +49,7 @@ Say what it will do:
 
 - It writes into **this** repository and never replaces an existing file; anything it would have shadowed is reported as skipped.
 - It is safe to re-run: a second run refreshes the generated README index blocks and leaves prose alone.
-- It writes the five Cliewen skills into `.agents/skills/`, stamped with this binary's version. They are committed files, and `clue validate` fails if the binary and those skills ever disagree.
+- It writes the six managed Cliewen skills into `.agents/skills/`, stamped with this binary's version. They are committed files, and `clue validate` fails if the binary and those skills ever disagree.
 
 If the user agrees, run `clue init`, then `clue validate` — a fresh scaffold validates green with no manual edits. Use the same explicit path from step 3 for both commands:
 
@@ -64,7 +64,7 @@ If the repository already has a corpus of its own (existing decision records, sp
 
 This plugin ships this skill and nothing else. It deliberately does **not** carry `clue-analysis`, `clue-delta`, `clue-extract`, `clue-plan`, or `clue-verify`.
 
-Those five are not portable helpers. `clue init` writes them into the repository as committed files, each stamped with the version of the binary that wrote it, and `clue validate` fails when the binary and its skills disagree. A plugin's components are copied into a per-user cache instead, where that check cannot see them — one copy spanning every repository the user opens, while the entire point of a stamped skill is that it is pinned per repository.
+Those six are not portable helpers. `clue init` writes them into the repository as committed files, each stamped with the version of the binary that wrote it, and `clue validate` fails when the binary and its skills disagree. A plugin's components are copied into a per-user cache instead, where that check cannot see them — one copy spanning every repository the user opens, while the entire point of a stamped skill is that it is pinned per repository.
 
 So if the user wants the lifecycle skills, the answer is always `clue init` in the repository that needs them. Never copy a Cliewen skill into a plugin, a personal skills directory, or a settings file: a second, unversioned set of Cliewen instructions beside the committed set is exactly the drift the version stamp exists to catch, and it would be invisible.
 

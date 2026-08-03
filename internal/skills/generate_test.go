@@ -163,6 +163,37 @@ func TestAC054_UnitPositive_ExtractionSupportsCriterionLevelPhasing(t *testing.T
 	}
 }
 
+func TestAC081_UnitPositive_GeneratedUpgradeSkillRequiresHumanAuthorizedCoordinatedUpgrade(t *testing.T) {
+	upgrade := mustRenderSkill(t, "clue-upgrade/skill.md")
+	for _, want := range []string{
+		"Run `clue latest`",
+		"`### Migration` section",
+		"Ask the human whether to upgrade now or later",
+		"Do nothing to the repository until they explicitly choose now",
+		"make the repository green and create a branch",
+		"resolve every finding and notice — including those no command may repair",
+		"open a ready pull request. Never merge it",
+	} {
+		if !strings.Contains(upgrade, want) {
+			t.Errorf("clue-upgrade/skill.md does not carry upgrade boundary %q", want)
+		}
+	}
+}
+
+func TestAC081_UnitNegative_GeneratedUpgradeSkillDoesNotInventAPlatformRouteOrSelfAuthorize(t *testing.T) {
+	upgrade := mustRenderSkill(t, "clue-upgrade/skill.md")
+	for _, forbidden := range []string{
+		"curl -fsSL https://cliewen.dev/install.sh | sh",
+		"irm https://cliewen.dev/install.ps1 | iex",
+		"automatically upgrade",
+		"merge the pull request",
+	} {
+		if strings.Contains(upgrade, forbidden) {
+			t.Errorf("clue-upgrade/skill.md exceeds its route and authority boundary with %q", forbidden)
+		}
+	}
+}
+
 func TestAC054_UnitNegative_ExtractionRejectsCapabilityOnlyPhasing(t *testing.T) {
 	extract := ""
 	for _, file := range mustRender(t) {

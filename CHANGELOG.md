@@ -14,6 +14,8 @@ The release where a repository can finally ask whether it is behind — and wher
 
 - **`clue init` emits a `CLAUDE.md` that points at `AGENTS.md`.** It exists because Claude Code loads that filename and not the cross-agent one, and it contains nothing but the import and the reason for it — every rule stays in `AGENTS.md`, where every assistant sees the same text. The file is yours from the moment it lands: add Claude-specific instructions below the import if you want them, and neither `clue init` nor `clue migrate` will touch it again.
 
+- **Already-onboarded repositories now have an upgrade skill.** `clue-upgrade` checks whether there is a release to take up, reads that release's migration notes, and asks whether you want to upgrade now or later. On your yes it guides a normal reviewed change — green baseline, branch, coordinated migration, every notice resolved, verification, and a pull request — but it never chooses for you or merges it. It contains no copied install command: `clue latest` prints the one for the machine it is running on.
+
 ### Changed
 
 - **The skill-drift message now names both ways out.** It used to state the disagreement and stop — "drift — reinstall the skills or clue" — leaving you to work out which side to move, and never mentioning that staying put is a legitimate answer. It now names `clue latest` for the upgrade recipe, `clue migrate` for moving the repository, and both halves of staying where you are if you would rather: the exact release to install, and the `clue-version` pin that keeps your CI caller on it. What the rule decides has not changed.
@@ -25,6 +27,8 @@ The release where a repository can finally ask whether it is behind — and wher
 ### Fixed
 
 - **`clue migrate` now tells you which release it is about to write.** Its preview line for a generated skill named the release it *recognized* your copy as, not the one whose bytes it writes — so upgrading from 0.11.2 read "replace generated carrier clue-plan/skill.md with release 0.11.2 content", which looks like a downgrade and was reason enough to refuse the upgrade. The line now names both facts in the places they belong: what it recognized, and what it writes. For a file your release never shipped at all, the add line no longer credits that older release with content it does not contain. Which bytes get written has not changed — only the description of them, and a preview you cannot trust is worse than no preview.
+
+- **`clue migrate` can add the new upgrade skill to a recognized older set.** If every remaining managed carrier exactly matches a supported release, the preview adds `clue-upgrade` with the newer release's bytes and names both releases. A missing, partial, or edited set still stops the complete migration; the command never guesses from one matching file or overwrites a repair you made.
 
 ### Migration
 

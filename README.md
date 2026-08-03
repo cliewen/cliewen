@@ -73,7 +73,7 @@ The handwritten [Cliewen guide](https://cliewen.dev/) explains the methodology, 
 
 ## Developing the skills
 
-The five standalone `clue-*` skills are generated from `internal/skills/source/`: shared methodology instructions live under `shared/`, while each lifecycle workflow has its own template under `skills/`. Edit those sources and run:
+The six standalone `clue-*` skills are generated from `internal/skills/source/`: shared methodology instructions live under `shared/`, while each lifecycle workflow has its own template under `skills/`. Edit those sources and run:
 
 ```sh
 go generate ./internal/skills

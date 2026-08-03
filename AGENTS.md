@@ -27,6 +27,7 @@ For a light or full change, read [`docs/README.md`](docs/README.md) only when th
 |---|---|
 | [`clue-analysis`](.agents/skills/clue-analysis/skill.md) | Risks/unknowns first: spikes that end in findings docs |
 | [`clue-plan`](.agents/skills/clue-plan/skill.md) | Creating or revising a plan |
+| [`clue-upgrade`](.agents/skills/clue-upgrade/skill.md) | Checking for and, with human approval, carrying out a coordinated repository upgrade |
 | [`clue-delta`](.agents/skills/clue-delta/skill.md) | The change loop: branch → implement → digest → merge |
 | [`clue-verify`](.agents/skills/clue-verify/skill.md) | Pre-merge verification and automatic agentic review before any Cliewen PR |
 

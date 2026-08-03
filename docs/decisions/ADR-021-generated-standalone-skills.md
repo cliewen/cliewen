@@ -27,7 +27,7 @@ Cliewen's skills must be independently installable, yet several skills carry the
 
 - Shared instructions are authored once; skill-specific workflow instructions remain separate.
 - Generated skills contain no runtime include, inheritance, symlink, or dependency on another skill. Copying one skill folder preserves its complete instructions and version stamp.
-- The five public skill names and lifecycle entry points remain unchanged.
+- The six public skill names and entry points are `clue-analysis`, `clue-delta`, `clue-extract`, `clue-plan`, `clue-upgrade`, and `clue-verify` ([ADR-043](ADR-043-upgrade-skill-is-a-managed-carrier.md)).
 - Every generator-owned file in both output trees is checked against the canonical rendering. A missing, changed, or unexpected file within an owned skill directory fails the build.
 - Per-skill version markers remain in every generated artifact, preserving ADR-011's portable version surface while making the marker itself single-source at authoring time.
 - The generated embedded tree replaces ADR-018's manually synchronized skill-copy consequence; embedding the generated output in the binary remains unchanged.

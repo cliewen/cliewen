@@ -48,9 +48,14 @@ Feature: clue ships — a versioned binary and versioned skills, drift made lint
     Then only the marked skill joins the Cliewen version set
     But a present "cliewen-skill" value other than boolean true fails and names the malformed skill
 
-  @AC-030
+  @AC-030 @retired
   Scenario: Pre-marker Cliewen skill slots fail toward migration
-    Given one of the five canonical Cliewen skill directories contains an unmarked skill.md
+    # Retired 2026-08-03 (CH-108): the managed set grew from five slots to
+    # six. AC-082 carries the immutable six-slot meaning.
+
+  @AC-082
+  Scenario: Reserved Cliewen skill slots fail toward reinstall
+    Given one of the six canonical Cliewen skill directories contains an unmarked skill.md
     When the user runs "clue validate"
     Then it exits with a non-zero code and tells the user to reinstall that legacy skill
     But an unmarked skill in any other directory is ignored
@@ -121,6 +126,16 @@ Feature: clue ships — a versioned binary and versioned skills, drift made lint
     Then each run names both versions and prints exactly one installation route — the PowerShell script, the shell script, and "go install" pinned to that release
     And each run also prints the coordinated migrate preview-and-apply sequence, because moving the binary alone produces drift rather than resolving it
     But no run writes a file in the repository, with or without flags, and no run replaces the binary
+
+  @AC-081
+  Scenario: A generated skill routes an existing adopter through a human-authorized upgrade
+    Test-type: Unit
+    Given a repository carrying the generated Cliewen skill set
+    When an agent invokes the managed upgrade skill
+    Then it runs the release check and reads the selected release's migration guidance
+    And it asks the human whether to upgrade now or later before changing a repository
+    And an affirmative answer makes the repository green, branches, moves the coordinated set, resolves every notice, verifies, and opens a pull request without merging it
+    But the skill names no platform installation command and a later answer changes no repository file or hosted state
 
   @AC-076
   Scenario: The quiet mode is silent unless there is something to say

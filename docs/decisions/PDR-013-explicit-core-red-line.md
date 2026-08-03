@@ -14,7 +14,7 @@ accepted-by: Flemming N. Larsen (2026-08-02, conversation)
 
 ## Context and problem statement
 
-Cliewen has grown a corpus of fourteen artifact types, five skills, three change tiers, and a public guide, and every simplification debate so far has been argued case by case without a criterion. The methodology names many protected surfaces but has never said which parts are load-bearing — the parts that, if changed casually, would silently change what a green `clue validate` or a merged PR *means*. Without that statement, simplification has no test ("does the core need it?"), protection has no boundary (everything feels equally sacred, so nothing is), and adopters cannot tell what they may freely extend from what they must not touch. What is Cliewen's core, and what rule protects it?
+Cliewen has grown a corpus of fourteen artifact types, six skills, three change tiers, and a public guide, and every simplification debate so far has been argued case by case without a criterion. The methodology names many protected surfaces but has never said which parts are load-bearing — the parts that, if changed casually, would silently change what a green `clue validate` or a merged PR *means*. Without that statement, simplification has no test ("does the core need it?"), protection has no boundary (everything feels equally sacred, so nothing is), and adopters cannot tell what they may freely extend from what they must not touch. What is Cliewen's core, and what rule protects it?
 
 ## Decision outcome
 

@@ -13,13 +13,13 @@ That is the entire plugin. The rest of this page is about what it does not do, w
 
 ## What the plugin does not install
 
-It does not ship `clue-analysis`, `clue-delta`, `clue-extract`, `clue-plan`, or `clue-verify` — the five skills that actually run the Cliewen loop. Those arrive when you run `clue init` in a repository, and only then.
+It does not ship `clue-analysis`, `clue-delta`, `clue-extract`, `clue-plan`, `clue-upgrade`, or `clue-verify` — the six managed skills that run the Cliewen loop. Those arrive when you run `clue init` in a repository, and only then.
 
 This is deliberate, and it is worth a paragraph because the opposite is what most plugins do.
 
 Cliewen's skills are committed repository files. `clue init` writes them into `.agents/skills/`, each stamped with the version of the binary that wrote it, and `clue validate` fails if the binary and those skills ever disagree. That check is what makes a green validate mean something: the judge, the guidance, and the corpus conventions in a repository are the same generation, and you can see the version in the diff.
 
-A plugin does not work that way. Its components are copied into a per-user cache and enabled through a settings file, so they sit outside `.agents/skills/` where the drift check cannot reach them — one copy, spanning every repository you open, while the whole point of a stamped skill is that it is pinned per repository. Bundle the five skills into the plugin and you get a second, unversioned set of Cliewen instructions beside the committed set, contradicting whichever repository happens to pin a different release, with nothing reporting it.
+A plugin does not work that way. Its components are copied into a per-user cache and enabled through a settings file, so they sit outside `.agents/skills/` where the drift check cannot reach them — one copy, spanning every repository you open, while the whole point of a stamped skill is that it is pinned per repository. Bundle the six skills into the plugin and you get a second, unversioned set of Cliewen instructions beside the committed set, contradicting whichever repository happens to pin a different release, with nothing reporting it.
 
 So the plugin installs the binary and gets out of the way. `clue init` is the only supported way to put Cliewen skills in a repository, and it is the right one: the skills land in version control, where your collaborators get them, your reviewers can read them, and `clue validate` can check them.
 

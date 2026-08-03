@@ -25,6 +25,7 @@ var legacyCliewenSkillNames = map[string]bool{
 	"clue-delta":    true,
 	"clue-extract":  true,
 	"clue-plan":     true,
+	"clue-upgrade":  true,
 	"clue-verify":   true,
 }
 
@@ -32,7 +33,7 @@ var legacyCliewenSkillNames = map[string]bool{
 //
 //   - only skills marked cliewen-skill: true join the managed set; malformed
 //     markers fail, while unmarked third-party skills are ignored (AC-029);
-//   - an unmarked canonical legacy slot fails toward reinstall (AC-030);
+//   - an unmarked reserved managed slot fails toward reinstall (AC-082);
 //   - every managed skill carries a version stamp (AC-031);
 //   - managed skills agree on one version — "versioned as a set" via
 //     per-skill markers (AC-032);
