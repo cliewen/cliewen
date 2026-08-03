@@ -78,4 +78,5 @@ The CLI reports inferred ADRs and PDRs as decisions awaiting verification, separ
 - [ADR-041 — Generated index rows state their record, and rows that state only their link are counted](ADR-041-index-rows-state-their-record.md) · `inferred`
 - [ADR-042 — A release check reaches the network, reports, and writes nothing](ADR-042-release-check-outside-the-judge.md) · `verified`
 - [ADR-043 — The managed skill set includes a human-authorized upgrade entry point](ADR-043-upgrade-skill-is-a-managed-carrier.md) · `inferred`
+- [PDR-023 — The routing hub is the session-start channel, and no vendor configuration is ever emitted](PDR-023-the-hub-is-the-session-start-channel.md) · `inferred`
 <!-- clue:index:end -->

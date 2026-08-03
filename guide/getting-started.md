@@ -105,6 +105,8 @@ cliewen-demo/
 └── CLAUDE.md             a pointer, because Claude Code does not read AGENTS.md
 ```
 
+`AGENTS.md` also asks your agent to run `clue latest --quiet` when it starts, so a repository that has fallen behind says so in one line instead of staying quietly out of date. Cliewen emits no configuration for any assistant to make that happen — the hub is the file they all read, and what your tools run is your business.
+
 `clue init` copies defaults but does not take ownership of your repository. You and your agent own the corpus prose and repository-specific instructions. `clue scaffold` and repeated `clue init` regenerate only the marked README index blocks; existing files are otherwise skipped, never replaced. The copied skills and workflow are versioned repository files, not background-managed services.
 
 ## 3. See `clue` catch a broken thread

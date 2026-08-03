@@ -26,6 +26,8 @@ Cliewen already has an agent-agnostic carrier that reaches existing adopters: th
 
 The second part covers the literal wish without shipping it: `guide/operations.md` gains a short, vendor-neutral section saying that `clue latest --quiet` is safe to run at session start — it is silent when current, silent when offline, bounded, and exits 0 — and showing how an adopter wires it into whichever assistant they use, as their configuration in their file. Cliewen describes; the adopter decides. That also settles the migration question by dissolving it: with nothing emitted, there is nothing whose absence to report, so no MIG-006 and no notice about a vendor an adopter may not use.
 
-Both parts change M-047's exit criterion, which P-010's mutation rules put behind a declared plan revision backed by a decision record. The sequence is: this answer becomes a PDR recording why executable vendor configuration is out of bounds while an inert pointer is not; the PDR carries the revision of M-047; then CH-109 implements the revised milestone.
+Both parts change M-047's exit criterion, which P-010's mutation rules put behind a declared plan revision backed by a decision record.
 
-**Status:** awaiting the human decision. Implementation is stopped; the branch holds this proposal and nothing else.
+**Answered:** 2026-08-03, by the human, who accepted the prohibition and asked whether it could be handled better than by documenting a recipe. It could. The recommendation above was superseded before implementation: the skills reach existing adopters mechanically, but the start of a change is not the start of a session, and the second part left the actual wish unimplemented. The routing hub is the session-start channel — the cross-agent file every assistant reads when a session begins — and the objection that it is adopter-owned is answered by the entry point's existing pattern of emitting into the template and reporting for everyone else. Recorded as [PDR-023](../../docs/decisions/PDR-023-the-hub-is-the-session-start-channel.md), which carries the M-047 revision.
+
+**Status:** resolved. No open questions remain.

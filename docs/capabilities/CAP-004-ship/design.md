@@ -69,7 +69,7 @@ A tag is accepted only as exactly three decimal numbers, and the reported versio
 
 Everything reaching outside the process is injected — the network, the clock, the cache directory, and the platform — so all three routes and every degradation are proven without a live service and without three machines. The answer is cached at `<user cache dir>/cliewen/latest-release.json` for 24 hours; missing, stale, unparseable, future-stamped, and unwritable are one outcome, absence, since a cache that can fail a command is worse than no cache. An unknown answer is never cached, so an outage cannot silence the next call.
 
-The command is outside the judge permanently and must never be a required status check, and it writes no file in the repository with or without flags ([ADR-042](../../decisions/ADR-042-release-check-outside-the-judge.md)). `--quiet` prints one line when behind and nothing otherwise, for the session-start use M-047 builds on.
+The command is outside the judge permanently and must never be a required status check, and it writes no file in the repository with or without flags ([ADR-042](../../decisions/ADR-042-release-check-outside-the-judge.md)). `--quiet` prints one line when behind and nothing otherwise. That mode has a caller: the materialized `AGENTS.md` asks the agent to run it once when a session starts, so discovery happens at the moment an agent is about to work ([PDR-023](../../decisions/PDR-023-the-hub-is-the-session-start-channel.md)). The channel is the cross-agent hub rather than any assistant's configuration, and nothing about the command changes for it — silence when current, offline, or unable to tell was already the contract.
 
 ## Resolving external addresses
 

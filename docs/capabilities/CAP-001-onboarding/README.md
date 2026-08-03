@@ -26,4 +26,6 @@ The layered guide, layers kept strictly separate:
 
 `clue init` exists since CH-020; how the command and the guide realize the layers is [design.md](design.md), the mechanical path is held by the tested criteria in [criteria.md](criteria.md), and the 30-minute end-to-end promise is [C-015](../../constraints/C-015-onboarding-under-30-minutes.md).
 
+What init emits for a vendor is bounded to an inert pointer at the hub ([PDR-022](../../decisions/PDR-022-vendor-entry-points-only-point.md)); nothing executable is ever emitted for an assistant. Discovery of a newer release therefore runs through the hub itself, which every assistant reads when a session starts ([PDR-023](../../decisions/PDR-023-the-hub-is-the-session-start-channel.md)). Both files are the adopter's, and `clue migrate` reports rather than repairs either one.
+
 The emitted CI caller delegates its validation wall to Cliewen's immutable upstream reusable workflow while keeping runner and binary-acquisition choices local to the adopter ([ADR-038](../../decisions/ADR-038-upstream-validation-workflow.md)).
