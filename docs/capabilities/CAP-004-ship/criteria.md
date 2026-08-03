@@ -55,6 +55,7 @@ Feature: clue ships — a versioned binary and versioned skills, drift made lint
 
   @AC-082
   Scenario: Reserved Cliewen skill slots fail toward reinstall
+    Test-type: Unit
     Given one of the six canonical Cliewen skill directories contains an unmarked skill.md
     When the user runs "clue validate"
     Then it exits with a non-zero code and tells the user to reinstall that legacy skill
