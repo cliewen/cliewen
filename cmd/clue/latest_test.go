@@ -153,7 +153,9 @@ func TestAC075_UnitPositive_TheTimeoutFlagReachesTheRequest(t *testing.T) {
 	if !seen {
 		t.Fatal("the default run carried no deadline at all")
 	}
-	if budget > 3*time.Second || budget < 2*time.Second {
+	// The upper bound is again the whole proof: a default that grew to 30s
+	// fails here, and a lower bound would only measure the runner's load.
+	if budget > 3*time.Second {
 		t.Fatalf("expected the documented 3s default budget, got %v", budget)
 	}
 }
@@ -354,27 +356,34 @@ func TestAC077_UnitPositive_NotBeingAbleToTellExitsZeroAndSaysSo(t *testing.T) {
 		"unrecognized body": {status: http.StatusOK, body: `<html>maintenance</html>`},
 	}
 	for name, net := range cases {
-		for _, args := range [][]string{nil, {"--quiet"}} {
-			opts := latestOptions(t, "0.11.2", release.Platform{OS: "linux", Arch: "amd64"}, net)
-			code, out, errOut := runLatestCapturing(t, args, opts)
-			if code != 0 {
-				t.Fatalf("%s %v: an unanswerable check is not a failure, got exit %d", name, args, code)
-			}
-			if errOut != "" {
-				t.Fatalf("%s %v: nothing belongs on stderr, got %q", name, args, errOut)
-			}
-			if len(args) > 0 {
-				if out != "" {
-					t.Fatalf("%s: the quiet run must print nothing at all, got %q", name, out)
+		// The stamp must not decide which of the two answers a run gets. A
+		// checkout build run offline is the commonest combination there is, and
+		// if "could not tell" were checked after the stamp arms it would report
+		// an empty newest release from an outage.
+		for _, current := range []string{"0.11.2", "dev", "", "garbage"} {
+			for _, args := range [][]string{nil, {"--quiet"}} {
+				opts := latestOptions(t, current, release.Platform{OS: "linux", Arch: "amd64"}, net)
+				code, out, errOut := runLatestCapturing(t, args, opts)
+				if code != 0 {
+					t.Fatalf("%s %q %v: an unanswerable check is not a failure, got exit %d", name, current, args, code)
 				}
-				continue
-			}
-			if !strings.Contains(out, "could not reach the release list") {
-				t.Fatalf("%s: expected a calm report, got:\n%s", name, out)
-			}
-			// The one thing it must never do is claim the repository is current.
-			if strings.Contains(out, "newest release") {
-				t.Fatalf("%s: an unknown answer claimed the repository is current:\n%s", name, out)
+				if errOut != "" {
+					t.Fatalf("%s %q %v: nothing belongs on stderr, got %q", name, current, args, errOut)
+				}
+				if len(args) > 0 {
+					if out != "" {
+						t.Fatalf("%s %q: the quiet run must print nothing at all, got %q", name, current, out)
+					}
+					continue
+				}
+				if !strings.Contains(out, "could not reach the release list") {
+					t.Fatalf("%s %q: expected a calm report, got:\n%s", name, current, out)
+				}
+				// The one thing it must never do is claim the repository is
+				// current — or name a newest release it never learned.
+				if strings.Contains(out, "newest release") {
+					t.Fatalf("%s %q: an unknown answer spoke about the newest release:\n%s", name, current, out)
+				}
 			}
 		}
 	}

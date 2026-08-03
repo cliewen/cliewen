@@ -293,12 +293,19 @@ func (r *recording) RoundTrip(req *http.Request) (*http.Response, error) {
 // failure this command exists to remove.
 func TestSanity_TheRequestIsTheOneTheDesignDescribes(t *testing.T) {
 	rec := &recording{}
+	caller := &http.Client{Transport: rec}
 	got := Check(Options{
 		Current:  "0.11.2",
 		Platform: Platform{"linux", "amd64"},
-		Client:   &http.Client{Transport: rec},
+		Client:   caller,
 		CacheDir: t.TempDir(),
 	})
+	// The budget is applied to a copy: a client is the caller's, and a check
+	// that quietly stamped a timeout onto it would change every other request
+	// that client is ever used for.
+	if caller.Timeout != 0 {
+		t.Errorf("the caller's client was modified: timeout is now %v", caller.Timeout)
+	}
 	if !got.Known {
 		t.Fatalf("expected an answer, got %+v", got)
 	}
@@ -314,6 +321,34 @@ func TestSanity_TheRequestIsTheOneTheDesignDescribes(t *testing.T) {
 	}
 	if accept := rec.req.Header.Get("Accept"); accept != "application/vnd.github+json" {
 		t.Errorf("the host is asked for its documented representation, got %q", accept)
+	}
+}
+
+// TestAC077_UnitNegative_TheVersionIsRebuiltNotEchoed holds the line that makes
+// "only numbers cross the boundary" true rather than merely intended. Every
+// other fixture serves a canonical tag, where the string that was checked and
+// the string that would be echoed are the same string — so the rebuild is
+// invisible to all of them. A tag with a leading zero is the cheapest case
+// where they differ, and it differs in the one place it matters: the printed
+// recipe would name a tag that is not the release.
+func TestAC077_UnitNegative_TheVersionIsRebuiltNotEchoed(t *testing.T) {
+	for _, tag := range []string{"v0.012.0", "0.012.0", "v00.12.00"} {
+		net := serving(http.StatusOK, `{"tag_name":"`+tag+`"}`)
+		got := Check(Options{
+			Current:  "0.11.2",
+			Platform: Platform{"freebsd", "amd64"}, // the route that carries the version
+			Client:   net.client(),
+			CacheDir: t.TempDir(),
+		})
+		if !got.Known {
+			t.Fatalf("%q: three numbers is three numbers, got %+v", tag, got)
+		}
+		if got.Latest != "0.12.0" {
+			t.Fatalf("%q: expected the version rebuilt from its numbers, got %q", tag, got.Latest)
+		}
+		if len(got.Recipe) != 1 || !strings.Contains(got.Recipe[0], "@v0.12.0") {
+			t.Fatalf("%q: the recipe must name the release, not the response: %v", tag, got.Recipe)
+		}
 	}
 }
 
