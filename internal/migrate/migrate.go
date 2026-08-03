@@ -74,9 +74,15 @@ func Registry() []MigrationDefinition {
 
 // ReleasedVersions returns the releases the carrier manifest records, oldest
 // first. The manifest gains one entry per release and is committed, so this is
-// the repository's own answer to "which versions shipped" — available without
-// the tag list and without the network, which is what lets an ordinary test
-// hold a promise about every past release.
+// a released-version list available without the tag list and without the
+// network, which is what lets an ordinary test hold a promise about past
+// releases.
+//
+// It is the manifest's own scope, not every version ever tagged: the manifest
+// begins at the release that first shipped generated carriers, so anything
+// older is outside it. That is the right boundary for callers reasoning about
+// releases this binary can still migrate between, and callers needing every
+// tag must ask the forge.
 func ReleasedVersions() []string {
 	out := make([]string, 0, len(legacyDigests))
 	for _, r := range legacyDigests {

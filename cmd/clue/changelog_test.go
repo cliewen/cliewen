@@ -9,6 +9,17 @@ import (
 	"github.com/cliewen/cliewen/internal/migrate"
 )
 
+// readChangelog reads the repository's changelog, the file the release
+// workflow extracts every release body from.
+func readChangelog(t *testing.T) string {
+	t.Helper()
+	data, err := os.ReadFile(filepath.Join("..", "..", "CHANGELOG.md"))
+	if err != nil {
+		t.Fatalf("CHANGELOG.md not found: %v", err)
+	}
+	return string(data)
+}
+
 // changelogSection returns the body of one version's section, by the same rule
 // the release workflow extracts it with: everything after the "## [version]"
 // heading, up to the next version heading. Kept deliberately identical to the
@@ -54,11 +65,7 @@ func changelogSection(changelog, version string) string {
 // release tells users, and it destroys the record of what a version contained
 // for anyone reading the file rather than the forge.
 func TestSanity_EveryReleasedVersionKeepsItsChangelogSection(t *testing.T) {
-	data, err := os.ReadFile(filepath.Join("..", "..", "CHANGELOG.md"))
-	if err != nil {
-		t.Fatalf("CHANGELOG.md not found: %v", err)
-	}
-	changelog := string(data)
+	changelog := readChangelog(t)
 
 	released := migrate.ReleasedVersions()
 	if len(released) == 0 {
@@ -73,20 +80,16 @@ func TestSanity_EveryReleasedVersionKeepsItsChangelogSection(t *testing.T) {
 	}
 }
 
-// Sanity: the section a released version keeps is its own, not the next one's.
+// Sanity: Unreleased does not still hold a release that already shipped.
 //
 // The deletion above does not only remove a heading — it merges two sections,
-// so the surviving one holds both releases' entries. A guard that asked only
-// "is there content" would go green on a file where Unreleased had swallowed a
-// shipped release whole. Every released section must therefore be separated
-// from Unreleased by its own heading, which is what this asserts by checking
-// that the headings appear in the file at all, newest release first.
+// so the survivor holds both releases' entries. The guard above catches that
+// through the missing heading, but only while the manifest still names the
+// swallowed release; this one reads the surviving text instead, so the two
+// fail for different reasons and a repair that satisfies one by rewriting the
+// other's input cannot go green.
 func TestSanity_TheUnreleasedSectionIsNotAReleasedOne(t *testing.T) {
-	data, err := os.ReadFile(filepath.Join("..", "..", "CHANGELOG.md"))
-	if err != nil {
-		t.Fatalf("CHANGELOG.md not found: %v", err)
-	}
-	changelog := string(data)
+	changelog := readChangelog(t)
 
 	if !strings.Contains(changelog, "## [Unreleased]") {
 		t.Fatal("CHANGELOG.md has no '## [Unreleased]' section; every change adds its entry there (C-002)")
