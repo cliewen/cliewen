@@ -77,4 +77,5 @@ The CLI reports inferred ADRs and PDRs as decisions awaiting verification, separ
 - [PDR-022 — A scaffolded vendor entry point may exist, and it may only point at AGENTS.md](PDR-022-vendor-entry-points-only-point.md) · `verified`
 - [ADR-041 — Generated index rows state their record, and rows that state only their link are counted](ADR-041-index-rows-state-their-record.md) · `inferred`
 - [ADR-042 — A release check reaches the network, reports, and writes nothing](ADR-042-release-check-outside-the-judge.md) · `verified`
+- [ADR-043 — The managed skill set includes a human-authorized upgrade entry point](ADR-043-upgrade-skill-is-a-managed-carrier.md) · `inferred`
 <!-- clue:index:end -->

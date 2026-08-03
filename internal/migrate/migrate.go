@@ -606,11 +606,18 @@ func planManagedFile(root, rel string, want []byte, target string, result *Migra
 		legacyRel := strings.TrimPrefix(rel, ".agents/skills/")
 		if legacyRel != rel {
 			if oldVersion := skillVersion(root, legacyRel); oldVersion != "" && releaseDigest(oldVersion, legacyRel) == "" {
-				// oldVersion is the release the sibling skill is recognized as,
-				// and it is here precisely because that release did not publish
-				// this file. Naming it as the source of the bytes was doubly
-				// wrong; it belongs in the clause that says why the add is safe.
+				// A new file inside an established skill has its own sibling
+				// manifest to identify the release that did not publish it.
 				result.Changes = append(result.Changes, Change{Path: rel, Migration: MigrationManagedCarriers, Description: fmt.Sprintf("add generated carrier with release %s content; the skill is recognized as release %s, which did not publish this file", target, oldVersion), After: want})
+				return
+			}
+			if oldVersion := recognizedManagedSkillRelease(root, legacyRel); oldVersion != "" {
+				// A new whole skill has no sibling of its own to identify the
+				// installed release. The complete remaining managed set does:
+				// only an exact published set may authorize an addition. The
+				// target release owns the new bytes; the recognized release
+				// explains why it is safe to introduce them.
+				result.Changes = append(result.Changes, Change{Path: rel, Migration: MigrationManagedCarriers, Description: fmt.Sprintf("add generated carrier with release %s content; the remaining managed skill set is recognized as release %s, which did not publish this file", target, oldVersion), After: want})
 				return
 			}
 		}
@@ -630,6 +637,36 @@ func planManagedFile(root, rel string, want []byte, target string, result *Migra
 		return
 	}
 	result.Findings = append(result.Findings, Finding{Path: rel, Migration: MigrationManagedCarriers, Message: "managed carrier differs from every supported generated release; local edits are never overwritten"})
+}
+
+// recognizedManagedSkillRelease returns the release proved by every carrier
+// that release shipped, while rel itself is absent from that release. It is
+// deliberately stricter than recognizing one sibling: a partial or locally
+// edited skill set must remain a finding, not become authority to introduce a
+// new managed directory.
+func recognizedManagedSkillRelease(root, rel string) string {
+	for _, release := range legacyDigests {
+		if releaseDigest(release.Version, rel) != "" {
+			continue
+		}
+		recognized := len(release.Files) > 0
+		for knownRel, want := range release.Files {
+			data, err := os.ReadFile(filepath.Join(root, filepath.FromSlash(".agents/skills/"+knownRel)))
+			if err != nil {
+				recognized = false
+				break
+			}
+			digest := sha256.Sum256(data)
+			if hex.EncodeToString(digest[:]) != want {
+				recognized = false
+				break
+			}
+		}
+		if recognized {
+			return release.Version
+		}
+	}
+	return ""
 }
 
 func legacyCarrierRel(rel string) string {

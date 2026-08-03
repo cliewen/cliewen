@@ -646,6 +646,127 @@ func TestAC064_UnitNegative_BareReferencesAreReportedNeverRepaired(t *testing.T)
 // The missing-entry half genuinely only holds while a release is being cut, so
 // it moved to .github/scripts/release-gates.sh, which knows it is looking at a
 // release because the stamp changed.
+func TestAC080_UnitPositive_RecognizedReleasedSetAddsNewManagedSkill(t *testing.T) {
+	root := migrationFixture(t, "")
+	repoRoot := repositoryRoot(t)
+	const previous = "0.12.0"
+	if !tagExists(t, repoRoot, "v"+previous) {
+		t.Skipf("v%s not present in this checkout", previous)
+	}
+
+	for _, release := range legacyDigests {
+		if release.Version != previous {
+			continue
+		}
+		for rel := range release.Files {
+			data, err := gitShow(t, repoRoot, "v"+previous+":.agents/skills/"+rel)
+			if err != nil {
+				t.Fatal(err)
+			}
+			path := filepath.Join(root, ".agents", "skills", filepath.FromSlash(rel))
+			if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+				t.Fatal(err)
+			}
+			if err := os.WriteFile(path, data, 0o644); err != nil {
+				t.Fatal(err)
+			}
+		}
+	}
+	if err := os.RemoveAll(filepath.Join(root, ".agents", "skills", "clue-upgrade")); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.RemoveAll(filepath.Join(root, ".claude", "skills", "clue-upgrade")); err != nil {
+		t.Fatal(err)
+	}
+
+	preview, err := Plan(root, Options{ReversalCost: "low"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(preview.Findings) != 0 {
+		t.Fatalf("recognized released set must stay migratable, got findings: %+v", preview.Findings)
+	}
+	var added *Change
+	for i := range preview.Changes {
+		if preview.Changes[i].Path == ".agents/skills/clue-upgrade/skill.md" {
+			added = &preview.Changes[i]
+			break
+		}
+	}
+	if added == nil {
+		t.Fatalf("migration did not add the new managed skill: %+v", preview.Changes)
+	}
+	if !strings.Contains(added.Description, "with release "+preview.Target+" content") || !strings.Contains(added.Description, "recognized as release "+previous) {
+		t.Fatalf("new-carrier preview does not name both release roles: %q", added.Description)
+	}
+	if err := Apply(root, preview); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := os.Stat(filepath.Join(root, ".agents", "skills", "clue-upgrade", "skill.md")); err != nil {
+		t.Fatalf("migration did not create the whole new managed skill directory: %v", err)
+	}
+	repeat, err := Plan(root, Options{ReversalCost: "low"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(repeat.Changes) != 0 || len(repeat.Findings) != 0 {
+		t.Fatalf("migrated release is not a no-op: changes=%+v findings=%+v", repeat.Changes, repeat.Findings)
+	}
+}
+
+func TestAC080_UnitNegative_PartialManagedSetCannotAuthorizeNewSkill(t *testing.T) {
+	root := migrationFixture(t, "")
+	repoRoot := repositoryRoot(t)
+	const previous = "0.12.0"
+	if !tagExists(t, repoRoot, "v"+previous) {
+		t.Skipf("v%s not present in this checkout", previous)
+	}
+
+	for _, release := range legacyDigests {
+		if release.Version != previous {
+			continue
+		}
+		for rel := range release.Files {
+			data, err := gitShow(t, repoRoot, "v"+previous+":.agents/skills/"+rel)
+			if err != nil {
+				t.Fatal(err)
+			}
+			path := filepath.Join(root, ".agents", "skills", filepath.FromSlash(rel))
+			if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+				t.Fatal(err)
+			}
+			if err := os.WriteFile(path, data, 0o644); err != nil {
+				t.Fatal(err)
+			}
+		}
+	}
+	if err := os.Remove(filepath.Join(root, ".agents", "skills", "clue-plan", "skill.md")); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.RemoveAll(filepath.Join(root, ".agents", "skills", "clue-upgrade")); err != nil {
+		t.Fatal(err)
+	}
+
+	preview, err := Plan(root, Options{ReversalCost: "low"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(preview.Findings) == 0 {
+		t.Fatal("partial managed set must block the migration")
+	}
+	for _, change := range preview.Changes {
+		if change.Path == ".agents/skills/clue-upgrade/skill.md" {
+			t.Fatalf("partial managed set planned an unsafe new skill addition: %+v", change)
+		}
+	}
+	for _, finding := range preview.Findings {
+		if finding.Path == ".agents/skills/clue-upgrade/skill.md" && strings.Contains(finding.Message, "managed carrier is missing") {
+			return
+		}
+	}
+	t.Fatalf("new skill was not held as a finding: %+v", preview.Findings)
+}
+
 func TestAC064_UnitNegative_ManifestEntriesMatchTheReleaseTheyName(t *testing.T) {
 	_, thisFile, _, ok := runtime.Caller(0)
 	if !ok {

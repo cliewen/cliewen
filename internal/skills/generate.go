@@ -25,6 +25,7 @@ var skillNames = []string{
 	"clue-delta",
 	"clue-extract",
 	"clue-plan",
+	"clue-upgrade",
 	"clue-verify",
 }
 

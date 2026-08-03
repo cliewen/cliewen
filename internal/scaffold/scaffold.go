@@ -72,7 +72,7 @@ func PairVersion() (string, error) {
 // ManagedCarrierFiles returns the generated carrier files that a migration
 // may refresh in an adopted repository. It deliberately excludes the docs
 // taxonomy and AGENTS.md: those are repository-owned prose, while these files
-// are the five generated skills, their Claude mirror, and the thin workflow
+// are the generated skills, their Claude mirror, and the thin workflow
 // caller emitted by init.
 func ManagedCarrierFiles() (map[string][]byte, error) {
 	version, err := PairVersion()

@@ -2,7 +2,7 @@
 id: ARCH-002
 type: architecture
 status: active
-links: [ARCH-001, ADR-021]
+links: [ARCH-001, ADR-021, ADR-043]
 title: The skills layer — process knowledge as versioned artifacts
 ---
 
@@ -12,7 +12,7 @@ title: The skills layer — process knowledge as versioned artifacts
 
 Skills are the **process-knowledge actor** in the four-actor model ([architecture.md](architecture.md)): they tell the agent what the next right step is, so the CLI only has to judge whether it was done right. Everything that can be convention in a skill is deliberately kept **out of the CLI** — the judge stays boring and finished; the guidance stays editable prose. Skills live in `.agents/skills/` (what agents read), not in `/docs` (what the system is): this file documents *why the set looks like it does*; each generated skill file is the complete operational instruction agents consume.
 
-## The five skills and how they complement each other
+## The six skills and how they complement each other
 
 The set is not arbitrary — it is the lifecycle (Foundation §10) cut at its phase boundaries, and each skill hands off to the next:
 
@@ -20,6 +20,7 @@ The set is not arbitrary — it is the lifecycle (Foundation §10) cut at its ph
 |---|---|---|
 | `clue-analysis` | Risks and unknowns first: spikes ending in findings docs (`/docs/analysis`) | `clue-plan` (findings feed plans) or `clue-delta` (findings feed a change) |
 | `clue-plan` | Campaign layer: create or revise a plan with verifiable milestones | `clue-delta` (every plan mutation is itself a change) |
+| `clue-upgrade` | Existing-adopter release check and human-authorized coordinated upgrade | `clue-delta` (the affirmative choice becomes a reviewed repository change) |
 | `clue-delta` | The change loop: branch → propose → implement → digest → merge | `clue-verify` (before every Cliewen PR) |
 | `clue-verify` | Pre-merge verification followed by automatic adversarial agent review | the locally verified and reviewed candidate, then the PR (human controls merge; CI verifies form) |
 | `clue-extract` | Brownfield adoption: one-time transform of an existing corpus into `/docs`, everything born `inferred` and non-decisions classified by reversal cost (ADR-008, ADR-035) | `clue-delta` (the extraction runs as the adopted repo's first change loop) |
@@ -28,7 +29,7 @@ Two invariants tie them together: **every path through the skills ends at the sa
 
 ## Shared rules and standalone outputs
 
-The five skills repeat cross-cutting instructions because each skill must remain independently installable. They are not independently authored: `internal/skills/source/skills/` holds the workflow templates and `internal/skills/source/shared/` holds shared rules such as decision routing, change tiers, repository-local conventions, and the review boundary ([ADR-021](../decisions/ADR-021-generated-standalone-skills.md)).
+The six skills repeat cross-cutting instructions because each skill must remain independently installable. They are not independently authored: `internal/skills/source/skills/` holds the workflow templates and `internal/skills/source/shared/` holds shared rules such as decision routing, change tiers, repository-local conventions, and the review boundary ([ADR-021](../decisions/ADR-021-generated-standalone-skills.md)).
 
 `go generate ./internal/skills` composes complete skill artifacts into `.agents/skills/` and the embedded `clue init` template tree. Repository tests compare both trees with the canonical rendering and fail on changed, missing, or unexpected generator-owned files. Contributors edit the source tree and regenerate; generated outputs are never edited directly.
 

@@ -94,6 +94,17 @@ Feature: Onboarding — install to first green validate
     And a second run is a no-op
     But missing semantic choices, ambiguous syntax, interrupted source changes, and locally modified carriers fail without partial writes
 
+  @AC-080
+  Scenario: A recognized preceding managed set receives a newly introduced skill directory
+    Test-type: Unit
+    Given a repository whose complete remaining generated skill set exactly matches a supported preceding release
+    And that release did not ship a newly introduced managed skill directory
+    When the user previews "clue migrate" with the newer binary
+    Then the plan adds the new canonical skill directory with the target release's bytes
+    And its preview names both the target release it writes and the preceding release it recognized
+    And applying the plan produces a no-op on a second run
+    But a partial or locally modified remaining set leaves the new directory a finding and blocks every write
+
   @AC-071
   Scenario: init emits a Claude Code entry point that only points at the hub
     Test-type: Unit

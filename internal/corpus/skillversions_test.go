@@ -95,20 +95,25 @@ func TestAC029_DelimiterLookalikeDoesNotHideMalformedMarkedSkill(t *testing.T) {
 	}
 }
 
-// AC-030: an unmarked skill in a canonical legacy slot fails toward
+// AC-082: an unmarked skill in a reserved managed slot fails toward
 // reinstalling the Cliewen skill set.
-func TestAC030_UnmarkedLegacyCliewenSkillFails(t *testing.T) {
-	root := t.TempDir()
-	writeSkill(t, root, "clue-delta", "---\nversion: 0.3.0\n---\n")
-	issues := checkSkillVersions(&Corpus{Root: root}, "0.4.0")
-	if !anyMsg(issues, "legacy Cliewen skill") || !anyMsg(issues, "reinstall") {
-		t.Fatalf("expected legacy reinstall guidance, got %v", issues)
+
+func TestAC082_UnitPositive_UnmarkedReservedCliewenSkillFails(t *testing.T) {
+	for _, slot := range []string{"clue-delta", "clue-upgrade"} {
+		t.Run(slot, func(t *testing.T) {
+			root := t.TempDir()
+			writeSkill(t, root, slot, "---\nversion: 0.3.0\n---\n")
+			issues := checkSkillVersions(&Corpus{Root: root}, "0.4.0")
+			if !anyMsg(issues, "legacy Cliewen skill") || !anyMsg(issues, "reinstall") {
+				t.Fatalf("expected reserved-slot reinstall guidance, got %v", issues)
+			}
+		})
 	}
 }
 
-// AC-030 (negative): an unmarked skill outside the reserved legacy names
+// AC-082 (negative): an unmarked skill outside the reserved managed names
 // remains outside Cliewen's validation scope.
-func TestAC030_UnmarkedNonCliewenSkillPasses(t *testing.T) {
+func TestAC082_UnitNegative_UnmarkedNonCliewenSkillPasses(t *testing.T) {
 	root := t.TempDir()
 	writeSkill(t, root, "my-skill", "# no Cliewen frontmatter\n")
 	if issues := checkSkillVersions(&Corpus{Root: root}, "0.4.0"); len(issues) != 0 {
