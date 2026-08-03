@@ -273,6 +273,96 @@ func TestAC077_UnitNegative_AnErrorStatusIsNotAnAnswer(t *testing.T) {
 	}
 }
 
+// recording keeps the request itself, which every other round-tripper here
+// answers without looking at. The address and the verb are the two things a
+// user's machine cannot check for itself.
+type recording struct {
+	req *http.Request
+}
+
+func (r *recording) RoundTrip(req *http.Request) (*http.Response, error) {
+	r.req = req
+	return serving(http.StatusOK, `{"tag_name":"v0.12.0"}`).RoundTrip(req)
+}
+
+// TestSanity_TheRequestIsTheOneTheDesignDescribes pins what the shipped binary
+// actually asks for. Every other test injects a transport that answers whatever
+// it is handed, so the one constant deciding which release list is consulted —
+// and the verb used to consult it — is invisible to all of them. A wrong path
+// or a wrong method is a permanent, silent "could not tell", which is the exact
+// failure this command exists to remove.
+func TestSanity_TheRequestIsTheOneTheDesignDescribes(t *testing.T) {
+	rec := &recording{}
+	got := Check(Options{
+		Current:  "0.11.2",
+		Platform: Platform{"linux", "amd64"},
+		Client:   &http.Client{Transport: rec},
+		CacheDir: t.TempDir(),
+	})
+	if !got.Known {
+		t.Fatalf("expected an answer, got %+v", got)
+	}
+	if rec.req == nil {
+		t.Fatal("no request was made at all")
+	}
+	if rec.req.Method != http.MethodGet {
+		t.Errorf("a release list is read, not written: method %s", rec.req.Method)
+	}
+	const want = "https://api.github.com/repos/cliewen/cliewen/releases/latest"
+	if rec.req.URL.String() != want {
+		t.Errorf("the check asks %s, but Cliewen publishes at %s", rec.req.URL, want)
+	}
+	if accept := rec.req.Header.Get("Accept"); accept != "application/vnd.github+json" {
+		t.Errorf("the host is asked for its documented representation, got %q", accept)
+	}
+}
+
+// TestAC077_UnitNegative_AnUnboundedBodyIsNotRead holds the bound the package
+// comment states. This runs at every session start, so a host that answers with
+// something enormous must cost a bounded read and then mean "could not tell"
+// like every other unrecognized answer.
+func TestAC077_UnitNegative_AnUnboundedBodyIsNotRead(t *testing.T) {
+	// Well-formed JSON carrying the right field, and far past the bound: only
+	// the limit can be what refuses it.
+	huge := `{"padding":"` + strings.Repeat("x", 2<<20) + `","tag_name":"v0.12.0"}`
+	net := serving(http.StatusOK, huge)
+	got := Check(Options{Current: "0.11.2", Client: net.client(), CacheDir: t.TempDir()})
+	if got.Known {
+		t.Fatalf("a body past the bound is not an answer, got %+v", got)
+	}
+}
+
+// TestAC078_UnitNegative_TheLifetimeIsTheOneDocumented pins the boundary itself.
+// Every carrier says a day; a cache that quietly stood for two would report a
+// release that shipped yesterday as the newest one.
+func TestAC078_UnitNegative_TheLifetimeIsTheOneDocumented(t *testing.T) {
+	cases := []struct {
+		age       time.Duration
+		wantFresh bool
+	}{
+		{23 * time.Hour, true},
+		{24*time.Hour - time.Minute, true},
+		{24 * time.Hour, false}, // the boundary belongs to the stale side
+		{25 * time.Hour, false},
+	}
+	for _, c := range cases {
+		dir := t.TempDir()
+		now := time.Date(2026, 8, 2, 12, 0, 0, 0, time.UTC)
+		writeCache(dir, cached{Tag: "v0.12.0", Fetched: now.Add(-c.age)})
+		net := serving(http.StatusOK, `{"tag_name":"v0.13.0"}`)
+		got := Check(Options{
+			Current:  "0.11.2",
+			Client:   net.client(),
+			CacheDir: dir,
+			Now:      func() time.Time { return now },
+		})
+		fresh := net.calls == 0
+		if fresh != c.wantFresh {
+			t.Errorf("age %v: cache used = %v, want %v (answer %s)", c.age, fresh, c.wantFresh, got.Latest)
+		}
+	}
+}
+
 // TestAC078_UnitPositive_AFreshCacheCostsNoRequest is what makes running this
 // at every session start acceptable to the host as well as to the user.
 func TestAC078_UnitPositive_AFreshCacheCostsNoRequest(t *testing.T) {

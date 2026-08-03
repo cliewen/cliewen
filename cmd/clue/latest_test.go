@@ -114,6 +114,12 @@ func TestAC075_UnitNegative_LatestReadsNoRepositoryAndWritesNothing(t *testing.T
 	if code, _, errOut := runLatestCapturing(t, []string{repo}, opts); code != 2 || errOut == "" {
 		t.Fatalf("expected a named usage error, got exit %d with stderr %q", code, errOut)
 	}
+	// An unknown flag is the same kind of mistake and exits the same way. A
+	// typo that reported success would be read by a script as a completed
+	// check, which is the one thing a usage error must never look like.
+	if code, _, errOut := runLatestCapturing(t, []string{"--bogus"}, opts); code != 2 || errOut == "" {
+		t.Fatalf("expected a usage error for an unknown flag, got exit %d with stderr %q", code, errOut)
+	}
 }
 
 // TestAC075_UnitPositive_TheTimeoutFlagReachesTheRequest holds the budget the
@@ -134,6 +140,21 @@ func TestAC075_UnitPositive_TheTimeoutFlagReachesTheRequest(t *testing.T) {
 	// the 3s default. A lower bound would only measure the runner's load.
 	if budget > 50*time.Millisecond {
 		t.Fatalf("expected a budget of at most the 50ms asked for, got %v", budget)
+	}
+
+	// And the budget a run gets without the flag is the one the usage text
+	// promises. A default that drifted from what is documented would leave
+	// every reader of "--timeout=<dur> (default 3s)" wrong.
+	seen = false
+	opts = latestOptions(t, "0.11.2", release.Platform{OS: "linux", Arch: "amd64"}, rt)
+	if code, _, _ := runLatestCapturing(t, nil, opts); code != 0 {
+		t.Fatalf("expected exit 0, got %d", code)
+	}
+	if !seen {
+		t.Fatal("the default run carried no deadline at all")
+	}
+	if budget > 3*time.Second || budget < 2*time.Second {
+		t.Fatalf("expected the documented 3s default budget, got %v", budget)
 	}
 }
 
@@ -237,7 +258,17 @@ func TestSanity_TheRoutesAreTheOnesActuallyPublished(t *testing.T) {
 			}
 		}
 	}
-	for _, p := range []release.Platform{{OS: "linux", Arch: "386"}, {OS: "freebsd", Arch: "amd64"}, {OS: "openbsd", Arch: "arm64"}} {
+	// windows/386 belongs in this list for the same reason as the rest: the
+	// script route is chosen by the published matrix, not by the operating
+	// system. A Windows machine outside the matrix has no asset to install, and
+	// handing it install.ps1 is wrong in a way that costs time to discover.
+	for _, p := range []release.Platform{
+		{OS: "linux", Arch: "386"},
+		{OS: "freebsd", Arch: "amd64"},
+		{OS: "openbsd", Arch: "arm64"},
+		{OS: "windows", Arch: "386"},
+		{OS: "windows", Arch: "arm"},
+	} {
 		if route := routeFor(t, p); !strings.Contains(route, "go install") {
 			t.Errorf("%s/%s has no published asset but the check offers %q", p.OS, p.Arch, route)
 		}
