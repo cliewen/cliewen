@@ -8,7 +8,7 @@ func extendedCriteria(prefix, ids string) string {
 
 func TestAC059_UnitPositive_ExtendedIDsPassAndCoverage(t *testing.T) {
 	files := capFiles("active")
-	files["docs/capabilities/CAP-101-x/README.md"] = "---\nid: CAP-101\ntype: capability\nstatus: active\nlinks: [SNAP-SQS-002b]\ntitle: X\n---\n"
+	files["docs/capabilities/CAP-101-x/README.md"] = "---\nid: CAP-101\ntype: capability\nstatus: active\nlinks: [SNAP-SQS-002b]\ntitle: X\ngoal: G-101\n---\n"
 	files["docs/capabilities/CAP-101-x/criteria.md"] = extendedCriteria("SNAP-SQS", "  @SNAP-SQS-001\n  Scenario: first\n    Test-type: Unit\n    Given a thing\n    Then it works\n\n  @SNAP-SQS-002b\n  Scenario: second\n    Test-type: Unit\n    Given a thing\n    Then it works\n")
 	files["pkg/x_test.go"] = "package x\n\nfunc TestSNAPSQS001_UnitPositive_Accepts(t *testing.T) {}\nfunc TestSNAPSQS001_UnitNegative_Rejects(t *testing.T) {}\nfunc TestSNAPSQS002b_UnitPositive_Accepts(t *testing.T) {}\nfunc TestSNAPSQS002b_UnitNegative_Rejects(t *testing.T) {}\n"
 	if issues := run(t, files, false); len(issues) != 0 {

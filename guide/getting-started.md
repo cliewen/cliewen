@@ -90,7 +90,7 @@ The current release reports every created file, then ends like this:
 ```text
 clue init: 25 created, 0 skipped, 0 linked, 0 index block(s) regenerated
 next: run `clue validate` — green on a fresh scaffold; then read docs/README.md
-clue validate: OK (2 artifacts, 1 agent-enforced constraint(s) awaiting machine checks)
+clue validate: OK (2 artifacts)
 ```
 
 The exact count can grow in a future release. The important result is the final `OK`. The top-level tree is:
@@ -189,7 +189,7 @@ The draft criterion does not claim verified behavior, so the result is green:
 
 ```text
 clue scaffold: 2 index block(s) regenerated
-clue validate: OK (5 artifacts, 1 agent-enforced constraint(s) awaiting machine checks)
+clue validate: OK (5 artifacts)
 ```
 
 Now change only `status: draft` to `status: active` in `criteria.md` and run `clue validate` again. The command exits with status 1 and names the broken edge:

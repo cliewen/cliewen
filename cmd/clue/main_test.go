@@ -71,7 +71,7 @@ func TestAC052_RealityGapsFlagPrintsAffectedCapability(t *testing.T) {
 	root := validCorpus(t)
 	writeFile(t, root, "docs/README.md", "# Corpus\n\n<!-- clue:index:start -->\n- [goals/](goals/README.md)\n- [capabilities/](capabilities/README.md)\n- [analysis/](analysis/README.md)\n<!-- clue:index:end -->\n")
 	writeFile(t, root, "docs/capabilities/README.md", "# Capabilities\n\n<!-- clue:index:start -->\n- [CAP-101](CAP-101-x/README.md)\n<!-- clue:index:end -->\n")
-	writeFile(t, root, "docs/capabilities/CAP-101-x/README.md", "---\nid: CAP-101\ntype: capability\nstatus: active\nlinks: []\ntitle: X\n---\n")
+	writeFile(t, root, "docs/capabilities/CAP-101-x/README.md", "---\nid: CAP-101\ntype: capability\nstatus: active\nlinks: []\ntitle: X\ngoal: G-101\n---\n")
 	writeFile(t, root, "docs/capabilities/CAP-101-x/criteria.md", "---\nid: CAP-101-criteria\ntype: criteria\nstatus: active\nlinks: [CAP-101]\ntitle: X criteria\n---\n\n```gherkin\nFeature: X\n\n  @AC-101 @draft\n  Scenario: X\n    Given X\n    Then X\n```\n")
 	writeFile(t, root, "docs/analysis/README.md", "# Analysis\n\n<!-- clue:index:start -->\n- [AN-101](AN-101-incident.md)\n<!-- clue:index:end -->\n")
 	writeFile(t, root, "docs/analysis/AN-101-incident.md", "---\nid: AN-101\ntype: analysis\nstatus: active\nlinks: [AC-101]\ntitle: Incident\nreality: contradicted\n---\n")
@@ -96,7 +96,7 @@ func TestAC051_CLIReportsActivationBlockerCount(t *testing.T) {
 	root := validCorpus(t)
 	writeFile(t, root, "docs/README.md", "# Corpus\n\n<!-- clue:index:start -->\n- [goals/](goals/README.md)\n- [capabilities/](capabilities/README.md)\n<!-- clue:index:end -->\n")
 	writeFile(t, root, "docs/capabilities/README.md", "# Capabilities\n\n<!-- clue:index:start -->\n- [CAP-101](CAP-101-x/README.md)\n<!-- clue:index:end -->\n")
-	writeFile(t, root, "docs/capabilities/CAP-101-x/README.md", "---\nid: CAP-101\ntype: capability\nstatus: active\nlinks: []\ntitle: X\nprovenance: inferred\nreversal-cost: high\n---\n")
+	writeFile(t, root, "docs/capabilities/CAP-101-x/README.md", "---\nid: CAP-101\ntype: capability\nstatus: active\nlinks: []\ntitle: X\ngoal: G-101\nprovenance: inferred\nreversal-cost: high\n---\n")
 
 	r, w, err := os.Pipe()
 	if err != nil {
@@ -119,9 +119,11 @@ func TestAC051_CLIReportsActivationBlockerCount(t *testing.T) {
 	}
 }
 
-// AC-023: a valid corpus passes with agent-enforced constraints and their
-// count feeds the OK line as the promotion backlog.
-func TestAC023_AgentConstraintCountReported(t *testing.T) {
+// AC-089: a valid corpus passes with agent-enforced constraints and their
+// count feeds the OK line as the promotion backlog. The classes that carry
+// declarations are covered in internal/corpus; what belongs here is that the
+// count the CLI prints counts `agent` and nothing else.
+func TestAC089_UnitPositive_AgentConstraintCountReported(t *testing.T) {
 	root := validCorpus(t)
 	writeFile(t, root, "docs/README.md", "# Corpus\n\n<!-- clue:index:start -->\n- [goals/](goals/README.md)\n- [constraints/](constraints/README.md)\n<!-- clue:index:end -->\n")
 	writeFile(t, root, "docs/constraints/README.md", "# Constraints\n\n<!-- clue:index:start -->\n- [C-001](C-001-rule.md)\n<!-- clue:index:end -->\n")
@@ -135,7 +137,7 @@ func TestAC023_AgentConstraintCountReported(t *testing.T) {
 	}
 }
 
-func TestAC023_MachineConstraintNotInBacklogCount(t *testing.T) {
+func TestAC089_UnitNegative_DeclaredConstraintsAreNotBacklog(t *testing.T) {
 	root := validCorpus(t)
 	writeFile(t, root, "docs/README.md", "# Corpus\n\n<!-- clue:index:start -->\n- [goals/](goals/README.md)\n- [constraints/](constraints/README.md)\n<!-- clue:index:end -->\n")
 	writeFile(t, root, "docs/constraints/README.md", "# Constraints\n\n<!-- clue:index:start -->\n- [C-001](C-001-rule.md)\n<!-- clue:index:end -->\n")
@@ -691,7 +693,7 @@ func TestSanity_ReleaseRunsTheJudgeStampedAsTheTag(t *testing.T) {
 
 	// --forbid-changes is load-bearing in this step: an undigested
 	// workspace must not reach a release either.
-	writeFile(t, root, "changes/CH-009-x/proposal.md", "---\nid: CH-009\ntype: change\nstatus: open\nlinks: []\ntitle: X\n---\n")
+	writeFile(t, root, "changes/CH-009-x/proposal.md", "---\nid: CH-009\ntype: change\nstatus: open\nlinks: []\ntitle: X\n---\n\nThis fixture is plan-less.\n")
 	if code, _ = runValidateCapturingStdout(t, runArgs); code != 1 {
 		t.Errorf("undigested workspace at a matching tag: expected exit 1, got %d — the release step dropped --forbid-changes", code)
 	}
@@ -1066,7 +1068,7 @@ func TestSanity_SkillsCarryNoDocIDs(t *testing.T) {
 // AC-008: the --forbid-changes gate flips the exit code, nothing else.
 func TestAC008_ForbidChangesFlagExitCodes(t *testing.T) {
 	root := validCorpus(t)
-	writeFile(t, root, "changes/CH-009-x/proposal.md", "---\nid: CH-009\ntype: change\nstatus: open\nlinks: []\ntitle: X\n---\n")
+	writeFile(t, root, "changes/CH-009-x/proposal.md", "---\nid: CH-009\ntype: change\nstatus: open\nlinks: []\ntitle: X\n---\n\nThis fixture is plan-less.\n")
 	if code := runValidate([]string{root}, io.Discard); code != 0 {
 		t.Fatalf("without the gate: expected exit 0, got %d", code)
 	}

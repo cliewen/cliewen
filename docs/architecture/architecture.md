@@ -64,4 +64,4 @@ flowchart TD
 
 ## Deliberately out (doors defined, doors closed)
 
-Deployment/operations (V3 door: production findings enter as new goals or constraints); external constraint catalogs (plug in via `source:`); kernel/profile layering (extracted after multiple working instances, not designed from zero). The `enforcement:` classes beyond `machine` door was opened by ADR-017: `agent`-enforced constraints are the lintable promotion backlog.
+Deployment/operations (V3 door: production findings enter as new goals or constraints); external constraint catalogs (plug in via `source:`); kernel/profile layering (extracted after multiple working instances, not designed from zero). The `enforcement:` classes beyond `machine` door was opened by ADR-017 and widened by [ADR-045](../decisions/ADR-045-register-names-the-machine.md): a rule states the machine that holds it and the judgment that remains, `partial` covers the ordinary case where both are true, and `agent` is what is left of the promotion backlog — reported on the OK line, and silent at zero.

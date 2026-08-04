@@ -249,7 +249,7 @@ func TestAC051_InferredDecisionsAreVisibleButDoNotBlock(t *testing.T) {
 	files["pkg/x_test.go"] = "package x\n\nfunc TestAC101_Works(t *testing.T) {}\n"
 	files["docs/README.md"] = strings.Replace(files["docs/README.md"], "- [capabilities/]", "- [decisions/](decisions/README.md)\n- [capabilities/]", 1)
 	files["docs/decisions/README.md"] = "# Decisions\n\n<!-- clue:index:start -->\n- [ADR-101](ADR-101-x.md)\n<!-- clue:index:end -->\n"
-	files["docs/decisions/ADR-101-x.md"] = "---\nid: ADR-101\ntype: decision\nstatus: inferred\nlinks: [CAP-101]\ntitle: X\n---\n"
+	files["docs/decisions/ADR-101-x.md"] = "---\nid: ADR-101\ntype: decision\nstatus: inferred\nlinks: [CAP-101]\ntitle: X\nauthor: agent\naccepted-by: []\n---\n"
 	c, scanIssues := Scan(writeCorpus(t, files))
 	if len(scanIssues) != 0 {
 		t.Fatalf("scan: %v", scanIssues)
@@ -284,7 +284,7 @@ func TestAC052_UnitPositive_RealityGapMapsCriterionToCapability(t *testing.T) {
 func TestAC052_UnitNegative_RealityMarkerRequiresAnalysisAndFailedClaimLink(t *testing.T) {
 	files := capFiles("active")
 	files["pkg/x_test.go"] = "package x\n\nfunc TestAC101_Works(t *testing.T) {}\n"
-	files["docs/capabilities/CAP-101-x/README.md"] = strings.Replace(files["docs/capabilities/CAP-101-x/README.md"], "title: X\n---\n", "title: X\nreality: contradicted\n---\n", 1)
+	files["docs/capabilities/CAP-101-x/README.md"] = strings.Replace(files["docs/capabilities/CAP-101-x/README.md"], "goal: G-101\n---\n", "goal: G-101\nreality: contradicted\n---\n", 1)
 	assertIssue(t, run(t, files, false), "reality is allowed only on analysis")
 
 	files = with(files, map[string]string{
@@ -334,32 +334,6 @@ func TestAC051_UnitNegative_ReversalCostIsBoundToProvenance(t *testing.T) {
 			t.Fatalf("a decision must not be told to add provenance, which it may not carry either: %v", issues)
 		}
 	}
-}
-
-// AC-023: constraints carry a non-empty source and an enforcement class
-// from machine|agent|human.
-func TestAC023_ConstraintRegisterFieldsLinted(t *testing.T) {
-	constraintFiles := func(frontmatter string) map[string]string {
-		return with(validFiles, map[string]string{
-			"docs/README.md":                 "# Corpus\n\n<!-- clue:index:start -->\n- [goals/](goals/README.md)\n- [plans/](plans/README.md)\n- [constraints/](constraints/README.md)\n<!-- clue:index:end -->\n",
-			"docs/constraints/README.md":     "# Constraints\n\n<!-- clue:index:start -->\n- [C-001](C-001-rule.md)\n<!-- clue:index:end -->\n",
-			"docs/constraints/C-001-rule.md": frontmatter,
-		})
-	}
-
-	valid := "---\nid: C-001\ntype: constraint\nstatus: active\nlinks: []\ntitle: A rule\nsource: AGENTS.md rule 5\nenforcement: agent\n---\n"
-	if issues := run(t, constraintFiles(valid), false); len(issues) != 0 {
-		t.Fatalf("a sourced, agent-enforced constraint is valid; expected no issues, got %v", issues)
-	}
-
-	noSource := "---\nid: C-001\ntype: constraint\nstatus: active\nlinks: []\ntitle: A rule\nenforcement: agent\n---\n"
-	assertIssue(t, run(t, constraintFiles(noSource), false), "constraint missing or empty source field")
-
-	noEnforcement := "---\nid: C-001\ntype: constraint\nstatus: active\nlinks: []\ntitle: A rule\nsource: AGENTS.md rule 5\n---\n"
-	assertIssue(t, run(t, constraintFiles(noEnforcement), false), "constraint missing or empty enforcement field")
-
-	badVocab := "---\nid: C-001\ntype: constraint\nstatus: active\nlinks: []\ntitle: A rule\nsource: AGENTS.md rule 5\nenforcement: hope\n---\n"
-	assertIssue(t, run(t, constraintFiles(badVocab), false), "enforcement hope not allowed")
 }
 
 // The dogfood test: this repository's own corpus must always be valid.

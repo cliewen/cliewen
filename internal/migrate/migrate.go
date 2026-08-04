@@ -49,6 +49,12 @@ const (
 	// one file Cliewen may not rewrite without taking their words with it
 	// (PDR-023).
 	MigrationHubReleaseCheck = "MIG-006"
+	// MigrationPromotedConstraints reports a scaffolded constraint still
+	// claiming to await a machine check this release implements. It never
+	// repairs one: the class is one line, but the promotion trigger beside it
+	// is prose, and half-repairing would leave the register contradicting
+	// itself in the adopter's own words (ADR-045).
+	MigrationPromotedConstraints = "MIG-007"
 )
 
 // Options controls planning. Preview is the default; applying a plan is a
@@ -72,6 +78,7 @@ var orderedMigrations = []MigrationDefinition{
 	{ID: MigrationQualifiedReferences, Description: "report external references that name no repository"},
 	{ID: MigrationClaudeEntryPoint, Description: "report a Claude Code entry point that never reaches the routing hub"},
 	{ID: MigrationHubReleaseCheck, Description: "report a routing hub that never asks whether the repository is behind"},
+	{ID: MigrationPromotedConstraints, Description: "report a scaffolded constraint awaiting a machine check this release implements"},
 }
 
 // Registry returns the migration order without exposing mutable package state.
@@ -244,6 +251,7 @@ func Plan(root string, opts Options) (MigrationPlan, error) {
 	planQualifiedReferences(root, &result)
 	planClaudeEntryPoint(root, &result)
 	planHubReleaseCheck(root, &result)
+	planPromotedConstraints(root, &result)
 	sortPlan(&result)
 	return result, nil
 }
@@ -1080,6 +1088,58 @@ func planHubReleaseCheck(root string, result *MigrationPlan) {
 		Migration: MigrationHubReleaseCheck,
 		Message:   "never asks whether this repository is behind, so no session learns a newer release is available; add a line telling the agent to run `clue latest --quiet` when it starts — migration does not edit your hub",
 	})
+}
+
+// scaffoldedConstraintSource identifies a constraint `clue init` emitted, as
+// opposed to one the adopter wrote. Only the emitted one carries a promotion
+// trigger this project is in a position to say is out of date.
+const scaffoldedConstraintSource = "Cliewen methodology (scaffolded by clue init)"
+
+// planPromotedConstraints reports a scaffolded constraint whose register entry
+// still says a machine check is pending when this release ships one, and
+// repairs nothing (ADR-045).
+//
+// A stale class here is worse than untidy: `enforcement: agent` is what the OK
+// line counts as the promotion backlog, so an adopter is told every run that a
+// rule needs a machine that has in fact arrived. The repair is two edits — the
+// class, and the promotion trigger that becomes a **Checked by** declaration —
+// and the second is prose in a file the adopter owns. Migration reports both
+// and writes neither, the same asymmetry MIG-004 through MIG-006 follow.
+func planPromotedConstraints(root string, result *MigrationPlan) {
+	dir := filepath.Join(root, "docs", "constraints")
+	entries, err := os.ReadDir(dir)
+	if err != nil {
+		return
+	}
+	for _, e := range entries {
+		if e.IsDir() || !strings.HasSuffix(e.Name(), ".md") {
+			continue
+		}
+		rel := path.Join("docs", "constraints", e.Name())
+		data, err := os.ReadFile(filepath.Join(dir, e.Name()))
+		if err != nil {
+			continue
+		}
+		_, inner, ok, err := splitFrontmatter(string(data))
+		if err != nil || !ok {
+			continue
+		}
+		var fields map[string]any
+		if err := yaml.Unmarshal([]byte(inner), &fields); err != nil {
+			continue
+		}
+		if src, _ := fields["source"].(string); src != scaffoldedConstraintSource {
+			continue
+		}
+		if enforcement, _ := fields["enforcement"].(string); enforcement != "agent" {
+			continue
+		}
+		result.Notices = append(result.Notices, Notice{
+			Path:      rel,
+			Migration: MigrationPromotedConstraints,
+			Message:   "awaits a machine check that `clue validate` now runs; set `enforcement: machine` and replace the promotion trigger with a **Checked by:** declaration — migration does not edit your register",
+		})
+	}
 }
 
 // linksToHub reports whether an entry point is a symlink resolving to the

@@ -1,7 +1,7 @@
 ---
 id: CH-110-open-questions
 type: open-questions
-status: active
+status: open
 links: [CH-110-proposal]
 title: Open questions for CH-110
 ---

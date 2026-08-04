@@ -5,11 +5,11 @@ status: active
 links: []
 title: Markdown prose is never hard-wrapped
 source: AGENTS.md rule 6
-enforcement: agent
+enforcement: machine
 ---
 
 # C-001 — Markdown prose is never hard-wrapped
 
 One line per paragraph and per list item; wrapping is the reader's IDE concern. Line breaks are structural only: headings, lists, tables, code fences.
 
-**Promotion trigger:** `clue validate` gains a prose-layout lint that flags mid-paragraph line breaks in `docs/**` markdown — then `enforcement: machine`.
+**Checked by:** `clue validate`'s prose-layout lint ([AC-090](../capabilities/CAP-002-validate/criteria.md)) — two running-text lines in a row are one paragraph someone broke. Fences, tables, frontmatter, blockquotes, and HTML blocks are structure and are read as such.

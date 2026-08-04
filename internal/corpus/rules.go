@@ -80,6 +80,12 @@ func Validate(c *Corpus, opts Options) []Issue {
 	issues = append(issues, checkProvenance(c)...)
 	issues = append(issues, checkReality(c)...)
 	issues = append(issues, checkConstraints(c)...)
+	issues = append(issues, checkTypeFields(c)...)
+	issues = append(issues, checkProseLayout(c)...)
+	issues = append(issues, checkSkippedTasks(c)...)
+	issues = append(issues, checkProposalPlanItem(c)...)
+	issues = append(issues, checkInlineDiagrams(c)...)
+	issues = append(issues, checkMilestoneStatus(c)...)
 	issues = append(issues, checkSkillVersions(c, opts.Version)...)
 	if opts.ForbidChanges && c.HasChanges {
 		issues = append(issues, Issue{"changes", "transient workspace present — digest before merge (main must never contain /changes)"})
@@ -161,10 +167,16 @@ func checkFrontmatterHygiene(c *Corpus) []Issue {
 	return issues
 }
 
-// checkConstraints enforces the convention register's fields (AC-023):
+// checkConstraints enforces the convention register's fields (AC-089):
 // every constraint names its source (the doc or catalog that states the
 // rule) and an enforcement class. `agent` marks the promotion backlog —
 // rules awaiting a machine check; the CLI reports their count.
+//
+// `partial` and `human` are the classes ADR-045 gave declarations: a rule
+// no longer leaves the backlog by relabelling, only by naming the machine
+// that holds its subset and pricing the judgment that stays. A `machine`
+// rule owes neither, because there is no residual to state, and an `agent`
+// rule keeps its promotion trigger.
 func checkConstraints(c *Corpus) []Issue {
 	var issues []Issue
 	for _, a := range c.Artifacts {
@@ -174,12 +186,29 @@ func checkConstraints(c *Corpus) []Issue {
 		if s, ok := a.Fields["source"].(string); !ok || s == "" {
 			issues = append(issues, Issue{a.Path, "constraint missing or empty source field"})
 		}
-		switch e, _ := a.Fields["enforcement"].(string); e {
-		case "machine", "agent", "human":
+		e, _ := a.Fields["enforcement"].(string)
+		switch e {
+		case "machine", "partial", "agent", "human":
 		case "":
 			issues = append(issues, Issue{a.Path, "constraint missing or empty enforcement field"})
 		default:
-			issues = append(issues, Issue{a.Path, "enforcement " + e + " not allowed (allowed: machine, agent, human)"})
+			issues = append(issues, Issue{a.Path, "enforcement " + e + " not allowed (allowed: machine, partial, agent, human)"})
+		}
+		// Every declared class prices its residual. Only `partial` must also
+		// name a machine: a `human` rule may have a fragment worth naming and
+		// usually does not, and demanding the heading anyway would invite
+		// "**Checked by:** nothing" — a sentence that reads as a check.
+		var required []string
+		switch e {
+		case "partial":
+			required = []string{"Checked by", "Residual"}
+		case "human":
+			required = []string{"Residual"}
+		}
+		for _, d := range required {
+			if !strings.Contains(a.Body, "**"+d+":**") {
+				issues = append(issues, Issue{a.Path, "enforcement " + e + " needs a **" + d + ":** declaration (ADR-045)"})
+			}
 		}
 	}
 	return issues

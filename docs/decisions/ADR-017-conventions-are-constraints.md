@@ -2,7 +2,7 @@
 id: ADR-017
 type: decision
 status: verified
-links: [ADR-013]
+links: [ADR-013, ADR-044, ADR-045]
 title: Prose conventions register as constraint artifacts with enforcement classes
 author: agent
 accepted-by: Flemming N. Larsen (2026-07-14, PR #11 review)
@@ -18,8 +18,8 @@ Methodology rules that live only in prose — AGENTS.md rules, README convention
 
 **Every prose-only convention becomes a constraint artifact in `docs/constraints/`, and the `agent` enforcement class is the promotion backlog.**
 
-- Each constraint carries `source:` (the doc that states the rule — the prose stays as the human-readable carrier and gains a pointer back where that helps) and `enforcement: machine|agent|human`. `clue validate` requires both fields and the vocabulary.
-- An `agent`-enforced constraint states its **promotion trigger** in its body: the condition under which the rule becomes a `machine` check in `clue`. Promotion is an ordinary change that implements the check and flips the field.
+- Each constraint carries `source:` (the doc that states the rule — the prose stays as the human-readable carrier and gains a pointer back where that helps) and an `enforcement:` class. `clue validate` requires both fields and the vocabulary. The class set was `machine|agent|human` here and is `machine|partial|agent|human` from [ADR-045](ADR-045-register-names-the-machine.md), which also gives `partial` and `human` constraints two required declarations in their bodies.
+- An `agent`-enforced constraint states its **promotion trigger** in its body: the condition under which the rule becomes a `machine` check in `clue`. Promotion is an ordinary change that implements the check and flips the field. A rule that no machine can hold leaves the class by being declared instead, under ADR-045.
 - The backlog is visible, not archival: `clue validate` reports the count of `agent`-enforced constraints on its OK line, the same way it reports born-`inferred` artifacts awaiting verification.
 - The constraints README index is the register table; there is no second inventory.
 - This deliberately opens the "`enforcement:` classes beyond `machine`" door the architecture had listed as out. Shipped skills stay generic (no repo doc-IDs), so constraint pointers live in repo-local prose only — AGENTS.md and folder READMEs.
@@ -32,4 +32,4 @@ A table row is not an artifact: no frontmatter, no ID to link, no lintable field
 
 ### Rejected: promoting everything to machine checks now
 
-Several rules need git-diff context `clue` does not have, and some halves are meaning (timeless prose, weakening-by-refactor) that machines cannot judge. Registering first makes the gap countable; promotion proceeds trigger by trigger.
+Several rules need git-diff context `clue` does not have, and some halves are meaning (timeless prose, weakening-by-refactor) that machines cannot judge. Registering first makes the gap countable; promotion proceeds trigger by trigger. [ADR-044](ADR-044-judge-reads-state-not-transitions.md) later withdrew the first half of that reasoning as a route: the judge is not going to get diff context, and the rules that need one are enforced by machines that already have a base.

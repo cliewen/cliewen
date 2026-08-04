@@ -1,0 +1,231 @@
+package corpus
+
+import (
+	"strings"
+	"testing"
+)
+
+// constraintCorpus is validFiles plus a constraints folder carrying one
+// constraint file, so a register rule can be exercised on its own.
+func constraintCorpus(file string) map[string]string {
+	return with(validFiles, map[string]string{
+		"docs/README.md":                 "# Corpus\n\n<!-- clue:index:start -->\n- [goals/](goals/README.md)\n- [plans/](plans/README.md)\n- [constraints/](constraints/README.md)\n<!-- clue:index:end -->\n",
+		"docs/constraints/README.md":     "# Constraints\n\n<!-- clue:index:start -->\n- [C-001](C-001-rule.md)\n<!-- clue:index:end -->\n",
+		"docs/constraints/C-001-rule.md": file,
+	})
+}
+
+func constraintFile(enforcement, body string) string {
+	return "---\nid: C-001\ntype: constraint\nstatus: active\nlinks: []\ntitle: A rule\nsource: AGENTS.md rule 5\nenforcement: " + enforcement + "\n---\n\n# C-001\n" + body
+}
+
+func assertClean(t *testing.T, issues []Issue, what string) {
+	t.Helper()
+	if len(issues) != 0 {
+		t.Fatalf("%s: expected no issues, got %v", what, issues)
+	}
+}
+
+// AC-089: the register carries source, a class from the widened vocabulary,
+// and the declarations ADR-045 requires of partial and human.
+func TestAC089_UnitPositive_RegisterClassesAndDeclarationsAccepted(t *testing.T) {
+	assertClean(t, run(t, constraintCorpus(constraintFile("agent", "\n**Promotion trigger:** a lint.\n")), false), "an agent-enforced constraint with a promotion trigger")
+	assertClean(t, run(t, constraintCorpus(constraintFile("machine", "\nHeld by the linter.\n")), false), "a machine-enforced constraint owes no declaration")
+	assertClean(t, run(t, constraintCorpus(constraintFile("partial", "\n**Checked by:** `clue validate`.\n\n**Residual:** whether the reason is real.\n")), false), "a partial constraint declaring both")
+	assertClean(t, run(t, constraintCorpus(constraintFile("human", "\n**Residual:** meaning, and it costs a missed weakening.\n")), false), "a human constraint declaring its residual")
+}
+
+func TestAC089_UnitNegative_RegisterFieldsAndDeclarationsRejected(t *testing.T) {
+	noSource := "---\nid: C-001\ntype: constraint\nstatus: active\nlinks: []\ntitle: A rule\nenforcement: agent\n---\n"
+	assertIssue(t, run(t, constraintCorpus(noSource), false), "constraint missing or empty source field")
+
+	noEnforcement := "---\nid: C-001\ntype: constraint\nstatus: active\nlinks: []\ntitle: A rule\nsource: AGENTS.md rule 5\n---\n"
+	assertIssue(t, run(t, constraintCorpus(noEnforcement), false), "constraint missing or empty enforcement field")
+
+	assertIssue(t, run(t, constraintCorpus(constraintFile("hope", "")), false), "enforcement hope not allowed (allowed: machine, partial, agent, human)")
+
+	// partial owes both declarations: a claimed machine nobody named, and a
+	// residual nobody priced, are the two ways this class could be abused.
+	assertIssue(t, run(t, constraintCorpus(constraintFile("partial", "\n**Residual:** judgment.\n")), false), "enforcement partial needs a **Checked by:** declaration")
+	assertIssue(t, run(t, constraintCorpus(constraintFile("partial", "\n**Checked by:** `clue validate`.\n")), false), "enforcement partial needs a **Residual:** declaration")
+	assertIssue(t, run(t, constraintCorpus(constraintFile("human", "\nNo machine can hold this.\n")), false), "enforcement human needs a **Residual:** declaration")
+}
+
+// AC-090: a paragraph or list item broken across lines fails; structural line
+// breaks do not.
+func TestAC090_UnitPositive_StructuralLineBreaksArePermitted(t *testing.T) {
+	page := `---
+id: G-002
+type: goal
+status: accepted
+links: []
+title: Structure only
+---
+
+# A heading
+
+One paragraph on one line, however long it runs and whatever punctuation it carries.
+
+- A list item on one line
+- Another list item
+  - A nested item
+
+> A blockquote line
+> A second blockquote line
+
+| Column | Other |
+|---|---|
+| Cell | Cell |
+
+<!-- an HTML comment -->
+
+` + "```go" + `
+a := 1
+b := 2
+` + "```" + `
+
+[ref]: https://example.com
+
+Final paragraph.
+`
+	assertClean(t, run(t, with(validFiles, map[string]string{
+		"docs/goals/README.md":          "# Goals\n\n<!-- clue:index:start -->\n- [G-001](G-001-first.md)\n- [G-002](G-002-structure.md)\n<!-- clue:index:end -->\n",
+		"docs/goals/G-002-structure.md": page,
+	}), false), "a page whose only line breaks are structural")
+}
+
+func TestAC090_UnitNegative_HardWrappedProseAndListItemsRejected(t *testing.T) {
+	wrapped := "---\nid: G-002\ntype: goal\nstatus: accepted\nlinks: []\ntitle: Wrapped\n---\n\n# A heading\n\nThis paragraph was broken\nacross two lines.\n"
+	issues := run(t, with(validFiles, map[string]string{
+		"docs/goals/README.md":        "# Goals\n\n<!-- clue:index:start -->\n- [G-001](G-001-first.md)\n- [G-002](G-002-wrapped.md)\n<!-- clue:index:end -->\n",
+		"docs/goals/G-002-wrapped.md": wrapped,
+	}), false)
+	assertIssue(t, issues, "line 12: paragraph continues on a new line")
+
+	wrappedItem := "---\nid: G-002\ntype: goal\nstatus: accepted\nlinks: []\ntitle: Wrapped\n---\n\n# A heading\n\n- A list item broken\n  across two lines\n"
+	assertIssue(t, run(t, with(validFiles, map[string]string{
+		"docs/goals/README.md":        "# Goals\n\n<!-- clue:index:start -->\n- [G-001](G-001-first.md)\n- [G-002](G-002-wrapped.md)\n<!-- clue:index:end -->\n",
+		"docs/goals/G-002-wrapped.md": wrappedItem,
+	}), false), "paragraph continues on a new line")
+}
+
+// changeCorpus is validFiles plus one transient workspace.
+func changeCorpus(files map[string]string) map[string]string {
+	return with(validFiles, files)
+}
+
+const validProposal = "---\nid: CH-001-proposal\ntype: change\nstatus: open\nlinks: [P-001]\ntitle: A change\n---\n\n# CH-001\n\nWhat and why.\n"
+
+// AC-091: a `[-]` task carries prose after its checkbox.
+func TestAC091_UnitPositive_SkippedTaskWithAReasonPasses(t *testing.T) {
+	tasks := "---\nid: CH-001-tasks\ntype: tasks\nstatus: open\nlinks: []\ntitle: Tasks\n---\n\n# Tasks\n\n- [x] Done\n- [ ] Not yet\n- [-] Not feasible: the upstream API never shipped\n"
+	assertClean(t, run(t, changeCorpus(map[string]string{
+		"changes/CH-001-a/proposal.md": validProposal,
+		"changes/CH-001-a/tasks.md":    tasks,
+	}), false), "a skipped task carrying its reason")
+}
+
+func TestAC091_UnitNegative_SkippedTaskWithoutAReasonRejected(t *testing.T) {
+	tasks := "---\nid: CH-001-tasks\ntype: tasks\nstatus: open\nlinks: []\ntitle: Tasks\n---\n\n# Tasks\n\n- [x] Done\n- [-]\n"
+	assertIssue(t, run(t, changeCorpus(map[string]string{
+		"changes/CH-001-a/proposal.md": validProposal,
+		"changes/CH-001-a/tasks.md":    tasks,
+	}), false), "line 12: skipped task carries no reason")
+}
+
+// AC-092: a proposal names its plan item or declares itself plan-less.
+func TestAC092_UnitPositive_PlanItemOrPlanLessDeclarationAccepted(t *testing.T) {
+	assertClean(t, run(t, changeCorpus(map[string]string{
+		"changes/CH-001-a/proposal.md": validProposal,
+	}), false), "a proposal linking a plan")
+
+	planLess := "---\nid: CH-001-proposal\ntype: change\nstatus: open\nlinks: []\ntitle: A change\n---\n\n# CH-001\n\nThis change is plan-less: it repairs a broken link.\n"
+	assertClean(t, run(t, changeCorpus(map[string]string{
+		"changes/CH-001-a/proposal.md": planLess,
+	}), false), "a proposal declaring itself plan-less")
+}
+
+func TestAC092_UnitNegative_ProposalWithoutADeclarationRejected(t *testing.T) {
+	silent := "---\nid: CH-001-proposal\ntype: change\nstatus: open\nlinks: [G-001]\ntitle: A change\n---\n\n# CH-001\n\nWhat and why, but nothing about a plan.\n"
+	assertIssue(t, run(t, changeCorpus(map[string]string{
+		"changes/CH-001-a/proposal.md": silent,
+	}), false), "proposal names no plan item")
+}
+
+// AC-093: diagrams are inline Mermaid, never images.
+func TestAC093_UnitPositive_MermaidAndOrdinaryLinksAccepted(t *testing.T) {
+	page := "---\nid: G-002\ntype: goal\nstatus: accepted\nlinks: []\ntitle: Diagrams\n---\n\n# G-002\n\nA link to [the first goal](G-001-first.md) and a code span showing the form `![alt](x.png)`.\n\n```mermaid\ngraph TD\n  A --> B\n```\n\nA fenced example:\n\n```markdown\n![alt](diagram.png)\n```\n"
+	assertClean(t, run(t, with(validFiles, map[string]string{
+		"docs/goals/README.md":         "# Goals\n\n<!-- clue:index:start -->\n- [G-001](G-001-first.md)\n- [G-002](G-002-diagrams.md)\n<!-- clue:index:end -->\n",
+		"docs/goals/G-002-diagrams.md": page,
+	}), false), "inline Mermaid, an ordinary link, and images shown as examples")
+}
+
+func TestAC093_UnitNegative_ImageLinksAndImageFilesRejected(t *testing.T) {
+	page := "---\nid: G-002\ntype: goal\nstatus: accepted\nlinks: []\ntitle: Diagrams\n---\n\n# G-002\n\n![the architecture](architecture.png)\n"
+	issues := run(t, with(validFiles, map[string]string{
+		"docs/goals/README.md":         "# Goals\n\n<!-- clue:index:start -->\n- [G-001](G-001-first.md)\n- [G-002](G-002-diagrams.md)\n<!-- clue:index:end -->\n",
+		"docs/goals/G-002-diagrams.md": page,
+		"docs/goals/architecture.png":  "\x89PNG not really",
+	}), false)
+	assertIssue(t, issues, "line 11: image link — diagrams in the corpus are inline Mermaid")
+	assertIssue(t, issues, "docs/goals/architecture.png: image file under docs/")
+}
+
+// AC-094: each type carries its own frontmatter extensions.
+func TestAC094_UnitPositive_TypeExtensionsPresentAndEmptySignatureAccepted(t *testing.T) {
+	decision := "---\nid: ADR-001\ntype: decision\nstatus: inferred\nlinks: []\ntitle: A decision\nauthor: agent\naccepted-by: []\n---\n\n# ADR-001\n"
+	assertClean(t, run(t, with(validFiles, map[string]string{
+		"docs/README.md":              "# Corpus\n\n<!-- clue:index:start -->\n- [goals/](goals/README.md)\n- [plans/](plans/README.md)\n- [decisions/](decisions/README.md)\n<!-- clue:index:end -->\n",
+		"docs/decisions/README.md":    "# Decisions\n\n<!-- clue:index:start -->\n- [ADR-001](ADR-001-a.md)\n<!-- clue:index:end -->\n",
+		"docs/decisions/ADR-001-a.md": decision,
+	}), false), "a decision carrying author and an empty accepted-by")
+}
+
+func TestAC094_UnitNegative_MissingTypeExtensionsRejected(t *testing.T) {
+	noAuthor := "---\nid: ADR-001\ntype: decision\nstatus: inferred\nlinks: []\ntitle: A decision\n---\n\n# ADR-001\n"
+	assertIssue(t, run(t, with(validFiles, map[string]string{
+		"docs/README.md":              "# Corpus\n\n<!-- clue:index:start -->\n- [goals/](goals/README.md)\n- [plans/](plans/README.md)\n- [decisions/](decisions/README.md)\n<!-- clue:index:end -->\n",
+		"docs/decisions/README.md":    "# Decisions\n\n<!-- clue:index:start -->\n- [ADR-001](ADR-001-a.md)\n<!-- clue:index:end -->\n",
+		"docs/decisions/ADR-001-a.md": noAuthor,
+	}), false), "decision missing or empty field(s): accepted-by, author")
+
+	noGoal := "---\nid: CAP-001\ntype: capability\nstatus: draft\nlinks: [G-001]\ntitle: A capability\n---\n\n# CAP-001\n"
+	assertIssue(t, run(t, with(validFiles, map[string]string{
+		"docs/README.md":                        "# Corpus\n\n<!-- clue:index:start -->\n- [goals/](goals/README.md)\n- [plans/](plans/README.md)\n- [capabilities/](capabilities/README.md)\n<!-- clue:index:end -->\n",
+		"docs/capabilities/README.md":           "# Capabilities\n\n<!-- clue:index:start -->\n- [CAP-001](CAP-001-a/README.md)\n<!-- clue:index:end -->\n",
+		"docs/capabilities/CAP-001-a/README.md": noGoal,
+	}), false), "capability missing or empty field(s): goal")
+}
+
+// AC-095: milestone status cells follow one vocabulary.
+func TestAC095_UnitPositive_DeclaredVocabularyAndUnstatusedTablesAccepted(t *testing.T) {
+	plan := "---\nid: P-002\ntype: plan\nstatus: active\nlinks: [G-001]\ntitle: A plan\n---\n\n# P-002\n\n| ID | Milestone | Status | Evidence |\n|---|---|---|---|\n"
+	for _, v := range MilestoneStatuses {
+		body := plan + "| M-002 | do it | `" + v + "` | |\n"
+		assertClean(t, run(t, planCorpus(body), false), "milestone status "+v)
+	}
+
+	// A table with no status column is not a milestone table, whatever it
+	// happens to contain.
+	other := "---\nid: P-002\ntype: plan\nstatus: active\nlinks: [G-001]\ntitle: A plan\n---\n\n# P-002\n\n| ID | Note |\n|---|---|\n| M-002 | shipped |\n"
+	assertClean(t, run(t, planCorpus(other), false), "a plan table declaring no status column")
+}
+
+func TestAC095_UnitNegative_StatusOutsideTheVocabularyRejected(t *testing.T) {
+	plan := "---\nid: P-002\ntype: plan\nstatus: active\nlinks: [G-001]\ntitle: A plan\n---\n\n# P-002\n\n| ID | Milestone | Status | Evidence |\n|---|---|---|---|\n| M-002 | do it | `wip` | |\n"
+	issues := run(t, planCorpus(plan), false)
+	assertIssue(t, issues, "M-002: milestone status wip is not one of todo, doing, done, dropped")
+	for _, i := range issues {
+		if strings.Contains(i.Msg, "milestone status Status") {
+			t.Fatalf("the header row is not a value: %v", issues)
+		}
+	}
+}
+
+func planCorpus(plan string) map[string]string {
+	return with(validFiles, map[string]string{
+		"docs/plans/README.md":       "# Plans\n\n<!-- clue:index:start -->\n- [P-001](P-001-baseline.md)\n- [P-002](P-002-second.md)\n<!-- clue:index:end -->\n",
+		"docs/plans/P-002-second.md": plan,
+	})
+}

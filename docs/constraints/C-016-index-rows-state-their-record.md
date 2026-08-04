@@ -16,4 +16,4 @@ A row referencing a subfolder README states a section rather than a record and c
 
 The rule governs a row's opening only. Curated text after the status — supersession notes, section descriptions — is part of the contract rather than an exception to it, and regeneration preserves every row whose target still exists.
 
-**Enforcement:** `machine` — index generation emits the stated form (AC-073), and `clue validate` counts rows whose label restates only their own link, naming them behind `--index-rows` (AC-074). The count is reported and never failed on, for the reasons in [ADR-041](../decisions/ADR-041-index-rows-state-their-record.md); under [C-004](C-004-never-weaken-checks.md) it is never softened to make the number look better.
+**Checked by:** index generation, which emits the stated form (AC-073), and `clue validate` counts rows whose label restates only their own link, naming them behind `--index-rows` (AC-074). The count is reported and never failed on, for the reasons in [ADR-041](../decisions/ADR-041-index-rows-state-their-record.md); under [C-004](C-004-never-weaken-checks.md) it is never softened to make the number look better.

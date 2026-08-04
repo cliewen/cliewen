@@ -304,7 +304,7 @@ func TestAC064_UnitNegative_MigrationRejectsChangedSourceAfterPreview(t *testing
 
 func TestAC064_UnitPositive_MigrationRegistryIsOrdered(t *testing.T) {
 	registry := Registry()
-	want := []string{MigrationReversalCost, MigrationStatusLifecycle, MigrationManagedCarriers, MigrationQualifiedReferences, MigrationClaudeEntryPoint, MigrationHubReleaseCheck}
+	want := []string{MigrationReversalCost, MigrationStatusLifecycle, MigrationManagedCarriers, MigrationQualifiedReferences, MigrationClaudeEntryPoint, MigrationHubReleaseCheck, MigrationPromotedConstraints}
 	if len(registry) != len(want) {
 		t.Fatalf("registry has %d entries, want %d", len(registry), len(want))
 	}
@@ -386,7 +386,7 @@ func TestAC064_UnitPositive_MigrationCoversREADMEsThatAreArtifacts(t *testing.T)
 		}
 	}
 	capability := "docs/capabilities/CAP-009-example/README.md"
-	write(capability, "---\nid: CAP-009\ntype: capability\nstatus: active\nlinks: []\ntitle: Example capability\nprovenance: inferred\n---\n\nProse body.\n")
+	write(capability, "---\nid: CAP-009\ntype: capability\nstatus: active\nlinks: []\ntitle: Example capability\ngoal: G-101\nprovenance: inferred\n---\n\nProse body.\n")
 	// Prose README, and one whose leading `---` never closes: corpus.Scan
 	// treats both as prose, so neither may become a change or a finding.
 	write("docs/capabilities/README.md", "# Capabilities\n\nNo frontmatter here.\n")

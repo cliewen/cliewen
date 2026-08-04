@@ -11,11 +11,13 @@ goal: G-001
 
 ## What
 
-`clue validate [--forbid-changes] [--coverage] [--reality-gaps] [path]` scans `docs/` and `changes/` for frontmatter artifacts and fails (exit 1) on any breach of the corpus rules: missing frontmatter or core fields, UTF-8 byte-order marks, leftover second frontmatter blocks, duplicate IDs, unresolvable `links` (milestones and live acceptance criteria also resolve), status values outside the per-type vocabulary, unbounded high-cost inferred meaning behind active capabilities, malformed incident edges, `/docs` folders without README.md, index-block drift, and — with `--forbid-changes` — the presence of a transient workspace. The optional reports derive proof coverage and capabilities contradicted by incident analyses without committing registries.
+`clue validate [--forbid-changes] [--coverage] [--reality-gaps] [path]` scans `docs/` and `changes/` for frontmatter artifacts and fails (exit 1) on any breach of the corpus rules: missing frontmatter or core fields, UTF-8 byte-order marks, leftover second frontmatter blocks, duplicate IDs, unresolvable `links` (milestones and live acceptance criteria also resolve), status values outside the per-type vocabulary, unbounded high-cost inferred meaning behind active capabilities, malformed incident edges, `/docs` folders without README.md, index-block drift, the convention register's fields and declarations, hard-wrapped prose, unexplained skipped tasks, a proposal that declares no plan item, images where a diagram belongs, missing per-type frontmatter, milestone statuses outside the vocabulary, and — with `--forbid-changes` — the presence of a transient workspace. The optional reports derive proof coverage and capabilities contradicted by incident analyses without committing registries.
 
 ## Why
 
 The judge actor of [G-001](../../goals/G-001-verifiable-thread.md): machines enforce form so humans only have to verify meaning. The same binary runs locally and in CI — a green local run means a green PR.
+
+That guarantee is what fixes the judge's edge. It reads the repository as it stands and never a diff, a base revision, or history: a verdict computed from a transition would depend on which branch the caller is standing on and how deep the clone is, and two people with identical bytes would get different answers ([ADR-044](../../decisions/ADR-044-judge-reads-state-not-transitions.md)). Rules about what a *change* did are held by machines that are allowed to have a base — CI, the release gates, branch protection — and the constraint register names which one holds each.
 
 Acceptance criteria: [criteria.md](criteria.md) · implementation notes: [design.md](design.md).
 

@@ -11,7 +11,7 @@ func capFiles(criteriaStatus string) map[string]string {
 	return with(validFiles, map[string]string{
 		"docs/README.md":                          "# Corpus\n\n<!-- clue:index:start -->\n- [goals/](goals/README.md)\n- [plans/](plans/README.md)\n- [capabilities/](capabilities/README.md)\n<!-- clue:index:end -->\n",
 		"docs/capabilities/README.md":             "# Capabilities\n\n<!-- clue:index:start -->\n- [CAP-101](CAP-101-x/README.md)\n<!-- clue:index:end -->\n",
-		"docs/capabilities/CAP-101-x/README.md":   "---\nid: CAP-101\ntype: capability\nstatus: active\nlinks: []\ntitle: X\n---\n",
+		"docs/capabilities/CAP-101-x/README.md":   "---\nid: CAP-101\ntype: capability\nstatus: active\nlinks: []\ntitle: X\ngoal: G-101\n---\n",
 		"docs/capabilities/CAP-101-x/criteria.md": "---\nid: CAP-101-criteria\ntype: criteria\nstatus: " + criteriaStatus + "\nlinks: [CAP-101]\ntitle: X criteria\n---\n\n```gherkin\nFeature: X\n\n  @AC-101\n  Scenario: it works\n    Given a thing\n    Then it works\n```\n",
 	})
 }
