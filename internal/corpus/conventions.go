@@ -28,11 +28,29 @@ var (
 	// A fence's opening marker, captured so a longer fence can hold a shorter
 	// one as an example without the inner one closing the outer.
 	fenceOpenRe = regexp.MustCompile("^\\s*(`{3,}|~{3,})")
-	// An HTML block's opener: a tag, a comment, or a processing instruction.
-	// It deliberately does not match `<https://example.com>` — an autolink is
-	// prose, and reading one as a block would exempt the paragraph it sits in.
-	htmlOpenRe    = regexp.MustCompile(`^\s*</?[A-Za-z][A-Za-z0-9-]*(\s|/?>|$)`)
+	// An HTML block's opener, read as a tag name so it can be checked against
+	// the tags that actually open one. Matching any `<word>` would read
+	// `<T> is the type parameter` as markup and exempt the paragraph it opens;
+	// `<https://example.com>` is likewise an autolink and stays prose.
+	htmlOpenRe    = regexp.MustCompile(`^\s*</?([A-Za-z][A-Za-z0-9-]*)(\s|/?>|$)`)
 	htmlCommentRe = regexp.MustCompile(`^\s*<!--`)
+
+	// The HTML tags that open a block in markdown. CommonMark keeps such a
+	// list for the same reason: without one, every angle bracket in prose is
+	// markup.
+	htmlBlockTags = map[string]bool{
+		"address": true, "article": true, "aside": true, "blockquote": true, "br": true,
+		"button": true, "caption": true, "center": true, "col": true, "colgroup": true,
+		"dd": true, "details": true, "div": true, "dl": true, "dt": true, "fieldset": true,
+		"figcaption": true, "figure": true, "footer": true, "form": true, "h1": true,
+		"h2": true, "h3": true, "h4": true, "h5": true, "h6": true, "head": true,
+		"header": true, "hr": true, "iframe": true, "img": true, "input": true,
+		"label": true, "legend": true, "li": true, "main": true, "nav": true, "ol": true,
+		"optgroup": true, "option": true, "p": true, "picture": true, "pre": true,
+		"script": true, "section": true, "select": true, "source": true, "style": true,
+		"summary": true, "table": true, "tbody": true, "td": true, "tfoot": true,
+		"th": true, "thead": true, "tr": true, "ul": true, "video": true,
+	}
 
 	skippedTaskRe = regexp.MustCompile(`^\s*[-*+] \[-\]\s*(.*)$`)
 	planItemRe    = regexp.MustCompile(`^[PM]-\d+$`)
@@ -61,13 +79,15 @@ func checkProseLayout(c *Corpus) []Issue {
 		var blocks blockScanner
 		prevIsText := false
 		for i, line := range lines {
-			// A table's delimiter row identifies the line above it as a header
-			// rather than a paragraph this one continues, so the retraction has
-			// to reach back one line.
-			if !blocks.inVerbatim() && tableDelimRe.MatchString(line) {
-				blocks.openTable()
-			}
 			if blocks.next(line) {
+				prevIsText = false
+				continue
+			}
+			// A delimiter row on the next line makes this one a table header,
+			// not a paragraph the line above continues. Only a look ahead can
+			// tell: the two lines are identical in shape until the third
+			// arrives.
+			if i+1 < len(lines) && tableDelimRe.MatchString(lines[i+1]) {
 				prevIsText = false
 				continue
 			}
@@ -101,13 +121,20 @@ type blockScanner struct {
 	inTable   bool
 	inList    bool // a list is open, so an indented line is a continuation
 	prevBlank bool
+
+	// verbatimOnly narrows the scanner to the blocks whose content is not
+	// rendered as markdown at all: fenced code, indented code, and comments.
+	// A rule about wrapping needs the wider set, because a table row and an
+	// HTML block genuinely are structure. A rule about what the corpus *says*
+	// does not: an image link in a table cell is a rendered image, and
+	// exempting it would leave the tidiest place to park a screenshot as the
+	// one place the rule does not reach.
+	verbatimOnly bool
 }
 
 // inVerbatim reports whether the scanner is inside a block whose lines are not
 // read as markdown at all.
-func (b *blockScanner) inVerbatim() bool { return b.fence != "" || b.inIndent }
-
-func (b *blockScanner) openTable() { b.inTable = true }
+func (b *blockScanner) inVerbatim() bool { return b.fence != "" || b.inIndent || b.inComment }
 
 // next advances the scanner over one line and reports whether that line belongs
 // to a block rather than to running prose. It remembers whether the previous
@@ -120,6 +147,10 @@ func (b *blockScanner) next(line string) bool {
 }
 
 func (b *blockScanner) consume(line string) bool {
+	// The two states that end on their own marker are read first and are the
+	// only ones that can hide a fence: a fence line inside an indented example
+	// used to open a fence that nothing ever closed, which switched off every
+	// line-based check for the rest of the file without saying so.
 	if b.fence != "" {
 		if m := fenceOpenRe.FindStringSubmatch(line); m != nil && closesFence(b.fence, m[1]) {
 			b.fence = ""
@@ -135,42 +166,61 @@ func (b *blockScanner) consume(line string) bool {
 		}
 		return true
 	}
+	blank := strings.TrimSpace(line) == ""
+	// Indented code ends at the first line that is not indented, not only at a
+	// blank one; CommonMark says so, and closing it late skips the line right
+	// after the example.
+	if b.inIndent && !blank && !strings.HasPrefix(line, "    ") {
+		b.inIndent = false
+	}
+	if b.inIndent {
+		return true
+	}
+	// Indented code opens before a fence is looked for, because an indented
+	// fence marker is code showing a fence rather than a fence opening one.
+	// Reading it as an opener starts a block nothing ever closes, and every
+	// line-based check goes quiet for the rest of the file.
+	//
+	// Inside a list the threshold is eight spaces, because at four the text is
+	// the item's own continuation paragraph — CommonMark's rule, and the one
+	// C-001 wants: a continuation paragraph is prose, and prose broken across
+	// lines is the whole subject. It also keeps an ordinary fenced block under
+	// a list item working, which is indented four.
+	indent := "    "
+	if b.inList {
+		indent = "        "
+	}
+	if !blank && b.prevBlank && strings.HasPrefix(line, indent) {
+		b.inIndent = true
+		return true
+	}
 	if m := fenceOpenRe.FindStringSubmatch(line); m != nil {
 		b.fence = m[1]
 		return true
 	}
-	if strings.TrimSpace(line) == "" {
-		// A blank line ends every block that has no closing marker of its own,
-		// and ends the list whose items an indented line would continue.
-		b.inHTML, b.inIndent, b.inTable = false, false, false
+	if blank {
+		// A blank line ends the blocks that have no closing marker of their
+		// own. It does not end a list: a loose list has blank lines between its
+		// items, and its indented lines stay continuations.
+		b.inHTML, b.inTable = false, false
 		return false
-	}
-	if b.inHTML || b.inTable || b.inIndent {
-		return true
 	}
 	if htmlCommentRe.MatchString(line) {
 		b.inComment = !strings.Contains(line, "-->")
 		return true
 	}
-	if htmlOpenRe.MatchString(line) {
-		b.inHTML = true
-		return true
-	}
-	if strings.HasPrefix(strings.TrimSpace(line), "|") {
-		b.inTable = true
-		return true
-	}
-	// Indented code opens after a blank line — but not inside a list, where an
-	// indented line is the item's own continuation or a nested item. CommonMark
-	// agrees: at four spaces under a `- ` item, that text is prose, and prose
-	// broken across lines is exactly what C-001 is about.
-	//
-	// This runs before the list-marker test on purpose. An indented example of
-	// a list item is a list item in shape, and reading it as one is how a
-	// documented example of what not to write fails as the thing itself.
-	if b.prevBlank && strings.HasPrefix(line, "    ") && !b.inList {
-		b.inIndent = true
-		return true
+	if !b.verbatimOnly {
+		if b.inHTML || b.inTable {
+			return true
+		}
+		if m := htmlOpenRe.FindStringSubmatch(line); m != nil && htmlBlockTags[strings.ToLower(m[1])] {
+			b.inHTML = true
+			return true
+		}
+		if strings.HasPrefix(strings.TrimSpace(line), "|") || tableDelimRe.MatchString(line) {
+			b.inTable = true
+			return true
+		}
 	}
 	if listMarkerRe.MatchString(line) {
 		b.inList = true
@@ -231,7 +281,7 @@ func checkSkippedTasks(c *Corpus) []Issue {
 		if !strings.HasPrefix(p, "changes/") || !strings.HasSuffix(p, "/tasks.md") {
 			continue
 		}
-		var blocks blockScanner
+		blocks := blockScanner{verbatimOnly: true}
 		for i, line := range strings.Split(c.Contents[p], "\n") {
 			if blocks.next(line) {
 				continue
@@ -282,7 +332,7 @@ func checkInlineDiagrams(c *Corpus) []Issue {
 		if !strings.HasPrefix(p, "docs/") {
 			continue
 		}
-		var blocks blockScanner
+		blocks := blockScanner{verbatimOnly: true}
 		for i, line := range strings.Split(c.Contents[p], "\n") {
 			if blocks.next(line) {
 				continue
@@ -317,11 +367,10 @@ func checkMilestoneStatus(c *Corpus) []Issue {
 			continue
 		}
 		col := -1
-		var blocks blockScanner
+		blocks := blockScanner{verbatimOnly: true}
 		var header []string
 		for _, line := range strings.Split(a.Body, "\n") {
-			if blocks.fence != "" || fenceOpenRe.MatchString(line) {
-				blocks.next(line)
+			if blocks.next(line) {
 				col, header = -1, nil
 				continue
 			}

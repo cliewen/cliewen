@@ -14,4 +14,4 @@ One line per paragraph and per list item; wrapping is the reader's IDE concern. 
 
 The generated AGENTS.md declares this rule as its rule 6; a repo that kept its own AGENTS.md holds it through this artifact — the register entry is the rule's authoritative declaration either way.
 
-**Checked by:** `clue validate`'s prose-layout lint — two running-text lines in a row are one paragraph someone broke. Fences, tables, frontmatter, blockquotes, and HTML blocks are structure and are read as such.
+**Checked by:** `clue validate`'s prose-layout lint — two running-text lines in a row are one paragraph someone broke. Fenced and indented code, tables written with or without outer pipes, frontmatter, blockquotes, HTML blocks, and comments are structure and are read as such.

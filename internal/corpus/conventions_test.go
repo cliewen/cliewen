@@ -176,9 +176,34 @@ func TestAC090_UnitNegative_BlockStatesDoNotSwallowProse(t *testing.T) {
 		},
 		{
 			// Four spaces under a list item is that item's continuation, not a
-			// code block — CommonMark needs six there, and this is prose.
+			// code block — CommonMark needs eight there, and this is prose.
 			name: "in a list item's indented continuation",
 			body: "- A list item\n\n    A continuation paragraph\n    wrapped across two lines.\n",
+		},
+		{
+			// An indented fence marker is code showing a fence, not a fence
+			// opening one. Read as an opener it starts a block nothing closes,
+			// and every line-based check goes quiet for the rest of the file.
+			name: "after an indented example containing a fence marker",
+			body: "How not to write it:\n\n    ```mermaid\n\nThis paragraph was broken\nacross two lines.\n",
+		},
+		{
+			// An indented block ends at the first unindented line, not at the
+			// next blank one, so the line right after an example is read.
+			name: "on the line immediately after an indented block",
+			body: "An example:\n\n    code line\nThis paragraph was broken\nacross two lines.\n",
+		},
+		{
+			// A commented-out table must not leave a table state open past the
+			// comment that contains it.
+			name: "after a commented-out table",
+			body: "<!-- an old table\n| M | Status |\n| --- | --- |\n-->\nThis paragraph was broken\nacross two lines.\n",
+		},
+		{
+			// `<T>` is a type parameter in prose, not markup. Reading it as an
+			// HTML block would exempt the paragraph it opens.
+			name: "in a paragraph opening with a generic type",
+			body: "<T> is the type parameter, and this\nline continues the sentence.\n",
 		},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
@@ -326,6 +351,34 @@ func TestAC095_UnitPositive_DeclaredVocabularyAndUnstatusedTablesAccepted(t *tes
 	// neighbouring cell as the status — a false failure, and a real one missed.
 	pipes := "---\nid: P-002\ntype: plan\nstatus: active\nlinks: [G-001]\ntitle: A plan\n---\n\n# P-002\n\n| ID | Milestone | Status | Evidence |\n|---|---|---|---|\n| M-002 | supports `a \\| b` and ``x | y`` forms \\| and more | `done` | none |\n"
 	assertClean(t, run(t, planCorpus(pipes), false), "a milestone row whose prose carries escaped and code-span pipes")
+
+	// A plan may show the wrong vocabulary as an example, the way every other
+	// check allows one — indented, fenced, or commented out.
+	example := `---
+id: P-002
+type: plan
+status: active
+links: [G-001]
+title: A plan
+---
+
+# P-002
+
+Do not write it like this:
+
+    | ID | Status |
+    |---|---|
+    | M-009 | in progress |
+
+Or like this:
+
+` + "```markdown" + `
+| ID | Status |
+|---|---|
+| M-009 | wip |
+` + "```" + `
+`
+	assertClean(t, run(t, planCorpus(example), false), "a milestone table shown as an indented or fenced example")
 
 	// A table with no status column is not a milestone table, whatever it
 	// happens to contain.

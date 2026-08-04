@@ -264,9 +264,9 @@ Feature: clue validate — deterministic corpus judgment
     When the user runs "clue validate"
     Then it exits with a non-zero code
     And the output names the file and the line the continuation begins on
-    But line breaks inside fenced code, indented code, frontmatter, tables written with or without outer pipes, and HTML blocks up to the tag or comment that closes them are structure, not wrapping
+    But line breaks inside fenced code, indented code, frontmatter, tables written with or without outer pipes, an HTML block up to the blank line that ends it, and a comment up to its own closing marker are structure, not wrapping
     And a heading, a list item, a blockquote line, and a table row each begin their own block rather than continuing the one above
-    And a fence documenting a shorter fence is closed only by a run of its own length, so the rest of the file is still read
+    And a fence documenting a shorter fence is closed only by a run of its own length, and an indented fence marker is code rather than a fence opening, so the rest of the file is still read
 
   @AC-091
   Scenario: A skipped task carries a reason
@@ -293,7 +293,8 @@ Feature: clue validate — deterministic corpus judgment
     When the user runs "clue validate"
     Then it exits with a non-zero code
     And the output names the file and says diagrams are inline Mermaid
-    But an ordinary link to a markdown file passes, and an image link inside a fence, an indented code block, or a code span is an example rather than a diagram
+    But an ordinary link to a markdown file passes, and an image link inside a fence, an indented code block, a comment, or a code span is an example rather than a diagram
+    And a table cell is not an exemption: an image there renders like any other
 
   @AC-094
   Scenario: Types carry the frontmatter fields their type requires
