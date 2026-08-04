@@ -205,6 +205,17 @@ func TestAC090_UnitNegative_BlockStatesDoNotSwallowProse(t *testing.T) {
 			name: "in a paragraph opening with a generic type",
 			body: "<T> is the type parameter, and this\nline continues the sentence.\n",
 		},
+		{
+			// `<br>` and `<img>` are inline elements, so a paragraph opening
+			// with one is still a paragraph. Reading either as a block opener
+			// would exempt the sentence it starts.
+			name: "in a paragraph opening with an inline break",
+			body: "<br> and this sentence\ncontinues on a second line.\n",
+		},
+		{
+			name: "in a paragraph opening with an inline image tag",
+			body: "<img src=\"a.png\"> and this sentence\ncontinues on a second line.\n",
+		},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			page := "---\nid: G-002\ntype: goal\nstatus: accepted\nlinks: []\ntitle: Blocks\n---\n\n# A heading\n\n" + tc.body

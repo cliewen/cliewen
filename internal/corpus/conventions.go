@@ -35,21 +35,28 @@ var (
 	htmlOpenRe    = regexp.MustCompile(`^\s*</?([A-Za-z][A-Za-z0-9-]*)(\s|/?>|$)`)
 	htmlCommentRe = regexp.MustCompile(`^\s*<!--`)
 
-	// The HTML tags that open a block in markdown. CommonMark keeps such a
-	// list for the same reason: without one, every angle bracket in prose is
-	// markup.
+	// The HTML tags that open a block in markdown, which is CommonMark's own
+	// list and deliberately not a longer one. Without a list, every angle
+	// bracket in prose is markup; with a list of every tag, an inline `<br>` or
+	// `<img>` opening a sentence exempts the paragraph it opens, and the check
+	// goes quiet exactly where a wrapped paragraph is easiest to write.
 	htmlBlockTags = map[string]bool{
-		"address": true, "article": true, "aside": true, "blockquote": true, "br": true,
-		"button": true, "caption": true, "center": true, "col": true, "colgroup": true,
-		"dd": true, "details": true, "div": true, "dl": true, "dt": true, "fieldset": true,
-		"figcaption": true, "figure": true, "footer": true, "form": true, "h1": true,
-		"h2": true, "h3": true, "h4": true, "h5": true, "h6": true, "head": true,
-		"header": true, "hr": true, "iframe": true, "img": true, "input": true,
-		"label": true, "legend": true, "li": true, "main": true, "nav": true, "ol": true,
-		"optgroup": true, "option": true, "p": true, "picture": true, "pre": true,
-		"script": true, "section": true, "select": true, "source": true, "style": true,
-		"summary": true, "table": true, "tbody": true, "td": true, "tfoot": true,
-		"th": true, "thead": true, "tr": true, "ul": true, "video": true,
+		"address": true, "article": true, "aside": true, "base": true, "basefont": true,
+		"blockquote": true, "body": true, "caption": true, "center": true, "col": true,
+		"colgroup": true, "dd": true, "details": true, "dialog": true, "dir": true,
+		"div": true, "dl": true, "dt": true, "fieldset": true, "figcaption": true,
+		"figure": true, "footer": true, "form": true, "frame": true, "frameset": true,
+		"h1": true, "h2": true, "h3": true, "h4": true, "h5": true, "h6": true,
+		"head": true, "header": true, "hr": true, "html": true, "iframe": true,
+		"legend": true, "li": true, "link": true, "main": true, "menu": true,
+		"nav": true, "noframes": true, "ol": true, "optgroup": true, "option": true,
+		"p": true, "param": true, "search": true, "section": true, "summary": true,
+		"table": true, "tbody": true, "td": true, "tfoot": true, "th": true,
+		"thead": true, "title": true, "tr": true, "track": true, "ul": true,
+		// The tags whose blocks run to their own closing marker. Ending them at
+		// a blank line instead only ends them early, which checks more lines
+		// rather than fewer.
+		"pre": true, "script": true, "style": true, "textarea": true,
 	}
 
 	skippedTaskRe = regexp.MustCompile(`^\s*[-*+] \[-\]\s*(.*)$`)
