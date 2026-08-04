@@ -168,6 +168,13 @@ func QuietLine(r Report) string {
 // function's: reading the environment and which command ran belongs where
 // those live.
 func Notice(opts Options) string {
+	// A source build or an unreadable stamp can never be "behind", whatever
+	// the release list says. The requested check still fetches the list so it
+	// can explain that state, but an ambient caller has nothing it could print;
+	// do not spend its latency or a request learning an unusable answer.
+	if _, _, comparable := parseCurrent(opts.Current); !comparable {
+		return ""
+	}
 	if opts.Timeout == 0 {
 		opts.Timeout = AmbientBudget
 	}

@@ -231,6 +231,17 @@ func redirectedCacheEnv(dir string) []string {
 	}
 }
 
+// redirectedCacheFile is the file release.Check resolves from the environment
+// returned by redirectedCacheEnv on each supported host.
+func redirectedCacheFile(dir string) string {
+	switch runtime.GOOS {
+	case "darwin":
+		return filepath.Join(dir, "Library", "Caches", "cliewen", "latest-release.json")
+	default:
+		return filepath.Join(dir, "cliewen", "latest-release.json")
+	}
+}
+
 func exeSuffix() string {
 	if runtime.GOOS == "windows" {
 		return ".exe"

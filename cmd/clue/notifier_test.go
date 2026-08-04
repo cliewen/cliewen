@@ -199,16 +199,33 @@ func TestAC087_UnitPositive_TheNoticeSurvivesACapturedStream(t *testing.T) {
 // line on the wrong stream or let it decide the code.
 func TestAC086_UnitNegative_TheNoticeMovesNeitherExitCodeNorStandardOutput(t *testing.T) {
 	binary := filepath.Join(t.TempDir(), "clue"+exeSuffix())
-	if out, err := exec.Command("go", "build", "-o", binary, ".").CombinedOutput(); err != nil {
+	if out, err := exec.Command("go", "build", "-ldflags=-X main.version=0.11.2", "-o", binary, ".").CombinedOutput(); err != nil {
 		t.Fatalf("building the command failed: %v\n%s", err, out)
+	}
+	cacheRoot := t.TempDir()
+	cacheFile := redirectedCacheFile(cacheRoot)
+	if err := os.MkdirAll(filepath.Dir(cacheFile), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	cache := []byte(`{"tag":"v0.12.0","fetched":"` + time.Now().UTC().Format(time.RFC3339Nano) + `"}`)
+	if err := os.WriteFile(cacheFile, cache, 0o644); err != nil {
+		t.Fatal(err)
+	}
+	baseEnv := make([]string, 0, len(os.Environ()))
+	for _, entry := range os.Environ() {
+		key, _, _ := strings.Cut(entry, "=")
+		if strings.EqualFold(key, "CI") || strings.EqualFold(key, "CLUE_NO_UPDATE_NOTIFIER") {
+			continue
+		}
+		baseEnv = append(baseEnv, entry)
 	}
 
 	// The same run twice: once with the notice permitted and once with the
 	// documented opt-out, which is the only difference between them.
-	run := func(extra ...string) (int, string) {
+	run := func(extra ...string) (int, string, string) {
 		t.Helper()
 		cmd := exec.Command(binary, "refs", ".")
-		cmd.Env = append(os.Environ(), redirectedCacheEnv(t.TempDir())...)
+		cmd.Env = append(baseEnv, redirectedCacheEnv(cacheRoot)...)
 		cmd.Env = append(cmd.Env, extra...)
 		var out, errOut bytes.Buffer
 		cmd.Stdout = &out
@@ -221,17 +238,23 @@ func TestAC086_UnitNegative_TheNoticeMovesNeitherExitCodeNorStandardOutput(t *te
 		default:
 			t.Fatalf("running the command failed: %v\n%s", err, errOut.String())
 		}
-		return cmd.ProcessState.ExitCode(), out.String()
+		return cmd.ProcessState.ExitCode(), out.String(), errOut.String()
 	}
 
-	withCode, withOut := run()
-	withoutCode, withoutOut := run("CLUE_NO_UPDATE_NOTIFIER=1")
+	withCode, withOut, withErr := run()
+	withoutCode, withoutOut, withoutErr := run("CLUE_NO_UPDATE_NOTIFIER=1")
 
 	if withCode != withoutCode {
 		t.Errorf("the notice moved the exit code: %d with, %d without", withCode, withoutCode)
 	}
 	if withOut != withoutOut {
 		t.Errorf("the notice reached standard output:\n with: %q\n without: %q", withOut, withoutOut)
+	}
+	if !strings.Contains(withErr, "clue 0.11.2 is behind 0.12.0") {
+		t.Errorf("the permitted run did not emit the notice on standard error: %q", withErr)
+	}
+	if withoutErr != "" {
+		t.Errorf("the opted-out run wrote to standard error: %q", withoutErr)
 	}
 }
 
@@ -311,6 +334,31 @@ func TestAC087_UnitNegative_TheNoticeIsSilentWhenThereIsNothingToSay(t *testing.
 			opts := latestOptions(t, tc.current, release.Platform{OS: "linux", Arch: "amd64"}, tc.net)
 			if line := release.Notice(opts); line != "" {
 				t.Errorf("expected silence, got: %q", line)
+			}
+		})
+	}
+}
+
+// AC-087 negative: a source build and an unreadable stamp are known before
+// consulting the release list, and neither can ever be reported as behind.
+// Silence must therefore cost no ambient request, rather than adding latency
+// to every local-development command for an answer the notifier cannot use.
+func TestAC087_UnitNegative_AnIncomparableStampCostsNoRequest(t *testing.T) {
+	for _, current := range []string{"dev", "", "nonsense"} {
+		t.Run(current, func(t *testing.T) {
+			net := &counting{inner: answering{status: http.StatusOK, body: `{"tag_name":"v0.12.0"}`}}
+			opts := release.Options{
+				Current:  current,
+				Platform: release.Platform{OS: "linux", Arch: "amd64"},
+				Client:   &http.Client{Transport: net},
+				CacheDir: t.TempDir(),
+			}
+
+			if line := release.Notice(opts); line != "" {
+				t.Errorf("expected silence, got: %q", line)
+			}
+			if got := net.requests.Load(); got != 0 {
+				t.Errorf("an incomparable stamp made %d request(s)", got)
 			}
 		})
 	}

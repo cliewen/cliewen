@@ -26,4 +26,5 @@ title: Tasks — a coding agent learns a release is available when its session s
 - [x] Revise M-047 a second time and record why prose alone did not carry it; update CAP-001 README and design, CAP-004 design, both guides, and the `[Unreleased]` entry
 - [x] Answer Q3 — the notifier's terminal gate excluded every coding-agent session, so the mechanism reached nobody it was built for
 - [x] Remove the terminal condition from the gate, revise PDR-023 in place, and restate AC-086 and AC-087; prove the notice survives a pipe, that standard output and the exit code do not move, and that no repository file is written
+- [x] Repair review findings for AC-086 and AC-087: skip unusable ambient requests for incomparable stamps, and make the built-binary test exercise a real notice on standard error across supported cache locations
 - [ ] Ask the human to observe a fresh session learning the repository is behind, and record the verdict in the acceptance brief (AC-085 retest — not this session, which knows the criterion is under test)
