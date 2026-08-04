@@ -151,7 +151,7 @@ func main() {
 	}
 	command := os.Args[1]
 	code := run(command, os.Args[2:])
-	emitNotice(command, os.Stderr, os.Getenv, runtimeCheck())
+	emitNotice(command, os.Stderr, os.LookupEnv, runtimeCheck())
 	os.Exit(code)
 }
 
@@ -212,7 +212,7 @@ var notifierCommands = map[string]bool{
 // Everything it consults is a parameter, so the whole path from a command name
 // to what lands on the stream is provable without a particular machine's
 // environment.
-func emitNotice(command string, errOut io.Writer, env func(string) string, opts release.Options) {
+func emitNotice(command string, errOut io.Writer, env func(string) (string, bool), opts release.Options) {
 	if !notifierAllowed(command, env) {
 		return
 	}
@@ -234,19 +234,25 @@ func emitNotice(command string, errOut io.Writer, env func(string) string, opts 
 // its own, and what the terminal check uniquely bought is narrower than it
 // looked: a script consumes standard output and an exit code, and both are
 // byte-identical with the notice and without it.
-func notifierAllowed(command string, env func(string) string) bool {
+func notifierAllowed(command string, env func(string) (string, bool)) bool {
 	if !notifierCommands[command] {
 		return false
 	}
 	// Set by every CI system worth naming. An ephemeral runner never reaches
 	// the release list, so no adopter's push spends a request on a fact no one
-	// is there to read (ADR-042).
-	if env("CI") != "" {
+	// is there to read (ADR-042). Its value decides, because "CI=" is the
+	// conventional way a shell says "not CI" and reading that as a runner
+	// would silence a developer's own machine.
+	if v, _ := env("CI"); v != "" {
 		return false
 	}
 	// The documented opt-out, for anyone who wants the tool to say nothing it
-	// was not asked to say.
-	return env("CLUE_NO_UPDATE_NOTIFIER") == ""
+	// was not asked to say. Presence decides, not value: the documentation
+	// offers it as a switch you set, and "CLUE_NO_UPDATE_NOTIFIER=" is exactly
+	// what a wrapper script or a templated CI matrix produces. A switch that
+	// fails in the spelling its own documentation invites is not a switch.
+	_, optedOut := env("CLUE_NO_UPDATE_NOTIFIER")
+	return !optedOut
 }
 
 func runMigrate(args []string, out, errOut io.Writer) int {

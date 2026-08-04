@@ -29,15 +29,20 @@ func (c *counting) RoundTrip(r *http.Request) (*http.Response, error) {
 }
 
 // noEnv is an environment with nothing set in it.
-func noEnv(string) string { return "" }
+func noEnv(string) (string, bool) { return "", false }
 
 // envWith is an environment with exactly one variable set.
-func envWith(key string) func(string) string {
-	return func(k string) string {
+func envWith(key string) func(string) (string, bool) { return envSet(key, "1") }
+
+// envSet is an environment with exactly one variable set to a given value,
+// including the empty string — which is a set variable, and the shape a
+// wrapper script or a templated CI matrix produces.
+func envSet(key, value string) func(string) (string, bool) {
+	return func(k string) (string, bool) {
 		if k == key {
-			return "1"
+			return value, true
 		}
-		return ""
+		return "", false
 	}
 }
 
@@ -76,7 +81,7 @@ func TestAC087_UnitNegative_ABlockedNoticeWritesNothingToTheStream(t *testing.T)
 	for _, tc := range []struct {
 		name    string
 		command string
-		env     func(string) string
+		env     func(string) (string, bool)
 	}{
 		{name: "the judge", command: "validate", env: noEnv},
 		{name: "version", command: "version", env: noEnv},
@@ -151,6 +156,12 @@ func TestAC087_UnitPositive_TheGateAllowsEveryWorkflowCommand(t *testing.T) {
 				t.Errorf("clue %s carries no notice, so a session running it learns nothing", command)
 			}
 		})
+	}
+	// "CI=" is how a shell says "not CI", and unlike the opt-out its value is
+	// what decides: reading an empty one as a runner would silence the notice
+	// on the developer machines that set it that way.
+	if !notifierAllowed("context", envSet("CI", "")) {
+		t.Error("an empty CI says this is not a runner, so the notice must still be printed")
 	}
 }
 
@@ -292,7 +303,7 @@ func TestAC087_UnitNegative_TheGateExcludesTheJudgeAScriptAndARunner(t *testing.
 	for _, tc := range []struct {
 		name    string
 		command string
-		env     func(string) string
+		env     func(string) (string, bool)
 	}{
 		{name: "the judge is never interrupted", command: "validate", env: noEnv},
 		{name: "version answers instantly and offline", command: "version", env: noEnv},
@@ -303,6 +314,12 @@ func TestAC087_UnitNegative_TheGateExcludesTheJudgeAScriptAndARunner(t *testing.
 
 		{name: "a CI runner has no one to tell", command: "context", env: envWith("CI")},
 		{name: "the documented opt-out", command: "context", env: envWith("CLUE_NO_UPDATE_NOTIFIER")},
+		// The help text and the guide both offer the opt-out as a switch you
+		// set, so setting it to nothing must switch it off too — that spelling
+		// is what a wrapper script or a templated CI matrix produces, and it is
+		// the one a user is most likely to reach for.
+		{name: "the opt-out set to nothing at all", command: "context", env: envSet("CLUE_NO_UPDATE_NOTIFIER", "")},
+		{name: "the opt-out set to a word", command: "context", env: envSet("CLUE_NO_UPDATE_NOTIFIER", "false")},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			if notifierAllowed(tc.command, tc.env) {

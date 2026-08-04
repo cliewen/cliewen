@@ -543,29 +543,43 @@ func TestAC078_UnitNegative_StaleAndBrokenCachesAreAbsence(t *testing.T) {
 // non-answer — and the promise that a cached answer makes repeating this free
 // held only when the release list actually answered.
 func TestAC088_UnitPositive_AnOfflineSessionPaysForTheNonAnswerOnce(t *testing.T) {
-	dir := t.TempDir()
-	now := time.Date(2026, 8, 4, 9, 0, 0, 0, time.UTC)
-	down := failing(errTimeout{})
+	// "Does not answer" is the whole set AC-077 already treats as one outcome,
+	// not transport failure alone. A rate limit is the case the hour is sized
+	// for and it arrives as a reply, so a remembering path that covered only a
+	// dead socket would leave the expensive case paying per command.
+	for name, net := range map[string]*answering{
+		"offline":              failing(errOffline{}),
+		"timeout":              failing(errTimeout{}),
+		"rate limit":           serving(http.StatusForbidden, `{"message":"API rate limit exceeded"}`),
+		"server error":         serving(http.StatusInternalServerError, ``),
+		"an unrecognized body": serving(http.StatusOK, `<html>maintenance</html>`),
+		"a tag nothing reads":  serving(http.StatusOK, `{"tag_name":"nightly"}`),
+	} {
+		t.Run(name, func(t *testing.T) {
+			dir := t.TempDir()
+			now := time.Date(2026, 8, 4, 9, 0, 0, 0, time.UTC)
 
-	// One session's worth of ordinary work, each command carrying the notice.
-	for i, at := range []time.Duration{0, time.Minute, 12 * time.Minute, 30 * time.Minute, 59 * time.Minute} {
-		when := now.Add(at)
-		line := Notice(Options{
-			Current:  "0.11.2",
-			Platform: Platform{"linux", "amd64"},
-			Client:   down.client(),
-			CacheDir: dir,
-			Now:      func() time.Time { return when },
+			// One session's worth of ordinary work, each command carrying the notice.
+			for i, at := range []time.Duration{0, time.Minute, 12 * time.Minute, 30 * time.Minute, 59 * time.Minute} {
+				when := now.Add(at)
+				line := Notice(Options{
+					Current:  "0.11.2",
+					Platform: Platform{"linux", "amd64"},
+					Client:   net.client(),
+					CacheDir: dir,
+					Now:      func() time.Time { return when },
+				})
+				if line != "" {
+					t.Fatalf("command %d: a check that could not answer must stay silent, got %q", i, line)
+				}
+			}
+			if net.calls != 1 {
+				t.Fatalf("the same non-answer was paid for %d times, want 1", net.calls)
+			}
+			// It is remembered as a non-answer and never as a version.
+			assertNoTagCached(t, dir, name)
 		})
-		if line != "" {
-			t.Fatalf("command %d: a check that could not answer must stay silent, got %q", i, line)
-		}
 	}
-	if down.calls != 1 {
-		t.Fatalf("the same non-answer was paid for %d times, want 1", down.calls)
-	}
-	// It is remembered as a non-answer and never as a version.
-	assertNoTagCached(t, dir, "a timed-out request")
 }
 
 // TestAC088_UnitNegative_TheRememberedFailureExpiresOnItsOwnShortSchedule

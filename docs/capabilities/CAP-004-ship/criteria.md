@@ -196,7 +196,7 @@ Feature: clue ships — a versioned binary and versioned skills, drift made lint
   @AC-088
   Scenario: A release list that does not answer is remembered too, briefly
     Test-type: Unit
-    Given a session whose release list cannot be reached at all
+    Given a session whose release list does not answer — offline, a timeout, a rate limit, or a reply the command does not recognize, which are one outcome
     When several workflow commands run inside the hour, each carrying the notice
     Then the release list is asked once and the commands that follow it stay silent without asking, because a non-answer nobody wanted must not be paid for again
     And the remembered non-answer expires on a lifetime much shorter than an answer's, after which the check asks again
