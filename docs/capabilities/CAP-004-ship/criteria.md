@@ -173,4 +173,33 @@ Feature: clue ships — a versioned binary and versioned skills, drift made lint
     Then the drift issue names the command that reports the upgrade and the command that moves the repository
     And it names both halves of staying on the release the repository carries — the matching binary and the pinned CI caller
     But it still fails the run and still names both versions, because what the rule decides has not changed
+
+  @AC-086
+  Scenario: A workflow command volunteers the release notice without being asked
+    Test-type: Unit
+    Given an interactive session whose clue is behind the newest release
+    When the user runs an ordinary workflow command — "clue context", "migrate", "refs", "init", or "scaffold"
+    Then one notice line naming both versions is written to standard error, in the same words the quiet check prints
+    And a second run inside the cached answer's lifetime makes no request
+    But the command's exit code and standard output are byte-identical to a run with no notice, because the notice is advisory and decides nothing
+
+  @AC-087
+  Scenario: The notice never reaches the judge or a runner, and survives a captured stream
+    Test-type: Unit
+    Given a clue that is behind the newest release
+    When "clue validate" and "clue version" run, and when a workflow command runs with a non-empty "CI" and with "CLUE_NO_UPDATE_NOTIFIER" present at any value, including empty
+    Then no notice is printed in any of those runs, so a verdict and a runner's log are what they were
+    And a workflow command whose standard error is a pipe rather than a terminal still prints it, because that is what a coding agent gives it and no gate may exclude the audience the notice exists for
+    And a current release, an unreadable stamp, an unpublished stamp, and every way of failing to reach the release list are all silence
+    But no run writes a file in the repository, with or without the notice
+
+  @AC-088
+  Scenario: A release list that does not answer is remembered too, briefly
+    Test-type: Unit
+    Given a session whose release list does not answer — offline, a timeout, a rate limit, or a reply the command does not recognize, which are one outcome
+    When several workflow commands run inside the hour, each carrying the notice
+    Then the release list is asked once and the commands that follow it stay silent without asking, because a non-answer nobody wanted must not be paid for again
+    And the remembered non-answer expires on a lifetime much shorter than an answer's, after which the check asks again
+    And a check the user asked for always asks, whatever is remembered, because the person most likely to have just fixed the network is the one asking
+    But a remembered non-answer is never reported as a version, and a cache that cannot be read — or that claims a tag and a failure at once — is absence rather than a remembered failure, so a broken cache can never silence a request
 ```

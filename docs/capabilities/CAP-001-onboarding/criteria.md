@@ -122,4 +122,31 @@ Feature: Onboarding — install to first green validate
     Then the plan reports that Claude Code reads no routing and names the remedy for that shape — "clue init" for an absent file, the import line for one the adopter wrote
     And a "CLAUDE.md" that imports the hub produces no such report, whether by an import that resolves to it from that file's own directory or by being a symlink to the hub
     But no run writes or rewrites that file, with or without "--apply"
+
+  @AC-083
+  Scenario: init emits a hub that asks the agent whether the repository is behind
+    Test-type: Unit
+    Given an empty git repository
+    When the user runs "clue init"
+    Then the materialized "AGENTS.md" asks the agent to run the quiet release check when it starts
+    And it routes a non-empty answer to the upgrade skill rather than to an installation command
+    But no file is emitted for any assistant's configuration, and no emitted file declares a hook
+
+  @AC-084
+  Scenario: migrate reports a hub that never asks whether the repository is behind
+    Test-type: Unit
+    Given an adopted repository whose routing hub is missing or never names the release check
+    When the user runs "clue migrate"
+    Then the plan reports that no session learns a release is available and names the remedy for that shape — "clue init" for an absent hub, the line for one the adopter wrote
+    And a hub that names the check produces no such report
+    But no run writes or rewrites that hub, with or without "--apply"
+
+  @AC-085
+  Scenario: a real session learns the repository is behind
+    Test-type: Human
+    Given a behind repository whose hub carries the instruction and whose clue carries the notifier
+    When a human starts a coding-agent session in it and the session runs any ordinary clue workflow command
+    Then the session is told the repository is behind, in exactly one line, without the human saying anything about releases
+    And a current repository produces no such line, so the absence of one is informative
+    But the evidence is what the session did, not what the hub says: an agent that skipped the instruction and learned it anyway from the notifier is this criterion passing, and neither channel reporting it is this criterion failing
 ```

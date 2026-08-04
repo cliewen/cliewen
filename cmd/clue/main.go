@@ -128,6 +128,12 @@ Commands:
 
   version    Print the release version this clue was built from.
 
+Release notice: init, scaffold, context, migrate, and refs print one line to
+standard error when a newer release exists. Standard output and the exit code
+are identical with it and without it, and the answer is cached for a day. Never
+from validate or version, never when CI carries a value, and never when
+CLUE_NO_UPDATE_NOTIFIER is set at all, the empty string included.
+
 Exit codes: 0 corpus valid · 1 issues found · 2 usage error
 `
 
@@ -143,29 +149,110 @@ func main() {
 		fmt.Fprint(os.Stderr, usage)
 		os.Exit(2)
 	}
-	switch os.Args[1] {
+	command := os.Args[1]
+	code := run(command, os.Args[2:])
+	emitNotice(command, os.Stderr, os.LookupEnv, runtimeCheck())
+	os.Exit(code)
+}
+
+// run dispatches one command and returns its exit code. It exists as its own
+// function so that main has a place to stand after the command has finished —
+// the ambient release notice is printed there, and a command that exits from
+// inside its own case leaves no such place.
+func run(command string, args []string) int {
+	switch command {
 	case "init":
-		os.Exit(runInit(os.Args[2:], os.Stdout, os.Stderr))
+		return runInit(args, os.Stdout, os.Stderr)
 	case "scaffold":
-		os.Exit(runScaffold(os.Args[2:], os.Stdout, os.Stderr))
+		return runScaffold(args, os.Stdout, os.Stderr)
 	case "context":
-		os.Exit(runContext(os.Args[2:], os.Stdout, os.Stderr))
+		return runContext(args, os.Stdout, os.Stderr)
 	case "migrate":
-		os.Exit(runMigrate(os.Args[2:], os.Stdout, os.Stderr))
+		return runMigrate(args, os.Stdout, os.Stderr)
 	case "refs":
-		os.Exit(runRefs(os.Args[2:], os.Stdout, os.Stderr))
+		return runRefs(args, os.Stdout, os.Stderr)
 	case "validate":
-		os.Exit(runValidate(os.Args[2:], os.Stdout))
+		return runValidate(args, os.Stdout)
 	case "latest":
-		os.Exit(runLatest(os.Args[2:], os.Stdout, os.Stderr, runtimeCheck()))
+		return runLatest(args, os.Stdout, os.Stderr, runtimeCheck())
 	case "version", "--version":
-		os.Exit(runVersion(os.Stdout))
+		return runVersion(os.Stdout)
 	case "help", "--help", "-h":
 		fmt.Print(usage)
+		return 0
 	default:
-		fmt.Fprintf(os.Stderr, "clue: unknown command %q\n\n%s", os.Args[1], usage)
-		os.Exit(2)
+		fmt.Fprintf(os.Stderr, "clue: unknown command %q\n\n%s", command, usage)
+		return 2
 	}
+}
+
+// notifierCommands are the workflow commands that may carry an ambient
+// release notice (PDR-023). The exclusions are the point of the list.
+//
+// `validate` is absent because it is the deterministic judge: its verdict,
+// its exit code, and its output stay a statement about the repository alone,
+// and a line that depends on another system's present state is not that.
+// `version` is absent because it is the one command guaranteed to answer
+// instantly, offline, and identically forever (ADR-042). `latest` is absent
+// because it is the check, and would otherwise report twice.
+var notifierCommands = map[string]bool{
+	"init":     true,
+	"scaffold": true,
+	"context":  true,
+	"migrate":  true,
+	"refs":     true,
+}
+
+// emitNotice writes the ambient release notice, when one is allowed and there
+// is one to write (PDR-023). It runs after the command it rode in on, so no
+// command's output is interleaved with it, and it writes only to the error
+// stream — the exit code and standard output of every command are identical
+// with the notice and without it.
+//
+// Everything it consults is a parameter, so the whole path from a command name
+// to what lands on the stream is provable without a particular machine's
+// environment.
+func emitNotice(command string, errOut io.Writer, env func(string) (string, bool), opts release.Options) {
+	if !notifierAllowed(command, env) {
+		return
+	}
+	if line := release.Notice(opts); line != "" {
+		fmt.Fprintln(errOut, line)
+	}
+}
+
+// notifierAllowed reports whether an ambient release notice may be printed.
+// Every input is a parameter so the gate is provable without a clock and
+// without a particular machine's environment.
+//
+// There is deliberately no terminal condition. The first implementation had
+// one, and it excluded the audience the notice exists for: a coding agent
+// captures a command's output through a pipe rather than a terminal — reading
+// the output is the point — so the notice was switched off in exactly the
+// sessions PDR-023 built it to reach, leaving only the prose fallback that had
+// already been observed failing. `CI` carries the ephemeral-runner rejection on
+// its own, and what the terminal check uniquely bought is narrower than it
+// looked: a script consumes standard output and an exit code, and both are
+// byte-identical with the notice and without it.
+func notifierAllowed(command string, env func(string) (string, bool)) bool {
+	if !notifierCommands[command] {
+		return false
+	}
+	// Set by every CI system worth naming. An ephemeral runner never reaches
+	// the release list, so no adopter's push spends a request on a fact no one
+	// is there to read (ADR-042). Its value decides, because "CI=" is the
+	// conventional way a shell says "not CI" and reading that as a runner
+	// would silence a developer's own machine.
+	if v, _ := env("CI"); v != "" {
+		return false
+	}
+	// The documented opt-out, for anyone who wants the tool to say nothing it
+	// was not asked to say. Presence decides, not value: the documentation
+	// offers it as a switch you set, and "CLUE_NO_UPDATE_NOTIFIER=" is exactly
+	// what a wrapper script or a templated CI matrix produces. A switch that
+	// fails in the spelling its own documentation invites is not a switch.
+	_, optedOut := env("CLUE_NO_UPDATE_NOTIFIER")
+	return !optedOut
 }
 
 func runMigrate(args []string, out, errOut io.Writer) int {
@@ -343,7 +430,7 @@ func runLatest(args []string, out, errOut io.Writer, opts release.Options) int {
 	switch {
 	case report.Known && report.Behind:
 		if *quiet {
-			fmt.Fprintf(out, "clue %s is behind %s — run \"clue latest\" for the upgrade recipe\n", report.Current, report.Latest)
+			fmt.Fprintln(out, release.QuietLine(report))
 			return 0
 		}
 		fmt.Fprintf(out, "clue %s — %s is available\n\n", report.Current, report.Latest)

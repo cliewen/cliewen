@@ -43,6 +43,12 @@ const (
 	// solved by re-running the non-destructive init, and an entry point the
 	// adopter wrote themselves is their prose (PDR-022).
 	MigrationClaudeEntryPoint = "MIG-005"
+	// MigrationHubReleaseCheck reports a routing hub that never asks whether
+	// the repository is behind, so no session learns a newer release exists.
+	// It never repairs one: the hub is the adopter's own prose, and it is the
+	// one file Cliewen may not rewrite without taking their words with it
+	// (PDR-023).
+	MigrationHubReleaseCheck = "MIG-006"
 )
 
 // Options controls planning. Preview is the default; applying a plan is a
@@ -65,6 +71,7 @@ var orderedMigrations = []MigrationDefinition{
 	{ID: MigrationManagedCarriers, Description: "refresh generated skills, mirrors, and the thin CI caller"},
 	{ID: MigrationQualifiedReferences, Description: "report external references that name no repository"},
 	{ID: MigrationClaudeEntryPoint, Description: "report a Claude Code entry point that never reaches the routing hub"},
+	{ID: MigrationHubReleaseCheck, Description: "report a routing hub that never asks whether the repository is behind"},
 }
 
 // Registry returns the migration order without exposing mutable package state.
@@ -236,6 +243,7 @@ func Plan(root string, opts Options) (MigrationPlan, error) {
 	planCarriers(root, target, carriers, &result)
 	planQualifiedReferences(root, &result)
 	planClaudeEntryPoint(root, &result)
+	planHubReleaseCheck(root, &result)
 	sortPlan(&result)
 	return result, nil
 }
@@ -1030,6 +1038,47 @@ func planClaudeEntryPoint(root string, result *MigrationPlan) {
 		Path:      entryPointLocations[0].rel,
 		Migration: MigrationClaudeEntryPoint,
 		Message:   "absent, so Claude Code reads no routing; run `clue init` to materialize the pointer, which never overwrites an existing file",
+	})
+}
+
+// releaseCheckRe matches the release check named in the routing hub. The
+// subcommand must be its own token, because `clue latest-notes` is a different
+// command and reading it as this one would silence the report for a repository
+// where no session learns anything. Unlike the entry point's import, this one
+// is matched inside code spans as well as outside them: a command is written
+// in backticks by every convention this project follows, so excluding them
+// would miss every hub that does it correctly.
+var releaseCheckRe = regexp.MustCompile(`\bclue latest(?:[^-\w]|$)`)
+
+// planHubReleaseCheck reports an adopted repository whose routing hub never
+// asks whether the repository is behind, and repairs nothing (PDR-023).
+// Without the line, `clue latest` is a command the adopter has to already know
+// about and `clue-upgrade` is a skill invoked by a request nobody makes —
+// because nothing told them there was anything to upgrade to.
+//
+// The hub is the one file Cliewen may never rewrite: it is the adopter's own
+// routing prose, and their repo-local conventions live in it. So this is a
+// notice, like the entry point's, and for the same reason — refusing to
+// refresh an adopter's carriers until they accept a line would be a hard stop
+// out of all proportion to what is missing.
+func planHubReleaseCheck(root string, result *MigrationPlan) {
+	const rel = "AGENTS.md"
+	data, err := os.ReadFile(filepath.Join(root, rel))
+	if err != nil {
+		result.Notices = append(result.Notices, Notice{
+			Path:      rel,
+			Migration: MigrationHubReleaseCheck,
+			Message:   "absent, so no session learns a newer release is available; run `clue init` to materialize the hub, which never overwrites an existing file",
+		})
+		return
+	}
+	if releaseCheckRe.Match(data) {
+		return
+	}
+	result.Notices = append(result.Notices, Notice{
+		Path:      rel,
+		Migration: MigrationHubReleaseCheck,
+		Message:   "never asks whether this repository is behind, so no session learns a newer release is available; add a line telling the agent to run `clue latest --quiet` when it starts — migration does not edit your hub",
 	})
 }
 

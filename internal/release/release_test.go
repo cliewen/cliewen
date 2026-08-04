@@ -2,6 +2,7 @@ package release
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"os"
@@ -218,30 +219,51 @@ func TestAC077_UnitPositive_EveryDegradationIsUnknown(t *testing.T) {
 	}
 }
 
-// TestAC077_UnitNegative_AnUnknownAnswerIsNeverCached keeps a failed request
-// from silencing the next one: absence must not be stored as an answer.
-func TestAC077_UnitNegative_AnUnknownAnswerIsNeverCached(t *testing.T) {
+// TestAC077_UnitNegative_AnUnknownAnswerIsNeverCachedAsAnAnswer keeps a failed
+// request from silencing the next one: absence must never be stored as an
+// answer. A failure is remembered under AC-088, which is a different fact kept
+// under a different field — what may never happen is a stored tag nobody was
+// given, and a check the user asked for must still ask.
+func TestAC077_UnitNegative_AnUnknownAnswerIsNeverCachedAsAnAnswer(t *testing.T) {
 	dir := t.TempDir()
 	down := failing(errOffline{})
 	if got := Check(Options{Current: "0.11.2", Client: down.client(), CacheDir: dir}); got.Known {
 		t.Fatalf("expected unknown, got %+v", got)
 	}
-	if entries, _ := os.ReadDir(dir); len(entries) != 0 {
-		t.Fatalf("an unknown answer was written to the cache: %v", entries)
-	}
+	assertNoTagCached(t, dir, "an offline request")
 	// The other way an answer becomes unknown is a reply that arrived and was
-	// not recognized. It must not be stored either — a cached tag nothing can
-	// read would cost a request on every call and teach nothing.
+	// not recognized. It must not be stored as an answer either — a cached tag
+	// nothing can read would cost a request on every call and teach nothing.
 	odd := serving(http.StatusOK, `{"tag_name":"nightly"}`)
 	if got := Check(Options{Current: "0.11.2", Client: odd.client(), CacheDir: dir}); got.Known {
 		t.Fatalf("expected unknown, got %+v", got)
 	}
-	if entries, _ := os.ReadDir(dir); len(entries) != 0 {
-		t.Fatalf("an unrecognized answer was written to the cache: %v", entries)
-	}
+	assertNoTagCached(t, dir, "an unrecognized answer")
 	up := serving(http.StatusOK, `{"tag_name":"v0.12.0"}`)
 	if got := Check(Options{Current: "0.11.2", Client: up.client(), CacheDir: dir}); !got.Known {
 		t.Fatalf("the next call must ask again, got %+v", got)
+	}
+}
+
+// assertNoTagCached reads whatever the cache holds and insists it names no
+// release. Reading the file rather than counting entries is the point: once a
+// non-answer is remembered there, "nothing was written" no longer states the
+// guarantee, and only the bytes can say whether a version was invented.
+func assertNoTagCached(t *testing.T, dir, what string) {
+	t.Helper()
+	data, err := os.ReadFile(filepath.Join(dir, "latest-release.json"))
+	if err != nil {
+		return // no cache at all is the strongest form of the same guarantee
+	}
+	var c cached
+	if err := json.Unmarshal(data, &c); err != nil {
+		t.Fatalf("%s left a cache file this package cannot read: %s", what, data)
+	}
+	if c.Tag != "" {
+		t.Fatalf("%s was written to the cache as the tag %q", what, c.Tag)
+	}
+	if tag, state := readCache(dir, time.Now(), defaultTTL, defaultFailureTTL); state == cacheAnswer {
+		t.Fatalf("%s reads back as the answer %q", what, tag)
 	}
 }
 
@@ -267,9 +289,7 @@ func TestAC077_UnitNegative_AnErrorStatusIsNotAnAnswer(t *testing.T) {
 		if got.Behind || got.Latest != "" {
 			t.Fatalf("status %d: nothing may be reported from it, got %+v", status, got)
 		}
-		if entries, _ := os.ReadDir(dir); len(entries) != 0 {
-			t.Fatalf("status %d: it must not be cached either: %v", status, entries)
-		}
+		assertNoTagCached(t, dir, fmt.Sprintf("a well-formed tag on status %d", status))
 	}
 }
 
@@ -513,5 +533,184 @@ func TestAC078_UnitNegative_StaleAndBrokenCachesAreAbsence(t *testing.T) {
 	got := Check(Options{Current: "0.11.2", Client: net.client(), CacheDir: filepath.Join(blocked, "cliewen")})
 	if !got.Known || !got.Behind {
 		t.Fatalf("an unwritable cache must not affect the answer, got %+v", got)
+	}
+}
+
+// TestAC088_UnitPositive_AnOfflineSessionPaysForTheNonAnswerOnce is the whole
+// point of remembering a failure. Before it, only a successful fetch was
+// stored, so an offline or blackholed session paid the ambient budget again at
+// every workflow command — five commands, five waits, one unchanging
+// non-answer — and the promise that a cached answer makes repeating this free
+// held only when the release list actually answered.
+func TestAC088_UnitPositive_AnOfflineSessionPaysForTheNonAnswerOnce(t *testing.T) {
+	// "Does not answer" is the whole set AC-077 already treats as one outcome,
+	// not transport failure alone. A rate limit is the case the hour is sized
+	// for and it arrives as a reply, so a remembering path that covered only a
+	// dead socket would leave the expensive case paying per command.
+	for name, net := range map[string]*answering{
+		"offline":              failing(errOffline{}),
+		"timeout":              failing(errTimeout{}),
+		"rate limit":           serving(http.StatusForbidden, `{"message":"API rate limit exceeded"}`),
+		"server error":         serving(http.StatusInternalServerError, ``),
+		"an unrecognized body": serving(http.StatusOK, `<html>maintenance</html>`),
+		"a tag nothing reads":  serving(http.StatusOK, `{"tag_name":"nightly"}`),
+	} {
+		t.Run(name, func(t *testing.T) {
+			dir := t.TempDir()
+			now := time.Date(2026, 8, 4, 9, 0, 0, 0, time.UTC)
+
+			// One session's worth of ordinary work, each command carrying the notice.
+			for i, at := range []time.Duration{0, time.Minute, 12 * time.Minute, 30 * time.Minute, 59 * time.Minute} {
+				when := now.Add(at)
+				line := Notice(Options{
+					Current:  "0.11.2",
+					Platform: Platform{"linux", "amd64"},
+					Client:   net.client(),
+					CacheDir: dir,
+					Now:      func() time.Time { return when },
+				})
+				if line != "" {
+					t.Fatalf("command %d: a check that could not answer must stay silent, got %q", i, line)
+				}
+			}
+			if net.calls != 1 {
+				t.Fatalf("the same non-answer was paid for %d times, want 1", net.calls)
+			}
+			// It is remembered as a non-answer and never as a version.
+			assertNoTagCached(t, dir, name)
+		})
+	}
+}
+
+// TestAC088_UnitNegative_TheRememberedFailureExpiresOnItsOwnShortSchedule
+// bounds the other side: a non-answer is a fact about a moment, so it must not
+// inherit an answer's day. The boundary belongs to the expired side, matching
+// the answer's lifetime rule.
+func TestAC088_UnitNegative_TheRememberedFailureExpiresOnItsOwnShortSchedule(t *testing.T) {
+	cases := []struct {
+		age            time.Duration
+		wantRemembered bool
+	}{
+		{time.Minute, true},
+		{59 * time.Minute, true},
+		{time.Hour, false}, // the boundary belongs to the expired side
+		{90 * time.Minute, false},
+		{23 * time.Hour, false}, // an answer would still be fresh here; this is not an answer
+	}
+	for _, c := range cases {
+		dir := t.TempDir()
+		now := time.Date(2026, 8, 4, 12, 0, 0, 0, time.UTC)
+		writeCache(dir, cached{Unanswered: true, Fetched: now.Add(-c.age)})
+		net := serving(http.StatusOK, `{"tag_name":"v0.12.0"}`)
+		line := Notice(Options{
+			Current:  "0.11.2",
+			Platform: Platform{"linux", "amd64"},
+			Client:   net.client(),
+			CacheDir: dir,
+			Now:      func() time.Time { return now },
+		})
+		remembered := net.calls == 0
+		if remembered != c.wantRemembered {
+			t.Errorf("age %v: remembered = %v, want %v", c.age, remembered, c.wantRemembered)
+		}
+		if remembered && line != "" {
+			t.Errorf("age %v: a remembered non-answer must say nothing, got %q", c.age, line)
+		}
+		if !remembered && line == "" {
+			t.Errorf("age %v: once it has expired the notice must come back", c.age)
+		}
+	}
+}
+
+// TestAC088_UnitNegative_ACheckTheUserAskedForAlwaysAsks is the line the
+// remembering may not cross. Silence bought by not asking is only acceptable
+// for a check nobody wanted; the person most likely to have just fixed the
+// network is the one typing "clue latest", and answering them from a
+// ten-minute-old failure would make the fix look like it had not worked.
+func TestAC088_UnitNegative_ACheckTheUserAskedForAlwaysAsks(t *testing.T) {
+	dir := t.TempDir()
+	now := time.Date(2026, 8, 4, 12, 0, 0, 0, time.UTC)
+	writeCache(dir, cached{Unanswered: true, Fetched: now.Add(-10 * time.Minute)})
+
+	net := serving(http.StatusOK, `{"tag_name":"v0.12.0"}`)
+	got := Check(Options{
+		Current:  "0.11.2",
+		Platform: Platform{"linux", "amd64"},
+		Client:   net.client(),
+		CacheDir: dir,
+		Now:      func() time.Time { return now },
+	})
+	if net.calls != 1 {
+		t.Fatalf("a requested check must ask, got %d call(s)", net.calls)
+	}
+	if !got.Known || !got.Behind || got.Latest != "0.12.0" {
+		t.Fatalf("expected the fresh answer, got %+v", got)
+	}
+	// And what it learned replaces the remembered failure rather than sitting
+	// beside it, so the next ambient check reports rather than stays silent.
+	line := Notice(Options{
+		Current:  "0.11.2",
+		Platform: Platform{"linux", "amd64"},
+		Client:   failing(errOffline{}).client(),
+		CacheDir: dir,
+		Now:      func() time.Time { return now.Add(time.Minute) },
+	})
+	if line == "" {
+		t.Fatal("the answer the user's own check fetched must reach the next notice")
+	}
+}
+
+// TestAC088_UnitNegative_ARememberedFailureIsNeverAnAnswerAndACorruptCacheIsNeverAFailure
+// holds both directions of the distinction the stored field exists to make.
+// A remembered non-answer must never turn into a report, and a file that
+// cannot be read — or contradicts itself by carrying a tag and a failure at
+// once — must stay absence rather than silence a request, which is ADR-042's
+// rule about an unreadable cache, unchanged by this file gaining a second
+// thing to say.
+func TestAC088_UnitNegative_ARememberedFailureIsNeverAnAnswerAndACorruptCacheIsNeverAFailure(t *testing.T) {
+	now := time.Date(2026, 8, 4, 12, 0, 0, 0, time.UTC)
+
+	dir := t.TempDir()
+	writeCache(dir, cached{Unanswered: true, Fetched: now.Add(-time.Minute)})
+	got := Check(Options{
+		Current:  "0.11.2",
+		Client:   failing(errOffline{}).client(),
+		CacheDir: dir,
+		Unasked:  true,
+		Now:      func() time.Time { return now },
+	})
+	if got.Known || got.Behind || got.Latest != "" || len(got.Recipe) != 0 {
+		t.Fatalf("a remembered non-answer must claim nothing, got %+v", got)
+	}
+
+	// Every shape that is not a clean, current, self-consistent failure record
+	// must send the check back to the host.
+	cases := map[string]string{
+		"truncated":             `{"unanswered":tru`,
+		"empty":                 ``,
+		"not an object":         `"unanswered"`,
+		"a tag and a failure":   `{"tag":"v0.9.0","unanswered":true,"fetched":"2026-08-04T11:59:00Z"}`,
+		"stamped in the future": `{"unanswered":true,"fetched":"2027-01-01T00:00:00Z"}`,
+		"expired":               `{"unanswered":true,"fetched":"2026-08-04T09:00:00Z"}`,
+	}
+	for name, contents := range cases {
+		dir := t.TempDir()
+		if err := os.WriteFile(filepath.Join(dir, "latest-release.json"), []byte(contents), 0o644); err != nil {
+			t.Fatal(err)
+		}
+		net := serving(http.StatusOK, `{"tag_name":"v0.12.0"}`)
+		line := Notice(Options{
+			Current:  "0.11.2",
+			Platform: Platform{"linux", "amd64"},
+			Client:   net.client(),
+			CacheDir: dir,
+			Now:      func() time.Time { return now },
+		})
+		if net.calls != 1 {
+			t.Errorf("%s: expected the host to be asked, got %d call(s)", name, net.calls)
+		}
+		if line == "" {
+			t.Errorf("%s: expected the fresh answer to produce a notice", name)
+		}
 	}
 }

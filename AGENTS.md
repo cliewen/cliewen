@@ -1,6 +1,12 @@
 # Agent routing hub
 
-This repo runs **Cliewen** — its own methodology, dogfooded from commit one. Before loading the corpus, classify the requested work. Three rules set the tier, by how deeply the change reaches into meaning; take the first rule that matches.
+This repo runs **Cliewen** — its own methodology, dogfooded from commit one.
+
+**Before your first tool call — whatever the request is, a question, a review, or a change — run `clue latest --quiet`.**
+
+That is the whole instruction; the rest is why. It prints one line if a newer `clue` release exists and nothing at all when you are current, offline, or unable to tell, so it costs a line only when there is something to say; the answer is cached for a day, so asking again is free. If it says you are behind, route to [`clue-upgrade`](.agents/skills/clue-upgrade/skill.md) — the human decides whether to upgrade now or later, and nothing upgrades without that answer. If `clue` reports `latest` as an unknown command, that *is* the answer: your binary predates the check, so it is behind. The ordinary workflow commands — `clue context`, `migrate`, `refs`, `init`, `scaffold` — also volunteer the same one-line notice on their own, so a session that runs any of them learns this without being asked; the check above is what covers a session that runs none. This is the only reason to run it unprompted; it reaches the network, so it never belongs in a validation verdict or a required check.
+
+Before loading the corpus, classify the requested work. Three rules set the tier, by how deeply the change reaches into meaning; take the first rule that matches.
 
 1. **Plain — nothing about meaning changes.** No product behavior, intent, evidence, decision, plan, policy, or methodology changes. Protected surfaces — `/docs`, `/changes`, product code, tests, configuration, build/release, governance/security policy, this file, skills, and lint rules — are never plain; neither are commands, contracts, user workflows, or normative instructions. Use an ordinary branch from `main`, relevant checks for the changed surface, a ready PR, and human merge, with no CH identity or Cliewen bookkeeping. Plain changes do not consume the one-Cliewen-change-in-flight slot and never build on unmerged work.
 2. **Light — meaning is touched but not changed** ([PDR-002](docs/decisions/PDR-002-light-change-tier.md)). No decision, acceptance-criterion or capability meaning change, semantic plan mutation, or methodology carrier. Typical: protected-surface clarity, dependency bumps, pure refactors, and CI plumbing. Use a Cliewen branch and ready PR whose description is the proposal, but no `/changes` workspace.
