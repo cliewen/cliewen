@@ -28,6 +28,11 @@ var (
 	// A fence's opening marker, captured so a longer fence can hold a shorter
 	// one as an example without the inner one closing the outer.
 	fenceOpenRe = regexp.MustCompile("^\\s*(`{3,}|~{3,})")
+	// An HTML block's opener: a tag, a comment, or a processing instruction.
+	// It deliberately does not match `<https://example.com>` — an autolink is
+	// prose, and reading one as a block would exempt the paragraph it sits in.
+	htmlOpenRe    = regexp.MustCompile(`^\s*</?[A-Za-z][A-Za-z0-9-]*(\s|/?>|$)`)
+	htmlCommentRe = regexp.MustCompile(`^\s*<!--`)
 
 	skippedTaskRe = regexp.MustCompile(`^\s*[-*+] \[-\]\s*(.*)$`)
 	planItemRe    = regexp.MustCompile(`^[PM]-\d+$`)
@@ -54,7 +59,7 @@ func checkProseLayout(c *Corpus) []Issue {
 	for _, p := range c.MDFiles {
 		lines := strings.Split(bodyOf(c.Contents[p]), "\n")
 		var blocks blockScanner
-		prevIsText, prevBlank := false, true
+		prevIsText := false
 		for i, line := range lines {
 			// A table's delimiter row identifies the line above it as a header
 			// rather than a paragraph this one continues, so the retraction has
@@ -62,8 +67,8 @@ func checkProseLayout(c *Corpus) []Issue {
 			if !blocks.inVerbatim() && tableDelimRe.MatchString(line) {
 				blocks.openTable()
 			}
-			if blocks.consume(line, prevBlank) {
-				prevIsText, prevBlank = false, strings.TrimSpace(line) == ""
+			if blocks.next(line) {
+				prevIsText = false
 				continue
 			}
 			// A list marker opens running text without being a continuation
@@ -77,7 +82,6 @@ func checkProseLayout(c *Corpus) []Issue {
 				isText = false
 			}
 			prevIsText = isText || listMarkerRe.MatchString(line)
-			prevBlank = strings.TrimSpace(line) == ""
 		}
 	}
 	return issues
@@ -90,10 +94,13 @@ func checkProseLayout(c *Corpus) []Issue {
 // documenting markdown is exactly where these checks would otherwise invert
 // and skip the rest of the file in silence.
 type blockScanner struct {
-	fence    string // the open fence's marker run, empty when outside one
-	inHTML   bool
-	inIndent bool
-	inTable  bool
+	fence     string // the open fence's marker run, empty when outside one
+	inComment bool   // an HTML comment, which ends at its own `-->`
+	inHTML    bool   // an HTML tag block, which ends at a blank line
+	inIndent  bool
+	inTable   bool
+	inList    bool // a list is open, so an indented line is a continuation
+	prevBlank bool
 }
 
 // inVerbatim reports whether the scanner is inside a block whose lines are not
@@ -102,14 +109,29 @@ func (b *blockScanner) inVerbatim() bool { return b.fence != "" || b.inIndent }
 
 func (b *blockScanner) openTable() { b.inTable = true }
 
-// consume advances the scanner over one line and reports whether that line
-// belongs to a block rather than to running prose. prevBlank says whether the
-// preceding line was blank, which is what distinguishes an indented code block
-// from a continuation line that merely happens to be indented.
-func (b *blockScanner) consume(line string, prevBlank bool) bool {
+// next advances the scanner over one line and reports whether that line belongs
+// to a block rather than to running prose. It remembers whether the previous
+// line was blank itself: that fact decides whether an indented line opens a
+// code block, and a caller that got it wrong would silently stop checking.
+func (b *blockScanner) next(line string) bool {
+	inBlock := b.consume(line)
+	b.prevBlank = strings.TrimSpace(line) == ""
+	return inBlock
+}
+
+func (b *blockScanner) consume(line string) bool {
 	if b.fence != "" {
 		if m := fenceOpenRe.FindStringSubmatch(line); m != nil && closesFence(b.fence, m[1]) {
 			b.fence = ""
+		}
+		return true
+	}
+	// A comment ends where it says it ends. Closing it at the next blank line
+	// instead would exempt everything under an index marker — which is every
+	// generated index row in every corpus this ships to.
+	if b.inComment {
+		if strings.Contains(line, "-->") {
+			b.inComment = false
 		}
 		return true
 	}
@@ -118,29 +140,44 @@ func (b *blockScanner) consume(line string, prevBlank bool) bool {
 		return true
 	}
 	if strings.TrimSpace(line) == "" {
-		// A blank line ends every block that has no closing marker of its own.
+		// A blank line ends every block that has no closing marker of its own,
+		// and ends the list whose items an indented line would continue.
 		b.inHTML, b.inIndent, b.inTable = false, false, false
 		return false
 	}
-	if b.inHTML || b.inTable {
+	if b.inHTML || b.inTable || b.inIndent {
 		return true
 	}
-	if b.inIndent {
+	if htmlCommentRe.MatchString(line) {
+		b.inComment = !strings.Contains(line, "-->")
 		return true
 	}
-	// Indented code opens only after a blank line: four spaces under a list
-	// item are that item's continuation, which is wrapping and is caught.
-	if prevBlank && strings.HasPrefix(line, "    ") {
-		b.inIndent = true
-		return true
-	}
-	if strings.HasPrefix(strings.TrimSpace(line), "<") {
+	if htmlOpenRe.MatchString(line) {
 		b.inHTML = true
 		return true
 	}
 	if strings.HasPrefix(strings.TrimSpace(line), "|") {
 		b.inTable = true
 		return true
+	}
+	// Indented code opens after a blank line — but not inside a list, where an
+	// indented line is the item's own continuation or a nested item. CommonMark
+	// agrees: at four spaces under a `- ` item, that text is prose, and prose
+	// broken across lines is exactly what C-001 is about.
+	//
+	// This runs before the list-marker test on purpose. An indented example of
+	// a list item is a list item in shape, and reading it as one is how a
+	// documented example of what not to write fails as the thing itself.
+	if b.prevBlank && strings.HasPrefix(line, "    ") && !b.inList {
+		b.inIndent = true
+		return true
+	}
+	if listMarkerRe.MatchString(line) {
+		b.inList = true
+		return false
+	}
+	if !strings.HasPrefix(line, " ") {
+		b.inList = false
 	}
 	return false
 }
@@ -196,7 +233,7 @@ func checkSkippedTasks(c *Corpus) []Issue {
 		}
 		var blocks blockScanner
 		for i, line := range strings.Split(c.Contents[p], "\n") {
-			if blocks.consume(line, false) {
+			if blocks.next(line) {
 				continue
 			}
 			m := skippedTaskRe.FindStringSubmatch(line)
@@ -247,7 +284,7 @@ func checkInlineDiagrams(c *Corpus) []Issue {
 		}
 		var blocks blockScanner
 		for i, line := range strings.Split(c.Contents[p], "\n") {
-			if blocks.consume(line, false) {
+			if blocks.next(line) {
 				continue
 			}
 			if imageLinkRe.MatchString(codeSpanRe.ReplaceAllString(line, "")) {
@@ -279,32 +316,36 @@ func checkMilestoneStatus(c *Corpus) []Issue {
 		if a.Type != "plan" {
 			continue
 		}
-		col, inTable := -1, false
+		col := -1
 		var blocks blockScanner
+		var header []string
 		for _, line := range strings.Split(a.Body, "\n") {
 			if blocks.fence != "" || fenceOpenRe.MatchString(line) {
-				blocks.consume(line, false)
-				col, inTable = -1, false
+				blocks.next(line)
+				col, header = -1, nil
 				continue
 			}
 			t := strings.TrimSpace(line)
-			if !strings.HasPrefix(t, "|") {
-				col, inTable = -1, false
-				continue
-			}
-			cells := tableCells(t)
-			if col < 0 {
-				for i, cell := range cells {
+			// A delimiter row is what makes the line above it a header, with or
+			// without outer pipes — the same rule the prose lint applies, so
+			// the two checks cannot disagree about what a table is.
+			if tableDelimRe.MatchString(t) {
+				col = -1
+				for i, cell := range header {
 					if strings.EqualFold(cell, "status") {
-						col, inTable = i, false
+						col = i
 						break
 					}
 				}
 				continue
 			}
-			if !inTable {
-				// The delimiter row directly under the header.
-				inTable = true
+			if !strings.Contains(t, "|") {
+				col, header = -1, nil
+				continue
+			}
+			cells := tableCells(t)
+			if col < 0 {
+				header = cells
 				continue
 			}
 			if col >= len(cells) {
@@ -333,7 +374,7 @@ func checkMilestoneStatus(c *Corpus) []Issue {
 func tableCells(row string) []string {
 	var cells []string
 	var cur strings.Builder
-	inCode := false
+	open := 0 // the length of the open code span's backtick run, 0 when outside
 	runes := []rune(strings.TrimSpace(row))
 	for i := 0; i < len(runes); i++ {
 		switch c := runes[i]; {
@@ -342,9 +383,21 @@ func tableCells(row string) []string {
 			i++
 			cur.WriteRune(runes[i])
 		case c == '`':
-			inCode = !inCode
-			cur.WriteRune(c)
-		case c == '|' && !inCode:
+			run := 1
+			for i+run < len(runes) && runes[i+run] == '`' {
+				run++
+			}
+			switch {
+			case open == 0:
+				open = run
+			case run == open:
+				open = 0
+			}
+			for n := 0; n < run; n++ {
+				cur.WriteRune('`')
+			}
+			i += run - 1
+		case c == '|' && open == 0:
 			cells = append(cells, strings.TrimSpace(cur.String()))
 			cur.Reset()
 		default:

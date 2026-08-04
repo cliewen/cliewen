@@ -264,8 +264,9 @@ Feature: clue validate — deterministic corpus judgment
     When the user runs "clue validate"
     Then it exits with a non-zero code
     And the output names the file and the line the continuation begins on
-    But line breaks inside fenced code, tables, frontmatter, and HTML blocks are structure, not wrapping
+    But line breaks inside fenced code, indented code, frontmatter, tables written with or without outer pipes, and HTML blocks up to the tag or comment that closes them are structure, not wrapping
     And a heading, a list item, a blockquote line, and a table row each begin their own block rather than continuing the one above
+    And a fence documenting a shorter fence is closed only by a run of its own length, so the rest of the file is still read
 
   @AC-091
   Scenario: A skipped task carries a reason
@@ -274,7 +275,7 @@ Feature: clue validate — deterministic corpus judgment
     When the user runs "clue validate"
     Then it exits with a non-zero code
     And the output names the file and the line
-    But a "[-]" task followed by prose passes, and an unticked or ticked task is never asked for one
+    But a "[-]" task followed by prose passes, an unticked or ticked task is never asked for one, and one shown inside fenced or indented code is an example rather than a task
 
   @AC-092
   Scenario: A proposal declares the plan item it serves
@@ -292,7 +293,7 @@ Feature: clue validate — deterministic corpus judgment
     When the user runs "clue validate"
     Then it exits with a non-zero code
     And the output names the file and says diagrams are inline Mermaid
-    But an ordinary link to a markdown file passes, and an image link inside a fence or a code span is an example rather than a diagram
+    But an ordinary link to a markdown file passes, and an image link inside a fence, an indented code block, or a code span is an example rather than a diagram
 
   @AC-094
   Scenario: Types carry the frontmatter fields their type requires
@@ -312,4 +313,5 @@ Feature: clue validate — deterministic corpus judgment
     Then it exits with a non-zero code
     And the output names the plan, the milestone, and the value it read
     But a table that declares no Status column is not a milestone table, and a header row, a separator row, and an empty cell are never values
+    And a table is read by its delimiter row, with or without outer pipes, with cells divided only by pipes that are unescaped and outside a code span
 ```

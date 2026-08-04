@@ -146,6 +146,51 @@ Final paragraph.
 	}), false), "verbatim and structural blocks")
 }
 
+// The block scanner's dangerous direction is silence: a block state that never
+// closes stops every check that uses it, and nothing reports a check that did
+// not run. Each case here is a shape where that happened.
+func TestAC090_UnitNegative_BlockStatesDoNotSwallowProse(t *testing.T) {
+	for _, tc := range []struct {
+		name string
+		body string
+	}{
+		{
+			// The shape every corpus has: an index block whose rows sit
+			// directly under the marker, with no blank line to close it.
+			name: "under an index-block comment",
+			body: "<!-- clue:index:start -->\n- [G-001](G-001-first.md) — a row wrapped\n  onto a second line\n<!-- clue:index:end -->\n",
+		},
+		{
+			name: "after a closed one-line comment",
+			body: "<!-- a note -->\nThis paragraph was broken\nacross two lines.\n",
+		},
+		{
+			name: "after an HTML block closed by a blank line",
+			body: "<div>\n  <p>markup</p>\n</div>\n\nThis paragraph was broken\nacross two lines.\n",
+		},
+		{
+			// An autolink is prose. Reading it as an HTML block would exempt
+			// the paragraph it opens.
+			name: "in a paragraph opening with an autolink",
+			body: "<https://example.com> is the site\nand this line continues the sentence.\n",
+		},
+		{
+			// Four spaces under a list item is that item's continuation, not a
+			// code block — CommonMark needs six there, and this is prose.
+			name: "in a list item's indented continuation",
+			body: "- A list item\n\n    A continuation paragraph\n    wrapped across two lines.\n",
+		},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			page := "---\nid: G-002\ntype: goal\nstatus: accepted\nlinks: []\ntitle: Blocks\n---\n\n# A heading\n\n" + tc.body
+			assertIssue(t, run(t, with(validFiles, map[string]string{
+				"docs/goals/README.md":       "# Goals\n\n<!-- clue:index:start -->\n- [G-001](G-001-first.md)\n- [G-002](G-002-blocks.md)\n<!-- clue:index:end -->\n",
+				"docs/goals/G-002-blocks.md": page,
+			}), false), "paragraph continues on a new line")
+		})
+	}
+}
+
 func TestAC090_UnitNegative_HardWrappedProseAndListItemsRejected(t *testing.T) {
 	wrapped := "---\nid: G-002\ntype: goal\nstatus: accepted\nlinks: []\ntitle: Wrapped\n---\n\n# A heading\n\nThis paragraph was broken\nacross two lines.\n"
 	issues := run(t, with(validFiles, map[string]string{
@@ -177,6 +222,18 @@ func TestAC091_UnitPositive_SkippedTaskWithAReasonPasses(t *testing.T) {
 	}), false), "a skipped task carrying its reason")
 }
 
+// An indented code block is a fence written without one. Reading its contents
+// as live markdown makes an example of what not to write fail as the thing
+// itself — a false failure on a rule C-004 forbids weakening, which leaves the
+// author no exit but to delete legitimate documentation.
+func TestAC091_UnitPositive_IndentedExamplesAreNotTasks(t *testing.T) {
+	tasks := "---\nid: CH-001-tasks\ntype: tasks\nstatus: open\nlinks: []\ntitle: Tasks\n---\n\n# Tasks\n\nWhat a skipped task must never look like:\n\n    - [-]\n\n- [x] Done\n"
+	assertClean(t, run(t, changeCorpus(map[string]string{
+		"changes/CH-001-a/proposal.md": validProposal,
+		"changes/CH-001-a/tasks.md":    tasks,
+	}), false), "a reasonless task shown as an indented example")
+}
+
 func TestAC091_UnitNegative_SkippedTaskWithoutAReasonRejected(t *testing.T) {
 	tasks := "---\nid: CH-001-tasks\ntype: tasks\nstatus: open\nlinks: []\ntitle: Tasks\n---\n\n# Tasks\n\n- [x] Done\n- [-]\n"
 	assertIssue(t, run(t, changeCorpus(map[string]string{
@@ -206,7 +263,7 @@ func TestAC092_UnitNegative_ProposalWithoutADeclarationRejected(t *testing.T) {
 
 // AC-093: diagrams are inline Mermaid, never images.
 func TestAC093_UnitPositive_MermaidAndOrdinaryLinksAccepted(t *testing.T) {
-	page := "---\nid: G-002\ntype: goal\nstatus: accepted\nlinks: []\ntitle: Diagrams\n---\n\n# G-002\n\nA link to [the first goal](G-001-first.md) and a code span showing the form `![alt](x.png)`.\n\n```mermaid\ngraph TD\n  A --> B\n```\n\nA fenced example:\n\n```markdown\n![alt](diagram.png)\n```\n"
+	page := "---\nid: G-002\ntype: goal\nstatus: accepted\nlinks: []\ntitle: Diagrams\n---\n\n# G-002\n\nA link to [the first goal](G-001-first.md) and a code span showing the form `![alt](x.png)`.\n\n```mermaid\ngraph TD\n  A --> B\n```\n\nA fenced example:\n\n```markdown\n![alt](diagram.png)\n```\n\nAnd the same example indented rather than fenced:\n\n    ![alt](diagram.png)\n"
 	assertClean(t, run(t, with(validFiles, map[string]string{
 		"docs/goals/README.md":         "# Goals\n\n<!-- clue:index:start -->\n- [G-001](G-001-first.md)\n- [G-002](G-002-diagrams.md)\n<!-- clue:index:end -->\n",
 		"docs/goals/G-002-diagrams.md": page,
@@ -258,10 +315,16 @@ func TestAC095_UnitPositive_DeclaredVocabularyAndUnstatusedTablesAccepted(t *tes
 		assertClean(t, run(t, planCorpus(body), false), "milestone status "+v)
 	}
 
+	// A table written without outer pipes is the same table. The prose lint
+	// already reads one, and a status column the two checks disagreed about
+	// would be a hole in exactly the shape the other check taught a writer to use.
+	bare := "---\nid: P-002\ntype: plan\nstatus: active\nlinks: [G-001]\ntitle: A plan\n---\n\n# P-002\n\nID | Milestone | Status\n--- | --- | ---\nM-002 | do it | `done`\n"
+	assertClean(t, run(t, planCorpus(bare), false), "a milestone table written without outer pipes")
+
 	// A prose cell carrying an escaped pipe and a code span with a pipe in it.
 	// Splitting on every pipe would shift every later column, reading a
 	// neighbouring cell as the status — a false failure, and a real one missed.
-	pipes := "---\nid: P-002\ntype: plan\nstatus: active\nlinks: [G-001]\ntitle: A plan\n---\n\n# P-002\n\n| ID | Milestone | Status | Evidence |\n|---|---|---|---|\n| M-002 | supports `a \\| b` forms \\| and more | `done` | none |\n"
+	pipes := "---\nid: P-002\ntype: plan\nstatus: active\nlinks: [G-001]\ntitle: A plan\n---\n\n# P-002\n\n| ID | Milestone | Status | Evidence |\n|---|---|---|---|\n| M-002 | supports `a \\| b` and ``x | y`` forms \\| and more | `done` | none |\n"
 	assertClean(t, run(t, planCorpus(pipes), false), "a milestone row whose prose carries escaped and code-span pipes")
 
 	// A table with no status column is not a milestone table, whatever it
@@ -274,6 +337,11 @@ func TestAC095_UnitNegative_StatusOutsideTheVocabularyRejected(t *testing.T) {
 	plan := "---\nid: P-002\ntype: plan\nstatus: active\nlinks: [G-001]\ntitle: A plan\n---\n\n# P-002\n\n| ID | Milestone | Status | Evidence |\n|---|---|---|---|\n| M-002 | do it | `wip` | |\n"
 	issues := run(t, planCorpus(plan), false)
 	assertIssue(t, issues, "M-002: milestone status wip is not one of todo, doing, done, dropped")
+
+	// The same bad value in a table written without outer pipes: read as a
+	// table by the prose lint, so it is read as one here too.
+	bare := "---\nid: P-002\ntype: plan\nstatus: active\nlinks: [G-001]\ntitle: A plan\n---\n\n# P-002\n\nID | Milestone | Status\n--- | --- | ---\nM-002 | do it | `wip`\n"
+	assertIssue(t, run(t, planCorpus(bare), false), "M-002: milestone status wip is not one of")
 	for _, i := range issues {
 		if strings.Contains(i.Msg, "milestone status Status") {
 			t.Fatalf("the header row is not a value: %v", issues)
