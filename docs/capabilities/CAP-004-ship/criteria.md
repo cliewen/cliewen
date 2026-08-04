@@ -187,7 +187,7 @@ Feature: clue ships — a versioned binary and versioned skills, drift made lint
   Scenario: The notice never reaches the judge or a runner, and survives a captured stream
     Test-type: Unit
     Given a clue that is behind the newest release
-    When "clue validate" and "clue version" run, and when a workflow command runs with "CI" set and with "CLUE_NO_UPDATE_NOTIFIER" set
+    When "clue validate" and "clue version" run, and when a workflow command runs with a non-empty "CI" and with "CLUE_NO_UPDATE_NOTIFIER" present at any value, including empty
     Then no notice is printed in any of those runs, so a verdict and a runner's log are what they were
     And a workflow command whose standard error is a pipe rather than a terminal still prints it, because that is what a coding agent gives it and no gate may exclude the audience the notice exists for
     And a current release, an unreadable stamp, an unpublished stamp, and every way of failing to reach the release list are all silence

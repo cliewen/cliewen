@@ -131,8 +131,8 @@ Commands:
 Release notice: init, scaffold, context, migrate, and refs print one line to
 standard error when a newer release exists. Standard output and the exit code
 are identical with it and without it, and the answer is cached for a day. Never
-from validate or version, never when CI is set, and never when
-CLUE_NO_UPDATE_NOTIFIER is set to anything.
+from validate or version, never when CI carries a value, and never when
+CLUE_NO_UPDATE_NOTIFIER is set at all, the empty string included.
 
 Exit codes: 0 corpus valid · 1 issues found · 2 usage error
 `
