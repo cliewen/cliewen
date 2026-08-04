@@ -53,6 +53,7 @@ func TestUnit_CompletedPlanGuardFreezesAFinishedCampaign(t *testing.T) {
 		name     string
 		change   func(t *testing.T, root string)
 		wantFail bool
+		diverged bool
 	}{
 		{
 			name: "editing a completed plan fails",
@@ -91,9 +92,23 @@ func TestUnit_CompletedPlanGuardFreezesAFinishedCampaign(t *testing.T) {
 				write(t, root, "docs/plans/P-003-third.md", strings.Replace(activePlan, "P-002", "P-003", -1))
 			},
 		},
+		{
+			// The case a two-dot diff gets wrong. The base branch closed a
+			// campaign after this branch left it; the branch never touched
+			// that file, and a guard comparing against the branch tip would
+			// fail it for somebody else's digest.
+			name:     "a plan the base branch completed after the fork passes",
+			diverged: true,
+			change: func(t *testing.T, root string) {
+				write(t, root, "docs/plans/P-003-third.md", strings.Replace(activePlan, "P-002", "P-003", -1))
+			},
+		},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			root, base := fixture(t)
+			if tc.diverged {
+				base = advanceBaseBranch(t, root)
+			}
 			tc.change(t, root)
 			git(t, root, "add", "-A")
 			git(t, root, "commit", "-m", "the change under test")
@@ -111,6 +126,26 @@ func TestUnit_CompletedPlanGuardFreezesAFinishedCampaign(t *testing.T) {
 			}
 		})
 	}
+}
+
+// advanceBaseBranch moves the base branch on after the working branch forked
+// from it, closing a campaign there — the ordinary situation once any digest
+// lands while a pull request is open. It returns the new base branch tip, which
+// is what a forge reports as `pull_request.base.sha`.
+func advanceBaseBranch(t *testing.T, root string) string {
+	t.Helper()
+	fork := strings.TrimSpace(run(t, root, "git", "rev-parse", "HEAD"))
+	git(t, root, "switch", "-q", "-c", "work")
+	git(t, root, "switch", "-q", "main")
+	write(t, root, "docs/plans/P-002-second.md", strings.Replace(activePlan, "status: active", "status: completed", 1))
+	git(t, root, "add", "-A")
+	git(t, root, "commit", "-q", "-m", "somebody else's digest closes P-002")
+	tip := strings.TrimSpace(run(t, root, "git", "rev-parse", "HEAD"))
+	git(t, root, "switch", "-q", "work")
+	if fork == tip {
+		t.Fatal("the base branch did not actually advance")
+	}
+	return tip
 }
 
 // fixture builds a repository whose base commit holds one completed and one
@@ -229,4 +264,18 @@ func TestSanity_WorkflowRunsTheCompletedPlanGuard(t *testing.T) {
 			t.Fatalf("CI does not run the completed-plan guard: %q missing from ci.yml", want)
 		}
 	}
+	// The workflow invokes the script directly, so a committed mode without the
+	// executable bit is `Permission denied` on every run — a guard that fails
+	// open on the runner while every local test passes. Git's index carries the
+	// mode; the working tree's does not survive a Windows checkout.
+	mode := strings.Fields(run(t, repoRoot(t), "git", "ls-files", "-s", ".github/scripts/completed-plans.sh"))
+	if len(mode) == 0 || mode[0] != "100755" {
+		t.Fatalf("the guard is not committed executable: %v", mode)
+	}
+}
+
+// repoRoot is the repository the tests run against.
+func repoRoot(t *testing.T) string {
+	t.Helper()
+	return filepath.Dir(filepath.FromSlash(repoPath(t, "go.mod")))
 }

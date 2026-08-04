@@ -94,6 +94,58 @@ Final paragraph.
 	}), false), "a page whose only line breaks are structural")
 }
 
+// The blocks a page about markdown actually contains. Each one was a false
+// positive before CH-110's review: an indented code block is not fence-
+// delimited, a table may be written without outer pipes, an HTML block runs
+// past its opening line, and a fence documenting a shorter fence must not be
+// closed by its own example.
+func TestAC090_UnitPositive_VerbatimBlocksAreNotProse(t *testing.T) {
+	page := `---
+id: G-002
+type: goal
+status: accepted
+links: []
+title: Blocks
+---
+
+# A heading
+
+An indented code block, which no fence delimits:
+
+    line one of code
+    line two of code
+
+A table written without outer pipes:
+
+Column | Other
+--- | ---
+Cell | Cell
+
+An HTML block that runs past its opening line:
+
+<div class="note">
+  <p>first</p>
+  <p>second</p>
+</div>
+
+A fence holding a shorter fence as an example:
+
+` + "````" + `markdown
+This text is inside the outer fence.
+` + "```" + `
+And so is this.
+` + "```" + `
+Still inside.
+` + "````" + `
+
+Final paragraph.
+`
+	assertClean(t, run(t, with(validFiles, map[string]string{
+		"docs/goals/README.md":       "# Goals\n\n<!-- clue:index:start -->\n- [G-001](G-001-first.md)\n- [G-002](G-002-blocks.md)\n<!-- clue:index:end -->\n",
+		"docs/goals/G-002-blocks.md": page,
+	}), false), "verbatim and structural blocks")
+}
+
 func TestAC090_UnitNegative_HardWrappedProseAndListItemsRejected(t *testing.T) {
 	wrapped := "---\nid: G-002\ntype: goal\nstatus: accepted\nlinks: []\ntitle: Wrapped\n---\n\n# A heading\n\nThis paragraph was broken\nacross two lines.\n"
 	issues := run(t, with(validFiles, map[string]string{
@@ -205,6 +257,12 @@ func TestAC095_UnitPositive_DeclaredVocabularyAndUnstatusedTablesAccepted(t *tes
 		body := plan + "| M-002 | do it | `" + v + "` | |\n"
 		assertClean(t, run(t, planCorpus(body), false), "milestone status "+v)
 	}
+
+	// A prose cell carrying an escaped pipe and a code span with a pipe in it.
+	// Splitting on every pipe would shift every later column, reading a
+	// neighbouring cell as the status — a false failure, and a real one missed.
+	pipes := "---\nid: P-002\ntype: plan\nstatus: active\nlinks: [G-001]\ntitle: A plan\n---\n\n# P-002\n\n| ID | Milestone | Status | Evidence |\n|---|---|---|---|\n| M-002 | supports `a \\| b` forms \\| and more | `done` | none |\n"
+	assertClean(t, run(t, planCorpus(pipes), false), "a milestone row whose prose carries escaped and code-span pipes")
 
 	// A table with no status column is not a milestone table, whatever it
 	// happens to contain.

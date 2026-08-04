@@ -21,6 +21,14 @@ var (
 	underlineRe  = regexp.MustCompile(`^\s*(=+|-+|\*{3,}|_{3,})\s*$`)
 	linkDefRe    = regexp.MustCompile(`^\s*\[[^\]]+\]:\s`)
 
+	// A table's delimiter row, with or without the outer pipes. It is what
+	// makes the line above it a header rather than a paragraph, so a table
+	// written without leading pipes is still a table (C-001).
+	tableDelimRe = regexp.MustCompile(`^\s*\|?\s*:?-+:?\s*(\|\s*:?-+:?\s*)+\|?\s*$`)
+	// A fence's opening marker, captured so a longer fence can hold a shorter
+	// one as an example without the inner one closing the outer.
+	fenceOpenRe = regexp.MustCompile("^\\s*(`{3,}|~{3,})")
+
 	skippedTaskRe = regexp.MustCompile(`^\s*[-*+] \[-\]\s*(.*)$`)
 	planItemRe    = regexp.MustCompile(`^[PM]-\d+$`)
 	imageLinkRe   = regexp.MustCompile(`!\[[^\]]*\]\(`)
@@ -45,14 +53,17 @@ func checkProseLayout(c *Corpus) []Issue {
 	var issues []Issue
 	for _, p := range c.MDFiles {
 		lines := strings.Split(bodyOf(c.Contents[p]), "\n")
-		inFence, prevIsText := false, false
+		var blocks blockScanner
+		prevIsText, prevBlank := false, true
 		for i, line := range lines {
-			if fenceRe.MatchString(line) {
-				inFence = !inFence
-				prevIsText = false
-				continue
+			// A table's delimiter row identifies the line above it as a header
+			// rather than a paragraph this one continues, so the retraction has
+			// to reach back one line.
+			if !blocks.inVerbatim() && tableDelimRe.MatchString(line) {
+				blocks.openTable()
 			}
-			if inFence {
+			if blocks.consume(line, prevBlank) {
+				prevIsText, prevBlank = false, strings.TrimSpace(line) == ""
 				continue
 			}
 			// A list marker opens running text without being a continuation
@@ -63,17 +74,86 @@ func checkProseLayout(c *Corpus) []Issue {
 				issues = append(issues, Issue{p, lineRef(i+1) + ": paragraph continues on a new line — one line per paragraph and per list item (C-001)"})
 				// One finding per paragraph: a whole wrapped page is one
 				// problem to fix, not fifty.
-				prevIsText = false
-				continue
+				isText = false
 			}
 			prevIsText = isText || listMarkerRe.MatchString(line)
+			prevBlank = strings.TrimSpace(line) == ""
 		}
 	}
 	return issues
 }
 
+// blockScanner tracks the markdown blocks whose interior line breaks are
+// structure rather than wrapping: fenced code, indented code, HTML, and
+// tables. A fence records its own marker and run length, so a longer fence
+// holds a shorter one as an example without the inner one closing it — a page
+// documenting markdown is exactly where these checks would otherwise invert
+// and skip the rest of the file in silence.
+type blockScanner struct {
+	fence    string // the open fence's marker run, empty when outside one
+	inHTML   bool
+	inIndent bool
+	inTable  bool
+}
+
+// inVerbatim reports whether the scanner is inside a block whose lines are not
+// read as markdown at all.
+func (b *blockScanner) inVerbatim() bool { return b.fence != "" || b.inIndent }
+
+func (b *blockScanner) openTable() { b.inTable = true }
+
+// consume advances the scanner over one line and reports whether that line
+// belongs to a block rather than to running prose. prevBlank says whether the
+// preceding line was blank, which is what distinguishes an indented code block
+// from a continuation line that merely happens to be indented.
+func (b *blockScanner) consume(line string, prevBlank bool) bool {
+	if b.fence != "" {
+		if m := fenceOpenRe.FindStringSubmatch(line); m != nil && closesFence(b.fence, m[1]) {
+			b.fence = ""
+		}
+		return true
+	}
+	if m := fenceOpenRe.FindStringSubmatch(line); m != nil {
+		b.fence = m[1]
+		return true
+	}
+	if strings.TrimSpace(line) == "" {
+		// A blank line ends every block that has no closing marker of its own.
+		b.inHTML, b.inIndent, b.inTable = false, false, false
+		return false
+	}
+	if b.inHTML || b.inTable {
+		return true
+	}
+	if b.inIndent {
+		return true
+	}
+	// Indented code opens only after a blank line: four spaces under a list
+	// item are that item's continuation, which is wrapping and is caught.
+	if prevBlank && strings.HasPrefix(line, "    ") {
+		b.inIndent = true
+		return true
+	}
+	if strings.HasPrefix(strings.TrimSpace(line), "<") {
+		b.inHTML = true
+		return true
+	}
+	if strings.HasPrefix(strings.TrimSpace(line), "|") {
+		b.inTable = true
+		return true
+	}
+	return false
+}
+
+// closesFence reports whether a fence marker closes an open one: same
+// character, and at least as long.
+func closesFence(open, marker string) bool {
+	return len(marker) >= len(open) && marker[0] == open[0]
+}
+
 // isProseLine reports whether a line continues or starts running text, as
-// opposed to opening a block of its own.
+// opposed to opening a block of its own. Block interiors never reach it — the
+// scanner has already consumed them.
 func isProseLine(line string) bool {
 	t := strings.TrimSpace(line)
 	switch {
@@ -81,7 +161,7 @@ func isProseLine(line string) bool {
 		return false
 	case headingRe.MatchString(line), listMarkerRe.MatchString(line), underlineRe.MatchString(line), linkDefRe.MatchString(line):
 		return false
-	case strings.HasPrefix(t, "|"), strings.HasPrefix(t, ">"), strings.HasPrefix(t, "<"):
+	case strings.HasPrefix(t, ">"):
 		return false
 	}
 	return true
@@ -114,13 +194,9 @@ func checkSkippedTasks(c *Corpus) []Issue {
 		if !strings.HasPrefix(p, "changes/") || !strings.HasSuffix(p, "/tasks.md") {
 			continue
 		}
-		inFence := false
+		var blocks blockScanner
 		for i, line := range strings.Split(c.Contents[p], "\n") {
-			if fenceRe.MatchString(line) {
-				inFence = !inFence
-				continue
-			}
-			if inFence {
+			if blocks.consume(line, false) {
 				continue
 			}
 			m := skippedTaskRe.FindStringSubmatch(line)
@@ -169,13 +245,9 @@ func checkInlineDiagrams(c *Corpus) []Issue {
 		if !strings.HasPrefix(p, "docs/") {
 			continue
 		}
-		inFence := false
+		var blocks blockScanner
 		for i, line := range strings.Split(c.Contents[p], "\n") {
-			if fenceRe.MatchString(line) {
-				inFence = !inFence
-				continue
-			}
-			if inFence {
+			if blocks.consume(line, false) {
 				continue
 			}
 			if imageLinkRe.MatchString(codeSpanRe.ReplaceAllString(line, "")) {
@@ -207,14 +279,16 @@ func checkMilestoneStatus(c *Corpus) []Issue {
 		if a.Type != "plan" {
 			continue
 		}
-		col, inTable, inFence := -1, false, false
+		col, inTable := -1, false
+		var blocks blockScanner
 		for _, line := range strings.Split(a.Body, "\n") {
-			if fenceRe.MatchString(line) {
-				inFence = !inFence
+			if blocks.fence != "" || fenceOpenRe.MatchString(line) {
+				blocks.consume(line, false)
+				col, inTable = -1, false
 				continue
 			}
 			t := strings.TrimSpace(line)
-			if inFence || !strings.HasPrefix(t, "|") {
+			if !strings.HasPrefix(t, "|") {
 				col, inTable = -1, false
 				continue
 			}
@@ -250,14 +324,43 @@ func checkMilestoneStatus(c *Corpus) []Issue {
 	return issues
 }
 
-// tableCells splits a markdown table row into its cells, dropping the empty
-// strings the leading and trailing pipes produce.
+// tableCells splits a markdown table row into its cells. Only an unescaped
+// pipe outside a code span divides one: `\\|` is the documented way to put a
+// pipe in a cell, and this project's plan tables carry long prose cells full of
+// code spans. Splitting on every pipe would shift every column after the first
+// such cell, which reads a neighbouring cell as the status and misses the real
+// one — a false failure and a silent miss from the same bug.
 func tableCells(row string) []string {
-	parts := strings.Split(strings.Trim(row, "|"), "|")
-	for i := range parts {
-		parts[i] = strings.TrimSpace(parts[i])
+	var cells []string
+	var cur strings.Builder
+	inCode := false
+	runes := []rune(strings.TrimSpace(row))
+	for i := 0; i < len(runes); i++ {
+		switch c := runes[i]; {
+		case c == '\\' && i+1 < len(runes):
+			cur.WriteRune(c)
+			i++
+			cur.WriteRune(runes[i])
+		case c == '`':
+			inCode = !inCode
+			cur.WriteRune(c)
+		case c == '|' && !inCode:
+			cells = append(cells, strings.TrimSpace(cur.String()))
+			cur.Reset()
+		default:
+			cur.WriteRune(c)
+		}
 	}
-	return parts
+	cells = append(cells, strings.TrimSpace(cur.String()))
+	// The outer pipes produce an empty cell at each end; dropping them keeps
+	// column indexes the same whether or not a table is written with them.
+	if len(cells) > 0 && cells[0] == "" {
+		cells = cells[1:]
+	}
+	if len(cells) > 0 && cells[len(cells)-1] == "" {
+		cells = cells[:len(cells)-1]
+	}
+	return cells
 }
 
 func contains(list []string, v string) bool {

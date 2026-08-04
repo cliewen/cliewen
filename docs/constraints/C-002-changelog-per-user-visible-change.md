@@ -10,7 +10,7 @@ enforcement: partial
 
 # C-002 — Every release-relevant user-visible change adds a changelog entry
 
-A Cliewen change that affects shipped behavior, a capability, a contract, a command, or a user workflow adds its entry to the `[Unreleased]` section of `CHANGELOG.md` in the digest — written for users, never a PR title or commit subject. A plain editorial change under [PDR-011](../decisions/PDR-011-plain-changes-bypass-cliewen.md) is not release history and adds no entry; prose that changes normative instructions or user workflow is not plain. The release workflow already fails a release whose version section is missing (`machine` at release time); per-change presence is agent-held.
+A Cliewen change that affects shipped behavior, a capability, a contract, a command, or a user workflow adds its entry to the `[Unreleased]` section of `CHANGELOG.md` in the digest — written for users, never a PR title or commit subject. A plain editorial change under [PDR-011](../decisions/PDR-011-plain-changes-bypass-cliewen.md) is not release history and adds no entry; prose that changes normative instructions or user workflow is not plain. The release gates fail a release whose version section is missing, so the rule has a machine at release time; whether *this* change owed an entry, and whether the entry it wrote is written for a user, is judgment.
 
 **Checked by:** the release gates (`.github/scripts/release-gates.sh`, run on the release pull request and again on the merge that tags): a release whose version section is missing from `CHANGELOG.md` cannot be cut.
 

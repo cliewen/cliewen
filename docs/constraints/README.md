@@ -4,7 +4,7 @@ C-xxx: rules you **must not break** — laws, licenses, policies, and since [ADR
 
 Each constraint carries `source:` (the doc, law, or catalog that states the rule; external catalogs plug in here later) and `enforcement: machine|partial|agent|human`. The classes say who holds the rule, and [ADR-045](../decisions/ADR-045-register-names-the-machine.md) gives two of them required declarations:
 
-- **`machine`** — a machine holds the whole rule, and the constraint names it under **Checked by**.
+- **`machine`** — a machine holds the whole rule. The constraint names it under **Checked by** by convention here; there is no residual to state, so the lint asks for neither declaration.
 - **`partial`** — a machine holds a stated subset, named under **Checked by**, and a stated **Residual** does not leave judgment. Most real rules are this shape: a `[-]` task must carry a reason, and the reason must be a real one.
 - **`agent`** — the rule is **backlog for promotion**: no machine holds it yet, and the constraint states its **promotion trigger**, the condition under which one will. `clue validate` reports the count of these on its OK line, and says nothing when the count is zero.
 - **`human`** — no machine can hold it, and the constraint declares its **Residual**: what stays with judgment and what it costs when that judgment fails.

@@ -16,8 +16,19 @@
 # Usage: completed-plans.sh <base-ref> <head-ref>
 set -euo pipefail
 
-base="${1:?usage: completed-plans.sh <base-ref> <head-ref>}"
+base_ref="${1:?usage: completed-plans.sh <base-ref> <head-ref>}"
 head="${2:?usage: completed-plans.sh <base-ref> <head-ref>}"
+
+# The merge base, not the base branch tip. `pull_request.base.sha` follows the
+# base branch, so a two-dot diff also lists plans that only *main* changed —
+# and the first digest to close a campaign would turn every open pull request
+# red for a file none of them touched.
+base=$(git merge-base "$base_ref" "$head")
+
+# Captured rather than piped: a failure here must stop the script, and `set -e`
+# does not reach into a process substitution feeding a loop. A guard that goes
+# quiet when it cannot resolve its own base is worse than no guard.
+changed=$(git diff --name-only "$base" "$head" -- 'docs/plans/*.md')
 
 failed=0
 while IFS= read -r file; do
@@ -27,13 +38,20 @@ while IFS= read -r file; do
   if ! before=$(git show "$base:$file" 2>/dev/null); then
     continue
   fi
-  # Frontmatter only: line 2 through the closing fence. A `status:` in the body
-  # is prose about a plan, not the plan's own status.
-  if printf '%s\n' "$before" | sed -n '2,/^---$/p' | grep -q '^status: completed'; then
+  # Frontmatter only, and only when the file opens with a fence: line 2 through
+  # the closing `---`. A `status:` in the body is prose about a plan, not the
+  # plan's own status, and a file with no frontmatter has no status to read.
+  case "$before" in
+    ---*) ;;
+    *) continue ;;
+  esac
+  if printf '%s\n' "$before" | tr -d '\r' | sed -n '2,/^---$/p' | grep -q '^status: completed'; then
     echo "FAIL: $file was completed on $base — a completed plan is frozen and never deleted (C-008)"
     failed=1
   fi
-done < <(git diff --name-only "$base" "$head" -- 'docs/plans/*.md')
+done <<EOF
+$changed
+EOF
 
 if [ "$failed" -ne 0 ]; then
   echo "A finished campaign is the project's record of what it achieved. Correct it in a successor plan, not in place."
