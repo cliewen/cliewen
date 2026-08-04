@@ -192,4 +192,14 @@ Feature: clue ships — a versioned binary and versioned skills, drift made lint
     And a workflow command whose standard error is a pipe rather than a terminal still prints it, because that is what a coding agent gives it and no gate may exclude the audience the notice exists for
     And a current release, an unreadable stamp, an unpublished stamp, and every way of failing to reach the release list are all silence
     But no run writes a file in the repository, with or without the notice
+
+  @AC-088
+  Scenario: A release list that does not answer is remembered too, briefly
+    Test-type: Unit
+    Given a session whose release list cannot be reached at all
+    When several workflow commands run inside the hour, each carrying the notice
+    Then the release list is asked once and the commands that follow it stay silent without asking, because a non-answer nobody wanted must not be paid for again
+    And the remembered non-answer expires on a lifetime much shorter than an answer's, after which the check asks again
+    And a check the user asked for always asks, whatever is remembered, because the person most likely to have just fixed the network is the one asking
+    But a remembered non-answer is never reported as a version, and a cache that cannot be read — or that claims a tag and a failure at once — is absence rather than a remembered failure, so a broken cache can never silence a request
 ```

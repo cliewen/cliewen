@@ -32,6 +32,14 @@ const (
 	// day is short enough to be useful and long enough that the ordinary cost
 	// of running it is zero requests.
 	defaultTTL = 24 * time.Hour
+	// defaultFailureTTL bounds how long a remembered non-answer stands. It is
+	// much shorter than an answer's, because "the list did not answer" is a
+	// fact about a moment rather than about the world: a network comes back, a
+	// rate limit clears — GitHub's unauthenticated window is an hour, which is
+	// also about as long as one sitting of work. Long enough that a session
+	// offline pays the budget once instead of once per command; short enough
+	// that fixing the network is not punished for the rest of the day.
+	defaultFailureTTL = time.Hour
 )
 
 // Platform is the machine the command is running on, injected so all three
@@ -52,6 +60,16 @@ type Options struct {
 	CacheDir string        // injected for tests; empty uses the user's cache directory
 	TTL      time.Duration // how long a cached answer stands; zero uses the default
 	Now      func() time.Time
+	// FailureTTL is how long a remembered non-answer stands; zero uses the
+	// default.
+	FailureTTL time.Duration
+	// Unasked marks a check nobody requested. Only such a check honours a
+	// remembered non-answer and stays silent without asking; a check the user
+	// typed always asks, because the person most likely to have just fixed the
+	// network is the one asking. So remembering a failure bounds what an
+	// ambient notice costs and can never hide the answer from someone who
+	// wants it.
+	Unasked bool
 }
 
 // Report is what a check found. It never carries an error: a check that could
@@ -76,12 +94,30 @@ type Report struct {
 	Recipe []string // the installation route for this platform, one command per line
 }
 
-// cached is the stored answer. Only the tag and when it was fetched are kept:
-// anything else would be a second copy of a fact that already has a home.
+// cached is what the release list last said, which is either a tag or nothing
+// at all. Only that and when it was heard are kept: anything else would be a
+// second copy of a fact that already has a home.
+//
+// Unanswered records the second kind. It is an explicit field rather than an
+// empty tag so that a truncated or half-written file can never be read as a
+// remembered failure — a corrupt cache stays absence, exactly as ADR-042 says,
+// and only a file that parses cleanly and says so can suppress a request.
 type cached struct {
-	Tag     string    `json:"tag"`
-	Fetched time.Time `json:"fetched"`
+	Tag        string    `json:"tag"`
+	Fetched    time.Time `json:"fetched"`
+	Unanswered bool      `json:"unanswered,omitempty"`
 }
+
+// cacheState is what the cache had to say: an answer, a remembered non-answer,
+// or nothing usable. Absence and a remembered non-answer are kept apart because
+// they lead to opposite actions — ask, or do not.
+type cacheState int
+
+const (
+	cacheAbsent cacheState = iota
+	cacheAnswer
+	cacheUnanswered
+)
 
 // Check reports whether a newer release exists. It never returns an error,
 // because none of its failure modes says anything about the repository.
@@ -94,6 +130,10 @@ func Check(opts Options) Report {
 	if ttl == 0 {
 		ttl = defaultTTL
 	}
+	failureTTL := opts.FailureTTL
+	if failureTTL == 0 {
+		failureTTL = defaultFailureTTL
+	}
 
 	// What the running binary is does not depend on whether the release list
 	// answered, so it is settled before anything reaches the network.
@@ -104,17 +144,24 @@ func Check(opts Options) Report {
 		Comparable:  comparable,
 	}
 
-	tag, ok := readCache(opts.CacheDir, now(), ttl)
-	if !ok {
-		tag, ok = fetchLatest(opts)
-		if ok {
-			// A cache that cannot be written is absence, not an error: the
-			// answer is already in hand and the only cost is asking again.
-			writeCache(opts.CacheDir, cached{Tag: tag, Fetched: now()})
-		}
-	}
-	if !ok {
+	tag, state := readCache(opts.CacheDir, now(), ttl, failureTTL)
+	switch {
+	case state == cacheUnanswered && opts.Unasked:
+		// The list did not answer recently, and nobody asked this time either.
+		// Paying the budget again for the same non-answer is the cost this
+		// remembers away.
 		return report
+	case state != cacheAnswer:
+		var ok bool
+		tag, ok = fetchLatest(opts)
+		if !ok {
+			// The failure is remembered too, so the commands that follow do
+			// not each rediscover it. A cache that cannot be written is
+			// absence, not an error — the only cost is asking again.
+			writeCache(opts.CacheDir, cached{Unanswered: true, Fetched: now()})
+			return report
+		}
+		writeCache(opts.CacheDir, cached{Tag: tag, Fetched: now()})
 	}
 
 	// The reported version is rebuilt from the numbers that were validated,
@@ -158,8 +205,9 @@ func QuietLine(r Report) string {
 // Notice is the ambient advisory a workflow command prints when a newer
 // release exists, and "" when there is nothing to say (PDR-023).
 //
-// It is the same check the command exposes, with a shorter budget and one
-// caller-facing difference: only "behind" produces a line. Current, ahead, a
+// It is the same check the command exposes, with a shorter budget, a
+// remembered non-answer it honours, and one caller-facing difference: only
+// "behind" produces a line. Current, ahead, a
 // source build, an unreadable stamp, and every way of failing to reach the
 // release list are all silence — the caller did not ask, so anything other
 // than the one fact worth interrupting for is noise.
@@ -178,6 +226,9 @@ func Notice(opts Options) string {
 	if opts.Timeout == 0 {
 		opts.Timeout = AmbientBudget
 	}
+	// Nobody asked for this one, so a non-answer the last one already paid for
+	// is not paid for again.
+	opts.Unasked = true
 	report := Check(opts)
 	if !report.Known || !report.Behind {
 		return ""
@@ -334,31 +385,43 @@ func cachePath(dir string) string {
 	return filepath.Join(dir, "latest-release.json")
 }
 
-// readCache returns a stored answer that is still inside its lifetime.
-// Missing, unreadable, unparseable, and stale are one answer — absence.
-func readCache(dir string, now time.Time, ttl time.Duration) (string, bool) {
+// readCache returns what the cache had to say, if it is still inside the
+// lifetime of its kind. Missing, unreadable, unparseable, and stale are one
+// answer — absence.
+func readCache(dir string, now time.Time, ttl, failureTTL time.Duration) (string, cacheState) {
 	path := cachePath(dir)
 	if path == "" {
-		return "", false
+		return "", cacheAbsent
 	}
 	data, err := os.ReadFile(path)
 	if err != nil {
-		return "", false
+		return "", cacheAbsent
 	}
 	var c cached
 	if err := json.Unmarshal(data, &c); err != nil {
-		return "", false
-	}
-	if _, ok := parseVersion(c.Tag); !ok {
-		return "", false
+		return "", cacheAbsent
 	}
 	// A cache stamped in the future is as untrustworthy as a stale one — a
 	// clock moved backwards would otherwise freeze the answer indefinitely.
 	age := now.Sub(c.Fetched)
-	if age < 0 || age >= ttl {
-		return "", false
+	if age < 0 {
+		return "", cacheAbsent
 	}
-	return c.Tag, true
+	if c.Unanswered {
+		// A remembered non-answer carries no tag, so a file claiming both is
+		// contradicting itself and is read as neither.
+		if c.Tag != "" || age >= failureTTL {
+			return "", cacheAbsent
+		}
+		return "", cacheUnanswered
+	}
+	if _, ok := parseVersion(c.Tag); !ok {
+		return "", cacheAbsent
+	}
+	if age >= ttl {
+		return "", cacheAbsent
+	}
+	return c.Tag, cacheAnswer
 }
 
 // writeCache stores an answer, and ignores every reason it could not. The
