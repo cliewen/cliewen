@@ -2,12 +2,14 @@ package main
 
 import (
 	"os"
+	"os/exec"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"testing"
-
-	"github.com/cliewen/cliewen/internal/migrate"
 )
+
+var releaseTagRE = regexp.MustCompile(`^v([0-9]+\.[0-9]+\.[0-9]+)$`)
 
 // readChangelog reads the repository's changelog, the file the release
 // workflow extracts every release body from.
@@ -46,6 +48,40 @@ func changelogSection(changelog, version string) string {
 	return strings.Join(body, "\n")
 }
 
+// releasedVersions returns every release tag reachable from this checkout.
+// The CI checkout has full history, so this includes releases from before the
+// carrier manifest existed. A source archive has no tags and cannot prove the
+// repository's release history, so it skips this repository sanity guard.
+func releasedVersions(t *testing.T) []string {
+	t.Helper()
+	root := filepath.Join("..", "..")
+	out, err := exec.Command("git", "-C", root, "tag", "--merged", "HEAD", "--list", "v*").Output()
+	if err != nil {
+		t.Skipf("release tags unavailable in this checkout: %v", err)
+	}
+
+	var versions []string
+	for _, tag := range strings.Fields(string(out)) {
+		match := releaseTagRE.FindStringSubmatch(tag)
+		if match != nil {
+			versions = append(versions, match[1])
+		}
+	}
+	if len(versions) == 0 {
+		t.Skip("no release tags are reachable from this checkout")
+	}
+	return versions
+}
+
+func hasHeading(markdown, heading string) bool {
+	for _, line := range strings.Split(markdown, "\n") {
+		if strings.TrimSuffix(line, "\r") == heading {
+			return true
+		}
+	}
+	return false
+}
+
 // Sanity: every release that shipped still has its notes in CHANGELOG.md.
 //
 // The release gates check the section for the version being cut, and then
@@ -67,12 +103,7 @@ func changelogSection(changelog, version string) string {
 func TestSanity_EveryReleasedVersionKeepsItsChangelogSection(t *testing.T) {
 	changelog := readChangelog(t)
 
-	released := migrate.ReleasedVersions()
-	if len(released) == 0 {
-		t.Fatal("the carrier manifest records no releases, so this guard is checking nothing")
-	}
-
-	for _, v := range released {
+	for _, v := range releasedVersions(t) {
 		if strings.TrimSpace(changelogSection(changelog, v)) == "" {
 			t.Errorf("CHANGELOG.md has no '## [%s]' section with content, but %s shipped — "+
 				"a released version's notes were removed, and the next release would publish them again as its own", v, v)
@@ -84,10 +115,8 @@ func TestSanity_EveryReleasedVersionKeepsItsChangelogSection(t *testing.T) {
 //
 // The deletion above does not only remove a heading — it merges two sections,
 // so the survivor holds both releases' entries. The guard above catches that
-// through the missing heading, but only while the manifest still names the
-// swallowed release; this one reads the surviving text instead, so the two
-// fail for different reasons and a repair that satisfies one by rewriting the
-// other's input cannot go green.
+// through the missing heading; this one reads the release-only structure in
+// the surviving text instead, so the two fail from independent inputs.
 func TestSanity_TheUnreleasedSectionIsNotAReleasedOne(t *testing.T) {
 	changelog := readChangelog(t)
 
@@ -95,16 +124,26 @@ func TestSanity_TheUnreleasedSectionIsNotAReleasedOne(t *testing.T) {
 		t.Fatal("CHANGELOG.md has no '## [Unreleased]' section; every change adds its entry there (C-002)")
 	}
 
-	// An Install paragraph is written when a release is cut, so a pinned
-	// install route inside Unreleased names a version that already shipped —
-	// which happens when a released section was merged into Unreleased rather
-	// than merely losing its heading. Checked against every release, not only
-	// the newest, because the merge can survive further releases unnoticed.
+	// The Install section is written when a release is cut. Its heading inside
+	// Unreleased therefore means a released section was merged into Unreleased
+	// rather than merely losing its heading. Look for the structure, not an
+	// install-command substring that ordinary release prose may legitimately
+	// mention.
 	unreleased := changelogSection(changelog, "Unreleased")
-	for _, v := range migrate.ReleasedVersions() {
-		if strings.Contains(unreleased, "@v"+v) {
-			t.Errorf("the Unreleased section pins the install route to v%s, which already shipped — "+
-				"that release's section was merged into Unreleased, and cutting the next one would republish it", v)
-		}
+	if hasHeading(unreleased, "### Install") {
+		t.Error("the Unreleased section contains a release-only '### Install' section — " +
+			"a released section was merged into Unreleased, and cutting the next one would republish it")
+	}
+}
+
+func TestSanity_UnreleasedInstallGuardReadsStructure(t *testing.T) {
+	legitimateMention := "## [Unreleased]\n\n- Upgrade from `go install example.test/tool@v0.12.0`.\n\n## [0.12.0] - 2026-08-02\n\nnotes"
+	if hasHeading(changelogSection(legitimateMention, "Unreleased"), "### Install") {
+		t.Fatal("an install command mentioned in ordinary Unreleased prose was mistaken for a released Install section")
+	}
+
+	mergedRelease := "## [Unreleased]\n\n### Install\n\n`go install example.test/tool@v0.12.0`\n\n## [0.11.2] - 2026-08-01\n\nnotes"
+	if !hasHeading(changelogSection(mergedRelease, "Unreleased"), "### Install") {
+		t.Fatal("a released Install section merged into Unreleased was not detected")
 	}
 }

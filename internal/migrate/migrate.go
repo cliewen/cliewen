@@ -72,25 +72,6 @@ func Registry() []MigrationDefinition {
 	return append([]MigrationDefinition(nil), orderedMigrations...)
 }
 
-// ReleasedVersions returns the releases the carrier manifest records, oldest
-// first. The manifest gains one entry per release and is committed, so this is
-// a released-version list available without the tag list and without the
-// network, which is what lets an ordinary test hold a promise about past
-// releases.
-//
-// It is the manifest's own scope, not every version ever tagged: the manifest
-// begins at the release that first shipped generated carriers, so anything
-// older is outside it. That is the right boundary for callers reasoning about
-// releases this binary can still migrate between, and callers needing every
-// tag must ask the forge.
-func ReleasedVersions() []string {
-	out := make([]string, 0, len(legacyDigests))
-	for _, r := range legacyDigests {
-		out = append(out, r.Version)
-	}
-	return out
-}
-
 // Change is one file replacement in a complete migration plan.
 type Change struct {
 	Path        string
