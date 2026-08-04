@@ -393,8 +393,21 @@ func TestSanity_TheHelpTextNamesTheNoticeAndItsOptOut(t *testing.T) {
 	if !strings.Contains(usage, "CLUE_NO_UPDATE_NOTIFIER") {
 		t.Error("the help text does not name the opt-out, so a user cannot find it where they look first")
 	}
+	// Scoped to the notice's own paragraph, not to the whole usage text:
+	// every notifier command is a top-level command and is therefore already
+	// named in the Commands block, so searching all of usage would pass no
+	// matter what the paragraph said.
+	start := strings.Index(usage, "Release notice:")
+	if start < 0 {
+		t.Fatal("the help text has no release-notice paragraph to check")
+	}
+	end := strings.Index(usage[start:], "Exit codes:")
+	if end < 0 {
+		t.Fatal("the release-notice paragraph is not bounded by the exit-code line")
+	}
+	paragraph := usage[start : start+end]
 	for command := range notifierCommands {
-		if !strings.Contains(usage, command) {
+		if !strings.Contains(paragraph, command) {
 			t.Errorf("clue %s carries the notice but the help text never says so", command)
 		}
 	}
