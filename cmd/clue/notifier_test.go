@@ -364,6 +364,30 @@ func TestAC087_UnitNegative_AnIncomparableStampCostsNoRequest(t *testing.T) {
 	}
 }
 
+// TestSanity_TheHelpTextNamesTheNoticeAndItsOptOut keeps the tool's own help
+// honest about a line it prints unasked. The opt-out is documented in the
+// changelog and both guides, but someone whose standard error just got noisier
+// reaches for --help first, and a switch they cannot find there is a switch
+// they do not have.
+//
+// It also binds the named commands to the gate, so a command added to or
+// dropped from the notice stops being described by prose that used to be true.
+func TestSanity_TheHelpTextNamesTheNoticeAndItsOptOut(t *testing.T) {
+	if !strings.Contains(usage, "CLUE_NO_UPDATE_NOTIFIER") {
+		t.Error("the help text does not name the opt-out, so a user cannot find it where they look first")
+	}
+	for command := range notifierCommands {
+		if !strings.Contains(usage, command) {
+			t.Errorf("clue %s carries the notice but the help text never says so", command)
+		}
+	}
+	for _, excluded := range []string{"validate", "version"} {
+		if notifierCommands[excluded] {
+			t.Errorf("the help text promises no notice from clue %s, but the gate allows one", excluded)
+		}
+	}
+}
+
 // AC-087: the ambient budget is shorter than the requested check's, because a
 // notice nobody asked for must never be something the user can feel. The
 // requested check's default is the number this one has to beat; if that

@@ -128,6 +128,12 @@ Commands:
 
   version    Print the release version this clue was built from.
 
+Release notice: init, scaffold, context, migrate, and refs print one line to
+standard error when a newer release exists. Standard output and the exit code
+are identical with it and without it, and the answer is cached for a day. Never
+from validate or version, never when CI is set, and never when
+CLUE_NO_UPDATE_NOTIFIER is set to anything.
+
 Exit codes: 0 corpus valid · 1 issues found · 2 usage error
 `
 
