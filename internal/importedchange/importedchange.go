@@ -78,7 +78,11 @@ func ParseProofLinks(body string) []ProofLink {
 				criterionCol = j
 			}
 		}
-		if taskCol < 0 || criterionCol < 0 || i+1 == len(lines) || !tableDelimRe.MatchString(strings.TrimSpace(lines[i+1])) {
+		if taskCol < 0 || criterionCol < 0 || i+1 == len(lines) {
+			continue
+		}
+		delimiter := strings.TrimSpace(lines[i+1])
+		if !tableDelimRe.MatchString(delimiter) || len(tableCells(delimiter)) != len(cells) {
 			continue
 		}
 
@@ -129,7 +133,14 @@ func outsideFencedCode(doc string) string {
 }
 
 func fenceMarker(line string) string {
-	trimmed := strings.TrimLeft(line, " \t")
+	indent := 0
+	for indent < len(line) && line[indent] == ' ' {
+		indent++
+	}
+	if indent > 3 || indent == len(line) || line[indent] == '\t' {
+		return ""
+	}
+	trimmed := line[indent:]
 	if len(trimmed) < 3 || (trimmed[0] != '`' && trimmed[0] != '~') {
 		return ""
 	}
