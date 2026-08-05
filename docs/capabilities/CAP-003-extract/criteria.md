@@ -236,4 +236,14 @@ Feature: Brownfield analysis and extraction — evidence, namespaced ACs, JVM ha
     Then it exits with a non-zero code
     And the report names the referencing file as a stale deleted-path reference
     But a link that does not resolve to a deleted path produces no finding
+
+  @AC-123
+  Scenario: Disposable brownfield fixtures prove the composed migration contract
+    Test-type: Unit
+    Given disposable numeric-archive and opaque-identifier source fixtures with pinned revisions, classified source evidence, pending work, and operational carriers
+    When the approved fixture mutation creates their target corpora
+    Then each target validates and its derived parity and carrier reports are clean
+    And an archived numeric identity and an opaque identity cannot be reused
+    And every required parity and carrier failure path is rejected by its deterministic command
+    But the fixture source's own test result is not presented as Cliewen acceptance evidence
 ```
