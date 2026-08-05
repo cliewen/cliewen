@@ -4,8 +4,7 @@ type: analysis
 status: active
 provenance: inferred
 reversal-cost: low
-reality: contradicted
-links: [P-008, M-036, G-001, CAP-003, ADR-009, ADR-006, ADR-011, ADR-030, C-011, C-012, C-013, PDR-007, AN-003, AN-011, AN-012]
+links: [P-008, M-036, G-001, ADR-009, ADR-006, ADR-011, ADR-030, ADR-036, C-011, C-012, C-013, PDR-007, AN-003, AN-011, AN-012]
 title: The corpus cannot say what is accepted, where its evidence actually lives, or which repository a reference means
 ---
 
@@ -73,7 +72,7 @@ The pinned corpus contains **50 `#N` references across 25 files, 48 of them unqu
 
 **F3 — External references carry no repository identity, and one is already wrong.** Measured: 48 unqualified `#N` references across four namespaces, one resolving to an unrelated live pull request in Cliewen's own namespace, no validator rule that can see any of them, and cross-repository ID collisions with divergent meaning.
 
-Because F2's second half is a claim the corpus states and reality does not bear out — ADR-009's third carrier has no instance in the only repository whose extraction was supposed to install it — this record carries `reality: contradicted` and links exactly the capability that failed to deliver it — [CAP-003](../capabilities/CAP-003-extract/README.md), whose extraction was to install the rule — plus the decisions that delegated it. It deliberately does not link [AC-011](../capabilities/CAP-002-validate/criteria.md): that criterion's own scenario is about `clue` failing an unclassified test, and `clue` does exactly that. What reality contradicted is the delegation, not the criterion. For the same reason it does not link [CAP-001](../capabilities/CAP-001-onboarding/README.md), which F2's first half discusses at length: on a record carrying this marker, a capability link *is* a contradiction claim, and CAP-001 emitted exactly the wall it promises — that the copy is a fork an adopter must re-sync by hand is a known consequence of shipping a file, not a failed claim.
+F2's second half was originally a claim the corpus stated and reality did not bear out: ADR-009's third carrier had no instance in the only repository whose extraction was supposed to install it, so this record carried `reality: contradicted` and a link to the capability that failed to deliver it — [CAP-003](../capabilities/CAP-003-extract/README.md), whose extraction was to install the rule — plus the decisions that delegated it. [ADR-036](../decisions/ADR-036-jvm-evidence-per-executable.md) withdrew that delegation rather than installing it: "extraction no longer promises to install an external ArchUnit substitute." F2's second half is resolved, so this record no longer carries the marker or the CAP-003 link; F2's first half (the emitted-wall divergence, discharged by hand) is unaffected and remains open, as do F1 and F3. The marker was deliberately never linked to [AC-011](../capabilities/CAP-002-validate/criteria.md) — that criterion's own scenario is about `clue` failing an unclassified test, and `clue` does exactly that — nor to [CAP-001](../capabilities/CAP-001-onboarding/README.md), which F2's first half discusses at length and which emitted exactly the wall it promises.
 
 ## The rejection boundary
 

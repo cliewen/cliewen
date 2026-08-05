@@ -6,7 +6,6 @@ provenance: inferred
 reversal-cost: low
 links: [G-001, P-008, AC-036, CAP-002, CAP-003, ARCH-003, PDR-013, ADR-032, ADR-033, C-006, P-007]
 title: A green corpus can carry contradictory methodology claims
-reality: contradicted
 ---
 
 # AN-011 — A green corpus can carry contradictory methodology claims
@@ -42,6 +41,8 @@ The active ARCH-001 actor explanation and frontmatter-graph diagram also present
 
 This contradicts AC-036's claim that the public operations guide distinguishes shipped support from methodology intent. The guide build and its content-anchor tests pass because they check page form and selected phrases, not agreement with the current evidence contract.
 
+P-008/M-032 repaired this carrier set. CAP-001's `design.md` now states the corrected claim directly — "the guide distinguishes machine and method guarantees ... corrected after the v0.9 carrier audit" — and CAP-002's active status note now says the mechanical AC↔test link is implemented rather than future work. F1 is resolved.
+
 ### F2 — Both lifecycle skills contradict the Human and per-criterion draft decision
 
 The canonical `clue-extract` source and both generated copies say activation is per criteria file and that a capability is the smallest phasing unit. ADR-033 and the current `clue-delta` skill allow an active criteria file to carry an individual unproven criterion tagged `@draft`; Human-class criteria also require no code reference. Generation tests prove the copies match their canonical source, so they faithfully reproduce the wrong current instruction.
@@ -50,9 +51,13 @@ The canonical `clue-verify` source also requires positive and negative tests for
 
 CAP-003's active criteria state namespaced acceptance IDs, JVM harvesting, and provenance linting; none of them states the activation-granularity rule the skill gets wrong. The reality edge is therefore recorded against the capability rather than against a criterion, and the repair must mint the criterion that names the rule before the contradiction has an executable carrier at all. F1's edge is narrower because AC-036 already claims the property the guide pages break.
 
+P-008/M-032 minted that criterion: AC-054 (`docs/capabilities/CAP-003-extract/criteria.md`) now states the per-criterion activation-granularity rule the skills previously got wrong. F2 is resolved.
+
 ### F3 — The protected core still excludes the Human evidence path
 
 PDR-013 and its current core-architecture carrier, ARCH-003, define the verifiable thread as ending in a test and require every durable claim to trace to executable evidence. G-001's title and body say that chain runs from goal to test and is mechanically enforced; its title propagates into the generated goals index. The repository `README.md` calls it the enforced thread, and `docs/README.md` presents the linter's red thread as ending at a test tag. The repository and scaffold `AGENTS.md` routing hubs repeat the test-ending core definition as a protected rule, while the scaffolded corpus README emits both that graph and the claim that every criterion is tied to tests. The CLI usage text, plugin-marketplace description, guide-site description, and guide landing page expose the same executable-only promise at shipped entry points; ARCH-001, `guide/design.md`, and `guide/methodology.md` repeat it for architecture and public readers. ADR-033 subsequently made the acceptance brief the proof carrier for a genuine Human-class criterion, so the current core wording excludes an evidence path the judge and lifecycle skill accept. Because C-013 protects what the thread connects, repairing this wording is a core-meaning change and needs the explicit human-accepted PDR already required by M-032, not an incidental prose edit.
+
+PDR-019 is that PDR: it refines the thread's endpoint to acceptance evidence, and PDR-013 and `docs/architecture/core.md` now carry the refinement. F3 is resolved.
 
 ### F4 — Mechanical consistency is narrower than semantic carrier consistency
 
