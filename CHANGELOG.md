@@ -4,6 +4,10 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 
 ## [Unreleased]
 
+## [0.13.0] - 2026-08-05
+
+The release that notices you're behind before you ask, hands you a skill to catch up, and stops charging a review's full price for a stale sentence.
+
 ### Migration
 
 - **A rule in your register may say it is waiting for a check that now exists.** The `C-001` that `clue init` scaffolds declared `enforcement: agent` with a promotion trigger asking for exactly the prose-layout lint this release ships, so `clue migrate` now reports it: set `enforcement: machine` and replace the promotion trigger with a **Checked by:** line. Nothing is rewritten for you — the class is one line but the trigger beside it is prose in a file you own, and half-repairing it would leave your register contradicting itself. A constraint you wrote yourself is never reported, whatever class it carries: your promotion trigger is yours to call satisfied. Like the other reports, it is a notice and never blocks an upgrade.
@@ -51,6 +55,10 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 - **Extraction no longer discards JVM evidence it cannot attribute.** A multi-tagged executable or class-level criterion tag is now a rehearsal finding: the migration records its location, identities, assertions or structural scope, and proposed resolution before source tests change. After human direction it either becomes attributable one-criterion tests, or receives an explicit recorded primary/dedicated-proof disposition; a class-level structural criterion may remain `@draft` only with its source location and a named plan door when the necessary new test is out of scope. A normalizer may report the ambiguity but never silently delete, choose, or relocate a tag.
 
 - **`clue migrate` can add the new upgrade skill to a recognized older set.** If every remaining managed carrier exactly matches a supported release, the preview adds `clue-upgrade` with the newer release's bytes and names both releases. A missing, partial, or edited set still stops the complete migration; the command never guesses from one matching file or overwrites a repair you made.
+
+### Install
+
+`curl -fsSL https://cliewen.dev/install.sh | sh` on macOS and Linux, `irm https://cliewen.dev/install.ps1 | iex` on Windows, or `go install github.com/cliewen/cliewen/cmd/clue@v0.13.0`. You can still download a prebuilt binary from the release assets and verify it against `SHA256SUMS` by hand; those asset names are unchanged, so a vendored CI wall pinned to an earlier release keeps working exactly as before. Update vendored Cliewen skills from this release's `.agents/skills/`; a 0.13.0 binary rejects older Cliewen skill versions as drift. Upgrading an existing repository: run `clue migrate` to preview the corpus and carrier upgrade, or run the new `clue-upgrade` skill to be walked through the whole thing, and read the notices — this release adds one about a promotion trigger your own register may already be waiting on.
 
 ## [0.12.0] - 2026-08-02
 
