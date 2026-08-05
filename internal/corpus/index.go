@@ -88,10 +88,18 @@ var setextUnderlineRe = regexp.MustCompile(`^(=+|-+)$`)
 // thematicBreakRe matches a horizontal rule, which carries no prose at all.
 var thematicBreakRe = regexp.MustCompile(`^(-{3,}|\*{3,}|_{3,})$`)
 
-// htmlTagRe matches a line opening an HTML block. It requires a tag name, so
-// prose opening with an autolink (`<https://…>`) or a comparison (`<20% of
-// runs`) is still read as the prose it is.
-var htmlTagRe = regexp.MustCompile(`^</?[a-zA-Z][a-zA-Z0-9-]*(\s|/?>|$)`)
+// setextH1Re matches the run of = that makes the line above it the title. The
+// full match matters: a following line merely starting with = — `=1 is the
+// count.` — underlines nothing.
+var setextH1Re = regexp.MustCompile(`^=+$`)
+
+// htmlBlockRe matches a line that is nothing but an HTML tag, which is the
+// shape that opens a block. Requiring the tag to end the line keeps prose that
+// merely contains inline HTML — `<b>bold</b> text is prose.` — readable, and
+// requiring a tag name keeps an autolink (`<https://…>`) or a comparison
+// (`<20% of runs`) readable too. A declaration or comment is handled by the
+// `<!` test beside it.
+var htmlBlockRe = regexp.MustCompile(`^</?[a-zA-Z][a-zA-Z0-9-]*[^>]*>$`)
 
 // describeBody is RowDescription's reading, split out so it can be exercised
 // on prose directly.
@@ -106,23 +114,35 @@ func describeBody(body string) (string, bool) {
 	// from the cursor: a body whose last line is its H1 leaves the cursor at
 	// the end too, and restarting from the top there would seed prose written
 	// above the title.
-	i, titled := 0, false
+	//
+	// The search tracks fences, because a `#` line inside one is a shell
+	// comment or sample markdown and not this artifact's title. Reading it as
+	// the title both seeds the next line of the sample and flips fence parity,
+	// which then hides the real prose for the rest of the body.
+	i, titled, fenced := 0, false, false
 	for i < len(lines) {
-		if strings.HasPrefix(strings.TrimSpace(lines[i]), "# ") {
-			i, titled = i+1, true
-			break
+		s := strings.TrimSpace(lines[i])
+		if strings.HasPrefix(s, "```") || strings.HasPrefix(s, "~~~") {
+			fenced = !fenced
+			i++
+			continue
 		}
-		if i+1 < len(lines) && strings.HasPrefix(setextUnderline(lines[i+1]), "=") && strings.TrimSpace(lines[i]) != "" {
-			i, titled = i+2, true
-			break
+		if !fenced {
+			if strings.HasPrefix(s, "# ") {
+				i, titled = i+1, true
+				break
+			}
+			if s != "" && i+1 < len(lines) && setextH1Re.MatchString(strings.TrimSpace(lines[i+1])) {
+				i, titled = i+2, true
+				break
+			}
 		}
 		i++
 	}
 	if !titled {
-		i = 0 // no heading anywhere: the body is read from the top
+		i, fenced = 0, false // no heading anywhere: the body is read from the top
 	}
 
-	fenced := false
 	for ; i < len(lines); i++ {
 		raw := lines[i]
 		s := strings.TrimSpace(raw)
@@ -155,7 +175,7 @@ func describeBody(body string) (string, bool) {
 		// The HTML test is a tag rather than a bare "<", so a paragraph opening
 		// with an autolink or a comparison keeps its description.
 		if strings.HasPrefix(s, "|") || strings.HasPrefix(s, ">") ||
-			strings.HasPrefix(s, "<!--") || htmlTagRe.MatchString(s) ||
+			strings.HasPrefix(s, "<!") || htmlBlockRe.MatchString(s) ||
 			strings.HasPrefix(s, "- ") || strings.HasPrefix(s, "* ") || strings.HasPrefix(s, "+ ") ||
 			orderedItemRe.MatchString(s) || thematicBreakRe.MatchString(s) {
 			continue

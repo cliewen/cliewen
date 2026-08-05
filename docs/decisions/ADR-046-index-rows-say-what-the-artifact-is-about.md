@@ -14,7 +14,7 @@ accepted-by: []
 
 [ADR-041](ADR-041-index-rows-state-their-record.md) made a generated index row state its record rather than restate its own filename: `- [<id> — <title>](<file>) · \`<status>\``. A reader scanning a folder README now learns each artifact's identity and provenance without opening it. What a title cannot carry is what the artifact says, and that is usually the thing the reader is deciding on.
 
-[C-016](../constraints/C-016-index-rows-state-their-record.md) already permits the sentence: curated text after the status is part of the row contract rather than an exception to it. Permission was not enough. Nothing produces such a sentence, nothing asks for one, and across this corpus's 135 artifacts not a single index row carries one.
+[C-016](../constraints/C-016-index-rows-state-their-record.md) already permits the sentence: curated text after the status is part of the row contract rather than an exception to it. Permission was not enough. Nothing produces such a sentence, nothing asks for one, and across this corpus not a single index row carries one.
 
 The consequence is visible in adopted repositories rather than here. A repository of 101 documentation files onboarded on 2026-08-05 already maintained a hand-written index file in each of eight folders, because what it needed was not in a filename. After `clue init` it carried two indexes per folder, and the generated block listed the hand-maintained one among its own entries. Those eight files agreed on nothing except that each carried, under one heading or another, a sentence saying what the document is about.
 
@@ -42,7 +42,7 @@ A capability README opens with a purpose statement, so CAP-001 yields "A new use
 
 A decision opens under `## Context and problem statement`, and its first sentence states the problem in the present tense. ADR-041's own row would read "Index generation appended every missing entry as the target's filename with the extension removed" — the defect it removed, phrased as though it were still true. An extractor cannot tell a purpose statement from a problem statement, because both are declarative prose in the same position.
 
-A seed an author corrects costs a bad first draft. An assertion written into 135 rows at once, of which a whole artifact type would be actively misleading, costs the reader's trust in every row including the correct ones. That asymmetry, and not the extractor's accuracy, is what settles this: the same extractor is acceptable as a seed and unacceptable as a truth.
+A seed an author corrects costs a bad first draft. An assertion written into every existing row at once, of which a whole artifact type would be actively misleading, costs the reader's trust in every row including the correct ones. That asymmetry, and not the extractor's accuracy, is what settles this: the same extractor is acceptable as a seed and unacceptable as a truth.
 
 It is also why no backfill happens. Backfilling is precisely the operation the asymmetry forbids.
 

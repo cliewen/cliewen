@@ -135,6 +135,34 @@ func TestUnit_DescribeBodyReadsTheSeedSentence(t *testing.T) {
 			body: "Prose above the title.\n\n# T",
 			want: "",
 		},
+		// A `#` inside a fence is a shell comment or sample markdown, not this
+		// artifact's title. Reading it as one seeds the next line of the sample
+		// and flips fence parity, hiding the real prose for the rest of the body.
+		{
+			name: "a hash inside a fence before the heading is not the title",
+			body: "```bash\n# install the tool\nclue init .\n```\n\n## Context\n\nThe real prose.\n",
+			want: "The real prose.",
+		},
+		{
+			name: "a fence before the real H1 does not swallow the lede",
+			body: "```\n# not a title\n```\n\n# G-002 — Real title\n\nThe real lede.\n",
+			want: "The real lede.",
+		},
+		{
+			name: "a line merely starting with = underlines nothing",
+			body: "Not a title\n=1 is the count.\n",
+			want: "Not a title",
+		},
+		{
+			name: "a doctype is a declaration, not prose",
+			body: "# Title\n\n<!DOCTYPE html>\n\nThe prose.\n",
+			want: "The prose.",
+		},
+		{
+			name: "prose merely containing inline HTML is still prose",
+			body: "# Title\n\n<b>bold</b> text is prose.\n",
+			want: "<b>bold</b> text is prose.",
+		},
 		{
 			name: "a thematic break carries nothing",
 			body: "# Title\n\n***\n\nThe prose.\n",
