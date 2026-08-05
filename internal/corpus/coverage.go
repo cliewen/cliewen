@@ -19,7 +19,7 @@ type CapabilityCoverage struct {
 // of its criteria is satisfied, "gap" when none are (including a capability
 // with no active criteria at all), and "partial" otherwise.
 func Coverage(c *Corpus) []CapabilityCoverage {
-	declared, classified, tested, _ := harvestACs(c)
+	declared, classified, tested, _, _ := harvestACs(c)
 
 	capabilities := map[string]bool{}
 	for _, a := range c.Artifacts {

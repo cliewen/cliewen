@@ -54,13 +54,51 @@ type CriterionIdentity struct {
 	Retired bool
 }
 
+// Declaration is one criterion's evidence-contract classification, exported
+// so a consumer outside the validator (migration parity, ADR-049) can derive
+// a target manifest from the same declarations checkACTests enforces,
+// without inventing a second reading of a criteria file's tag lines.
+type Declaration struct {
+	ID       string
+	Path     string
+	Status   string
+	Retired  bool
+	Draft    bool // @draft (ADR-033)
+	TestType string
+	Single   bool
+}
+
+// EvidenceRef is one evidence occurrence bound to a criterion ID: a Go test,
+// a JVM executable, or a Cucumber scenario tag, carrying its declared proof
+// type and direction when the carrier classifies them.
+type EvidenceRef struct {
+	Path      string
+	Subject   string
+	Type      string
+	Direction string
+}
+
+// AcceptanceEvidence returns every declared criterion's classification
+// alongside each recorded evidence occurrence, in declaration and then
+// evidence order. It shares harvestACs' single tree walk with checkACTests
+// and Coverage so migration parity's target manifest reads the same
+// declarations and evidence the validator already enforces.
+func AcceptanceEvidence(c *Corpus) (map[string]Declaration, map[string][]EvidenceRef) {
+	declared, _, _, _, locations := harvestACs(c)
+	decls := make(map[string]Declaration, len(declared))
+	for id, d := range declared {
+		decls[id] = Declaration{ID: id, Path: d.path, Status: d.status, Retired: d.retired, Draft: d.draft, TestType: d.testType, Single: d.single}
+	}
+	return decls, locations
+}
+
 // LedgerCriterionIdentities returns each live canonical declaration and every
 // retained tombstone, ordered by ID. It shares harvestACs' namespace and
 // tombstone reading with the evidence contract, so the ledger does not invent
 // a second interpretation of an acceptance-criterion identity. A tombstone
 // remains a retired identity even if its criteria artifact is no longer active.
 func LedgerCriterionIdentities(c *Corpus) []CriterionIdentity {
-	declared, _, _, _ := harvestACs(c)
+	declared, _, _, _, _ := harvestACs(c)
 	ids := make([]string, 0, len(declared))
 	for id, d := range declared {
 		if d.status == "active" || d.retired {
@@ -80,7 +118,7 @@ func LedgerCriterionIdentities(c *Corpus) []CriterionIdentity {
 // tree for classified Go, JVM, and Cucumber evidence, shared by
 // checkACTests (which enforces it) and Coverage (which derives a report
 // from the same declarations without repeating the walk).
-func harvestACs(c *Corpus) (declared map[string]acDecl, classified map[string]map[string]map[string]bool, tested map[string]bool, issues []Issue) {
+func harvestACs(c *Corpus) (declared map[string]acDecl, classified map[string]map[string]map[string]bool, tested map[string]bool, issues []Issue, locations map[string][]EvidenceRef) {
 	declared = map[string]acDecl{}
 	// The default namespace is always known, so an undeclared AC-xxx
 	// reference fails as unknown, not as purpose-less.
@@ -142,8 +180,10 @@ func harvestACs(c *Corpus) (declared map[string]acDecl, classified map[string]ma
 
 	tested = map[string]bool{}
 	classified = map[string]map[string]map[string]bool{}
+	locations = map[string][]EvidenceRef{}
 	record := func(path, subject, ac, typ, direction string) {
 		issues = append(issues, checkACRef(path, subject, ac, declared, tested)...)
+		locations[ac] = append(locations[ac], EvidenceRef{Path: path, Subject: subject, Type: typ, Direction: direction})
 		if typ == "" || direction == "" {
 			return
 		}
@@ -280,7 +320,7 @@ func harvestACs(c *Corpus) (declared map[string]acDecl, classified map[string]ma
 		return nil
 	})
 
-	return declared, classified, tested, issues
+	return declared, classified, tested, issues, locations
 }
 
 func parseACID(id string) (prefix, number, suffix string, ok bool) {
@@ -387,7 +427,7 @@ func parseNormalizedACPart(part string, prefixes map[string]bool) (ac string, am
 }
 
 func checkACTests(c *Corpus) []Issue {
-	declared, classified, tested, issues := harvestACs(c)
+	declared, classified, tested, issues, _ := harvestACs(c)
 
 	for ac, d := range declared {
 		// A Human-class criterion is satisfied by the acceptance brief, never

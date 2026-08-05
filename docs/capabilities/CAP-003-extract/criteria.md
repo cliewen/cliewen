@@ -112,4 +112,58 @@ Feature: Brownfield analysis and extraction — evidence, namespaced ACs, JVM ha
     Then source IDs are copied verbatim and only unlabelled requirements receive the namespace's next numeric IDs in source order
     And rerunning against the same source state produces the same preserved and minted mapping
     But extraction never renumbers a source ID to fit the default AC grammar
+
+  @AC-109
+  Scenario: A clean parity run passes and is deterministic
+    Test-type: Unit
+    Given a source manifest whose entries all match the derived target manifest in proof class, direction, and evidence location
+    When the user runs "clue parity"
+    Then it exits zero and reports no unmatched or altered entries
+    And a second run against the same inputs produces byte-identical report content
+
+  @AC-110
+  Scenario: A missing criterion fails parity
+    Test-type: Unit
+    Given a source manifest entry with a proof class and no matching disposition or exclusion
+    And no target entry exists for that criterion ID
+    When the user runs "clue parity"
+    Then it exits with a non-zero code
+    And the report names the ID as a missing criterion
+    But an entry the source manifest declares "excluded" with a reason is not reported missing
+
+  @AC-111
+  Scenario: An orphaned tag fails parity
+    Test-type: Unit
+    Given classified target evidence for a criterion ID absent from the source manifest entirely
+    When the user runs "clue parity"
+    Then it exits with a non-zero code
+    And the report names the ID as an orphaned tag
+
+  @AC-112
+  Scenario: A changed direction or evidence location fails parity
+    Test-type: Unit
+    Given a source manifest entry recording a proof class, direction, and evidence location
+    And the derived target entry for that ID has a different direction set or evidence location
+    When the user runs "clue parity"
+    Then it exits with a non-zero code
+    And the report names the ID and shows the source and target values that disagree
+    But an unchanged direction and evidence location produces no finding for that ID
+
+  @AC-113
+  Scenario: A stale source fingerprint fails parity
+    Test-type: Unit
+    Given a source manifest whose "source-revision" disagrees with the revision recorded on that ID's ledger entry
+    When the user runs "clue parity"
+    Then it exits with a non-zero code
+    And the report names the ID and both the manifest and recorded revisions
+
+  @AC-114
+  Scenario: An unjustified draft, Human, or retirement disposition fails parity
+    Test-type: Unit
+    Given a target criterion classified "@draft", "Human", or retired
+    And its source manifest entry has no matching "disposition" and "justification"
+    When the user runs "clue parity"
+    Then it exits with a non-zero code
+    And the report names the ID and the unjustified disposition
+    But a source entry carrying the matching disposition and justification produces no finding for that ID
 ```
