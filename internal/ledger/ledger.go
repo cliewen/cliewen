@@ -71,7 +71,10 @@ const DefaultPath = ".clue/id-ledger.yaml"
 // numericIDRe matches the canonical numeric-ID grammar used by native
 // namespaces and criteria: uppercase alphanumeric prefix segments, a decimal
 // component, and an optional lowercase suffix (ADR-037).
-var numericIDRe = regexp.MustCompile(`^([A-Z][A-Z0-9]*(?:-[A-Z][A-Z0-9]*)*)-(\d+)[a-z]*$`)
+var (
+	numericPrefixRe = regexp.MustCompile(`^[A-Z][A-Z0-9]*(?:-[A-Z][A-Z0-9]*)*$`)
+	numericIDRe     = regexp.MustCompile(`^([A-Z][A-Z0-9]*(?:-[A-Z][A-Z0-9]*)*)-(\d+)[a-z]*$`)
+)
 
 // Load reads the ledger at root/DefaultPath. A missing file is not an
 // error: it returns an empty, usable Ledger, so a corpus without a ledger
@@ -175,7 +178,7 @@ func (l *Ledger) Entries() []Entry {
 // ValidNumericEntry reports whether a numeric ledger entry preserves its
 // canonical ID's prefix and decimal component exactly as structured fields.
 func ValidNumericEntry(e Entry) bool {
-	if e.Kind != KindNumeric || e.Prefix == "" || e.Component <= 0 {
+	if e.Kind != KindNumeric || e.Prefix == "" || e.Component < 0 {
 		return false
 	}
 	m := numericIDRe.FindStringSubmatch(e.ID)
@@ -186,12 +189,21 @@ func ValidNumericEntry(e Entry) bool {
 	return err == nil && n == e.Component
 }
 
+// ValidNumericPrefix reports whether prefix can name a native numeric
+// namespace under the canonical segmented-prefix grammar (ADR-037).
+func ValidNumericPrefix(prefix string) bool {
+	return numericPrefixRe.MatchString(prefix)
+}
+
 // NextNumeric allocates and reserves the next numeric ID for prefix: an
 // increment of the stored counter, never a corpus scan. It skips past any
 // component the ledger already holds for that prefix — live, reserved, or
 // retired — so a retired ID's number is never reissued even if it once
 // exceeded every live artifact's number.
-func (l *Ledger) NextNumeric(prefix string) string {
+func (l *Ledger) NextNumeric(prefix string) (string, error) {
+	if !ValidNumericPrefix(prefix) {
+		return "", fmt.Errorf("prefix %q is not a canonical numeric prefix", prefix)
+	}
 	n := l.counters[prefix]
 	var id string
 	for {
@@ -203,7 +215,7 @@ func (l *Ledger) NextNumeric(prefix string) string {
 	}
 	l.counters[prefix] = n
 	l.byID[id] = &Entry{ID: id, Kind: KindNumeric, State: StateReserved, Prefix: prefix, Component: n}
-	return id
+	return id, nil
 }
 
 // ReserveOpaque records id as reserved for an opaque namespace, rejecting

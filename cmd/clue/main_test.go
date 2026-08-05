@@ -593,6 +593,26 @@ func TestAC101_UnitNegative_IDNextRequiresLedgerBackfill(t *testing.T) {
 	}
 }
 
+func TestAC101_UnitNegative_IDNextRejectsNonCanonicalPrefix(t *testing.T) {
+	root := t.TempDir()
+	l, err := ledger.Load(root)
+	if err != nil {
+		t.Fatalf("Load: %v", err)
+	}
+	if err := l.Save(); err != nil {
+		t.Fatalf("Save: %v", err)
+	}
+	for _, prefix := range []string{"snap-sqs", "SNAP--SQS", "SNAP_SQS"} {
+		var out, errOut strings.Builder
+		if code := runID([]string{"next", prefix, root}, &out, &errOut); code != 2 {
+			t.Fatalf("id next %q exit code = %d, want 2", prefix, code)
+		}
+		if !strings.Contains(errOut.String(), "canonical numeric prefix") {
+			t.Fatalf("id next %q did not explain the invalid prefix: %q", prefix, errOut.String())
+		}
+	}
+}
+
 func TestAC108_UnitPositive_IDLivePromotesReservedID(t *testing.T) {
 	root := t.TempDir()
 	l, err := ledger.Load(root)

@@ -857,6 +857,11 @@ func TestAC107_UnitPositive_MigrateBackfillsSegmentedNumericPrefix(t *testing.T)
 	if err := os.WriteFile(path, []byte(data), 0o644); err != nil {
 		t.Fatal(err)
 	}
+	zeroPath := filepath.Join(root, "docs", "analysis", "AC-000.md")
+	zeroData := "---\nid: AC-000\ntype: analysis\nstatus: active\nlinks: []\ntitle: Zero identity\n---\n"
+	if err := os.WriteFile(zeroPath, []byte(zeroData), 0o644); err != nil {
+		t.Fatal(err)
+	}
 
 	plan, err := Plan(root, Options{ReversalCost: "low"})
 	if err != nil {
@@ -867,7 +872,7 @@ func TestAC107_UnitPositive_MigrateBackfillsSegmentedNumericPrefix(t *testing.T)
 			continue
 		}
 		ledger := string(change.After)
-		if strings.Contains(ledger, "id: SNAP-SQS-001\n      kind: numeric\n") && strings.Contains(ledger, "SNAP-SQS: 1") {
+		if strings.Contains(ledger, "id: SNAP-SQS-001\n      kind: numeric\n") && strings.Contains(ledger, "SNAP-SQS: 1") && strings.Contains(ledger, "id: AC-000\n      kind: numeric\n") {
 			return
 		}
 		t.Fatalf("segmented numeric ID was not backfilled with its counter:\n%s", ledger)

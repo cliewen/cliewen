@@ -348,7 +348,7 @@ Feature: clue validate — deterministic corpus judgment
     When the user runs "clue id next <prefix>"
     Then it prints the next sequential ID for that prefix as an increment of the stored counter, never a corpus scan
     And it persists the new entry as "reserved" and advances the counter
-    But a prefix absent from the ledger starts its counter at zero and issues the prefix's first ID, while a repository with no ledger is told to run `clue migrate --apply` first
+    But a canonical prefix absent from the ledger starts its counter at zero and issues the prefix's first ID; a malformed, lowercase, or improperly segmented prefix is rejected, and a repository with no ledger is told to run `clue migrate --apply` first
 
   @AC-108
   Scenario: clue id live promotes an allocated ID after its artifact is created

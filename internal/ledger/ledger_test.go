@@ -6,6 +6,15 @@ import (
 	"testing"
 )
 
+func nextNumeric(t *testing.T, l *Ledger, prefix string) string {
+	t.Helper()
+	id, err := l.NextNumeric(prefix)
+	if err != nil {
+		t.Fatalf("NextNumeric(%q): %v", prefix, err)
+	}
+	return id
+}
+
 func TestAC101_UnitPositive_NextNumericIncrementsStoredCounter(t *testing.T) {
 	root := t.TempDir()
 	l, err := Load(root)
@@ -13,7 +22,7 @@ func TestAC101_UnitPositive_NextNumericIncrementsStoredCounter(t *testing.T) {
 		t.Fatalf("Load: %v", err)
 	}
 
-	first := l.NextNumeric("PDR")
+	first := nextNumeric(t, l, "PDR")
 	if first != "PDR-001" {
 		t.Fatalf("first id = %q, want PDR-001", first)
 	}
@@ -25,7 +34,7 @@ func TestAC101_UnitPositive_NextNumericIncrementsStoredCounter(t *testing.T) {
 	if err != nil {
 		t.Fatalf("reload: %v", err)
 	}
-	second := l2.NextNumeric("PDR")
+	second := nextNumeric(t, l2, "PDR")
 	if second != "PDR-002" {
 		t.Fatalf("second id = %q, want PDR-002 (counter must persist across Load)", second)
 	}
@@ -37,9 +46,19 @@ func TestAC101_UnitPositive_NextNumericIncrementsStoredCounter(t *testing.T) {
 func TestAC101_UnitNegative_PrefixAbsentFromLedgerStartsAtOne(t *testing.T) {
 	root := t.TempDir()
 	l, _ := Load(root)
-	id := l.NextNumeric("ZZZ")
+	id := nextNumeric(t, l, "ZZZ")
 	if id != "ZZZ-001" {
 		t.Fatalf("id = %q, want ZZZ-001 for an unseen prefix", id)
+	}
+}
+
+func TestAC101_UnitNegative_NextNumericRejectsNonCanonicalPrefix(t *testing.T) {
+	root := t.TempDir()
+	l, _ := Load(root)
+	for _, prefix := range []string{"snap-sqs", "SNAP--SQS", "SNAP_SQS"} {
+		if _, err := l.NextNumeric(prefix); err == nil {
+			t.Fatalf("NextNumeric accepted non-canonical prefix %q", prefix)
+		}
 	}
 }
 
@@ -78,7 +97,7 @@ func TestAC105_UnitPositive_RetiredNumericIDNeverReissued(t *testing.T) {
 	l.byID["PDR-050"] = &Entry{ID: "PDR-050", Kind: KindNumeric, State: StateRetired, Prefix: "PDR", Component: 50}
 	l.counters["PDR"] = 49
 
-	id := l.NextNumeric("PDR")
+	id := nextNumeric(t, l, "PDR")
 	if id == "PDR-050" {
 		t.Fatalf("NextNumeric reissued a retired id: %q", id)
 	}
@@ -92,7 +111,7 @@ func TestAC105_UnitNegative_FreshlyIssuedNumberIsUnused(t *testing.T) {
 	l, _ := Load(root)
 	l.byID["PDR-050"] = &Entry{ID: "PDR-050", Kind: KindNumeric, State: StateRetired, Prefix: "PDR", Component: 50}
 	l.counters["PDR"] = 49
-	id := l.NextNumeric("PDR")
+	id := nextNumeric(t, l, "PDR")
 	if l.IsUsed(id) == false {
 		t.Fatal("a freshly issued id must be recorded as used")
 	}
@@ -121,7 +140,7 @@ func TestUnit_MarkLiveClassifiesShapeAndSeedsCounter(t *testing.T) {
 	if l.counters["SNAP-SQS"] != 1 {
 		t.Fatalf("counters[SNAP-SQS] = %d, want 1", l.counters["SNAP-SQS"])
 	}
-	if got := l.NextNumeric("SNAP-SQS"); got != "SNAP-SQS-002" {
+	if got := nextNumeric(t, l, "SNAP-SQS"); got != "SNAP-SQS-002" {
 		t.Fatalf("next segmented ID = %q, want SNAP-SQS-002", got)
 	}
 
@@ -140,6 +159,9 @@ func TestUnit_ValidNumericEntryRequiresCanonicalStructuredIdentity(t *testing.T)
 	if !ValidNumericEntry(Entry{ID: "SNAP-SQS-001", Kind: KindNumeric, Prefix: "SNAP-SQS", Component: 1}) {
 		t.Fatal("canonical segmented numeric entry rejected")
 	}
+	if !ValidNumericEntry(Entry{ID: "AC-000", Kind: KindNumeric, Prefix: "AC", Component: 0}) {
+		t.Fatal("canonical zero-valued numeric entry rejected")
+	}
 	for _, e := range []Entry{
 		{ID: "G-001", Kind: KindNumeric, Prefix: "PDR", Component: 1},
 		{ID: "G-001", Kind: KindNumeric, Prefix: "G", Component: 99},
@@ -154,7 +176,7 @@ func TestUnit_ValidNumericEntryRequiresCanonicalStructuredIdentity(t *testing.T)
 func TestUnit_PromoteReservedMarksAllocatedIDLive(t *testing.T) {
 	root := t.TempDir()
 	l, _ := Load(root)
-	id := l.NextNumeric("PDR")
+	id := nextNumeric(t, l, "PDR")
 	if err := l.PromoteReserved(id); err != nil {
 		t.Fatalf("PromoteReserved: %v", err)
 	}
@@ -201,7 +223,7 @@ func TestAC104_UnitPositive_LoadRejectsDuplicateCanonicalID(t *testing.T) {
 func TestUnit_SaveThenLoadRoundTrips(t *testing.T) {
 	root := t.TempDir()
 	l, _ := Load(root)
-	l.NextNumeric("PDR")
+	nextNumeric(t, l, "PDR")
 	if err := l.Save(); err != nil {
 		t.Fatalf("Save: %v", err)
 	}
