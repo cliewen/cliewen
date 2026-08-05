@@ -49,7 +49,7 @@ func ParseProofLinks(body string) []ProofLink {
 	// A record may show a proof-links table as an example in a fenced code
 	// block. Examples are not the record's own proof, so remove fenced content
 	// before looking for the heading or parsing rows.
-	body = outsideFencedCode(body)
+	body = outsideNonRenderedContent(body)
 	loc := proofLinksHeadingRe.FindStringIndex(body)
 	if loc == nil {
 		return nil
@@ -129,11 +129,10 @@ func isIndentedCode(line string) bool {
 	return columns >= 4
 }
 
-// outsideFencedCode preserves the document's line structure while removing
-// fenced code blocks. A fence closes only with the same marker character, at
-// least the opening length, and no info string, so a nested example cannot
-// make its following lines look like proof links.
-func outsideFencedCode(doc string) string {
+// outsideNonRenderedContent preserves the document's line structure while
+// removing content Markdown does not render. A proof-links table in an
+// example or an HTML comment is not evidence the record presents.
+func outsideNonRenderedContent(doc string) string {
 	lines := strings.Split(doc, "\n")
 	var fence string
 	for i, line := range lines {
@@ -150,7 +149,31 @@ func outsideFencedCode(doc string) string {
 		}
 		lines[i] = ""
 	}
-	return strings.Join(lines, "\n")
+	return outsideHTMLComments(strings.Join(lines, "\n"))
+}
+
+func outsideHTMLComments(doc string) string {
+	for {
+		start := strings.Index(doc, "<!--")
+		if start < 0 {
+			return doc
+		}
+		end := strings.Index(doc[start+4:], "-->")
+		if end < 0 {
+			return doc[:start] + blankExceptNewlines(doc[start:])
+		}
+		end += start + 7
+		doc = doc[:start] + blankExceptNewlines(doc[start:end]) + doc[end:]
+	}
+}
+
+func blankExceptNewlines(s string) string {
+	return strings.Map(func(r rune) rune {
+		if r == '\n' {
+			return r
+		}
+		return ' '
+	}, s)
 }
 
 func fenceMarker(line string) string {
