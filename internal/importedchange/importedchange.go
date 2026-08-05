@@ -37,7 +37,24 @@ type ProofLink struct {
 var (
 	proofLinksHeadingRe = regexp.MustCompile(`(?im)^#+\s*proof links\s*$`)
 	tableDelimRe        = regexp.MustCompile(`^\s*\|?\s*:?-+:?\s*(\|\s*:?-+:?\s*)+\|?\s*$`)
+	htmlBlockOpenRe     = regexp.MustCompile(`^\s*</?([A-Za-z][A-Za-z0-9-]*)(\s|/?>|$)`)
 )
+
+var htmlBlockTags = map[string]bool{
+	"address": true, "article": true, "aside": true, "base": true, "basefont": true,
+	"blockquote": true, "body": true, "caption": true, "center": true, "col": true,
+	"colgroup": true, "dd": true, "details": true, "dialog": true, "dir": true,
+	"div": true, "dl": true, "dt": true, "fieldset": true, "figcaption": true,
+	"figure": true, "footer": true, "form": true, "frame": true, "frameset": true,
+	"h1": true, "h2": true, "h3": true, "h4": true, "h5": true, "h6": true,
+	"head": true, "header": true, "hr": true, "html": true, "iframe": true,
+	"legend": true, "li": true, "link": true, "main": true, "menu": true,
+	"nav": true, "noframes": true, "ol": true, "optgroup": true, "option": true,
+	"p": true, "param": true, "search": true, "section": true, "summary": true,
+	"table": true, "tbody": true, "td": true, "tfoot": true, "th": true,
+	"thead": true, "title": true, "tr": true, "track": true, "ul": true,
+	"pre": true, "script": true, "style": true, "textarea": true,
+}
 
 // ParseProofLinks extracts the Task and Criterion columns from the markdown
 // table under the body's "## Proof links" heading (any heading level). It
@@ -133,13 +150,27 @@ func isIndentedCode(line string) bool {
 // removing content Markdown does not render. A proof-links table in an
 // example or an HTML comment is not evidence the record presents.
 func outsideNonRenderedContent(doc string) string {
+	doc = outsideHTMLComments(doc)
 	lines := strings.Split(doc, "\n")
 	var fence string
+	inHTML := false
 	for i, line := range lines {
+		if inHTML {
+			lines[i] = ""
+			if strings.TrimSpace(line) == "" {
+				inHTML = false
+			}
+			continue
+		}
 		marker := fenceMarker(line)
 		if fence == "" {
 			if marker != "" {
 				fence = marker
+				lines[i] = ""
+				continue
+			}
+			if m := htmlBlockOpenRe.FindStringSubmatch(line); m != nil && htmlBlockTags[strings.ToLower(m[1])] {
+				inHTML = true
 				lines[i] = ""
 			}
 			continue
@@ -149,7 +180,7 @@ func outsideNonRenderedContent(doc string) string {
 		}
 		lines[i] = ""
 	}
-	return outsideHTMLComments(strings.Join(lines, "\n"))
+	return strings.Join(lines, "\n")
 }
 
 func outsideHTMLComments(doc string) string {

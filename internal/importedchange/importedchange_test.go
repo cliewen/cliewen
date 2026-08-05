@@ -108,6 +108,13 @@ func TestUnit_ParseProofLinksIgnoresAnHTMLCommentExample(t *testing.T) {
 	}
 }
 
+func TestUnit_ParseProofLinksIgnoresAnHTMLBlockExample(t *testing.T) {
+	body := "<div>\n## Proof links\n\n| Task | Criterion |\n|---|---|\n| only an example | AC-201 |\n</div>\n"
+	if got := ParseProofLinks(body); got != nil {
+		t.Fatalf("a table inside an HTML block is not proof links, got %#v", got)
+	}
+}
+
 // AC-115: extraction preserves in-flight source work as an inspectable
 // imported-change record — its proposal, design rationale, dependency, and
 // proof-linked task all remain readable from the record alone.
