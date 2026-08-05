@@ -110,6 +110,18 @@ func Load(root string) (*Ledger, error) {
 		}
 		l.byID[e.ID] = &e
 	}
+	for _, e := range l.byID {
+		if !ValidNumericEntry(*e) {
+			continue
+		}
+		counter, ok := l.counters[e.Prefix]
+		if !ok {
+			return nil, fmt.Errorf("%s: missing counter for numeric prefix %s", l.path, e.Prefix)
+		}
+		if counter.Cmp(e.Component) < 0 {
+			return nil, fmt.Errorf("%s: counter %s is below recorded component %s", l.path, e.Prefix, e.Component)
+		}
+	}
 	return l, nil
 }
 

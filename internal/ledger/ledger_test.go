@@ -254,6 +254,23 @@ func TestAC104_UnitPositive_LoadRejectsNullOrNegativeCounter(t *testing.T) {
 	}
 }
 
+func TestAC104_UnitPositive_LoadRejectsMissingOrLowNumericCounter(t *testing.T) {
+	for _, counters := range []string{"{}", "{PDR: 1}"} {
+		root := t.TempDir()
+		dir := filepath.Join(root, ".clue")
+		if err := os.MkdirAll(dir, 0o755); err != nil {
+			t.Fatal(err)
+		}
+		data := "counters: " + counters + "\nentries:\n  - id: PDR-002\n    kind: numeric\n    state: retired\n    prefix: PDR\n    component: 2\n"
+		if err := os.WriteFile(filepath.Join(dir, "id-ledger.yaml"), []byte(data), 0o644); err != nil {
+			t.Fatal(err)
+		}
+		if _, err := Load(root); err == nil {
+			t.Fatalf("Load accepted insufficient counters %s", counters)
+		}
+	}
+}
+
 func TestUnit_SaveThenLoadRoundTrips(t *testing.T) {
 	root := t.TempDir()
 	l, _ := Load(root)
