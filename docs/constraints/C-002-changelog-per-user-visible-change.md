@@ -5,11 +5,13 @@ status: active
 links: [ADR-012]
 title: Every release-relevant user-visible change adds a changelog entry
 source: AGENTS.md rule 7, ADR-012
-enforcement: agent
+enforcement: partial
 ---
 
 # C-002 — Every release-relevant user-visible change adds a changelog entry
 
-A Cliewen change that affects shipped behavior, a capability, a contract, a command, or a user workflow adds its entry to the `[Unreleased]` section of `CHANGELOG.md` in the digest — written for users, never a PR title or commit subject. A plain editorial change under [PDR-011](../decisions/PDR-011-plain-changes-bypass-cliewen.md) is not release history and adds no entry; prose that changes normative instructions or user workflow is not plain. The release workflow already fails a release whose version section is missing (`machine` at release time); per-change presence is agent-held.
+A Cliewen change that affects shipped behavior, a capability, a contract, a command, or a user workflow adds its entry to the `[Unreleased]` section of `CHANGELOG.md` in the digest — written for users, never a PR title or commit subject. A plain editorial change under [PDR-011](../decisions/PDR-011-plain-changes-bypass-cliewen.md) is not release history and adds no entry; prose that changes normative instructions or user workflow is not plain. The release gates fail a release whose version section is missing, so the rule has a machine at release time; whether *this* change owed an entry, and whether the entry it wrote is written for a user, is judgment.
 
-**Promotion trigger:** `clue` gains git-diff context and a reliable signal that distinguishes release-relevant behavior, contract, command, and workflow changes from plain editorial work, then can require the `CHANGELOG.md` hunk for the former — at that point this rule becomes `enforcement: machine`.
+**Checked by:** the release gates (`.github/scripts/release-gates.sh`, run on the release pull request and again on the merge that tags): a release whose version section is missing from `CHANGELOG.md` cannot be cut.
+
+**Residual:** whether *this* change was release-relevant, and whether its entry is written for a user rather than restated from a commit subject. Both are meaning, and the first is a question about a transition that [ADR-044](../decisions/ADR-044-judge-reads-state-not-transitions.md) keeps out of the judge. The cost is real: a user-visible change can merge with no entry and nothing notices until the release is being written, when whoever writes it no longer remembers what the change meant to a user — which is exactly the entry this rule exists to get.

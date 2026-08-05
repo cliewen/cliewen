@@ -10,7 +10,7 @@ func contextFiles() map[string]string {
 	return map[string]string{
 		"docs/goals/G-101-goal.md":              "---\nid: G-101\ntype: goal\nstatus: accepted\nlinks: []\ntitle: Goal\n---\n\n# Goal\n",
 		"docs/plans/P-101-plan.md":              "---\nid: P-101\ntype: plan\nstatus: active\nlinks: [G-101]\ntitle: Plan\n---\n\n| M-101 | Do it | todo |\n",
-		"docs/capabilities/CAP-101/README.md":   "---\nid: CAP-101\ntype: capability\nstatus: active\nlinks: [M-101]\ntitle: Capability\n---\n\n# Capability\n",
+		"docs/capabilities/CAP-101/README.md":   "---\nid: CAP-101\ntype: capability\nstatus: active\nlinks: [M-101]\ntitle: Capability\ngoal: G-101\n---\n\n# Capability\n",
 		"docs/capabilities/CAP-101/criteria.md": "---\nid: CAP-101-criteria\ntype: criteria\nstatus: active\nlinks: [CAP-101]\ntitle: Criteria\n---\n\n```gherkin\n@AC-101\nScenario: Works\n  Test-type: Unit\n```\n",
 		"docs/analysis/AN-101-z.md":             "---\nid: AN-101\ntype: analysis\nstatus: active\nlinks: [G-101]\ntitle: Z\n---\n",
 		"docs/analysis/AN-102-a.md":             "---\nid: AN-102\ntype: analysis\nstatus: active\nlinks: [G-101]\ntitle: A\n---\n",

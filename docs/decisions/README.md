@@ -79,4 +79,6 @@ The CLI reports inferred ADRs and PDRs as decisions awaiting verification, separ
 - [ADR-042 — A release check reaches the network, reports, and writes nothing](ADR-042-release-check-outside-the-judge.md) · `verified`
 - [ADR-043 — The managed skill set includes a human-authorized upgrade entry point](ADR-043-upgrade-skill-is-a-managed-carrier.md) · `inferred`
 - [PDR-023 — The tool carries the notice and the hub carries the instruction, and no vendor configuration is ever emitted](PDR-023-tool-notice-and-hub-instruction.md) · `inferred`
+- [ADR-044 — The judge judges a repository state, never a transition](ADR-044-judge-reads-state-not-transitions.md) · `inferred`
+- [ADR-045 — Every constraint names the machine that holds it or the judgment that remains](ADR-045-register-names-the-machine.md) · `inferred`
 <!-- clue:index:end -->

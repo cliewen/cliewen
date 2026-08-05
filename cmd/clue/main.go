@@ -471,7 +471,10 @@ func runVersion(w io.Writer) int {
 }
 
 // agentConstraintCount is the visible promotion backlog of the convention
-// register (AC-023): rules an agent must hold until clue can.
+// register (AC-089): rules an agent must hold until a machine can. It counts
+// `agent` and nothing else — `partial` and `human` are declared rather than
+// queued, and a rule leaves the backlog by gaining a check or by stating what
+// cannot be mechanized, never by relabelling (ADR-045).
 func agentConstraintCount(c *corpus.Corpus) int {
 	n := 0
 	for _, a := range c.Artifacts {

@@ -50,6 +50,7 @@ type Corpus struct {
 	Artifacts  []*Artifact
 	ByID       map[string][]*Artifact // >1 entry means duplicate identity
 	MDFiles    []string               // all .md under docs/ and changes/
+	OtherFiles []string               // every other file under docs/ and changes/
 	Contents   map[string]string      // path -> file text (LF-normalized)
 	HasChanges bool                   // any file under changes/
 }
@@ -80,11 +81,15 @@ func Scan(root string) (*Corpus, []Issue) {
 			if top == "changes" {
 				c.HasChanges = true
 			}
-			if !strings.HasSuffix(d.Name(), ".md") {
-				return nil
-			}
 			rel, _ := filepath.Rel(root, path)
 			rel = filepath.ToSlash(rel)
+			if !strings.HasSuffix(d.Name(), ".md") {
+				// The corpus is markdown, but the layout rules need to see
+				// what else is sitting in it — an image under docs/ is a
+				// finding precisely because nothing else would ever read it.
+				c.OtherFiles = append(c.OtherFiles, rel)
+				return nil
+			}
 			c.MDFiles = append(c.MDFiles, rel)
 
 			data, err := os.ReadFile(path)

@@ -79,6 +79,15 @@ jobs:
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
         run: git diff --check "$BASE_SHA" "$GITHUB_SHA"
+      # C-008's machine. Shares the classifier's fail-closed gating for the
+      # same reason the whitespace check does: with no resolvable base there is
+      # no "before" to compare a plan against, and inventing one would either
+      # pass everything or fail everything.
+      - name: Completed plans stay frozen (C-008)
+        if: steps.scope.outputs.diffok == 'true'
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: .github/scripts/completed-plans.sh "$BASE_SHA" "$GITHUB_SHA"
       # The release gates, run while the release is still a proposal. They are
       # a no-op for every change that does not raise the version stamp.
       #

@@ -86,7 +86,7 @@ Feature: clue validate — deterministic corpus judgment
     Then it exits with a non-zero code
     And the output names both declaring files
 
-  @AC-023
+  @AC-023 @retired
   Scenario: Constraint artifacts carry their register fields
     Given a constraint artifact missing a non-empty source or enforcement field
     Or carrying an enforcement value outside machine, agent, human
@@ -94,6 +94,9 @@ Feature: clue validate — deterministic corpus judgment
     Then it exits with a non-zero code
     And the output names the file and the violated field
     And a valid corpus reports its count of agent-enforced constraints on the OK line
+    # Retired by ADR-045: partial joined the vocabulary and the register gained
+    # required declarations, so this scenario's enforcement set is no longer the
+    # rule. AC-089 states the widened register contract.
 
   @AC-034
   Scenario: A byte-order mark in a corpus file fails
@@ -241,4 +244,75 @@ Feature: clue validate — deterministic corpus judgment
     Then the run exits zero and the OK line counts the row as stating only its own link
     And "clue validate --index-rows" names the README and the target a reader opens to
     But a row stating its record's id and title, a row referencing a subfolder README, and a curated row covering several targets are never counted
+
+  @AC-089
+  Scenario: The constraint register carries its fields and its declarations
+    Test-type: Unit
+    Given a constraint artifact missing a non-empty source or enforcement field
+    Or carrying an enforcement value outside machine, partial, agent, human
+    Or declaring partial or human without naming the machine that checks it and the residual judgment it leaves
+    When the user runs "clue validate"
+    Then it exits with a non-zero code
+    And the output names the file and the violated field or missing declaration
+    But a machine-enforced constraint needs neither declaration, and an agent-enforced one keeps its promotion trigger
+    And a valid corpus reports its count of agent-enforced constraints on the OK line, saying nothing when that count is zero
+
+  @AC-090
+  Scenario: Hard-wrapped prose fails
+    Test-type: Unit
+    Given a corpus markdown file whose paragraph or list item is broken across two lines
+    When the user runs "clue validate"
+    Then it exits with a non-zero code
+    And the output names the file and the line the continuation begins on
+    But line breaks inside fenced code, indented code, frontmatter, tables written with or without outer pipes, an HTML block up to the blank line that ends it, and a comment up to its own closing marker are structure, not wrapping
+    And a heading, a list item, a blockquote line, and a table row each begin their own block rather than continuing the one above
+    And a fence documenting a shorter fence is closed only by a run of its own length, and an indented fence marker is code rather than a fence opening, so the rest of the file is still read
+
+  @AC-091
+  Scenario: A skipped task carries a reason
+    Test-type: Unit
+    Given a tasks.md under changes/ carrying a "[-]" task with nothing after its checkbox
+    When the user runs "clue validate"
+    Then it exits with a non-zero code
+    And the output names the file and the line
+    But a "[-]" task followed by prose passes, an unticked or ticked task is never asked for one, and one shown inside fenced or indented code is an example rather than a task
+
+  @AC-092
+  Scenario: A proposal declares the plan item it serves
+    Test-type: Unit
+    Given a proposal.md under changes/ whose links name no plan or milestone and whose body never says plan-less
+    When the user runs "clue validate"
+    Then it exits with a non-zero code
+    And the output names the file and both ways to satisfy the rule
+    But a proposal linking a P or M identity passes, and so does one declaring itself plan-less
+
+  @AC-093
+  Scenario: Diagrams are inline, not images
+    Test-type: Unit
+    Given a docs file carrying an image — an inline link, a reference link, or an img tag — or an image file stored under docs/
+    When the user runs "clue validate"
+    Then it exits with a non-zero code
+    And the output names the file and says diagrams are inline Mermaid
+    But an ordinary link to a markdown file passes, and an image inside a fence, an indented code block, a comment, or a code span is an example rather than a diagram
+    And a table cell is not an exemption: an image there renders like any other
+
+  @AC-094
+  Scenario: Types carry the frontmatter fields their type requires
+    Test-type: Unit
+    Given a decision artifact missing author or accepted-by, or a capability missing goal
+    When the user runs "clue validate"
+    Then it exits with a non-zero code
+    And the output names the file and the missing field
+    But an empty accepted-by list is a present field, because an unsigned decision declares itself unsigned
+    And a type carrying no extension requirement is checked against the core fields alone
+
+  @AC-095
+  Scenario: Milestone status cells follow one vocabulary
+    Test-type: Unit
+    Given a plan table whose header declares a Status column and whose row carries a value outside todo, doing, done, dropped
+    When the user runs "clue validate"
+    Then it exits with a non-zero code
+    And the output names the plan, the milestone, and the value it read
+    But a table that declares no Status column is not a milestone table, and a header row, a separator row, and an empty cell are never values
+    And a table is read by its delimiter row, with or without outer pipes, with cells divided only by pipes that are unescaped and outside a code span
 ```
