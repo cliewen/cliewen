@@ -121,6 +121,24 @@ func TestUnit_MarkLiveClassifiesShapeAndSeedsCounter(t *testing.T) {
 	}
 }
 
+func TestUnit_PromoteReservedMarksAllocatedIDLive(t *testing.T) {
+	root := t.TempDir()
+	l, _ := Load(root)
+	id := l.NextNumeric("PDR")
+	if err := l.PromoteReserved(id); err != nil {
+		t.Fatalf("PromoteReserved: %v", err)
+	}
+	if e, ok := l.Lookup(id); !ok || e.State != StateLive {
+		t.Fatalf("entry after promotion = %+v, ok=%v, want live", e, ok)
+	}
+	if err := l.PromoteReserved(id); err == nil {
+		t.Fatal("second promotion succeeded, want non-reserved ID rejection")
+	}
+	if err := l.PromoteReserved("PDR-999"); err == nil {
+		t.Fatal("promotion of an unreserved ID succeeded")
+	}
+}
+
 func TestUnit_LoadMissingFileIsNotAnError(t *testing.T) {
 	root := t.TempDir()
 	l, err := Load(root)

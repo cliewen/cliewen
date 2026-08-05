@@ -219,6 +219,21 @@ func (l *Ledger) MarkLive(id string) {
 	l.byID[id] = e
 }
 
+// PromoteReserved marks a previously allocated ID as live once its artifact
+// has been created. It deliberately refuses unreserved IDs so this transition
+// cannot bypass the allocator or revive a retired identity.
+func (l *Ledger) PromoteReserved(id string) error {
+	e, ok := l.byID[id]
+	if !ok {
+		return fmt.Errorf("id %s is not reserved in the ledger", id)
+	}
+	if e.State != StateReserved {
+		return fmt.Errorf("id %s is %s, not reserved", id, e.State)
+	}
+	e.State = StateLive
+	return nil
+}
+
 // Retire transitions an entry to Retired. A retired entry is never removed
 // and never reissued (ADR-048).
 func (l *Ledger) Retire(id string) {

@@ -14,6 +14,7 @@ import (
 	"testing"
 
 	"github.com/cliewen/cliewen/internal/corpus"
+	"github.com/cliewen/cliewen/internal/ledger"
 	"github.com/cliewen/cliewen/internal/scaffold"
 	"gopkg.in/yaml.v3"
 )
@@ -570,6 +571,41 @@ func TestAC101_UnitNegative_IDNextRejectsMissingPrefix(t *testing.T) {
 	var out, errOut strings.Builder
 	if code := runID([]string{"next"}, &out, &errOut); code != 2 {
 		t.Fatalf("exit code = %d, want 2 for a missing prefix", code)
+	}
+}
+
+func TestAC108_UnitPositive_IDLivePromotesReservedID(t *testing.T) {
+	root := t.TempDir()
+	var out, errOut strings.Builder
+	if code := runID([]string{"next", "PDR", root}, &out, &errOut); code != 0 {
+		t.Fatalf("id next exit code = %d, stderr=%q", code, errOut.String())
+	}
+	if code := runID([]string{"live", "PDR-001", root}, &out, &errOut); code != 0 {
+		t.Fatalf("id live exit code = %d, stderr=%q", code, errOut.String())
+	}
+	l, err := ledger.Load(root)
+	if err != nil {
+		t.Fatalf("Load: %v", err)
+	}
+	if e, ok := l.Lookup("PDR-001"); !ok || e.State != ledger.StateLive {
+		t.Fatalf("PDR-001 entry = %+v, ok=%v, want live", e, ok)
+	}
+}
+
+func TestAC108_UnitNegative_IDLiveRejectsNonReservedID(t *testing.T) {
+	root := t.TempDir()
+	var out, errOut strings.Builder
+	if code := runID([]string{"live", "PDR-001", root}, &out, &errOut); code != 2 {
+		t.Fatalf("unreserved id live exit code = %d, want 2", code)
+	}
+	if code := runID([]string{"next", "PDR", root}, &out, &errOut); code != 0 {
+		t.Fatalf("id next exit code = %d, stderr=%q", code, errOut.String())
+	}
+	if code := runID([]string{"live", "PDR-001", root}, &out, &errOut); code != 0 {
+		t.Fatalf("id live exit code = %d, stderr=%q", code, errOut.String())
+	}
+	if code := runID([]string{"live", "PDR-001", root}, &out, &errOut); code != 2 {
+		t.Fatalf("second id live exit code = %d, want 2", code)
 	}
 }
 

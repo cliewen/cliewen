@@ -260,9 +260,9 @@ func checkDuplicateIDs(c *Corpus) []Issue {
 // (ADR-048). A corpus without a ledger file yet is unaffected — the gate
 // that keeps this rule from firing before a repository has run the
 // backfill migration. Where a ledger exists, it rejects a live artifact
-// whose ID the ledger marks retired, and a malformed entry: a numeric-kind
-// entry with no valid decimal component, or an opaque-kind entry carrying
-// one.
+// missing from the ledger or whose ID the ledger marks reserved or retired,
+// and a malformed entry: a numeric-kind entry with no valid decimal
+// component, or an opaque-kind entry carrying one.
 func checkLedger(c *Corpus) []Issue {
 	if !ledger.Exists(c.Root) {
 		return nil
@@ -286,11 +286,17 @@ func checkLedger(c *Corpus) []Issue {
 	}
 	for id, as := range c.ByID {
 		entry, ok := l.Lookup(id)
-		if !ok || entry.State != ledger.StateRetired {
+		if !ok {
+			for _, a := range as {
+				issues = append(issues, Issue{a.Path, "id " + id + " is missing from " + ledger.DefaultPath})
+			}
+			continue
+		}
+		if entry.State != ledger.StateReserved && entry.State != ledger.StateRetired {
 			continue
 		}
 		for _, a := range as {
-			issues = append(issues, Issue{a.Path, "id " + id + " is marked retired in " + ledger.DefaultPath + " and cannot be reused"})
+			issues = append(issues, Issue{a.Path, "id " + id + " is marked " + string(entry.State) + " in " + ledger.DefaultPath + " and cannot be used by a live artifact"})
 		}
 	}
 	return issues

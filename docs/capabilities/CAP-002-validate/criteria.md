@@ -350,6 +350,14 @@ Feature: clue validate — deterministic corpus judgment
     And it persists the new entry as "reserved" and advances the counter
     But a prefix absent from the ledger starts its counter at zero and issues the prefix's first ID
 
+  @AC-108
+  Scenario: clue id live promotes an allocated ID after its artifact is created
+    Test-type: Unit
+    Given the ledger marks an allocated ID "reserved"
+    When the user runs "clue id live <id>" after creating the artifact
+    Then it persists that ID as "live"
+    But it rejects an ID that is missing or is already "live" or "retired"
+
   @AC-102
   Scenario: An opaque ID is preserved verbatim and never reused
     Test-type: Unit
@@ -359,14 +367,14 @@ Feature: clue validate — deterministic corpus judgment
     And it accepts a new opaque ID exactly as the generator produced it, without normalizing case, trimming, or reformatting
 
   @AC-103
-  Scenario: checkLedger rejects a live artifact whose ID the ledger marks retired
+  Scenario: checkLedger rejects a live artifact whose ID the ledger does not mark live
     Test-type: Unit
-    Given a ".clue/id-ledger.yaml" marking an ID "retired"
+    Given a ".clue/id-ledger.yaml" that omits an ID or marks it "reserved" or "retired"
     And a live corpus artifact declaring that same ID
     When the user runs "clue validate"
     Then it exits with a non-zero code
-    And the output names the file and says the ledger marks the ID retired
-    But a live artifact whose ID the ledger marks "live" or "reserved" passes, and a corpus with no ".clue/id-ledger.yaml" file is unaffected by this rule
+    And the output names the file and says whether the ledger omits the ID or gives it a non-live state
+    But a live artifact whose ID the ledger marks "live" passes, and a corpus with no ".clue/id-ledger.yaml" file is unaffected by this rule
 
   @AC-104
   Scenario: checkLedger rejects a malformed ledger entry shape

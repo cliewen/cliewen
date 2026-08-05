@@ -18,7 +18,7 @@ func writeLedger(t *testing.T, root, yamlBody string) {
 	}
 }
 
-func TestAC103_UnitPositive_RetiredIDRejectedWhenLiveAgain(t *testing.T) {
+func TestAC103_UnitPositive_NonLiveLedgerIDRejectedWhenLiveAgain(t *testing.T) {
 	root := writeCorpus(t, validFiles)
 	writeLedger(t, root, "counters: {G: 1}\nentries:\n  - id: G-001\n    kind: numeric\n    state: retired\n    prefix: G\n    component: 1\n")
 	c, scanIssues := Scan(root)
@@ -28,7 +28,7 @@ func TestAC103_UnitPositive_RetiredIDRejectedWhenLiveAgain(t *testing.T) {
 	issues := Validate(c, Options{})
 	found := false
 	for _, is := range issues {
-		if is.Msg == "id G-001 is marked retired in .clue/id-ledger.yaml and cannot be reused" {
+		if is.Msg == "id G-001 is marked retired in .clue/id-ledger.yaml and cannot be used by a live artifact" {
 			found = true
 		}
 	}
@@ -46,10 +46,42 @@ func TestAC103_UnitNegative_LiveOrReservedIDPasses(t *testing.T) {
 	}
 	issues := Validate(c, Options{})
 	for _, is := range issues {
-		if is.Msg == "id G-001 is marked retired in .clue/id-ledger.yaml and cannot be reused" {
-			t.Fatalf("unexpected retired-id issue for a live entry: %v", issues)
+		if strings.Contains(is.Msg, "id G-001 is marked") {
+			t.Fatalf("unexpected state issue for a live entry: %v", issues)
 		}
 	}
+}
+
+func TestAC103_UnitPositive_ReservedIDRejectedWhenLiveAgain(t *testing.T) {
+	root := writeCorpus(t, validFiles)
+	writeLedger(t, root, "counters: {G: 1}\nentries:\n  - id: G-001\n    kind: numeric\n    state: reserved\n    prefix: G\n    component: 1\n")
+	c, scanIssues := Scan(root)
+	if len(scanIssues) != 0 {
+		t.Fatalf("scan issues: %v", scanIssues)
+	}
+	issues := Validate(c, Options{})
+	for _, is := range issues {
+		if is.Msg == "id G-001 is marked reserved in .clue/id-ledger.yaml and cannot be used by a live artifact" {
+			return
+		}
+	}
+	t.Fatalf("expected a reserved-id issue, got: %v", issues)
+}
+
+func TestAC103_UnitPositive_LiveIDMissingFromLedgerRejected(t *testing.T) {
+	root := writeCorpus(t, validFiles)
+	writeLedger(t, root, "counters: {}\nentries: []\n")
+	c, scanIssues := Scan(root)
+	if len(scanIssues) != 0 {
+		t.Fatalf("scan issues: %v", scanIssues)
+	}
+	issues := Validate(c, Options{})
+	for _, is := range issues {
+		if is.Msg == "id G-001 is missing from .clue/id-ledger.yaml" {
+			return
+		}
+	}
+	t.Fatalf("expected a missing-ledger-entry issue, got: %v", issues)
 }
 
 func TestAC103_UnitNegative_NoLedgerFileIsUnaffected(t *testing.T) {
@@ -73,7 +105,7 @@ func TestAC104_UnitPositive_MalformedLedgerEntryShapeRejected(t *testing.T) {
 	}
 	issues := Validate(c, Options{})
 	wantMsgs := map[string]bool{
-		"entry G-900 is numeric-kind but carries no valid decimal component":  false,
+		"entry G-900 is numeric-kind but carries no valid decimal component":    false,
 		"entry AC-imported-uuid is opaque-kind but carries a decimal component": false,
 	}
 	for _, is := range issues {
@@ -90,7 +122,7 @@ func TestAC104_UnitPositive_MalformedLedgerEntryShapeRejected(t *testing.T) {
 
 func TestAC104_UnitNegative_WellFormedEntriesPass(t *testing.T) {
 	root := writeCorpus(t, validFiles)
-	writeLedger(t, root, "counters: {G: 1}\nentries:\n  - id: G-001\n    kind: numeric\n    state: live\n    prefix: G\n    component: 1\n  - id: AC-imported-uuid\n    kind: opaque\n    state: live\n")
+	writeLedger(t, root, "counters: {G: 1, P: 1}\nentries:\n  - id: G-001\n    kind: numeric\n    state: live\n    prefix: G\n    component: 1\n  - id: P-001\n    kind: numeric\n    state: live\n    prefix: P\n    component: 1\n  - id: AC-imported-uuid\n    kind: opaque\n    state: live\n")
 	c, scanIssues := Scan(root)
 	if len(scanIssues) != 0 {
 		t.Fatalf("scan issues: %v", scanIssues)
@@ -114,7 +146,7 @@ func TestAC106_UnitPositive_RetiredOpaqueIDRejectedWhenLiveAgain(t *testing.T) {
 	issues := Validate(c, Options{})
 	found := false
 	for _, is := range issues {
-		if is.Msg == "id 8f14e45f-ceea-467e-9a2b-a1c8b9d2f7a1 is marked retired in .clue/id-ledger.yaml and cannot be reused" {
+		if is.Msg == "id 8f14e45f-ceea-467e-9a2b-a1c8b9d2f7a1 is marked retired in .clue/id-ledger.yaml and cannot be used by a live artifact" {
 			found = true
 		}
 	}
