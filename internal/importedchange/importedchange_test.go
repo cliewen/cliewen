@@ -146,6 +146,13 @@ func TestUnit_ParseProofLinksDoesNotTreatMalformedHTMLAsABlock(t *testing.T) {
 	}
 }
 
+func TestUnit_ParseProofLinksIgnoresHTMLAttributesWithQuotedAngles(t *testing.T) {
+	body := "<x-proof-example title=\"a > b\">\n## Proof links\n\n| Task | Criterion |\n|---|---|\n| only an example | AC-201 |\n</x-proof-example>\n"
+	if got := ParseProofLinks(body); got != nil {
+		t.Fatalf("a table inside an HTML block is not proof links, got %#v", got)
+	}
+}
+
 // AC-115: extraction preserves in-flight source work as an inspectable
 // imported-change record — its proposal, design rationale, dependency, and
 // proof-linked task all remain readable from the record alone.
