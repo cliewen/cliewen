@@ -115,14 +115,18 @@ func ParseProofLinks(body string) []ProofLink {
 }
 
 func isIndentedCode(line string) bool {
-	if strings.HasPrefix(line, "\t") {
-		return true
+	columns := 0
+	for i := 0; i < len(line); i++ {
+		switch line[i] {
+		case ' ':
+			columns++
+		case '\t':
+			columns += 4 - columns%4
+		default:
+			return columns >= 4
+		}
 	}
-	spaces := 0
-	for spaces < len(line) && line[spaces] == ' ' {
-		spaces++
-	}
-	return spaces >= 4
+	return columns >= 4
 }
 
 // outsideFencedCode preserves the document's line structure while removing
