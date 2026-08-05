@@ -168,23 +168,46 @@ func describeBody(body string) (string, bool) {
 		if i+1 < len(lines) && setextUnderlineRe.MatchString(setextUnderline(lines[i+1])) {
 			continue
 		}
-		// Structure rather than the paragraph this is looking for: a table row,
-		// a bulleted or ordered list item, a blockquote, an HTML block or
-		// comment, or a horizontal rule.
-		//
-		// The HTML test is a tag rather than a bare "<", so a paragraph opening
-		// with an autolink or a comparison keeps its description.
-		if strings.HasPrefix(s, "|") || strings.HasPrefix(s, ">") ||
-			strings.HasPrefix(s, "<!") || htmlBlockRe.MatchString(s) ||
-			strings.HasPrefix(s, "- ") || strings.HasPrefix(s, "* ") || strings.HasPrefix(s, "+ ") ||
-			orderedItemRe.MatchString(s) || thematicBreakRe.MatchString(s) {
+		if descriptionStructure(s, lines, i) {
 			continue
 		}
-		if sentence, ok := firstSentence(stripLinks(s)); ok {
+
+		// Markdown paragraphs commonly wrap at the author's margin. Join the
+		// complete paragraph before taking its first sentence; otherwise a line
+		// break without punctuation would seed a fragment and discard the rest
+		// of the sentence.
+		paragraph := []string{s}
+		for j := i + 1; titled && j < len(lines); j++ {
+			nextRaw := lines[j]
+			next := strings.TrimSpace(nextRaw)
+			if next == "" || strings.HasPrefix(next, "```") || strings.HasPrefix(next, "~~~") ||
+				strings.HasPrefix(nextRaw, "    ") || strings.HasPrefix(nextRaw, "\t") ||
+				descriptionStructure(next, lines, j) {
+				break
+			}
+			paragraph = append(paragraph, next)
+		}
+		if sentence, ok := firstSentence(stripLinks(strings.Join(paragraph, " "))); ok {
 			return sentence, true
 		}
 	}
 	return "", false
+}
+
+// descriptionStructure reports Markdown block structure that cannot serve as
+// the opening prose paragraph. The caller handles indentation and fences
+// separately because their raw prefixes determine whether the line is code.
+func descriptionStructure(s string, lines []string, i int) bool {
+	if strings.HasPrefix(s, "#") || setextUnderlineRe.MatchString(s) {
+		return true
+	}
+	if i+1 < len(lines) && setextUnderlineRe.MatchString(strings.TrimSpace(lines[i+1])) {
+		return true
+	}
+	return strings.HasPrefix(s, "|") || strings.HasPrefix(s, ">") ||
+		strings.HasPrefix(s, "<!") || htmlBlockRe.MatchString(s) ||
+		strings.HasPrefix(s, "- ") || strings.HasPrefix(s, "* ") || strings.HasPrefix(s, "+ ") ||
+		orderedItemRe.MatchString(s) || thematicBreakRe.MatchString(s)
 }
 
 // setextUnderline normalizes a line for the underline test.

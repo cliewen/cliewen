@@ -149,6 +149,11 @@ func TestUnit_DescribeBodyReadsTheSeedSentence(t *testing.T) {
 			want: "The real lede.",
 		},
 		{
+			name: "a wrapped lede is read as one paragraph",
+			body: "# Title\n\nThe first half of the sentence\ncontinues on the next line. A second sentence.\n",
+			want: "The first half of the sentence continues on the next line.",
+		},
+		{
 			name: "a line merely starting with = underlines nothing",
 			body: "Not a title\n=1 is the count.\n",
 			want: "Not a title",
