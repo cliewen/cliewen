@@ -280,13 +280,15 @@ func checkLedger(c *Corpus) []Issue {
 		}
 		switch e.Kind {
 		case ledger.KindNumeric:
-			if e.Component == 0 || e.Prefix == "" {
-				issues = append(issues, Issue{ledger.DefaultPath, "entry " + e.ID + " is numeric-kind but carries no valid decimal component"})
+			if !ledger.ValidNumericEntry(e) {
+				issues = append(issues, Issue{ledger.DefaultPath, "entry " + e.ID + " is numeric-kind but its ID, prefix, and component do not agree"})
 			}
 		case ledger.KindOpaque:
-			if e.Component != 0 {
-				issues = append(issues, Issue{ledger.DefaultPath, "entry " + e.ID + " is opaque-kind but carries a decimal component"})
+			if e.Component != 0 || e.Prefix != "" {
+				issues = append(issues, Issue{ledger.DefaultPath, "entry " + e.ID + " is opaque-kind but carries numeric fields"})
 			}
+		default:
+			issues = append(issues, Issue{ledger.DefaultPath, "entry " + e.ID + " has invalid kind " + string(e.Kind)})
 		}
 	}
 	for id, as := range c.ByID {

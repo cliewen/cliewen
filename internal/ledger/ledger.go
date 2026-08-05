@@ -68,7 +68,10 @@ type Ledger struct {
 // lives outside docs/.
 const DefaultPath = ".clue/id-ledger.yaml"
 
-var numericIDRe = regexp.MustCompile(`^([A-Za-z]+)-(\d+)[a-z]*$`)
+// numericIDRe matches the canonical numeric-ID grammar used by native
+// namespaces and criteria: uppercase alphanumeric prefix segments, a decimal
+// component, and an optional lowercase suffix (ADR-037).
+var numericIDRe = regexp.MustCompile(`^([A-Z][A-Z0-9]*(?:-[A-Z][A-Z0-9]*)*)-(\d+)[a-z]*$`)
 
 // Load reads the ledger at root/DefaultPath. A missing file is not an
 // error: it returns an empty, usable Ledger, so a corpus without a ledger
@@ -167,6 +170,20 @@ func (l *Ledger) Entries() []Entry {
 		out = append(out, *l.byID[id])
 	}
 	return out
+}
+
+// ValidNumericEntry reports whether a numeric ledger entry preserves its
+// canonical ID's prefix and decimal component exactly as structured fields.
+func ValidNumericEntry(e Entry) bool {
+	if e.Kind != KindNumeric || e.Prefix == "" || e.Component <= 0 {
+		return false
+	}
+	m := numericIDRe.FindStringSubmatch(e.ID)
+	if m == nil || m[1] != e.Prefix {
+		return false
+	}
+	n, err := parseComponent(m[2])
+	return err == nil && n == e.Component
 }
 
 // NextNumeric allocates and reserves the next numeric ID for prefix: an

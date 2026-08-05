@@ -379,11 +379,11 @@ Feature: clue validate — deterministic corpus judgment
   @AC-104
   Scenario: checkLedger rejects a malformed ledger entry shape
     Test-type: Unit
-    Given a ".clue/id-ledger.yaml" holding a numeric-kind entry with no decimal component, an opaque-kind entry carrying one, an invalid state, or duplicate canonical IDs
+    Given a ".clue/id-ledger.yaml" holding an unknown kind, a numeric-kind entry whose ID, prefix, and component disagree, an opaque-kind entry carrying numeric fields, an invalid state, or duplicate canonical IDs
     When the user runs "clue validate"
     Then it exits with a non-zero code
     And the output names the entry and which shape or identity rule it breaks
-    But a numeric entry with a valid decimal component, a supported state, and an opaque entry with none both pass
+    But a numeric entry whose canonical ID, prefix, and decimal component agree with a supported state, and an opaque entry with no numeric fields both pass
 
   @AC-105
   Scenario: An archived numeric ID above the live maximum is never reissued

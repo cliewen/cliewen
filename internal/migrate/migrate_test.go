@@ -850,6 +850,31 @@ func TestAC107_UnitPositive_MigrateBackfillsLedgerFromCurrentScan(t *testing.T) 
 	}
 }
 
+func TestAC107_UnitPositive_MigrateBackfillsSegmentedNumericPrefix(t *testing.T) {
+	root := migrationFixture(t, "")
+	path := filepath.Join(root, "docs", "analysis", "SNAP-SQS-001.md")
+	data := "---\nid: SNAP-SQS-001\ntype: analysis\nstatus: active\nlinks: []\ntitle: Segmented identity\n---\n"
+	if err := os.WriteFile(path, []byte(data), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	plan, err := Plan(root, Options{ReversalCost: "low"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, change := range plan.Changes {
+		if change.Migration != MigrationLedgerBackfill {
+			continue
+		}
+		ledger := string(change.After)
+		if strings.Contains(ledger, "id: SNAP-SQS-001\n      kind: numeric\n") && strings.Contains(ledger, "SNAP-SQS: 1") {
+			return
+		}
+		t.Fatalf("segmented numeric ID was not backfilled with its counter:\n%s", ledger)
+	}
+	t.Fatalf("no %s change planned", MigrationLedgerBackfill)
+}
+
 func TestAC107_UnitNegative_ExistingLedgerFileIsUntouched(t *testing.T) {
 	root := migrationFixture(t, "")
 	ledgerDir := filepath.Join(root, ".clue")

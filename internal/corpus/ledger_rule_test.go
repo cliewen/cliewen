@@ -122,15 +122,17 @@ func TestAC103_UnitNegative_NoLedgerFileIsUnaffected(t *testing.T) {
 
 func TestAC104_UnitPositive_MalformedLedgerEntryShapeRejected(t *testing.T) {
 	root := writeCorpus(t, validFiles)
-	writeLedger(t, root, "counters: {}\nentries:\n  - id: G-900\n    kind: numeric\n    state: live\n  - id: AC-imported-uuid\n    kind: opaque\n    state: live\n    prefix: AC\n    component: 5\n")
+	writeLedger(t, root, "counters: {}\nentries:\n  - id: G-900\n    kind: numeric\n    state: live\n  - id: P-001\n    kind: numeric\n    state: live\n    prefix: G\n    component: 99\n  - id: AC-imported-uuid\n    kind: opaque\n    state: live\n    prefix: AC\n    component: 5\n  - id: unknown-001\n    kind: other\n    state: live\n")
 	c, scanIssues := Scan(root)
 	if len(scanIssues) != 0 {
 		t.Fatalf("scan issues: %v", scanIssues)
 	}
 	issues := Validate(c, Options{})
 	wantMsgs := map[string]bool{
-		"entry G-900 is numeric-kind but carries no valid decimal component":    false,
-		"entry AC-imported-uuid is opaque-kind but carries a decimal component": false,
+		"entry G-900 is numeric-kind but its ID, prefix, and component do not agree": false,
+		"entry P-001 is numeric-kind but its ID, prefix, and component do not agree": false,
+		"entry AC-imported-uuid is opaque-kind but carries numeric fields":           false,
+		"entry unknown-001 has invalid kind other":                                   false,
 	}
 	for _, is := range issues {
 		if _, ok := wantMsgs[is.Msg]; ok {

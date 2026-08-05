@@ -113,11 +113,41 @@ func TestUnit_MarkLiveClassifiesShapeAndSeedsCounter(t *testing.T) {
 		t.Fatalf("counters[CH] = %d, want 116 seeded from the live component", l.counters["CH"])
 	}
 
+	l.MarkLive("SNAP-SQS-001")
+	se, ok := l.Lookup("SNAP-SQS-001")
+	if !ok || se.Kind != KindNumeric || se.Prefix != "SNAP-SQS" || se.Component != 1 || se.State != StateLive {
+		t.Fatalf("MarkLive(SNAP-SQS-001) entry = %+v, ok=%v", se, ok)
+	}
+	if l.counters["SNAP-SQS"] != 1 {
+		t.Fatalf("counters[SNAP-SQS] = %d, want 1", l.counters["SNAP-SQS"])
+	}
+	if got := l.NextNumeric("SNAP-SQS"); got != "SNAP-SQS-002" {
+		t.Fatalf("next segmented ID = %q, want SNAP-SQS-002", got)
+	}
+
 	const opaque = "AC-8f14e45f-ceea-467e-9a2b-a1c8b9d2f7a1"
 	l.MarkLive(opaque)
 	oe, ok := l.Lookup(opaque)
 	if !ok || oe.Kind != KindOpaque || oe.State != StateLive {
 		t.Fatalf("MarkLive(%q) entry = %+v, ok=%v, want live opaque entry", opaque, oe, ok)
+	}
+}
+
+func TestUnit_ValidNumericEntryRequiresCanonicalStructuredIdentity(t *testing.T) {
+	if !ValidNumericEntry(Entry{ID: "ADP-045b", Kind: KindNumeric, Prefix: "ADP", Component: 45}) {
+		t.Fatal("canonical suffixed numeric entry rejected")
+	}
+	if !ValidNumericEntry(Entry{ID: "SNAP-SQS-001", Kind: KindNumeric, Prefix: "SNAP-SQS", Component: 1}) {
+		t.Fatal("canonical segmented numeric entry rejected")
+	}
+	for _, e := range []Entry{
+		{ID: "G-001", Kind: KindNumeric, Prefix: "PDR", Component: 1},
+		{ID: "G-001", Kind: KindNumeric, Prefix: "G", Component: 99},
+		{ID: "snap-sqs-001", Kind: KindNumeric, Prefix: "snap-sqs", Component: 1},
+	} {
+		if ValidNumericEntry(e) {
+			t.Fatalf("invalid numeric entry accepted: %+v", e)
+		}
 	}
 }
 
