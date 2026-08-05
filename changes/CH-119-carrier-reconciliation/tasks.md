@@ -10,7 +10,7 @@ title: Tasks for CH-119
 
 - [x] Read precedent: ADR-048, ADR-049, `internal/parity`, `internal/ledger`, `internal/corpus/rules.go`, `clue-extract` skill and openspec mapping.
 - [x] Write `proposal.md` and this `tasks.md`.
-- [ ] Design and write ADR-050 (carrier reconciliation contract) — `status: inferred`, `author: agent`.
+- [x] Design and write ADR-051 (carrier reconciliation contract) — `status: inferred`, `author: agent`.
 - [ ] Implement `internal/carriers/carriers.go`: `Inventory`, `Entry`, `LoadInventory`, `Fingerprint`, `Reconcile`, `Report`, `Finding` (serves AC-115..AC-119).
 - [ ] Implement `internal/carriers/carriers_test.go`: clean baseline + one fixture per failure class + inventory-validation fixtures (serves AC-115..AC-119).
 - [ ] Wire `clue carriers <inventory> [root]` into `cmd/clue/main.go`: usage text, dispatch, `notifierCommands` exclusion (deterministic judge, same reasoning as `parity`).

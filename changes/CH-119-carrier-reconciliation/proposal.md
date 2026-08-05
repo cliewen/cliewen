@@ -37,7 +37,7 @@ those are acceptance criteria the parity contract already covers. This is
 the same red-line concern PDR-025 raises for identity and evidence: a
 migration that looks complete while quietly discarding operational meaning.
 
-## Design (see ADR-050 for the full record)
+## Design (see ADR-051 for the full record)
 
 - A **carrier inventory** (YAML), pinned to `source-revision`/`source-location`
   like ADR-048/ADR-049, source-side and human/agent-authored during the
@@ -61,7 +61,7 @@ migration that looks complete while quietly discarding operational meaning.
 - `internal/carriers/` (new package): inventory model, load/validate,
   `Reconcile`.
 - `cmd/clue/main.go`: `clue carriers` command.
-- `docs/decisions/ADR-050-carrier-reconciliation-manifests.md` (new).
+- `docs/decisions/ADR-051-carrier-reconciliation-manifests.md` (new).
 - `docs/capabilities/CAP-003-extract/criteria.md`: AC-115..AC-119.
 - `docs/capabilities/CAP-003-extract/design.md`, `README.md`: carrier
   reconciliation section.
