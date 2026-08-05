@@ -32,6 +32,7 @@ Small consumed extensions keep the graph explicit. `ac-prefix` on a criteria.md 
 | log | `active` | one register — rows are its lifecycle (PDR-003) |
 | change, tasks | `open` | transient workspace artifacts |
 | open-questions | `open` → `resolved` | transient workspace artifacts |
+| imported-change | `in-progress` → `complete` | durable, never `retired` — the record survives its extracted source (ADR-050) |
 
 Types on the default: capability, criteria, design, constraint, architecture, analysis, and any type an adopter adds.
 
@@ -45,4 +46,5 @@ Types on the default: capability, criteria, design, constraint, architecture, an
 - [decisions/](decisions/README.md) — ADR-xxx (architecture) and PDR-xxx (project/process): MADR + provenance, including rejected records
 - [constraints/](constraints/README.md) — C-xxx: laws, licenses, policies, and verifiable quality bars you must not break
 - [analysis/](analysis/README.md) — spike findings, extraction reports
+- [imported-changes/](imported-changes/README.md) — IC-xxx: durable records of in-flight source work brownfield extraction preserves
 <!-- clue:index:end -->

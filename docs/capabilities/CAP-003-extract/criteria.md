@@ -166,4 +166,28 @@ Feature: Brownfield analysis and extraction — evidence, namespaced ACs, JVM ha
     Then it exits with a non-zero code
     And the report names the ID and the unjustified disposition
     But a source entry carrying the matching disposition and justification produces no finding for that ID
+
+  @AC-115
+  Scenario: Extraction preserves in-flight source work as an inspectable imported-change record
+    Test-type: Unit
+    Given a source repository's pending change with a proposal, a design rationale, a dependency, and a proof-linked task
+    When extraction writes the corresponding imported-change record
+    Then its origin, intent, design rationale, dependency link, and proof-links table all remain readable from the record alone
+    But a record with no "## Proof links" table declares no inspectable proof
+
+  @AC-116
+  Scenario: A complete imported-change record requires every proof link to be proven
+    Test-type: Unit
+    Given an imported-change record whose status is "complete"
+    When the user runs "clue validate"
+    Then a proof-links row naming a criterion that does not exist, is "@draft", or is retired fails, naming the record and the criterion
+    But a complete record whose every proof-linked criterion exists, is undrafted, and is not retired passes
+
+  @AC-117
+  Scenario: An in-progress imported-change record may name unproven proof links
+    Test-type: Unit
+    Given an imported-change record whose status is "in-progress"
+    And a proof-links row names a criterion that does not yet exist or is still "@draft"
+    When the user runs "clue validate"
+    Then it is not rejected for that criterion, because "in-progress" declares work still pending
 ```

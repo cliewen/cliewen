@@ -26,6 +26,15 @@ The extraction itself is the `clue-extract` skill ([ADR-008](../../decisions/ADR
 - `Compare` reports exactly five failure classes: a missing criterion, an orphaned tag, changed direction or evidence location, a stale source fingerprint, and an unjustified `draft`/`Human`/retired disposition. The report is sorted and holds no wall-clock or environment-dependent content, so a CI artifact from the same inputs is reproducible.
 - `clue parity <source-manifest> [root]` (`--out` writes the same report to a file) is the CLI entry point, excluded from the ambient release notice for the same reason `clue validate` is: a deterministic judge's output must not depend on another system's present state.
 
+## In-flight source work
+
+An `imported-change` record (ADR-050, `internal/importedchange/`, `docs/imported-changes/`) is the durable replacement for the old mapping's milestone-row-plus-draft-capability treatment of a source repository's still-open pending change:
+
+- One record per source change, pinning its `source-revision`/`source-location` (the same field names ADR-048's ledger and ADR-049's source manifest use for the identical concept), holding the source proposal's intent and design rationale in prose, dependency links to other `imported-change` records or the capability it feeds (the ordinary `links:` field, resolved by `checkLinks`), and a proof-links table mapping each source task to the criterion ID it proves.
+- Lifecycle is `in-progress` → `complete`, not the corpus default, and has no `retired` value: the record is never deleted once written, because it is the permanent evidence of what an extracted, now-gone source change once contained (ADR-050's durability argument, distinct from ADR-034's transient-workspace exception).
+- `checkImportedChanges` (`internal/corpus/rules.go`) requires every `complete` record's proof-linked criteria to exist, be undrafted, and not be retired, reusing `AcceptanceEvidence`'s declaration harvest rather than inventing a second reading of a criteria file; an `in-progress` record is exempt, since it is still declaring pending work.
+- Whether extraction may delete a source repository's incomplete pending change stays agent judgment in the `clue-extract` rehearsal, never a `clue` mechanism: `clue` never reads the source repository, so it cannot itself refuse a deletion there.
+
 ## Deliberate limits (doors)
 
 - **Rehearsal before mutation** (`clue-extract`): an extraction's first pass writes a branch-local report under `/changes/` and does not alter the target corpus, routing, tests, or hosted state. The report makes mappings, ID preservation or minting, confidence, test-purpose work, instruction conflicts, planned deletions, and plan doors inspectable; unresolved conflicts stop in `open-questions.md`. Only explicit human direction starts the same full change's mutate phase, which digests the rehearsal to `/docs/analysis` ([PDR-020](../../decisions/PDR-020-extraction-rehearsal-before-mutation.md)).
