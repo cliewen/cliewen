@@ -310,7 +310,10 @@ func TestAC100_UnitPositive_LocalImageLinksAndSVGAssetsAccepted(t *testing.T) {
 	}), false), "local SVG assets and local or external image links")
 }
 
-func TestAC100_UnitNegative_ImageFormsDoNotCreateValidationIssues(t *testing.T) {
+// The raster form the retired rule rejected hardest — a bitmap file under
+// docs/ and an externally hosted <img> — and it is a second accepting test
+// rather than a negative one, because after ADR-047 no image form fails.
+func TestAC100_UnitPositive_ImageFormsDoNotCreateValidationIssues(t *testing.T) {
 	page := "---\nid: G-002\ntype: goal\nstatus: accepted\nlinks: []\ntitle: Diagrams\n---\n\n# G-002\n\n![local](architecture.png)\n\n<img src=\"https://example.invalid/architecture.png\" alt=\"external\">\n"
 	issues := run(t, with(validFiles, map[string]string{
 		"docs/goals/README.md":         "# Goals\n\n<!-- clue:index:start -->\n- [G-001](G-001-first.md)\n- [G-002](G-002-diagrams.md)\n<!-- clue:index:end -->\n",

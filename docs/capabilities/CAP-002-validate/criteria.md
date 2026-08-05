@@ -312,12 +312,14 @@ Feature: clue validate — deterministic corpus judgment
 
   @AC-100
   Scenario: Image links and assets remain valid corpus content
-    Test-type: Unit
+    Test-type: Unit (single-direction)
     Given a docs file carrying local and absolute image links in inline, reference, collapsed-reference, and HTML img forms
     And a local SVG asset stored under docs/
     When the user runs "clue validate" without network access
     Then it exits with code 0
     And it does not read, remove, or resolve the image targets
+    # Single-direction because no image form is rejected any more: there is no
+    # failing case to prove, and a second accepting test is not a negative one.
 
   @AC-094
   Scenario: Types carry the frontmatter fields their type requires
