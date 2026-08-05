@@ -155,10 +155,13 @@ func outsideNonRenderedContent(doc string) string {
 	lines := strings.Split(doc, "\n")
 	var fence string
 	inHTML := false
+	htmlEnd := ""
 	for i, line := range lines {
 		if inHTML {
 			lines[i] = ""
-			if strings.TrimSpace(line) == "" {
+			if htmlEnd != "" && strings.Contains(strings.ToLower(line), htmlEnd) {
+				inHTML, htmlEnd = false, ""
+			} else if htmlEnd == "" && strings.TrimSpace(line) == "" {
 				inHTML = false
 			}
 			continue
@@ -170,8 +173,15 @@ func outsideNonRenderedContent(doc string) string {
 				lines[i] = ""
 				continue
 			}
-			if m := htmlBlockOpenRe.FindStringSubmatch(line); m != nil && (htmlBlockTags[strings.ToLower(m[1])] || htmlStandaloneRe.MatchString(line)) {
+			if m := htmlBlockOpenRe.FindStringSubmatch(line); m != nil && (htmlBlockTags[strings.ToLower(m[1])] || (htmlStandaloneRe.MatchString(line) && balancedHTMLQuotes(line))) {
 				inHTML = true
+				tag := strings.ToLower(m[1])
+				if tag == "pre" || tag == "script" || tag == "style" || tag == "textarea" {
+					htmlEnd = "</" + tag + ">"
+					if strings.Contains(strings.ToLower(line), htmlEnd) {
+						inHTML, htmlEnd = false, ""
+					}
+				}
 				lines[i] = ""
 			}
 			continue
@@ -182,6 +192,21 @@ func outsideNonRenderedContent(doc string) string {
 		lines[i] = ""
 	}
 	return strings.Join(lines, "\n")
+}
+
+func balancedHTMLQuotes(line string) bool {
+	var quote byte
+	for i := 0; i < len(line); i++ {
+		switch line[i] {
+		case '\'', '"':
+			if quote == 0 {
+				quote = line[i]
+			} else if quote == line[i] {
+				quote = 0
+			}
+		}
+	}
+	return quote == 0
 }
 
 func outsideHTMLComments(doc string) string {

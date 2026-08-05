@@ -130,6 +130,22 @@ func TestUnit_ParseProofLinksDoesNotHideContentAfterIndentedHTMLCode(t *testing.
 	}
 }
 
+func TestUnit_ParseProofLinksResumesAfterClosingVerbatimHTMLTag(t *testing.T) {
+	body := "<script>\nexample\n</script>\n## Proof links\n\n| Task | Criterion |\n|---|---|\n| real proof | AC-201 |\n"
+	got := ParseProofLinks(body)
+	if len(got) != 1 || got[0].Criterion != "AC-201" {
+		t.Fatalf("a closing script tag must resume Markdown parsing, got %#v", got)
+	}
+}
+
+func TestUnit_ParseProofLinksDoesNotTreatMalformedHTMLAsABlock(t *testing.T) {
+	body := "<x-proof-example title=\"unterminated>\n## Proof links\n\n| Task | Criterion |\n|---|---|\n| real proof | AC-201 |\n"
+	got := ParseProofLinks(body)
+	if len(got) != 1 || got[0].Criterion != "AC-201" {
+		t.Fatalf("malformed HTML must not hide a proof-links table, got %#v", got)
+	}
+}
+
 // AC-115: extraction preserves in-flight source work as an inspectable
 // imported-change record — its proposal, design rationale, dependency, and
 // proof-linked task all remain readable from the record alone.
