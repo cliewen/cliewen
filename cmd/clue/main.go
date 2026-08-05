@@ -16,6 +16,7 @@ import (
 	"github.com/cliewen/cliewen/internal/corpus"
 	"github.com/cliewen/cliewen/internal/ledger"
 	"github.com/cliewen/cliewen/internal/migrate"
+	"github.com/cliewen/cliewen/internal/parity"
 	"github.com/cliewen/cliewen/internal/refs"
 	"github.com/cliewen/cliewen/internal/release"
 )
@@ -108,6 +109,17 @@ Commands:
              check: another host's uptime must not gate a merge.
              Path defaults to ".".
 
+  parity     Compare a pinned source manifest against the target manifest
+             derived from path's corpus and ledger (default "."), reporting
+             every missing criterion, orphaned tag, changed direction or
+             evidence location, stale source fingerprint, and unjustified
+             @draft/Human/retirement disposition (ADR-049). The report is
+             derived and never edited by hand; a clean run is the only
+             passing result.
+
+             --out=<path>  also write the report to path, for a migration
+                           workflow to upload as a CI artifact.
+
   validate   Scan docs/ and changes/ under path (default ".") and check
              the frontmatter graph: core fields, unique IDs, link
              resolution, status vocabularies, folder READMEs, index
@@ -187,6 +199,8 @@ func run(command string, args []string) int {
 		return runID(args, os.Stdout, os.Stderr)
 	case "refs":
 		return runRefs(args, os.Stdout, os.Stderr)
+	case "parity":
+		return runParity(args, os.Stdout, os.Stderr)
 	case "validate":
 		return runValidate(args, os.Stdout)
 	case "latest":
@@ -511,6 +525,63 @@ func runValidate(args []string, out io.Writer) int {
 		notes += fmt.Sprintf(", %d index row(s) not saying what the artifact is about", n)
 	}
 	fmt.Fprintf(out, "clue validate: OK (%d artifacts%s)\n", len(c.Artifacts), notes)
+	return 0
+}
+
+// runParity compares a pinned source manifest against the target manifest
+// clue derives from path's corpus and ledger (ADR-049), printing every
+// finding and exiting non-zero on any of the five required failure classes.
+func runParity(args []string, out, errOut io.Writer) int {
+	fs := flag.NewFlagSet("parity", flag.ContinueOnError)
+	fs.SetOutput(errOut)
+	outPath := fs.String("out", "", "also write the report to this path, for a CI artifact")
+	if err := fs.Parse(args); err != nil {
+		return 2
+	}
+	if fs.NArg() < 1 {
+		fmt.Fprintln(errOut, "clue parity: expected a source manifest path")
+		return 2
+	}
+	root := "."
+	if fs.NArg() > 1 {
+		root = fs.Arg(1)
+	}
+	if fs.NArg() > 2 {
+		fmt.Fprintln(errOut, "clue parity: expected a source manifest path and at most one repository path")
+		return 2
+	}
+
+	source, err := parity.LoadSourceManifest(fs.Arg(0))
+	if err != nil {
+		fmt.Fprintf(errOut, "clue parity: %v\n", err)
+		return 2
+	}
+	target, err := parity.DeriveTargetManifest(root)
+	if err != nil {
+		fmt.Fprintf(errOut, "clue parity: %v\n", err)
+		return 2
+	}
+	report := parity.Compare(source, target)
+
+	var buf strings.Builder
+	for _, f := range report.Findings {
+		fmt.Fprintf(&buf, "%s %s: %s\n", f.Class, f.ID, f.Detail)
+	}
+	if !report.Failed() {
+		fmt.Fprintf(&buf, "clue parity: OK (%d source entries)\n", len(source.Entries))
+	} else {
+		fmt.Fprintf(&buf, "clue parity: %d finding(s)\n", len(report.Findings))
+	}
+	fmt.Fprint(out, buf.String())
+	if *outPath != "" {
+		if err := os.WriteFile(*outPath, []byte(buf.String()), 0o644); err != nil {
+			fmt.Fprintf(errOut, "clue parity: %v\n", err)
+			return 2
+		}
+	}
+	if report.Failed() {
+		return 1
+	}
 	return 0
 }
 
