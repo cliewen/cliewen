@@ -1143,8 +1143,9 @@ func TestAC099_UnitNegative_DescribedFillerSubfolderAndMultiLinkRowsAreNotCounte
 	root := validCorpus(t)
 	writeFile(t, root, "docs/goals/README.md", "# Goals\n\n<!-- clue:index:start -->\n"+
 		"- [G-001 — First goal](G-001-first.md) · `accepted` — What this goal is actually about.\n"+
-		"- [G-002-second](G-002-second.md)\n"+
+		"- [G-002-second](G-002-second.md) · `accepted`\n"+
 		"- [G-003 — Third goal](G-003-third.md) · `accepted` and [G-004 — Fourth goal](G-004-fourth.md) · `accepted`\n"+
+		"- [sub/](sub/README.md)\n"+
 		"<!-- clue:index:end -->\n")
 	for _, g := range []struct{ id, file, title string }{
 		{"G-002", "G-002-second.md", "Second goal"},
@@ -1153,6 +1154,9 @@ func TestAC099_UnitNegative_DescribedFillerSubfolderAndMultiLinkRowsAreNotCounte
 	} {
 		writeFile(t, root, "docs/goals/"+g.file, "---\nid: "+g.id+"\ntype: goal\nstatus: accepted\nlinks: []\ntitle: "+g.title+"\n---\n")
 	}
+	// A subfolder README states a section, not a record, so neither population
+	// reads it — the clause is only meaningful with such a row present.
+	writeFile(t, root, "docs/goals/sub/README.md", "# Sub\n\n<!-- clue:index:start -->\n<!-- clue:index:end -->\n")
 	code, out := runValidateCapturingStdout(t, []string{"--index-rows", root})
 	if code != 0 {
 		t.Fatalf("expected exit 0, got %d, output=%q", code, out)
@@ -1163,7 +1167,13 @@ func TestAC099_UnitNegative_DescribedFillerSubfolderAndMultiLinkRowsAreNotCounte
 	if strings.Contains(out, "not what it is about") {
 		t.Fatalf("expected nothing listed for the description population, output=%q", out)
 	}
+	// The G-002 row carries a status badge and still only restates its own
+	// filename. Hand-adding a badge while working ADR-041's backlog down is the
+	// natural intermediate state, and it must land in exactly one population.
 	if !strings.Contains(out, "1 index row(s) stating only their own link") {
-		t.Fatalf("the filler row belongs to ADR-041's count, so the populations stay disjoint, output=%q", out)
+		t.Fatalf("a badged filler row belongs to ADR-041's count alone, so the populations stay disjoint, output=%q", out)
+	}
+	if strings.Contains(out, "sub/README.md states") {
+		t.Fatalf("a subfolder row is never counted by either population, output=%q", out)
 	}
 }

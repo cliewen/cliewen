@@ -253,7 +253,8 @@ Feature: clue validate — deterministic corpus judgment
     Then the run exits zero and the OK line counts the row as not saying what the artifact is about
     And "clue validate --index-rows" names the README and the target a reader opens to
     But a row carrying a description, a row referencing a subfolder README, and a curated row covering several targets are never counted
-    And a row stating only its own link is counted by the filler population instead, so the two populations stay disjoint
+    And a row whose label restates only its own link is counted by the filler population instead, whether or not a hand edit has since given it a status badge, so the two populations stay disjoint
+    And a row stating a record without the status badge the generator always writes is adopter prose in a shape no release produced, so it is left uncounted rather than graded
 
   @AC-089
   Scenario: The constraint register carries its fields and its declarations

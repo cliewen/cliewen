@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+	"unicode/utf8"
 )
 
 // The extractor's reading, exercised where it lives. The row-level contract is
@@ -72,6 +73,66 @@ func TestUnit_DescribeBodyReadsTheSeedSentence(t *testing.T) {
 			body: "# Title\n\n## Context\n\n- only a list\n",
 			want: "",
 		},
+		// Structure the first implementation read as prose. An ordered list item
+		// is a list item, a setext heading is a heading, and an indented block is
+		// code, however little the leading spaces look like syntax.
+		{
+			name: "an ordered list item is a list item",
+			body: "# Title\n\n1. first item. second\n\nThe prose.\n",
+			want: "The prose.",
+		},
+		{
+			name: "an ordered list item written with a paren is one too",
+			body: "# Title\n\n1) first item. second\n\nThe prose.\n",
+			want: "The prose.",
+		},
+		{
+			name: "a setext heading is a heading, underline included",
+			body: "# Title\n\nContext\n-------\n\nThe prose.\n",
+			want: "The prose.",
+		},
+		{
+			name: "a setext H1 is the title, not the description",
+			body: "Title\n=====\n\nThe prose.\n",
+			want: "The prose.",
+		},
+		{
+			name: "an indented code block is code",
+			body: "# Title\n\n    indented code. not prose\n\nThe prose.\n",
+			want: "The prose.",
+		},
+		{
+			name: "a tab-indented code block is code",
+			body: "# Title\n\n\ttabbed code. not prose\n\nThe prose.\n",
+			want: "The prose.",
+		},
+		{
+			name: "an HTML block is not prose",
+			body: "# Title\n\n<div class=\"x\">\n\nThe prose.\n",
+			want: "The prose.",
+		},
+		{
+			name: "a thematic break carries nothing",
+			body: "# Title\n\n***\n\nThe prose.\n",
+			want: "The prose.",
+		},
+		// A seed that cannot be made safe is declined, because the shorter row is
+		// always available and an unsafe row breaks the corpus.
+		{
+			name: "a link label carrying its own brackets defeats reduction, so the seed is declined",
+			body: "# Title\n\nA reader follows [the [Unreleased] section](../../CHANGELOG.md) to see what shipped.\n",
+			want: "",
+		},
+		{
+			name: "a bare link fragment in prose is declined",
+			body: "# Title\n\nThe path reads ](file.md) when written by hand.\n",
+			want: "",
+		},
+		{
+			name: "an index marker is declined rather than written into the block",
+			body: "# Title\n\nEverything before the <!-- clue:index:end --> line is regenerated.\n",
+			want: "",
+		},
 		{
 			name: "an empty body yields nothing",
 			body: "",
@@ -115,6 +176,23 @@ func TestUnit_DescribeBodyBoundsTheSentence(t *testing.T) {
 	}
 	if strings.HasSuffix(strings.TrimSuffix(got, "…"), "elaborat") {
 		t.Fatalf("the cut falls on a word boundary, got %q", got)
+	}
+}
+
+// Ideographic prose carries no ASCII space, so it reaches the byte-offset
+// fallback cut. The result must still be valid UTF-8: a README sliced through
+// the middle of a rune is a corrupt file, not a short description.
+func TestUnit_DescribeBodyCutsOnARuneBoundary(t *testing.T) {
+	body := "# Title\n\n" + strings.Repeat("説明", 200) + "。\n"
+	got, ok := describeBody(body)
+	if !ok {
+		t.Fatal("expected a bounded sentence")
+	}
+	if !utf8.ValidString(got) {
+		t.Fatalf("the cut produced invalid UTF-8: %q", got)
+	}
+	if !strings.HasSuffix(got, "…") {
+		t.Fatalf("a cut sentence is marked, got %q", got)
 	}
 }
 

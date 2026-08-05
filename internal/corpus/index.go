@@ -6,6 +6,7 @@ import (
 	"regexp"
 	"sort"
 	"strings"
+	"unicode/utf8"
 )
 
 // IndexRowIdentity is what a taxonomy index row states about the artifact it
@@ -76,22 +77,45 @@ func RowDescription(p string) (string, bool) {
 	return describeBody(body)
 }
 
+// orderedItemRe matches an ordered list item, which is a list item as much as a
+// bulleted one is.
+var orderedItemRe = regexp.MustCompile(`^\d+[.)]\s`)
+
+// setextUnderlineRe matches the run of = or - that makes the line above it a
+// heading. A body may title itself that way instead of with an ATX #.
+var setextUnderlineRe = regexp.MustCompile(`^(=+|-+)$`)
+
+// thematicBreakRe matches a horizontal rule, which carries no prose at all.
+var thematicBreakRe = regexp.MustCompile(`^(-{3,}|\*{3,}|_{3,})$`)
+
 // describeBody is RowDescription's reading, split out so it can be exercised
 // on prose directly.
 func describeBody(body string) (string, bool) {
 	lines := strings.Split(body, "\n")
+
+	// Find the H1 and read after it. A setext H1 — the title underlined with
+	// = — counts, or a body that titles itself that way would have its own
+	// title read back as its description.
 	i := 0
-	for i < len(lines) && !strings.HasPrefix(strings.TrimSpace(lines[i]), "# ") {
+	for i < len(lines) {
+		if strings.HasPrefix(strings.TrimSpace(lines[i]), "# ") {
+			i++
+			break
+		}
+		if i+1 < len(lines) && strings.HasPrefix(setextUnderline(lines[i+1]), "=") && strings.TrimSpace(lines[i]) != "" {
+			i += 2
+			break
+		}
 		i++
 	}
-	if i < len(lines) {
-		i++ // start after the H1; a body without one is read from the top
-	} else {
-		i = 0
+	if i >= len(lines) {
+		i = 0 // no heading anywhere: the body is read from the top
 	}
+
 	fenced := false
 	for ; i < len(lines); i++ {
-		s := strings.TrimSpace(lines[i])
+		raw := lines[i]
+		s := strings.TrimSpace(raw)
 		if strings.HasPrefix(s, "```") || strings.HasPrefix(s, "~~~") {
 			fenced = !fenced
 			continue
@@ -99,15 +123,27 @@ func describeBody(body string) (string, bool) {
 		if fenced || s == "" {
 			continue
 		}
-		// A heading is skipped rather than read: passing one is what turns a
-		// missing lede into the fallback reading, and both land here.
-		if strings.HasPrefix(s, "#") {
+		// An indented code block is code, and its four leading spaces are the
+		// only thing that says so.
+		if strings.HasPrefix(raw, "    ") || strings.HasPrefix(raw, "\t") {
 			continue
 		}
-		// A table row, list item, blockquote, or HTML comment is structure
-		// rather than the paragraph this is looking for.
-		if strings.HasPrefix(s, "|") || strings.HasPrefix(s, ">") || strings.HasPrefix(s, "<!--") ||
-			strings.HasPrefix(s, "- ") || strings.HasPrefix(s, "* ") || strings.HasPrefix(s, "+ ") {
+		// An ATX heading is skipped rather than read: passing one is what turns
+		// a missing lede into the fallback reading, and both land here. A setext
+		// heading is the same thing written differently, so the underline and
+		// the line it underlines are both skipped.
+		if strings.HasPrefix(s, "#") || setextUnderlineRe.MatchString(s) {
+			continue
+		}
+		if i+1 < len(lines) && setextUnderlineRe.MatchString(setextUnderline(lines[i+1])) {
+			continue
+		}
+		// Structure rather than the paragraph this is looking for: a table row,
+		// a bulleted or ordered list item, a blockquote, an HTML block or
+		// comment, or a horizontal rule.
+		if strings.HasPrefix(s, "|") || strings.HasPrefix(s, ">") || strings.HasPrefix(s, "<") ||
+			strings.HasPrefix(s, "- ") || strings.HasPrefix(s, "* ") || strings.HasPrefix(s, "+ ") ||
+			orderedItemRe.MatchString(s) || thematicBreakRe.MatchString(s) {
 			continue
 		}
 		if sentence, ok := firstSentence(stripLinks(s)); ok {
@@ -116,6 +152,9 @@ func describeBody(body string) (string, bool) {
 	}
 	return "", false
 }
+
+// setextUnderline normalizes a line for the underline test.
+func setextUnderline(line string) string { return strings.TrimSpace(line) }
 
 // sentenceEndRe finds a sentence terminator followed by a space. Splitting on
 // the terminator alone would cut inside a version number or a filename.
@@ -149,6 +188,11 @@ func stripLinks(s string) string {
 // firstSentence takes the opening sentence of a paragraph and bounds it.
 // Terminators inside backticks are ignored, because a code span carrying a
 // path or a command routinely contains a period that ends nothing.
+//
+// It returns false rather than a sentence it cannot make safe. A seed is worth
+// only what a row is worth, and the shorter row AC-097 already blesses is
+// always available, so anything that could make index generation emit a corpus
+// the judge rejects is declined instead of repaired.
 func firstSentence(s string) (string, bool) {
 	masked := maskCodeSpans(s)
 	if m := sentenceEndRe.FindStringIndex(masked); m != nil {
@@ -163,9 +207,43 @@ func firstSentence(s string) (string, bool) {
 		if cut <= 0 {
 			cut = descriptionLimit
 		}
+		// Prose with no ASCII space inside the bound — ideographic writing, for
+		// one — reaches the fallback cut, which is a byte offset. Backing off to
+		// a rune start keeps the README valid UTF-8.
+		for cut > 0 && !utf8.RuneStart(s[cut]) {
+			cut--
+		}
+		if cut == 0 {
+			return "", false
+		}
 		s = strings.TrimRight(s[:cut], " ,;:") + "…"
 	}
+	if !seedIsSafe(s) {
+		return "", false
+	}
 	return s, true
+}
+
+// seedIsSafe rejects a candidate description that would corrupt the block it is
+// written into. Both classes are closed by refusing the seed rather than by
+// chasing the shapes that produce it, because a reduction that merely looks
+// right is how the first attempt shipped a link inside a code span.
+//
+//   - Residual link syntax. stripLinks reduces a well-formed link, but a label
+//     carrying its own brackets defeats any single pattern, and checkIndexes
+//     reads the leftover `](target)` anyway. A live target then either resolves
+//     to nothing, which fails the judge, or resolves to a sibling, which lets
+//     the row cover a second artifact so that artifact's own row can go missing
+//     unnoticed.
+//   - A comment or index marker. regenIndex finds the block by searching for
+//     the marker text, so a seed carrying one truncates the block on the next
+//     run, duplicates rows, and strands prose outside the markers — data loss in
+//     a file the adopter owns.
+func seedIsSafe(s string) bool {
+	if strings.Contains(s, "](") || mdLinkTextRe.MatchString(s) {
+		return false
+	}
+	return !strings.Contains(s, "<!--") && !strings.Contains(s, "-->")
 }
 
 // maskCodeSpans blanks the interior of backtick spans so sentence detection
@@ -268,9 +346,16 @@ var rowTailRe = regexp.MustCompile("\\)\\s*·\\s*`[^`]*`\\s*(.*)$")
 // description across the taxonomy READMEs.
 //
 // Like IndexRowBacklog this is a counted population and never an Issue
-// (ADR-046): every such row was written by the generator before a description
-// was seeded, in a file the adopter owns, and no command clears the count
-// because regeneration preserves any row whose target still exists.
+// (ADR-046): almost every such row was written by the generator before a
+// description was seeded, in a file the adopter owns, and no command clears the
+// count because regeneration preserves any row whose target still exists. The
+// rest are artifacts whose body holds no readable opening sentence, where the
+// generator still emits the shorter row by design.
+//
+// A row that states a record without the status badge the generator always
+// writes is adopter prose in a shape no release produced, so it is left
+// uncounted. ADR-041 drew that line first: the count names generated output and
+// never grades a curated row.
 func IndexDescriptionBacklog(c *Corpus) []IndexRowUndescribed {
 	var out []IndexRowUndescribed
 	for _, rel := range c.MDFiles {
@@ -300,6 +385,14 @@ func IndexDescriptionBacklog(c *Corpus) []IndexRowUndescribed {
 			m := rowTailRe.FindStringSubmatch(line)
 			if m == nil {
 				continue // no status badge: not a row that states its record
+			}
+			// A row whose label restates its own filename belongs to ADR-041's
+			// filler population, badge or no badge. Working that backlog down by
+			// hand-adding a status to an old filler row is the natural
+			// intermediate state, and reading the badge alone would count that
+			// one row in both populations at once.
+			if links[0][1] == strings.TrimSuffix(target, ".md") {
+				continue
 			}
 			if strings.TrimSpace(strings.TrimLeft(strings.TrimSpace(m[1]), "—-")) != "" {
 				continue

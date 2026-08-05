@@ -45,10 +45,11 @@ Feature: Index generation — clue scaffold
     Then the appended row carries a description seeded from the artifact's own body after its status
     And a lede paragraph directly beneath the H1 is preferred over prose under a later heading
     And a body with no lede is read from the first paragraph under its first heading
-    And a heading, table row, list item, blockquote, and fenced block are not read as that paragraph
+    And structure is not read as that paragraph: a heading written either way, a table row, a bulleted or ordered list item, a blockquote, a fenced or indented code block, an HTML block, and a horizontal rule
     And every inline link in the seeded sentence is reduced to its label, so the row cannot cover a second target
     And a link written inside a code span is reduced too, because the block's link reading knows nothing about spans and a quoted placeholder target resolves to nothing
-    And a sentence longer than the bound is cut at a word boundary rather than mid-word
+    And a sentence longer than the bound is cut at a word boundary, backing off to a rune boundary where the prose carries no spaces, so the row is never invalid UTF-8
+    But a candidate that cannot be made safe is declined rather than repaired, and the shorter row is emitted instead: a link label carrying its own brackets defeats reduction, and an index marker or HTML comment would truncate the block it is written into
 
   @AC-097
   Scenario: A row is one shape or the other and never carries an empty description
