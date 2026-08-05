@@ -113,9 +113,8 @@ Commands:
              derived from path's corpus and ledger (default "."), reporting
              every missing criterion, orphaned tag, changed direction or
              evidence location, stale source fingerprint, and unjustified
-             @draft/Human/retirement disposition (ADR-049). The report is
-             derived and never edited by hand; a clean run is the only
-             passing result.
+             @draft/Human/retirement disposition. The report is derived and
+             never edited by hand; a clean run is the only passing result.
 
              --out=<path>  also write the report to path, for a migration
                            workflow to upload as a CI artifact.
