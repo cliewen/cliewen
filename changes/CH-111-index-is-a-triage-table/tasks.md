@@ -10,49 +10,45 @@ title: Tasks for CH-111
 
 ## Decision first
 
-- [ ] Write ADR-046 replacing ADR-019's single-line-entry clause: the predefined prefix, the writer-owned and adopter-owned split, the extraction rule, and why no date column exists
+- [ ] Write ADR-046 extending ADR-041: an appended row seeds a description from the body, the description is curated thereafter, extraction seeds and never asserts, and rows without one are counted rather than failed on
+- [ ] Amend C-016 with the description clause, keeping its existing row-opening rule intact
 
 ## Criteria before implementation
 
-- [ ] Revise AC-024 and AC-025 for the table contract
-- [ ] Add AC-096…AC-099 to CAP-001 and CAP-002 with `Test-type: Unit`, each with positive and negative evidence
+- [ ] Add AC-096 to CAP-005: an appended row carries a description extracted from the artifact body
+- [ ] Add AC-097 to CAP-005: an artifact with no extractable sentence keeps the existing row shape and never emits an empty tail
+- [ ] Add AC-098 to CAP-002: the judge counts rows that state their record but carry no description, and lists them on request
+- [ ] Each with `Test-type: Unit` and both positive and negative evidence
 
-## The regeneration engine
+## The generator
 
-- [ ] Detect a table by a header and separator as the first two non-empty lines inside the markers, leaving every other block byte-identical to today (AC-096)
-- [ ] Preserve the header and separator across regeneration, which is the decapitation fix (AC-096)
-- [ ] Key each row by the link target in its first cell, reusing `coverTarget` so subfolder coverage is unchanged
-- [ ] Rewrite cells one through four from the artifact and preserve cells five onward verbatim (AC-097)
-- [ ] Append a missing target as a row with a derived prefix and empty extras (AC-098)
-- [ ] Extract the description: lede beneath the H1 when present, otherwise the first sentence under the first heading, truncated at a sentence boundary
-- [ ] Report every artifact whose description came from the fallback
+- [ ] Extract the description: a lede paragraph beneath the H1 where one exists, otherwise the first sentence of the first paragraph under the first heading
+- [ ] Skip tables, lists, blockquotes and fenced blocks when looking for that sentence
+- [ ] Truncate at a sentence boundary and keep the row on one line, since a multi-line entry is not one `checkIndexes` recognizes
+- [ ] Append `- [<id> — <title>](<file>) · \`<status>\` — <description>` (AC-096)
+- [ ] Degrade to today's row when no sentence can be read (AC-097)
+- [ ] Confirm regeneration still rewrites nothing that already exists
 
 ## The judge
 
-- [ ] `checkIndexes` requires the predefined four headers in order when the block is a table (AC-099)
-- [ ] Confirm the judge reads no git and gains no new dependency
-
-## Templates and migration
-
-- [ ] Ship the table header in the eight `internal/scaffold/templates/docs/**/README.md` index blocks
-- [ ] Confirm a fresh `init` reports nothing regenerated on its first run, as ADR-019 requires
-- [ ] MIG-008 converts an emitted list block to the table shape: preview by default, idempotent, prose outside the markers untouched
-- [ ] Add MIG-008 to the migration inventory
+- [ ] Extend the index-row backlog in `internal/corpus/index.go` with the description-less population (AC-098)
+- [ ] Surface it on the OK line and behind a list flag, as a count and never an `Issue`
+- [ ] Confirm the judge reads no new source and gains no dependency
 
 ## Extraction guidance
 
-- [ ] Teach `clue-extract` to fold a foreign index file into its sibling README block, map columns onto the prefix, drop the ones restating `links:`, and delete the absorbed file
+- [ ] Teach `clue-extract` to absorb a foreign index file into its sibling README block, map its description column onto the row tail, drop columns restating `links:`, and delete the absorbed file
 - [ ] Add the index-file row to `mappings/openspec.md` and `mappings/madr.md`
 - [ ] Edit `internal/skills/source/` only, then run `go generate ./internal/skills` and confirm no drift
 
 ## Carriers
 
-- [ ] CAP-001 criteria and design, CAP-002's index rule, and the migration inventory state the same contract
-- [ ] `[Unreleased]` in `CHANGELOG.md`, including the `### Migration` section the release gate requires
+- [ ] C-016, CAP-002 and CAP-005 criteria and design, and the CLI surface state the same contract
+- [ ] `[Unreleased]` in `CHANGELOG.md`; no `### Migration` section, because no corpus obligation is added or narrowed
 
 ## Verification
 
-- [ ] Run the new engine against the adopter repository that prompted this change and confirm the header survives `init`
+- [ ] Run the generator against the adopter repository that prompted this change and read the rows it produces
 - [ ] `go build ./...`, `go test ./... -coverprofile=coverage.out`, coverage at or above 80%
 - [ ] `go run ./cmd/clue validate --forbid-changes` and `git diff --check`
 - [ ] Digest the workspace into the corpus and set M-051 `done` with its evidence
