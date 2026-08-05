@@ -1115,3 +1115,55 @@ func TestAC074_UnitNegative_StatedSubfolderAndMultiLinkRowsAreNotCounted(t *test
 		t.Fatalf("expected nothing listed, output=%q", out)
 	}
 }
+
+// AC-099: the judge counts a row that states its record but says nothing about
+// what the artifact contains, names it behind --index-rows, and still exits 0.
+// Every such row is the generator's own output from before a description was
+// seeded, so it is reported and never failed on (ADR-046).
+func TestAC099_UnitPositive_UndescribedIndexRowIsCountedAndListed(t *testing.T) {
+	root := validCorpus(t)
+	writeFile(t, root, "docs/goals/README.md", "# Goals\n\n<!-- clue:index:start -->\n- [G-001 — First goal](G-001-first.md) · `accepted`\n<!-- clue:index:end -->\n")
+	code, out := runValidateCapturingStdout(t, []string{"--index-rows", root})
+	if code != 0 {
+		t.Fatalf("an undescribed row is counted, never failed on; expected exit 0, got %d, output=%q", code, out)
+	}
+	if !strings.Contains(out, "1 index row(s) not saying what the artifact is about") {
+		t.Fatalf("expected the row counted on the OK line, output=%q", out)
+	}
+	if !strings.Contains(out, "docs/goals/README.md: G-001-first.md states its record but not what it is about") {
+		t.Fatalf("expected --index-rows to name the row, output=%q", out)
+	}
+}
+
+// AC-099 negative: a described row, a filler row, a subfolder row, and a curated
+// row covering several targets are all left out of this population. The filler
+// row matters most: it carries no status badge, so it belongs to ADR-041's count
+// and the two populations stay disjoint rather than double-counting one row.
+func TestAC099_UnitNegative_DescribedFillerSubfolderAndMultiLinkRowsAreNotCounted(t *testing.T) {
+	root := validCorpus(t)
+	writeFile(t, root, "docs/goals/README.md", "# Goals\n\n<!-- clue:index:start -->\n"+
+		"- [G-001 — First goal](G-001-first.md) · `accepted` — What this goal is actually about.\n"+
+		"- [G-002-second](G-002-second.md)\n"+
+		"- [G-003 — Third goal](G-003-third.md) · `accepted` and [G-004 — Fourth goal](G-004-fourth.md) · `accepted`\n"+
+		"<!-- clue:index:end -->\n")
+	for _, g := range []struct{ id, file, title string }{
+		{"G-002", "G-002-second.md", "Second goal"},
+		{"G-003", "G-003-third.md", "Third goal"},
+		{"G-004", "G-004-fourth.md", "Fourth goal"},
+	} {
+		writeFile(t, root, "docs/goals/"+g.file, "---\nid: "+g.id+"\ntype: goal\nstatus: accepted\nlinks: []\ntitle: "+g.title+"\n---\n")
+	}
+	code, out := runValidateCapturingStdout(t, []string{"--index-rows", root})
+	if code != 0 {
+		t.Fatalf("expected exit 0, got %d, output=%q", code, out)
+	}
+	if strings.Contains(out, "index row(s) not saying what the artifact is about") {
+		t.Fatalf("no row here states a record without a description; expected no count, output=%q", out)
+	}
+	if strings.Contains(out, "not what it is about") {
+		t.Fatalf("expected nothing listed for the description population, output=%q", out)
+	}
+	if !strings.Contains(out, "1 index row(s) stating only their own link") {
+		t.Fatalf("the filler row belongs to ADR-041's count, so the populations stay disjoint, output=%q", out)
+	}
+}

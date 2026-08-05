@@ -245,6 +245,16 @@ Feature: clue validate — deterministic corpus judgment
     And "clue validate --index-rows" names the README and the target a reader opens to
     But a row stating its record's id and title, a row referencing a subfolder README, and a curated row covering several targets are never counted
 
+  @AC-099
+  Scenario: Index rows that state their record but not what it is about are counted, never failed on
+    Test-type: Unit
+    Given a taxonomy README whose index row states its record's id, title, and status and carries nothing after them
+    When the user runs "clue validate"
+    Then the run exits zero and the OK line counts the row as not saying what the artifact is about
+    And "clue validate --index-rows" names the README and the target a reader opens to
+    But a row carrying a description, a row referencing a subfolder README, and a curated row covering several targets are never counted
+    And a row stating only its own link is counted by the filler population instead, so the two populations stay disjoint
+
   @AC-089
   Scenario: The constraint register carries its fields and its declarations
     Test-type: Unit

@@ -125,23 +125,25 @@ var sentenceEndRe = regexp.MustCompile(`[.!?]\s`)
 // text.
 var mdLinkTextRe = regexp.MustCompile(`\[([^\]]*)\]\([^)\s]*\)`)
 
-// stripLinks reduces an inline markdown link to its label.
+// stripLinks reduces every inline markdown link to its label, including one
+// written inside a code span.
 //
 // A seeded description carrying a live link would make its row cover a second
 // target: regenIndex credits every link on a line, so a prose reference to
 // another artifact would satisfy that artifact's index entry and let a real row
 // for it go missing. It would also take the row out of both index-row
-// populations, which read only a row carrying exactly one link. The label alone
-// says the same thing to a reader and links nothing.
-// Inside a code span a link is literal text — an ADR quoting the row format it
-// defines writes one there — so the segments between backticks are left byte
-// for byte and only the prose between them is reduced.
+// populations, which read only a row carrying exactly one link.
+//
+// A code span is no exception, even though the link inside it is literal text
+// to a markdown reader. checkIndexes reads the block with a link pattern that
+// knows nothing about spans, and an artifact quoting the row format it defines
+// writes a placeholder target — `<file>` — that resolves to nothing. Preserving
+// it would make index generation emit a corpus the judge then rejects, turning
+// a Cliewen defect into the adopter's red build, which is the outcome ADR-041
+// and ADR-046 both refuse. Faithfully quoting an example is worth less than a
+// generator that cannot produce an unresolvable link.
 func stripLinks(s string) string {
-	parts := strings.Split(s, "`")
-	for i := 0; i < len(parts); i += 2 {
-		parts[i] = mdLinkTextRe.ReplaceAllString(parts[i], "$1")
-	}
-	return strings.Join(parts, "`")
+	return mdLinkTextRe.ReplaceAllString(s, "$1")
 }
 
 // firstSentence takes the opening sentence of a paragraph and bounds it.
