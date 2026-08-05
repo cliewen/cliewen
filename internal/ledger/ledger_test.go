@@ -1,10 +1,13 @@
 package ledger
 
 import (
+	"math/big"
 	"os"
 	"path/filepath"
 	"testing"
 )
+
+func decimal(n int64) *big.Int { return big.NewInt(n) }
 
 func nextNumeric(t *testing.T, l *Ledger, prefix string) string {
 	t.Helper()
@@ -94,8 +97,8 @@ func TestAC105_UnitPositive_RetiredNumericIDNeverReissued(t *testing.T) {
 	// imported/backfilled entry would be: the counter sits just below it,
 	// so the very next allocation would collide with it if the skip loop
 	// did not fire.
-	l.byID["PDR-050"] = &Entry{ID: "PDR-050", Kind: KindNumeric, State: StateRetired, Prefix: "PDR", Component: 50}
-	l.counters["PDR"] = 49
+	l.byID["PDR-050"] = &Entry{ID: "PDR-050", Kind: KindNumeric, State: StateRetired, Prefix: "PDR", Component: decimal(50)}
+	l.counters["PDR"] = decimal(49)
 
 	id := nextNumeric(t, l, "PDR")
 	if id == "PDR-050" {
@@ -109,8 +112,8 @@ func TestAC105_UnitPositive_RetiredNumericIDNeverReissued(t *testing.T) {
 func TestAC105_UnitNegative_FreshlyIssuedNumberIsUnused(t *testing.T) {
 	root := t.TempDir()
 	l, _ := Load(root)
-	l.byID["PDR-050"] = &Entry{ID: "PDR-050", Kind: KindNumeric, State: StateRetired, Prefix: "PDR", Component: 50}
-	l.counters["PDR"] = 49
+	l.byID["PDR-050"] = &Entry{ID: "PDR-050", Kind: KindNumeric, State: StateRetired, Prefix: "PDR", Component: decimal(50)}
+	l.counters["PDR"] = decimal(49)
 	id := nextNumeric(t, l, "PDR")
 	if l.IsUsed(id) == false {
 		t.Fatal("a freshly issued id must be recorded as used")
@@ -125,19 +128,19 @@ func TestUnit_MarkLiveClassifiesShapeAndSeedsCounter(t *testing.T) {
 	l, _ := Load(root)
 	l.MarkLive("CH-116")
 	e, ok := l.Lookup("CH-116")
-	if !ok || e.Kind != KindNumeric || e.Prefix != "CH" || e.Component != 116 || e.State != StateLive {
+	if !ok || e.Kind != KindNumeric || e.Prefix != "CH" || e.Component.Cmp(decimal(116)) != 0 || e.State != StateLive {
 		t.Fatalf("MarkLive(CH-116) entry = %+v, ok=%v", e, ok)
 	}
-	if l.counters["CH"] != 116 {
+	if l.counters["CH"].Cmp(decimal(116)) != 0 {
 		t.Fatalf("counters[CH] = %d, want 116 seeded from the live component", l.counters["CH"])
 	}
 
 	l.MarkLive("SNAP-SQS-001")
 	se, ok := l.Lookup("SNAP-SQS-001")
-	if !ok || se.Kind != KindNumeric || se.Prefix != "SNAP-SQS" || se.Component != 1 || se.State != StateLive {
+	if !ok || se.Kind != KindNumeric || se.Prefix != "SNAP-SQS" || se.Component.Cmp(decimal(1)) != 0 || se.State != StateLive {
 		t.Fatalf("MarkLive(SNAP-SQS-001) entry = %+v, ok=%v", se, ok)
 	}
-	if l.counters["SNAP-SQS"] != 1 {
+	if l.counters["SNAP-SQS"].Cmp(decimal(1)) != 0 {
 		t.Fatalf("counters[SNAP-SQS] = %d, want 1", l.counters["SNAP-SQS"])
 	}
 	if got := nextNumeric(t, l, "SNAP-SQS"); got != "SNAP-SQS-002" {
@@ -153,23 +156,38 @@ func TestUnit_MarkLiveClassifiesShapeAndSeedsCounter(t *testing.T) {
 }
 
 func TestUnit_ValidNumericEntryRequiresCanonicalStructuredIdentity(t *testing.T) {
-	if !ValidNumericEntry(Entry{ID: "ADP-045b", Kind: KindNumeric, Prefix: "ADP", Component: 45}) {
+	if !ValidNumericEntry(Entry{ID: "ADP-045b", Kind: KindNumeric, Prefix: "ADP", Component: decimal(45)}) {
 		t.Fatal("canonical suffixed numeric entry rejected")
 	}
-	if !ValidNumericEntry(Entry{ID: "SNAP-SQS-001", Kind: KindNumeric, Prefix: "SNAP-SQS", Component: 1}) {
+	if !ValidNumericEntry(Entry{ID: "SNAP-SQS-001", Kind: KindNumeric, Prefix: "SNAP-SQS", Component: decimal(1)}) {
 		t.Fatal("canonical segmented numeric entry rejected")
 	}
-	if !ValidNumericEntry(Entry{ID: "AC-000", Kind: KindNumeric, Prefix: "AC", Component: 0}) {
+	if !ValidNumericEntry(Entry{ID: "AC-000", Kind: KindNumeric, Prefix: "AC", Component: decimal(0)}) {
 		t.Fatal("canonical zero-valued numeric entry rejected")
 	}
 	for _, e := range []Entry{
-		{ID: "G-001", Kind: KindNumeric, Prefix: "PDR", Component: 1},
-		{ID: "G-001", Kind: KindNumeric, Prefix: "G", Component: 99},
-		{ID: "snap-sqs-001", Kind: KindNumeric, Prefix: "snap-sqs", Component: 1},
+		{ID: "G-001", Kind: KindNumeric, Prefix: "PDR", Component: decimal(1)},
+		{ID: "G-001", Kind: KindNumeric, Prefix: "G", Component: decimal(99)},
+		{ID: "snap-sqs-001", Kind: KindNumeric, Prefix: "snap-sqs", Component: decimal(1)},
 	} {
 		if ValidNumericEntry(e) {
 			t.Fatalf("invalid numeric entry accepted: %+v", e)
 		}
+	}
+}
+
+func TestUnit_MarkLivePreservesArbitraryPrecisionComponent(t *testing.T) {
+	root := t.TempDir()
+	l, _ := Load(root)
+	const component = "999999999999999999999999"
+	l.MarkLive("AC-" + component)
+	e, ok := l.Lookup("AC-" + component)
+	if !ok || e.Kind != KindNumeric || e.Component.String() != component {
+		t.Fatalf("large numeric entry = %+v, ok=%v", e, ok)
+	}
+	got := nextNumeric(t, l, "AC")
+	if got != "AC-1000000000000000000000000" {
+		t.Fatalf("next large numeric ID = %q", got)
 	}
 }
 

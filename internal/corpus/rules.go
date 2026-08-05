@@ -284,7 +284,7 @@ func checkLedger(c *Corpus) []Issue {
 				issues = append(issues, Issue{ledger.DefaultPath, "entry " + e.ID + " is numeric-kind but its ID, prefix, and component do not agree"})
 			}
 		case ledger.KindOpaque:
-			if e.Component != 0 || e.Prefix != "" {
+			if e.Component != nil || e.Prefix != "" {
 				issues = append(issues, Issue{ledger.DefaultPath, "entry " + e.ID + " is opaque-kind but carries numeric fields"})
 			}
 		default:

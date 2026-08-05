@@ -6,6 +6,7 @@ package ledger
 
 import (
 	"fmt"
+	"math/big"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -39,19 +40,19 @@ const (
 // opaque entry carries neither. An entry imported from a brownfield source
 // additionally carries SourceRevision/SourceLocation.
 type Entry struct {
-	ID             string `yaml:"id"`
-	Kind           Kind   `yaml:"kind"`
-	State          State  `yaml:"state"`
-	Prefix         string `yaml:"prefix,omitempty"`
-	Component      int    `yaml:"component,omitempty"`
-	SourceRevision string `yaml:"source-revision,omitempty"`
-	SourceLocation string `yaml:"source-location,omitempty"`
+	ID             string   `yaml:"id"`
+	Kind           Kind     `yaml:"kind"`
+	State          State    `yaml:"state"`
+	Prefix         string   `yaml:"prefix,omitempty"`
+	Component      *big.Int `yaml:"component,omitempty"`
+	SourceRevision string   `yaml:"source-revision,omitempty"`
+	SourceLocation string   `yaml:"source-location,omitempty"`
 }
 
 // file is the on-disk shape of .clue/id-ledger.yaml.
 type file struct {
-	Counters map[string]int `yaml:"counters"`
-	Entries  []Entry        `yaml:"entries"`
+	Counters map[string]*big.Int `yaml:"counters"`
+	Entries  []Entry             `yaml:"entries"`
 }
 
 // Ledger is the in-memory allocator and identity register: byID answers
@@ -59,7 +60,7 @@ type file struct {
 // prefix", both in O(1) after one Load.
 type Ledger struct {
 	path     string
-	counters map[string]int
+	counters map[string]*big.Int
 	byID     map[string]*Entry
 }
 
@@ -82,7 +83,7 @@ var (
 func Load(root string) (*Ledger, error) {
 	l := &Ledger{
 		path:     filepath.Join(root, DefaultPath),
-		counters: map[string]int{},
+		counters: map[string]*big.Int{},
 		byID:     map[string]*Entry{},
 	}
 	data, err := os.ReadFile(l.path)
@@ -178,7 +179,7 @@ func (l *Ledger) Entries() []Entry {
 // ValidNumericEntry reports whether a numeric ledger entry preserves its
 // canonical ID's prefix and decimal component exactly as structured fields.
 func ValidNumericEntry(e Entry) bool {
-	if e.Kind != KindNumeric || e.Prefix == "" || e.Component < 0 {
+	if e.Kind != KindNumeric || e.Prefix == "" || e.Component == nil || e.Component.Sign() < 0 {
 		return false
 	}
 	m := numericIDRe.FindStringSubmatch(e.ID)
@@ -186,7 +187,7 @@ func ValidNumericEntry(e Entry) bool {
 		return false
 	}
 	n, err := parseComponent(m[2])
-	return err == nil && n == e.Component
+	return err == nil && n.Cmp(e.Component) == 0
 }
 
 // ValidNumericPrefix reports whether prefix can name a native numeric
@@ -204,17 +205,20 @@ func (l *Ledger) NextNumeric(prefix string) (string, error) {
 	if !ValidNumericPrefix(prefix) {
 		return "", fmt.Errorf("prefix %q is not a canonical numeric prefix", prefix)
 	}
-	n := l.counters[prefix]
+	n := new(big.Int)
+	if current, ok := l.counters[prefix]; ok {
+		n.Set(current)
+	}
 	var id string
 	for {
-		n++
+		n.Add(n, big.NewInt(1))
 		id = fmt.Sprintf("%s-%03d", prefix, n)
 		if l.byID[id] == nil {
 			break
 		}
 	}
-	l.counters[prefix] = n
-	l.byID[id] = &Entry{ID: id, Kind: KindNumeric, State: StateReserved, Prefix: prefix, Component: n}
+	l.counters[prefix] = new(big.Int).Set(n)
+	l.byID[id] = &Entry{ID: id, Kind: KindNumeric, State: StateReserved, Prefix: prefix, Component: new(big.Int).Set(n)}
 	return id, nil
 }
 
@@ -243,8 +247,8 @@ func (l *Ledger) MarkLive(id string) {
 			e.Kind = KindNumeric
 			e.Prefix = m[1]
 			e.Component = n
-			if n > l.counters[m[1]] {
-				l.counters[m[1]] = n
+			if current, ok := l.counters[m[1]]; !ok || n.Cmp(current) > 0 {
+				l.counters[m[1]] = new(big.Int).Set(n)
 			}
 		}
 	}
@@ -274,10 +278,10 @@ func (l *Ledger) Retire(id string) {
 	}
 }
 
-func parseComponent(s string) (int, error) {
-	var n int
-	if _, err := fmt.Sscanf(s, "%d", &n); err != nil {
-		return 0, err
+func parseComponent(s string) (*big.Int, error) {
+	n, ok := new(big.Int).SetString(s, 10)
+	if !ok {
+		return nil, fmt.Errorf("invalid decimal component %q", s)
 	}
 	return n, nil
 }

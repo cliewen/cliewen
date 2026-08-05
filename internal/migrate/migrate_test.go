@@ -862,6 +862,11 @@ func TestAC107_UnitPositive_MigrateBackfillsSegmentedNumericPrefix(t *testing.T)
 	if err := os.WriteFile(zeroPath, []byte(zeroData), 0o644); err != nil {
 		t.Fatal(err)
 	}
+	largePath := filepath.Join(root, "docs", "analysis", "AC-999999999999999999999999.md")
+	largeData := "---\nid: AC-999999999999999999999999\ntype: analysis\nstatus: active\nlinks: []\ntitle: Large identity\n---\n"
+	if err := os.WriteFile(largePath, []byte(largeData), 0o644); err != nil {
+		t.Fatal(err)
+	}
 
 	plan, err := Plan(root, Options{ReversalCost: "low"})
 	if err != nil {
@@ -872,7 +877,7 @@ func TestAC107_UnitPositive_MigrateBackfillsSegmentedNumericPrefix(t *testing.T)
 			continue
 		}
 		ledger := string(change.After)
-		if strings.Contains(ledger, "id: SNAP-SQS-001\n      kind: numeric\n") && strings.Contains(ledger, "SNAP-SQS: 1") && strings.Contains(ledger, "id: AC-000\n      kind: numeric\n") {
+		if strings.Contains(ledger, "id: SNAP-SQS-001\n      kind: numeric\n") && strings.Contains(ledger, "SNAP-SQS: \"1\"") && strings.Contains(ledger, "id: AC-000\n      kind: numeric\n") && strings.Contains(ledger, "id: AC-999999999999999999999999\n      kind: numeric\n") && strings.Contains(ledger, "AC: \"999999999999999999999999\"") {
 			return
 		}
 		t.Fatalf("segmented numeric ID was not backfilled with its counter:\n%s", ledger)
