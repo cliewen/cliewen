@@ -37,7 +37,8 @@ type ProofLink struct {
 var (
 	proofLinksHeadingRe = regexp.MustCompile(`(?im)^#+\s*proof links\s*$`)
 	tableDelimRe        = regexp.MustCompile(`^\s*\|?\s*:?-+:?\s*(\|\s*:?-+:?\s*)+\|?\s*$`)
-	htmlBlockOpenRe     = regexp.MustCompile(`^\s*</?([A-Za-z][A-Za-z0-9-]*)(\s|/?>|$)`)
+	htmlBlockOpenRe     = regexp.MustCompile(`^ {0,3}</?([A-Za-z][A-Za-z0-9-]*)(\s|/?>|$)`)
+	htmlStandaloneRe    = regexp.MustCompile(`^ {0,3}</?[A-Za-z][A-Za-z0-9-]*(?:\s+[^<>]*)?/?>\s*$`)
 )
 
 var htmlBlockTags = map[string]bool{
@@ -169,7 +170,7 @@ func outsideNonRenderedContent(doc string) string {
 				lines[i] = ""
 				continue
 			}
-			if m := htmlBlockOpenRe.FindStringSubmatch(line); m != nil && htmlBlockTags[strings.ToLower(m[1])] {
+			if m := htmlBlockOpenRe.FindStringSubmatch(line); m != nil && (htmlBlockTags[strings.ToLower(m[1])] || htmlStandaloneRe.MatchString(line)) {
 				inHTML = true
 				lines[i] = ""
 			}

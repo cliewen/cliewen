@@ -115,6 +115,21 @@ func TestUnit_ParseProofLinksIgnoresAnHTMLBlockExample(t *testing.T) {
 	}
 }
 
+func TestUnit_ParseProofLinksIgnoresAStandaloneCustomHTMLBlockExample(t *testing.T) {
+	body := "<x-proof-example>\n## Proof links\n\n| Task | Criterion |\n|---|---|\n| only an example | AC-201 |\n</x-proof-example>\n"
+	if got := ParseProofLinks(body); got != nil {
+		t.Fatalf("a table inside a standalone custom HTML block is not proof links, got %#v", got)
+	}
+}
+
+func TestUnit_ParseProofLinksDoesNotHideContentAfterIndentedHTMLCode(t *testing.T) {
+	body := "    <div>\n\n## Proof links\n\n| Task | Criterion |\n|---|---|\n| real proof | AC-201 |\n"
+	got := ParseProofLinks(body)
+	if len(got) != 1 || got[0].Criterion != "AC-201" {
+		t.Fatalf("indented HTML must not hide a following proof-links table, got %#v", got)
+	}
+}
+
 // AC-115: extraction preserves in-flight source work as an inspectable
 // imported-change record — its proposal, design rationale, dependency, and
 // proof-linked task all remain readable from the record alone.
