@@ -171,6 +171,9 @@ func (r Report) Failed() bool { return len(r.Findings) > 0 }
 // mdLinkTargetRe matches the target half of a markdown link.
 var mdLinkTargetRe = regexp.MustCompile(`\]\(([^)]+)\)`)
 
+// mdReferenceTargetRe matches a reference-style Markdown link definition.
+var mdReferenceTargetRe = regexp.MustCompile(`^\s*\[[^\]]+\]:\s*<?([^\s>]+)`)
+
 // Reconcile recomputes every mapped entry's target fingerprint from what is
 // actually in root right now and compares it against the pinned value, and
 // scans the corpus under root for a Markdown link still resolving to a path
@@ -243,12 +246,15 @@ func staleDeletedPathFindings(root string, deletedPaths []string) ([]Finding, er
 	for _, path := range paths {
 		text := c.Contents[path]
 		for lineNo, line := range strings.Split(text, "\n") {
-			for _, m := range mdLinkTargetRe.FindAllStringSubmatch(line, -1) {
+			matches := mdLinkTargetRe.FindAllStringSubmatch(line, -1)
+			matches = append(matches, mdReferenceTargetRe.FindAllStringSubmatch(line, -1)...)
+			for _, m := range matches {
 				target := normalizeLinkTarget(m[1])
 				if target == "" {
 					continue
 				}
-				if deleted[target] {
+				resolved := filepath.ToSlash(filepath.Clean(filepath.Join(filepath.Dir(path), target)))
+				if deleted[target] || (!isExternalLinkTarget(target) && deleted[resolved]) {
 					findings = append(findings, Finding{
 						ClassStaleDeletedPath,
 						path,
@@ -271,4 +277,11 @@ func normalizeLinkTarget(raw string) string {
 	}
 	target = strings.SplitN(target, "#", 2)[0]
 	return filepath.ToSlash(target)
+}
+
+// isExternalLinkTarget reports whether target has a URL scheme or is a
+// scheme-relative URL, neither of which can resolve to a deleted repository
+// path by walking from the referencing Markdown file.
+func isExternalLinkTarget(target string) bool {
+	return strings.Contains(target, "://") || strings.HasPrefix(target, "//")
 }

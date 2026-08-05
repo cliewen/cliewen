@@ -21,6 +21,39 @@ func writeFiles(t *testing.T, files map[string]string) string {
 	return root
 }
 
+// TestAC122_UnitNegative_relativeStaleDeletedPathReferenceFails proves the
+// check resolves a relative link from the Markdown file that contains it,
+// rather than comparing its raw text to deleted-paths.
+func TestAC122_UnitNegative_relativeStaleDeletedPathReferenceFails(t *testing.T) {
+	root := writeFiles(t, map[string]string{
+		"docs/capabilities/CARRIERTEST/criteria.md": "---\nid: CARRIERTEST-criteria\ntype: criteria\nstatus: active\nlinks: []\ntitle: fixture\n---\n\nSee [the old mapping](../../../openspec/specs/foo/spec.md) for context.\n",
+	})
+	inv := Inventory{SourceRevision: "rev-1", SourceLocation: "source", DeletedPaths: []string{"openspec/specs/foo/spec.md"}}
+	r, err := Reconcile(inv, root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !r.Failed() || r.Findings[0].Class != ClassStaleDeletedPath {
+		t.Fatalf("expected a stale deleted-path finding for a relative link, got %v", r.Findings)
+	}
+}
+
+// TestAC122_UnitNegative_referenceStyleStaleDeletedPathReferenceFails proves
+// reference-style Markdown links are reconciled too.
+func TestAC122_UnitNegative_referenceStyleStaleDeletedPathReferenceFails(t *testing.T) {
+	root := writeFiles(t, map[string]string{
+		"docs/capabilities/CARRIERTEST/criteria.md": "---\nid: CARRIERTEST-criteria\ntype: criteria\nstatus: active\nlinks: []\ntitle: fixture\n---\n\nSee [the old mapping][old].\n\n[old]: ../../../openspec/specs/foo/spec.md\n",
+	})
+	inv := Inventory{SourceRevision: "rev-1", SourceLocation: "source", DeletedPaths: []string{"openspec/specs/foo/spec.md"}}
+	r, err := Reconcile(inv, root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !r.Failed() || r.Findings[0].Class != ClassStaleDeletedPath {
+		t.Fatalf("expected a stale deleted-path finding for a reference-style link, got %v", r.Findings)
+	}
+}
+
 const workflowContent = "name: ci\non: [push]\n"
 
 func mustFingerprint(t *testing.T, root, targetPath string) string {
