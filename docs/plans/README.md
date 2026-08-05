@@ -15,5 +15,7 @@ The campaign layer: P-xxx plans with M-xxx milestones. This folder is **flat** �
 - [P-008 — Cliewen agrees with itself before widening its promises](P-008-self-consistency.md) · `completed`
 - [P-009 — Cliewen closes migration blockers and distributed boundaries](P-009-migration-readiness.md) · `completed`
 - [P-010 — Cliewen makes staying current something an adopter notices](P-010-adopters-keep-current.md) · `completed` (2026-08-05)
-- [P-011 — Cliewen makes brownfield migration truthful](P-011-truthful-brownfield-migration.md) · `active` — Makes source deletion safe: criterion identity, proof parity, in-flight work, and operational carriers all survive an extraction before the source corpus is removed.
+- [P-011 — Cliewen makes brownfield migration truthful](P-011-truthful-brownfield-migration.md) · `completed` (2026-08-06) — Makes source deletion safe: criterion identity, proof parity, in-flight work, and operational carriers all survive an extraction before the source corpus is removed.
+- [P-012 — Cliewen closes the brownfield migration gap on re-derived evidence](P-012-migration-gap-closes-on-evidence.md) · `active` — Finishes what P-011's milestone table did not close: a deferral that must be honest rather than merely justified, a report that cannot contradict its own tree, the declined per-criterion artifact decided in the open, and the whole contract tested at a real corpus's size.
+- [P-013 — Cliewen is simplified against a stated criterion](P-013-simplification.md) · `draft` — Deferred by four campaigns; holds PDR-013's "does the core need it?" applied to a measured surface, the accumulate-only corpus, and the distributed-work findings P-011 closed without touching.
 <!-- clue:index:end -->
