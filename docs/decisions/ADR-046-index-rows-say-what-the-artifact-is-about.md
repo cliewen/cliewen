@@ -68,7 +68,7 @@ Columns are easier to scan than prose. They are not worth superseding a one-rele
 
 The first shape carried `File | Title | Status | Date | Description`, with the date read from the file's last commit. It was dropped on measurement.
 
-Across the adopter's seventeen decision records the last-commit date is a single constant, because one bulk frontmatter migration touched them all. Across this corpus's sixty-five decision files, three dates cover thirty-eight. The column reports when someone last ran a sweep. The creation date repairs the clustering and reintroduces the same defect quietly, since `docs/` carries five renames whose adding commit records the move rather than the authorship.
+Across the adopter's seventeen decision records the last-commit date is a single constant, because one bulk frontmatter migration touched them all. Across this corpus's own decision files, a handful of dates cover most of them. The column reports when someone last ran a sweep. The creation date repairs the clustering and reintroduces the same defect quietly, since `docs/` carries five renames whose adding commit records the move rather than the authorship.
 
 Nor is there a corpus-wide field to read instead: the only date-bearing frontmatter is `accepted-by`, which exists on decisions alone and embeds its date inside prose.
 

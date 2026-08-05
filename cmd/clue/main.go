@@ -53,7 +53,7 @@ Usage:
   clue scaffold [path]
   clue context <id> [path]
   clue refs [--apply] [--timeout=<duration>] [path]
-  clue validate [--forbid-changes] [--coverage] [--reality-gaps] [path]
+  clue validate [--forbid-changes] [--coverage] [--reality-gaps] [--index-rows] [path]
   clue latest [--quiet] [--timeout=<duration>]
   clue version
 
@@ -109,6 +109,8 @@ Commands:
                                locally unproven.
              --reality-gaps    print capabilities contradicted by incident
                                analyses after their corpus was green.
+             --index-rows      print index rows that only restate their own
+                               link or say nothing about the artifact.
 
   latest     Report whether a newer clue release exists, and how to install
              it on the machine this is running on — the PowerShell script on
