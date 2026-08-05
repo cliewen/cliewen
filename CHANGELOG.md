@@ -4,6 +4,10 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 
 ## [Unreleased]
 
+### Added
+
+- **`clue validate` now cross-checks every ID against a persisted identity ledger, and `clue id next` allocates through it.** Until now, allocation for every ID prefix was scan-and-max: the corpus was the registry, so once an artifact's file was deleted its number could silently be reissued later, colliding with historic evidence, commit history, or an external reference that still carried the deleted artifact's original meaning. `clue migrate` now backfills a `.clue/id-ledger.yaml` the first time it sees a repository without one — one entry per currently-live ID, with each prefix's counter seeded at its current maximum, so nothing already issued is renumbered. From then on, `clue id next <prefix>` allocates the next ID as an O(1) counter increment instead of a corpus scan, and `clue validate` rejects a live artifact whose ID the ledger marks retired. A repository that has not yet run the backfill is unaffected — this is opt-in until you migrate.
+
 ## [0.13.0] - 2026-08-05
 
 The release that notices you're behind before you ask, hands you a skill to catch up, and stops charging a review's full price for a stale sentence.
