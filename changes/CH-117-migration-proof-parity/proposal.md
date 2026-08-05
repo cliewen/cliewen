@@ -1,5 +1,9 @@
 ---
+id: CH-117
+type: change
+status: open
 links: [P-011]
+title: Migration proof parity is reproducible at criterion and evidence-location level
 ---
 
 # CH-117 — Migration proof parity is reproducible at criterion and evidence-location level
