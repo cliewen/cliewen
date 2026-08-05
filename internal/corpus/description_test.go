@@ -11,7 +11,7 @@ import (
 // held by AC-096, AC-097, and AC-098 in the scaffold package; these cases pin
 // the prose rules those criteria depend on, including the ones a corpus is
 // unlikely to produce on demand.
-func TestDescribeBody(t *testing.T) {
+func TestUnit_DescribeBodyReadsTheSeedSentence(t *testing.T) {
 	for _, tc := range []struct {
 		name string
 		body string
@@ -98,7 +98,7 @@ func TestDescribeBody(t *testing.T) {
 
 // A sentence past the bound is cut on a word boundary and marked, so the
 // identity a reader scans for cannot be pushed off the line.
-func TestDescribeBodyBoundsTheSentence(t *testing.T) {
+func TestUnit_DescribeBodyBoundsTheSentence(t *testing.T) {
 	long := strings.TrimSpace(strings.Repeat("elaboration ", 40)) + " tail."
 	got, ok := describeBody("# Title\n\n" + long + "\n")
 	if !ok {
@@ -120,7 +120,7 @@ func TestDescribeBodyBoundsTheSentence(t *testing.T) {
 
 // RowDescription reads through frontmatter, and reports nothing rather than
 // guessing when the file cannot be read or carries none.
-func TestRowDescriptionReadsThroughFrontmatter(t *testing.T) {
+func TestUnit_RowDescriptionReadsThroughFrontmatter(t *testing.T) {
 	dir := t.TempDir()
 	withFM := filepath.Join(dir, "a.md")
 	if err := os.WriteFile(withFM, []byte("---\nid: G-001\ntype: goal\nstatus: accepted\nlinks: []\ntitle: A\n---\n\n# A\n\nThe sentence.\n"), 0o644); err != nil {
