@@ -218,10 +218,10 @@ func run(command string, args []string) int {
 // notifierCommands are the workflow commands that may carry an ambient
 // release notice (PDR-023). The exclusions are the point of the list.
 //
-// `validate` is absent because it is the deterministic judge: its verdict,
-// its exit code, and its output stay a statement about the repository alone,
-// and a line that depends on another system's present state is not that.
-// `version` is absent because it is the one command guaranteed to answer
+// `validate` and `parity` are absent because both are deterministic judges:
+// their verdict, exit code, and output stay a statement about the inputs
+// alone, and a line that depends on another system's present state is not
+// that. `version` is absent because it is the one command guaranteed to answer
 // instantly, offline, and identically forever (ADR-042). `latest` is absent
 // because it is the check, and would otherwise report twice.
 var notifierCommands = map[string]bool{

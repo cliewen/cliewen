@@ -114,6 +114,22 @@ func TestAC110_UnitPositive_excludedEntryIsNotMissing(t *testing.T) {
 	}
 }
 
+// TestAC110_UnitPositive_excludedEntryWithLingeringTargetEvidenceIsNotOrphaned
+// proves that an excluded ID whose target still carries evidence is not
+// reprocessed as an orphaned tag or unjustified disposition — exclusion is a
+// deliberate outcome the source manifest already recorded, not an absence.
+func TestAC110_UnitPositive_excludedEntryWithLingeringTargetEvidenceIsNotOrphaned(t *testing.T) {
+	target := TargetManifest{Entries: map[string]TargetEntry{
+		"AC-901": {ID: "AC-901", ProofClass: "Unit", Directions: []string{"positive"}, EvidenceLocations: []string{"x_test.go"}, Draft: true},
+	}}
+	source := SourceManifest{Entries: []SourceEntry{
+		{ID: "AC-901", Excluded: true, Reason: "not carried forward"},
+	}}
+	if r := Compare(source, target); r.Failed() {
+		t.Fatalf("expected an excluded entry to produce no finding regardless of lingering target evidence, got %v", r.Findings)
+	}
+}
+
 // TestAC110_UnitNegative_missingCriterionFails proves a non-excluded source
 // entry with no target counterpart is reported as missing.
 func TestAC110_UnitNegative_missingCriterionFails(t *testing.T) {
@@ -150,6 +166,46 @@ func TestAC111_UnitNegative_orphanedTagFails(t *testing.T) {
 	r := Compare(source, target)
 	if !r.Failed() || r.Findings[0].Class != ClassOrphanedTag {
 		t.Fatalf("expected an orphaned-tag finding, got %v", r.Findings)
+	}
+}
+
+const criteriaWithLegacyAC = `---
+id: PARTEST2-criteria
+type: criteria
+status: active
+links: []
+title: Parity legacy-reference fixture criteria
+---
+
+` + "```gherkin" + `
+Feature: legacy fixture
+
+  @AC-950
+  Scenario: legacy unclassified criterion
+    Given a thing
+    When it happens
+    Then it works
+` + "```" + `
+`
+
+var goTestLegacyReference = fixtureGoTest("AC950_worksLegacy")
+
+// TestAC111_UnitPositive_unclassifiedEvidenceIsNotOrphaned proves that a
+// legacy unclassified reference (satisfies checkACTests but carries no type
+// or direction) does not, by itself, make DeriveTargetManifest report the
+// criterion as orphaned when the source manifest never mentions it —
+// ADR-049 scopes the orphaned-tag class to classified evidence only.
+func TestAC111_UnitPositive_unclassifiedEvidenceIsNotOrphaned(t *testing.T) {
+	root := writeFiles(t, map[string]string{
+		"docs/capabilities/PARTEST2/criteria.md": criteriaWithLegacyAC,
+		"fixture_test.go":                        goTestLegacyReference,
+	})
+	target, err := DeriveTargetManifest(root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if r := Compare(SourceManifest{}, target); r.Failed() {
+		t.Fatalf("expected no finding for an unmentioned criterion with only unclassified evidence, got %v", r.Findings)
 	}
 }
 

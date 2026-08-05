@@ -119,10 +119,16 @@ func DeriveTargetManifest(root string) (TargetManifest, error) {
 		}
 		dirSet := map[string]bool{}
 		for _, ref := range locations[id] {
-			te.EvidenceLocations = append(te.EvidenceLocations, ref.Path)
-			if ref.Direction != "" {
-				dirSet[ref.Direction] = true
+			// Only a classified reference (both type and direction known)
+			// counts as the evidence ADR-049's orphaned-tag and
+			// changed-evidence classes compare; an unclassified legacy
+			// reference proves the criterion to checkACTests but says
+			// nothing about direction or location parity.
+			if ref.Type == "" || ref.Direction == "" {
+				continue
 			}
+			te.EvidenceLocations = append(te.EvidenceLocations, ref.Path)
+			dirSet[ref.Direction] = true
 		}
 		for dir := range dirSet {
 			te.Directions = append(te.Directions, dir)
@@ -218,9 +224,8 @@ func Compare(source SourceManifest, target TargetManifest) Report {
 	}
 	sort.Strings(targetIDs)
 	for _, id := range targetIDs {
-		se, present := bySource[id]
-		if present && !se.Excluded {
-			continue // already checked above
+		if _, present := bySource[id]; present {
+			continue // every present entry, excluded or not, was already handled above
 		}
 		te := target.Entries[id]
 		switch {
