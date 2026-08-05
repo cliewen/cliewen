@@ -84,4 +84,5 @@ The CLI reports inferred ADRs and PDRs as decisions awaiting verification, separ
 - [ADR-046 — An index row says what its artifact is about](ADR-046-index-rows-say-what-the-artifact-is-about.md) · `inferred` — An appended row seeds a description from the artifact's own body; the sentence is curated thereafter, and a row still lacking one is counted rather than failed on.
 - [ADR-047 — Diagram representation preserves links and assets](ADR-047-diagram-representation-preserves-links.md) · `inferred` — Diagram syntax alone does not establish whether a diagram is readable.
 - [PDR-024 — Extraction never silently discards acceptance evidence](PDR-024-extraction-never-silently-discards-evidence.md) · `inferred` — ADR-036 limits one JVM executable to one credited acceptance-criterion identity so unrelated evidence cannot cross-product.
+- [PDR-025 — Truthful brownfield migration precedes simplification](PDR-025-brownfield-migration-precedes-simplification.md) · `inferred` — P-010 defers simplification to P-011.
 <!-- clue:index:end -->

@@ -2,7 +2,7 @@
 id: P-010
 type: plan
 status: active
-links: [P-009, G-001, G-002, AN-007, AN-011, AN-013, ADR-011, ADR-021, ADR-022, ADR-031, ADR-039, ADR-042, PDR-019, PDR-022, C-008, C-013]
+links: [P-009, P-011, G-001, G-002, AN-007, AN-011, AN-013, ADR-011, ADR-021, ADR-022, ADR-031, ADR-039, ADR-042, PDR-019, PDR-022, PDR-025, C-008, C-013]
 title: Cliewen makes staying current something an adopter notices
 ---
 
@@ -32,7 +32,7 @@ This campaign runs in two arcs. The first makes staying current visible and acti
 
 ## Explicitly out of this campaign
 
-**Simplification is deferred to P-011.** It is real work and it is deliberately not folded in here: a campaign that carries both would let "we should simplify first" postpone three backlogs that have already waited through three campaigns.
+**Simplification is deferred to P-012.** It is real work and it is deliberately not folded in here: a campaign that carries both would let "we should simplify first" postpone three backlogs that have already waited through three campaigns. P-011 instead addresses the brownfield-migration contract that later evidence established as the higher-risk boundary ([PDR-025](../decisions/PDR-025-brownfield-migration-precedes-simplification.md)).
 
 **The judge never reaches the network.** No milestone puts a network call inside `clue validate` or anywhere a validation verdict can read it. The separation is the point of M-045's decision record, not an implementation detail of it.
 
