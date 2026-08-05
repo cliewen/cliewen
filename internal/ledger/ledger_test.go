@@ -71,10 +71,12 @@ func TestAC102_UnitNegative_OpaqueIDRejectedOnReuse(t *testing.T) {
 func TestAC105_UnitPositive_RetiredNumericIDNeverReissued(t *testing.T) {
 	root := t.TempDir()
 	l, _ := Load(root)
-	// Simulate an archived id above the live maximum: retired directly,
-	// as an imported/backfilled entry would be, without ever being the
-	// live counter's own increment.
+	// Simulate an archived id above the live maximum, as an
+	// imported/backfilled entry would be: the counter sits just below it,
+	// so the very next allocation would collide with it if the skip loop
+	// did not fire.
 	l.byID["PDR-050"] = &Entry{ID: "PDR-050", Kind: KindNumeric, State: StateRetired, Prefix: "PDR", Component: 50}
+	l.counters["PDR"] = 49
 
 	id := l.NextNumeric("PDR")
 	if id == "PDR-050" {
@@ -89,6 +91,7 @@ func TestAC105_UnitNegative_FreshlyIssuedNumberIsUnused(t *testing.T) {
 	root := t.TempDir()
 	l, _ := Load(root)
 	l.byID["PDR-050"] = &Entry{ID: "PDR-050", Kind: KindNumeric, State: StateRetired, Prefix: "PDR", Component: 50}
+	l.counters["PDR"] = 49
 	id := l.NextNumeric("PDR")
 	if l.IsUsed(id) == false {
 		t.Fatal("a freshly issued id must be recorded as used")
