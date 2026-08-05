@@ -16,7 +16,7 @@ title: Tasks for CH-121
 - [x] Write `docs/plans/P-013-…`, `status: draft`, milestone numbers unassigned until it opens.
 - [x] Close P-011: `status: completed`, forward links added, and its out-of-campaign line corrected from P-012 to P-013 — a plan revision the mutation rules allow because PDR-026 backs it, and the last change permitted to touch the file.
 - [x] Regenerate the `docs/plans/` and `docs/decisions/` README indexes; curate the seeded description sentences.
-- [ ] `go run ./cmd/clue validate` green; `go build ./...`, `go vet ./...`, `go test ./...` pass.
-- [ ] `.github/scripts/completed-plans.sh` passes with `main` as base.
-- [ ] Run `clue-verify` (local checks + agentic review loop).
-- [ ] Push branch, open ready PR with the acceptance brief; confirm the hosted head equals local `HEAD`.
+- [x] `go run ./cmd/clue validate` green; `go build ./...`, `go vet ./...`, `go test ./...` pass.
+- [x] `.github/scripts/completed-plans.sh main HEAD` reports no completed plan modified — P-011 was `active` on the base, so this is the last change permitted to touch it.
+- [-] Run `clue-verify` (local checks + agentic review loop) — cannot be ticked here: it reviews the complete candidate, which includes the digest commit that deletes this file. The PR body carries its result.
+- [-] Push branch, open ready PR with the acceptance brief — same reason; it follows the digest, and the PR is its own evidence.
