@@ -88,6 +88,11 @@ var setextUnderlineRe = regexp.MustCompile(`^(=+|-+)$`)
 // thematicBreakRe matches a horizontal rule, which carries no prose at all.
 var thematicBreakRe = regexp.MustCompile(`^(-{3,}|\*{3,}|_{3,})$`)
 
+// htmlTagRe matches a line opening an HTML block. It requires a tag name, so
+// prose opening with an autolink (`<https://…>`) or a comparison (`<20% of
+// runs`) is still read as the prose it is.
+var htmlTagRe = regexp.MustCompile(`^</?[a-zA-Z][a-zA-Z0-9-]*(\s|/?>|$)`)
+
 // describeBody is RowDescription's reading, split out so it can be exercised
 // on prose directly.
 func describeBody(body string) (string, bool) {
@@ -96,19 +101,24 @@ func describeBody(body string) (string, bool) {
 	// Find the H1 and read after it. A setext H1 — the title underlined with
 	// = — counts, or a body that titles itself that way would have its own
 	// title read back as its description.
-	i := 0
+	//
+	// Whether the title was found is tracked explicitly rather than inferred
+	// from the cursor: a body whose last line is its H1 leaves the cursor at
+	// the end too, and restarting from the top there would seed prose written
+	// above the title.
+	i, titled := 0, false
 	for i < len(lines) {
 		if strings.HasPrefix(strings.TrimSpace(lines[i]), "# ") {
-			i++
+			i, titled = i+1, true
 			break
 		}
 		if i+1 < len(lines) && strings.HasPrefix(setextUnderline(lines[i+1]), "=") && strings.TrimSpace(lines[i]) != "" {
-			i += 2
+			i, titled = i+2, true
 			break
 		}
 		i++
 	}
-	if i >= len(lines) {
+	if !titled {
 		i = 0 // no heading anywhere: the body is read from the top
 	}
 
@@ -141,7 +151,11 @@ func describeBody(body string) (string, bool) {
 		// Structure rather than the paragraph this is looking for: a table row,
 		// a bulleted or ordered list item, a blockquote, an HTML block or
 		// comment, or a horizontal rule.
-		if strings.HasPrefix(s, "|") || strings.HasPrefix(s, ">") || strings.HasPrefix(s, "<") ||
+		//
+		// The HTML test is a tag rather than a bare "<", so a paragraph opening
+		// with an autolink or a comparison keeps its description.
+		if strings.HasPrefix(s, "|") || strings.HasPrefix(s, ">") ||
+			strings.HasPrefix(s, "<!--") || htmlTagRe.MatchString(s) ||
 			strings.HasPrefix(s, "- ") || strings.HasPrefix(s, "* ") || strings.HasPrefix(s, "+ ") ||
 			orderedItemRe.MatchString(s) || thematicBreakRe.MatchString(s) {
 			continue
@@ -337,9 +351,15 @@ type IndexRowUndescribed struct {
 }
 
 // rowTailRe matches a stated-record row and captures whatever follows its
-// status badge. A row with no badge is not this population's business: it
-// states no record, so IndexRowBacklog already counts it and the two
-// populations stay disjoint.
+// status badge. A row with no badge is not this population's business: the
+// generator always writes one, so a row without it is adopter prose in a shape
+// no release produced. Where its label also restates the target's filename,
+// IndexRowBacklog counts it; where it does not, no population counts it, which
+// is deliberate and documented on IndexDescriptionBacklog below.
+//
+// Disjointness does not rest on the badge — a filler row can be hand-given one
+// while ADR-041's backlog is worked down. It rests on the label-versus-filename
+// test inside the loop.
 var rowTailRe = regexp.MustCompile("\\)\\s*·\\s*`[^`]*`\\s*(.*)$")
 
 // IndexDescriptionBacklog reports rows that state their record but carry no

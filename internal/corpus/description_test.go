@@ -112,6 +112,30 @@ func TestUnit_DescribeBodyReadsTheSeedSentence(t *testing.T) {
 			want: "The prose.",
 		},
 		{
+			name: "a closing HTML tag is not prose either",
+			body: "# Title\n\n</section>\n\nThe prose.\n",
+			want: "The prose.",
+		},
+		// The HTML test is a tag, not a bare "<": a paragraph opening with an
+		// autolink or a comparison is prose and keeps its description.
+		{
+			name: "a lede opening with an autolink survives",
+			body: "# Title\n\n<https://example.com> is the source of record.\n",
+			want: "<https://example.com> is the source of record.",
+		},
+		{
+			name: "a lede opening with a comparison survives",
+			body: "# Title\n\n<20% of runs reach the slow path.\n",
+			want: "<20% of runs reach the slow path.",
+		},
+		// A body whose last line is its H1 leaves the cursor at the end. Reading
+		// from the top there would seed prose written above the title.
+		{
+			name: "prose above a trailing H1 is not the description",
+			body: "Prose above the title.\n\n# T",
+			want: "",
+		},
+		{
 			name: "a thematic break carries nothing",
 			body: "# Title\n\n***\n\nThe prose.\n",
 			want: "The prose.",

@@ -1135,22 +1135,27 @@ func TestAC099_UnitPositive_UndescribedIndexRowIsCountedAndListed(t *testing.T) 
 	}
 }
 
-// AC-099 negative: a described row, a filler row, a subfolder row, and a curated
-// row covering several targets are all left out of this population. The filler
-// row matters most: it carries no status badge, so it belongs to ADR-041's count
-// and the two populations stay disjoint rather than double-counting one row.
+// AC-099 negative: a described row, a filler row, a subfolder row, a badge-less
+// stated-record row, and a curated row covering several targets are all left out
+// of this population. The filler row matters most, and it carries a status badge
+// here on purpose: disjointness rests on the label-versus-filename test, not on
+// the badge, because hand-adding a badge is the natural intermediate state while
+// ADR-041's backlog is worked down and reading the badge alone counted that one
+// row in both populations.
 func TestAC099_UnitNegative_DescribedFillerSubfolderAndMultiLinkRowsAreNotCounted(t *testing.T) {
 	root := validCorpus(t)
 	writeFile(t, root, "docs/goals/README.md", "# Goals\n\n<!-- clue:index:start -->\n"+
 		"- [G-001 — First goal](G-001-first.md) · `accepted` — What this goal is actually about.\n"+
 		"- [G-002-second](G-002-second.md) · `accepted`\n"+
 		"- [G-003 — Third goal](G-003-third.md) · `accepted` and [G-004 — Fourth goal](G-004-fourth.md) · `accepted`\n"+
+		"- [G-005 — Fifth goal](G-005-fifth.md)\n"+
 		"- [sub/](sub/README.md)\n"+
 		"<!-- clue:index:end -->\n")
 	for _, g := range []struct{ id, file, title string }{
 		{"G-002", "G-002-second.md", "Second goal"},
 		{"G-003", "G-003-third.md", "Third goal"},
 		{"G-004", "G-004-fourth.md", "Fourth goal"},
+		{"G-005", "G-005-fifth.md", "Fifth goal"},
 	} {
 		writeFile(t, root, "docs/goals/"+g.file, "---\nid: "+g.id+"\ntype: goal\nstatus: accepted\nlinks: []\ntitle: "+g.title+"\n---\n")
 	}
@@ -1175,5 +1180,10 @@ func TestAC099_UnitNegative_DescribedFillerSubfolderAndMultiLinkRowsAreNotCounte
 	}
 	if strings.Contains(out, "sub/README.md states") {
 		t.Fatalf("a subfolder row is never counted by either population, output=%q", out)
+	}
+	// The G-005 row states a record with no status badge, a shape no release
+	// produced. It is adopter prose, so neither population grades it.
+	if strings.Contains(out, "G-005-fifth.md states") {
+		t.Fatalf("a badge-less stated-record row is adopter prose and is left uncounted, output=%q", out)
 	}
 }
