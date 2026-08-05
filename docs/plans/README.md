@@ -14,6 +14,6 @@ The campaign layer: P-xxx plans with M-xxx milestones. This folder is **flat** �
 - [P-007 — Cliewen hardens its core](P-007-core-hardening.md) · `completed`
 - [P-008 — Cliewen agrees with itself before widening its promises](P-008-self-consistency.md) · `completed`
 - [P-009 — Cliewen closes migration blockers and distributed boundaries](P-009-migration-readiness.md) · `completed`
-- [P-010 — Cliewen makes staying current something an adopter notices](P-010-adopters-keep-current.md) · `active`
-- [P-011 — Cliewen makes brownfield migration truthful](P-011-truthful-brownfield-migration.md) · `draft` — Makes source deletion safe: criterion identity, proof parity, in-flight work, and operational carriers all survive an extraction before the source corpus is removed.
+- [P-010 — Cliewen makes staying current something an adopter notices](P-010-adopters-keep-current.md) · `completed` (2026-08-05)
+- [P-011 — Cliewen makes brownfield migration truthful](P-011-truthful-brownfield-migration.md) · `active` — Makes source deletion safe: criterion identity, proof parity, in-flight work, and operational carriers all survive an extraction before the source corpus is removed.
 <!-- clue:index:end -->

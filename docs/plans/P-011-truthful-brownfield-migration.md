@@ -1,7 +1,7 @@
 ---
 id: P-011
 type: plan
-status: draft
+status: active
 links: [P-010, G-001, G-002, PDR-019, PDR-025, C-013]
 title: Cliewen makes brownfield migration truthful
 ---
@@ -10,7 +10,7 @@ title: Cliewen makes brownfield migration truthful
 
 P-009 established a report-only rehearsal and source-specific extraction mappings, but its completed OpenSpec mapping still treats source archives and test registries as deletable once Git history remains. A migration assessment found that this can reuse historic identities, hide existing evidence debt, reduce in-flight work to an insufficient plan row, and leave operational carriers stale. These are general source-to-corpus parity failures, not one repository's special case.
 
-P-011 is the successor campaign for that boundary. It opens as `draft` while P-010 completes; PDR-025 moves simplification to P-012 rather than combining it with migration credibility. Every milestone is a separate full change rooted at accepted `main`, published as a ready pull request, and accepted by human merge before the next begins. Milestone numbering continues corpus-global numbering from P-010.
+P-011 is the successor campaign for that boundary. It opened `active` once P-010 completed (CH-114, 2026-08-05); PDR-025 moves simplification to P-012 rather than combining it with migration credibility. Every milestone is a separate full change rooted at accepted `main`, published as a ready pull request, and accepted by human merge before the next begins. Milestone numbering continues corpus-global numbering from P-010.
 
 ## Milestones
 
