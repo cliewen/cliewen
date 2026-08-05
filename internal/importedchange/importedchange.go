@@ -64,6 +64,9 @@ func ParseProofLinks(body string) []ProofLink {
 
 	lines := strings.Split(rest, "\n")
 	for i, line := range lines {
+		if isIndentedCode(line) {
+			continue
+		}
 		t := strings.TrimSpace(line)
 		if t == "" || !strings.Contains(t, "|") || tableDelimRe.MatchString(t) {
 			continue
@@ -82,12 +85,15 @@ func ParseProofLinks(body string) []ProofLink {
 			continue
 		}
 		delimiter := strings.TrimSpace(lines[i+1])
-		if !tableDelimRe.MatchString(delimiter) || len(tableCells(delimiter)) != len(cells) {
+		if isIndentedCode(lines[i+1]) || !tableDelimRe.MatchString(delimiter) || len(tableCells(delimiter)) != len(cells) {
 			continue
 		}
 
 		var links []ProofLink
 		for _, row := range lines[i+2:] {
+			if isIndentedCode(row) {
+				break
+			}
 			row = strings.TrimSpace(row)
 			if row == "" || !strings.Contains(row, "|") {
 				break
@@ -106,6 +112,17 @@ func ParseProofLinks(body string) []ProofLink {
 		return links
 	}
 	return nil
+}
+
+func isIndentedCode(line string) bool {
+	if strings.HasPrefix(line, "\t") {
+		return true
+	}
+	spaces := 0
+	for spaces < len(line) && line[spaces] == ' ' {
+		spaces++
+	}
+	return spaces >= 4
 }
 
 // outsideFencedCode preserves the document's line structure while removing
