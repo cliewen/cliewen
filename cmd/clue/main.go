@@ -14,6 +14,7 @@ import (
 	"strings"
 
 	"github.com/cliewen/cliewen/internal/corpus"
+	"github.com/cliewen/cliewen/internal/ledger"
 	"github.com/cliewen/cliewen/internal/migrate"
 	"github.com/cliewen/cliewen/internal/refs"
 	"github.com/cliewen/cliewen/internal/release"
@@ -52,6 +53,8 @@ Usage:
   clue init [path]
   clue scaffold [path]
   clue context <id> [path]
+  clue id next <prefix> [path]
+  clue id live <id> [path]
   clue refs [--apply] [--timeout=<duration>] [path]
   clue validate [--forbid-changes] [--coverage] [--reality-gaps] [--index-rows] [path]
   clue latest [--quiet] [--timeout=<duration>]
@@ -85,6 +88,15 @@ Commands:
              --reversal-cost=low|high to resolve missing inferred-meaning routing.
              Existing prose and locally modified generated files are never
              overwritten. Path defaults to ".".
+
+  id next    Allocate the next numeric ID for a prefix through the
+             persisted identity ledger (.clue/id-ledger.yaml): an O(1)
+             counter increment, never a corpus scan. Prints the new
+             ID and reserves it in the ledger. Path defaults to ".".
+
+  id live    Mark a previously reserved ID as live after its artifact
+             has been created. Refuses an ID that is not reserved.
+             Path defaults to ".".
 
   refs       Resolve the external addresses docs/ and changes/ point at,
              classifying each: reachable, restricted (it exists, this
@@ -130,7 +142,7 @@ Commands:
 
   version    Print the release version this clue was built from.
 
-Release notice: init, scaffold, context, migrate, and refs print one line to
+Release notice: init, scaffold, context, migrate, id, and refs print one line to
 standard error when a newer release exists. Standard output and the exit code
 are identical with it and without it, and the answer is cached for a day. Never
 from validate or version, never when CI carries a value, and never when
@@ -171,6 +183,8 @@ func run(command string, args []string) int {
 		return runContext(args, os.Stdout, os.Stderr)
 	case "migrate":
 		return runMigrate(args, os.Stdout, os.Stderr)
+	case "id":
+		return runID(args, os.Stdout, os.Stderr)
 	case "refs":
 		return runRefs(args, os.Stdout, os.Stderr)
 	case "validate":
@@ -202,6 +216,7 @@ var notifierCommands = map[string]bool{
 	"scaffold": true,
 	"context":  true,
 	"migrate":  true,
+	"id":       true,
 	"refs":     true,
 }
 
@@ -314,6 +329,107 @@ func runMigrate(args []string, out, errOut io.Writer) int {
 	} else {
 		fmt.Fprintf(out, "clue migrate: applied %d file(s)\n", len(plan.Changes))
 	}
+	return 0
+}
+
+// runID dispatches identity-ledger subcommands. The subcommand shape leaves
+// room for future "id retire" or "id lookup" operations without a new
+// top-level command (ADR-048).
+func runID(args []string, out, errOut io.Writer) int {
+	if len(args) == 0 {
+		fmt.Fprintln(errOut, "clue id: expected a subcommand (next or live)")
+		return 2
+	}
+	switch args[0] {
+	case "next":
+		return runIDNext(args[1:], out, errOut)
+	case "live":
+		return runIDLive(args[1:], out, errOut)
+	default:
+		fmt.Fprintf(errOut, "clue id: unknown subcommand %q\n", args[0])
+		return 2
+	}
+}
+
+// runIDLive promotes an allocator-reserved ID once its artifact has been
+// created, preserving the ledger's reserved -> live state transition.
+func runIDLive(args []string, out, errOut io.Writer) int {
+	fs := flag.NewFlagSet("id live", flag.ContinueOnError)
+	fs.SetOutput(errOut)
+	if err := fs.Parse(args); err != nil {
+		return 2
+	}
+	if fs.NArg() < 1 {
+		fmt.Fprintln(errOut, "clue id live: expected an ID")
+		return 2
+	}
+	id := fs.Arg(0)
+	root := "."
+	if fs.NArg() > 1 {
+		root = fs.Arg(1)
+	}
+	if fs.NArg() > 2 {
+		fmt.Fprintln(errOut, "clue id live: expected an ID and at most one repository path")
+		return 2
+	}
+
+	l, err := ledger.Load(root)
+	if err != nil {
+		fmt.Fprintf(errOut, "clue id live: %v\n", err)
+		return 2
+	}
+	if err := l.PromoteReserved(id); err != nil {
+		fmt.Fprintf(errOut, "clue id live: %v\n", err)
+		return 2
+	}
+	if err := l.Save(); err != nil {
+		fmt.Fprintf(errOut, "clue id live: %v\n", err)
+		return 2
+	}
+	return 0
+}
+
+// runIDNext allocates the next numeric ID for a prefix through the ledger:
+// an O(1) counter increment, never a corpus scan (ADR-048, AC-101).
+func runIDNext(args []string, out, errOut io.Writer) int {
+	fs := flag.NewFlagSet("id next", flag.ContinueOnError)
+	fs.SetOutput(errOut)
+	if err := fs.Parse(args); err != nil {
+		return 2
+	}
+	if fs.NArg() < 1 {
+		fmt.Fprintln(errOut, "clue id next: expected a prefix")
+		return 2
+	}
+	prefix := fs.Arg(0)
+	root := "."
+	if fs.NArg() > 1 {
+		root = fs.Arg(1)
+	}
+	if fs.NArg() > 2 {
+		fmt.Fprintln(errOut, "clue id next: expected a prefix and at most one repository path")
+		return 2
+	}
+
+	l, err := ledger.Load(root)
+	if err != nil {
+		fmt.Fprintf(errOut, "clue id next: %v\n", err)
+		return 2
+	}
+	if !ledger.Exists(root) {
+		fmt.Fprintln(errOut, "clue id next: identity ledger is missing; run `clue migrate --apply` first")
+		return 2
+	}
+	id, err := l.NextNumeric(prefix)
+	if err != nil {
+		fmt.Fprintf(errOut, "clue id next: %v\n", err)
+		return 2
+	}
+	if err := l.Save(); err != nil {
+		fmt.Fprintf(errOut, "clue id next: %v\n", err)
+		return 2
+	}
+	fmt.Fprintln(out, id)
 	return 0
 }
 

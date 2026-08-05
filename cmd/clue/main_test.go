@@ -14,6 +14,7 @@ import (
 	"testing"
 
 	"github.com/cliewen/cliewen/internal/corpus"
+	"github.com/cliewen/cliewen/internal/ledger"
 	"github.com/cliewen/cliewen/internal/scaffold"
 	"gopkg.in/yaml.v3"
 )
@@ -536,6 +537,128 @@ func TestAC064_CLI_MigratePreviewAndApply(t *testing.T) {
 	errOut.Reset()
 	if code := runMigrate([]string{root}, &out, &errOut); code != 0 || !strings.Contains(out.String(), "no changes needed") {
 		t.Fatalf("second run was not a no-op: code=%d stderr=%q stdout=%q", code, errOut.String(), out.String())
+	}
+}
+
+func TestAC101_UnitPositive_IDNextIncrementsThroughTheLedger(t *testing.T) {
+	root := t.TempDir()
+	l, err := ledger.Load(root)
+	if err != nil {
+		t.Fatalf("Load: %v", err)
+	}
+	if err := l.Save(); err != nil {
+		t.Fatalf("Save: %v", err)
+	}
+	var out, errOut strings.Builder
+	if code := runID([]string{"next", "PDR", root}, &out, &errOut); code != 0 {
+		t.Fatalf("exit code = %d, stderr=%q", code, errOut.String())
+	}
+	if got := strings.TrimSpace(out.String()); got != "PDR-001" {
+		t.Fatalf("first id = %q, want PDR-001", got)
+	}
+
+	out.Reset()
+	if code := runID([]string{"next", "PDR", root}, &out, &errOut); code != 0 {
+		t.Fatalf("exit code = %d, stderr=%q", code, errOut.String())
+	}
+	if got := strings.TrimSpace(out.String()); got != "PDR-002" {
+		t.Fatalf("second id = %q, want PDR-002 (counter must persist across runs)", got)
+	}
+
+	data, err := os.ReadFile(filepath.Join(root, ".clue", "id-ledger.yaml"))
+	if err != nil {
+		t.Fatalf("ledger file not written: %v", err)
+	}
+	if !strings.Contains(string(data), "PDR-001") || !strings.Contains(string(data), "PDR-002") {
+		t.Fatalf("ledger file missing an issued id: %s", data)
+	}
+}
+
+func TestAC101_UnitNegative_IDNextRejectsMissingPrefix(t *testing.T) {
+	var out, errOut strings.Builder
+	if code := runID([]string{"next"}, &out, &errOut); code != 2 {
+		t.Fatalf("exit code = %d, want 2 for a missing prefix", code)
+	}
+}
+
+func TestAC101_UnitNegative_IDNextRequiresLedgerBackfill(t *testing.T) {
+	root := t.TempDir()
+	writeFile(t, root, "docs/plans/PDR-001.md", "---\nid: PDR-001\ntype: plan\nstatus: active\nlinks: []\ntitle: Existing plan\n---\n")
+	var out, errOut strings.Builder
+	if code := runID([]string{"next", "PDR", root}, &out, &errOut); code != 2 {
+		t.Fatalf("exit code = %d, want 2 without a ledger", code)
+	}
+	if !strings.Contains(errOut.String(), "clue migrate --apply") {
+		t.Fatalf("missing migration guidance: %q", errOut.String())
+	}
+}
+
+func TestAC101_UnitNegative_IDNextRejectsNonCanonicalPrefix(t *testing.T) {
+	root := t.TempDir()
+	l, err := ledger.Load(root)
+	if err != nil {
+		t.Fatalf("Load: %v", err)
+	}
+	if err := l.Save(); err != nil {
+		t.Fatalf("Save: %v", err)
+	}
+	for _, prefix := range []string{"snap-sqs", "SNAP--SQS", "SNAP_SQS"} {
+		var out, errOut strings.Builder
+		if code := runID([]string{"next", prefix, root}, &out, &errOut); code != 2 {
+			t.Fatalf("id next %q exit code = %d, want 2", prefix, code)
+		}
+		if !strings.Contains(errOut.String(), "canonical numeric prefix") {
+			t.Fatalf("id next %q did not explain the invalid prefix: %q", prefix, errOut.String())
+		}
+	}
+}
+
+func TestAC108_UnitPositive_IDLivePromotesReservedID(t *testing.T) {
+	root := t.TempDir()
+	l, err := ledger.Load(root)
+	if err != nil {
+		t.Fatalf("Load: %v", err)
+	}
+	if err := l.Save(); err != nil {
+		t.Fatalf("Save: %v", err)
+	}
+	var out, errOut strings.Builder
+	if code := runID([]string{"next", "PDR", root}, &out, &errOut); code != 0 {
+		t.Fatalf("id next exit code = %d, stderr=%q", code, errOut.String())
+	}
+	if code := runID([]string{"live", "PDR-001", root}, &out, &errOut); code != 0 {
+		t.Fatalf("id live exit code = %d, stderr=%q", code, errOut.String())
+	}
+	l, err = ledger.Load(root)
+	if err != nil {
+		t.Fatalf("Load: %v", err)
+	}
+	if e, ok := l.Lookup("PDR-001"); !ok || e.State != ledger.StateLive {
+		t.Fatalf("PDR-001 entry = %+v, ok=%v, want live", e, ok)
+	}
+}
+
+func TestAC108_UnitNegative_IDLiveRejectsNonReservedID(t *testing.T) {
+	root := t.TempDir()
+	l, err := ledger.Load(root)
+	if err != nil {
+		t.Fatalf("Load: %v", err)
+	}
+	if err := l.Save(); err != nil {
+		t.Fatalf("Save: %v", err)
+	}
+	var out, errOut strings.Builder
+	if code := runID([]string{"live", "PDR-001", root}, &out, &errOut); code != 2 {
+		t.Fatalf("unreserved id live exit code = %d, want 2", code)
+	}
+	if code := runID([]string{"next", "PDR", root}, &out, &errOut); code != 0 {
+		t.Fatalf("id next exit code = %d, stderr=%q", code, errOut.String())
+	}
+	if code := runID([]string{"live", "PDR-001", root}, &out, &errOut); code != 0 {
+		t.Fatalf("id live exit code = %d, stderr=%q", code, errOut.String())
+	}
+	if code := runID([]string{"live", "PDR-001", root}, &out, &errOut); code != 2 {
+		t.Fatalf("second id live exit code = %d, want 2", code)
 	}
 }
 

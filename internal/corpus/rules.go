@@ -8,6 +8,8 @@ import (
 	"regexp"
 	"sort"
 	"strings"
+
+	"github.com/cliewen/cliewen/internal/ledger"
 )
 
 // Options control which gates Validate applies.
@@ -86,6 +88,7 @@ func Validate(c *Corpus, opts Options) []Issue {
 	issues = append(issues, checkProposalPlanItem(c)...)
 	issues = append(issues, checkMilestoneStatus(c)...)
 	issues = append(issues, checkSkillVersions(c, opts.Version)...)
+	issues = append(issues, checkLedger(c)...)
 	if opts.ForbidChanges && c.HasChanges {
 		issues = append(issues, Issue{"changes", "transient workspace present — digest before merge (main must never contain /changes)"})
 	}
@@ -248,6 +251,75 @@ func checkDuplicateIDs(c *Corpus) []Issue {
 			}
 			sort.Strings(paths)
 			issues = append(issues, Issue{paths[0], "duplicate id " + id + " (also in " + strings.Join(paths[1:], ", ") + ")"})
+		}
+	}
+	return issues
+}
+
+// checkLedger cross-checks the corpus against .clue/id-ledger.yaml
+// (ADR-048). A corpus without a ledger file yet is unaffected — the gate
+// that keeps this rule from firing before a repository has run the
+// backfill migration. Where a ledger exists, it rejects a live artifact
+// missing from the ledger or whose ID the ledger marks reserved or retired,
+// and a malformed entry: a numeric-kind entry with no valid decimal
+// component, or an opaque-kind entry carrying one.
+func checkLedger(c *Corpus) []Issue {
+	if !ledger.Exists(c.Root) {
+		return nil
+	}
+	l, err := ledger.Load(c.Root)
+	if err != nil {
+		return []Issue{{ledger.DefaultPath, "ledger: " + err.Error()}}
+	}
+	var issues []Issue
+	for _, e := range l.Entries() {
+		switch e.State {
+		case ledger.StateReserved, ledger.StateLive, ledger.StateRetired:
+		default:
+			issues = append(issues, Issue{ledger.DefaultPath, "entry " + e.ID + " has invalid state " + string(e.State)})
+		}
+		switch e.Kind {
+		case ledger.KindNumeric:
+			if !ledger.ValidNumericEntry(e) {
+				issues = append(issues, Issue{ledger.DefaultPath, "entry " + e.ID + " is numeric-kind but its ID, prefix, and component do not agree"})
+			}
+		case ledger.KindOpaque:
+			if e.Component != nil || e.Prefix != "" {
+				issues = append(issues, Issue{ledger.DefaultPath, "entry " + e.ID + " is opaque-kind but carries numeric fields"})
+			}
+		default:
+			issues = append(issues, Issue{ledger.DefaultPath, "entry " + e.ID + " has invalid kind " + string(e.Kind)})
+		}
+	}
+	for id, as := range c.ByID {
+		entry, ok := l.Lookup(id)
+		if !ok {
+			for _, a := range as {
+				issues = append(issues, Issue{a.Path, "id " + id + " is missing from " + ledger.DefaultPath})
+			}
+			continue
+		}
+		if entry.State == ledger.StateLive {
+			continue
+		}
+		for _, a := range as {
+			issues = append(issues, Issue{a.Path, "id " + id + " is marked " + string(entry.State) + " in " + ledger.DefaultPath + " and cannot be used by a live artifact"})
+		}
+	}
+	for _, criterion := range LedgerCriterionIdentities(c) {
+		entry, ok := l.Lookup(criterion.ID)
+		if !ok {
+			issues = append(issues, Issue{criterion.Path, "criterion " + criterion.ID + " is missing from " + ledger.DefaultPath})
+			continue
+		}
+		want := ledger.StateLive
+		if criterion.Retired {
+			want = ledger.StateRetired
+		} else if !criterion.Live {
+			continue
+		}
+		if entry.State != want {
+			issues = append(issues, Issue{criterion.Path, "criterion " + criterion.ID + " is marked " + string(entry.State) + " in " + ledger.DefaultPath + " but its declaration is " + string(want)})
 		}
 	}
 	return issues

@@ -340,4 +340,66 @@ Feature: clue validate — deterministic corpus judgment
     And the output names the plan, the milestone, and the value it read
     But a table that declares no Status column is not a milestone table, and a header row, a separator row, and an empty cell are never values
     And a table is read by its delimiter row, with or without outer pipes, with cells divided only by pipes that are unescaped and outside a code span
+
+  @AC-101
+  Scenario: clue id next allocates the next numeric ID through the ledger
+    Test-type: Unit
+    Given a repository whose identity ledger has been backfilled and whose counters map holds the last-issued numeric component for a prefix
+    When the user runs "clue id next <prefix>"
+    Then it prints the next sequential ID for that prefix as an increment of the stored counter, never a corpus scan
+    And it persists the new entry as "reserved" and advances the counter
+    But a canonical prefix absent from the ledger starts its counter at zero and issues the prefix's first ID; a malformed, lowercase, or improperly segmented prefix is rejected, and a repository with no ledger is told to run `clue migrate --apply` first
+
+  @AC-108
+  Scenario: clue id live promotes an allocated ID after its artifact is created
+    Test-type: Unit
+    Given the ledger marks an allocated ID "reserved"
+    When the user runs "clue id live <id>" after creating the artifact
+    Then it persists that ID as "live"
+    But it rejects an ID that is missing or is already "live" or "retired"
+
+  @AC-102
+  Scenario: An opaque ID is preserved verbatim and never reused
+    Test-type: Unit
+    Given a ledger holding an opaque-kind entry with an exact canonical ID
+    When a source mapping's documented generator proposes that same exact ID again
+    Then the ledger rejects the ID as already used
+    And it accepts a new opaque ID exactly as the generator produced it, without normalizing case, trimming, or reformatting
+
+  @AC-103
+  Scenario: checkLedger rejects a live artifact whose ID the ledger does not mark live
+    Test-type: Unit
+    Given a ".clue/id-ledger.yaml" that omits an ID or marks it "reserved" or "retired"
+    And a live corpus artifact or acceptance criterion declaring that same ID
+    When the user runs "clue validate"
+    Then it exits with a non-zero code
+    And the output names the file and says whether the ledger omits the ID or gives it a non-live state
+    But a live artifact or criterion whose ID the ledger marks "live" passes, a retired criterion whose ID the ledger marks "retired" passes, and a corpus with no ".clue/id-ledger.yaml" file is unaffected by this rule
+
+  @AC-104
+  Scenario: checkLedger rejects a malformed ledger entry shape
+    Test-type: Unit
+    Given a ".clue/id-ledger.yaml" holding an unknown kind, a numeric-kind entry whose ID, prefix, and component disagree, an opaque-kind entry carrying numeric fields, an invalid state, a null, negative, missing, or low counter, or duplicate canonical IDs
+    When the user runs "clue validate"
+    Then it exits with a non-zero code
+    And the output names the entry and which shape or identity rule it breaks
+    But a numeric entry whose canonical ID, prefix, and decimal component agree with a supported state, and an opaque entry with no numeric fields both pass
+
+  @AC-105
+  Scenario: An archived numeric ID above the live maximum is never reissued
+    Test-type: Unit
+    Given a ledger whose counter for a prefix sits below a "retired" entry's numeric component that once exceeded every live artifact's number
+    When the user runs "clue id next <prefix>"
+    Then the issued ID skips the retired number and every number the ledger already holds
+    And "clue validate" rejects a live artifact later declaring that retired number
+    But a live artifact declaring the newly issued number passes
+
+  @AC-106
+  Scenario: A UUID-like opaque ID cannot be reused after its source artifact is deleted
+    Test-type: Unit
+    Given a ledger holding a "retired" opaque entry with a UUID-like exact canonical ID, its source artifact having been deleted
+    When a source mapping's generator proposes that same UUID-like ID again
+    Then the ledger rejects it as already used
+    And "clue validate" rejects a live artifact declaring that retired opaque ID
+    But a freshly generated, distinct opaque ID passes both checks
 ```

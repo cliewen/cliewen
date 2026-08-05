@@ -19,6 +19,7 @@ import (
 	"strings"
 
 	"github.com/cliewen/cliewen/internal/corpus"
+	"github.com/cliewen/cliewen/internal/ledger"
 	"github.com/cliewen/cliewen/internal/scaffold"
 	"gopkg.in/yaml.v3"
 )
@@ -55,6 +56,11 @@ const (
 	// is prose, and half-repairing would leave the register contradicting
 	// itself in the adopter's own words (ADR-045).
 	MigrationPromotedConstraints = "MIG-007"
+	// MigrationLedgerBackfill seeds .clue/id-ledger.yaml from the current
+	// corpus scan the first time a repository sees it: one live entry per
+	// currently-live ID, counters seeded at each prefix's current max, so
+	// existing history is not renumbered (ADR-048).
+	MigrationLedgerBackfill = "MIG-008"
 )
 
 // Options controls planning. Preview is the default; applying a plan is a
@@ -79,6 +85,7 @@ var orderedMigrations = []MigrationDefinition{
 	{ID: MigrationClaudeEntryPoint, Description: "report a Claude Code entry point that never reaches the routing hub"},
 	{ID: MigrationHubReleaseCheck, Description: "report a routing hub that never asks whether the repository is behind"},
 	{ID: MigrationPromotedConstraints, Description: "report a scaffolded constraint awaiting a machine check this release implements"},
+	{ID: MigrationLedgerBackfill, Description: "seed the identity ledger from the current corpus scan"},
 }
 
 // Registry returns the migration order without exposing mutable package state.
@@ -262,6 +269,7 @@ func Plan(root string, opts Options) (MigrationPlan, error) {
 	planClaudeEntryPoint(root, &result)
 	planHubReleaseCheck(root, &result)
 	planPromotedConstraints(root, &result)
+	planLedgerBackfill(root, &result)
 	sortPlan(&result)
 	return result, nil
 }
@@ -1150,6 +1158,48 @@ func planPromotedConstraints(root string, result *MigrationPlan) {
 			Message:   "awaits a machine check that `clue validate` now runs; set `enforcement: machine` and replace the promotion trigger with a **Checked by:** declaration — migration does not edit your register",
 		})
 	}
+}
+
+// planLedgerBackfill seeds .clue/id-ledger.yaml the first time a repository
+// sees it: one live entry per currently-live corpus ID, with counters
+// seeded at each prefix's current maximum, so existing IDs are never
+// renumbered (ADR-048, AC-107). It is idempotent by construction: once the
+// file exists, Plan reports zero further changes for this migration.
+func planLedgerBackfill(root string, result *MigrationPlan) {
+	if ledger.Exists(root) {
+		return
+	}
+	c, issues := corpus.Scan(root)
+	if len(issues) > 0 {
+		return // parse-level problems are corpus.Validate's judgment, not migration's
+	}
+	l, err := ledger.Load(root)
+	if err != nil {
+		return
+	}
+	for id := range c.ByID {
+		l.MarkLive(id)
+	}
+	for _, criterion := range corpus.LedgerCriterionIdentities(c) {
+		if criterion.Retired {
+			l.MarkRetired(criterion.ID)
+			continue
+		}
+		if criterion.Live {
+			l.MarkLive(criterion.ID)
+		}
+	}
+	data, err := l.Bytes()
+	if err != nil {
+		return
+	}
+	result.Changes = append(result.Changes, Change{
+		Path:        path.Join(".clue", "id-ledger.yaml"),
+		Migration:   MigrationLedgerBackfill,
+		Description: fmt.Sprintf("seed the identity ledger with %d live id(s) from the current corpus scan", len(c.ByID)),
+		Existed:     false,
+		After:       data,
+	})
 }
 
 // linksToHub reports whether an entry point is a symlink resolving to the
