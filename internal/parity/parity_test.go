@@ -72,6 +72,7 @@ func TestAC109_UnitPositive_cleanRunPasses(t *testing.T) {
 	}
 	source := SourceManifest{Entries: []SourceEntry{
 		{ID: "AC-900", ProofClass: "Integration", Direction: "positive", EvidenceLocation: "fixture_test.go"},
+		{ID: "AC-900", ProofClass: "Integration", Direction: "negative", EvidenceLocation: "fixture_test.go"},
 	}}
 	r1 := Compare(source, target)
 	if r1.Failed() {
@@ -80,6 +81,22 @@ func TestAC109_UnitPositive_cleanRunPasses(t *testing.T) {
 	r2 := Compare(source, target)
 	if len(r1.Findings) != len(r2.Findings) {
 		t.Fatalf("expected deterministic reports, got %v and %v", r1.Findings, r2.Findings)
+	}
+}
+
+// TestAC112_UnitNegative_addedEvidenceFails proves parity compares complete
+// direction and location sets, not merely whether the source's one reference
+// appears somewhere in the target.
+func TestAC112_UnitNegative_addedEvidenceFails(t *testing.T) {
+	target := TargetManifest{Entries: map[string]TargetEntry{
+		"AC-903": {ID: "AC-903", ProofClass: "Unit", Directions: []string{"negative", "positive"}, EvidenceLocations: []string{"added_test.go", "x_test.go"}},
+	}}
+	source := SourceManifest{Entries: []SourceEntry{
+		{ID: "AC-903", ProofClass: "Unit", Direction: "positive", EvidenceLocation: "x_test.go"},
+	}}
+	r := Compare(source, target)
+	if !r.Failed() || r.Findings[0].Class != ClassChangedEvidence {
+		t.Fatalf("expected added target evidence to fail as changed evidence, got %v", r.Findings)
 	}
 }
 
@@ -295,5 +312,30 @@ func TestAC114_UnitNegative_unjustifiedDispositionFails(t *testing.T) {
 	r := Compare(source, target)
 	if !r.Failed() || r.Findings[0].Class != ClassUnjustifiedDisposition {
 		t.Fatalf("expected an unjustified-disposition finding, got %v", r.Findings)
+	}
+}
+
+// TestAC114_UnitNegative_mismatchedDispositionFails proves a justification
+// cannot make a different target disposition pass.
+func TestAC114_UnitNegative_mismatchedDispositionFails(t *testing.T) {
+	target := TargetManifest{Entries: map[string]TargetEntry{
+		"AC-905": {ID: "AC-905", Draft: true},
+	}}
+	source := SourceManifest{Entries: []SourceEntry{
+		{ID: "AC-905", Disposition: DispositionHuman, Justification: "source review"},
+	}}
+	r := Compare(source, target)
+	if !r.Failed() || r.Findings[0].Class != ClassUnjustifiedDisposition {
+		t.Fatalf("expected a mismatched disposition finding, got %v", r.Findings)
+	}
+}
+
+func TestAC110_UnitNegative_manifestValidationRejectsIncompleteExclusion(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "manifest.yaml")
+	if err := os.WriteFile(path, []byte("source-revision: rev-1\nsource-location: source\nentries:\n  - id: AC-901\n    excluded: true\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := LoadSourceManifest(path); err == nil {
+		t.Fatal("expected an excluded entry without a reason to be rejected")
 	}
 }

@@ -6,6 +6,7 @@
 package parity
 
 import (
+	"bytes"
 	"fmt"
 	"os"
 	"sort"
@@ -26,9 +27,10 @@ const (
 	DispositionRetired Disposition = "retired"
 )
 
-// SourceEntry is one criterion's pinned source-side state: a declared proof
-// class and evidence location, a declared exclusion, or a disposition
-// justification — exactly one outcome per entry (ADR-049).
+// SourceEntry is one pinned source-side outcome. A proof outcome names one
+// classified source reference; several proof outcomes may share an ID when a
+// criterion has several directions or locations. An exclusion or disposition
+// is instead the sole outcome for its ID (ADR-049).
 type SourceEntry struct {
 	ID               string      `yaml:"id"`
 	ProofClass       string      `yaml:"proof-class,omitempty"`
@@ -56,10 +58,60 @@ func LoadSourceManifest(path string) (SourceManifest, error) {
 		return SourceManifest{}, err
 	}
 	var m SourceManifest
-	if err := yaml.Unmarshal(data, &m); err != nil {
+	decoder := yaml.NewDecoder(bytes.NewReader(data))
+	decoder.KnownFields(true)
+	if err := decoder.Decode(&m); err != nil {
+		return SourceManifest{}, fmt.Errorf("%s: %w", path, err)
+	}
+	if err := validateSourceManifest(m); err != nil {
 		return SourceManifest{}, fmt.Errorf("%s: %w", path, err)
 	}
 	return m, nil
+}
+
+func validateSourceManifest(m SourceManifest) error {
+	if m.SourceRevision == "" || m.SourceLocation == "" {
+		return fmt.Errorf("source-revision and source-location are required")
+	}
+	byID := make(map[string][]SourceEntry, len(m.Entries))
+	for _, e := range m.Entries {
+		if e.ID == "" {
+			return fmt.Errorf("entry id is required")
+		}
+		proof := e.ProofClass != "" || e.Direction != "" || e.EvidenceLocation != ""
+		disposition := e.Disposition != "" || e.Justification != ""
+		switch {
+		case e.Excluded:
+			if e.Reason == "" || proof || disposition {
+				return fmt.Errorf("entry %q: excluded entries require only a reason", e.ID)
+			}
+		case disposition:
+			if proof || e.Reason != "" || e.Disposition == "" || e.Justification == "" {
+				return fmt.Errorf("entry %q: dispositions require only a disposition and justification", e.ID)
+			}
+			if e.Disposition != DispositionDraft && e.Disposition != DispositionHuman && e.Disposition != DispositionRetired {
+				return fmt.Errorf("entry %q: unsupported disposition %q", e.ID, e.Disposition)
+			}
+		case proof:
+			if e.ProofClass == "" || e.Direction == "" || e.EvidenceLocation == "" || e.Reason != "" {
+				return fmt.Errorf("entry %q: proof entries require proof-class, direction, and evidence-location only", e.ID)
+			}
+		default:
+			return fmt.Errorf("entry %q: expected a proof, exclusion, or disposition", e.ID)
+		}
+		byID[e.ID] = append(byID[e.ID], e)
+	}
+	for id, entries := range byID {
+		if len(entries) < 2 {
+			continue
+		}
+		for _, e := range entries {
+			if e.Excluded || e.Disposition != "" {
+				return fmt.Errorf("entry %q: exclusions and dispositions cannot share an ID with another entry", id)
+			}
+		}
+	}
+	return nil
 }
 
 // TargetEntry is one criterion's state as derived from the current corpus
@@ -117,7 +169,7 @@ func DeriveTargetManifest(root string) (TargetManifest, error) {
 				te.SourceRevision = e.SourceRevision
 			}
 		}
-		dirSet := map[string]bool{}
+		dirSet, locationSet := map[string]bool{}, map[string]bool{}
 		for _, ref := range locations[id] {
 			// Only a classified reference (both type and direction known)
 			// counts as the evidence ADR-049's orphaned-tag and
@@ -127,11 +179,14 @@ func DeriveTargetManifest(root string) (TargetManifest, error) {
 			if ref.Type == "" || ref.Direction == "" {
 				continue
 			}
-			te.EvidenceLocations = append(te.EvidenceLocations, ref.Path)
+			locationSet[ref.Path] = true
 			dirSet[ref.Direction] = true
 		}
 		for dir := range dirSet {
 			te.Directions = append(te.Directions, dir)
+		}
+		for location := range locationSet {
+			te.EvidenceLocations = append(te.EvidenceLocations, location)
 		}
 		sort.Strings(te.Directions)
 		sort.Strings(te.EvidenceLocations)
@@ -171,9 +226,9 @@ func (r Report) Failed() bool { return len(r.Findings) > 0 }
 // The report stays derived: Compare never mutates source, target, or any
 // file on disk.
 func Compare(source SourceManifest, target TargetManifest) Report {
-	bySource := make(map[string]SourceEntry, len(source.Entries))
+	bySource := make(map[string][]SourceEntry, len(source.Entries))
 	for _, e := range source.Entries {
-		bySource[e.ID] = e
+		bySource[e.ID] = append(bySource[e.ID], e)
 	}
 
 	sourceIDs := make([]string, 0, len(bySource))
@@ -184,7 +239,8 @@ func Compare(source SourceManifest, target TargetManifest) Report {
 
 	var findings []Finding
 	for _, id := range sourceIDs {
-		se := bySource[id]
+		entries := bySource[id]
+		se := entries[0]
 		if se.Excluded {
 			continue
 		}
@@ -193,28 +249,23 @@ func Compare(source SourceManifest, target TargetManifest) Report {
 			findings = append(findings, Finding{ClassMissingCriterion, id, "source entry has no matching target criterion"})
 			continue
 		}
-		if se.Disposition != "" {
-			if se.Justification == "" {
-				findings = append(findings, Finding{ClassUnjustifiedDisposition, id, "source entry declares disposition " + string(se.Disposition) + " with no justification"})
-			}
-			continue
-		}
 		if te.SourceRevision != "" && te.SourceRevision != source.SourceRevision {
 			findings = append(findings, Finding{ClassStaleFingerprint, id, fmt.Sprintf("manifest source-revision %q disagrees with ledger revision %q", source.SourceRevision, te.SourceRevision)})
+		}
+		if se.Disposition != "" {
+			if se.Justification == "" || !matchesDisposition(se.Disposition, te) {
+				findings = append(findings, Finding{ClassUnjustifiedDisposition, id, fmt.Sprintf("source disposition %q does not match the target's draft, Human, or retired state", se.Disposition)})
+			}
+			continue
 		}
 		if te.Draft || te.Human || te.Retired {
 			findings = append(findings, Finding{ClassUnjustifiedDisposition, id, "target is @draft, Human, or retired but the source manifest declares a proof class instead of a disposition"})
 			continue
 		}
-		mismatch := se.ProofClass != te.ProofClass
-		if se.Direction != "" && !containsString(te.Directions, se.Direction) {
-			mismatch = true
-		}
-		if se.EvidenceLocation != "" && !containsString(te.EvidenceLocations, se.EvidenceLocation) {
-			mismatch = true
-		}
+		sourceDirections, sourceLocations := sourceEvidence(entries)
+		mismatch := se.ProofClass != te.ProofClass || !sameStrings(sourceDirections, te.Directions) || !sameStrings(sourceLocations, te.EvidenceLocations)
 		if mismatch {
-			findings = append(findings, Finding{ClassChangedEvidence, id, fmt.Sprintf("source proof-class=%q direction=%q location=%q; target proof-class=%q directions=%v locations=%v", se.ProofClass, se.Direction, se.EvidenceLocation, te.ProofClass, te.Directions, te.EvidenceLocations)})
+			findings = append(findings, Finding{ClassChangedEvidence, id, fmt.Sprintf("source proof-class=%q directions=%v locations=%v; target proof-class=%q directions=%v locations=%v", se.ProofClass, sourceDirections, sourceLocations, te.ProofClass, te.Directions, te.EvidenceLocations)})
 		}
 	}
 
@@ -245,11 +296,35 @@ func Compare(source SourceManifest, target TargetManifest) Report {
 	return Report{Findings: findings}
 }
 
-func containsString(list []string, want string) bool {
-	for _, v := range list {
-		if v == want {
-			return true
+func matchesDisposition(d Disposition, target TargetEntry) bool {
+	return (d == DispositionDraft && target.Draft) || (d == DispositionHuman && target.Human) || (d == DispositionRetired && target.Retired)
+}
+
+func sourceEvidence(entries []SourceEntry) (directions, locations []string) {
+	directionsSeen, locationsSeen := map[string]bool{}, map[string]bool{}
+	for _, entry := range entries {
+		directionsSeen[entry.Direction] = true
+		locationsSeen[entry.EvidenceLocation] = true
+	}
+	for direction := range directionsSeen {
+		directions = append(directions, direction)
+	}
+	for location := range locationsSeen {
+		locations = append(locations, location)
+	}
+	sort.Strings(directions)
+	sort.Strings(locations)
+	return directions, locations
+}
+
+func sameStrings(a, b []string) bool {
+	if len(a) != len(b) {
+		return false
+	}
+	for i := range a {
+		if a[i] != b[i] {
+			return false
 		}
 	}
-	return false
+	return true
 }
