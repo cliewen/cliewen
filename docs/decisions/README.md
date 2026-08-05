@@ -81,4 +81,5 @@ The CLI reports inferred ADRs and PDRs as decisions awaiting verification, separ
 - [PDR-023 — The tool carries the notice and the hub carries the instruction, and no vendor configuration is ever emitted](PDR-023-tool-notice-and-hub-instruction.md) · `inferred`
 - [ADR-044 — The judge judges a repository state, never a transition](ADR-044-judge-reads-state-not-transitions.md) · `inferred`
 - [ADR-045 — Every constraint names the machine that holds it or the judgment that remains](ADR-045-register-names-the-machine.md) · `inferred`
+- [ADR-046 — An index row says what its artifact is about](ADR-046-index-rows-say-what-the-artifact-is-about.md) · `inferred` — An appended row seeds a description from the artifact's own body; the sentence is curated thereafter, and a row still lacking one is counted rather than failed on.
 <!-- clue:index:end -->
