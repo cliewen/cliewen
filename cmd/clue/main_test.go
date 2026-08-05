@@ -542,6 +542,13 @@ func TestAC064_CLI_MigratePreviewAndApply(t *testing.T) {
 
 func TestAC101_UnitPositive_IDNextIncrementsThroughTheLedger(t *testing.T) {
 	root := t.TempDir()
+	l, err := ledger.Load(root)
+	if err != nil {
+		t.Fatalf("Load: %v", err)
+	}
+	if err := l.Save(); err != nil {
+		t.Fatalf("Save: %v", err)
+	}
 	var out, errOut strings.Builder
 	if code := runID([]string{"next", "PDR", root}, &out, &errOut); code != 0 {
 		t.Fatalf("exit code = %d, stderr=%q", code, errOut.String())
@@ -574,8 +581,27 @@ func TestAC101_UnitNegative_IDNextRejectsMissingPrefix(t *testing.T) {
 	}
 }
 
+func TestAC101_UnitNegative_IDNextRequiresLedgerBackfill(t *testing.T) {
+	root := t.TempDir()
+	writeFile(t, root, "docs/plans/PDR-001.md", "---\nid: PDR-001\ntype: plan\nstatus: active\nlinks: []\ntitle: Existing plan\n---\n")
+	var out, errOut strings.Builder
+	if code := runID([]string{"next", "PDR", root}, &out, &errOut); code != 2 {
+		t.Fatalf("exit code = %d, want 2 without a ledger", code)
+	}
+	if !strings.Contains(errOut.String(), "clue migrate --apply") {
+		t.Fatalf("missing migration guidance: %q", errOut.String())
+	}
+}
+
 func TestAC108_UnitPositive_IDLivePromotesReservedID(t *testing.T) {
 	root := t.TempDir()
+	l, err := ledger.Load(root)
+	if err != nil {
+		t.Fatalf("Load: %v", err)
+	}
+	if err := l.Save(); err != nil {
+		t.Fatalf("Save: %v", err)
+	}
 	var out, errOut strings.Builder
 	if code := runID([]string{"next", "PDR", root}, &out, &errOut); code != 0 {
 		t.Fatalf("id next exit code = %d, stderr=%q", code, errOut.String())
@@ -583,7 +609,7 @@ func TestAC108_UnitPositive_IDLivePromotesReservedID(t *testing.T) {
 	if code := runID([]string{"live", "PDR-001", root}, &out, &errOut); code != 0 {
 		t.Fatalf("id live exit code = %d, stderr=%q", code, errOut.String())
 	}
-	l, err := ledger.Load(root)
+	l, err = ledger.Load(root)
 	if err != nil {
 		t.Fatalf("Load: %v", err)
 	}
@@ -594,6 +620,13 @@ func TestAC108_UnitPositive_IDLivePromotesReservedID(t *testing.T) {
 
 func TestAC108_UnitNegative_IDLiveRejectsNonReservedID(t *testing.T) {
 	root := t.TempDir()
+	l, err := ledger.Load(root)
+	if err != nil {
+		t.Fatalf("Load: %v", err)
+	}
+	if err := l.Save(); err != nil {
+		t.Fatalf("Save: %v", err)
+	}
 	var out, errOut strings.Builder
 	if code := runID([]string{"live", "PDR-001", root}, &out, &errOut); code != 2 {
 		t.Fatalf("unreserved id live exit code = %d, want 2", code)

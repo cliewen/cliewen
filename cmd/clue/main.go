@@ -416,6 +416,10 @@ func runIDNext(args []string, out, errOut io.Writer) int {
 		fmt.Fprintf(errOut, "clue id next: %v\n", err)
 		return 2
 	}
+	if !ledger.Exists(root) {
+		fmt.Fprintln(errOut, "clue id next: identity ledger is missing; run `clue migrate --apply` first")
+		return 2
+	}
 	id := l.NextNumeric(prefix)
 	if err := l.Save(); err != nil {
 		fmt.Fprintf(errOut, "clue id next: %v\n", err)

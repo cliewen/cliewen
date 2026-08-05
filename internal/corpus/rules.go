@@ -273,6 +273,11 @@ func checkLedger(c *Corpus) []Issue {
 	}
 	var issues []Issue
 	for _, e := range l.Entries() {
+		switch e.State {
+		case ledger.StateReserved, ledger.StateLive, ledger.StateRetired:
+		default:
+			issues = append(issues, Issue{ledger.DefaultPath, "entry " + e.ID + " has invalid state " + string(e.State)})
+		}
 		switch e.Kind {
 		case ledger.KindNumeric:
 			if e.Component == 0 || e.Prefix == "" {
@@ -292,7 +297,7 @@ func checkLedger(c *Corpus) []Issue {
 			}
 			continue
 		}
-		if entry.State != ledger.StateReserved && entry.State != ledger.StateRetired {
+		if entry.State == ledger.StateLive {
 			continue
 		}
 		for _, a := range as {

@@ -344,11 +344,11 @@ Feature: clue validate — deterministic corpus judgment
   @AC-101
   Scenario: clue id next allocates the next numeric ID through the ledger
     Test-type: Unit
-    Given a ledger whose counters map holds the last-issued numeric component for a prefix
+    Given a repository whose identity ledger has been backfilled and whose counters map holds the last-issued numeric component for a prefix
     When the user runs "clue id next <prefix>"
     Then it prints the next sequential ID for that prefix as an increment of the stored counter, never a corpus scan
     And it persists the new entry as "reserved" and advances the counter
-    But a prefix absent from the ledger starts its counter at zero and issues the prefix's first ID
+    But a prefix absent from the ledger starts its counter at zero and issues the prefix's first ID, while a repository with no ledger is told to run `clue migrate --apply` first
 
   @AC-108
   Scenario: clue id live promotes an allocated ID after its artifact is created
@@ -379,11 +379,11 @@ Feature: clue validate — deterministic corpus judgment
   @AC-104
   Scenario: checkLedger rejects a malformed ledger entry shape
     Test-type: Unit
-    Given a ".clue/id-ledger.yaml" holding a numeric-kind entry with no decimal component, or an opaque-kind entry carrying one
+    Given a ".clue/id-ledger.yaml" holding a numeric-kind entry with no decimal component, an opaque-kind entry carrying one, an invalid state, or duplicate canonical IDs
     When the user runs "clue validate"
     Then it exits with a non-zero code
-    And the output names the entry and which shape rule it breaks
-    But a numeric entry with a valid decimal component and an opaque entry with none both pass
+    And the output names the entry and which shape or identity rule it breaks
+    But a numeric entry with a valid decimal component, a supported state, and an opaque entry with none both pass
 
   @AC-105
   Scenario: An archived numeric ID above the live maximum is never reissued

@@ -95,6 +95,9 @@ func Load(root string) (*Ledger, error) {
 	}
 	for i := range f.Entries {
 		e := f.Entries[i]
+		if _, exists := l.byID[e.ID]; exists {
+			return nil, fmt.Errorf("%s: duplicate entry for id %s", l.path, e.ID)
+		}
 		l.byID[e.ID] = &e
 	}
 	return l, nil

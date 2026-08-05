@@ -84,6 +84,30 @@ func TestAC103_UnitPositive_LiveIDMissingFromLedgerRejected(t *testing.T) {
 	t.Fatalf("expected a missing-ledger-entry issue, got: %v", issues)
 }
 
+func TestAC104_UnitPositive_UnknownLedgerStateRejectedForLiveArtifact(t *testing.T) {
+	root := writeCorpus(t, validFiles)
+	writeLedger(t, root, "counters: {G: 1}\nentries:\n  - id: G-001\n    kind: numeric\n    state: pending\n    prefix: G\n    component: 1\n")
+	c, scanIssues := Scan(root)
+	if len(scanIssues) != 0 {
+		t.Fatalf("scan issues: %v", scanIssues)
+	}
+	issues := Validate(c, Options{})
+	want := map[string]bool{
+		"entry G-001 has invalid state pending":                                                    false,
+		"id G-001 is marked pending in .clue/id-ledger.yaml and cannot be used by a live artifact": false,
+	}
+	for _, is := range issues {
+		if _, ok := want[is.Msg]; ok {
+			want[is.Msg] = true
+		}
+	}
+	for msg, found := range want {
+		if !found {
+			t.Fatalf("missing expected issue %q in: %v", msg, issues)
+		}
+	}
+}
+
 func TestAC103_UnitNegative_NoLedgerFileIsUnaffected(t *testing.T) {
 	root := writeCorpus(t, validFiles)
 	c, scanIssues := Scan(root)
