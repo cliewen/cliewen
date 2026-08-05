@@ -370,11 +370,11 @@ Feature: clue validate — deterministic corpus judgment
   Scenario: checkLedger rejects a live artifact whose ID the ledger does not mark live
     Test-type: Unit
     Given a ".clue/id-ledger.yaml" that omits an ID or marks it "reserved" or "retired"
-    And a live corpus artifact declaring that same ID
+    And a live corpus artifact or acceptance criterion declaring that same ID
     When the user runs "clue validate"
     Then it exits with a non-zero code
     And the output names the file and says whether the ledger omits the ID or gives it a non-live state
-    But a live artifact whose ID the ledger marks "live" passes, and a corpus with no ".clue/id-ledger.yaml" file is unaffected by this rule
+    But a live artifact or criterion whose ID the ledger marks "live" passes, a retired criterion whose ID the ledger marks "retired" passes, and a corpus with no ".clue/id-ledger.yaml" file is unaffected by this rule
 
   @AC-104
   Scenario: checkLedger rejects a malformed ledger entry shape

@@ -850,6 +850,35 @@ func TestAC107_UnitPositive_MigrateBackfillsLedgerFromCurrentScan(t *testing.T) 
 	}
 }
 
+func TestAC107_UnitPositive_MigrateBackfillsLiveAndRetiredCriteria(t *testing.T) {
+	root := migrationFixture(t, "")
+	criteria := "---\nid: CAP-001-criteria\ntype: criteria\nstatus: active\nlinks: []\ntitle: Criterion identities\n---\n\n```gherkin\n\n  @AC-101\n  Scenario: live\n    Test-type: Human\n\n  @AC-102 @retired\n  Scenario: retired\n```\n"
+	criteriaPath := filepath.Join(root, "docs", "analysis", "criteria.md")
+	if err := os.WriteFile(criteriaPath, []byte(criteria), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	draftCriteria := "---\nid: CAP-002-criteria\ntype: criteria\nstatus: draft\nlinks: []\ntitle: Archived criterion\n---\n\n```gherkin\n\n  @AC-103 @retired\n  Scenario: retired\n```\n"
+	if err := os.WriteFile(filepath.Join(root, "docs", "analysis", "retired-criteria.md"), []byte(draftCriteria), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	plan, err := Plan(root, Options{ReversalCost: "low"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, change := range plan.Changes {
+		if change.Migration != MigrationLedgerBackfill {
+			continue
+		}
+		ledger := string(change.After)
+		if strings.Contains(ledger, "id: AC-101\n      kind: numeric\n      state: live") && strings.Contains(ledger, "id: AC-102\n      kind: numeric\n      state: retired") && strings.Contains(ledger, "id: AC-103\n      kind: numeric\n      state: retired") {
+			return
+		}
+		t.Fatalf("criteria were not backfilled with their lifecycle states:\n%s", ledger)
+	}
+	t.Fatalf("no %s change planned", MigrationLedgerBackfill)
+}
+
 func TestAC107_UnitPositive_MigrateBackfillsSegmentedNumericPrefix(t *testing.T) {
 	root := migrationFixture(t, "")
 	path := filepath.Join(root, "docs", "analysis", "SNAP-SQS-001.md")

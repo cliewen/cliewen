@@ -44,6 +44,38 @@ type acDecl struct {
 	humanSingle  bool // Test-type: Human combined with (single-direction), which the Human class does not use (ADR-033)
 }
 
+// CriterionIdentity is a canonical acceptance-criterion declaration that the
+// identity ledger must retain. Retired criteria stay declared as tombstones,
+// so their ledger state is Retired rather than disappearing with their file.
+type CriterionIdentity struct {
+	ID      string
+	Path    string
+	Live    bool
+	Retired bool
+}
+
+// LedgerCriterionIdentities returns each live canonical declaration and every
+// retained tombstone, ordered by ID. It shares harvestACs' namespace and
+// tombstone reading with the evidence contract, so the ledger does not invent
+// a second interpretation of an acceptance-criterion identity. A tombstone
+// remains a retired identity even if its criteria artifact is no longer active.
+func LedgerCriterionIdentities(c *Corpus) []CriterionIdentity {
+	declared, _, _, _ := harvestACs(c)
+	ids := make([]string, 0, len(declared))
+	for id, d := range declared {
+		if d.status == "active" || d.retired {
+			ids = append(ids, id)
+		}
+	}
+	sort.Strings(ids)
+	out := make([]CriterionIdentity, 0, len(ids))
+	for _, id := range ids {
+		d := declared[id]
+		out = append(out, CriterionIdentity{ID: id, Path: d.path, Live: d.status == "active" && !d.retired, Retired: d.retired})
+	}
+	return out
+}
+
 // harvestACs parses every criteria.md tag-line declaration and walks the
 // tree for classified Go, JVM, and Cucumber evidence, shared by
 // checkACTests (which enforces it) and Coverage (which derives a report

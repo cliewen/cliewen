@@ -270,6 +270,14 @@ func (l *Ledger) MarkLive(id string) {
 	l.byID[id] = e
 }
 
+// MarkRetired records id as a tombstoned or deleted identity. Like MarkLive,
+// it classifies a previously unseen ID by shape so migration backfill retains
+// a criterion tombstone without ever making that ID allocatable again.
+func (l *Ledger) MarkRetired(id string) {
+	l.MarkLive(id)
+	l.byID[id].State = StateRetired
+}
+
 // PromoteReserved marks a previously allocated ID as live once its artifact
 // has been created. It deliberately refuses unreserved IDs so this transition
 // cannot bypass the allocator or revive a retired identity.

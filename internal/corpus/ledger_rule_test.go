@@ -84,6 +84,41 @@ func TestAC103_UnitPositive_LiveIDMissingFromLedgerRejected(t *testing.T) {
 	t.Fatalf("expected a missing-ledger-entry issue, got: %v", issues)
 }
 
+func TestAC103_UnitPositive_NonLiveLedgerCriterionRejectedWhenDeclaredLive(t *testing.T) {
+	root := writeCorpus(t, capFiles("active"))
+	writeLedger(t, root, "counters: {G: 1, CAP: 101, AC: 101}\nentries:\n  - id: G-001\n    kind: numeric\n    state: live\n    prefix: G\n    component: 1\n  - id: CAP-101\n    kind: numeric\n    state: live\n    prefix: CAP\n    component: 101\n  - id: CAP-101-criteria\n    kind: opaque\n    state: live\n  - id: AC-101\n    kind: numeric\n    state: retired\n    prefix: AC\n    component: 101\n")
+	c, scanIssues := Scan(root)
+	if len(scanIssues) != 0 {
+		t.Fatalf("scan issues: %v", scanIssues)
+	}
+	issues := Validate(c, Options{})
+	for _, is := range issues {
+		if is.Msg == "criterion AC-101 is marked retired in .clue/id-ledger.yaml but its declaration is live" {
+			return
+		}
+	}
+	t.Fatalf("expected a retired-criterion issue, got: %v", issues)
+}
+
+func TestAC103_UnitPositive_RetiredCriterionInDraftArtifactMustRemainRetired(t *testing.T) {
+	files := with(capFiles("active"), map[string]string{
+		"docs/capabilities/CAP-101-x/retired-criteria.md": "---\nid: CAP-101-retired-criteria\ntype: criteria\nstatus: draft\nlinks: [CAP-101]\ntitle: Retired criterion\n---\n\n```gherkin\n\n  @AC-102 @retired\n  Scenario: retired\n```\n",
+	})
+	root := writeCorpus(t, files)
+	writeLedger(t, root, "counters: {AC: 102}\nentries:\n  - id: AC-102\n    kind: numeric\n    state: live\n    prefix: AC\n    component: 102\n")
+	c, scanIssues := Scan(root)
+	if len(scanIssues) != 0 {
+		t.Fatalf("scan issues: %v", scanIssues)
+	}
+	issues := Validate(c, Options{})
+	for _, is := range issues {
+		if is.Msg == "criterion AC-102 is marked live in .clue/id-ledger.yaml but its declaration is retired" {
+			return
+		}
+	}
+	t.Fatalf("expected a draft-tombstone ledger issue, got: %v", issues)
+}
+
 func TestAC104_UnitPositive_UnknownLedgerStateRejectedForLiveArtifact(t *testing.T) {
 	root := writeCorpus(t, validFiles)
 	writeLedger(t, root, "counters: {G: 1}\nentries:\n  - id: G-001\n    kind: numeric\n    state: pending\n    prefix: G\n    component: 1\n")

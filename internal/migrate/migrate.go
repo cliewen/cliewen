@@ -1180,6 +1180,15 @@ func planLedgerBackfill(root string, result *MigrationPlan) {
 	for id := range c.ByID {
 		l.MarkLive(id)
 	}
+	for _, criterion := range corpus.LedgerCriterionIdentities(c) {
+		if criterion.Retired {
+			l.MarkRetired(criterion.ID)
+			continue
+		}
+		if criterion.Live {
+			l.MarkLive(criterion.ID)
+		}
+	}
 	data, err := l.Bytes()
 	if err != nil {
 		return

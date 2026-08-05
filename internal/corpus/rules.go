@@ -306,6 +306,22 @@ func checkLedger(c *Corpus) []Issue {
 			issues = append(issues, Issue{a.Path, "id " + id + " is marked " + string(entry.State) + " in " + ledger.DefaultPath + " and cannot be used by a live artifact"})
 		}
 	}
+	for _, criterion := range LedgerCriterionIdentities(c) {
+		entry, ok := l.Lookup(criterion.ID)
+		if !ok {
+			issues = append(issues, Issue{criterion.Path, "criterion " + criterion.ID + " is missing from " + ledger.DefaultPath})
+			continue
+		}
+		want := ledger.StateLive
+		if criterion.Retired {
+			want = ledger.StateRetired
+		} else if !criterion.Live {
+			continue
+		}
+		if entry.State != want {
+			issues = append(issues, Issue{criterion.Path, "criterion " + criterion.ID + " is marked " + string(entry.State) + " in " + ledger.DefaultPath + " but its declaration is " + string(want)})
+		}
+	}
 	return issues
 }
 
