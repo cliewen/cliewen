@@ -339,3 +339,14 @@ func TestAC110_UnitNegative_manifestValidationRejectsIncompleteExclusion(t *test
 		t.Fatal("expected an excluded entry without a reason to be rejected")
 	}
 }
+
+func TestAC112_UnitNegative_manifestValidationRejectsMixedProofClasses(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "manifest.yaml")
+	manifest := "source-revision: rev-1\nsource-location: source\nentries:\n  - id: AC-903\n    proof-class: Unit\n    direction: positive\n    evidence-location: unit_test.go\n  - id: AC-903\n    proof-class: Integration\n    direction: negative\n    evidence-location: integration_test.go\n"
+	if err := os.WriteFile(path, []byte(manifest), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := LoadSourceManifest(path); err == nil {
+		t.Fatal("expected proof rows with mixed proof classes to be rejected")
+	}
+}

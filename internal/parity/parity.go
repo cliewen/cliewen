@@ -105,9 +105,13 @@ func validateSourceManifest(m SourceManifest) error {
 		if len(entries) < 2 {
 			continue
 		}
+		proofClass := entries[0].ProofClass
 		for _, e := range entries {
 			if e.Excluded || e.Disposition != "" {
 				return fmt.Errorf("entry %q: exclusions and dispositions cannot share an ID with another entry", id)
+			}
+			if e.ProofClass != proofClass {
+				return fmt.Errorf("entry %q: proof rows must declare one proof-class", id)
 			}
 		}
 	}
