@@ -142,5 +142,7 @@ same unchecked claim the parity contract already refuses for evidence.
 ## Carrier
 
 This record, `internal/carriers/`, `docs/capabilities/CAP-003-extract/criteria.md`
-(AC-115..AC-119), and the canonical `clue-extract` skill's rehearsal
-guidance and OpenSpec mapping are the carriers of this decision.
+(AC-118..AC-122 — renumbered from the M-055 milestone row's original
+AC-115..AC-119 range because CH-118/M-054 merged into `main` first and
+already claims AC-115..AC-117), and the canonical `clue-extract` skill's
+rehearsal guidance and OpenSpec mapping are the carriers of this decision.

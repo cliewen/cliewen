@@ -62,7 +62,9 @@ migration that looks complete while quietly discarding operational meaning.
   `Reconcile`.
 - `cmd/clue/main.go`: `clue carriers` command.
 - `docs/decisions/ADR-051-carrier-reconciliation-manifests.md` (new).
-- `docs/capabilities/CAP-003-extract/criteria.md`: AC-115..AC-119.
+- `docs/capabilities/CAP-003-extract/criteria.md`: AC-118..AC-122 (renumbered
+  from the milestone row's original AC-115..AC-119 range — CH-118/M-054
+  merged first and already claims AC-115..AC-117).
 - `docs/capabilities/CAP-003-extract/design.md`, `README.md`: carrier
   reconciliation section.
 - `.claude/skills/clue-extract/mappings/openspec.md` and its canonical
