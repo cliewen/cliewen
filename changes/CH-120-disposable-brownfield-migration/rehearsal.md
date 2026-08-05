@@ -18,7 +18,7 @@ The fixtures are intentionally invented test data rather than a production adopt
 
 ## Pins and source entry points
 
-`numeric-archive` is pinned as revision `numeric-archive-fixture-v1` at `fixtures/numeric-archive`. It contains an OpenSpec capability with archived numeric criterion ID `ARC-099`, whose numeric component is deliberately above the live fixture range, source tests with positive and negative proof, a pending source change, and an index and instruction carrier.
+`numeric-archive` is pinned as revision `numeric-archive-fixture-v1` at `fixtures/numeric-archive`. It contains an OpenSpec capability with live criterion ID `ARC-100`, source tests with positive and negative proof, a pending source change, and an index and instruction carrier; archived identity `ARC-099` remains reserved in the target ledger.
 
 `opaque-identifier` is pinned as revision `opaque-identifier-fixture-v1` at `fixtures/opaque-identifier`. It contains an OpenSpec capability with criterion `OPA-001`, classified positive and negative source proof, a pending source change, and an opaque imported source identity `8f14e45f-ceea-467e-9a2b-a1c8b9d2f7a1`. The opaque ID is not an invented criterion grammar; it is a preserved source-owned artifact identity that the target ledger must reserve verbatim and refuse to reuse.
 
@@ -26,7 +26,7 @@ The pinned source manifests are [numeric-source-manifest.yaml](numeric-source-ma
 
 ## Proposed target mappings
 
-The numeric fixture will map its capability and criteria into a disposable target corpus, preserve `ARC-099` as a retired ledger identity, and demonstrate that the numeric allocator does not reissue it even when it lies above the active maximum. Its pending source change will become an `imported-change` record whose proposal, rationale, dependency, and proof links remain inspectable after the source tree is removed.
+The numeric fixture will map its capability and criteria into a disposable target corpus, preserve `ARC-099` as a retired ledger identity, and demonstrate that the numeric allocator does not reissue it. Its pending source change will become an `imported-change` record whose proposal, rationale, dependency, and proof links remain inspectable after the source tree is removed.
 
 The opaque fixture will map its capability and criteria into a separate disposable target corpus, preserve `OPA-001` through the normal criterion grammar, and reserve the opaque source identity exactly as supplied by its source-owned generator. The fixture will attempt a duplicate reservation to prove that retired, reserved, and live opaque identities are equally unavailable for reuse.
 

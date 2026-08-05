@@ -14,4 +14,4 @@ The report-only rehearsal is complete. May CH-120 create and mutate the disposab
 
 **Why this blocks:** PDR-020 requires explicit human direction before an extraction's mutate phase. The current inventories correctly record their carriers as blocked because no approved target exists yet.
 
-**Resolution:** Open.
+**Resolution:** Approved by the maintainer in conversation on 2026-08-05. CH-120 may create and mutate the disposable targets, materialize mappings and fingerprints, run deterministic checks and deliberate failure variants, and prepare the change for review.

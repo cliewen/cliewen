@@ -44,6 +44,10 @@ An `imported-change` record (ADR-050, `internal/importedchange/`, `docs/imported
 - `clue carriers <inventory> [root]` (`--out` writes the same report to a file) is the CLI entry point, excluded from the ambient release notice for the same reason `clue parity` and `clue validate` are: a deterministic judge's output must not depend on another system's present state.
 - No source-format parsing in `clue`: what counts as a carrier for a given source format, and how the rehearsal discovers it, stays a `clue-extract` mapping concern, the same split ADR-049 already draws for the source manifest.
 
+## Disposable composed migration fixture
+
+`internal/migration` composes the completed migration components in two disposable source shapes: a numeric archive where `ARC-099` remains retired while `ARC-100` carries classified source proof, and an opaque-identifier source that preserves a UUID-like source-owned identity without treating it as a criterion. The fixture first validates each materialized target corpus, then derives and compares parity and carrier reports. Separate negative variants prove every parity and carrier finding class. It reads source work only as fixture data and does not execute a source fixture's own test suite, so source-test outcomes cannot become Cliewen acceptance evidence.
+
 ## Deliberate limits (doors)
 
 - **Rehearsal before mutation** (`clue-extract`): an extraction's first pass writes a branch-local report under `/changes/` and does not alter the target corpus, routing, tests, or hosted state. The report makes mappings, ID preservation or minting, confidence, test-purpose work, instruction conflicts, planned deletions, and plan doors inspectable; unresolved conflicts stop in `open-questions.md`. Only explicit human direction starts the same full change's mutate phase, which digests the rehearsal to `/docs/analysis` ([PDR-020](../../decisions/PDR-020-extraction-rehearsal-before-mutation.md)).
