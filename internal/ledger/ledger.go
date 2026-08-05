@@ -98,6 +98,9 @@ func Load(root string) (*Ledger, error) {
 		return nil, fmt.Errorf("%s: %w", l.path, err)
 	}
 	for k, v := range f.Counters {
+		if v == nil || v.Sign() < 0 {
+			return nil, fmt.Errorf("%s: counter %s is not a non-negative decimal", l.path, k)
+		}
 		l.counters[k] = v
 	}
 	for i := range f.Entries {

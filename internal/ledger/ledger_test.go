@@ -238,6 +238,22 @@ func TestAC104_UnitPositive_LoadRejectsDuplicateCanonicalID(t *testing.T) {
 	}
 }
 
+func TestAC104_UnitPositive_LoadRejectsNullOrNegativeCounter(t *testing.T) {
+	for _, counters := range []string{"PDR: null", "PDR: -1"} {
+		root := t.TempDir()
+		dir := filepath.Join(root, ".clue")
+		if err := os.MkdirAll(dir, 0o755); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.WriteFile(filepath.Join(dir, "id-ledger.yaml"), []byte("counters: {"+counters+"}\nentries: []\n"), 0o644); err != nil {
+			t.Fatal(err)
+		}
+		if _, err := Load(root); err == nil {
+			t.Fatalf("Load accepted malformed counter %q", counters)
+		}
+	}
+}
+
 func TestUnit_SaveThenLoadRoundTrips(t *testing.T) {
 	root := t.TempDir()
 	l, _ := Load(root)
