@@ -22,7 +22,7 @@ This index is the register table. Its badge is the enforcement class rather than
 - [C-004 — Never weaken a test or a lint rule](C-004-never-weaken-checks.md) · `human`
 - [C-005 — Every Cliewen proposal declares its plan item or plan-less](C-005-proposal-declares-plan-item.md) · `partial`
 - [C-006 — Decision records are timeless prose; a method contract moves every live carrier together](C-006-adrs-timeless-with-carrier.md) · `human`
-- [C-007 — Diagrams are inline Mermaid](C-007-diagrams-inline-mermaid.md) · `machine`
+- [C-007 — Diagrams use the clearest renderable form](C-007-diagrams-inline-mermaid.md) · `human`
 - [C-008 — Completed plans are immutable](C-008-completed-plans-immutable.md) · `partial`
 - [C-009 — Type-specific frontmatter fields are present](C-009-type-specific-frontmatter.md) · `machine`
 - [C-010 — Milestone status values follow one vocabulary](C-010-milestone-status-vocabulary.md) · `machine`

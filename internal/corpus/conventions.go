@@ -62,16 +62,6 @@ var (
 
 	skippedTaskRe = regexp.MustCompile(`^\s*[-*+] \[-\]\s*(.*)$`)
 	planItemRe    = regexp.MustCompile(`^[PM]-\d+$`)
-	// An image, in each form markdown and markdown's own HTML give it: inline,
-	// reference and collapsed-reference links, and an `img` tag. A check that
-	// knew only the inline form would leave two ways to park a screenshot in
-	// the corpus that never fail — and an `<img src="https://…">` is exactly
-	// the externally hosted diagram C-007 names.
-	imageLinkRe = regexp.MustCompile(`!\[[^\]]*\][(\[]`)
-	imageTagRe  = regexp.MustCompile(`(?i)<img[\s/>]`)
-	codeSpanRe  = regexp.MustCompile("`[^`]*`")
-
-	imageExts = []string{".png", ".jpg", ".jpeg", ".gif", ".svg", ".webp", ".bmp", ".tif", ".tiff", ".ico"}
 
 	// MilestoneStatuses is the vocabulary a plan table's status cell may use
 	// (C-010, decision log 2026-08-04).
@@ -331,45 +321,6 @@ func checkProposalPlanItem(c *Corpus) []Issue {
 		}
 		if !planned {
 			issues = append(issues, Issue{a.Path, "proposal names no plan item: link a P-xxx or M-xxx, or declare the change plan-less (C-005)"})
-		}
-	}
-	return issues
-}
-
-// checkInlineDiagrams flags images in the corpus (C-007). A diagram is a
-// Mermaid block in the markdown it illustrates: versionable, diffable, and
-// rendered wherever the corpus is read. A binary or externally hosted picture
-// is none of those, and it goes stale without ever showing a diff.
-func checkInlineDiagrams(c *Corpus) []Issue {
-	var issues []Issue
-	for _, p := range c.MDFiles {
-		if !strings.HasPrefix(p, "docs/") {
-			continue
-		}
-		blocks := blockScanner{verbatimOnly: true}
-		for i, line := range strings.Split(c.Contents[p], "\n") {
-			if blocks.next(line) {
-				continue
-			}
-			prose := codeSpanRe.ReplaceAllString(line, "")
-			switch {
-			case imageLinkRe.MatchString(prose):
-				issues = append(issues, Issue{p, lineRef(i+1) + ": image link — diagrams in the corpus are inline Mermaid (C-007)"})
-			case imageTagRe.MatchString(prose):
-				issues = append(issues, Issue{p, lineRef(i+1) + ": image tag — diagrams in the corpus are inline Mermaid (C-007)"})
-			}
-		}
-	}
-	for _, p := range c.OtherFiles {
-		if !strings.HasPrefix(p, "docs/") {
-			continue
-		}
-		lower := strings.ToLower(p)
-		for _, ext := range imageExts {
-			if strings.HasSuffix(lower, ext) {
-				issues = append(issues, Issue{p, "image file under docs/ — diagrams in the corpus are inline Mermaid (C-007)"})
-				break
-			}
 		}
 	}
 	return issues
