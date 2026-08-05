@@ -26,4 +26,19 @@ Layout: `openspec/config.yaml`, synced truth in `openspec/specs/<capability>/spe
 
 Preserve every existing local or external Markdown link and every referenced asset, including SVG diagrams. When a source link has a deterministic converted target, rewrite the target while preserving the link; when it does not, report the mapping gap and do not delete the source target. Diagram choice follows C-007: prefer embedded Mermaid, use embedded ASCII art when it is clearer, and retain SVG where neither is adequate.
 
+## Carrier inventory
+
+The carrier inventory needs one row per operational carrier the rehearsal finds; an OpenSpec source's usual carriers map like this:
+
+| OpenSpec carrier | `kind` | Typical target |
+|---|---|---|
+| `openspec/AGENTS.md` (or a per-tool equivalent such as `CLAUDE.md`) | `instruction` | the repository's `AGENTS.md` routing hub |
+| `.github/workflows/*.yml` running OpenSpec's own checks | `workflow` | the repository's `clue validate`/`clue carriers`/`clue parity` CI workflow |
+| `openspec/config.yaml`'s pinned revision, a lockfile, or a last-checked date a CI job reads | `freshness-input` | the corresponding `clue`-managed pin, or `blocked` when no equivalent exists yet |
+| A hand-maintained per-folder index or `INDEX.md` | `registry` | the absorbing folder's README `clue:index` block (see the target contract's link-preservation item — the index row itself is not a separate carrier once absorbed) |
+| Every local or external Markdown link the source corpus carries | `link` | its rewritten target in the converted corpus, or `blocked` when the mapping gap is still open |
+| An SVG, embedded Mermaid, or ASCII diagram the source references | `diagram-asset` | its retained or converted location, following the diagram-choice rule above |
+
+A carrier with no target yet — an instruction file whose routing has no Cliewen equivalent, a freshness check with nothing to pin against — is recorded `blocked: true` with a `reason`; extraction does not delete the source path a `blocked` entry names until a later inventory revision converts it to a mapped entry. `clue carriers <inventory> [root]` reconciles the inventory the rehearsal wrote against the converted corpus the same way `clue parity` reconciles the source manifest.
+
 Watch for: the same logical ID written three ways (`[MG-010]`, `` `PG-001` ``, `MG_010`); `## ADDED/MODIFIED Requirements` delta headers in pending changes (apply the delta meaning, don't copy the header); scenario WHEN/THEN bullets mapping to Gherkin When/Then/And.
