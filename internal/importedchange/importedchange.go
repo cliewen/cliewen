@@ -46,6 +46,10 @@ var (
 // reports that absence as its own issue rather than this package guessing a
 // default.
 func ParseProofLinks(body string) []ProofLink {
+	// A record may show a proof-links table as an example in a fenced code
+	// block. Examples are not the record's own proof, so remove fenced content
+	// before looking for the heading or parsing rows.
+	body = outsideFencedCode(body)
 	loc := proofLinksHeadingRe.FindStringIndex(body)
 	if loc == nil {
 		return nil
@@ -58,42 +62,90 @@ func ParseProofLinks(body string) []ProofLink {
 		rest = rest[:next[0]]
 	}
 
-	taskCol, criterionCol := -1, -1
-	var links []ProofLink
-	for _, line := range strings.Split(rest, "\n") {
+	lines := strings.Split(rest, "\n")
+	for i, line := range lines {
 		t := strings.TrimSpace(line)
-		if t == "" {
-			continue
-		}
-		if tableDelimRe.MatchString(t) {
-			continue // the header was already read on the previous line
-		}
-		if !strings.Contains(t, "|") {
+		if t == "" || !strings.Contains(t, "|") || tableDelimRe.MatchString(t) {
 			continue
 		}
 		cells := tableCells(t)
-		if taskCol < 0 && criterionCol < 0 {
-			for i, cell := range cells {
-				switch strings.ToLower(strings.TrimSpace(cell)) {
-				case "task":
-					taskCol = i
-				case "criterion":
-					criterionCol = i
-				}
+		taskCol, criterionCol := -1, -1
+		for j, cell := range cells {
+			switch strings.ToLower(strings.TrimSpace(cell)) {
+			case "task":
+				taskCol = j
+			case "criterion":
+				criterionCol = j
+			}
+		}
+		if taskCol < 0 || criterionCol < 0 || i+1 == len(lines) || !tableDelimRe.MatchString(strings.TrimSpace(lines[i+1])) {
+			continue
+		}
+
+		var links []ProofLink
+		for _, row := range lines[i+2:] {
+			row = strings.TrimSpace(row)
+			if row == "" || !strings.Contains(row, "|") {
+				break
+			}
+			cells = tableCells(row)
+			if taskCol >= len(cells) || criterionCol >= len(cells) {
+				continue
+			}
+			task := strings.Trim(strings.TrimSpace(cells[taskCol]), "`")
+			criterion := strings.Trim(strings.TrimSpace(cells[criterionCol]), "`")
+			if task == "" && criterion == "" {
+				continue
+			}
+			links = append(links, ProofLink{Task: task, Criterion: criterion})
+		}
+		return links
+	}
+	return nil
+}
+
+// outsideFencedCode preserves the document's line structure while removing
+// fenced code blocks. A fence closes only with the same marker character, at
+// least the opening length, and no info string, so a nested example cannot
+// make its following lines look like proof links.
+func outsideFencedCode(doc string) string {
+	lines := strings.Split(doc, "\n")
+	var fence string
+	for i, line := range lines {
+		marker := fenceMarker(line)
+		if fence == "" {
+			if marker != "" {
+				fence = marker
+				lines[i] = ""
 			}
 			continue
 		}
-		if taskCol < 0 || criterionCol < 0 || taskCol >= len(cells) || criterionCol >= len(cells) {
-			continue
+		if marker != "" && marker[0] == fence[0] && len(marker) >= len(fence) && closesFence(line, marker) {
+			fence = ""
 		}
-		task := strings.Trim(strings.TrimSpace(cells[taskCol]), "`")
-		criterion := strings.Trim(strings.TrimSpace(cells[criterionCol]), "`")
-		if task == "" && criterion == "" {
-			continue
-		}
-		links = append(links, ProofLink{Task: task, Criterion: criterion})
+		lines[i] = ""
 	}
-	return links
+	return strings.Join(lines, "\n")
+}
+
+func fenceMarker(line string) string {
+	trimmed := strings.TrimLeft(line, " \t")
+	if len(trimmed) < 3 || (trimmed[0] != '`' && trimmed[0] != '~') {
+		return ""
+	}
+	run := 1
+	for run < len(trimmed) && trimmed[run] == trimmed[0] {
+		run++
+	}
+	if run < 3 {
+		return ""
+	}
+	return trimmed[:run]
+}
+
+func closesFence(line, marker string) bool {
+	trimmed := strings.TrimLeft(line, " \t")
+	return strings.TrimSpace(trimmed[len(marker):]) == ""
 }
 
 // tableCells splits a markdown table row into its cells, skipping pipes

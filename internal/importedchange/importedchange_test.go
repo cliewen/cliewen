@@ -58,6 +58,20 @@ func TestUnit_ParseProofLinksNoHeadingReturnsNil(t *testing.T) {
 	}
 }
 
+func TestUnit_ParseProofLinksIgnoresAFencedExample(t *testing.T) {
+	body := "# IC-003\n\n```markdown\n## Proof links\n\n| Task | Criterion |\n|---|---|\n| only an example | AC-201 |\n```\n"
+	if got := ParseProofLinks(body); got != nil {
+		t.Fatalf("a table inside a fenced example is not proof links, got %#v", got)
+	}
+}
+
+func TestUnit_ParseProofLinksRequiresAMarkdownTableDelimiter(t *testing.T) {
+	body := "## Proof links\n\n| Task | Criterion |\n| only prose that resembles a row | AC-201 |\n"
+	if got := ParseProofLinks(body); got != nil {
+		t.Fatalf("table-like prose without a delimiter is not a Markdown table, got %#v", got)
+	}
+}
+
 // AC-115: extraction preserves in-flight source work as an inspectable
 // imported-change record — its proposal, design rationale, dependency, and
 // proof-linked task all remain readable from the record alone.
