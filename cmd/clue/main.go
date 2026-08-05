@@ -53,7 +53,7 @@ Usage:
   clue scaffold [path]
   clue context <id> [path]
   clue refs [--apply] [--timeout=<duration>] [path]
-  clue validate [--forbid-changes] [--coverage] [--reality-gaps] [path]
+  clue validate [--forbid-changes] [--coverage] [--reality-gaps] [--index-rows] [path]
   clue latest [--quiet] [--timeout=<duration>]
   clue version
 
@@ -109,6 +109,8 @@ Commands:
                                locally unproven.
              --reality-gaps    print capabilities contradicted by incident
                                analyses after their corpus was green.
+             --index-rows      print index rows that only restate their own
+                               link or say nothing about the artifact.
 
   latest     Report whether a newer clue release exists, and how to install
              it on the machine this is running on — the PowerShell script on
@@ -323,7 +325,7 @@ func runValidate(args []string, out io.Writer) int {
 	forbid := fs.Bool("forbid-changes", false, "fail when /changes contains files")
 	coverage := fs.Bool("coverage", false, "print derived per-capability proof coverage; never a committed registry")
 	realityGaps := fs.Bool("reality-gaps", false, "print capabilities contradicted by incident analyses; never a committed registry")
-	indexRows := fs.Bool("index-rows", false, "print index rows that only restate their own link; never a committed registry")
+	indexRows := fs.Bool("index-rows", false, "print index rows that only restate their own link or say nothing about the artifact; never a committed registry")
 	_ = fs.Parse(args)
 	root := "."
 	if fs.NArg() > 0 {
@@ -367,9 +369,13 @@ func runValidate(args []string, out io.Writer) int {
 	// whose target still exists, so every repair is by hand. Listing the rows
 	// is what makes the number actionable (ADR-041).
 	fillerRows := corpus.IndexRowBacklog(c)
+	undescribed := corpus.IndexDescriptionBacklog(c)
 	if *indexRows {
 		for _, row := range fillerRows {
 			fmt.Fprintf(out, "%s: %s states only its own link\n", row.Readme, row.Target)
+		}
+		for _, row := range undescribed {
+			fmt.Fprintf(out, "%s: %s states its record but not what it is about\n", row.Readme, row.Target)
 		}
 	}
 	notes := ""
@@ -384,6 +390,9 @@ func runValidate(args []string, out io.Writer) int {
 	}
 	if n := len(fillerRows); n > 0 {
 		notes += fmt.Sprintf(", %d index row(s) stating only their own link", n)
+	}
+	if n := len(undescribed); n > 0 {
+		notes += fmt.Sprintf(", %d index row(s) not saying what the artifact is about", n)
 	}
 	fmt.Fprintf(out, "clue validate: OK (%d artifacts%s)\n", len(c.Artifacts), notes)
 	return 0

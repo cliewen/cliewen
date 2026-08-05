@@ -2,7 +2,7 @@
 id: ADR-041
 type: decision
 status: inferred
-links: [CAP-002, CAP-005, ADR-017, ADR-019, ADR-035, C-004, C-013, C-016]
+links: [CAP-002, CAP-005, ADR-017, ADR-019, ADR-035, ADR-046, C-004, C-013, C-016]
 title: Generated index rows state their record, and rows that state only their link are counted
 author: agent
 accepted-by: []
@@ -29,6 +29,8 @@ The repair for the generator is obvious. The harder question is what a judge sho
 - **An artifact missing any of id, title, or status degrades to the plain link.** A row is one shape or the other and never a third carrying an empty status badge. Index generation reports nothing and fails on nothing; naming a malformed artifact is the judge's job, and a generator that refused to emit a row would turn one bad file into a missing index entry.
 - **The judge counts filler and does not fail on it.** `clue validate` reports rows whose label equals the target's filename stem as a population on its OK line, and `--index-rows` names them. It is a count, not an `Issue`.
 - **Nothing existing is rewritten.** Regeneration keeps preserving every row whose target still exists.
+
+[ADR-046](ADR-046-index-rows-say-what-the-artifact-is-about.md) extends the appended row's shape with a description seeded from the artifact's body, and counts the rows that state their record without saying what it is about. The rules above are unchanged: the row still opens by stating its record, an artifact that cannot supply one still degrades to the plain link, and nothing existing is rewritten — which is what makes the seed a first draft rather than an assertion.
 
 **Counting rather than failing follows the shape this corpus already uses twice.** [ADR-035](ADR-035-bounded-provenance-and-reality-edges.md) reports costly unverified meaning as an actionable population instead of a build failure, and [ADR-017](ADR-017-conventions-are-constraints.md) applies the same reading to the constraint backlog — "the backlog is visible, not archival". The inferred-decision counter ran that experiment to completion: it stayed visible for months, drove a campaign milestone, and reached zero.
 

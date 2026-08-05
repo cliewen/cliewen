@@ -9,5 +9,5 @@ Each constraint names its `source` (the document, law, or catalog that states th
 A rule leaves `agent` by gaining a real check or by being declared — never by relabelling, and never by weakening a check to make the count fall. `clue validate` holds rules about the corpus as it stands and only those: it reads a repository state, never a transition, so a rule about what a *change* did belongs to a machine that has a base, such as your CI workflow. Every Cliewen change is assessed against the active constraints before its PR. A plain change follows only repository conventions relevant to its changed surface. This index is the register table:
 
 <!-- clue:index:start -->
-- [C-001 — Markdown prose is never hard-wrapped](C-001-no-hard-wrapped-markdown.md) · `machine`
+- [C-001 — Markdown prose is never hard-wrapped](C-001-no-hard-wrapped-markdown.md) · `machine` — One line per paragraph and per list item; wrapping is the reader's IDE concern.
 <!-- clue:index:end -->

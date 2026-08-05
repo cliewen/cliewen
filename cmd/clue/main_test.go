@@ -1115,3 +1115,75 @@ func TestAC074_UnitNegative_StatedSubfolderAndMultiLinkRowsAreNotCounted(t *test
 		t.Fatalf("expected nothing listed, output=%q", out)
 	}
 }
+
+// AC-099: the judge counts a row that states its record but says nothing about
+// what the artifact contains, names it behind --index-rows, and still exits 0.
+// Every such row is the generator's own output from before a description was
+// seeded, so it is reported and never failed on (ADR-046).
+func TestAC099_UnitPositive_UndescribedIndexRowIsCountedAndListed(t *testing.T) {
+	root := validCorpus(t)
+	writeFile(t, root, "docs/goals/README.md", "# Goals\n\n<!-- clue:index:start -->\n- [G-001 — First goal](G-001-first.md) · `accepted`\n<!-- clue:index:end -->\n")
+	code, out := runValidateCapturingStdout(t, []string{"--index-rows", root})
+	if code != 0 {
+		t.Fatalf("an undescribed row is counted, never failed on; expected exit 0, got %d, output=%q", code, out)
+	}
+	if !strings.Contains(out, "1 index row(s) not saying what the artifact is about") {
+		t.Fatalf("expected the row counted on the OK line, output=%q", out)
+	}
+	if !strings.Contains(out, "docs/goals/README.md: G-001-first.md states its record but not what it is about") {
+		t.Fatalf("expected --index-rows to name the row, output=%q", out)
+	}
+}
+
+// AC-099 negative: a described row, a filler row, a subfolder row, a badge-less
+// stated-record row, and a curated row covering several targets are all left out
+// of this population. The filler row matters most, and it carries a status badge
+// here on purpose: disjointness rests on the label-versus-filename test, not on
+// the badge, because hand-adding a badge is the natural intermediate state while
+// ADR-041's backlog is worked down and reading the badge alone counted that one
+// row in both populations.
+func TestAC099_UnitNegative_DescribedFillerSubfolderAndMultiLinkRowsAreNotCounted(t *testing.T) {
+	root := validCorpus(t)
+	writeFile(t, root, "docs/goals/README.md", "# Goals\n\n<!-- clue:index:start -->\n"+
+		"- [G-001 — First goal](G-001-first.md) · `accepted` — What this goal is actually about.\n"+
+		"- [G-002-second](G-002-second.md) · `accepted`\n"+
+		"- [G-003 — Third goal](G-003-third.md) · `accepted` and [G-004 — Fourth goal](G-004-fourth.md) · `accepted`\n"+
+		"- [G-005 — Fifth goal](G-005-fifth.md)\n"+
+		"- [sub/](sub/README.md)\n"+
+		"<!-- clue:index:end -->\n")
+	for _, g := range []struct{ id, file, title string }{
+		{"G-002", "G-002-second.md", "Second goal"},
+		{"G-003", "G-003-third.md", "Third goal"},
+		{"G-004", "G-004-fourth.md", "Fourth goal"},
+		{"G-005", "G-005-fifth.md", "Fifth goal"},
+	} {
+		writeFile(t, root, "docs/goals/"+g.file, "---\nid: "+g.id+"\ntype: goal\nstatus: accepted\nlinks: []\ntitle: "+g.title+"\n---\n")
+	}
+	// A subfolder README states a section, not a record, so neither population
+	// reads it — the clause is only meaningful with such a row present.
+	writeFile(t, root, "docs/goals/sub/README.md", "# Sub\n\n<!-- clue:index:start -->\n<!-- clue:index:end -->\n")
+	code, out := runValidateCapturingStdout(t, []string{"--index-rows", root})
+	if code != 0 {
+		t.Fatalf("expected exit 0, got %d, output=%q", code, out)
+	}
+	if strings.Contains(out, "index row(s) not saying what the artifact is about") {
+		t.Fatalf("no row here states a record without a description; expected no count, output=%q", out)
+	}
+	if strings.Contains(out, "not what it is about") {
+		t.Fatalf("expected nothing listed for the description population, output=%q", out)
+	}
+	// The G-002 row carries a status badge and still only restates its own
+	// filename. Hand-adding a badge while working ADR-041's backlog down is the
+	// natural intermediate state, and it must land in exactly one population.
+	if !strings.Contains(out, "1 index row(s) stating only their own link") {
+		t.Fatalf("a badged filler row belongs to ADR-041's count alone, so the populations stay disjoint, output=%q", out)
+	}
+	if strings.Contains(out, "sub/README.md states") {
+		t.Fatalf("a subfolder row is never counted by either population, output=%q", out)
+	}
+	// The G-005 row states a record with no status badge, a shape no release
+	// produced. It is adopter prose, so neither population grades it.
+	if strings.Contains(out, "G-005-fifth.md states") {
+		t.Fatalf("a badge-less stated-record row is adopter prose and is left uncounted, output=%q", out)
+	}
+}

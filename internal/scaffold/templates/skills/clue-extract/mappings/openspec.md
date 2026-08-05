@@ -19,6 +19,7 @@ Layout: `openspec/config.yaml`, synced truth in `openspec/specs/<capability>/spe
 | Project README purpose statements | `G-xxx` goal(s), `status: accepted` (the repo's existence is the acceptance) |
 | Coverage/quality gates in build config | `C-xxx` constraints (`enforcement: machine`) referencing the enforcing tool |
 | OpenSpec workflow skills (`openspec-*`) | deleted with the source corpus |
+| Hand-maintained per-folder index (`INDEX.md`, `index.md`, a `## Contents` table) | absorbed into that folder's README `clue:index` rows, then deleted — the description, purpose, or scope column becomes the row's sentence, while a column that only restates a `links:` edge (a design or related-decision pointer) is dropped rather than carried |
 | JUnit `@Tag("XX_NNN")` | keep on the executable together with its literal proof-type and direction tags — clue normalizes underscores to canonical hyphens at harvest for segmented or letter-suffixed IDs too; normalize class-level, split-method, dynamic, or multi-line evidence to the supported literal method block or named-executable form |
 | Runner/type tags (`UNIT`, `INTEGRATION`, `E2E`, …) | kept untouched even when no pipeline filters on them yet — they are the runner's namespace, not the methodology's, and the only per-method type carrier where one file mixes test types |
 

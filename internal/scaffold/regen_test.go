@@ -250,6 +250,230 @@ func TestAC073_UnitPositive_AppendedRowStatesItsRecord(t *testing.T) {
 	}
 }
 
+// AC-096: an appended row says what the artifact is about. The lede beneath the
+// H1 wins over prose under a later heading, and every inline link in the
+// sentence is reduced to its label — including one inside a code span, whose
+// placeholder target resolves to nothing and would leave the generator emitting
+// a corpus the judge rejects.
+func TestAC096_UnitPositive_AppendedRowSaysWhatTheArtifactIsAbout(t *testing.T) {
+	root, _ := runInto(t)
+	readme := filepath.Join(root, "docs", "goals", "README.md")
+	prose := "# Goals\n\n<!-- clue:index:start -->\n<!-- clue:index:end -->\n"
+	if err := os.WriteFile(readme, []byte(prose), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	// A lede directly beneath the H1, then a heading whose paragraph must lose.
+	lede := "---\nid: G-001\ntype: goal\nstatus: proposed\nlinks: []\ntitle: First goal\n---\n\n" +
+		"# G-001 — First goal\n\nA reader reaches the [thread](../other.md) in one hop, as `- [a](b)` shows. Second sentence.\n\n" +
+		"## Context\n\nProse under a heading that must not be chosen.\n"
+	if err := os.WriteFile(filepath.Join(root, "docs", "goals", "G-001-first.md"), []byte(lede), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	// No lede: the first paragraph under the first heading is read, and the
+	// table, list, quote and fence above it are structure rather than prose.
+	fallback := "---\nid: G-002\ntype: goal\nstatus: proposed\nlinks: []\ntitle: Second goal\n---\n\n" +
+		"# G-002 — Second goal\n\n## Context\n\n| a | b |\n|---|---|\n\n- a list item\n\n> a quote\n\n```\nfenced. text\n```\n\nThe paragraph that should win.\n"
+	if err := os.WriteFile(filepath.Join(root, "docs", "goals", "G-002-second.md"), []byte(fallback), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := Regen(root); err != nil {
+		t.Fatal(err)
+	}
+	raw, err := os.ReadFile(readme)
+	if err != nil {
+		t.Fatal(err)
+	}
+	got := string(raw)
+	wantLede := "- [G-001 — First goal](G-001-first.md) · `proposed` — A reader reaches the thread in one hop, as `- a` shows."
+	if !strings.Contains(got, wantLede) {
+		t.Fatalf("lede must be seeded with every link reduced to its label:\nwant %q\ngot:\n%s", wantLede, got)
+	}
+	if strings.Contains(got, "](b)") {
+		t.Fatalf("a link inside a code span must not survive into the row, got:\n%s", got)
+	}
+	wantFallback := "- [G-002 — Second goal](G-002-second.md) · `proposed` — The paragraph that should win."
+	if !strings.Contains(got, wantFallback) {
+		t.Fatalf("a body with no lede reads the first paragraph under its first heading:\nwant %q\ngot:\n%s", wantFallback, got)
+	}
+	if strings.Contains(got, "Second sentence") || strings.Contains(got, "must not be chosen") {
+		t.Fatalf("only the first sentence of the chosen paragraph is seeded, got:\n%s", got)
+	}
+	if issues := validateAt(t, root); len(issues) > 0 {
+		t.Fatalf("expected green after regen, got: %v", issues)
+	}
+}
+
+// AC-096 negative: a sentence past the bound is cut at a word boundary, so a
+// long opening paragraph cannot push the identity a reader scans for off the
+// line, and no word is severed mid-way.
+func TestAC096_UnitNegative_LongSentenceIsCutAtAWordBoundary(t *testing.T) {
+	root, _ := runInto(t)
+	readme := filepath.Join(root, "docs", "goals", "README.md")
+	if err := os.WriteFile(readme, []byte("# Goals\n\n<!-- clue:index:start -->\n<!-- clue:index:end -->\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	long := strings.TrimSpace(strings.Repeat("elaboration ", 40)) + " end"
+	body := "---\nid: G-001\ntype: goal\nstatus: proposed\nlinks: []\ntitle: First goal\n---\n\n# G-001\n\n" + long + ".\n"
+	if err := os.WriteFile(filepath.Join(root, "docs", "goals", "G-001-first.md"), []byte(body), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := Regen(root); err != nil {
+		t.Fatal(err)
+	}
+	raw, err := os.ReadFile(readme)
+	if err != nil {
+		t.Fatal(err)
+	}
+	row := ""
+	for _, line := range strings.Split(string(raw), "\n") {
+		if strings.Contains(line, "G-001-first.md") {
+			row = line
+		}
+	}
+	if !strings.HasSuffix(row, "…") {
+		t.Fatalf("an over-long sentence must be cut and marked, got %q", row)
+	}
+	if strings.Contains(row, "end") {
+		t.Fatalf("the cut must drop the tail of the sentence, got %q", row)
+	}
+	if strings.Contains(row, "elaborat…") || strings.Contains(row, "elaboratio…") {
+		t.Fatalf("the cut must fall on a word boundary, got %q", row)
+	}
+	if issues := validateAt(t, root); len(issues) > 0 {
+		t.Fatalf("expected green after regen, got: %v", issues)
+	}
+}
+
+// AC-097 negative: an artifact whose frontmatter cannot be read degrades all
+// the way to the plain link rather than acquiring a status badge or a
+// description tail. A row is one shape or the other, never a third.
+func TestAC097_UnitNegative_UnreadableFrontmatterGetsNeitherBadgeNorTail(t *testing.T) {
+	root, _ := runInto(t)
+	readme := filepath.Join(root, "docs", "goals", "README.md")
+	if err := os.WriteFile(readme, []byte("# Goals\n\n<!-- clue:index:start -->\n<!-- clue:index:end -->\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	// No frontmatter at all, but a body a description could have been read from.
+	body := "# G-009 — Broken goal\n\nA sentence a seed would happily have used.\n"
+	if err := os.WriteFile(filepath.Join(root, "docs", "goals", "G-009-broken.md"), []byte(body), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := Regen(root); err != nil {
+		t.Fatal(err)
+	}
+	raw, err := os.ReadFile(readme)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if want := "- [G-009-broken](G-009-broken.md)\n"; !strings.Contains(string(raw), want) {
+		t.Fatalf("unreadable frontmatter must fall back to the plain link, want %q, got:\n%s", want, raw)
+	}
+	if strings.Contains(string(raw), "A sentence a seed would happily have used") {
+		t.Fatalf("a plain-link row carries no description, got:\n%s", raw)
+	}
+	if strings.Contains(string(raw), "G-009-broken.md) ·") {
+		t.Fatalf("a plain-link row carries no status badge, got:\n%s", raw)
+	}
+}
+
+// AC-097: an artifact with no readable prose sentence keeps the row that states
+// its record, with no trailing separator and no empty tail — a row is one shape
+// or the other, never a third.
+func TestAC097_UnitPositive_NoReadableSentenceLeavesNoEmptyTail(t *testing.T) {
+	root, _ := runInto(t)
+	readme := filepath.Join(root, "docs", "goals", "README.md")
+	if err := os.WriteFile(readme, []byte("# Goals\n\n<!-- clue:index:start -->\n<!-- clue:index:end -->\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	// Frontmatter and a heading, then nothing a sentence can be read from.
+	body := "---\nid: G-001\ntype: goal\nstatus: proposed\nlinks: []\ntitle: First goal\n---\n\n# G-001 — First goal\n\n## Context\n\n- only a list item\n"
+	if err := os.WriteFile(filepath.Join(root, "docs", "goals", "G-001-first.md"), []byte(body), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := Regen(root); err != nil {
+		t.Fatal(err)
+	}
+	raw, err := os.ReadFile(readme)
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := "- [G-001 — First goal](G-001-first.md) · `proposed`\n"
+	if !strings.Contains(string(raw), want) {
+		t.Fatalf("a row with no readable sentence must be exactly the stated record:\nwant %q\ngot:\n%s", want, raw)
+	}
+	if strings.Contains(string(raw), "`proposed` —") {
+		t.Fatalf("a row must never carry an empty description tail, got:\n%s", raw)
+	}
+	if issues := validateAt(t, root); len(issues) > 0 {
+		t.Fatalf("expected green after regen, got: %v", issues)
+	}
+}
+
+// AC-098: the seed is a first draft and never an assertion — a description an
+// author corrected by hand outlives regeneration, and nothing backfills a row
+// that already exists.
+func TestAC098_UnitPositive_CuratedDescriptionOutlivesRegeneration(t *testing.T) {
+	root, _ := runInto(t)
+	readme := filepath.Join(root, "docs", "goals", "README.md")
+	curated := "- [G-001 — First goal](G-001-first.md) · `proposed` — What an author decided this actually means."
+	if err := os.WriteFile(readme, []byte("# Goals\n\n<!-- clue:index:start -->\n"+curated+"\n<!-- clue:index:end -->\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	body := "---\nid: G-001\ntype: goal\nstatus: proposed\nlinks: []\ntitle: First goal\n---\n\n# G-001\n\nThe body sentence a seed would have used.\n"
+	if err := os.WriteFile(filepath.Join(root, "docs", "goals", "G-001-first.md"), []byte(body), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	rep, err := Regen(root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	raw, err := os.ReadFile(readme)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(string(raw), curated) {
+		t.Fatalf("a curated row must survive regeneration untouched, got:\n%s", raw)
+	}
+	if strings.Contains(string(raw), "The body sentence a seed would have used") {
+		t.Fatalf("regeneration must not backfill over a curated description, got:\n%s", raw)
+	}
+	for _, rel := range rep.Indexed {
+		if rel == "docs/goals/README.md" {
+			t.Fatalf("a corpus whose rows are already curated must report nothing regenerated, got %v", rep.Indexed)
+		}
+	}
+}
+
+// AC-098 negative: preservation is not unconditional. A curated description
+// buys the row nothing once its target is gone — the row is dropped, exactly as
+// an uncurated one would be, so a deleted artifact cannot leave a dangling
+// entry behind on the strength of having been described.
+func TestAC098_UnitNegative_CuratedRowForAMissingTargetIsStillDropped(t *testing.T) {
+	root, _ := runInto(t)
+	readme := filepath.Join(root, "docs", "goals", "README.md")
+	curated := "- [G-404 — Deleted goal](G-404-deleted.md) · `accepted` — A description an author wrote before the file was removed."
+	if err := os.WriteFile(readme, []byte("# Goals\n\n<!-- clue:index:start -->\n"+curated+"\n<!-- clue:index:end -->\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	// G-404-deleted.md is deliberately never written.
+	if _, err := Regen(root); err != nil {
+		t.Fatal(err)
+	}
+	raw, err := os.ReadFile(readme)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if strings.Contains(string(raw), "G-404-deleted.md") {
+		t.Fatalf("a row whose target is gone must be dropped however well curated, got:\n%s", raw)
+	}
+	if strings.Contains(string(raw), "before the file was removed") {
+		t.Fatalf("the curated description must go with its row, got:\n%s", raw)
+	}
+	if issues := validateAt(t, root); len(issues) > 0 {
+		t.Fatalf("expected green after regen, got: %v", issues)
+	}
+}
+
 // AC-073 negative: a target with no readable identity falls back to the plain
 // link instead of emitting a half-formed row, and a subfolder row states a
 // section rather than a record so it carries no title or status.

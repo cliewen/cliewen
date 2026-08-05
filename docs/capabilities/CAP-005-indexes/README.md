@@ -11,7 +11,7 @@ goal: G-001
 
 ## What
 
-`clue scaffold [path]` regenerates the taxonomy README index blocks (`docs/README.md` and each `docs/<folder>/README.md`) from folder contents: hand-written entries whose targets survive keep their lines, missing entries are appended stating the record they link — `id — title` from the artifact's own frontmatter, then its status ([ADR-041](../../decisions/ADR-041-index-rows-state-their-record.md), [C-016](../../constraints/C-016-index-rows-state-their-record.md)) — entries whose targets are gone are dropped, and prose outside the `clue:index` markers is never touched. The command materializes nothing — missing folder READMEs are reported, never invented, and a path without a `docs/` tree is an error. `checkIndexes` (in `clue validate`) remains the judge of the result.
+`clue scaffold [path]` regenerates the taxonomy README index blocks (`docs/README.md` and each `docs/<folder>/README.md`) from folder contents: hand-written entries whose targets survive keep their lines, missing entries are appended stating the record they link — `id — title` from the artifact's own frontmatter, then its status, then a description seeded from the artifact's own body and curated thereafter ([ADR-041](../../decisions/ADR-041-index-rows-state-their-record.md), [ADR-046](../../decisions/ADR-046-index-rows-say-what-the-artifact-is-about.md), [C-016](../../constraints/C-016-index-rows-state-their-record.md)) — entries whose targets are gone are dropped, and prose outside the `clue:index` markers is never touched. The command materializes nothing — missing folder READMEs are reported, never invented, and a path without a `docs/` tree is an error. `checkIndexes` (in `clue validate`) remains the judge of the result.
 
 ## Why
 

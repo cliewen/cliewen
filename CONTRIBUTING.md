@@ -56,7 +56,7 @@ go run ./cmd/clue validate --forbid-changes
 git diff --check
 ```
 
-Total Go statement coverage must remain at least 80%. `clue-verify` then automatically reviews that same commit before publication. A coding-agent host with context-isolated delegation starts a fresh read-only reviewer; other hosts disclose an in-context fallback. Actionable findings return to the implementing context, and every substantive fix is committed, checked against that commit, and reviewed again until the current commit receives a clean pass. The final verification evidence identifies the review mode and reviewed commit.
+Total Go statement coverage must remain at least 80%. `clue-verify` then automatically reviews that same commit before publication. A coding-agent host with context-isolated delegation starts a fresh read-only reviewer; other hosts disclose an in-context fallback. Findings are classified blocking or advisory, and only the blocking set gates: a blocking finding returns to the implementing context, is committed, checked against that commit, and reviewed again — scoped to what changed and the carriers it declares — until the current commit receives a pass with no blocking findings. Advisory findings, such as a stale figure a command computes or wording that drifted without asserting anything false, are named in the verification evidence and repaired at your discretion; repairing one never restarts the loop. The final verification evidence identifies the review mode and reviewed commit.
 
 ## Open the Pull Request
 

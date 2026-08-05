@@ -31,5 +31,5 @@ This index is the register table. Its badge is the enforcement class rather than
 - [C-013 — Changes to a core carrier require an explicit decision record and human acceptance](C-013-core-changes-need-decision.md) · `human`
 - [C-014 — Total Go statement coverage stays at or above 80%](C-014-coverage-floor.md) · `machine`
 - [C-015 — A new user reaches their first green validate in under 30 minutes](C-015-onboarding-under-30-minutes.md) · `human`
-- [C-016 — A generated index row states the record it links, never just its filename](C-016-index-rows-state-their-record.md) · `machine`
+- [C-016 — A generated index row states the record it links and says what it is about, never just its filename](C-016-index-rows-state-their-record.md) · `machine` — Index generation emits the stated row, seeds its description, and the judge counts the rows still restating only their link or saying nothing about the artifact.
 <!-- clue:index:end -->
