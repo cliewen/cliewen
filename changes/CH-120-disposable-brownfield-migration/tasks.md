@@ -8,9 +8,9 @@ title: Tasks for CH-120
 
 # CH-120 — tasks
 
-- [ ] Read the M-052–M-055 implementations, ADR-048 through ADR-051, CAP-003, and the canonical `clue-extract` skill.
-- [ ] Create the two fixture sources and write a report-only rehearsal for each without mutating the target corpus (serves AC-056).
-- [ ] Record any unresolved source-evidence or mapping decision in `open-questions.md` and stop before mutation.
+- [x] Read the M-052–M-055 implementations, ADR-048 through ADR-051, CAP-003, and the canonical `clue-extract` skill.
+- [x] Create the two fixture source inventories and write a report-only rehearsal for each without mutating the target corpus (serves AC-056).
+- [x] Record the required mutation authorization in `open-questions.md` and stop before mutation.
 - [ ] Obtain explicit human direction to begin the approved fixture mutation after the rehearsals are complete.
 - [ ] Add or revise the criterion that defines the disposable end-to-end migration proof, then add focused positive and negative evidence in its declared test class.
 - [ ] Implement the approved fixture mutations and their deterministic validation, parity, and carrier-reconciliation failure paths.

@@ -1,0 +1,11 @@
+source-revision: numeric-archive-fixture-v1
+source-location: fixtures/numeric-archive
+entries:
+  - id: ARC-099
+    proof-class: Integration
+    direction: positive
+    evidence-location: fixtures/numeric-archive/tests/archive_test.go:12
+  - id: ARC-099
+    proof-class: Integration
+    direction: negative
+    evidence-location: fixtures/numeric-archive/tests/archive_test.go:28

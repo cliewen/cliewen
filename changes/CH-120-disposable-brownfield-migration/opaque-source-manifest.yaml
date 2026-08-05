@@ -1,0 +1,11 @@
+source-revision: opaque-identifier-fixture-v1
+source-location: fixtures/opaque-identifier
+entries:
+  - id: OPA-001
+    proof-class: Integration
+    direction: positive
+    evidence-location: fixtures/opaque-identifier/tests/opaque_test.go:14
+  - id: OPA-001
+    proof-class: Integration
+    direction: negative
+    evidence-location: fixtures/opaque-identifier/tests/opaque_test.go:31
