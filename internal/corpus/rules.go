@@ -9,6 +9,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/cliewen/cliewen/internal/importedchange"
 	"github.com/cliewen/cliewen/internal/ledger"
 )
 
@@ -38,13 +39,14 @@ var defaultLifecycle = []string{"draft", "active"}
 // statusVocabExceptions holds the types whose lifecycle is not the default,
 // each for the reason named in ADR-025.
 var statusVocabExceptions = map[string][]string{
-	"goal":           {"proposed", "accepted"},         // proposed goals are the inbox (ADR-002)
-	"plan":           {"draft", "active", "completed"}, // completed is immutable (C-008)
-	"decision":       {"inferred", "verified"},         // provenance lives in status (ADR-010)
-	"log":            {"active"},                       // one register; rows are its lifecycle (PDR-003)
-	"change":         {"open"},                         // transient workspace artifact
-	"tasks":          {"open"},                         // transient workspace artifact
-	"open-questions": {"open", "resolved"},             // transient workspace artifact
+	"goal":            {"proposed", "accepted"},         // proposed goals are the inbox (ADR-002)
+	"plan":            {"draft", "active", "completed"}, // completed is immutable (C-008)
+	"decision":        {"inferred", "verified"},         // provenance lives in status (ADR-010)
+	"log":             {"active"},                       // one register; rows are its lifecycle (PDR-003)
+	"change":          {"open"},                         // transient workspace artifact
+	"tasks":           {"open"},                         // transient workspace artifact
+	"open-questions":  {"open", "resolved"},             // transient workspace artifact
+	"imported-change": {"in-progress", "complete"},      // durable record, never retired (ADR-050)
 }
 
 // statusVocabFor returns the allowed status set for a type: its exception if it
@@ -89,6 +91,7 @@ func Validate(c *Corpus, opts Options) []Issue {
 	issues = append(issues, checkMilestoneStatus(c)...)
 	issues = append(issues, checkSkillVersions(c, opts.Version)...)
 	issues = append(issues, checkLedger(c)...)
+	issues = append(issues, checkImportedChanges(c)...)
 	if opts.ForbidChanges && c.HasChanges {
 		issues = append(issues, Issue{"changes", "transient workspace present — digest before merge (main must never contain /changes)"})
 	}
@@ -320,6 +323,53 @@ func checkLedger(c *Corpus) []Issue {
 		}
 		if entry.State != want {
 			issues = append(issues, Issue{criterion.Path, "criterion " + criterion.ID + " is marked " + string(entry.State) + " in " + ledger.DefaultPath + " but its declaration is " + string(want)})
+		}
+	}
+	return issues
+}
+
+// checkImportedChanges enforces ADR-050's imported-change record contract:
+// every record names its pinned origin, and a record whose status claims
+// complete may not name a proof link the corpus cannot back — a criterion
+// that does not exist, is @draft, or is retired. An in-progress record is
+// exempt from that last check by design: it is allowed to name work not yet
+// proven, because it is still declaring what remains to be done. Dependency
+// links (the ordinary links: field) resolve like any other artifact link
+// and need no rule here — checkLinks already enforces that.
+func checkImportedChanges(c *Corpus) []Issue {
+	var issues []Issue
+	var declared map[string]Declaration
+	for _, a := range c.Artifacts {
+		if a.Type != "imported-change" {
+			continue
+		}
+		sourceRevision, _ := a.Fields["source-revision"].(string)
+		sourceLocation, _ := a.Fields["source-location"].(string)
+		if sourceRevision == "" || sourceLocation == "" {
+			issues = append(issues, Issue{a.Path, "imported-change missing source-revision or source-location (ADR-050)"})
+		}
+		links := importedchange.ParseProofLinks(a.Body)
+		if len(links) == 0 {
+			issues = append(issues, Issue{a.Path, "imported-change has no proof-links table under a \"## Proof links\" heading with Task and Criterion columns (ADR-050)"})
+			continue
+		}
+		for _, l := range links {
+			if l.Task == "" || l.Criterion == "" {
+				issues = append(issues, Issue{a.Path, "proof-links row missing task or criterion"})
+			}
+		}
+		if a.Status != "complete" {
+			continue
+		}
+		if declared == nil {
+			declared, _ = AcceptanceEvidence(c)
+		}
+		provable := make(map[string]bool, len(declared))
+		for id, d := range declared {
+			provable[id] = !d.Draft && !d.Retired
+		}
+		for _, id := range importedchange.UnprovenLinks(links, provable) {
+			issues = append(issues, Issue{a.Path, "imported-change is complete but proof-linked criterion " + id + " does not exist, is @draft, or is retired (ADR-050)"})
 		}
 	}
 	return issues
