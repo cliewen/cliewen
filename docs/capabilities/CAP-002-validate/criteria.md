@@ -297,7 +297,7 @@ Feature: clue validate — deterministic corpus judgment
     And the output names the file and both ways to satisfy the rule
     But a proposal linking a P or M identity passes, and so does one declaring itself plan-less
 
-  @AC-093
+  @AC-093 @retired
   Scenario: Diagrams are inline, not images
     Test-type: Unit
     Given a docs file carrying an image — an inline link, a reference link, or an img tag — or an image file stored under docs/
@@ -306,6 +306,18 @@ Feature: clue validate — deterministic corpus judgment
     And the output names the file and says diagrams are inline Mermaid
     But an ordinary link to a markdown file passes, and an image inside a fence, an indented code block, a comment, or a code span is an example rather than a diagram
     And a table cell is not an exemption: an image there renders like any other
+    # Retired by ADR-047: image links and assets are valid corpus content, and
+    # choosing Mermaid, ASCII art, or SVG is human judgment rather than a
+    # deterministic validation rule.
+
+  @AC-100
+  Scenario: Image links and assets remain valid corpus content
+    Test-type: Unit
+    Given a docs file carrying local and absolute image links in inline, reference, collapsed-reference, and HTML img forms
+    And a local SVG asset stored under docs/
+    When the user runs "clue validate" without network access
+    Then it exits with code 0
+    And it does not read, remove, or resolve the image targets
 
   @AC-094
   Scenario: Types carry the frontmatter fields their type requires

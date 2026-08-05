@@ -13,7 +13,7 @@ Run this verification and review workflow before opening or updating any Cliewen
 - [ ] Every `/docs/**` folder has a README; index blocks list every sibling artifact and no deleted file.
 - [ ] The change was assessed against every constraint (including verifiable quality bars).
 - [ ] Repository-local conventions satisfy the contract below.
-- [ ] Diagrams are inline Mermaid and readable when rendered.
+- [ ] Diagrams use the clearest renderable form: prefer Mermaid, use ASCII art where it is clearer, and retain SVG where neither is adequate.
 - [ ] The full-change workspace is absent after digest; `main` never contains `/changes/`.
 - [ ] Every decision satisfies **Decision records** below, including routing, timeless content, provenance, objections, and pending approval signatures.
 - [ ] The current commit received a pass with no blocking findings under **Agentic review loop** below; every blocking repair after an earlier clean pass triggered a new pass, and any advisory findings left open are named in the verification evidence.

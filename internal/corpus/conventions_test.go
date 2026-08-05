@@ -297,50 +297,27 @@ func TestAC092_UnitNegative_ProposalWithoutADeclarationRejected(t *testing.T) {
 	}), false), "proposal names no plan item")
 }
 
-// AC-093: diagrams are inline Mermaid, never images.
-func TestAC093_UnitPositive_MermaidAndOrdinaryLinksAccepted(t *testing.T) {
-	page := "---\nid: G-002\ntype: goal\nstatus: accepted\nlinks: []\ntitle: Diagrams\n---\n\n# G-002\n\nA link to [the first goal](G-001-first.md) and a code span showing the form `![alt](x.png)`.\n\n```mermaid\ngraph TD\n  A --> B\n```\n\nA fenced example:\n\n```markdown\n![alt](diagram.png)\n```\n\nAnd the same example indented rather than fenced:\n\n    ![alt](diagram.png)\n"
+// AC-100: image links and assets are valid corpus content. The deterministic
+// judge must not choose a diagram representation or reach an external target.
+func TestAC100_UnitPositive_LocalImageLinksAndSVGAssetsAccepted(t *testing.T) {
+	page := "---\nid: G-002\ntype: goal\nstatus: accepted\nlinks: []\ntitle: Diagrams\n---\n\n# G-002\n\n![the architecture](images/architecture.svg)\n\n![the context][context]\n\n![collapsed][]\n\n<img src=\"images/component.svg\" alt=\"the component\">\n\n[context]: https://example.invalid/context.svg\n\n[collapsed]: https://example.invalid/collapsed.svg\n"
 	assertClean(t, run(t, with(validFiles, map[string]string{
-		"docs/goals/README.md":         "# Goals\n\n<!-- clue:index:start -->\n- [G-001](G-001-first.md)\n- [G-002](G-002-diagrams.md)\n<!-- clue:index:end -->\n",
-		"docs/goals/G-002-diagrams.md": page,
-	}), false), "inline Mermaid, an ordinary link, and images shown as examples")
+		"docs/goals/README.md":               "# Goals\n\n<!-- clue:index:start -->\n- [G-001](G-001-first.md)\n- [G-002](G-002-diagrams.md)\n- [images/](images/README.md)\n<!-- clue:index:end -->\n",
+		"docs/goals/G-002-diagrams.md":       page,
+		"docs/goals/images/README.md":        "# Images\n",
+		"docs/goals/images/architecture.svg": "<svg xmlns=\"http://www.w3.org/2000/svg\"/>",
+		"docs/goals/images/component.svg":    "<svg xmlns=\"http://www.w3.org/2000/svg\"/>",
+	}), false), "local SVG assets and local or external image links")
 }
 
-func TestAC093_UnitNegative_ImageLinksAndImageFilesRejected(t *testing.T) {
-	page := "---\nid: G-002\ntype: goal\nstatus: accepted\nlinks: []\ntitle: Diagrams\n---\n\n# G-002\n\n![the architecture](architecture.png)\n"
+func TestAC100_UnitNegative_ImageFormsDoNotCreateValidationIssues(t *testing.T) {
+	page := "---\nid: G-002\ntype: goal\nstatus: accepted\nlinks: []\ntitle: Diagrams\n---\n\n# G-002\n\n![local](architecture.png)\n\n<img src=\"https://example.invalid/architecture.png\" alt=\"external\">\n"
 	issues := run(t, with(validFiles, map[string]string{
 		"docs/goals/README.md":         "# Goals\n\n<!-- clue:index:start -->\n- [G-001](G-001-first.md)\n- [G-002](G-002-diagrams.md)\n<!-- clue:index:end -->\n",
 		"docs/goals/G-002-diagrams.md": page,
-		"docs/goals/architecture.png":  "\x89PNG not really",
+		"docs/goals/architecture.png":  "not actually an image",
 	}), false)
-	assertIssue(t, issues, "line 11: image link — diagrams in the corpus are inline Mermaid")
-	assertIssue(t, issues, "docs/goals/architecture.png: image file under docs/")
-}
-
-// The two forms a check that knew only `![alt](x.png)` would wave through: a
-// reference link, and the tag an externally hosted diagram usually arrives as.
-// Either one parks a picture in the corpus while the register calls the rule
-// machine-held.
-func TestAC093_UnitNegative_ReferenceImagesAndImageTagsRejected(t *testing.T) {
-	page := "---\nid: G-002\ntype: goal\nstatus: accepted\nlinks: []\ntitle: Diagrams\n---\n\n# G-002\n\n![the architecture][arch]\n\n<img src=\"https://example.invalid/architecture.png\" alt=\"the architecture\">\n\n![collapsed][]\n\n[arch]: https://example.invalid/architecture.png\n"
-	issues := run(t, with(validFiles, map[string]string{
-		"docs/goals/README.md":         "# Goals\n\n<!-- clue:index:start -->\n- [G-001](G-001-first.md)\n- [G-002](G-002-diagrams.md)\n<!-- clue:index:end -->\n",
-		"docs/goals/G-002-diagrams.md": page,
-	}), false)
-	assertIssue(t, issues, "line 11: image link — diagrams in the corpus are inline Mermaid")
-	assertIssue(t, issues, "line 13: image tag — diagrams in the corpus are inline Mermaid")
-	assertIssue(t, issues, "line 15: image link — diagrams in the corpus are inline Mermaid")
-}
-
-// A sentence naming the forms is not one of them: the register and this
-// changelog have to be able to say `<img>` and `![alt][ref]` in a code span
-// without failing the rule they describe.
-func TestAC093_UnitPositive_ImageFormsNamedInCodeSpansAccepted(t *testing.T) {
-	page := "---\nid: G-002\ntype: goal\nstatus: accepted\nlinks: []\ntitle: Diagrams\n---\n\n# G-002\n\nThe forms are `![alt](x.png)`, `![alt][ref]`, and `<img src=\"x.png\">`, and none of them is a diagram here.\n\n```markdown\n<img src=\"x.png\">\n```\n"
-	assertClean(t, run(t, with(validFiles, map[string]string{
-		"docs/goals/README.md":         "# Goals\n\n<!-- clue:index:start -->\n- [G-001](G-001-first.md)\n- [G-002](G-002-diagrams.md)\n<!-- clue:index:end -->\n",
-		"docs/goals/G-002-diagrams.md": page,
-	}), false), "image forms named in code spans and a fence")
+	assertClean(t, issues, "image syntax and assets are not validation findings")
 }
 
 // AC-094: each type carries its own frontmatter extensions.

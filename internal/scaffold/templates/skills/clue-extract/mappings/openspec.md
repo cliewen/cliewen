@@ -23,4 +23,6 @@ Layout: `openspec/config.yaml`, synced truth in `openspec/specs/<capability>/spe
 | JUnit `@Tag("XX_NNN")` | keep on the executable together with its literal proof-type and direction tags — clue normalizes underscores to canonical hyphens at harvest for segmented or letter-suffixed IDs too; normalize class-level, split-method, dynamic, or multi-line evidence to the supported literal method block or named-executable form |
 | Runner/type tags (`UNIT`, `INTEGRATION`, `E2E`, …) | kept untouched even when no pipeline filters on them yet — they are the runner's namespace, not the methodology's, and the only per-method type carrier where one file mixes test types |
 
+Preserve every existing local or external Markdown link and every referenced asset, including SVG diagrams. When a source link has a deterministic converted target, rewrite the target while preserving the link; when it does not, report the mapping gap and do not delete the source target. Diagram choice follows C-007: prefer embedded Mermaid, use embedded ASCII art when it is clearer, and retain SVG where neither is adequate.
+
 Watch for: the same logical ID written three ways (`[MG-010]`, `` `PG-001` ``, `MG_010`); `## ADDED/MODIFIED Requirements` delta headers in pending changes (apply the delta meaning, don't copy the header); scenario WHEN/THEN bullets mapping to Gherkin When/Then/And.
