@@ -340,4 +340,58 @@ Feature: clue validate — deterministic corpus judgment
     And the output names the plan, the milestone, and the value it read
     But a table that declares no Status column is not a milestone table, and a header row, a separator row, and an empty cell are never values
     And a table is read by its delimiter row, with or without outer pipes, with cells divided only by pipes that are unescaped and outside a code span
+
+  @AC-101
+  Scenario: clue id next allocates the next numeric ID through the ledger
+    Test-type: Unit
+    Given a ledger whose counters map holds the last-issued numeric component for a prefix
+    When the user runs "clue id next <prefix>"
+    Then it prints the next sequential ID for that prefix as an increment of the stored counter, never a corpus scan
+    And it persists the new entry as "reserved" and advances the counter
+    But a prefix absent from the ledger starts its counter at zero and issues the prefix's first ID
+
+  @AC-102
+  Scenario: An opaque ID is preserved verbatim and never reused
+    Test-type: Unit
+    Given a ledger holding an opaque-kind entry with an exact canonical ID
+    When a source mapping's documented generator proposes that same exact ID again
+    Then the ledger rejects the ID as already used
+    And it accepts a new opaque ID exactly as the generator produced it, without normalizing case, trimming, or reformatting
+
+  @AC-103
+  Scenario: checkLedger rejects a live artifact whose ID the ledger marks retired
+    Test-type: Unit
+    Given a ".clue/id-ledger.yaml" marking an ID "retired"
+    And a live corpus artifact declaring that same ID
+    When the user runs "clue validate"
+    Then it exits with a non-zero code
+    And the output names the file and says the ledger marks the ID retired
+    But a live artifact whose ID the ledger marks "live" or "reserved" passes, and a corpus with no ".clue/id-ledger.yaml" file is unaffected by this rule
+
+  @AC-104
+  Scenario: checkLedger rejects a malformed ledger entry shape
+    Test-type: Unit
+    Given a ".clue/id-ledger.yaml" holding a numeric-kind entry with no decimal component, or an opaque-kind entry carrying one
+    When the user runs "clue validate"
+    Then it exits with a non-zero code
+    And the output names the entry and which shape rule it breaks
+    But a numeric entry with a valid decimal component and an opaque entry with none both pass
+
+  @AC-105
+  Scenario: An archived numeric ID above the live maximum is never reissued
+    Test-type: Unit
+    Given a ledger whose counter for a prefix sits below a "retired" entry's numeric component that once exceeded every live artifact's number
+    When the user runs "clue id next <prefix>"
+    Then the issued ID skips the retired number and every number the ledger already holds
+    And "clue validate" rejects a live artifact later declaring that retired number
+    But a live artifact declaring the newly issued number passes
+
+  @AC-106
+  Scenario: A UUID-like opaque ID cannot be reused after its source artifact is deleted
+    Test-type: Unit
+    Given a ledger holding a "retired" opaque entry with a UUID-like exact canonical ID, its source artifact having been deleted
+    When a source mapping's generator proposes that same UUID-like ID again
+    Then the ledger rejects it as already used
+    And "clue validate" rejects a live artifact declaring that retired opaque ID
+    But a freshly generated, distinct opaque ID passes both checks
 ```

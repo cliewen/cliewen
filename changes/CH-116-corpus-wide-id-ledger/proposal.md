@@ -1,5 +1,9 @@
 ---
+id: CH-116
+type: change
+status: open
 links: [P-011]
+title: Implement the corpus-wide identity ledger
 ---
 
 # CH-116 — Implement the corpus-wide identity ledger

@@ -149,4 +149,14 @@ Feature: Onboarding — install to first green validate
     Then the session is told the repository is behind, in exactly one line, without the human saying anything about releases
     And a current repository produces no such line, so the absence of one is informative
     But the evidence is what the session did, not what the hub says: an agent that skipped the instruction and learned it anyway from the notifier is this criterion passing, and neither channel reporting it is this criterion failing
+
+  @AC-107
+  Scenario: migrate backfills the identity ledger from the current corpus scan without renumbering history
+    Test-type: Unit
+    Given a corpus with no ".clue/id-ledger.yaml" file and existing live artifacts across several native ID prefixes
+    When the user runs "clue migrate --apply"
+    Then it writes one "live" entry per currently-live ID, unchanged
+    And it seeds each prefix's counter at that prefix's current maximum numeric component
+    And a second run reports zero changes
+    But a corpus that already carries a ".clue/id-ledger.yaml" file is left untouched by this step
 ```

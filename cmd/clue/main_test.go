@@ -539,6 +539,40 @@ func TestAC064_CLI_MigratePreviewAndApply(t *testing.T) {
 	}
 }
 
+func TestAC101_UnitPositive_IDNextIncrementsThroughTheLedger(t *testing.T) {
+	root := t.TempDir()
+	var out, errOut strings.Builder
+	if code := runID([]string{"next", "PDR", root}, &out, &errOut); code != 0 {
+		t.Fatalf("exit code = %d, stderr=%q", code, errOut.String())
+	}
+	if got := strings.TrimSpace(out.String()); got != "PDR-001" {
+		t.Fatalf("first id = %q, want PDR-001", got)
+	}
+
+	out.Reset()
+	if code := runID([]string{"next", "PDR", root}, &out, &errOut); code != 0 {
+		t.Fatalf("exit code = %d, stderr=%q", code, errOut.String())
+	}
+	if got := strings.TrimSpace(out.String()); got != "PDR-002" {
+		t.Fatalf("second id = %q, want PDR-002 (counter must persist across runs)", got)
+	}
+
+	data, err := os.ReadFile(filepath.Join(root, ".clue", "id-ledger.yaml"))
+	if err != nil {
+		t.Fatalf("ledger file not written: %v", err)
+	}
+	if !strings.Contains(string(data), "PDR-001") || !strings.Contains(string(data), "PDR-002") {
+		t.Fatalf("ledger file missing an issued id: %s", data)
+	}
+}
+
+func TestAC101_UnitNegative_IDNextRejectsMissingPrefix(t *testing.T) {
+	var out, errOut strings.Builder
+	if code := runID([]string{"next"}, &out, &errOut); code != 2 {
+		t.Fatalf("exit code = %d, want 2 for a missing prefix", code)
+	}
+}
+
 // Sanity: merging a release PR is what cuts the release (PDR-015). The
 // tagging workflow must take its version from the same single bump site the
 // release's drift gate judges, and must start the release explicitly — a tag

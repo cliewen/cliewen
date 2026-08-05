@@ -8,6 +8,8 @@ import (
 	"regexp"
 	"sort"
 	"strings"
+
+	"github.com/cliewen/cliewen/internal/ledger"
 )
 
 // Options control which gates Validate applies.
@@ -86,6 +88,7 @@ func Validate(c *Corpus, opts Options) []Issue {
 	issues = append(issues, checkProposalPlanItem(c)...)
 	issues = append(issues, checkMilestoneStatus(c)...)
 	issues = append(issues, checkSkillVersions(c, opts.Version)...)
+	issues = append(issues, checkLedger(c)...)
 	if opts.ForbidChanges && c.HasChanges {
 		issues = append(issues, Issue{"changes", "transient workspace present — digest before merge (main must never contain /changes)"})
 	}
@@ -248,6 +251,46 @@ func checkDuplicateIDs(c *Corpus) []Issue {
 			}
 			sort.Strings(paths)
 			issues = append(issues, Issue{paths[0], "duplicate id " + id + " (also in " + strings.Join(paths[1:], ", ") + ")"})
+		}
+	}
+	return issues
+}
+
+// checkLedger cross-checks the corpus against .clue/id-ledger.yaml
+// (ADR-048). A corpus without a ledger file yet is unaffected — the gate
+// that keeps this rule from firing before a repository has run the
+// backfill migration. Where a ledger exists, it rejects a live artifact
+// whose ID the ledger marks retired, and a malformed entry: a numeric-kind
+// entry with no valid decimal component, or an opaque-kind entry carrying
+// one.
+func checkLedger(c *Corpus) []Issue {
+	if !ledger.Exists(c.Root) {
+		return nil
+	}
+	l, err := ledger.Load(c.Root)
+	if err != nil {
+		return []Issue{{ledger.DefaultPath, "ledger: " + err.Error()}}
+	}
+	var issues []Issue
+	for _, e := range l.Entries() {
+		switch e.Kind {
+		case ledger.KindNumeric:
+			if e.Component == 0 || e.Prefix == "" {
+				issues = append(issues, Issue{ledger.DefaultPath, "entry " + e.ID + " is numeric-kind but carries no valid decimal component"})
+			}
+		case ledger.KindOpaque:
+			if e.Component != 0 {
+				issues = append(issues, Issue{ledger.DefaultPath, "entry " + e.ID + " is opaque-kind but carries a decimal component"})
+			}
+		}
+	}
+	for id, as := range c.ByID {
+		entry, ok := l.Lookup(id)
+		if !ok || entry.State != ledger.StateRetired {
+			continue
+		}
+		for _, a := range as {
+			issues = append(issues, Issue{a.Path, "id " + id + " is marked retired in " + ledger.DefaultPath + " and cannot be reused"})
 		}
 	}
 	return issues

@@ -304,7 +304,7 @@ func TestAC064_UnitNegative_MigrationRejectsChangedSourceAfterPreview(t *testing
 
 func TestAC064_UnitPositive_MigrationRegistryIsOrdered(t *testing.T) {
 	registry := Registry()
-	want := []string{MigrationReversalCost, MigrationStatusLifecycle, MigrationManagedCarriers, MigrationQualifiedReferences, MigrationClaudeEntryPoint, MigrationHubReleaseCheck, MigrationPromotedConstraints}
+	want := []string{MigrationReversalCost, MigrationStatusLifecycle, MigrationManagedCarriers, MigrationQualifiedReferences, MigrationClaudeEntryPoint, MigrationHubReleaseCheck, MigrationPromotedConstraints, MigrationLedgerBackfill}
 	if len(registry) != len(want) {
 		t.Fatalf("registry has %d entries, want %d", len(registry), len(want))
 	}
@@ -806,6 +806,70 @@ func tagExists(t *testing.T, root, tag string) bool {
 	t.Helper()
 	cmd := exec.Command("git", "-C", root, "rev-parse", "-q", "--verify", "refs/tags/"+tag)
 	return cmd.Run() == nil
+}
+
+func TestAC107_UnitPositive_MigrateBackfillsLedgerFromCurrentScan(t *testing.T) {
+	root := migrationFixture(t, "")
+
+	plan, err := Plan(root, Options{ReversalCost: "low"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	var backfill *Change
+	for i := range plan.Changes {
+		if plan.Changes[i].Migration == MigrationLedgerBackfill {
+			backfill = &plan.Changes[i]
+		}
+	}
+	if backfill == nil {
+		t.Fatalf("no MIG-008 change planned; changes: %+v", plan.Changes)
+	}
+	if backfill.Existed {
+		t.Fatal("ledger backfill must create a new file, not claim one already existed")
+	}
+	if !strings.Contains(string(backfill.After), "AN-001") {
+		t.Fatalf("backfilled ledger does not seed the fixture's live id:\n%s", backfill.After)
+	}
+
+	if err := Apply(root, plan); err != nil {
+		t.Fatalf("apply: %v", err)
+	}
+	ledgerPath := filepath.Join(root, ".clue", "id-ledger.yaml")
+	if _, err := os.Stat(ledgerPath); err != nil {
+		t.Fatalf("ledger file not written: %v", err)
+	}
+
+	second, err := Plan(root, Options{ReversalCost: "low"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, c := range second.Changes {
+		if c.Migration == MigrationLedgerBackfill {
+			t.Fatalf("second run planned another ledger backfill change: %+v", c)
+		}
+	}
+}
+
+func TestAC107_UnitNegative_ExistingLedgerFileIsUntouched(t *testing.T) {
+	root := migrationFixture(t, "")
+	ledgerDir := filepath.Join(root, ".clue")
+	if err := os.MkdirAll(ledgerDir, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	const existing = "counters: {}\nentries: []\n"
+	if err := os.WriteFile(filepath.Join(ledgerDir, "id-ledger.yaml"), []byte(existing), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	plan, err := Plan(root, Options{ReversalCost: "low"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, c := range plan.Changes {
+		if c.Migration == MigrationLedgerBackfill {
+			t.Fatalf("an existing ledger file must not be planned for backfill: %+v", c)
+		}
+	}
 }
 
 func gitShow(t *testing.T, root, spec string) ([]byte, error) {
