@@ -32,7 +32,7 @@ Underneath all three sits a scope limit that [AN-016](../analysis/AN-016-disposa
 
 **No milestone reopens P-011's mechanisms in principle.** The ledger, parity manifests, imported-change records, and carrier inventories are the contract; this campaign strengthens two checks and tests all of them at size. A milestone that would replace one of them is a new decision, not a continuation.
 
-**Simplification belongs to P-013.** It has now been deferred by four campaigns, and it stays deferred rather than being folded in here, for the reason PDR-025 gives: a campaign carrying both would let either half postpone the other.
+**Simplification belongs to P-013.** It has now been deferred by every campaign that named it, and it stays deferred rather than being folded in here, for the reason PDR-025 gives: a campaign carrying both would let either half postpone the other.
 
 **Nothing here executes a source repository's test suite.** The boundary P-011 drew holds. Cliewen reads its own corpus; a source's own results are reported as the source's, never converted into Cliewen coverage.
 
