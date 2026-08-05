@@ -1,5 +1,0 @@
-- [x] Draft `docs/decisions/ADR-048-corpus-wide-id-ledger.md` (status: inferred, author: agent) — ADR-046/047 were already taken, used next free ADR-048
-- [x] Revise M-052 in `docs/plans/P-011-truthful-brownfield-migration.md` to widen scope to all native ID prefixes, linking ADR-048
-- [x] Regenerate `docs/decisions/README.md` index
-- [-] Add `[Unreleased]` CHANGELOG entry — not user-visible; internal methodology decision, no shipped behavior yet
-- [ ] Digest: delete this change workspace
