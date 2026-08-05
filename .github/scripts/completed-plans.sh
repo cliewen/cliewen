@@ -45,7 +45,13 @@ while IFS= read -r file; do
     ---*) ;;
     *) continue ;;
   esac
-  if printf '%s\n' "$before" | tr -d '\r' | sed -n '2,/^---$/p' | grep -q '^status: completed'; then
+  # The value is read the way YAML writes it, not the way this repository
+  # happens to: `status: "completed"` and `status: 'completed'` are the same
+  # plan to `clue validate`, and a guard that matched only the bare word would
+  # let a quoted one through in silence — the one failure mode a freeze may not
+  # have. A trailing comment is part of YAML's line and not part of the value.
+  if printf '%s\n' "$before" | tr -d '\r' | sed -n '2,/^---$/p' |
+    grep -Eq "^status:[[:space:]]*[\"']?completed[\"']?[[:space:]]*(#.*)?$"; then
     echo "FAIL: $file was completed on $base — a completed plan is frozen and never deleted (C-008)"
     failed=1
   fi

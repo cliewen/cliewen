@@ -289,11 +289,11 @@ Feature: clue validate — deterministic corpus judgment
   @AC-093
   Scenario: Diagrams are inline, not images
     Test-type: Unit
-    Given a docs file carrying an image link, or an image file stored under docs/
+    Given a docs file carrying an image — an inline link, a reference link, or an img tag — or an image file stored under docs/
     When the user runs "clue validate"
     Then it exits with a non-zero code
     And the output names the file and says diagrams are inline Mermaid
-    But an ordinary link to a markdown file passes, and an image link inside a fence, an indented code block, a comment, or a code span is an example rather than a diagram
+    But an ordinary link to a markdown file passes, and an image inside a fence, an indented code block, a comment, or a code span is an example rather than a diagram
     And a table cell is not an exemption: an image there renders like any other
 
   @AC-094

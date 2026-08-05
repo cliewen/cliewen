@@ -128,6 +128,39 @@ func TestUnit_CompletedPlanGuardFreezesAFinishedCampaign(t *testing.T) {
 	}
 }
 
+// TestUnit_CompletedPlanGuardReadsTheStatusYAMLWrote proves the freeze holds
+// however the base spelled the value. A quoted status is the same plan to
+// `clue validate`, which unmarshals it, so a guard matching only the bare word
+// would wave through exactly the edit it exists to stop — and say nothing.
+func TestUnit_CompletedPlanGuardReadsTheStatusYAMLWrote(t *testing.T) {
+	for _, form := range []string{`"completed"`, `'completed'`, `completed  `, `completed # closed by CH-001`} {
+		t.Run(form, func(t *testing.T) {
+			root := t.TempDir()
+			git(t, root, "init", "-q", "-b", "main")
+			git(t, root, "config", "user.email", "guard@example.invalid")
+			git(t, root, "config", "user.name", "Guard Fixture")
+			plan := strings.Replace(completedPlan, "status: completed", "status: "+form, 1)
+			write(t, root, "docs/plans/P-001-first.md", plan)
+			git(t, root, "add", "-A")
+			git(t, root, "commit", "-m", "base")
+			base := strings.TrimSpace(run(t, root, "git", "rev-parse", "HEAD"))
+
+			write(t, root, "docs/plans/P-001-first.md", strings.Replace(plan, "do it", "do it differently", 1))
+			git(t, root, "add", "-A")
+			git(t, root, "commit", "-m", "the change under test")
+			head := strings.TrimSpace(run(t, root, "git", "rev-parse", "HEAD"))
+
+			out, err := runGuard(t, root, base, head)
+			if err == nil {
+				t.Fatalf("expected the guard to fail for %q; output: %s", form, out)
+			}
+			if !strings.Contains(out, "C-008") {
+				t.Fatalf("a failure names the constraint it enforces; output: %s", out)
+			}
+		})
+	}
+}
+
 // advanceBaseBranch moves the base branch on after the working branch forked
 // from it, closing a campaign there — the ordinary situation once any digest
 // lands while a pull request is open. It returns the new base branch tip, which

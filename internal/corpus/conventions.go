@@ -2,6 +2,7 @@ package corpus
 
 import (
 	"regexp"
+	"slices"
 	"sort"
 	"strconv"
 	"strings"
@@ -61,8 +62,14 @@ var (
 
 	skippedTaskRe = regexp.MustCompile(`^\s*[-*+] \[-\]\s*(.*)$`)
 	planItemRe    = regexp.MustCompile(`^[PM]-\d+$`)
-	imageLinkRe   = regexp.MustCompile(`!\[[^\]]*\]\(`)
-	codeSpanRe    = regexp.MustCompile("`[^`]*`")
+	// An image, in each form markdown and markdown's own HTML give it: inline,
+	// reference and collapsed-reference links, and an `img` tag. A check that
+	// knew only the inline form would leave two ways to park a screenshot in
+	// the corpus that never fail — and an `<img src="https://…">` is exactly
+	// the externally hosted diagram C-007 names.
+	imageLinkRe = regexp.MustCompile(`!\[[^\]]*\][(\[]`)
+	imageTagRe  = regexp.MustCompile(`(?i)<img[\s/>]`)
+	codeSpanRe  = regexp.MustCompile("`[^`]*`")
 
 	imageExts = []string{".png", ".jpg", ".jpeg", ".gif", ".svg", ".webp", ".bmp", ".tif", ".tiff", ".ico"}
 
@@ -344,8 +351,12 @@ func checkInlineDiagrams(c *Corpus) []Issue {
 			if blocks.next(line) {
 				continue
 			}
-			if imageLinkRe.MatchString(codeSpanRe.ReplaceAllString(line, "")) {
+			prose := codeSpanRe.ReplaceAllString(line, "")
+			switch {
+			case imageLinkRe.MatchString(prose):
 				issues = append(issues, Issue{p, lineRef(i+1) + ": image link — diagrams in the corpus are inline Mermaid (C-007)"})
+			case imageTagRe.MatchString(prose):
+				issues = append(issues, Issue{p, lineRef(i+1) + ": image tag — diagrams in the corpus are inline Mermaid (C-007)"})
 			}
 		}
 	}
@@ -408,7 +419,7 @@ func checkMilestoneStatus(c *Corpus) []Issue {
 				continue
 			}
 			v := strings.Trim(strings.TrimSpace(cells[col]), "`")
-			if v == "" || contains(MilestoneStatuses, v) {
+			if v == "" || slices.Contains(MilestoneStatuses, v) {
 				continue
 			}
 			name := "row"
@@ -470,15 +481,6 @@ func tableCells(row string) []string {
 		cells = cells[:len(cells)-1]
 	}
 	return cells
-}
-
-func contains(list []string, v string) bool {
-	for _, s := range list {
-		if s == v {
-			return true
-		}
-	}
-	return false
 }
 
 // typeFields are the frontmatter extensions a type carries beyond the linted
