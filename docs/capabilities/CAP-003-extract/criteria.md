@@ -190,4 +190,50 @@ Feature: Brownfield analysis and extraction — evidence, namespaced ACs, JVM ha
     And a proof-links row names a criterion that does not yet exist or is still "@draft"
     When the user runs "clue validate"
     Then it is not rejected for that criterion, because "in-progress" declares work still pending
+
+  @AC-118
+  Scenario: A clean carrier reconciliation run passes and is deterministic
+    Test-type: Unit
+    Given a carrier inventory whose every mapped entry's fingerprint matches its target's current content
+    When the user runs "clue carriers"
+    Then it exits zero and reports no findings
+    But a mapped target that drifts after a clean baseline fails on a later run
+
+  @AC-119
+  Scenario: A carrier inventory entry maps to a target or blocks mutation, never both
+    Test-type: Unit
+    Given an inventory entry naming neither a target-path and fingerprint nor a blocked marker with a reason
+    Or an entry combining a target-path and fingerprint with a blocked marker
+    When the inventory is loaded
+    Then it is rejected
+    But a "blocked" entry with a reason is accepted and is not reconciled against any target
+
+  @AC-120
+  Scenario: A lost fingerprint fails carrier reconciliation
+    Test-type: Unit
+    Given a mapped carrier entry whose target path exists
+    And its current content fingerprint disagrees with the inventory's pinned fingerprint
+    When the user runs "clue carriers"
+    Then it exits with a non-zero code
+    And the report names the ID as a lost fingerprint
+    But a matching fingerprint produces no finding for that ID
+
+  @AC-121
+  Scenario: A missing target fails carrier reconciliation
+    Test-type: Unit
+    Given a mapped carrier entry whose target-path does not exist in the reconciled corpus
+    When the user runs "clue carriers"
+    Then it exits with a non-zero code
+    And the report names the ID as a missing asset
+    But a present target produces no finding for that ID
+
+  @AC-122
+  Scenario: A stale deleted-path reference fails carrier reconciliation
+    Test-type: Unit
+    Given an inventory naming a source-repository path in "deleted-paths"
+    And a local Markdown link anywhere in the reconciled corpus still resolves to that path
+    When the user runs "clue carriers"
+    Then it exits with a non-zero code
+    And the report names the referencing file as a stale deleted-path reference
+    But a link that does not resolve to a deleted path produces no finding
 ```
