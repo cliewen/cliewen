@@ -46,7 +46,7 @@ An `imported-change` record (ADR-050, `internal/importedchange/`, `docs/imported
 
 ## Disposable composed migration fixture
 
-`internal/migration` composes the completed migration components in two disposable source shapes: a numeric archive where `ARC-099` remains retired while `ARC-100` carries classified source proof, and an opaque-identifier source that preserves a UUID-like source-owned identity without treating it as a criterion. The fixture first validates each materialized target corpus, then derives and compares parity and carrier reports. Separate negative variants prove every parity and carrier finding class. It reads source work only as fixture data and does not execute a source fixture's own test suite, so source-test outcomes cannot become Cliewen acceptance evidence.
+`internal/migration` composes the completed migration components in two disposable source shapes: a numeric archive where `ARC-099` remains retired while `ARC-002` carries classified source proof, and an opaque-identifier source that preserves a UUID-like source-owned identity without treating it as a criterion. The fixture first validates each materialized target corpus, then derives and compares parity and carrier reports. Separate negative variants prove every parity and carrier finding class. It reads source work only as fixture data and does not execute a source fixture's own test suite, so source-test outcomes cannot become Cliewen acceptance evidence.
 
 ## Deliberate limits (doors)
 

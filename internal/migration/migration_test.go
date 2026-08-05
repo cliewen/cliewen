@@ -107,7 +107,7 @@ func fixtureTarget(t *testing.T, prefix, criterion, revision, location string) s
 		"docs/imported-changes/README.md": "# imported changes\n\n<!-- clue:index:start -->\n- [IC-901.md](IC-901.md) — fixture source work\n<!-- clue:index:end -->\n",
 		"docs/imported-changes/IC-901.md": fmt.Sprintf("---\nid: IC-901\ntype: imported-change\nstatus: complete\nlinks: [CAP-901]\ntitle: Fixture pending source work\nsource-revision: %s\nsource-location: %s\n---\n\n# Fixture pending source work\n\n## Intent\n\nPreserve the source change.\n\n## Design rationale\n\nThe target retains the proof link.\n\n## Dependencies\n\nNone.\n\n## Proof links\n\n| Task | Criterion |\n| --- | --- |\n| Preserve source proof | %s |\n", revision, location, criterion),
 		"AGENTS.md": "# fixture routing\n",
-		"fixture_test.go": "package fixture\n\nfunc Test" + strings.ReplaceAll(criterion, "-", "") + "_IntegrationPositive_preservesProof(t *testing.T) {}\nfunc Test" + strings.ReplaceAll(criterion, "-", "") + "_IntegrationNegative_rejectsLoss(t *testing.T) {}\n",
+		"tests/fixture_test.go": "package fixture\n\nfunc Test" + strings.ReplaceAll(criterion, "-", "") + "_IntegrationPositive_preservesProof(t *testing.T) {}\nfunc Test" + strings.ReplaceAll(criterion, "-", "") + "_IntegrationNegative_rejectsLoss(t *testing.T) {}\n",
 		".clue/id-ledger.yaml": ledgerFile,
 	})
 	return root
@@ -124,14 +124,43 @@ func mustValidateFixture(t *testing.T, root string) {
 	}
 }
 
+func mustValidateAfterOpaqueReservation(root string) error {
+	c, scanIssues := corpus.Scan(root)
+	if len(scanIssues) > 0 {
+		return fmt.Errorf("fixture scan issues: %v", scanIssues)
+	}
+	if issues := corpus.Validate(c, corpus.Options{Version: "dev"}); len(issues) > 0 {
+		return fmt.Errorf("fixture validation issues: %v", issues)
+	}
+	return nil
+}
+
 func writeSourceManifest(t *testing.T, root, revision, location, criterion string) string {
 	t.Helper()
 	path := filepath.Join(root, "source-manifest.yaml")
-	content := fmt.Sprintf("source-revision: %s\nsource-location: %s\nentries:\n  - id: %s\n    proof-class: Integration\n    direction: positive\n    evidence-location: fixture_test.go\n  - id: %s\n    proof-class: Integration\n    direction: negative\n    evidence-location: fixture_test.go\n", revision, location, criterion, criterion)
+	content := fmt.Sprintf("source-revision: %s\nsource-location: %s\nentries:\n  - id: %s\n    proof-class: Integration\n    direction: positive\n    evidence-location: tests/fixture_test.go\n  - id: %s\n    proof-class: Integration\n    direction: negative\n    evidence-location: tests/fixture_test.go\n", revision, location, criterion, criterion)
 	if err := os.WriteFile(path, []byte(content), 0o644); err != nil {
 		t.Fatal(err)
 	}
 	return path
+}
+
+func fixtureSource(t *testing.T, prefix, criterion, revision, location string) (string, string) {
+	t.Helper()
+	root := t.TempDir()
+	writeFixtureFiles(t, root, map[string]string{
+		"openspec/config.yaml": "revision: " + revision + "\n",
+		"openspec/specs/fixture/spec.md": "# Fixture source\n\n### Requirement: preserve source proof\n\n#### Scenario: fixture [" + criterion + "]\n\nTest-type: Integration\n",
+		"openspec/changes/preserve-source/proposal.md": "# Preserve source work\n",
+		"openspec/changes/preserve-source/design.md": "# Source rationale\n",
+		"openspec/changes/preserve-source/tasks.md": "- [ ] Preserve " + criterion + "\n",
+		"openspec/AGENTS.md": "# source routing\n",
+		"openspec/INDEX.md": "# source registry\n",
+		"tests/fixture_test.go": "package source\n\nfunc Test" + strings.ReplaceAll(criterion, "-", "") + "_IntegrationPositive_sourceProof(t *testing.T) {}\nfunc Test" + strings.ReplaceAll(criterion, "-", "") + "_IntegrationNegative_sourceLoss(t *testing.T) {}\n",
+	})
+	manifest := writeSourceManifest(t, root, revision, location, criterion)
+	writeFixtureFiles(t, root, map[string]string{"carrier-inventory.yaml": fmt.Sprintf("source-revision: %s\nsource-location: %s\ndeleted-paths:\n  - openspec/\nentries:\n  - id: %s-INSTRUCTION\n    kind: instruction\n    source-path: openspec/AGENTS.md\n    blocked: true\n    reason: Target is not authorized during report-only rehearsal.\n  - id: %s-REGISTRY\n    kind: registry\n    source-path: openspec/INDEX.md\n    blocked: true\n    reason: Target is not authorized during report-only rehearsal.\n  - id: %s-LINK\n    kind: link\n    source-path: openspec/specs/fixture/spec.md\n    blocked: true\n    reason: Target is not authorized during report-only rehearsal.\n", revision, location, prefix, prefix, prefix)})
+	return root, manifest
 }
 
 func writeCarrierInventory(t *testing.T, root, revision, location, prefix string) string {
@@ -181,10 +210,13 @@ func mustHaveCarrierFinding(t *testing.T, report carriers.Report, class string) 
 // It deliberately never executes the source fixture's own test suite.
 func TestAC123_UnitPositive_disposableFixturesProveComposedMigrationContract(t *testing.T) {
 	numericRevision, numericLocation := "numeric-archive-fixture-v1", "fixtures/numeric-archive"
+	numericSourceRoot, numericManifest := fixtureSource(t, "NUMERIC", "ARC-002", numericRevision, numericLocation)
 	numericRoot := fixtureTarget(t, "ARC", "ARC-002", numericRevision, numericLocation)
 	mustValidateFixture(t, numericRoot)
-	numericManifest := writeSourceManifest(t, numericRoot, numericRevision, numericLocation, "ARC-002")
 	numericInventory := writeCarrierInventory(t, numericRoot, numericRevision, numericLocation, "NUMERIC")
+	if _, err := os.Stat(filepath.Join(numericSourceRoot, "tests", "fixture_test.go")); err != nil {
+		t.Fatal(err)
+	}
 	if out, err := runFixtureClue(t, "validate", numericRoot); err != nil {
 		t.Fatalf("numeric target validation: %v\n%s", err, out)
 	}
@@ -204,10 +236,13 @@ func TestAC123_UnitPositive_disposableFixturesProveComposedMigrationContract(t *
 	}
 
 	opaqueRevision, opaqueLocation := "opaque-identifier-fixture-v1", "fixtures/opaque-identifier"
+	opaqueSourceRoot, opaqueManifest := fixtureSource(t, "OPAQUE", "OPA-001", opaqueRevision, opaqueLocation)
 	opaqueRoot := fixtureTarget(t, "OPA", "OPA-001", opaqueRevision, opaqueLocation)
 	mustValidateFixture(t, opaqueRoot)
-	opaqueManifest := writeSourceManifest(t, opaqueRoot, opaqueRevision, opaqueLocation, "OPA-001")
 	opaqueInventory := writeCarrierInventory(t, opaqueRoot, opaqueRevision, opaqueLocation, "OPAQUE")
+	if _, err := os.Stat(filepath.Join(opaqueSourceRoot, "tests", "fixture_test.go")); err != nil {
+		t.Fatal(err)
+	}
 	if out, err := runFixtureClue(t, "validate", opaqueRoot); err != nil {
 		t.Fatalf("opaque target validation: %v\n%s", err, out)
 	}
@@ -224,6 +259,16 @@ func TestAC123_UnitPositive_disposableFixturesProveComposedMigrationContract(t *
 	}
 	const opaqueID = "8f14e45f-ceea-467e-9a2b-a1c8b9d2f7a1"
 	if err := opaqueLedger.ReserveOpaque(opaqueID, opaqueRevision, opaqueLocation); err != nil {
+		t.Fatal(err)
+	}
+	if err := opaqueLedger.Save(); err != nil {
+		t.Fatal(err)
+	}
+	if err := mustValidateAfterOpaqueReservation(opaqueRoot); err != nil {
+		t.Fatal(err)
+	}
+	opaqueLedger, err = ledger.Load(opaqueRoot)
+	if err != nil {
 		t.Fatal(err)
 	}
 	if err := opaqueLedger.ReserveOpaque(opaqueID, opaqueRevision, opaqueLocation); err == nil {
