@@ -84,6 +84,19 @@ func TestAC126_UnitPositive_renderedRegionPasses(t *testing.T) {
 	}
 }
 
+// TestAC126_UnitPositive_carriageReturnsAreNotADisagreement proves a Windows
+// checkout's line endings do not read as a claim about figures.
+func TestAC126_UnitPositive_carriageReturnsAreNotADisagreement(t *testing.T) {
+	root := writeFiles(t, map[string]string{
+		"docs/analysis/AN-900-source-manifest.yaml": fixtureManifest,
+	})
+	crlf := strings.ReplaceAll(renderedFixture(t, root), "\n", "\r\n")
+	root, _ = fixtureReportTree(t, crlf)
+	if issues := CheckReports(root); len(issues) > 0 {
+		t.Fatalf("expected CRLF to be accepted, got %v", issues)
+	}
+}
+
 // TestAC126_UnitNegative_typedFigureFails proves a hand-typed count inside
 // the region fails: the report's figures cannot claim a population the
 // manifest never held.

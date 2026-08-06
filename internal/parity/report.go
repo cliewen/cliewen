@@ -269,11 +269,15 @@ func checkReport(root, content string) []string {
 	if err != nil {
 		return []string{fmt.Sprintf("derived region names a manifest it cannot read: %v", err)}
 	}
-	if RenderRegion(r.manifest, m) != r.body {
+	// Line endings are the checkout's, not the report's: a Windows working
+	// tree carrying CRLF must not read as a disagreement about figures.
+	if normalizeNewlines(RenderRegion(r.manifest, m)) != normalizeNewlines(r.body) {
 		return []string{fmt.Sprintf("derived region disagrees with %s — regenerate it with clue report, never by hand", r.manifest)}
 	}
 	return nil
 }
+
+func normalizeNewlines(s string) string { return strings.ReplaceAll(s, "\r\n", "\n") }
 
 // WriteReport renders the derived region of the report at reportPath from the
 // manifest its marker names, replacing whatever the region held. Everything
