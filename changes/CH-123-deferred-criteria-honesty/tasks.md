@@ -1,7 +1,15 @@
-# Tasks
+---
+id: CH-123-tasks
+type: tasks
+status: open
+links: [CH-123]
+title: Tasks for CH-123
+---
 
-- [ ] Define the structured deferred-disposition contract and its compatibility boundary in a decision record, serving AC-125.
-- [ ] Add AC-125 and focused positive and negative Unit evidence for accountable dispositions and the derived population report.
-- [ ] Implement manifest validation, parity comparison, and deterministic reporting for AC-125.
-- [ ] Update CAP-003 guidance and generated indexes to carry the new contract.
-- [ ] Run focused and full verification, complete the M-058 digest, and prepare the reviewed PR handoff.
+# CH-123 — tasks
+
+- [x] Define the structured deferred-disposition contract and its compatibility boundary in ADR-053, serving AC-125.
+- [x] Add AC-125 and focused positive and negative Unit evidence for accountable dispositions and the derived population report.
+- [x] Implement manifest validation, parity comparison, and deterministic reporting for AC-125.
+- [x] Update CAP-003 guidance and generated indexes to carry the new contract.
+- [x] Run focused and full verification — `go test ./internal/parity ./cmd/clue`, `go run ./cmd/clue validate`, `go test ./...`, and `git diff --check` pass.

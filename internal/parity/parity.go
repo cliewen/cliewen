@@ -9,6 +9,7 @@ import (
 	"bytes"
 	"fmt"
 	"os"
+	"regexp"
 	"sort"
 
 	"github.com/cliewen/cliewen/internal/corpus"
@@ -40,6 +41,8 @@ type SourceEntry struct {
 	Reason           string      `yaml:"reason,omitempty"`
 	Disposition      Disposition `yaml:"disposition,omitempty"`
 	Justification    string      `yaml:"justification,omitempty"`
+	SourceLocation   string      `yaml:"disposition-source-location,omitempty"`
+	PlanDoor         string      `yaml:"plan-door,omitempty"`
 }
 
 // SourceManifest is the pinned manifest a source mapping emits during the
@@ -79,15 +82,15 @@ func validateSourceManifest(m SourceManifest) error {
 			return fmt.Errorf("entry id is required")
 		}
 		proof := e.ProofClass != "" || e.Direction != "" || e.EvidenceLocation != ""
-		disposition := e.Disposition != "" || e.Justification != ""
+		disposition := e.Disposition != "" || e.Justification != "" || e.SourceLocation != "" || e.PlanDoor != ""
 		switch {
 		case e.Excluded:
 			if e.Reason == "" || proof || disposition {
 				return fmt.Errorf("entry %q: excluded entries require only a reason", e.ID)
 			}
 		case disposition:
-			if proof || e.Reason != "" || e.Disposition == "" || e.Justification == "" {
-				return fmt.Errorf("entry %q: dispositions require only a disposition and justification", e.ID)
+			if proof || e.Reason != "" || e.Disposition == "" || e.Justification == "" || e.SourceLocation == "" || e.PlanDoor == "" {
+				return fmt.Errorf("entry %q: dispositions require a disposition, justification, disposition-source-location, and plan-door only", e.ID)
 			}
 			if e.Disposition != DispositionDraft && e.Disposition != DispositionHuman && e.Disposition != DispositionRetired {
 				return fmt.Errorf("entry %q: unsupported disposition %q", e.ID, e.Disposition)
@@ -135,8 +138,11 @@ type TargetEntry struct {
 // TargetManifest is the corpus-derived comparison side of a parity run,
 // keyed by criterion ID.
 type TargetManifest struct {
-	Entries map[string]TargetEntry
+	Entries   map[string]TargetEntry
+	PlanDoors map[string]bool
 }
+
+var milestoneRowRe = regexp.MustCompile(`(?m)^\s*\|\s*(M-\d+)\s*\|`)
 
 // DeriveTargetManifest scans root's corpus and ledger and derives one target
 // entry per declared criterion, reusing the same declaration and evidence
@@ -159,6 +165,15 @@ func DeriveTargetManifest(root string) (TargetManifest, error) {
 	}
 
 	entries := make(map[string]TargetEntry, len(declared))
+	planDoors := map[string]bool{}
+	for _, a := range c.Artifacts {
+		if a.Type != "plan" {
+			continue
+		}
+		for _, row := range milestoneRowRe.FindAllStringSubmatch(a.Body, -1) {
+			planDoors[row[1]] = true
+		}
+	}
 	for id, d := range declared {
 		te := TargetEntry{
 			ID:         id,
@@ -196,16 +211,17 @@ func DeriveTargetManifest(root string) (TargetManifest, error) {
 		sort.Strings(te.EvidenceLocations)
 		entries[id] = te
 	}
-	return TargetManifest{Entries: entries}, nil
+	return TargetManifest{Entries: entries, PlanDoors: planDoors}, nil
 }
 
 // Finding classes, matching M-053's five required failure classes (ADR-049).
 const (
-	ClassMissingCriterion       = "missing-criterion"
-	ClassOrphanedTag            = "orphaned-tag"
-	ClassChangedEvidence        = "changed-evidence"
-	ClassStaleFingerprint       = "stale-fingerprint"
-	ClassUnjustifiedDisposition = "unjustified-disposition"
+	ClassMissingCriterion         = "missing-criterion"
+	ClassOrphanedTag              = "orphaned-tag"
+	ClassChangedEvidence          = "changed-evidence"
+	ClassStaleFingerprint         = "stale-fingerprint"
+	ClassUnjustifiedDisposition   = "unjustified-disposition"
+	ClassUnaccountableDisposition = "unaccountable-disposition"
 )
 
 // Finding is one parity disagreement between the source and target manifest.
@@ -220,6 +236,7 @@ type Finding struct {
 // same order, so a CI artifact built from it is reproducible (ADR-049).
 type Report struct {
 	Findings []Finding
+	Deferred int
 }
 
 // Failed reports whether the parity run must exit non-zero.
@@ -242,6 +259,7 @@ func Compare(source SourceManifest, target TargetManifest) Report {
 	sort.Strings(sourceIDs)
 
 	var findings []Finding
+	deferred := map[string]bool{}
 	for _, id := range sourceIDs {
 		entries := bySource[id]
 		se := entries[0]
@@ -257,8 +275,12 @@ func Compare(source SourceManifest, target TargetManifest) Report {
 			findings = append(findings, Finding{ClassStaleFingerprint, id, fmt.Sprintf("manifest source-revision %q disagrees with ledger revision %q", source.SourceRevision, te.SourceRevision)})
 		}
 		if se.Disposition != "" {
+			deferred[id] = true
 			if se.Justification == "" || !matchesDisposition(se.Disposition, te) {
 				findings = append(findings, Finding{ClassUnjustifiedDisposition, id, fmt.Sprintf("source disposition %q does not match the target's draft, Human, or retired state", se.Disposition)})
+			}
+			if target.PlanDoors != nil && !target.PlanDoors[se.PlanDoor] {
+				findings = append(findings, Finding{ClassUnaccountableDisposition, id, fmt.Sprintf("plan door %q is not a milestone in the target corpus", se.PlanDoor)})
 			}
 			continue
 		}
@@ -297,7 +319,7 @@ func Compare(source SourceManifest, target TargetManifest) Report {
 		}
 		return findings[i].Class < findings[j].Class
 	})
-	return Report{Findings: findings}
+	return Report{Findings: findings, Deferred: len(deferred)}
 }
 
 func matchesDisposition(d Disposition, target TargetEntry) bool {

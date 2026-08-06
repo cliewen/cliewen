@@ -246,4 +246,13 @@ Feature: Brownfield analysis and extraction — evidence, namespaced ACs, JVM ha
     And an archived numeric identity and an opaque identity cannot be reused
     And every required parity and carrier failure path is rejected by its deterministic command
     But the fixture source's own test result is not presented as Cliewen acceptance evidence
+
+  @AC-125
+  Scenario: A deferred migration criterion has inspectable accountability
+    Test-type: Unit
+    Given a source manifest disposition for a draft, Human, or retired criterion
+    When the user runs "clue parity" against its target corpus
+    Then the disposition names a source location and an existing milestone plan door
+    And the report states the derived count of deferred criteria on both clean and failing runs
+    But a missing accountability field is rejected and an unknown plan door fails parity
 ```

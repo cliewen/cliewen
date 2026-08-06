@@ -584,9 +584,9 @@ func runParity(args []string, out, errOut io.Writer) int {
 		fmt.Fprintf(&buf, "%s %s: %s\n", f.Class, f.ID, f.Detail)
 	}
 	if !report.Failed() {
-		fmt.Fprintf(&buf, "clue parity: OK (%d source entries)\n", len(source.Entries))
+		fmt.Fprintf(&buf, "clue parity: OK (%d source entries; %d deferred criteria)\n", len(source.Entries), report.Deferred)
 	} else {
-		fmt.Fprintf(&buf, "clue parity: %d finding(s)\n", len(report.Findings))
+		fmt.Fprintf(&buf, "clue parity: %d finding(s); %d deferred criteria\n", len(report.Findings), report.Deferred)
 	}
 	fmt.Fprint(out, buf.String())
 	if *outPath != "" {

@@ -292,7 +292,7 @@ func TestAC114_UnitPositive_justifiedDispositionPasses(t *testing.T) {
 		"AC-905": {ID: "AC-905", Draft: true},
 	}}
 	source := SourceManifest{Entries: []SourceEntry{
-		{ID: "AC-905", Disposition: DispositionDraft, Justification: "plan door P-012 M-060; source openspec/specs/foo/spec.md#L20"},
+		{ID: "AC-905", Disposition: DispositionDraft, Justification: "attributable test work is out of scope", SourceLocation: "openspec/specs/foo/spec.md#L20", PlanDoor: "M-060"},
 	}}
 	if r := Compare(source, target); r.Failed() {
 		t.Fatalf("expected no finding for a justified disposition, got %v", r.Findings)
@@ -322,11 +322,47 @@ func TestAC114_UnitNegative_mismatchedDispositionFails(t *testing.T) {
 		"AC-905": {ID: "AC-905", Draft: true},
 	}}
 	source := SourceManifest{Entries: []SourceEntry{
-		{ID: "AC-905", Disposition: DispositionHuman, Justification: "source review"},
+		{ID: "AC-905", Disposition: DispositionHuman, Justification: "source review", SourceLocation: "openspec/specs/foo/spec.md#L20", PlanDoor: "M-060"},
 	}}
 	r := Compare(source, target)
 	if !r.Failed() || r.Findings[0].Class != ClassUnjustifiedDisposition {
 		t.Fatalf("expected a mismatched disposition finding, got %v", r.Findings)
+	}
+}
+
+// TestAC125_UnitPositive_accountableDispositionPasses proves a disposition
+// names both the source location and a real target-plan milestone, while the
+// report exposes the resulting deferred population.
+func TestAC125_UnitPositive_accountableDispositionPasses(t *testing.T) {
+	target := TargetManifest{Entries: map[string]TargetEntry{
+		"AC-906": {ID: "AC-906", Draft: true},
+	}, PlanDoors: map[string]bool{"M-060": true}}
+	source := SourceManifest{Entries: []SourceEntry{
+		{ID: "AC-906", Disposition: DispositionDraft, Justification: "attributable test work is out of scope", SourceLocation: "openspec/specs/foo/spec.md#L20", PlanDoor: "M-060"},
+	}}
+	r := Compare(source, target)
+	if r.Failed() || r.Deferred != 1 {
+		t.Fatalf("expected one accountable deferred criterion, got %+v", r)
+	}
+}
+
+// TestAC125_UnitNegative_missingOrUnknownAccountabilityFails proves a
+// malformed manifest cannot hide a disposition and an unknown plan door is a
+// parity finding rather than an unreported free-text claim.
+func TestAC125_UnitNegative_missingOrUnknownAccountabilityFails(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "manifest.yaml")
+	missing := "source-revision: rev-1\nsource-location: source\nentries:\n  - id: AC-906\n    disposition: draft\n    justification: out of scope\n"
+	if err := os.WriteFile(path, []byte(missing), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := LoadSourceManifest(path); err == nil {
+		t.Fatal("expected a disposition without source location and plan door to be rejected")
+	}
+	target := TargetManifest{Entries: map[string]TargetEntry{"AC-906": {ID: "AC-906", Draft: true}}, PlanDoors: map[string]bool{"M-060": true}}
+	source := SourceManifest{Entries: []SourceEntry{{ID: "AC-906", Disposition: DispositionDraft, Justification: "out of scope", SourceLocation: "source/spec.md#L20", PlanDoor: "M-999"}}}
+	r := Compare(source, target)
+	if !r.Failed() || r.Findings[0].Class != ClassUnaccountableDisposition {
+		t.Fatalf("expected an unaccountable-disposition finding, got %+v", r.Findings)
 	}
 }
 

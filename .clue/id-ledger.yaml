@@ -1,6 +1,6 @@
 counters:
-    AC: "124"
-    ADR: "52"
+    AC: "125"
+    ADR: "53"
     AN: "17"
     ARCH: "3"
     C: "16"
@@ -627,6 +627,11 @@ entries:
       state: live
       prefix: AC
       component: "124"
+    - id: AC-125
+      kind: numeric
+      state: live
+      prefix: AC
+      component: "125"
     - id: ADR-001
       kind: numeric
       state: live
@@ -862,6 +867,11 @@ entries:
       state: live
       prefix: ADR
       component: "52"
+    - id: ADR-053
+      kind: numeric
+      state: live
+      prefix: ADR
+      component: "53"
     - id: AN-001
       kind: numeric
       state: live
@@ -1132,9 +1142,12 @@ entries:
       state: retired
     - id: CH-123
       kind: numeric
-      state: reserved
+      state: live
       prefix: CH
       component: "123"
+    - id: CH-123-tasks
+      kind: opaque
+      state: live
     - id: G-001
       kind: numeric
       state: live

@@ -1,7 +1,7 @@
 ---
 id: CH-123
 type: change
-status: active
+status: open
 links: [P-012, M-058, CAP-003, ADR-049]
 title: Deferred migration criteria carry inspectable accountability
 ---
