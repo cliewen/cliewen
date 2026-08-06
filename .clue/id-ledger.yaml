@@ -1411,6 +1411,6 @@ entries:
       component: "27"
     - id: PDR-028
       kind: numeric
-      state: reserved
+      state: live
       prefix: PDR
       component: "28"
