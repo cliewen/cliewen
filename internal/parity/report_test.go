@@ -194,6 +194,29 @@ func TestAC126_UnitPositive_documentedMarkersAreNotRegions(t *testing.T) {
 	}
 }
 
+// TestAC126_UnitNegative_anUnmatchedInnerFenceCannotHideARegion proves the
+// code-span exemption cannot be used to switch the check off. A fence closes
+// only on its own character and length, so a tilde line inside a backtick
+// block, and an inner fence inside a longer outer one, leave the region that
+// follows visible instead of masking the rest of the file.
+func TestAC126_UnitNegative_anUnmatchedInnerFenceCannotHideARegion(t *testing.T) {
+	realRegion := RegionOpenPrefix + "docs/analysis/AN-900-source-manifest.yaml" + RegionOpenSuffix +
+		"\n| Proven in the target | 417 |\n" + RegionEnd + "\n"
+	cases := map[string]string{
+		"tilde line inside a backtick block": "# AN-904\n\n```text\n~~~ this is sample output\n```\n\n" + realRegion,
+		"inner fence inside a longer one":    "# AN-904\n\n````markdown\n```go\nx := 1\n```\n````\n\n" + realRegion,
+	}
+	for name, content := range cases {
+		root := writeFiles(t, map[string]string{
+			"docs/analysis/AN-900-source-manifest.yaml": fixtureManifest,
+			"docs/analysis/AN-904-extraction.md":        content,
+		})
+		if issues := CheckReports(root); len(issues) != 1 {
+			t.Fatalf("%s: expected the typed region to still be checked, got %v", name, issues)
+		}
+	}
+}
+
 // TestAC126_UnitNegative_aRealRegionBesideDocumentedOnesStillFails proves the
 // exemption reaches examples only: a genuine region in the same file as a
 // documented one is still checked.
@@ -234,6 +257,54 @@ func TestAC127_UnitPositive_regionIsRegenerated(t *testing.T) {
 	}
 	if issues := CheckReports(root); len(issues) > 0 {
 		t.Fatalf("expected the regenerated report to pass, got %v", issues)
+	}
+}
+
+// TestAC127_UnitPositive_aGreenCRLFReportIsLeftAlone proves the writer is
+// idempotent on a Windows checkout: a report the check already accepts is not
+// rewritten, and one that does need rendering keeps the file's line endings.
+// Publication requires a clean worktree, so a no-op regeneration must not
+// dirty one.
+func TestAC127_UnitPositive_aGreenCRLFReportIsLeftAlone(t *testing.T) {
+	root := writeFiles(t, map[string]string{
+		"docs/analysis/AN-900-source-manifest.yaml": fixtureManifest,
+	})
+	green := strings.ReplaceAll(renderedFixture(t, root), "\n", "\r\n")
+	root, report := fixtureReportTree(t, green)
+	before, err := os.ReadFile(report)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := WriteReport(root, report); err != nil {
+		t.Fatal(err)
+	}
+	after, err := os.ReadFile(report)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if string(before) != string(after) {
+		t.Fatal("expected an already-derived report to be left byte-for-byte alone")
+	}
+
+	// A real Windows checkout is CRLF throughout, prose included.
+	root = writeFiles(t, map[string]string{
+		"docs/analysis/AN-900-source-manifest.yaml": fixtureManifest,
+		"docs/analysis/AN-900-extraction.md": strings.ReplaceAll(
+			reportWithRegion("docs/analysis/AN-900-source-manifest.yaml", "\n| Proven in the target | 417 |\n"), "\n", "\r\n"),
+	})
+	report = filepath.Join(root, "docs", "analysis", "AN-900-extraction.md")
+	if err := WriteReport(root, report); err != nil {
+		t.Fatal(err)
+	}
+	rewritten, err := os.ReadFile(report)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if strings.Contains(strings.ReplaceAll(string(rewritten), "\r\n", ""), "\n") {
+		t.Fatalf("expected the rendered region to keep the file's CRLF endings, got:\n%q", string(rewritten))
+	}
+	if issues := CheckReports(root); len(issues) > 0 {
+		t.Fatalf("expected the rewritten report to pass, got %v", issues)
 	}
 }
 

@@ -124,13 +124,14 @@ Commands:
              --out=<path>  also write the report to path, for a migration
                            workflow to upload as a CI artifact.
 
-  report     Render a durable extraction report's derived region from the
-             pinned source manifest the region's opening marker names,
-             leaving every byte outside the region alone. A report states
-             its criterion counts and mapping table only there, and
-             validate re-renders the region and fails on any difference,
-             so a typed figure is not a supported way to write one.
-             Path defaults to ".".
+  report     Render the derived region of the extraction report at the
+             given path (required) from the pinned source manifest the
+             region's opening marker names, leaving every byte outside the
+             region alone. A report states its criterion counts and
+             mapping table only there, and validate re-renders the region
+             and fails on any difference, so a typed figure is not a
+             supported way to write one. An optional second path is the
+             repository the manifest is named relative to, default ".".
 
   carriers   Reconcile a pinned operational-carrier inventory against
              path's corpus (default "."), reporting a stale reference to a

@@ -46,7 +46,14 @@ type region struct {
 // scan already follows).
 func maskCode(content string) string {
 	out := []byte(content)
-	fenced := false
+	// An open fence is closed only by a fence of the same character and at
+	// least the same length, as CommonMark defines it. Toggling on any fence
+	// line would let a tilde fence inside a backtick block, or an inner fence
+	// inside a longer outer one, mask the whole rest of the file — and a
+	// masked file has no region, so the required check would pass a report
+	// whose figures were typed. This check has to fail closed.
+	var openChar byte
+	openLen := 0
 	for lineStart := 0; lineStart < len(out); {
 		lineEnd := strings.IndexByte(content[lineStart:], '\n')
 		if lineEnd < 0 {
@@ -54,14 +61,15 @@ func maskCode(content string) string {
 		} else {
 			lineEnd += lineStart
 		}
-		line := content[lineStart:lineEnd]
-		trimmed := strings.TrimLeft(line, " \t")
-		isFence := strings.HasPrefix(trimmed, "```") || strings.HasPrefix(trimmed, "~~~")
+		fenceChar, fenceLen := fenceOf(content[lineStart:lineEnd])
 		switch {
-		case isFence:
-			fenced = !fenced
+		case openLen > 0:
 			blank(out, lineStart, lineEnd)
-		case fenced:
+			if fenceChar == openChar && fenceLen >= openLen {
+				openChar, openLen = 0, 0
+			}
+		case fenceLen > 0:
+			openChar, openLen = fenceChar, fenceLen
 			blank(out, lineStart, lineEnd)
 		default:
 			maskSpans(out, content, lineStart, lineEnd)
@@ -69,6 +77,27 @@ func maskCode(content string) string {
 		lineStart = lineEnd + 1
 	}
 	return string(out)
+}
+
+// fenceOf reports the fence character and run length a line opens or closes
+// with, or a zero length when the line is not a fence.
+func fenceOf(line string) (byte, int) {
+	trimmed := strings.TrimLeft(line, " \t")
+	if trimmed == "" {
+		return 0, 0
+	}
+	c := trimmed[0]
+	if c != '`' && c != '~' {
+		return 0, 0
+	}
+	n := 0
+	for n < len(trimmed) && trimmed[n] == c {
+		n++
+	}
+	if n < 3 {
+		return 0, 0
+	}
+	return c, n
 }
 
 func blank(out []byte, from, to int) {
@@ -232,13 +261,21 @@ func CheckReports(root string) []corpus.Issue {
 		if err != nil || !info.IsDir() {
 			continue
 		}
-		_ = filepath.WalkDir(dir, func(p string, d fs.DirEntry, err error) error {
-			if err != nil || d.IsDir() || !strings.HasSuffix(d.Name(), ".md") {
+		_ = filepath.WalkDir(dir, func(p string, d fs.DirEntry, walkErr error) error {
+			if d == nil || d.IsDir() || !strings.HasSuffix(d.Name(), ".md") {
 				return nil
 			}
-			rel := filepath.ToSlash(strings.TrimPrefix(p, root+string(filepath.Separator)))
+			rel := relativePath(root, p)
+			// A file the judge cannot read is reported, never skipped: a
+			// required check that exempts what it failed to open is a check
+			// that can be turned off by making a file unreadable.
+			if walkErr != nil {
+				issues = append(issues, corpus.Issue{Path: rel, Msg: fmt.Sprintf("cannot be read for a derived region: %v", walkErr)})
+				return nil
+			}
 			data, readErr := os.ReadFile(p)
 			if readErr != nil {
+				issues = append(issues, corpus.Issue{Path: rel, Msg: fmt.Sprintf("cannot be read for a derived region: %v", readErr)})
 				return nil
 			}
 			for _, msg := range checkReport(root, string(data)) {
@@ -256,6 +293,17 @@ func CheckReports(root string) []corpus.Issue {
 	return issues
 }
 
+// relativePath states a scanned file the way every other issue in the same
+// verdict states one: relative to root, forward slashes, whatever shape the
+// caller wrote root in.
+func relativePath(root, p string) string {
+	rel, err := filepath.Rel(root, p)
+	if err != nil {
+		return filepath.ToSlash(p)
+	}
+	return filepath.ToSlash(rel)
+}
+
 // checkReport returns every message one report's content earns.
 func checkReport(root, content string) []string {
 	r, ok, err := findRegion(content)
@@ -267,7 +315,7 @@ func checkReport(root, content string) []string {
 	}
 	m, err := LoadSourceManifest(filepath.Join(root, filepath.FromSlash(r.manifest)))
 	if err != nil {
-		return []string{fmt.Sprintf("derived region names a manifest it cannot read: %v", err)}
+		return []string{fmt.Sprintf("derived region names a manifest it cannot read: %v (a documented example belongs in a code span or a fenced block, which is not read as a region)", err)}
 	}
 	// Line endings are the checkout's, not the report's: a Windows working
 	// tree carrying CRLF must not read as a disagreement about figures.
@@ -278,6 +326,13 @@ func checkReport(root, content string) []string {
 }
 
 func normalizeNewlines(s string) string { return strings.ReplaceAll(s, "\r\n", "\n") }
+
+// usesCRLF reports whether a file's first line ending is a CRLF, which is
+// what a Windows checkout of a repository without an end-of-line policy has.
+func usesCRLF(content string) bool {
+	i := strings.IndexByte(content, '\n')
+	return i > 0 && content[i-1] == '\r'
+}
 
 // WriteReport renders the derived region of the report at reportPath from the
 // manifest its marker names, replacing whatever the region held. Everything
@@ -300,9 +355,16 @@ func WriteReport(root, reportPath string) error {
 	if err != nil {
 		return err
 	}
-	rendered := content[:r.bodyStart] + RenderRegion(r.manifest, m) + content[r.bodyEnd:]
-	if rendered == content {
+	region := RenderRegion(r.manifest, m)
+	// A report the check already accepts is left untouched, and a checkout
+	// using CRLF is rendered in its own line endings. Writing LF into a CRLF
+	// file would rewrite a green report, leave it mixed, and dirty a worktree
+	// at exactly the moment publication requires a clean one.
+	if normalizeNewlines(region) == normalizeNewlines(r.body) {
 		return nil
 	}
-	return os.WriteFile(reportPath, []byte(rendered), 0o644)
+	if usesCRLF(content) {
+		region = strings.ReplaceAll(normalizeNewlines(region), "\n", "\r\n")
+	}
+	return os.WriteFile(reportPath, []byte(content[:r.bodyStart]+region+content[r.bodyEnd:]), 0o644)
 }
