@@ -33,7 +33,7 @@ The extraction itself is the `clue-extract` skill ([ADR-008](../../decisions/ADR
 - A report's counts and mapping table live between `<!-- clue:derived-from: <manifest-path> -->` and `<!-- clue:derived-end -->`. The opening marker names the manifest, so the report declares its own origin and no index has to map reports to manifests.
 - `RenderRegion` renders from the pinned source manifest alone. Rendering never reads the live corpus: a durable report is history, and a region re-derived from the present tree would go stale whenever an unrelated criterion changed. Agreement with the committed tree comes from `clue parity`, which compares that same manifest against the derived target manifest.
 - `clue report <report-path> [root]` writes only between the markers, leaving the author's prose byte-for-byte alone, and refuses a document that declares no region rather than inventing one.
-- `CheckReports` runs inside `clue validate`, so a typed figure, a region left stale by a revised manifest, and a marker naming an unreadable manifest fail the required check. A document carrying no marker is unaffected, which is what keeps this off a greenfield corpus.
+- `CheckReports` runs inside `clue validate`, so a typed figure, a region left stale by a revised manifest, and a marker naming an unreadable manifest fail the required check. A document carrying no marker is unaffected, which is what keeps this off a greenfield corpus. Markers inside code spans and fenced blocks are masked before the scan — a record describing the contract is not a report — the same exemption `checkExternalReferences` makes for a documented example.
 
 ## In-flight source work
 

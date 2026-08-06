@@ -36,15 +36,81 @@ type region struct {
 	body      string
 }
 
+// maskCode returns a copy of content, byte-for-byte the same length, with
+// everything inside a fenced block or an inline code span replaced by spaces.
+// Offsets into the mask are offsets into the original, so a caller can search
+// the mask and slice the original. A document that documents the markers —
+// this decision record, the skill, the design note — writes them in code
+// spans, and a scanner that could not tell an example from a claim would make
+// describing the contract impossible (the same rule the outward-reference
+// scan already follows).
+func maskCode(content string) string {
+	out := []byte(content)
+	fenced := false
+	for lineStart := 0; lineStart < len(out); {
+		lineEnd := strings.IndexByte(content[lineStart:], '\n')
+		if lineEnd < 0 {
+			lineEnd = len(out)
+		} else {
+			lineEnd += lineStart
+		}
+		line := content[lineStart:lineEnd]
+		trimmed := strings.TrimLeft(line, " \t")
+		isFence := strings.HasPrefix(trimmed, "```") || strings.HasPrefix(trimmed, "~~~")
+		switch {
+		case isFence:
+			fenced = !fenced
+			blank(out, lineStart, lineEnd)
+		case fenced:
+			blank(out, lineStart, lineEnd)
+		default:
+			maskSpans(out, content, lineStart, lineEnd)
+		}
+		lineStart = lineEnd + 1
+	}
+	return string(out)
+}
+
+func blank(out []byte, from, to int) {
+	for i := from; i < to; i++ {
+		out[i] = ' '
+	}
+}
+
+// maskSpans blanks each inline code span on one line. An unclosed backtick
+// run opens no span, exactly as Markdown renders it.
+func maskSpans(out []byte, content string, from, to int) {
+	i := from
+	for i < to {
+		if content[i] != '`' {
+			i++
+			continue
+		}
+		run := 0
+		for i+run < to && content[i+run] == '`' {
+			run++
+		}
+		closeAt := strings.Index(content[i+run:to], strings.Repeat("`", run))
+		if closeAt < 0 {
+			i += run
+			continue
+		}
+		end := i + run + closeAt + run
+		blank(out, i, end)
+		i = end
+	}
+}
+
 // findRegion locates the single derived region in content. A file with no
 // opening marker yields ok=false and no error: an ordinary document carries
 // no obligation here.
 func findRegion(content string) (region, bool, error) {
-	open := strings.Index(content, RegionOpenPrefix)
+	masked := maskCode(content)
+	open := strings.Index(masked, RegionOpenPrefix)
 	if open < 0 {
 		return region{}, false, nil
 	}
-	if strings.Contains(content[open+len(RegionOpenPrefix):], RegionOpenPrefix) {
+	if strings.Contains(masked[open+len(RegionOpenPrefix):], RegionOpenPrefix) {
 		return region{}, false, fmt.Errorf("more than one derived region: a report renders one manifest")
 	}
 	lineEnd := strings.Index(content[open:], "\n")
@@ -60,7 +126,7 @@ func findRegion(content string) (region, bool, error) {
 	if manifest == "" {
 		return region{}, false, fmt.Errorf("derived region names no manifest")
 	}
-	end := strings.Index(content, RegionEnd)
+	end := strings.Index(masked, RegionEnd)
 	if end < 0 || end < lineEnd {
 		return region{}, false, fmt.Errorf("derived region has no %s marker", RegionEnd)
 	}

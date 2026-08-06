@@ -165,6 +165,37 @@ func TestAC126_UnitPositive_documentWithoutRegionIsUnaffected(t *testing.T) {
 	}
 }
 
+// TestAC126_UnitPositive_documentedMarkersAreNotRegions proves a record that
+// documents the markers — this contract's own decision record, the skill, the
+// design note — is not read as a report. A scanner that could not tell an
+// example from a claim would make describing the contract impossible.
+func TestAC126_UnitPositive_documentedMarkersAreNotRegions(t *testing.T) {
+	inSpan := "# ADR\n\nThe region is delimited by `" + RegionOpenPrefix + "<manifest-path>" + RegionOpenSuffix + "` and `" + RegionEnd + "`.\n"
+	inFence := "# Skill\n\n```markdown\n" + RegionOpenPrefix + "docs/analysis/absent.yaml" + RegionOpenSuffix + "\n" + RegionEnd + "\n```\n"
+	root := writeFiles(t, map[string]string{
+		"docs/decisions/ADR-900-contract.md": inSpan,
+		"docs/analysis/AN-902-skill-note.md": inFence,
+	})
+	if issues := CheckReports(root); len(issues) > 0 {
+		t.Fatalf("expected documented markers to be examples, got %v", issues)
+	}
+}
+
+// TestAC126_UnitNegative_aRealRegionBesideDocumentedOnesStillFails proves the
+// exemption reaches examples only: a genuine region in the same file as a
+// documented one is still checked.
+func TestAC126_UnitNegative_aRealRegionBesideDocumentedOnesStillFails(t *testing.T) {
+	content := "# AN-903\n\nThe marker is `" + RegionOpenPrefix + "x" + RegionOpenSuffix + "`.\n\n" +
+		RegionOpenPrefix + "docs/analysis/AN-900-source-manifest.yaml" + RegionOpenSuffix + "\n| Proven in the target | 417 |\n" + RegionEnd + "\n"
+	root := writeFiles(t, map[string]string{
+		"docs/analysis/AN-900-source-manifest.yaml": fixtureManifest,
+		"docs/analysis/AN-903-extraction.md":        content,
+	})
+	if issues := CheckReports(root); len(issues) != 1 {
+		t.Fatalf("expected the real region to be checked, got %v", issues)
+	}
+}
+
 // TestAC127_UnitPositive_regionIsRegenerated proves clue report renders the
 // region from the manifest and leaves the author's prose byte-for-byte alone.
 func TestAC127_UnitPositive_regionIsRegenerated(t *testing.T) {
