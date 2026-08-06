@@ -16,5 +16,5 @@ title: Tasks for CH-122
 - [x] Repair CAP-003's stale adopter-CI binary-distribution claim against the reusable validation workflow and verified installation scripts.
 - [x] Update M-057 bookkeeping, README indexes, and `[Unreleased]`.
 - [x] Run focused tests and corpus validation.
-- [ ] Run `clue-verify` and resolve its review findings.
+- [x] Run `clue-verify` and resolve its review findings — in-context fallback reviewed `faa501c` after full build, vet, tests, coverage, corpus validation, and AC-124 scenario/test comparison; no blocking findings. The digest's deletion check runs against the resulting candidate.
 - [ ] Push the reviewed commit and open a ready PR with its acceptance brief; confirm its hosted head equals `HEAD`.
