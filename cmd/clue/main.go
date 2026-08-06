@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path/filepath"
 	"regexp"
 	"runtime"
 	"runtime/debug"
@@ -123,6 +124,14 @@ Commands:
              --out=<path>  also write the report to path, for a migration
                            workflow to upload as a CI artifact.
 
+  report     Render a durable extraction report's derived region from the
+             pinned source manifest the region's opening marker names,
+             leaving every byte outside the region alone. A report states
+             its criterion counts and mapping table only there, and
+             validate re-renders the region and fails on any difference,
+             so a typed figure is not a supported way to write one.
+             Path defaults to ".".
+
   carriers   Reconcile a pinned operational-carrier inventory against
              path's corpus (default "."), reporting a stale reference to a
              path the inventory names as deleted, a lost fingerprint on a
@@ -138,7 +147,8 @@ Commands:
   validate   Scan docs/ and changes/ under path (default ".") and check
              the frontmatter graph: core fields, unique IDs, link
              resolution, status vocabularies, folder READMEs, index
-             integrity, and skill version drift.
+             integrity, skill version drift, and every derived extraction
+             report region against the manifest it names.
 
              --forbid-changes  fail when /changes contains files — the
                                digest-before-merge gate used by CI.
@@ -169,7 +179,7 @@ Commands:
 
   version    Print the release version this clue was built from.
 
-Release notice: init, scaffold, context, migrate, id, and refs print one line to
+Release notice: init, scaffold, context, migrate, id, refs, and report print one line to
 standard error when a newer release exists. Standard output and the exit code
 are identical with it and without it, and the answer is cached for a day. Never
 from validate or version, never when CI carries a value, and never when
@@ -216,6 +226,8 @@ func run(command string, args []string) int {
 		return runRefs(args, os.Stdout, os.Stderr)
 	case "parity":
 		return runParity(args, os.Stdout, os.Stderr)
+	case "report":
+		return runReport(args, os.Stdout, os.Stderr)
 	case "carriers":
 		return runCarriers(args, os.Stdout, os.Stderr)
 	case "validate":
@@ -250,6 +262,7 @@ var notifierCommands = map[string]bool{
 	"migrate":  true,
 	"id":       true,
 	"refs":     true,
+	"report":   true,
 }
 
 // emitNotice writes the ambient release notice, when one is allowed and there
@@ -482,6 +495,10 @@ func runValidate(args []string, out io.Writer) int {
 
 	c, issues := corpus.Scan(root)
 	issues = append(issues, corpus.Validate(c, corpus.Options{ForbidChanges: *forbid, Version: version})...)
+	// A derived extraction report is checked against the manifest it names,
+	// not against the corpus graph, so the check lives beside the parity
+	// contract it renders (ADR-054) rather than inside the graph rules.
+	issues = append(issues, parity.CheckReports(root)...)
 	provenance := corpus.ProvenanceBacklog(c)
 	if len(issues) > 0 {
 		for _, is := range issues {
@@ -600,6 +617,35 @@ func runParity(args []string, out, errOut io.Writer) int {
 	if report.Failed() {
 		return 1
 	}
+	return 0
+}
+
+// runReport renders a durable extraction report's derived region from the
+// pinned source manifest the region names (ADR-054). It writes only inside
+// the region: the report's prose is the author's, its figures are generated.
+func runReport(args []string, out, errOut io.Writer) int {
+	fs := flag.NewFlagSet("report", flag.ContinueOnError)
+	fs.SetOutput(errOut)
+	if err := fs.Parse(args); err != nil {
+		return 2
+	}
+	if fs.NArg() < 1 {
+		fmt.Fprintln(errOut, "clue report: expected an extraction report path")
+		return 2
+	}
+	root := "."
+	if fs.NArg() > 1 {
+		root = fs.Arg(1)
+	}
+	if fs.NArg() > 2 {
+		fmt.Fprintln(errOut, "clue report: expected a report path and at most one repository path")
+		return 2
+	}
+	if err := parity.WriteReport(root, fs.Arg(0)); err != nil {
+		fmt.Fprintf(errOut, "clue report: %v\n", err)
+		return 2
+	}
+	fmt.Fprintf(out, "clue report: %s derived from its manifest\n", filepath.ToSlash(fs.Arg(0)))
 	return 0
 }
 
