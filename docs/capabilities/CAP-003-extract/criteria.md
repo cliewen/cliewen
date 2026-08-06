@@ -271,4 +271,14 @@ Feature: Brownfield analysis and extraction — evidence, namespaced ACs, JVM ha
     When the user runs "clue report" against that report
     Then the region is rendered from the manifest and the report's prose outside it is unchanged
     But a report with no derived region is refused rather than given one
+
+  @AC-128
+  Scenario: The composed migration contract holds at assessment scale
+    Test-type: Unit
+    Given a disposable source with hundreds of criteria and classified evidence references, tens of retired identities, and several concurrent in-flight changes
+    When the approved fixture mutation creates its target corpus after a report-only carrier rehearsal
+    Then target validation, parity, and carrier reconciliation are clean
+    And numeric allocation across every target namespace and opaque source identity reservation cannot reuse an existing or retired identity
+    And every required parity and carrier failure class still exits non-zero against that assessment-scale shape
+    But no source test result or production adopter is presented as Cliewen acceptance evidence
 ```
