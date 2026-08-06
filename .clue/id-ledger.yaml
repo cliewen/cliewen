@@ -9,10 +9,8 @@ counters:
     G: "3"
     IC: "2"
     LOG: "1"
-    OQ: "1"
     P: "13"
     PDR: "28"
-    TASK: "1"
 entries:
     - id: AC-001
       kind: numeric
@@ -1188,9 +1186,15 @@ entries:
       state: retired
     - id: CH-126
       kind: numeric
-      state: live
+      state: retired
       prefix: CH
       component: "126"
+    - id: CH-126-questions
+      kind: opaque
+      state: retired
+    - id: CH-126-tasks
+      kind: opaque
+      state: retired
     - id: G-001
       kind: numeric
       state: live
@@ -1220,11 +1224,6 @@ entries:
       kind: numeric
       state: live
       prefix: LOG
-      component: "1"
-    - id: OQ-001
-      kind: numeric
-      state: live
-      prefix: OQ
       component: "1"
     - id: P-001
       kind: numeric
@@ -1431,8 +1430,3 @@ entries:
       state: live
       prefix: PDR
       component: "28"
-    - id: TASK-001
-      kind: numeric
-      state: live
-      prefix: TASK
-      component: "1"

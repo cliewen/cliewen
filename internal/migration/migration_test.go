@@ -229,6 +229,7 @@ func assessmentScaleTarget(t *testing.T, revision, location string) (string, str
 		"tests/scale_test.go":                   "package fixture\n\nimport \"testing\"\n\n" + tests.String(),
 		".clue/id-ledger.yaml":                  ledgerFile.String(),
 		"AGENTS.md":                             "# assessment-scale fixture routing\n",
+		".github/workflows/validate.yml":        "name: validate\non: [push]\njobs:\n  validate:\n    runs-on: ubuntu-latest\n    steps:\n      - run: clue validate .\n",
 	})
 	for i := 1; i <= 4; i++ {
 		id := fmt.Sprintf("IC-%03d", 900+i)
@@ -244,16 +245,21 @@ func assessmentScaleTarget(t *testing.T, revision, location string) (string, str
 	return root, filepath.Join(sourceRoot, "source-manifest.yaml")
 }
 
+// assessmentScaleInventory pins one carrier per kind the target actually
+// holds, so reconciliation at scale exercises the same kind vocabulary the
+// smaller AC-123 inventory does rather than labelling every row
+// `instruction`.
 func assessmentScaleInventory(t *testing.T, root, revision, location string) string {
 	t.Helper()
-	paths := []string{"AGENTS.md", "docs/capabilities/README.md", "docs/capabilities/fixture/README.md", "docs/imported-changes/README.md"}
+	paths := []string{"AGENTS.md", ".github/workflows/validate.yml", "docs/capabilities/README.md", "docs/imported-changes/README.md", "docs/capabilities/fixture/README.md"}
+	kinds := []carriers.Kind{carriers.KindInstruction, carriers.KindWorkflow, carriers.KindRegistry, carriers.KindRegistry, carriers.KindLink}
 	var entries strings.Builder
 	for i, target := range paths {
 		fp, err := carriers.Fingerprint(filepath.Join(root, filepath.FromSlash(target)))
 		if err != nil {
 			t.Fatal(err)
 		}
-		fmt.Fprintf(&entries, "  - id: SCALE-%d\n    kind: %s\n    source-path: openspec/carrier-%d.md\n    target-path: %s\n    fingerprint: %s\n", i+1, carriers.KindInstruction, i+1, target, fp)
+		fmt.Fprintf(&entries, "  - id: SCALE-%d\n    kind: %s\n    source-path: openspec/carrier-%d.md\n    target-path: %s\n    fingerprint: %s\n", i+1, kinds[i], i+1, target, fp)
 	}
 	path := filepath.Join(root, "carrier-inventory.yaml")
 	writeFixtureFiles(t, root, map[string]string{"carrier-inventory.yaml": fmt.Sprintf("source-revision: %s\nsource-location: %s\ndeleted-paths:\n  - openspec/\nentries:\n%s", revision, location, entries.String())})
@@ -287,9 +293,16 @@ func TestAC128_UnitPositive_assessmentScaleFixtureProvesComposedMigrationContrac
 	revision, location := "assessment-scale-fixture-v1", "fixtures/assessment-scale"
 	targetRoot, manifest := assessmentScaleTarget(t, revision, location)
 	sourceRoot := filepath.Dir(manifest)
+	// The rehearsal runs before the target is authorized, so the only entry
+	// shape it can carry is `blocked`. Pairing the clean run with a premature
+	// mapping keeps the step from passing vacuously: an inventory that claims
+	// a target the rehearsal has not written yet must fail.
 	if out, err := runFixtureClue(t, "carriers", filepath.Join(sourceRoot, "carrier-inventory.yaml"), sourceRoot); err != nil {
 		t.Fatalf("report-only carrier rehearsal: %v\n%s", err, out)
 	}
+	prematurePath := filepath.Join(sourceRoot, "premature-carriers.yaml")
+	writeFixtureFiles(t, sourceRoot, map[string]string{filepath.Base(prematurePath): "source-revision: " + revision + "\nsource-location: " + location + "\nentries:\n  - id: SCALE-INSTRUCTION\n    kind: instruction\n    source-path: openspec/AGENTS.md\n    target-path: AGENTS.md\n    fingerprint: " + strings.Repeat("0", 64) + "\n"})
+	mustFailFixtureClue(t, carriers.ClassMissingAsset, "carriers", prematurePath, sourceRoot)
 	mustValidateFixture(t, targetRoot)
 	if out, err := runFixtureClue(t, "validate", targetRoot); err != nil {
 		t.Fatalf("assessment-scale target validation: %v\n%s", err, out)
@@ -312,6 +325,15 @@ func TestAC128_UnitPositive_assessmentScaleFixtureProvesComposedMigrationContrac
 			t.Fatalf("next %s = %q, %v; want %s", prefix, got, err, want)
 		}
 	}
+	// Reservation must refuse an identity the ledger already carries in any
+	// state, not only one reserved a moment ago in memory: an existing live
+	// opaque ID and one of the forty retired numeric IDs are both refused.
+	if err := l.ReserveOpaque("SCL-criteria", revision, location); err == nil {
+		t.Fatal("existing live opaque identity was reissued")
+	}
+	if err := l.ReserveOpaque("SCL-401", revision, location); err == nil {
+		t.Fatal("retired identity was reissued")
+	}
 	if err := l.ReserveOpaque("assessment-scale-source-opaque-id", revision, location); err != nil {
 		t.Fatal(err)
 	}
@@ -320,6 +342,15 @@ func TestAC128_UnitPositive_assessmentScaleFixtureProvesComposedMigrationContrac
 	}
 	if err := l.Save(); err != nil {
 		t.Fatal(err)
+	}
+	// The reservation is permanent because it is on disk, not because it is
+	// in this process: reload and re-attempt it.
+	reloaded, err := ledger.Load(targetRoot)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := reloaded.ReserveOpaque("assessment-scale-source-opaque-id", revision, location); err == nil {
+		t.Fatal("opaque source identity was reissued after a ledger round trip")
 	}
 	if err := mustValidateAfterOpaqueReservation(targetRoot); err != nil {
 		t.Fatal(err)
