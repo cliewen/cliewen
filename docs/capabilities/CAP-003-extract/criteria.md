@@ -255,4 +255,20 @@ Feature: Brownfield analysis and extraction — evidence, namespaced ACs, JVM ha
     Then the disposition names a source location and an existing milestone plan door
     And the report states the derived count of deferred criteria on both clean and failing runs
     But a missing accountability field is rejected and an unknown plan door fails parity
+
+  @AC-126
+  Scenario: A durable extraction report's figures are derived from its manifest
+    Test-type: Unit
+    Given an extraction report whose derived region names a pinned source manifest
+    When the user runs "clue validate"
+    Then a region rendered from that manifest passes
+    But a typed count or mapping row, a region left stale by a revised manifest, and a region naming a manifest that is not there each fail
+
+  @AC-127
+  Scenario: The derived region is regenerated rather than written
+    Test-type: Unit
+    Given an extraction report whose derived region names a pinned source manifest
+    When the user runs "clue report" against that report
+    Then the region is rendered from the manifest and the report's prose outside it is unchanged
+    But a report with no derived region is refused rather than given one
 ```

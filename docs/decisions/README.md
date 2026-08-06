@@ -93,4 +93,5 @@ The CLI reports inferred ADRs and PDRs as decisions awaiting verification, separ
 - [ADR-052 — A missing optional generated carrier does not block an independent safe migration](ADR-052-missing-optional-carriers-do-not-block-safe-migrations.md) · `verified` — `clue migrate` plans all safe changes as one atomic write.
 - [PDR-027 — Branch protection enforces admission, not acceptance evidence](PDR-027-branch-protection-enforces-admission-not-acceptance-evidence.md) · `inferred` — Required CI and branch protection can prevent an unvalidated pull request from merging.
 - [ADR-053 — Deferred parity dispositions name their source and plan door](ADR-053-deferred-parity-dispositions-are-accountable.md) · `inferred` — ADR-049 required a migration parity disposition to carry a free-text justification.
+- [ADR-054 — An extraction report's figures are a rendered region, not prose](ADR-054-derived-extraction-report-region.md) · `inferred` — an extraction report's counts and mapping table are rendered from the pinned source manifest and re-checked by `clue validate`, so typing them is not a way to write them.
 <!-- clue:index:end -->

@@ -26,6 +26,15 @@ The extraction itself is the `clue-extract` skill ([ADR-008](../../decisions/ADR
 - `Compare` reports the existing parity classes plus an unaccountable disposition whose plan door is absent from the target corpus or reused by another deferred criterion. Every report also states the derived number of unique deferred criterion IDs, so a deferred population cannot disappear inside otherwise valid rows. The report is sorted and holds no wall-clock or environment-dependent content, so a CI artifact from the same inputs is reproducible.
 - `clue parity <source-manifest> [root]` (`--out` writes the same report to a file) is the CLI entry point, excluded from the ambient release notice for the same reason `clue validate` is: a deterministic judge's output must not depend on another system's present state.
 
+## The durable extraction report's derived region
+
+`internal/parity/report.go` (ADR-054) closes the gap between the manifests parity compares and the report a human reads:
+
+- A report's counts and mapping table live between `<!-- clue:derived-from: <manifest-path> -->` and `<!-- clue:derived-end -->`. The opening marker names the manifest, so the report declares its own origin and no index has to map reports to manifests.
+- `RenderRegion` renders from the pinned source manifest alone. Rendering never reads the live corpus: a durable report is history, and a region re-derived from the present tree would go stale whenever an unrelated criterion changed. Agreement with the committed tree comes from `clue parity`, which compares that same manifest against the derived target manifest.
+- `clue report <report-path> [root]` writes only between the markers, leaving the author's prose byte-for-byte alone, and refuses a document that declares no region rather than inventing one.
+- `CheckReports` runs inside `clue validate`, so a typed figure, a region left stale by a revised manifest, and a marker naming an unreadable manifest fail the required check. A document carrying no marker is unaffected, which is what keeps this off a greenfield corpus. Markers inside code spans and fenced blocks are masked before the scan — a record describing the contract is not a report — the same exemption `checkExternalReferences` makes for a documented example. A fence closes only on its own character and at least its own length, so an inner or mismatched fence cannot mask the rest of a file and switch the check off; the exemption has to fail closed, and an unterminated fence that would hide a marker is named as an issue rather than allowed to mask one. An indented code block is an example too, so a record may show the markers indented rather than fenced without the scan reading them as a claim it then cannot repair.
+
 ## In-flight source work
 
 An `imported-change` record (ADR-050, `internal/importedchange/`, `docs/imported-changes/`) is the durable replacement for the old mapping's milestone-row-plus-draft-capability treatment of a source repository's still-open pending change:

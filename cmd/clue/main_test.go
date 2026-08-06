@@ -70,6 +70,48 @@ func TestAC125_UnitPositiveAndNegative_ParityReportsDeferredPopulation(t *testin
 	}
 }
 
+// reportCorpus builds a valid corpus whose analysis folder holds a pinned
+// source manifest and an extraction report with a typed derived region.
+func reportCorpus(t *testing.T) string {
+	t.Helper()
+	root := validCorpus(t)
+	writeFile(t, root, "docs/analysis/README.md", "# Analysis\n\n<!-- clue:index:start -->\n- [AN-001](AN-001-extraction.md) — the fixture extraction report\n<!-- clue:index:end -->\n")
+	writeFile(t, root, "docs/analysis/AN-001-source-manifest.yaml", "source-revision: rev-1\nsource-location: source\nentries:\n  - id: AC-900\n    excluded: true\n    reason: not carried forward\n")
+	report := "---\nid: AN-001\ntype: analysis\nstatus: active\nlinks: [G-001]\ntitle: Fixture extraction report\n---\n\n# AN-001\n\n<!-- clue:derived-from: docs/analysis/AN-001-source-manifest.yaml -->\n| Excluded from the migration | 417 |\n<!-- clue:derived-end -->\n"
+	writeFile(t, root, "docs/analysis/AN-001-extraction.md", report)
+	writeFile(t, root, "docs/README.md", "# Corpus\n\n<!-- clue:index:start -->\n- [goals/](goals/README.md)\n- [analysis/](analysis/README.md)\n<!-- clue:index:end -->\n")
+	return root
+}
+
+// TestAC126_UnitNegative_validateRejectsATypedRegion proves the required
+// judge is where a typed figure is caught: the corpus is otherwise valid and
+// the region's numbers are the only thing wrong with it.
+func TestAC126_UnitNegative_validateRejectsATypedRegion(t *testing.T) {
+	if code := runValidate([]string{reportCorpus(t)}, io.Discard); code != 1 {
+		t.Fatalf("expected a typed region to fail validate, got %d", code)
+	}
+}
+
+// TestAC127_UnitPositive_reportCommandRendersTheRegion proves clue report
+// turns that same corpus green by rendering the region, and refuses a
+// document that declares no region rather than inventing one.
+func TestAC127_UnitPositive_reportCommandRendersTheRegion(t *testing.T) {
+	root := reportCorpus(t)
+	var out, errOut strings.Builder
+	if code := runReport([]string{filepath.Join(root, "docs", "analysis", "AN-001-extraction.md"), root}, &out, &errOut); code != 0 {
+		t.Fatalf("expected clue report to render the region, code=%d stderr=%q", code, errOut.String())
+	}
+	var validateOut strings.Builder
+	if code := runValidate([]string{root}, &validateOut); code != 0 {
+		t.Fatalf("expected the rendered region to pass validate, got %d: %s", code, validateOut.String())
+	}
+	out.Reset()
+	errOut.Reset()
+	if code := runReport([]string{filepath.Join(root, "docs", "goals", "G-001-first.md"), root}, &out, &errOut); code != 2 {
+		t.Fatalf("expected a document with no derived region to be refused, got %d", code)
+	}
+}
+
 // AC-005: exit 1 on a broken corpus.
 func TestAC005_ExitCodeOneOnBrokenCorpus(t *testing.T) {
 	root := validCorpus(t)
