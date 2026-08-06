@@ -142,7 +142,9 @@ type TargetManifest struct {
 	PlanDoors map[string]bool
 }
 
-var milestoneRowRe = regexp.MustCompile(`(?m)^\s*\|\s*(M-\d+)\s*\|`)
+// A Markdown table may omit its optional outer pipes, so accept both
+// `| M-001 | ...` and `M-001 | ...` milestone rows.
+var milestoneRowRe = regexp.MustCompile(`(?m)^\s*\|?\s*(M-\d+)\s*\|`)
 
 // DeriveTargetManifest scans root's corpus and ledger and derives one target
 // entry per declared criterion, reusing the same declaration and evidence

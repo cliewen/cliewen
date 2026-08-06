@@ -346,6 +346,21 @@ func TestAC125_UnitPositive_accountableDispositionPasses(t *testing.T) {
 	}
 }
 
+// TestAC125_UnitPositive_bareMilestoneTableIsAPlanDoor proves parity derives
+// plan doors from the outer-pipe-free Markdown table form the corpus accepts.
+func TestAC125_UnitPositive_bareMilestoneTableIsAPlanDoor(t *testing.T) {
+	root := writeFiles(t, map[string]string{
+		"docs/plans/P-060-plan.md": "---\nid: P-060\ntype: plan\nstatus: active\nlinks: []\ntitle: Fixture plan\n---\n\n# Fixture plan\n\nID | Milestone | Status\n--- | --- | ---\nM-060 | Door | `todo`\n",
+	})
+	target, err := DeriveTargetManifest(root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !target.PlanDoors["M-060"] {
+		t.Fatalf("expected bare milestone table to declare M-060, got %v", target.PlanDoors)
+	}
+}
+
 // TestAC125_UnitNegative_missingOrUnknownAccountabilityFails proves a
 // malformed manifest cannot hide a disposition and an unknown plan door is a
 // parity finding rather than an unreported free-text claim.
