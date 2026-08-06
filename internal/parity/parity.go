@@ -141,8 +141,6 @@ type TargetManifest struct {
 	PlanDoors map[string]bool
 }
 
-// A Markdown table may omit its optional outer pipes, so accept both
-// `| M-001 | ...` and `M-001 | ...` milestone rows.
 // DeriveTargetManifest scans root's corpus and ledger and derives one target
 // entry per declared criterion, reusing the same declaration and evidence
 // harvest clue validate already runs (corpus.AcceptanceEvidence) rather than
@@ -164,6 +162,9 @@ func DeriveTargetManifest(root string) (TargetManifest, error) {
 	}
 
 	entries := make(map[string]TargetEntry, len(declared))
+	// A plan's milestone rows are the corpus's declared resolution doors. The
+	// scan accepts either optional outer Markdown pipe, so `| M-001 | …` and
+	// `M-001 | …` both declare a door.
 	planDoors := map[string]bool{}
 	for _, a := range c.Artifacts {
 		if a.Type != "plan" {
@@ -283,14 +284,23 @@ func Compare(source SourceManifest, target TargetManifest) Report {
 			if se.Justification == "" || !matchesDisposition(se.Disposition, te) {
 				findings = append(findings, Finding{ClassUnjustifiedDisposition, id, fmt.Sprintf("source disposition %q does not match the target's draft, Human, or retired state", se.Disposition)})
 			}
-			if target.PlanDoors != nil {
-				if !target.PlanDoors[se.PlanDoor] {
-					findings = append(findings, Finding{ClassUnaccountableDisposition, id, fmt.Sprintf("plan door %q is not a declared milestone in the target corpus", se.PlanDoor)})
-				} else if owner, used := planDoorOwners[se.PlanDoor]; used && owner != id {
-					findings = append(findings, Finding{ClassUnaccountableDisposition, id, fmt.Sprintf("plan door %q already accounts for %q", se.PlanDoor, owner)})
-				} else {
-					planDoorOwners[se.PlanDoor] = id
-				}
+			// A target with no declared doors at all fails every disposition
+			// rather than exempting it: an absent door set is the same
+			// unaccountable deferral as an unknown door (ADR-053). It is
+			// reported separately because the two have different repairs —
+			// an unknown door is a wrong reference, while an empty door set
+			// usually means no plan states its milestones in the shape the
+			// corpus reads, and naming a different door would not fix it.
+			owner, claimed := planDoorOwners[se.PlanDoor]
+			switch {
+			case len(target.PlanDoors) == 0:
+				findings = append(findings, Finding{ClassUnaccountableDisposition, id, fmt.Sprintf("plan door %q cannot be accounted for: the target corpus declares no plan milestones at all — a milestone table declares its doors through ID and Status columns", se.PlanDoor)})
+			case !target.PlanDoors[se.PlanDoor]:
+				findings = append(findings, Finding{ClassUnaccountableDisposition, id, fmt.Sprintf("plan door %q is not a declared milestone in the target corpus", se.PlanDoor)})
+			case claimed && owner != id:
+				findings = append(findings, Finding{ClassUnaccountableDisposition, id, fmt.Sprintf("plan door %q already accounts for %q", se.PlanDoor, owner)})
+			default:
+				planDoorOwners[se.PlanDoor] = id
 			}
 			continue
 		}

@@ -4,9 +4,13 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 
 ## [Unreleased]
 
+### Migration
+
+- **A source manifest you already wrote will be rejected until its dispositions name a source location and a plan door.** A `draft`, `human`, or `retired` entry now requires `disposition-source-location` and `plan-door` beside its `justification`, and `clue parity` refuses to load a manifest without them rather than comparing a manifest whose deferrals it cannot check. Nothing is filled in for you: only the person who ran the extraction knows which source lines warranted the deferral, and a generated placeholder would restore exactly the unaccountable deferral the requirement exists to stop. For each such entry, add the source location the disposition was read from and the milestone that will resolve it. The milestone must already be declared by a plan in the target corpus — a milestone table declares its doors through its `ID` and `Status` columns — and no two deferred criteria may name the same one, because a door that accounts for everything accounts for nothing. Re-running the `clue-extract` rehearsal against the same pinned source revision writes a manifest in the new shape.
+
 ### Added
 
-- **Deferred migration criteria now carry an inspectable source and resolution door.** A `clue parity` source-manifest disposition for a draft, Human, or retired criterion now names the specific source location and the target plan milestone responsible for it. Parity rejects a missing target milestone and reports the number of deferred criteria on every run, so a migration's outstanding proof work remains visible without adding migration fields to ordinary greenfield criteria.
+- **Deferred migration criteria now carry an inspectable source and resolution door.** A `clue parity` source-manifest disposition for a draft, Human, or retired criterion now names the specific source location and the target plan milestone responsible for it. Parity rejects a milestone that the target corpus does not declare or that another deferred criterion already claims, and it reports the number of deferred criteria on every run, so a migration's outstanding proof work remains visible without adding migration fields to ordinary greenfield criteria.
 
 - **Migrations now continue with independent safe updates when an optional CI caller was never materialized.** `clue migrate` still reports the absent caller and points to `clue init` to create it, but it no longer lets that unrelated absence block a ledger backfill or another safe planned update. Existing callers whose content cannot be recognized safely still stop the migration rather than being overwritten.
 

@@ -394,6 +394,14 @@ func PlanMilestoneIDs(body string) map[string]bool {
 	inHTML := false
 	var header []string
 	for _, line := range strings.Split(body, "\n") {
+		// The verbatim scanner runs first, for the same reason blockScanner
+		// itself reads fences before HTML: a fenced example containing an HTML
+		// tag would otherwise swallow its own closing fence, leaving a fence
+		// nothing ever closes and every milestone below it silently unread.
+		if blocks.next(line) {
+			idCol, statusCol, header = -1, -1, nil
+			continue
+		}
 		if inHTML {
 			if strings.TrimSpace(line) == "" {
 				inHTML = false
@@ -402,10 +410,6 @@ func PlanMilestoneIDs(body string) map[string]bool {
 		}
 		if m := htmlOpenRe.FindStringSubmatch(line); m != nil && htmlBlockTags[strings.ToLower(m[1])] {
 			inHTML = true
-			continue
-		}
-		if blocks.next(line) {
-			idCol, statusCol, header = -1, -1, nil
 			continue
 		}
 		t := strings.TrimSpace(line)

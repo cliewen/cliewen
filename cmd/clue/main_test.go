@@ -59,13 +59,13 @@ func TestAC125_UnitPositiveAndNegative_ParityReportsDeferredPopulation(t *testin
 	manifest := filepath.Join(t.TempDir(), "source.yaml")
 	writeFile(t, filepath.Dir(manifest), filepath.Base(manifest), "source-revision: rev-1\nsource-location: source\nentries:\n  - id: AC-001\n    disposition: draft\n    justification: attributable work is out of scope\n    disposition-source-location: source/spec.md#L20\n    plan-door: M-001\n")
 	var out, errOut strings.Builder
-	if code := runParity([]string{manifest, root}, &out, &errOut); code != 0 || !strings.Contains(out.String(), "1 deferred criteria") {
+	if code := runParity([]string{manifest, root}, &out, &errOut); code != 0 || !strings.Contains(out.String(), "1 deferred criterion(s)") {
 		t.Fatalf("expected clean parity report with deferred count, code=%d stdout=%q stderr=%q", code, out.String(), errOut.String())
 	}
 	writeFile(t, filepath.Dir(manifest), filepath.Base(manifest), "source-revision: rev-1\nsource-location: source\nentries:\n  - id: AC-001\n    disposition: draft\n    justification: attributable work is out of scope\n    disposition-source-location: source/spec.md#L20\n    plan-door: M-999\n")
 	out.Reset()
 	errOut.Reset()
-	if code := runParity([]string{manifest, root}, &out, &errOut); code != 1 || !strings.Contains(out.String(), "1 deferred criteria") {
+	if code := runParity([]string{manifest, root}, &out, &errOut); code != 1 || !strings.Contains(out.String(), "1 deferred criterion(s)") {
 		t.Fatalf("expected failing parity report with deferred count, code=%d stdout=%q stderr=%q", code, out.String(), errOut.String())
 	}
 }

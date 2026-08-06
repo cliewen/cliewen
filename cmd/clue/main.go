@@ -116,8 +116,9 @@ Commands:
              every missing criterion, orphaned tag, changed direction or
              evidence location, stale source fingerprint, unjustified
              @draft/Human/retirement disposition, and a disposition whose
-             plan door is absent from the target corpus. The report is derived and
-             never edited by hand; a clean run is the only passing result.
+             plan door is absent from the target corpus or already claimed
+             by another deferred criterion. The report is derived and never
+             edited by hand; a clean run is the only passing result.
 
              --out=<path>  also write the report to path, for a migration
                            workflow to upload as a CI artifact.
@@ -585,9 +586,9 @@ func runParity(args []string, out, errOut io.Writer) int {
 		fmt.Fprintf(&buf, "%s %s: %s\n", f.Class, f.ID, f.Detail)
 	}
 	if !report.Failed() {
-		fmt.Fprintf(&buf, "clue parity: OK (%d source entries; %d deferred criteria)\n", len(source.Entries), report.Deferred)
+		fmt.Fprintf(&buf, "clue parity: OK (%d source entries; %d deferred criterion(s))\n", len(source.Entries), report.Deferred)
 	} else {
-		fmt.Fprintf(&buf, "clue parity: %d finding(s); %d deferred criteria\n", len(report.Findings), report.Deferred)
+		fmt.Fprintf(&buf, "clue parity: %d finding(s); %d deferred criterion(s)\n", len(report.Findings), report.Deferred)
 	}
 	fmt.Fprint(out, buf.String())
 	if *outPath != "" {
