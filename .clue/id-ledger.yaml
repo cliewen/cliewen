@@ -5,7 +5,7 @@ counters:
     ARCH: "3"
     C: "16"
     CAP: "7"
-    CH: "123"
+    CH: "124"
     G: "3"
     IC: "2"
     LOG: "1"
@@ -1148,6 +1148,14 @@ entries:
     - id: CH-123-tasks
       kind: opaque
       state: retired
+    - id: CH-124
+      kind: numeric
+      state: live
+      prefix: CH
+      component: "124"
+    - id: CH-124-tasks
+      kind: opaque
+      state: live
     - id: G-001
       kind: numeric
       state: live

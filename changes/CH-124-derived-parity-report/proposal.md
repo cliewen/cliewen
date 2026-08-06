@@ -1,7 +1,7 @@
 ---
 id: CH-124
 type: change
-status: active
+status: open
 links: [P-012, M-059, CAP-003, ADR-049]
 title: Extraction reports are derived from parity manifests
 ---

@@ -1,4 +1,12 @@
-# Tasks
+---
+id: CH-124-tasks
+type: tasks
+status: open
+links: [CH-124]
+title: Tasks for CH-124
+---
+
+# CH-124 — tasks
 
 - [ ] Define the derived extraction-report contract and its compatibility boundary in a decision record, serving the M-059 report behavior.
 - [ ] Add or revise an acceptance criterion and focused positive and negative evidence for report derivation and disagreement rejection.
