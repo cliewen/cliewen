@@ -105,6 +105,16 @@ Feature: Onboarding — install to first green validate
     And applying the plan produces a no-op on a second run
     But a partial or locally modified remaining set leaves the new directory a finding and blocks every write
 
+  @AC-124
+  Scenario: A missing thin CI caller does not block an unrelated safe migration
+    Test-type: Unit
+    Given an adopted repository without the optional ".github/workflows/clue.yml" thin caller
+    And the migration plans a safe independent update
+    When the user runs "clue migrate --apply"
+    Then it applies the independent update
+    And it reports that the caller is absent and names "clue init" as its materialization route
+    But it neither creates nor rewrites the caller
+
   @AC-071
   Scenario: init emits a Claude Code entry point that only points at the hub
     Test-type: Unit

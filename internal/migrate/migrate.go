@@ -720,7 +720,7 @@ func planCaller(root, rel string, want []byte, target string, result *MigrationP
 	full := filepath.Join(root, filepath.FromSlash(rel))
 	got, err := os.ReadFile(full)
 	if os.IsNotExist(err) {
-		result.Findings = append(result.Findings, Finding{Path: rel, Migration: MigrationManagedCarriers, Message: "thin CI caller is missing; run clue init before migrating"})
+		result.Notices = append(result.Notices, Notice{Path: rel, Migration: MigrationManagedCarriers, Message: "thin CI caller is missing; run clue init to materialize it, but unrelated safe migrations may continue"})
 		return
 	}
 	if err != nil {

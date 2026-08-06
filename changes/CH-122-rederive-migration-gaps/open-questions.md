@@ -1,7 +1,7 @@
 ---
 id: CH-122-questions
 type: open-questions
-status: open
+status: resolved
 links: [CH-122, P-012, M-057, CAP-003, ADR-038]
 title: Blokerende spørgsmål for CH-122
 ---
@@ -14,4 +14,4 @@ title: Blokerende spørgsmål for CH-122
 
 Repositoryet har i stedet sine nuværende CI-filer under `.github/workflows/`, og M-057 angiver ikke, om vi skal tilføje den ældre caller, ændre migrationens atomaritet så urelaterede fund ikke forhindrer MIG-008, eller udsætte repositoryets oprettelse af ledgeren. At tilføje calleren eller ændre migrationens fejlsemantik kan ændre CI- eller migrationskontrakten, så ingen af delene antages her.
 
-**Beslutning nødvendig:** Godkend én af disse veje, og angiv om den hører til M-057 eller kræver en separat afgrænset kerneændring.
+**Beslutning (Flemming N. Larsen, 2026-08-06, conversation):** Ret værktøjet, så den manglende, valgfrie CI-caller ikke blokerer en uafhængig sikker migration. [ADR-052](../../docs/decisions/ADR-052-missing-optional-carriers-do-not-block-safe-migrations.md) er den varige beslutningsoptegnelse. Den er M-057-scope, ikke en kerneændring.

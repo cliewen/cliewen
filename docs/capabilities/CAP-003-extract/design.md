@@ -54,4 +54,4 @@ An `imported-change` record (ADR-050, `internal/importedchange/`, `docs/imported
 - Cucumber `.feature` tags are scenario-level proof carriers; other source formats still need a mapping section in the extraction skill.
 - No source-format parsing in clue, ever — a new source is a new mapping section in the skill.
 - No JVM compilation or runner discovery: the source scanner recognizes ADR-036's conservative annotation and named-executable forms and reports other shapes as unsupported.
-- Binary distribution to adopting repos' CI (needed before `clue validate` can be a required check outside this repo) is unsolved and parked in the adopting repo's plan.
+- Adopting repositories can use ADR-038's reusable validation workflow and ADR-030's verified installation scripts rather than maintain a copied CI wall. Their runner, source, installation directory, and version choices remain caller-owned; branch protection can enforce the resulting check but is never acceptance evidence (PDR-027).

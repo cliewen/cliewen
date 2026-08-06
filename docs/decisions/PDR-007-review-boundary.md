@@ -2,7 +2,7 @@
 id: PDR-007
 type: decision
 status: verified
-links: [PDR-004, C-004, C-012]
+links: [PDR-004, PDR-027, C-004, C-012]
 title: The PR is the authorization boundary — changes root at main and humans merge
 author: agent
 accepted-by: Flemming N. Larsen (2026-07-18, PR #20 review conversation)
@@ -16,7 +16,7 @@ The change loop calls the PR the review gate and the merge the acceptance ([PDR-
 
 ## Decision outcome
 
-**The PR is Cliewen's authorization and protected-integration boundary: the agent may prepare and publish a candidate, but only a human-controlled merge accepts it.** It is a safeguard, not a requirement that a solo developer repeat a code review already completed locally. Where hosting supports enforcement, the PR also gives required hosted CI a candidate it can block before integration; a PR without a required status check and branch protection displays CI but does not enforce it.
+**The PR is Cliewen's authorization and protected-integration boundary: the agent may prepare and publish a candidate, but only a human-controlled merge accepts it.** It is a safeguard, not a requirement that a solo developer repeat a code review already completed locally. Where hosting supports enforcement, the PR also gives required hosted CI a candidate it can block before integration; a PR without a required status check and branch protection displays CI but does not enforce it. That enforcement is not acceptance evidence: PDR-027 keeps the criterion-to-evidence thread in the corpus and acceptance brief.
 
 1. **Every change branches from the current tip of `main`** — never from another change's branch, never from any commit not yet accepted into `main`. This is mechanically checkable (`git merge-base`) and leaves team parallelism unlimited: any number of changes may be in flight as long as each roots at `main` and carries its own reviewable PR.
 2. **One change in flight per author.** An author — human or agent — takes a change to its PR before starting the next. For an autonomous agent this is the stop condition: after opening the PR it waits; it never starts the next change while its previous one is unreviewed.
