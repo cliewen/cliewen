@@ -22,7 +22,7 @@ This refuses a second stored representation of the criterion mapping. An adopter
 
 The report is not automatically a pull-request attachment or a substitute for the human merge boundary. An extraction's ordinary proposal, rehearsal report, source manifest, durable analysis report, and command results remain the review material under PDR-020 and PDR-021. A repository may choose to attach generated parity output in its own workflow, but that operational choice does not create a new Cliewen corpus artifact or change what the deterministic judge asserts.
 
-**Carrier:** CAP-003's extraction contract and design, the canonical `clue-extract` skill, AN-017's re-derived gate register, and P-012/M-060 state this accepted limit. ADR-049 and ADR-054 continue to define the report and manifest mechanisms that replace the declined registry.
+**Carrier:** CAP-003's extraction contract and design, the canonical `clue-extract` skill, the public adoption guide's extraction section, AN-017's re-derived gate register, and P-012/M-060 state this accepted limit. ADR-049 and ADR-054 continue to define the report and manifest mechanisms that replace the declined registry.
 
 ### Rejected: commit a generated per-criterion registry beside the report
 
