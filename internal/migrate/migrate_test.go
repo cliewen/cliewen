@@ -140,10 +140,15 @@ func TestAC124_UnitPositive_MissingThinCallerDoesNotBlockSafeMigration(t *testin
 			t.Fatalf("missing caller blocked the plan: %+v", finding)
 		}
 	}
+	// The route matters as much as the report: an adopter who is told only that
+	// the caller is absent has no way to learn that init, not migrate, owns it.
 	var noticed bool
 	for _, notice := range plan.Notices {
 		if notice.Path == ".github/workflows/clue.yml" && notice.Migration == MigrationManagedCarriers {
 			noticed = true
+			if !strings.Contains(notice.Message, "clue init") {
+				t.Fatalf("notice did not name clue init as the materialization route: %q", notice.Message)
+			}
 		}
 	}
 	if !noticed {
@@ -164,7 +169,8 @@ func TestAC124_UnitPositive_MissingThinCallerDoesNotBlockSafeMigration(t *testin
 func TestAC124_UnitNegative_UnrecognizedPresentThinCallerStillBlocksMigration(t *testing.T) {
 	root := migrationFixture(t, "")
 	caller := filepath.Join(root, ".github", "workflows", "clue.yml")
-	if err := os.WriteFile(caller, []byte("name: local validation\njobs:\n  validate:\n    steps:\n      - run: local command\n"), 0o644); err != nil {
+	local := []byte("name: local validation\njobs:\n  validate:\n    steps:\n      - run: local command\n")
+	if err := os.WriteFile(caller, local, 0o644); err != nil {
 		t.Fatal(err)
 	}
 
@@ -183,6 +189,15 @@ func TestAC124_UnitNegative_UnrecognizedPresentThinCallerStillBlocksMigration(t 
 	}
 	if err := Apply(root, plan); err == nil {
 		t.Fatal("migration wrote despite an unrecognized existing caller")
+	}
+	// Refusing to apply is only half of the safety rule; the caller's own
+	// semantics must survive the refusal byte for byte.
+	got, err := os.ReadFile(caller)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !bytes.Equal(got, local) {
+		t.Fatalf("migration rewrote the unrecognized caller:\n%s", got)
 	}
 }
 
