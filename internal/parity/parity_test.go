@@ -366,13 +366,13 @@ func TestAC125_UnitPositive_bareMilestoneTableIsAPlanDoor(t *testing.T) {
 // can satisfy a disposition's accountability door.
 func TestAC125_UnitNegative_nonMilestoneTablesAndExamplesAreNotPlanDoors(t *testing.T) {
 	root := writeFiles(t, map[string]string{
-		"docs/plans/P-060-plan.md": "---\nid: P-060\ntype: plan\nstatus: active\nlinks: []\ntitle: Fixture plan\n---\n\n# Fixture plan\n\n| ID | Note |\n|---|---|\n| M-060 | Not a milestone |\n\n```markdown\n| ID | Milestone | Status |\n|---|---|---|\n| M-061 | Example | `todo` |\n```\n",
+		"docs/plans/P-060-plan.md": "---\nid: P-060\ntype: plan\nstatus: active\nlinks: []\ntitle: Fixture plan\n---\n\n# Fixture plan\n\n| ID | Note |\n|---|---|\n| M-060 | Not a milestone |\n\n```markdown\n| ID | Milestone | Status |\n|---|---|---|\n| M-061 | Example | `todo` |\n```\n\n<pre>\n| ID | Milestone | Status |\n|---|---|---|\n| M-062 | Example | `todo` |\n</pre>\n",
 	})
 	target, err := DeriveTargetManifest(root)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if target.PlanDoors["M-060"] || target.PlanDoors["M-061"] {
+	if target.PlanDoors["M-060"] || target.PlanDoors["M-061"] || target.PlanDoors["M-062"] {
 		t.Fatalf("expected non-milestone rows and fenced examples to be ignored, got %v", target.PlanDoors)
 	}
 }

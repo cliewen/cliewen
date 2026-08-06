@@ -391,8 +391,19 @@ func PlanMilestoneIDs(body string) map[string]bool {
 	ids := map[string]bool{}
 	idCol, statusCol := -1, -1
 	blocks := blockScanner{verbatimOnly: true}
+	inHTML := false
 	var header []string
 	for _, line := range strings.Split(body, "\n") {
+		if inHTML {
+			if strings.TrimSpace(line) == "" {
+				inHTML = false
+			}
+			continue
+		}
+		if m := htmlOpenRe.FindStringSubmatch(line); m != nil && htmlBlockTags[strings.ToLower(m[1])] {
+			inHTML = true
+			continue
+		}
 		if blocks.next(line) {
 			idCol, statusCol, header = -1, -1, nil
 			continue
