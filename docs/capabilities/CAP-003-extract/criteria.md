@@ -273,12 +273,11 @@ Feature: Brownfield analysis and extraction — evidence, namespaced ACs, JVM ha
     But a report with no derived region is refused rather than given one
 
   @AC-128
-  Scenario: The composed migration contract holds at assessment scale
+  Scenario: Parity and carrier commands retain their deterministic failure behavior at assessment scale
     Test-type: Unit
-    Given a disposable source with hundreds of criteria and classified evidence references, tens of retired identities, and several concurrent in-flight changes
-    When the approved fixture mutation creates its target corpus after a report-only carrier rehearsal
-    Then target validation, parity, and carrier reconciliation are clean
-    And numeric allocation across every target namespace and opaque source identity reservation cannot reuse an existing or retired identity
+    Given a disposable target with hundreds of criteria and classified evidence references plus tens of retired identities
+    When the public `clue` command validates it and runs parity and carrier reconciliation
+    Then clean parity and carrier reports pass and numeric namespace allocation plus opaque reservation reject reuse
     And every required parity and carrier failure class still exits non-zero against that assessment-scale shape
-    But no source test result or production adopter is presented as Cliewen acceptance evidence
+    But this command-scale fixture does not claim extraction ordering, source-work preservation, or pinned-release evidence
 ```
