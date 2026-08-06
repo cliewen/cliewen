@@ -6,6 +6,8 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 
 ### Migration
 
+- **Extraction review now uses the derived report and its pinned manifest, not a generated per-criterion registry.** The report remains the readable summary and mapping table; for an individual criterion mapping, follow its manifest reference and compare it with the target corpus or `clue parity` output. Cliewen deliberately does not create a second committed registry rendering every criterion, so this route involves more navigation but avoids another stored representation of the same mapping.
+
 - **A source manifest you already wrote will be rejected until its dispositions name a source location and a plan door.** A `draft`, `human`, or `retired` entry now requires `disposition-source-location` and `plan-door` beside its `justification`, and `clue parity` refuses to load a manifest without them rather than comparing a manifest whose deferrals it cannot check. Nothing is filled in for you: only the person who ran the extraction knows which source lines warranted the deferral, and a generated placeholder would restore exactly the unaccountable deferral the requirement exists to stop. For each such entry, add the source location the disposition was read from and the milestone that will resolve it. The milestone must already be declared by a plan in the target corpus — a milestone table declares its doors through its `ID` and `Status` columns — and no two deferred criteria may name the same one, because a door that accounts for everything accounts for nothing. Re-running the `clue-extract` rehearsal against the same pinned source revision writes a manifest in the new shape.
 
 ### Added
