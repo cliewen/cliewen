@@ -361,7 +361,7 @@ func TestAC125_UnitNegative_missingOrUnknownAccountabilityFails(t *testing.T) {
 	target := TargetManifest{Entries: map[string]TargetEntry{"AC-906": {ID: "AC-906", Draft: true}}, PlanDoors: map[string]bool{"M-060": true}}
 	source := SourceManifest{Entries: []SourceEntry{{ID: "AC-906", Disposition: DispositionDraft, Justification: "out of scope", SourceLocation: "source/spec.md#L20", PlanDoor: "M-999"}}}
 	r := Compare(source, target)
-	if !r.Failed() || r.Findings[0].Class != ClassUnaccountableDisposition {
+	if !r.Failed() || r.Findings[0].Class != ClassUnaccountableDisposition || r.Deferred != 1 {
 		t.Fatalf("expected an unaccountable-disposition finding, got %+v", r.Findings)
 	}
 }

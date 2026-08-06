@@ -46,6 +46,30 @@ func TestAC004_ExitCodeZeroOnValidCorpus(t *testing.T) {
 	}
 }
 
+// TestAC125_UnitPositiveAndNegative_ParityReportsDeferredPopulation proves
+// the command exposes the accountable-disposition population whether parity
+// passes or fails.
+func TestAC125_UnitPositiveAndNegative_ParityReportsDeferredPopulation(t *testing.T) {
+	root := validCorpus(t)
+	writeFile(t, root, "docs/plans/README.md", "# Plans\n\n<!-- clue:index:start -->\n- [P-001](P-001-plan.md)\n<!-- clue:index:end -->\n")
+	writeFile(t, root, "docs/plans/P-001-plan.md", "---\nid: P-001\ntype: plan\nstatus: active\nlinks: []\ntitle: Plan\n---\n\n| ID | Milestone | Status | Evidence |\n|---|---|---|---|\n| M-001 | Door | `todo` | |\n")
+	writeFile(t, root, "docs/capabilities/README.md", "# Capabilities\n\n<!-- clue:index:start -->\n- [CAP-001](CAP-001-x/README.md)\n<!-- clue:index:end -->\n")
+	writeFile(t, root, "docs/capabilities/CAP-001-x/README.md", "---\nid: CAP-001\ntype: capability\nstatus: active\nlinks: [G-001]\ntitle: X\ngoal: G-001\n---\n")
+	writeFile(t, root, "docs/capabilities/CAP-001-x/criteria.md", "---\nid: CAP-001-criteria\ntype: criteria\nstatus: active\nlinks: [CAP-001]\ntitle: X criteria\n---\n\n```gherkin\nFeature: X\n\n  @AC-001 @draft\n  Scenario: deferred\n    Given a deferred criterion\n    Then it remains draft\n```\n")
+	manifest := filepath.Join(t.TempDir(), "source.yaml")
+	writeFile(t, filepath.Dir(manifest), filepath.Base(manifest), "source-revision: rev-1\nsource-location: source\nentries:\n  - id: AC-001\n    disposition: draft\n    justification: attributable work is out of scope\n    disposition-source-location: source/spec.md#L20\n    plan-door: M-001\n")
+	var out, errOut strings.Builder
+	if code := runParity([]string{manifest, root}, &out, &errOut); code != 0 || !strings.Contains(out.String(), "1 deferred criteria") {
+		t.Fatalf("expected clean parity report with deferred count, code=%d stdout=%q stderr=%q", code, out.String(), errOut.String())
+	}
+	writeFile(t, filepath.Dir(manifest), filepath.Base(manifest), "source-revision: rev-1\nsource-location: source\nentries:\n  - id: AC-001\n    disposition: draft\n    justification: attributable work is out of scope\n    disposition-source-location: source/spec.md#L20\n    plan-door: M-999\n")
+	out.Reset()
+	errOut.Reset()
+	if code := runParity([]string{manifest, root}, &out, &errOut); code != 1 || !strings.Contains(out.String(), "1 deferred criteria") {
+		t.Fatalf("expected failing parity report with deferred count, code=%d stdout=%q stderr=%q", code, out.String(), errOut.String())
+	}
+}
+
 // AC-005: exit 1 on a broken corpus.
 func TestAC005_ExitCodeOneOnBrokenCorpus(t *testing.T) {
 	root := validCorpus(t)

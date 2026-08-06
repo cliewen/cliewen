@@ -214,7 +214,8 @@ func DeriveTargetManifest(root string) (TargetManifest, error) {
 	return TargetManifest{Entries: entries, PlanDoors: planDoors}, nil
 }
 
-// Finding classes, matching M-053's five required failure classes (ADR-049).
+// Finding classes include M-053's five required failure classes plus the
+// accountable-disposition failure ADR-053 adds.
 const (
 	ClassMissingCriterion         = "missing-criterion"
 	ClassOrphanedTag              = "orphaned-tag"
@@ -243,7 +244,8 @@ type Report struct {
 func (r Report) Failed() bool { return len(r.Findings) > 0 }
 
 // Compare diffs source against target and reports every unmatched or
-// altered entry, classified by the five failure classes ADR-049 requires.
+// altered entry, classified by ADR-049's failure classes and ADR-053's
+// accountable-disposition failure.
 // The report stays derived: Compare never mutates source, target, or any
 // file on disk.
 func Compare(source SourceManifest, target TargetManifest) Report {
@@ -263,6 +265,9 @@ func Compare(source SourceManifest, target TargetManifest) Report {
 	for _, id := range sourceIDs {
 		entries := bySource[id]
 		se := entries[0]
+		if se.Disposition != "" {
+			deferred[id] = true
+		}
 		if se.Excluded {
 			continue
 		}
@@ -275,7 +280,6 @@ func Compare(source SourceManifest, target TargetManifest) Report {
 			findings = append(findings, Finding{ClassStaleFingerprint, id, fmt.Sprintf("manifest source-revision %q disagrees with ledger revision %q", source.SourceRevision, te.SourceRevision)})
 		}
 		if se.Disposition != "" {
-			deferred[id] = true
 			if se.Justification == "" || !matchesDisposition(se.Disposition, te) {
 				findings = append(findings, Finding{ClassUnjustifiedDisposition, id, fmt.Sprintf("source disposition %q does not match the target's draft, Human, or retired state", se.Disposition)})
 			}

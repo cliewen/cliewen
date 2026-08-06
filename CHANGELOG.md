@@ -6,6 +6,8 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 
 ### Added
 
+- **Deferred migration criteria now carry an inspectable source and resolution door.** A `clue parity` source-manifest disposition for a draft, Human, or retired criterion now names the specific source location and the target plan milestone responsible for it. Parity rejects a missing target milestone and reports the number of deferred criteria on every run, so a migration's outstanding proof work remains visible without adding migration fields to ordinary greenfield criteria.
+
 - **Migrations now continue with independent safe updates when an optional CI caller was never materialized.** `clue migrate` still reports the absent caller and points to `clue init` to create it, but it no longer lets that unrelated absence block a ledger backfill or another safe planned update. Existing callers whose content cannot be recognized safely still stop the migration rather than being overwritten.
 
 - **Cliewen's migration contract is now proven as one disposable end-to-end fixture.** Numeric-archive and opaque-identifier source shapes now exercise the report-only rehearsal, an explicitly approved mutation, target validation, a clean `clue parity` comparison, and a clean `clue carriers` reconciliation together. The fixture also confirms that archived numeric and source-owned opaque identities cannot be reused, and that each required parity and carrier failure path is rejected. It uses fixture source material only: a source fixture's own test result is never treated as Cliewen acceptance evidence.

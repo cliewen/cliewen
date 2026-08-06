@@ -1142,12 +1142,12 @@ entries:
       state: retired
     - id: CH-123
       kind: numeric
-      state: live
+      state: retired
       prefix: CH
       component: "123"
     - id: CH-123-tasks
       kind: opaque
-      state: live
+      state: retired
     - id: G-001
       kind: numeric
       state: live

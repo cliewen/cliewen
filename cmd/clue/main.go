@@ -114,8 +114,9 @@ Commands:
   parity     Compare a pinned source manifest against the target manifest
              derived from path's corpus and ledger (default "."), reporting
              every missing criterion, orphaned tag, changed direction or
-             evidence location, stale source fingerprint, and unjustified
-             @draft/Human/retirement disposition. The report is derived and
+             evidence location, stale source fingerprint, unjustified
+             @draft/Human/retirement disposition, and a disposition whose
+             plan door is absent from the target corpus. The report is derived and
              never edited by hand; a clean run is the only passing result.
 
              --out=<path>  also write the report to path, for a migration
@@ -546,7 +547,7 @@ func runValidate(args []string, out io.Writer) int {
 
 // runParity compares a pinned source manifest against the target manifest
 // clue derives from path's corpus and ledger (ADR-049), printing every
-// finding and exiting non-zero on any of the five required failure classes.
+// finding and exiting non-zero on any required parity failure class.
 func runParity(args []string, out, errOut io.Writer) int {
 	fs := flag.NewFlagSet("parity", flag.ContinueOnError)
 	fs.SetOutput(errOut)
