@@ -1,8 +1,8 @@
 ---
 id: P-011
 type: plan
-status: active
-links: [P-010, G-001, G-002, PDR-019, PDR-025, C-013, ADR-048]
+status: completed
+links: [P-010, P-012, G-001, G-002, PDR-019, PDR-025, PDR-026, C-013, ADR-048]
 title: Cliewen makes brownfield migration truthful
 ---
 
@@ -10,7 +10,7 @@ title: Cliewen makes brownfield migration truthful
 
 P-009 established a report-only rehearsal and source-specific extraction mappings, but its completed OpenSpec mapping still treats source archives and test registries as deletable once Git history remains. A migration assessment found that this can reuse historic identities, hide existing evidence debt, reduce in-flight work to an insufficient plan row, and leave operational carriers stale. These are general source-to-corpus parity failures, not one repository's special case.
 
-P-011 is the successor campaign for that boundary. It opened `active` once P-010 completed (CH-114, 2026-08-05); PDR-025 moves simplification to P-012 rather than combining it with migration credibility. Every milestone is a separate full change rooted at accepted `main`, published as a ready pull request, and accepted by human merge before the next begins. Milestone numbering continues corpus-global numbering from P-010.
+P-011 is the successor campaign for that boundary. It opened `active` once P-010 completed (CH-114, 2026-08-05); PDR-025 moves simplification out of this campaign rather than combining it with migration credibility, and [PDR-026](../decisions/PDR-026-campaigns-close-on-re-derived-evidence.md) later moved it again, to [P-013](P-013-simplification.md). Every milestone is a separate full change rooted at accepted `main`, published as a ready pull request, and accepted by human merge before the next begins. Milestone numbering continues corpus-global numbering from P-010.
 
 ## Milestones
 
@@ -24,7 +24,7 @@ P-011 is the successor campaign for that boundary. It opened `active` once P-010
 
 ## Explicitly out of this campaign
 
-P-011 does not make `clue validate` execute source test suites, use Git history as an implicit registry, accept arbitrary prose as an opaque identifier, or introduce a permanent parallel source corpus. Source-specific interpretation remains in extraction mappings; the common ledger and parity contract only establishes what every mapping must prove before source deletion. Simplification belongs to P-012.
+P-011 does not make `clue validate` execute source test suites, use Git history as an implicit registry, accept arbitrary prose as an opaque identifier, or introduce a permanent parallel source corpus. Source-specific interpretation remains in extraction mappings; the common ledger and parity contract only establishes what every mapping must prove before source deletion. Simplification belongs to [P-013](P-013-simplification.md), moved there by [PDR-026](../decisions/PDR-026-campaigns-close-on-re-derived-evidence.md) when [P-012](P-012-migration-gap-closes-on-evidence.md) took up the part of this campaign's boundary that its own milestone table did not close.
 
 ## Mutation rules
 

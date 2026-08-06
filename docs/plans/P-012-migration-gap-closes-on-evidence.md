@@ -1,0 +1,41 @@
+---
+id: P-012
+type: plan
+status: active
+links: [P-011, P-013, G-001, PDR-025, PDR-026, C-013, AN-016]
+title: Cliewen closes the brownfield migration gap on re-derived evidence
+---
+
+# P-012 — Cliewen closes the brownfield migration gap on re-derived evidence
+
+This campaign is [P-011](P-011-truthful-brownfield-migration.md)'s successor. Its designation is recorded in P-011's closing digest, while P-011 is still active; [C-008](../constraints/C-008-completed-plans-immutable.md) freezes it only after that digest completes the closure.
+
+P-011 answered a brownfield migration assessment with five mechanisms: a permanent identity ledger, migration parity manifests, imported-change records, carrier reconciliation, and disposable fixtures proving the four compose. Each holds at the scope it claims. What [PDR-026](../decisions/PDR-026-campaigns-close-on-re-derived-evidence.md) establishes is that a campaign's own evidence column is not what closes it, and re-deriving the assessment's gaps from the corpus and the tool leaves three of them open in a way the table does not show.
+
+Two of the three are the same shape: a gap phrased as a judgment was answered with a check on form. A migration that defers most of its criteria at once still reaches green, because the rule requires each deferral to carry a justification and a justification is prose. A durable extraction report can still contradict the tree it describes, because parity reconciles manifests while the report's own figures are typed. Both checks are true and neither closes what was asked. The third is a request the campaign deliberately declined — a committed per-criterion artifact a reviewer can read against a diff — recorded as though it had been granted.
+
+Underneath all three sits a scope limit that [AN-016](../analysis/AN-016-disposable-brownfield-migration-fixtures.md) states plainly about itself: every proof is fixture-sized, and the assessment described a corpus orders of magnitude larger. This campaign closes the gap on evidence at that size, and it starts by making its own evidence base honest. Every milestone is a separate full change rooted at accepted `main`, published as a ready pull request, and accepted by human merge before the next begins. Milestone numbering continues corpus-global numbering from P-011.
+
+## Milestones
+
+| ID | Milestone (exit criterion) | Status | Evidence |
+|---|---|---|---|
+| M-057 | **The campaign's own evidence base is honest before it is extended**: every gap and blocking gate the originating assessment raised is re-derived from the corpus and the commands as they now stand, and each lands in exactly one of PDR-026's three states — closed with a named mechanism and its failure-path evidence, closed as a declined request stating what was not granted and what it costs an adopter, or open as a milestone here; the assessment itself becomes a sanitized analysis record so the campaign's origin evidence is inspectable rather than paraphrased in prose, naming no adopter and treating its reported figures as supplied observations rather than Cliewen evidence; this repository seeds the identity ledger it shipped, so `clue id next` allocates here and the migration stops offering MIG-008; the extraction capability's stale claim that adopter-CI binary distribution is unsolved is repaired against the reusable validation workflow and verified install scripts that closed it; and the limit that an adopter's branch protection can never be Cliewen's acceptance evidence is stated as an accepted boundary rather than left implied | `todo` | |
+| M-058 | **A deferred criterion is honest or it fails**: a migration cannot reach green by repeating one justification across a corpus — each `@draft`, `Human`, or retirement disposition resolves to a real source location and a distinct existing plan door, and the deferred population is a counted figure the judge reports rather than an invisible exemption; fixtures prove both directions, a source deferring most of its criteria at once failing or being reported as a named backlog while a single genuine deferral passes unchanged; the rule adds no obligation a greenfield corpus must satisfy | `todo` | |
+| M-059 | **A durable extraction report cannot disagree with the tree it describes**: the report's criterion counts and mapping tables are derived from the same manifest `clue parity` reads rather than written by hand, so a report claiming a different corpus than the one committed is not expressible; a fixture whose figures were typed fails, and the report stays a readable document rather than becoming a second registry | `todo` | |
+| M-060 | **The declined per-criterion artifact is decided in the open**: either the derived report reaches the pull request in a form a human reviewer can read against the diff, or the refusal to keep a committed per-criterion registry is recorded as an explicit accepted limit naming what the adopter gives up and what replaces it; whichever way it lands, it stops being recorded as a satisfied request | `todo` | |
+| M-061 | **The contract holds at the assessment's order of magnitude**: a source with hundreds of criteria, hundreds of classified evidence references, tens of archived changes reserving retired identities, and several concurrent in-flight changes runs the whole path — pinned release, report-only rehearsal, identity reservation across every prefix, parity, carrier reconciliation, human-approved mutation, target validation — and every deterministic failure path still fails at that size; the result names no production adopter and distinguishes Cliewen's own checks from the source's test results; this milestone's digest closes the campaign and designates [P-013](P-013-simplification.md) | `todo` | |
+
+## Explicitly out of this campaign
+
+**An adopter's branch protection is not Cliewen's acceptance evidence.** The assessment asks for proof that a failing `clue` check blocks a merge on a real pull-request path. [C-012](../constraints/C-012-agents-never-merge-own-changes.md) already names branch protection as the machine that holds the merge boundary and [ADR-038](../decisions/ADR-038-upstream-validation-workflow.md) pins the exact status-check name it selects, but which repository arms it is that repository's configuration. Making a forge's settings into this corpus's evidence would make forge state the system of record, which [AN-013](../analysis/AN-013-distributed-work-and-evidence-boundaries.md) rejects. M-057 states the limit; no milestone tries to prove it away.
+
+**No milestone reopens P-011's mechanisms in principle.** The ledger, parity manifests, imported-change records, and carrier inventories are the contract; this campaign strengthens two checks and tests all of them at size. A milestone that would replace one of them is a new decision, not a continuation.
+
+**Simplification belongs to P-013.** It has now been deferred by every campaign that named it, and it stays deferred rather than being folded in here, for the reason PDR-025 gives: a campaign carrying both would let either half postpone the other.
+
+**Nothing here executes a source repository's test suite.** The boundary P-011 drew holds. Cliewen reads its own corpus; a source's own results are reported as the source's, never converted into Cliewen coverage.
+
+## Mutation rules
+
+Status and evidence fields in the milestone table may mutate in an implementing change's merge digest. Everything else changes only through a declared plan revision backed by a decision record routed by reversal cost. Plan adjustments are decisions.
