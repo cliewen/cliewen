@@ -1121,15 +1121,15 @@ entries:
       state: live
     - id: CH-122
       kind: numeric
-      state: live
+      state: retired
       prefix: CH
       component: "122"
     - id: CH-122-questions
       kind: opaque
-      state: live
+      state: retired
     - id: CH-122-tasks
       kind: opaque
-      state: live
+      state: retired
     - id: CH-123
       kind: numeric
       state: reserved
