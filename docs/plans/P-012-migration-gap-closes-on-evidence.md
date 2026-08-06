@@ -8,7 +8,7 @@ title: Cliewen closes the brownfield migration gap on re-derived evidence
 
 # P-012 — Cliewen closes the brownfield migration gap on re-derived evidence
 
-This campaign is [P-011](P-011-truthful-brownfield-migration.md)'s successor, and it is designated here rather than in P-011's own digest because [C-008](../constraints/C-008-completed-plans-immutable.md) freezes that campaign the moment it closes. The forward link can only live on this side of the boundary.
+This campaign is [P-011](P-011-truthful-brownfield-migration.md)'s successor. Its designation is recorded in P-011's closing digest, while P-011 is still active; [C-008](../constraints/C-008-completed-plans-immutable.md) freezes it only after that digest completes the closure.
 
 P-011 answered a brownfield migration assessment with five mechanisms: a permanent identity ledger, migration parity manifests, imported-change records, carrier reconciliation, and disposable fixtures proving the four compose. Each holds at the scope it claims. What [PDR-026](../decisions/PDR-026-campaigns-close-on-re-derived-evidence.md) establishes is that a campaign's own evidence column is not what closes it, and re-deriving the assessment's gaps from the corpus and the tool leaves three of them open in a way the table does not show.
 
