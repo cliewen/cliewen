@@ -383,6 +383,49 @@ func checkMilestoneStatus(c *Corpus) []Issue {
 	return issues
 }
 
+// PlanMilestoneIDs returns the IDs declared by milestone tables in body. A
+// declared milestone table has both ID and Status headers, and may use either
+// optional outer Markdown pipes. Verbatim examples and other tables do not
+// declare milestones.
+func PlanMilestoneIDs(body string) map[string]bool {
+	ids := map[string]bool{}
+	idCol, statusCol := -1, -1
+	blocks := blockScanner{verbatimOnly: true}
+	var header []string
+	for _, line := range strings.Split(body, "\n") {
+		if blocks.next(line) {
+			idCol, statusCol, header = -1, -1, nil
+			continue
+		}
+		t := strings.TrimSpace(line)
+		if tableDelimRe.MatchString(t) {
+			idCol, statusCol = -1, -1
+			for i, cell := range header {
+				switch {
+				case strings.EqualFold(cell, "id"):
+					idCol = i
+				case strings.EqualFold(cell, "status"):
+					statusCol = i
+				}
+			}
+			continue
+		}
+		if !strings.Contains(t, "|") {
+			idCol, statusCol, header = -1, -1, nil
+			continue
+		}
+		cells := tableCells(t)
+		if idCol < 0 || statusCol < 0 {
+			header = cells
+			continue
+		}
+		if idCol < len(cells) && planItemRe.MatchString(strings.TrimSpace(cells[idCol])) && strings.HasPrefix(strings.TrimSpace(cells[idCol]), "M-") {
+			ids[strings.TrimSpace(cells[idCol])] = true
+		}
+	}
+	return ids
+}
+
 // tableCells splits a markdown table row into its cells. Only an unescaped
 // pipe outside a code span divides one: `\\|` is the documented way to put a
 // pipe in a cell, and this project's plan tables carry long prose cells full of

@@ -9,7 +9,6 @@ import (
 	"bytes"
 	"fmt"
 	"os"
-	"regexp"
 	"sort"
 
 	"github.com/cliewen/cliewen/internal/corpus"
@@ -144,8 +143,6 @@ type TargetManifest struct {
 
 // A Markdown table may omit its optional outer pipes, so accept both
 // `| M-001 | ...` and `M-001 | ...` milestone rows.
-var milestoneRowRe = regexp.MustCompile(`(?m)^\s*\|?\s*(M-\d+)\s*\|`)
-
 // DeriveTargetManifest scans root's corpus and ledger and derives one target
 // entry per declared criterion, reusing the same declaration and evidence
 // harvest clue validate already runs (corpus.AcceptanceEvidence) rather than
@@ -172,8 +169,8 @@ func DeriveTargetManifest(root string) (TargetManifest, error) {
 		if a.Type != "plan" {
 			continue
 		}
-		for _, row := range milestoneRowRe.FindAllStringSubmatch(a.Body, -1) {
-			planDoors[row[1]] = true
+		for id := range corpus.PlanMilestoneIDs(a.Body) {
+			planDoors[id] = true
 		}
 	}
 	for id, d := range declared {
@@ -264,6 +261,7 @@ func Compare(source SourceManifest, target TargetManifest) Report {
 
 	var findings []Finding
 	deferred := map[string]bool{}
+	planDoorOwners := map[string]string{}
 	for _, id := range sourceIDs {
 		entries := bySource[id]
 		se := entries[0]
@@ -285,8 +283,14 @@ func Compare(source SourceManifest, target TargetManifest) Report {
 			if se.Justification == "" || !matchesDisposition(se.Disposition, te) {
 				findings = append(findings, Finding{ClassUnjustifiedDisposition, id, fmt.Sprintf("source disposition %q does not match the target's draft, Human, or retired state", se.Disposition)})
 			}
-			if target.PlanDoors != nil && !target.PlanDoors[se.PlanDoor] {
-				findings = append(findings, Finding{ClassUnaccountableDisposition, id, fmt.Sprintf("plan door %q is not a milestone in the target corpus", se.PlanDoor)})
+			if target.PlanDoors != nil {
+				if !target.PlanDoors[se.PlanDoor] {
+					findings = append(findings, Finding{ClassUnaccountableDisposition, id, fmt.Sprintf("plan door %q is not a declared milestone in the target corpus", se.PlanDoor)})
+				} else if owner, used := planDoorOwners[se.PlanDoor]; used && owner != id {
+					findings = append(findings, Finding{ClassUnaccountableDisposition, id, fmt.Sprintf("plan door %q already accounts for %q", se.PlanDoor, owner)})
+				} else {
+					planDoorOwners[se.PlanDoor] = id
+				}
 			}
 			continue
 		}

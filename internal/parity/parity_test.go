@@ -361,6 +361,40 @@ func TestAC125_UnitPositive_bareMilestoneTableIsAPlanDoor(t *testing.T) {
 	}
 }
 
+// TestAC125_UnitNegative_nonMilestoneTablesAndExamplesAreNotPlanDoors proves
+// only rows in declared milestone tables, never lookalikes in prose examples,
+// can satisfy a disposition's accountability door.
+func TestAC125_UnitNegative_nonMilestoneTablesAndExamplesAreNotPlanDoors(t *testing.T) {
+	root := writeFiles(t, map[string]string{
+		"docs/plans/P-060-plan.md": "---\nid: P-060\ntype: plan\nstatus: active\nlinks: []\ntitle: Fixture plan\n---\n\n# Fixture plan\n\n| ID | Note |\n|---|---|\n| M-060 | Not a milestone |\n\n```markdown\n| ID | Milestone | Status |\n|---|---|---|\n| M-061 | Example | `todo` |\n```\n",
+	})
+	target, err := DeriveTargetManifest(root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if target.PlanDoors["M-060"] || target.PlanDoors["M-061"] {
+		t.Fatalf("expected non-milestone rows and fenced examples to be ignored, got %v", target.PlanDoors)
+	}
+}
+
+// TestAC125_UnitNegative_reusedPlanDoorFails proves each deferred criterion
+// owns a distinct declared plan door, so a shared backlog label cannot hide a
+// population of independently deferred proof work.
+func TestAC125_UnitNegative_reusedPlanDoorFails(t *testing.T) {
+	target := TargetManifest{Entries: map[string]TargetEntry{
+		"AC-906": {ID: "AC-906", Draft: true},
+		"AC-907": {ID: "AC-907", Human: true},
+	}, PlanDoors: map[string]bool{"M-060": true}}
+	source := SourceManifest{Entries: []SourceEntry{
+		{ID: "AC-906", Disposition: DispositionDraft, Justification: "out of scope", SourceLocation: "source/a.md#L20", PlanDoor: "M-060"},
+		{ID: "AC-907", Disposition: DispositionHuman, Justification: "human review", SourceLocation: "source/b.md#L20", PlanDoor: "M-060"},
+	}}
+	r := Compare(source, target)
+	if !r.Failed() || len(r.Findings) != 1 || r.Findings[0].Class != ClassUnaccountableDisposition {
+		t.Fatalf("expected reused plan door to fail accountability, got %+v", r.Findings)
+	}
+}
+
 // TestAC125_UnitNegative_missingOrUnknownAccountabilityFails proves a
 // malformed manifest cannot hide a disposition and an unknown plan door is a
 // parity finding rather than an unreported free-text claim.

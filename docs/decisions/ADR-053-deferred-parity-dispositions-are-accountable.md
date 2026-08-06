@@ -16,7 +16,7 @@ ADR-049 required a migration parity disposition to carry a free-text justificati
 
 ## Decision outcome
 
-**Every `draft`, `human`, or `retired` source-manifest disposition carries `disposition-source-location` and `plan-door` in addition to its readable `justification`.** The source location points to the particular source material that warranted the disposition. The plan door is one globally unique milestone identity such as `M-060`; `clue parity` derives the target corpus's declared milestone set and fails an otherwise matching disposition whose door is absent.
+**Every `draft`, `human`, or `retired` source-manifest disposition carries `disposition-source-location` and `plan-door` in addition to its readable `justification`.** The source location points to the particular source material that warranted the disposition. The plan door is a declared milestone identity such as `M-060`, unique to that deferred criterion; `clue parity` derives the target corpus's declared milestone set and fails an otherwise matching disposition whose door is absent or reused.
 
 `clue parity` reports the count of unique criterion IDs carrying a disposition on both clean and failing runs. The count is derived from the authored source manifest and is a visible backlog, not a threshold: a migration may defer several criteria when each has its own accountable record, and a single genuine disposition continues to pass.
 
