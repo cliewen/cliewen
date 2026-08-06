@@ -37,23 +37,30 @@ type region struct {
 }
 
 // maskCode returns a copy of content, byte-for-byte the same length, with
-// everything inside a fenced block or an inline code span replaced by spaces.
-// Offsets into the mask are offsets into the original, so a caller can search
-// the mask and slice the original. A document that documents the markers —
-// this decision record, the skill, the design note — writes them in code
-// spans, and a scanner that could not tell an example from a claim would make
+// everything inside a fenced block, an indented code block, or an inline code
+// span replaced by spaces, and the offset of an opening fence that is never
+// closed, or -1 when every fence closes. Offsets into the mask are offsets
+// into the original, so a caller can search the mask and slice the original.
+// A document that documents the markers — this decision record, the skill,
+// the design note — writes them in code spans, in fenced blocks, or indented,
+// and a scanner that could not tell an example from a claim would make
 // describing the contract impossible (the same rule the outward-reference
 // scan already follows).
-func maskCode(content string) string {
+func maskCode(content string) (string, int) {
 	out := []byte(content)
-	// An open fence is closed only by a fence of the same character and at
-	// least the same length, as CommonMark defines it. Toggling on any fence
+	// An open fence is closed only by a bare fence of the same character and
+	// at least the same length, as CommonMark defines it. Closing on any fence
 	// line would let a tilde fence inside a backtick block, or an inner fence
 	// inside a longer outer one, mask the whole rest of the file — and a
 	// masked file has no region, so the required check would pass a report
 	// whose figures were typed. This check has to fail closed.
 	var openChar byte
-	openLen := 0
+	openLen, openAt := 0, -1
+	// An indented code block is the other way a record writes an example. It
+	// opens on a line indented four columns after a blank one and runs until
+	// a line that is neither blank nor indented, which is what CommonMark
+	// reads there too.
+	indented, prevBlank := false, true
 	for lineStart := 0; lineStart < len(out); {
 		lineEnd := strings.IndexByte(content[lineStart:], '\n')
 		if lineEnd < 0 {
@@ -61,27 +68,42 @@ func maskCode(content string) string {
 		} else {
 			lineEnd += lineStart
 		}
-		fenceChar, fenceLen := fenceOf(content[lineStart:lineEnd])
+		line := strings.TrimRight(content[lineStart:lineEnd], "\r")
+		blankLine := strings.TrimLeft(line, " \t") == ""
+		fenceChar, fenceLen := fenceOf(line)
 		switch {
 		case openLen > 0:
 			blank(out, lineStart, lineEnd)
-			if fenceChar == openChar && fenceLen >= openLen {
-				openChar, openLen = 0, 0
+			if fenceChar == openChar && fenceLen >= openLen && isBareFence(line, openChar) {
+				openChar, openLen, openAt = 0, 0, -1
 			}
+		case indented && (blankLine || indentWidth(line) >= 4):
+			blank(out, lineStart, lineEnd)
 		case fenceLen > 0:
-			openChar, openLen = fenceChar, fenceLen
+			openChar, openLen, openAt = fenceChar, fenceLen, lineStart
+			indented = false
+			blank(out, lineStart, lineEnd)
+		case prevBlank && !blankLine && indentWidth(line) >= 4:
+			indented = true
 			blank(out, lineStart, lineEnd)
 		default:
+			indented = false
 			maskSpans(out, content, lineStart, lineEnd)
 		}
+		prevBlank = blankLine
 		lineStart = lineEnd + 1
 	}
-	return string(out)
+	return string(out), openAt
 }
 
 // fenceOf reports the fence character and run length a line opens or closes
-// with, or a zero length when the line is not a fence.
+// with, or a zero length when the line is not a fence. A line indented four
+// columns is an indented code block rather than a fence, so an example that
+// shows a fence cannot open one.
 func fenceOf(line string) (byte, int) {
+	if indentWidth(line) >= 4 {
+		return 0, 0
+	}
 	trimmed := strings.TrimLeft(line, " \t")
 	if trimmed == "" {
 		return 0, 0
@@ -98,6 +120,39 @@ func fenceOf(line string) (byte, int) {
 		return 0, 0
 	}
 	return c, n
+}
+
+// isBareFence reports whether a line is nothing but a run of c, which is what
+// a closing fence is. A line carrying an info string — the "```markdown" that
+// opens a nested example — opens a block and never closes one.
+func isBareFence(line string, c byte) bool {
+	trimmed := strings.TrimRight(strings.TrimLeft(line, " \t"), " \t")
+	if trimmed == "" {
+		return false
+	}
+	for i := 0; i < len(trimmed); i++ {
+		if trimmed[i] != c {
+			return false
+		}
+	}
+	return true
+}
+
+// indentWidth counts the columns a line is indented, expanding a tab the way
+// Markdown does.
+func indentWidth(line string) int {
+	width := 0
+	for i := 0; i < len(line); i++ {
+		switch line[i] {
+		case ' ':
+			width++
+		case '\t':
+			width += 4
+		default:
+			return width
+		}
+	}
+	return width
 }
 
 func blank(out []byte, from, to int) {
@@ -134,7 +189,17 @@ func maskSpans(out []byte, content string, from, to int) {
 // opening marker yields ok=false and no error: an ordinary document carries
 // no obligation here.
 func findRegion(content string) (region, bool, error) {
-	masked := maskCode(content)
+	masked, unterminatedFenceAt := maskCode(content)
+	// A fence that is never closed masks every line after it, so a report
+	// carrying one would hide its own region and pass the required check in
+	// silence. The exemption exists for an example, not for an accident:
+	// name the unclosed fence rather than let it switch the check off.
+	if unterminatedFenceAt >= 0 {
+		hidden := content[unterminatedFenceAt:]
+		if strings.Contains(hidden, RegionOpenPrefix) || strings.Contains(hidden, RegionEnd) {
+			return region{}, false, fmt.Errorf("an unterminated code fence hides a derived region marker: close the fence, since an unclosed one would exempt this file from the check")
+		}
+	}
 	open := strings.Index(masked, RegionOpenPrefix)
 	if open < 0 {
 		return region{}, false, nil

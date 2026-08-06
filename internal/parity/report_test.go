@@ -217,6 +217,38 @@ func TestAC126_UnitNegative_anUnmatchedInnerFenceCannotHideARegion(t *testing.T)
 	}
 }
 
+// TestAC126_UnitNegative_anUnterminatedFenceCannotHideARegion proves the last
+// way the exemption could switch the check off is closed. A fence that is
+// never closed masks every line after it, so a report carrying one would hide
+// its own region and pass in silence; the unclosed fence is named instead.
+func TestAC126_UnitNegative_anUnterminatedFenceCannotHideARegion(t *testing.T) {
+	content := "# AN-905\n\n```text\nan example nobody closed\n\n" +
+		RegionOpenPrefix + "docs/analysis/AN-900-source-manifest.yaml" + RegionOpenSuffix +
+		"\n| Proven in the target | 417 |\n" + RegionEnd + "\n"
+	root := writeFiles(t, map[string]string{
+		"docs/analysis/AN-900-source-manifest.yaml": fixtureManifest,
+		"docs/analysis/AN-905-extraction.md":        content,
+	})
+	issues := CheckReports(root)
+	if len(issues) != 1 || !strings.Contains(issues[0].Msg, "unterminated code fence") {
+		t.Fatalf("expected an unterminated fence to be named, got %v", issues)
+	}
+}
+
+// TestAC126_UnitPositive_anIndentedExampleIsNotARegion proves a record may
+// show the markers as an indented code block. Reading that as a claim would
+// fail a document with no manifest to name and no way to repair itself, since
+// clue report cannot render a region that was only ever an example.
+func TestAC126_UnitPositive_anIndentedExampleIsNotARegion(t *testing.T) {
+	content := "# ADR-901\n\nA report opens its region like this:\n\n    " +
+		RegionOpenPrefix + "docs/analysis/absent.yaml" + RegionOpenSuffix + "\n    " + RegionEnd +
+		"\n\nPlain prose resumes here.\n"
+	root := writeFiles(t, map[string]string{"docs/decisions/ADR-901-contract.md": content})
+	if issues := CheckReports(root); len(issues) > 0 {
+		t.Fatalf("expected an indented example to be an example, got %v", issues)
+	}
+}
+
 // TestAC126_UnitNegative_aRealRegionBesideDocumentedOnesStillFails proves the
 // exemption reaches examples only: a genuine region in the same file as a
 // documented one is still checked.
