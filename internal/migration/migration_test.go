@@ -400,10 +400,12 @@ func TestAC128_UnitNegative_assessmentScaleFixtureRejectsEveryFailureClass(t *te
 		t.Fatal(err)
 	}
 	mustFailFixtureClue(t, parity.ClassUnjustifiedDisposition, "parity", manifest, targetRoot)
-	// A justified disposition that matches the target's @draft state still
-	// fails when its resolution door is not a milestone the target corpus
-	// declares — this fixture states no plan at all, so the deferral is
-	// accountable to nobody (ADR-053).
+	// A deferral is unaccountable when the target corpus declares no plan
+	// door at all, which is this fixture's shape (ADR-053). The criterion
+	// still carries the @draft tag the step above added, so the disposition
+	// matches the target and the unjustified class must stay silent — that
+	// absence is asserted below, because otherwise this step would keep
+	// passing on the wrong class if the tag were ever restored.
 	provenProof := `  - id: SCL-001
     proof-class: Integration
     direction: positive
@@ -424,7 +426,10 @@ func TestAC128_UnitNegative_assessmentScaleFixtureRejectsEveryFailureClass(t *te
 		t.Fatal("deferral rewrite matched nothing; the manifest shape changed")
 	}
 	writeManifest(deferred)
-	mustFailFixtureClue(t, parity.ClassUnaccountableDisposition, "parity", manifest, targetRoot)
+	out, err := runFixtureClue(t, "parity", manifest, targetRoot)
+	if err == nil || !strings.Contains(out, parity.ClassUnaccountableDisposition) || strings.Contains(out, parity.ClassUnjustifiedDisposition) {
+		t.Fatalf("expected only %q, err=%v output=%s", parity.ClassUnaccountableDisposition, err, out)
+	}
 
 	stalePath := filepath.Join(targetRoot, "stale-carriers.yaml")
 	staleTarget := filepath.Join(targetRoot, "docs", "capabilities", "fixture", "README.md")
