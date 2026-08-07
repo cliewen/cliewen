@@ -555,7 +555,13 @@ func TestAC129_UnitPositive_orderedPinnedReleasePathHoldsAtAssessmentScale(t *te
 	manifest := assessmentScaleSource(t, revision, location)
 	sourceRoot := filepath.Dir(manifest)
 	targetRoot := t.TempDir()
-	mustFailPinnedClue(t, parity.ClassMissingCriterion, "parity", manifest, targetRoot)
+	// Asserting the class alone would also be satisfied by a mistyped root, so
+	// the count is asserted too: every criterion the source declared is
+	// missing, which is what "the target has not been written yet" means.
+	out, err := runPinnedClue(t, "parity", manifest, targetRoot)
+	if err == nil || strings.Count(out, parity.ClassMissingCriterion) != assessmentScaleCriteria {
+		t.Fatalf("parity before mutation: err=%v, %d %s findings, want %d\n%s", err, strings.Count(out, parity.ClassMissingCriterion), parity.ClassMissingCriterion, assessmentScaleCriteria, out)
+	}
 	// The rehearsal's own inventory is clean, because every entry it carries
 	// is blocked: that is the only shape a rehearsal can produce, and it is
 	// what keeps this step from being a broken-inventory result. An inventory

@@ -286,6 +286,6 @@ Feature: Brownfield analysis and extraction — evidence, namespaced ACs, JVM ha
     Test-type: Unit
     Given an assessment-scale source and target, a `clue` binary stamped with a pinned release, and installed skills carrying that same stamp
     When the rehearsal pins are written before the target exists and the approved mutation is verified against those unmodified pins
-    Then the stamped binary validates the target, the rehearsal's own manifest and inventory still reconcile clean afterwards, and every in-flight imported change keeps its pinned origin, rationale sections, and proof links to live criteria
-    But a skill stamp disagreeing with the pinned release is reported as drift, a parity or carrier claim made before the target exists fails, and an imported change claiming complete over an unproven criterion is rejected at that size
+    Then the stamped binary validates the target, the rehearsal's own source manifest still compares clean afterwards without having changed, a carrier inventory pinned at mutation reconciles clean, and every in-flight imported change keeps its pinned origin, rationale sections, and proof links to live criteria
+    But a skill stamp disagreeing with the pinned release is reported as drift, a parity claim or a mapped carrier claim made before the target exists fails, and an imported change claiming complete over an unproven criterion is rejected at that size
 ```
