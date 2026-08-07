@@ -315,15 +315,24 @@ func TestAC128_UnitPositive_assessmentScaleFixtureProvesComposedMigrationContrac
 		t.Fatalf("assessment-scale carrier reconciliation: %v\n%s", err, out)
 	}
 
-	l, err := ledger.Load(targetRoot)
+	// Allocation is asked on a throwaway instance: NextNumeric reserves the
+	// ID it returns and advances the stored counter, so asking it on the
+	// instance this test later saves would persist four reservations the
+	// fixture never intended and make the assertion unrepeatable.
+	allocation, err := ledger.Load(targetRoot)
 	if err != nil {
 		t.Fatal(err)
 	}
 	for prefix, want := range map[string]string{"G": "G-002", "CAP": "CAP-902", "IC": "IC-905", "SCL": "SCL-441"} {
-		got, err := l.NextNumeric(prefix)
+		got, err := allocation.NextNumeric(prefix)
 		if err != nil || got != want {
 			t.Fatalf("next %s = %q, %v; want %s", prefix, got, err, want)
 		}
+	}
+
+	l, err := ledger.Load(targetRoot)
+	if err != nil {
+		t.Fatal(err)
 	}
 	// Reservation must refuse an identity the ledger already carries in any
 	// state, not only one reserved a moment ago in memory: an existing live
@@ -391,6 +400,31 @@ func TestAC128_UnitNegative_assessmentScaleFixtureRejectsEveryFailureClass(t *te
 		t.Fatal(err)
 	}
 	mustFailFixtureClue(t, parity.ClassUnjustifiedDisposition, "parity", manifest, targetRoot)
+	// A justified disposition that matches the target's @draft state still
+	// fails when its resolution door is not a milestone the target corpus
+	// declares — this fixture states no plan at all, so the deferral is
+	// accountable to nobody (ADR-053).
+	provenProof := `  - id: SCL-001
+    proof-class: Integration
+    direction: positive
+    evidence-location: tests/scale_test.go
+  - id: SCL-001
+    proof-class: Integration
+    direction: negative
+    evidence-location: tests/scale_test.go
+`
+	deferredToAbsentDoor := `  - id: SCL-001
+    disposition: draft
+    justification: The source reference is not re-derived at this scale yet.
+    disposition-source-location: openspec/specs/fixture/spec.md:1
+    plan-door: M-999
+`
+	deferred := strings.Replace(string(pristine), provenProof, deferredToAbsentDoor, 1)
+	if deferred == string(pristine) {
+		t.Fatal("deferral rewrite matched nothing; the manifest shape changed")
+	}
+	writeManifest(deferred)
+	mustFailFixtureClue(t, parity.ClassUnaccountableDisposition, "parity", manifest, targetRoot)
 
 	stalePath := filepath.Join(targetRoot, "stale-carriers.yaml")
 	staleTarget := filepath.Join(targetRoot, "docs", "capabilities", "fixture", "README.md")

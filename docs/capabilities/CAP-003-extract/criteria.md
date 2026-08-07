@@ -277,7 +277,7 @@ Feature: Brownfield analysis and extraction — evidence, namespaced ACs, JVM ha
     Test-type: Unit
     Given a disposable target with hundreds of criteria and classified evidence references plus tens of retired identities
     When the public `clue` command validates it and runs parity and carrier reconciliation
-    Then clean parity and carrier reports pass and numeric namespace allocation plus opaque reservation reject reuse
+    Then clean parity and carrier reports pass and identity reservation refuses an existing, retired, or already-reserved identity across a ledger round trip
     And every required parity and carrier failure class still exits non-zero against that assessment-scale shape
     But this command-scale fixture does not claim extraction ordering, source-work preservation, or pinned-release evidence
 ```
