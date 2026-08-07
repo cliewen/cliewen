@@ -555,8 +555,8 @@ func TestAC129_UnitPositive_orderedPinnedReleasePathHoldsAtAssessmentScale(t *te
 	manifest := assessmentScaleSource(t, revision, location)
 	sourceRoot := filepath.Dir(manifest)
 	targetRoot := t.TempDir()
-	// Asserting the class alone would also be satisfied by a mistyped root, so
-	// the count is asserted too: every criterion the source declared is
+	// The count is asserted alongside the class so a partially written target
+	// cannot satisfy this step: every criterion the source declared is
 	// missing, which is what "the target has not been written yet" means.
 	out, err := runPinnedClue(t, "parity", manifest, targetRoot)
 	if err == nil || strings.Count(out, parity.ClassMissingCriterion) != assessmentScaleCriteria {
