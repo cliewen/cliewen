@@ -1,11 +1,11 @@
 counters:
-    AC: "128"
+    AC: "129"
     ADR: "54"
     AN: "17"
     ARCH: "3"
     C: "16"
     CAP: "7"
-    CH: "126"
+    CH: "127"
     G: "3"
     IC: "2"
     LOG: "1"
@@ -647,6 +647,11 @@ entries:
       state: live
       prefix: AC
       component: "128"
+    - id: AC-129
+      kind: numeric
+      state: reserved
+      prefix: AC
+      component: "129"
     - id: ADR-001
       kind: numeric
       state: live
@@ -1195,6 +1200,11 @@ entries:
     - id: CH-126-tasks
       kind: opaque
       state: retired
+    - id: CH-127
+      kind: numeric
+      state: reserved
+      prefix: CH
+      component: "127"
     - id: G-001
       kind: numeric
       state: live
