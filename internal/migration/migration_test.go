@@ -273,20 +273,28 @@ const (
 	assessmentScaleDrafted = 2
 )
 
-// assertAssessmentScaleRanges refuses to build a fixture whose size constants
-// have grown into the next identity band: the ledger would then carry the same
-// SCL component twice, once live and once retired, and the fixture's own
-// contradiction would surface as an unrelated validate failure.
+// assertAssessmentScaleRanges refuses to build a fixture the size constants
+// have made self-contradictory. Only same-prefix bands can collide: the live
+// SCL components run 1..criteria and the retired ones start one past the
+// archived base, so a live criterion count that passes that base would put the
+// same component in the ledger twice, once live and once retired. The IC band
+// shares no prefix with either, so its distance from them constrains nothing.
 func assertAssessmentScaleRanges(t *testing.T) {
 	t.Helper()
-	if assessmentScaleCriteria >= assessmentScaleArchivedBase {
-		t.Fatalf("assessmentScaleCriteria (%d) reaches the retired band at %d", assessmentScaleCriteria, assessmentScaleArchivedBase)
+	if assessmentScaleCriteria > assessmentScaleArchivedBase {
+		t.Fatalf("assessmentScaleCriteria (%d) reaches the retired SCL band starting at %d", assessmentScaleCriteria, assessmentScaleArchivedBase+1)
 	}
-	if assessmentScaleArchivedBase+assessmentScaleArchived >= assessmentScaleInFlightBase {
-		t.Fatalf("the retired band (%d..%d) reaches the in-flight band at %d", assessmentScaleArchivedBase+1, assessmentScaleArchivedBase+assessmentScaleArchived, assessmentScaleInFlightBase)
+	// The drafted pair is one criterion and one record at the same offset, so
+	// both sides have to exist or the negative run drafts nothing and fails as
+	// a missing file rather than as the proof-backing violation it asserts.
+	if assessmentScaleDrafted < 1 {
+		t.Fatalf("assessmentScaleDrafted (%d) names no record", assessmentScaleDrafted)
 	}
 	if assessmentScaleInFlight < assessmentScaleDrafted {
 		t.Fatalf("assessmentScaleInFlight (%d) does not reach the drafted record at offset %d", assessmentScaleInFlight, assessmentScaleDrafted)
+	}
+	if assessmentScaleCriteria < assessmentScaleDrafted {
+		t.Fatalf("assessmentScaleCriteria (%d) does not reach the drafted criterion at offset %d", assessmentScaleCriteria, assessmentScaleDrafted)
 	}
 }
 
