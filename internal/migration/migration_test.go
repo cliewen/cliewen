@@ -25,7 +25,23 @@ var (
 	stampedOnce sync.Once
 	stampedPath string
 	stampedErr  error
+
+	// fixtureBuildDirs collects the temporary build directories so TestMain can
+	// remove them: the builds are package-scoped by sync.Once, so no individual
+	// test can own their lifetime with t.Cleanup.
+	fixtureBuildMu   sync.Mutex
+	fixtureBuildDirs []string
 )
+
+func TestMain(m *testing.M) {
+	code := m.Run()
+	fixtureBuildMu.Lock()
+	for _, dir := range fixtureBuildDirs {
+		os.RemoveAll(dir)
+	}
+	fixtureBuildMu.Unlock()
+	os.Exit(code)
+}
 
 // assessmentScalePin is the release stamp the pinned-release evidence runs
 // under. It belongs to the fixture rather than to this repository: the binary
@@ -47,6 +63,9 @@ func buildFixtureClue(version string) (string, error) {
 	if err != nil {
 		return "", err
 	}
+	fixtureBuildMu.Lock()
+	fixtureBuildDirs = append(fixtureBuildDirs, dir)
+	fixtureBuildMu.Unlock()
 	name := "clue"
 	if runtime.GOOS == "windows" {
 		name += ".exe"
@@ -58,8 +77,10 @@ func buildFixtureClue(version string) (string, error) {
 	}
 	cmd := exec.Command("go", append(args, "./cmd/clue")...)
 	cmd.Dir = root
-	if err := cmd.Run(); err != nil {
-		return "", err
+	// The stamped build passes -ldflags, so a compiler diagnostic is the first
+	// thing a reader needs; a bare exit status would hide it.
+	if out, err := cmd.CombinedOutput(); err != nil {
+		return "", fmt.Errorf("building the fixture command (version %q): %w\n%s", version, err, out)
 	}
 	return path, nil
 }
@@ -235,7 +256,47 @@ const (
 	assessmentScaleCriteria = 240
 	assessmentScaleArchived = 40
 	assessmentScaleInFlight = 4
+
+	// The retired criteria and the in-flight imported changes start above
+	// their live neighbours. Every size-dependent ledger counter and expected
+	// allocation is derived from these bases and the sizes above — the fixed
+	// G and CAP identities stay literal — so changing a size keeps the ledger
+	// consistent with what the fixture asserts. A size that grew into the next
+	// base would instead reissue a live identity, which is what
+	// assertAssessmentScaleRanges refuses to build.
+	assessmentScaleArchivedBase = 400
+	assessmentScaleInFlightBase = 900
+
+	// assessmentScaleDrafted is the in-flight record whose proof-linked
+	// criterion the negative run drafts. The fixture proof-links IC-<base+i>
+	// to SCL-<i>, so the pair is derived from this one number.
+	assessmentScaleDrafted = 2
 )
+
+// assertAssessmentScaleRanges refuses to build a fixture the size constants
+// have made self-contradictory. Only same-prefix bands can collide: the live
+// SCL components run 1..criteria and the retired ones start one past the
+// archived base, so a live criterion count that passes that base would put the
+// same component in the ledger twice, once live and once retired. The IC band
+// shares no prefix with either, so its distance from them constrains nothing.
+func assertAssessmentScaleRanges(t *testing.T) {
+	t.Helper()
+	if assessmentScaleCriteria > assessmentScaleArchivedBase {
+		t.Fatalf("assessmentScaleCriteria (%d) reaches the retired SCL band starting at %d", assessmentScaleCriteria, assessmentScaleArchivedBase+1)
+	}
+	// The drafted pair is one criterion and one record at the same offset, so
+	// both sides have to exist or the negative run drafts nothing and fails as
+	// a missing file rather than as the proof-backing violation it asserts.
+	if assessmentScaleDrafted < 1 {
+		t.Fatalf("assessmentScaleDrafted (%d) names no record", assessmentScaleDrafted)
+	}
+	if assessmentScaleInFlight < assessmentScaleDrafted {
+		t.Fatalf("assessmentScaleInFlight (%d) does not reach the drafted record at offset %d", assessmentScaleInFlight, assessmentScaleDrafted)
+	}
+	if assessmentScaleCriteria < assessmentScaleDrafted {
+		t.Fatalf("assessmentScaleCriteria (%d) does not reach the drafted criterion at offset %d", assessmentScaleCriteria, assessmentScaleDrafted)
+	}
+}
 
 // assessmentScaleTarget is deliberately generated in a temporary directory:
 // its size is evidence for the composed contract, not a second corpus to
@@ -276,9 +337,10 @@ func assessmentScaleSource(t *testing.T, revision, location string) string {
 // corpus the rehearsal's pins are later verified against.
 func materializeAssessmentScaleTarget(t *testing.T, root, revision, location string) {
 	t.Helper()
+	assertAssessmentScaleRanges(t)
 	var criteria, tests, ledgerFile, importedIndex strings.Builder
 	fmt.Fprint(&criteria, "---\nid: SCL-criteria\ntype: criteria\nstatus: active\nlinks: [CAP-901]\ntitle: Assessment-scale fixture criteria\nac-prefix: SCL\n---\n\n```gherkin\nFeature: Assessment-scale migration\n")
-	fmt.Fprint(&ledgerFile, "counters:\n  G: 1\n  CAP: 901\n  IC: 904\n  SCL: 440\nentries:\n  - id: G-001\n    kind: numeric\n    state: live\n    prefix: G\n    component: 1\n  - id: CAP-901\n    kind: numeric\n    state: live\n    prefix: CAP\n    component: 901\n  - id: SCL-criteria\n    kind: opaque\n    state: live\n")
+	fmt.Fprintf(&ledgerFile, "counters:\n  G: 1\n  CAP: 901\n  IC: %d\n  SCL: %d\nentries:\n  - id: G-001\n    kind: numeric\n    state: live\n    prefix: G\n    component: 1\n  - id: CAP-901\n    kind: numeric\n    state: live\n    prefix: CAP\n    component: 901\n  - id: SCL-criteria\n    kind: opaque\n    state: live\n", assessmentScaleInFlightBase+assessmentScaleInFlight, assessmentScaleArchivedBase+assessmentScaleArchived)
 	fmt.Fprint(&importedIndex, "# imported changes\n\n<!-- clue:index:start -->\n")
 	for i := 1; i <= assessmentScaleCriteria; i++ {
 		id := fmt.Sprintf("SCL-%03d", i)
@@ -288,12 +350,12 @@ func materializeAssessmentScaleTarget(t *testing.T, root, revision, location str
 	}
 	fmt.Fprint(&criteria, "```\n")
 	for i := 1; i <= assessmentScaleArchived; i++ {
-		component := 400 + i
+		component := assessmentScaleArchivedBase + i
 		fmt.Fprintf(&ledgerFile, "  - id: SCL-%03d\n    kind: numeric\n    state: retired\n    prefix: SCL\n    component: %d\n    source-revision: %s\n    source-location: %s\n", component, component, revision, location)
 	}
 	for i := 1; i <= assessmentScaleInFlight; i++ {
-		id := fmt.Sprintf("IC-%03d", 900+i)
-		fmt.Fprintf(&ledgerFile, "  - id: %s\n    kind: numeric\n    state: live\n    prefix: IC\n    component: %d\n", id, 900+i)
+		id := fmt.Sprintf("IC-%03d", assessmentScaleInFlightBase+i)
+		fmt.Fprintf(&ledgerFile, "  - id: %s\n    kind: numeric\n    state: live\n    prefix: IC\n    component: %d\n", id, assessmentScaleInFlightBase+i)
 		fmt.Fprintf(&importedIndex, "- [%s.md](%s.md) — fixture source work\n", id, id)
 	}
 	writeFixtureFiles(t, root, map[string]string{
@@ -310,7 +372,7 @@ func materializeAssessmentScaleTarget(t *testing.T, root, revision, location str
 		".github/workflows/validate.yml":        "name: validate\non: [push]\njobs:\n  validate:\n    runs-on: ubuntu-latest\n    steps:\n      - run: clue validate .\n",
 	})
 	for i := 1; i <= assessmentScaleInFlight; i++ {
-		id := fmt.Sprintf("IC-%03d", 900+i)
+		id := fmt.Sprintf("IC-%03d", assessmentScaleInFlightBase+i)
 		writeFixtureFiles(t, root, map[string]string{fmt.Sprintf("docs/imported-changes/%s.md", id): fmt.Sprintf("---\nid: %s\ntype: imported-change\nstatus: in-progress\nlinks: [CAP-901]\ntitle: Assessment-scale in-flight source work %d\nsource-revision: %s\nsource-location: %s\n---\n\n# Assessment-scale in-flight source work %d\n\n## Intent\n\nPreserve concurrent source work.\n\n## Design rationale\n\nThe target keeps its proof link inspectable.\n\n## Dependencies\n\nNone.\n\n## Proof links\n\n| Task | Criterion |\n| --- | --- |\n| Preserve source proof | SCL-%03d |\n", id, i, revision, location, i, i)})
 	}
 	writeFixtureSkills(t, root, assessmentScalePin)
@@ -407,7 +469,13 @@ func TestAC128_UnitPositive_assessmentScaleFixtureProvesComposedMigrationContrac
 	if err != nil {
 		t.Fatal(err)
 	}
-	for prefix, want := range map[string]string{"G": "G-002", "CAP": "CAP-902", "IC": "IC-905", "SCL": "SCL-441"} {
+	nextAllocation := map[string]string{
+		"G":   "G-002",
+		"CAP": "CAP-902",
+		"IC":  fmt.Sprintf("IC-%03d", assessmentScaleInFlightBase+assessmentScaleInFlight+1),
+		"SCL": fmt.Sprintf("SCL-%03d", assessmentScaleArchivedBase+assessmentScaleArchived+1),
+	}
+	for prefix, want := range nextAllocation {
 		got, err := allocation.NextNumeric(prefix)
 		if err != nil || got != want {
 			t.Fatalf("next %s = %q, %v; want %s", prefix, got, err, want)
@@ -424,7 +492,7 @@ func TestAC128_UnitPositive_assessmentScaleFixtureProvesComposedMigrationContrac
 	if err := l.ReserveOpaque("SCL-criteria", revision, location); err == nil {
 		t.Fatal("existing live opaque identity was reissued")
 	}
-	if err := l.ReserveOpaque("SCL-401", revision, location); err == nil {
+	if err := l.ReserveOpaque(fmt.Sprintf("SCL-%03d", assessmentScaleArchivedBase+1), revision, location); err == nil {
 		t.Fatal("retired identity was reissued")
 	}
 	if err := l.ReserveOpaque("assessment-scale-source-opaque-id", revision, location); err != nil {
@@ -586,7 +654,10 @@ func TestAC129_UnitPositive_orderedPinnedReleasePathHoldsAtAssessmentScale(t *te
 	}
 	// The manifest that proves the migration is the one the rehearsal wrote,
 	// byte for byte — a manifest rewritten to match the target afterwards
-	// would prove nothing about what the source held.
+	// would prove nothing about what the source held. This is a regression
+	// guard rather than a demonstration: the mutation writes only under the
+	// target root today, so the check holds by construction and exists to fail
+	// if a later change lets the mutate phase reach back into the pins.
 	after, err := os.ReadFile(manifest)
 	if err != nil {
 		t.Fatal(err)
@@ -610,7 +681,7 @@ func TestAC129_UnitPositive_orderedPinnedReleasePathHoldsAtAssessmentScale(t *te
 	}
 	declared, _ := corpus.AcceptanceEvidence(c)
 	for i := 1; i <= assessmentScaleInFlight; i++ {
-		id := fmt.Sprintf("IC-%03d", 900+i)
+		id := fmt.Sprintf("IC-%03d", assessmentScaleInFlightBase+i)
 		records := c.ByID[id]
 		if len(records) != 1 {
 			t.Fatalf("imported change %s: got %d records, want 1", id, len(records))
@@ -636,7 +707,7 @@ func TestAC129_UnitPositive_orderedPinnedReleasePathHoldsAtAssessmentScale(t *te
 
 	// A record may close only once the work it names is proven, and at this
 	// size it is: promoting one to complete keeps the corpus green.
-	completePath := filepath.Join(targetRoot, "docs", "imported-changes", "IC-901.md")
+	completePath := filepath.Join(targetRoot, "docs", "imported-changes", fmt.Sprintf("IC-%03d.md", assessmentScaleInFlightBase+1))
 	record, err := os.ReadFile(completePath)
 	if err != nil {
 		t.Fatal(err)
@@ -679,10 +750,14 @@ func TestAC129_UnitNegative_orderedPinnedReleasePathRejectsItsViolations(t *test
 	if err != nil {
 		t.Fatal(err)
 	}
-	if err := os.WriteFile(criteriaPath, []byte(strings.Replace(string(criteria), "@SCL-002", "@SCL-002 @draft", 1)), 0o644); err != nil {
+	// The drafted criterion and the record that proof-links it are the same
+	// pair the fixture wrote, so this step stays a proof-backing violation
+	// rather than a missing-file failure when the sizes change.
+	draftedTag := fmt.Sprintf("@SCL-%03d", assessmentScaleDrafted)
+	if err := os.WriteFile(criteriaPath, []byte(strings.Replace(string(criteria), draftedTag, draftedTag+" @draft", 1)), 0o644); err != nil {
 		t.Fatal(err)
 	}
-	completePath := filepath.Join(targetRoot, "docs", "imported-changes", "IC-902.md")
+	completePath := filepath.Join(targetRoot, "docs", "imported-changes", fmt.Sprintf("IC-%03d.md", assessmentScaleInFlightBase+assessmentScaleDrafted))
 	record, err := os.ReadFile(completePath)
 	if err != nil {
 		t.Fatal(err)

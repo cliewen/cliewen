@@ -8,7 +8,7 @@ title: Cliewen is simplified against a stated criterion
 
 # P-013 — Cliewen is simplified against a stated criterion
 
-This campaign is [P-012](P-012-migration-gap-closes-on-evidence.md)'s successor and stays `draft` until P-012 completes. [PDR-026](../decisions/PDR-026-campaigns-close-on-re-derived-evidence.md) moved simplification here from P-012; [PDR-025](../decisions/PDR-025-brownfield-migration-precedes-simplification.md)'s reason for deferring it in the first place still holds, and this file exists so that the deferral is a named destination rather than a phrase in successive campaigns' out-of-scope sections.
+This campaign is [P-012](P-012-migration-gap-closes-on-evidence.md)'s successor. P-012 has completed; this campaign stays `draft` until it is opened, which is what the milestone section below records. [PDR-026](../decisions/PDR-026-campaigns-close-on-re-derived-evidence.md) moved simplification here from P-012; [PDR-025](../decisions/PDR-025-brownfield-migration-precedes-simplification.md)'s reason for deferring it in the first place still holds, and this file exists so that the deferral is a named destination rather than a phrase in successive campaigns' out-of-scope sections.
 
 Simplification has been deferred by every campaign that named it, each one to its own successor, three times over. That is worth stating plainly, because a thing deferred three times is either not actually wanted or has never been given a shape it could be executed in. This campaign's first problem is the second one.
 
