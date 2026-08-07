@@ -21,35 +21,81 @@ var (
 	clueOnce sync.Once
 	cluePath string
 	clueErr  error
+
+	stampedOnce sync.Once
+	stampedPath string
+	stampedErr  error
 )
+
+// assessmentScalePin is the release stamp the pinned-release evidence runs
+// under. It belongs to the fixture rather than to this repository: the binary
+// and the fixture's installed skills both carry it, so the drift comparison is
+// exercised without the test churning on every real release.
+const assessmentScalePin = "1.4.0"
+
+// buildFixtureClue builds the public command once, optionally stamping the
+// release version the release workflow injects (`-X main.version=...`). A
+// source build reports "dev", which makes `clue validate` skip the skill-drift
+// comparison altogether; only a stamped build runs it.
+func buildFixtureClue(version string) (string, error) {
+	wd, err := os.Getwd()
+	if err != nil {
+		return "", err
+	}
+	root := filepath.Clean(filepath.Join(wd, "..", ".."))
+	dir, err := os.MkdirTemp("", "cliewen-migration-fixture-*")
+	if err != nil {
+		return "", err
+	}
+	name := "clue"
+	if runtime.GOOS == "windows" {
+		name += ".exe"
+	}
+	path := filepath.Join(dir, name)
+	args := []string{"build", "-o", path}
+	if version != "" {
+		args = append(args, "-ldflags", "-X main.version="+version)
+	}
+	cmd := exec.Command("go", append(args, "./cmd/clue")...)
+	cmd.Dir = root
+	if err := cmd.Run(); err != nil {
+		return "", err
+	}
+	return path, nil
+}
 
 func fixtureClue(t *testing.T) string {
 	t.Helper()
-	clueOnce.Do(func() {
-		wd, err := os.Getwd()
-		if err != nil {
-			clueErr = err
-			return
-		}
-		root := filepath.Clean(filepath.Join(wd, "..", ".."))
-		dir, err := os.MkdirTemp("", "cliewen-migration-fixture-*")
-		if err != nil {
-			clueErr = err
-			return
-		}
-		name := "clue"
-		if runtime.GOOS == "windows" {
-			name += ".exe"
-		}
-		cluePath = filepath.Join(dir, name)
-		cmd := exec.Command("go", "build", "-o", cluePath, "./cmd/clue")
-		cmd.Dir = root
-		clueErr = cmd.Run()
-	})
+	clueOnce.Do(func() { cluePath, clueErr = buildFixtureClue("") })
 	if clueErr != nil {
 		t.Fatal(clueErr)
 	}
 	return cluePath
+}
+
+// pinnedReleaseClue is the same command built as a pinned release rather than
+// from source, so a run through it is a pinned-release run (AC-129).
+func pinnedReleaseClue(t *testing.T) string {
+	t.Helper()
+	stampedOnce.Do(func() { stampedPath, stampedErr = buildFixtureClue(assessmentScalePin) })
+	if stampedErr != nil {
+		t.Fatal(stampedErr)
+	}
+	return stampedPath
+}
+
+func runPinnedClue(t *testing.T, args ...string) (string, error) {
+	t.Helper()
+	out, err := exec.Command(pinnedReleaseClue(t), args...).CombinedOutput()
+	return string(out), err
+}
+
+func mustFailPinnedClue(t *testing.T, want string, args ...string) {
+	t.Helper()
+	out, err := runPinnedClue(t, args...)
+	if err == nil || !strings.Contains(out, want) {
+		t.Fatalf("expected pinned-release failure containing %q, err=%v output=%s", want, err, out)
+	}
 }
 
 func runFixtureClue(t *testing.T, args ...string) (string, error) {
@@ -188,32 +234,64 @@ func writeCarrierInventory(t *testing.T, root, revision, location, prefix string
 const (
 	assessmentScaleCriteria = 240
 	assessmentScaleArchived = 40
+	assessmentScaleInFlight = 4
 )
 
 // assessmentScaleTarget is deliberately generated in a temporary directory:
 // its size is evidence for the composed contract, not a second corpus to
-// maintain in the repository.
+// maintain in the repository. It composes the two phases the ordered path
+// keeps apart — the rehearsal writes the source pins first, and the approved
+// mutation materializes the target afterwards.
 func assessmentScaleTarget(t *testing.T, revision, location string) (string, string) {
 	t.Helper()
 	root := t.TempDir()
-	var criteria, tests, ledgerFile, manifest, importedIndex strings.Builder
+	manifest := assessmentScaleSource(t, revision, location)
+	materializeAssessmentScaleTarget(t, root, revision, location)
+	return root, manifest
+}
+
+// assessmentScaleSource writes only what the report-only rehearsal produces:
+// the source tree, its pinned source manifest, and a carrier inventory whose
+// entries are all blocked because no target exists yet. It returns the
+// manifest path.
+func assessmentScaleSource(t *testing.T, revision, location string) string {
+	t.Helper()
+	var manifest strings.Builder
+	fmt.Fprintf(&manifest, "source-revision: %s\nsource-location: %s\nentries:\n", revision, location)
+	for i := 1; i <= assessmentScaleCriteria; i++ {
+		id := fmt.Sprintf("SCL-%03d", i)
+		fmt.Fprintf(&manifest, "  - id: %s\n    proof-class: Integration\n    direction: positive\n    evidence-location: tests/scale_test.go\n  - id: %s\n    proof-class: Integration\n    direction: negative\n    evidence-location: tests/scale_test.go\n", id, id)
+	}
+	sourceRoot := t.TempDir()
+	writeFixtureFiles(t, sourceRoot, map[string]string{
+		"source-manifest.yaml":   manifest.String(),
+		"carrier-inventory.yaml": fmt.Sprintf("source-revision: %s\nsource-location: %s\ndeleted-paths:\n  - openspec/\nentries:\n  - id: SCALE-INSTRUCTION\n    kind: instruction\n    source-path: openspec/AGENTS.md\n    blocked: true\n    reason: Target is not authorized during report-only rehearsal.\n", revision, location),
+		"openspec/AGENTS.md":     "# source routing\n",
+		"tests/scale_test.go":    "package source\n",
+	})
+	return filepath.Join(sourceRoot, "source-manifest.yaml")
+}
+
+// materializeAssessmentScaleTarget is the mutate phase: it writes the target
+// corpus the rehearsal's pins are later verified against.
+func materializeAssessmentScaleTarget(t *testing.T, root, revision, location string) {
+	t.Helper()
+	var criteria, tests, ledgerFile, importedIndex strings.Builder
 	fmt.Fprint(&criteria, "---\nid: SCL-criteria\ntype: criteria\nstatus: active\nlinks: [CAP-901]\ntitle: Assessment-scale fixture criteria\nac-prefix: SCL\n---\n\n```gherkin\nFeature: Assessment-scale migration\n")
 	fmt.Fprint(&ledgerFile, "counters:\n  G: 1\n  CAP: 901\n  IC: 904\n  SCL: 440\nentries:\n  - id: G-001\n    kind: numeric\n    state: live\n    prefix: G\n    component: 1\n  - id: CAP-901\n    kind: numeric\n    state: live\n    prefix: CAP\n    component: 901\n  - id: SCL-criteria\n    kind: opaque\n    state: live\n")
 	fmt.Fprint(&importedIndex, "# imported changes\n\n<!-- clue:index:start -->\n")
-	fmt.Fprintf(&manifest, "source-revision: %s\nsource-location: %s\nentries:\n", revision, location)
 	for i := 1; i <= assessmentScaleCriteria; i++ {
 		id := fmt.Sprintf("SCL-%03d", i)
 		fmt.Fprintf(&criteria, "\n  @%s\n  Scenario: source proof %d survives migration\n    Test-type: Integration\n    Given source proof %d\n    When it is migrated\n    Then it remains classified\n", id, i, i)
 		fmt.Fprintf(&tests, "func TestSCL%03d_IntegrationPositive_preservesProof(t *testing.T) {}\nfunc TestSCL%03d_IntegrationNegative_rejectsLoss(t *testing.T) {}\n", i, i)
 		fmt.Fprintf(&ledgerFile, "  - id: %s\n    kind: numeric\n    state: live\n    prefix: SCL\n    component: %d\n    source-revision: %s\n    source-location: %s\n", id, i, revision, location)
-		fmt.Fprintf(&manifest, "  - id: %s\n    proof-class: Integration\n    direction: positive\n    evidence-location: tests/scale_test.go\n  - id: %s\n    proof-class: Integration\n    direction: negative\n    evidence-location: tests/scale_test.go\n", id, id)
 	}
 	fmt.Fprint(&criteria, "```\n")
 	for i := 1; i <= assessmentScaleArchived; i++ {
 		component := 400 + i
 		fmt.Fprintf(&ledgerFile, "  - id: SCL-%03d\n    kind: numeric\n    state: retired\n    prefix: SCL\n    component: %d\n    source-revision: %s\n    source-location: %s\n", component, component, revision, location)
 	}
-	for i := 1; i <= 4; i++ {
+	for i := 1; i <= assessmentScaleInFlight; i++ {
 		id := fmt.Sprintf("IC-%03d", 900+i)
 		fmt.Fprintf(&ledgerFile, "  - id: %s\n    kind: numeric\n    state: live\n    prefix: IC\n    component: %d\n", id, 900+i)
 		fmt.Fprintf(&importedIndex, "- [%s.md](%s.md) — fixture source work\n", id, id)
@@ -231,18 +309,24 @@ func assessmentScaleTarget(t *testing.T, revision, location string) (string, str
 		"AGENTS.md":                             "# assessment-scale fixture routing\n",
 		".github/workflows/validate.yml":        "name: validate\non: [push]\njobs:\n  validate:\n    runs-on: ubuntu-latest\n    steps:\n      - run: clue validate .\n",
 	})
-	for i := 1; i <= 4; i++ {
+	for i := 1; i <= assessmentScaleInFlight; i++ {
 		id := fmt.Sprintf("IC-%03d", 900+i)
 		writeFixtureFiles(t, root, map[string]string{fmt.Sprintf("docs/imported-changes/%s.md", id): fmt.Sprintf("---\nid: %s\ntype: imported-change\nstatus: in-progress\nlinks: [CAP-901]\ntitle: Assessment-scale in-flight source work %d\nsource-revision: %s\nsource-location: %s\n---\n\n# Assessment-scale in-flight source work %d\n\n## Intent\n\nPreserve concurrent source work.\n\n## Design rationale\n\nThe target keeps its proof link inspectable.\n\n## Dependencies\n\nNone.\n\n## Proof links\n\n| Task | Criterion |\n| --- | --- |\n| Preserve source proof | SCL-%03d |\n", id, i, revision, location, i, i)})
 	}
-	sourceRoot := t.TempDir()
-	writeFixtureFiles(t, sourceRoot, map[string]string{
-		"source-manifest.yaml":   manifest.String(),
-		"carrier-inventory.yaml": fmt.Sprintf("source-revision: %s\nsource-location: %s\ndeleted-paths:\n  - openspec/\nentries:\n  - id: SCALE-INSTRUCTION\n    kind: instruction\n    source-path: openspec/AGENTS.md\n    blocked: true\n    reason: Target is not authorized during report-only rehearsal.\n", revision, location),
-		"openspec/AGENTS.md":     "# source routing\n",
-		"tests/scale_test.go":    "package source\n",
-	})
-	return root, filepath.Join(sourceRoot, "source-manifest.yaml")
+	writeFixtureSkills(t, root, assessmentScalePin)
+}
+
+// writeFixtureSkills installs the managed skills a migrated repository
+// carries, stamped with the release the run is pinned to. The stamp is what
+// `clue validate` compares a released binary against; a source build has no
+// release to drift from and skips the comparison entirely.
+func writeFixtureSkills(t *testing.T, root, version string) {
+	t.Helper()
+	files := map[string]string{}
+	for _, name := range []string{"clue-delta", "clue-extract", "clue-verify"} {
+		files[".agents/skills/"+name+"/skill.md"] = fmt.Sprintf("---\ncliewen-skill: true\nversion: %s\n---\n\n# %s\n", version, name)
+	}
+	writeFixtureFiles(t, root, files)
 }
 
 // assessmentScaleInventory pins one carrier per kind the target actually
@@ -451,6 +535,156 @@ func TestAC128_UnitNegative_assessmentScaleFixtureRejectsEveryFailureClass(t *te
 	})
 	mustFailFixtureClue(t, carriers.ClassLostFingerprint, "carriers", lostPath, targetRoot)
 	mustFailFixtureClue(t, carriers.ClassMissingAsset, "carriers", missingPath, targetRoot)
+}
+
+// TestAC129_UnitPositive_orderedPinnedReleasePathHoldsAtAssessmentScale runs
+// the migration path in the order the extraction contract requires — rehearsal
+// pins written while no target exists, then the approved mutation verified
+// against those same unmodified pins — through a binary built as a pinned
+// release rather than from source. The source fixture's own suite is never
+// executed, and no production adopter is involved.
+func TestAC129_UnitPositive_orderedPinnedReleasePathHoldsAtAssessmentScale(t *testing.T) {
+	revision, location := "assessment-scale-fixture-v1", "fixtures/assessment-scale"
+	if out, err := runPinnedClue(t, "version"); err != nil || !strings.Contains(out, assessmentScalePin) {
+		t.Fatalf("pinned-release build reports %q, %v; want %s", out, err, assessmentScalePin)
+	}
+
+	// Rehearsal: the source pins exist and the target does not. A parity or
+	// carrier verdict claimed here would be a claim about a corpus nobody has
+	// written, so both must fail rather than pass vacuously.
+	manifest := assessmentScaleSource(t, revision, location)
+	sourceRoot := filepath.Dir(manifest)
+	targetRoot := t.TempDir()
+	mustFailPinnedClue(t, parity.ClassMissingCriterion, "parity", manifest, targetRoot)
+	// The rehearsal's own inventory is clean, because every entry it carries
+	// is blocked: that is the only shape a rehearsal can produce, and it is
+	// what keeps this step from being a broken-inventory result. An inventory
+	// that instead maps a target — the shape only the mutate phase may write —
+	// fails here and passes only after mutation.
+	if out, err := runPinnedClue(t, "carriers", filepath.Join(sourceRoot, "carrier-inventory.yaml"), sourceRoot); err != nil {
+		t.Fatalf("report-only carrier rehearsal: %v\n%s", err, out)
+	}
+	prematurePath := filepath.Join(sourceRoot, "premature-carriers.yaml")
+	writeFixtureFiles(t, sourceRoot, map[string]string{filepath.Base(prematurePath): "source-revision: " + revision + "\nsource-location: " + location + "\nentries:\n  - id: SCALE-INSTRUCTION\n    kind: instruction\n    source-path: openspec/AGENTS.md\n    target-path: AGENTS.md\n    fingerprint: " + strings.Repeat("0", 64) + "\n"})
+	mustFailPinnedClue(t, carriers.ClassMissingAsset, "carriers", prematurePath, targetRoot)
+	pins, err := os.ReadFile(manifest)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Mutation, which a human authorizes; the merge of this change is that
+	// acceptance for the fixture.
+	materializeAssessmentScaleTarget(t, targetRoot, revision, location)
+	if out, err := runPinnedClue(t, "validate", targetRoot); err != nil {
+		t.Fatalf("pinned-release target validation: %v\n%s", err, out)
+	}
+	// The manifest that proves the migration is the one the rehearsal wrote,
+	// byte for byte — a manifest rewritten to match the target afterwards
+	// would prove nothing about what the source held.
+	after, err := os.ReadFile(manifest)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if string(after) != string(pins) {
+		t.Fatal("the rehearsal's pinned manifest changed during mutation")
+	}
+	if out, err := runPinnedClue(t, "parity", manifest, targetRoot); err != nil {
+		t.Fatalf("parity against the rehearsal's own pins: %v\n%s", err, out)
+	}
+	inventory := assessmentScaleInventory(t, targetRoot, revision, location)
+	if out, err := runPinnedClue(t, "carriers", inventory, targetRoot); err != nil {
+		t.Fatalf("carrier reconciliation after mutation: %v\n%s", err, out)
+	}
+
+	// Source-work preservation: every in-flight record the migration imported
+	// stays readable on its own terms after the source is gone.
+	c, scanIssues := corpus.Scan(targetRoot)
+	if len(scanIssues) > 0 {
+		t.Fatalf("target scan issues: %v", scanIssues)
+	}
+	declared, _ := corpus.AcceptanceEvidence(c)
+	for i := 1; i <= assessmentScaleInFlight; i++ {
+		id := fmt.Sprintf("IC-%03d", 900+i)
+		records := c.ByID[id]
+		if len(records) != 1 {
+			t.Fatalf("imported change %s: got %d records, want 1", id, len(records))
+		}
+		record := records[0]
+		if record.Fields["source-revision"] != revision || record.Fields["source-location"] != location {
+			t.Fatalf("imported change %s lost its pinned origin: %+v", id, record.Fields)
+		}
+		for _, section := range []string{"## Intent", "## Design rationale", "## Dependencies"} {
+			if !strings.Contains(record.Body, section) {
+				t.Fatalf("imported change %s has no %q section", id, section)
+			}
+		}
+		links := importedchange.ParseProofLinks(record.Body)
+		if len(links) != 1 || links[0].Task == "" {
+			t.Fatalf("imported change %s has no inspectable proof link: %v", id, links)
+		}
+		d, ok := declared[links[0].Criterion]
+		if !ok || d.Draft || d.Retired {
+			t.Fatalf("imported change %s proof-links %s, which the target cannot back", id, links[0].Criterion)
+		}
+	}
+
+	// A record may close only once the work it names is proven, and at this
+	// size it is: promoting one to complete keeps the corpus green.
+	completePath := filepath.Join(targetRoot, "docs", "imported-changes", "IC-901.md")
+	record, err := os.ReadFile(completePath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(completePath, []byte(strings.Replace(string(record), "status: in-progress", "status: complete", 1)), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if out, err := runPinnedClue(t, "validate", targetRoot); err != nil {
+		t.Fatalf("completing a proven imported change: %v\n%s", err, out)
+	}
+}
+
+// TestAC129_UnitNegative_orderedPinnedReleasePathRejectsItsViolations proves
+// each half of the positive path is load-bearing: the release stamp, the
+// ordering, and the imported-change closing gate.
+func TestAC129_UnitNegative_orderedPinnedReleasePathRejectsItsViolations(t *testing.T) {
+	revision, location := "assessment-scale-fixture-v1", "fixtures/assessment-scale"
+	targetRoot, manifest := assessmentScaleTarget(t, revision, location)
+
+	// Drift: skills stamped with a release other than the binary's. Without
+	// this the positive run's pinned stamp would be decoration, since a
+	// source build skips the comparison rather than passing it.
+	writeFixtureSkills(t, targetRoot, "1.3.0")
+	mustFailPinnedClue(t, "drift", "validate", targetRoot)
+	writeFixtureSkills(t, targetRoot, assessmentScalePin)
+	if out, err := runPinnedClue(t, "validate", targetRoot); err != nil {
+		t.Fatalf("restored pinned skills: %v\n%s", err, out)
+	}
+
+	// Ordering: the same pins that pass against the mutated target give no
+	// verdict against a target the mutation has not written.
+	unwritten := t.TempDir()
+	mustFailPinnedClue(t, parity.ClassMissingCriterion, "parity", manifest, unwritten)
+	mustFailPinnedClue(t, carriers.ClassMissingAsset, "carriers", assessmentScaleInventory(t, targetRoot, revision, location), unwritten)
+
+	// Source work: a record may not declare itself complete over work the
+	// target cannot back, whatever the corpus's size.
+	criteriaPath := filepath.Join(targetRoot, "docs", "capabilities", "fixture", "criteria.md")
+	criteria, err := os.ReadFile(criteriaPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(criteriaPath, []byte(strings.Replace(string(criteria), "@SCL-002", "@SCL-002 @draft", 1)), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	completePath := filepath.Join(targetRoot, "docs", "imported-changes", "IC-902.md")
+	record, err := os.ReadFile(completePath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(completePath, []byte(strings.Replace(string(record), "status: in-progress", "status: complete", 1)), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	mustFailPinnedClue(t, "imported-change is complete", "validate", targetRoot)
 }
 
 // TestAC123_UnitPositive_disposableFixturesProveComposedMigrationContract

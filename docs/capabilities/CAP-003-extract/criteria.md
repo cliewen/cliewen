@@ -279,5 +279,13 @@ Feature: Brownfield analysis and extraction — evidence, namespaced ACs, JVM ha
     When the public `clue` command validates it and runs parity and carrier reconciliation
     Then clean parity and carrier reports pass, numeric allocation advances past every prefix's recorded population, and identity reservation refuses an existing, retired, or already-reserved identity across a ledger round trip
     And every required parity and carrier failure class still exits non-zero against that assessment-scale shape
-    But this command-scale fixture does not claim extraction ordering, source-work preservation, or pinned-release evidence
+    But this command-scale fixture does not claim extraction ordering, source-work preservation, or pinned-release evidence; AC-129 holds those
+
+  @AC-129
+  Scenario: The ordered migration path holds under a pinned release at assessment scale
+    Test-type: Unit
+    Given an assessment-scale source and target, a `clue` binary stamped with a pinned release, and installed skills carrying that same stamp
+    When the rehearsal pins are written before the target exists and the approved mutation is verified against those unmodified pins
+    Then the stamped binary validates the target, the rehearsal's own manifest and inventory still reconcile clean afterwards, and every in-flight imported change keeps its pinned origin, rationale sections, and proof links to live criteria
+    But a skill stamp disagreeing with the pinned release is reported as drift, a parity or carrier claim made before the target exists fails, and an imported change claiming complete over an unproven criterion is rejected at that size
 ```

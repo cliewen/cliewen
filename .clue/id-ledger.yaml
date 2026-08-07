@@ -649,7 +649,7 @@ entries:
       component: "128"
     - id: AC-129
       kind: numeric
-      state: reserved
+      state: live
       prefix: AC
       component: "129"
     - id: ADR-001
@@ -1202,9 +1202,15 @@ entries:
       state: retired
     - id: CH-127
       kind: numeric
-      state: reserved
+      state: live
       prefix: CH
       component: "127"
+    - id: CH-127-questions
+      kind: opaque
+      state: live
+    - id: CH-127-tasks
+      kind: opaque
+      state: live
     - id: G-001
       kind: numeric
       state: live
