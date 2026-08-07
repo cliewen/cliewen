@@ -98,17 +98,17 @@ func fixtureTarget(t *testing.T, prefix, criterion, revision, location string) s
 	}
 	ledgerFile := fmt.Sprintf("counters:\n  G: 1\n  CAP: 901\n  IC: 901\n  %s: %s\nentries:\n  - id: G-001\n    kind: numeric\n    state: live\n    prefix: G\n    component: 1\n  - id: CAP-901\n    kind: numeric\n    state: live\n    prefix: CAP\n    component: 901\n  - id: IC-901\n    kind: numeric\n    state: live\n    prefix: IC\n    component: 901\n%s  - id: %s\n    kind: numeric\n    state: live\n    prefix: %s\n    component: %s\n    source-revision: %s\n    source-location: %s\n  - id: %s-criteria\n    kind: opaque\n    state: live\n", prefix, counter, archived, criterion, prefix, component, revision, location, prefix)
 	writeFixtureFiles(t, root, map[string]string{
-		"docs/README.md": "# fixture\n\n<!-- clue:index:start -->\n- [goals/](goals/) — fixture goal\n- [capabilities/](capabilities/) — fixture capability\n- [imported-changes/](imported-changes/) — fixture imported work\n<!-- clue:index:end -->\n",
-		"docs/goals/README.md": "# goals\n\n<!-- clue:index:start -->\n- [G-001.md](G-001.md) — fixture goal\n<!-- clue:index:end -->\n",
-		"docs/goals/G-001.md": "---\nid: G-001\ntype: goal\nstatus: accepted\nlinks: []\ntitle: Fixture goal\n---\n\n# Fixture goal\n",
-		"docs/capabilities/README.md": "# capabilities\n\n<!-- clue:index:start -->\n- [fixture/](fixture/) — fixture capability\n<!-- clue:index:end -->\n",
-		"docs/capabilities/fixture/README.md": "---\nid: CAP-901\ntype: capability\nstatus: active\nlinks: [G-001]\ntitle: Fixture capability\ngoal: G-001\n---\n\n# Fixture capability\n",
+		"docs/README.md":                        "# fixture\n\n<!-- clue:index:start -->\n- [goals/](goals/) — fixture goal\n- [capabilities/](capabilities/) — fixture capability\n- [imported-changes/](imported-changes/) — fixture imported work\n<!-- clue:index:end -->\n",
+		"docs/goals/README.md":                  "# goals\n\n<!-- clue:index:start -->\n- [G-001.md](G-001.md) — fixture goal\n<!-- clue:index:end -->\n",
+		"docs/goals/G-001.md":                   "---\nid: G-001\ntype: goal\nstatus: accepted\nlinks: []\ntitle: Fixture goal\n---\n\n# Fixture goal\n",
+		"docs/capabilities/README.md":           "# capabilities\n\n<!-- clue:index:start -->\n- [fixture/](fixture/) — fixture capability\n<!-- clue:index:end -->\n",
+		"docs/capabilities/fixture/README.md":   "---\nid: CAP-901\ntype: capability\nstatus: active\nlinks: [G-001]\ntitle: Fixture capability\ngoal: G-001\n---\n\n# Fixture capability\n",
 		"docs/capabilities/fixture/criteria.md": criteria,
-		"docs/imported-changes/README.md": "# imported changes\n\n<!-- clue:index:start -->\n- [IC-901.md](IC-901.md) — fixture source work\n<!-- clue:index:end -->\n",
-		"docs/imported-changes/IC-901.md": fmt.Sprintf("---\nid: IC-901\ntype: imported-change\nstatus: complete\nlinks: [CAP-901]\ntitle: Fixture pending source work\nsource-revision: %s\nsource-location: %s\n---\n\n# Fixture pending source work\n\n## Intent\n\nPreserve the source change.\n\n## Design rationale\n\nThe target retains the proof link.\n\n## Dependencies\n\nNone.\n\n## Proof links\n\n| Task | Criterion |\n| --- | --- |\n| Preserve source proof | %s |\n", revision, location, criterion),
-		"AGENTS.md": "# fixture routing\n",
-		"tests/fixture_test.go": "package fixture\n\nfunc Test" + strings.ReplaceAll(criterion, "-", "") + "_IntegrationPositive_preservesProof(t *testing.T) {}\nfunc Test" + strings.ReplaceAll(criterion, "-", "") + "_IntegrationNegative_rejectsLoss(t *testing.T) {}\n",
-		".clue/id-ledger.yaml": ledgerFile,
+		"docs/imported-changes/README.md":       "# imported changes\n\n<!-- clue:index:start -->\n- [IC-901.md](IC-901.md) — fixture source work\n<!-- clue:index:end -->\n",
+		"docs/imported-changes/IC-901.md":       fmt.Sprintf("---\nid: IC-901\ntype: imported-change\nstatus: complete\nlinks: [CAP-901]\ntitle: Fixture pending source work\nsource-revision: %s\nsource-location: %s\n---\n\n# Fixture pending source work\n\n## Intent\n\nPreserve the source change.\n\n## Design rationale\n\nThe target retains the proof link.\n\n## Dependencies\n\nNone.\n\n## Proof links\n\n| Task | Criterion |\n| --- | --- |\n| Preserve source proof | %s |\n", revision, location, criterion),
+		"AGENTS.md":                             "# fixture routing\n",
+		"tests/fixture_test.go":                 "package fixture\n\nfunc Test" + strings.ReplaceAll(criterion, "-", "") + "_IntegrationPositive_preservesProof(t *testing.T) {}\nfunc Test" + strings.ReplaceAll(criterion, "-", "") + "_IntegrationNegative_rejectsLoss(t *testing.T) {}\n",
+		".clue/id-ledger.yaml":                  ledgerFile,
 	})
 	return root
 }
@@ -149,14 +149,14 @@ func fixtureSource(t *testing.T, prefix, criterion, revision, location string) (
 	t.Helper()
 	root := t.TempDir()
 	writeFixtureFiles(t, root, map[string]string{
-		"openspec/config.yaml": "revision: " + revision + "\n",
-		"openspec/specs/fixture/spec.md": "# Fixture source\n\n### Requirement: preserve source proof\n\n#### Scenario: fixture [" + criterion + "]\n\nTest-type: Integration\n",
+		"openspec/config.yaml":                         "revision: " + revision + "\n",
+		"openspec/specs/fixture/spec.md":               "# Fixture source\n\n### Requirement: preserve source proof\n\n#### Scenario: fixture [" + criterion + "]\n\nTest-type: Integration\n",
 		"openspec/changes/preserve-source/proposal.md": "# Preserve source work\n",
-		"openspec/changes/preserve-source/design.md": "# Source rationale\n",
-		"openspec/changes/preserve-source/tasks.md": "- [ ] Preserve " + criterion + "\n",
-		"openspec/AGENTS.md": "# source routing\n",
-		"openspec/INDEX.md": "# source registry\n",
-		"tests/fixture_test.go": "package source\n\nfunc Test" + strings.ReplaceAll(criterion, "-", "") + "_IntegrationPositive_sourceProof(t *testing.T) {}\nfunc Test" + strings.ReplaceAll(criterion, "-", "") + "_IntegrationNegative_sourceLoss(t *testing.T) {}\n",
+		"openspec/changes/preserve-source/design.md":   "# Source rationale\n",
+		"openspec/changes/preserve-source/tasks.md":    "- [ ] Preserve " + criterion + "\n",
+		"openspec/AGENTS.md":                           "# source routing\n",
+		"openspec/INDEX.md":                            "# source registry\n",
+		"tests/fixture_test.go":                        "package source\n\nfunc Test" + strings.ReplaceAll(criterion, "-", "") + "_IntegrationPositive_sourceProof(t *testing.T) {}\nfunc Test" + strings.ReplaceAll(criterion, "-", "") + "_IntegrationNegative_sourceLoss(t *testing.T) {}\n",
 	})
 	manifest := writeSourceManifest(t, root, revision, location, criterion)
 	writeFixtureFiles(t, root, map[string]string{"carrier-inventory.yaml": fmt.Sprintf("source-revision: %s\nsource-location: %s\ndeleted-paths:\n  - openspec/\nentries:\n  - id: %s-INSTRUCTION\n    kind: instruction\n    source-path: openspec/AGENTS.md\n    blocked: true\n    reason: Target is not authorized during report-only rehearsal.\n  - id: %s-REGISTRY\n    kind: registry\n    source-path: openspec/INDEX.md\n    blocked: true\n    reason: Target is not authorized during report-only rehearsal.\n  - id: %s-LINK\n    kind: link\n    source-path: openspec/specs/fixture/spec.md\n    blocked: true\n    reason: Target is not authorized during report-only rehearsal.\n", revision, location, prefix, prefix, prefix)})
@@ -185,6 +185,87 @@ func writeCarrierInventory(t *testing.T, root, revision, location, prefix string
 	return path
 }
 
+const (
+	assessmentScaleCriteria = 240
+	assessmentScaleArchived = 40
+)
+
+// assessmentScaleTarget is deliberately generated in a temporary directory:
+// its size is evidence for the composed contract, not a second corpus to
+// maintain in the repository.
+func assessmentScaleTarget(t *testing.T, revision, location string) (string, string) {
+	t.Helper()
+	root := t.TempDir()
+	var criteria, tests, ledgerFile, manifest, importedIndex strings.Builder
+	fmt.Fprint(&criteria, "---\nid: SCL-criteria\ntype: criteria\nstatus: active\nlinks: [CAP-901]\ntitle: Assessment-scale fixture criteria\nac-prefix: SCL\n---\n\n```gherkin\nFeature: Assessment-scale migration\n")
+	fmt.Fprint(&ledgerFile, "counters:\n  G: 1\n  CAP: 901\n  IC: 904\n  SCL: 440\nentries:\n  - id: G-001\n    kind: numeric\n    state: live\n    prefix: G\n    component: 1\n  - id: CAP-901\n    kind: numeric\n    state: live\n    prefix: CAP\n    component: 901\n  - id: SCL-criteria\n    kind: opaque\n    state: live\n")
+	fmt.Fprint(&importedIndex, "# imported changes\n\n<!-- clue:index:start -->\n")
+	fmt.Fprintf(&manifest, "source-revision: %s\nsource-location: %s\nentries:\n", revision, location)
+	for i := 1; i <= assessmentScaleCriteria; i++ {
+		id := fmt.Sprintf("SCL-%03d", i)
+		fmt.Fprintf(&criteria, "\n  @%s\n  Scenario: source proof %d survives migration\n    Test-type: Integration\n    Given source proof %d\n    When it is migrated\n    Then it remains classified\n", id, i, i)
+		fmt.Fprintf(&tests, "func TestSCL%03d_IntegrationPositive_preservesProof(t *testing.T) {}\nfunc TestSCL%03d_IntegrationNegative_rejectsLoss(t *testing.T) {}\n", i, i)
+		fmt.Fprintf(&ledgerFile, "  - id: %s\n    kind: numeric\n    state: live\n    prefix: SCL\n    component: %d\n    source-revision: %s\n    source-location: %s\n", id, i, revision, location)
+		fmt.Fprintf(&manifest, "  - id: %s\n    proof-class: Integration\n    direction: positive\n    evidence-location: tests/scale_test.go\n  - id: %s\n    proof-class: Integration\n    direction: negative\n    evidence-location: tests/scale_test.go\n", id, id)
+	}
+	fmt.Fprint(&criteria, "```\n")
+	for i := 1; i <= assessmentScaleArchived; i++ {
+		component := 400 + i
+		fmt.Fprintf(&ledgerFile, "  - id: SCL-%03d\n    kind: numeric\n    state: retired\n    prefix: SCL\n    component: %d\n    source-revision: %s\n    source-location: %s\n", component, component, revision, location)
+	}
+	for i := 1; i <= 4; i++ {
+		id := fmt.Sprintf("IC-%03d", 900+i)
+		fmt.Fprintf(&ledgerFile, "  - id: %s\n    kind: numeric\n    state: live\n    prefix: IC\n    component: %d\n", id, 900+i)
+		fmt.Fprintf(&importedIndex, "- [%s.md](%s.md) — fixture source work\n", id, id)
+	}
+	writeFixtureFiles(t, root, map[string]string{
+		"docs/README.md":                        "# fixture\n\n<!-- clue:index:start -->\n- [goals/](goals/) — fixture goal\n- [capabilities/](capabilities/) — fixture capability\n- [imported-changes/](imported-changes/) — fixture imported work\n<!-- clue:index:end -->\n",
+		"docs/goals/README.md":                  "# goals\n\n<!-- clue:index:start -->\n- [G-001.md](G-001.md) — fixture goal\n<!-- clue:index:end -->\n",
+		"docs/goals/G-001.md":                   "---\nid: G-001\ntype: goal\nstatus: accepted\nlinks: []\ntitle: Fixture goal\n---\n\n# Fixture goal\n",
+		"docs/capabilities/README.md":           "# capabilities\n\n<!-- clue:index:start -->\n- [fixture/](fixture/) — fixture capability\n<!-- clue:index:end -->\n",
+		"docs/capabilities/fixture/README.md":   "---\nid: CAP-901\ntype: capability\nstatus: active\nlinks: [G-001]\ntitle: Fixture capability\ngoal: G-001\n---\n\n# Fixture capability\n",
+		"docs/capabilities/fixture/criteria.md": criteria.String(),
+		"docs/imported-changes/README.md":       importedIndex.String() + "<!-- clue:index:end -->\n",
+		"tests/scale_test.go":                   "package fixture\n\nimport \"testing\"\n\n" + tests.String(),
+		".clue/id-ledger.yaml":                  ledgerFile.String(),
+		"AGENTS.md":                             "# assessment-scale fixture routing\n",
+		".github/workflows/validate.yml":        "name: validate\non: [push]\njobs:\n  validate:\n    runs-on: ubuntu-latest\n    steps:\n      - run: clue validate .\n",
+	})
+	for i := 1; i <= 4; i++ {
+		id := fmt.Sprintf("IC-%03d", 900+i)
+		writeFixtureFiles(t, root, map[string]string{fmt.Sprintf("docs/imported-changes/%s.md", id): fmt.Sprintf("---\nid: %s\ntype: imported-change\nstatus: in-progress\nlinks: [CAP-901]\ntitle: Assessment-scale in-flight source work %d\nsource-revision: %s\nsource-location: %s\n---\n\n# Assessment-scale in-flight source work %d\n\n## Intent\n\nPreserve concurrent source work.\n\n## Design rationale\n\nThe target keeps its proof link inspectable.\n\n## Dependencies\n\nNone.\n\n## Proof links\n\n| Task | Criterion |\n| --- | --- |\n| Preserve source proof | SCL-%03d |\n", id, i, revision, location, i, i)})
+	}
+	sourceRoot := t.TempDir()
+	writeFixtureFiles(t, sourceRoot, map[string]string{
+		"source-manifest.yaml":   manifest.String(),
+		"carrier-inventory.yaml": fmt.Sprintf("source-revision: %s\nsource-location: %s\ndeleted-paths:\n  - openspec/\nentries:\n  - id: SCALE-INSTRUCTION\n    kind: instruction\n    source-path: openspec/AGENTS.md\n    blocked: true\n    reason: Target is not authorized during report-only rehearsal.\n", revision, location),
+		"openspec/AGENTS.md":     "# source routing\n",
+		"tests/scale_test.go":    "package source\n",
+	})
+	return root, filepath.Join(sourceRoot, "source-manifest.yaml")
+}
+
+// assessmentScaleInventory pins one carrier per kind the target actually
+// holds, so reconciliation at scale exercises the same kind vocabulary the
+// smaller AC-123 inventory does rather than labelling every row
+// `instruction`.
+func assessmentScaleInventory(t *testing.T, root, revision, location string) string {
+	t.Helper()
+	paths := []string{"AGENTS.md", ".github/workflows/validate.yml", "docs/capabilities/README.md", "docs/imported-changes/README.md", "docs/capabilities/fixture/README.md"}
+	kinds := []carriers.Kind{carriers.KindInstruction, carriers.KindWorkflow, carriers.KindRegistry, carriers.KindRegistry, carriers.KindLink}
+	var entries strings.Builder
+	for i, target := range paths {
+		fp, err := carriers.Fingerprint(filepath.Join(root, filepath.FromSlash(target)))
+		if err != nil {
+			t.Fatal(err)
+		}
+		fmt.Fprintf(&entries, "  - id: SCALE-%d\n    kind: %s\n    source-path: openspec/carrier-%d.md\n    target-path: %s\n    fingerprint: %s\n", i+1, kinds[i], i+1, target, fp)
+	}
+	path := filepath.Join(root, "carrier-inventory.yaml")
+	writeFixtureFiles(t, root, map[string]string{"carrier-inventory.yaml": fmt.Sprintf("source-revision: %s\nsource-location: %s\ndeleted-paths:\n  - openspec/\nentries:\n%s", revision, location, entries.String())})
+	return path
+}
+
 func mustHaveFinding(t *testing.T, report parity.Report, class string) {
 	t.Helper()
 	for _, finding := range report.Findings {
@@ -203,6 +284,173 @@ func mustHaveCarrierFinding(t *testing.T, report carriers.Report, class string) 
 		}
 	}
 	t.Fatalf("expected %s finding, got %v", class, report.Findings)
+}
+
+// TestAC128_UnitPositive_assessmentScaleFixtureProvesComposedMigrationContract
+// holds the complete contract at the originating assessment's order of
+// magnitude. The temporary source is never executed as a test suite.
+func TestAC128_UnitPositive_assessmentScaleFixtureProvesComposedMigrationContract(t *testing.T) {
+	revision, location := "assessment-scale-fixture-v1", "fixtures/assessment-scale"
+	targetRoot, manifest := assessmentScaleTarget(t, revision, location)
+	sourceRoot := filepath.Dir(manifest)
+	// The rehearsal runs before the target is authorized, so the only entry
+	// shape it can carry is `blocked`. Pairing the clean run with a premature
+	// mapping keeps the step from passing vacuously: an inventory that claims
+	// a target the rehearsal has not written yet must fail.
+	if out, err := runFixtureClue(t, "carriers", filepath.Join(sourceRoot, "carrier-inventory.yaml"), sourceRoot); err != nil {
+		t.Fatalf("report-only carrier rehearsal: %v\n%s", err, out)
+	}
+	prematurePath := filepath.Join(sourceRoot, "premature-carriers.yaml")
+	writeFixtureFiles(t, sourceRoot, map[string]string{filepath.Base(prematurePath): "source-revision: " + revision + "\nsource-location: " + location + "\nentries:\n  - id: SCALE-INSTRUCTION\n    kind: instruction\n    source-path: openspec/AGENTS.md\n    target-path: AGENTS.md\n    fingerprint: " + strings.Repeat("0", 64) + "\n"})
+	mustFailFixtureClue(t, carriers.ClassMissingAsset, "carriers", prematurePath, sourceRoot)
+	mustValidateFixture(t, targetRoot)
+	if out, err := runFixtureClue(t, "validate", targetRoot); err != nil {
+		t.Fatalf("assessment-scale target validation: %v\n%s", err, out)
+	}
+	if out, err := runFixtureClue(t, "parity", manifest, targetRoot); err != nil {
+		t.Fatalf("assessment-scale parity: %v\n%s", err, out)
+	}
+	inventory := assessmentScaleInventory(t, targetRoot, revision, location)
+	if out, err := runFixtureClue(t, "carriers", inventory, targetRoot); err != nil {
+		t.Fatalf("assessment-scale carrier reconciliation: %v\n%s", err, out)
+	}
+
+	// Allocation is asked on a throwaway instance: NextNumeric reserves the
+	// ID it returns and advances the stored counter, so asking it on the
+	// instance this test later saves would persist four reservations the
+	// fixture never intended and make the assertion unrepeatable.
+	allocation, err := ledger.Load(targetRoot)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for prefix, want := range map[string]string{"G": "G-002", "CAP": "CAP-902", "IC": "IC-905", "SCL": "SCL-441"} {
+		got, err := allocation.NextNumeric(prefix)
+		if err != nil || got != want {
+			t.Fatalf("next %s = %q, %v; want %s", prefix, got, err, want)
+		}
+	}
+
+	l, err := ledger.Load(targetRoot)
+	if err != nil {
+		t.Fatal(err)
+	}
+	// Reservation must refuse an identity the ledger already carries in any
+	// state, not only one reserved a moment ago in memory: an existing live
+	// opaque ID and one of the forty retired numeric IDs are both refused.
+	if err := l.ReserveOpaque("SCL-criteria", revision, location); err == nil {
+		t.Fatal("existing live opaque identity was reissued")
+	}
+	if err := l.ReserveOpaque("SCL-401", revision, location); err == nil {
+		t.Fatal("retired identity was reissued")
+	}
+	if err := l.ReserveOpaque("assessment-scale-source-opaque-id", revision, location); err != nil {
+		t.Fatal(err)
+	}
+	if err := l.ReserveOpaque("assessment-scale-source-opaque-id", revision, location); err == nil {
+		t.Fatal("opaque source identity was reused")
+	}
+	if err := l.Save(); err != nil {
+		t.Fatal(err)
+	}
+	// The reservation is permanent because it is on disk, not because it is
+	// in this process: reload and re-attempt it.
+	reloaded, err := ledger.Load(targetRoot)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := reloaded.ReserveOpaque("assessment-scale-source-opaque-id", revision, location); err == nil {
+		t.Fatal("opaque source identity was reissued after a ledger round trip")
+	}
+	if err := mustValidateAfterOpaqueReservation(targetRoot); err != nil {
+		t.Fatal(err)
+	}
+}
+
+// TestAC128_UnitNegative_assessmentScaleFixtureRejectsEveryFailureClass
+// runs the public failure paths against the same order-of-magnitude shape,
+// rather than inferring scale behaviour from the smaller AC-123 fixture.
+func TestAC128_UnitNegative_assessmentScaleFixtureRejectsEveryFailureClass(t *testing.T) {
+	revision, location := "assessment-scale-fixture-v1", "fixtures/assessment-scale"
+	targetRoot, manifest := assessmentScaleTarget(t, revision, location)
+	pristine, err := os.ReadFile(manifest)
+	if err != nil {
+		t.Fatal(err)
+	}
+	writeManifest := func(content string) {
+		t.Helper()
+		if err := os.WriteFile(manifest, []byte(content), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+	writeManifest(strings.ReplaceAll(string(pristine), "SCL-001", "SCL-999"))
+	mustFailFixtureClue(t, parity.ClassMissingCriterion, "parity", manifest, targetRoot)
+	writeManifest("source-revision: " + revision + "\nsource-location: " + location + "\nentries: []\n")
+	mustFailFixtureClue(t, parity.ClassOrphanedTag, "parity", manifest, targetRoot)
+	writeManifest(strings.ReplaceAll(string(pristine), "tests/scale_test.go", "tests/moved_test.go"))
+	mustFailFixtureClue(t, parity.ClassChangedEvidence, "parity", manifest, targetRoot)
+	writeManifest(strings.Replace(string(pristine), revision, "assessment-scale-fixture-v2", 1))
+	mustFailFixtureClue(t, parity.ClassStaleFingerprint, "parity", manifest, targetRoot)
+	writeManifest(string(pristine))
+	criteriaPath := filepath.Join(targetRoot, "docs", "capabilities", "fixture", "criteria.md")
+	criteria, err := os.ReadFile(criteriaPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(criteriaPath, []byte(strings.Replace(string(criteria), "@SCL-001", "@SCL-001 @draft", 1)), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	mustFailFixtureClue(t, parity.ClassUnjustifiedDisposition, "parity", manifest, targetRoot)
+	// A deferral is unaccountable when the target corpus declares no plan
+	// door at all, which is this fixture's shape (ADR-053). The criterion
+	// still carries the @draft tag the step above added, so the disposition
+	// matches the target and the unjustified class must stay silent — that
+	// absence is asserted below, because otherwise this step would keep
+	// passing on the wrong class if the tag were ever restored.
+	provenProof := `  - id: SCL-001
+    proof-class: Integration
+    direction: positive
+    evidence-location: tests/scale_test.go
+  - id: SCL-001
+    proof-class: Integration
+    direction: negative
+    evidence-location: tests/scale_test.go
+`
+	deferredToAbsentDoor := `  - id: SCL-001
+    disposition: draft
+    justification: The source reference is not re-derived at this scale yet.
+    disposition-source-location: openspec/specs/fixture/spec.md:1
+    plan-door: M-999
+`
+	deferred := strings.Replace(string(pristine), provenProof, deferredToAbsentDoor, 1)
+	if deferred == string(pristine) {
+		t.Fatal("deferral rewrite matched nothing; the manifest shape changed")
+	}
+	writeManifest(deferred)
+	out, err := runFixtureClue(t, "parity", manifest, targetRoot)
+	if err == nil || !strings.Contains(out, parity.ClassUnaccountableDisposition) || strings.Contains(out, parity.ClassUnjustifiedDisposition) {
+		t.Fatalf("expected only %q, err=%v output=%s", parity.ClassUnaccountableDisposition, err, out)
+	}
+
+	stalePath := filepath.Join(targetRoot, "stale-carriers.yaml")
+	staleTarget := filepath.Join(targetRoot, "docs", "capabilities", "fixture", "README.md")
+	staleBody, err := os.ReadFile(staleTarget)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(staleTarget, append(staleBody, []byte("\nSee [old](../../../openspec/specs/scale/spec.md).\n")...), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	writeFixtureFiles(t, targetRoot, map[string]string{filepath.Base(stalePath): "source-revision: " + revision + "\nsource-location: " + location + "\ndeleted-paths:\n  - openspec/specs/scale/spec.md\nentries: []\n"})
+	mustFailFixtureClue(t, carriers.ClassStaleDeletedPath, "carriers", stalePath, targetRoot)
+
+	lostPath := filepath.Join(targetRoot, "lost-carriers.yaml")
+	missingPath := filepath.Join(targetRoot, "missing-carriers.yaml")
+	writeFixtureFiles(t, targetRoot, map[string]string{
+		filepath.Base(lostPath):    "source-revision: " + revision + "\nsource-location: " + location + "\nentries:\n  - id: LOST\n    kind: instruction\n    source-path: openspec/AGENTS.md\n    target-path: docs/capabilities/fixture/README.md\n    fingerprint: " + strings.Repeat("0", 64) + "\n",
+		filepath.Base(missingPath): "source-revision: " + revision + "\nsource-location: " + location + "\nentries:\n  - id: MISSING\n    kind: diagram-asset\n    source-path: openspec/diagram.svg\n    target-path: docs/architecture/diagram.svg\n    fingerprint: " + strings.Repeat("0", 64) + "\n",
+	})
+	mustFailFixtureClue(t, carriers.ClassLostFingerprint, "carriers", lostPath, targetRoot)
+	mustFailFixtureClue(t, carriers.ClassMissingAsset, "carriers", missingPath, targetRoot)
 }
 
 // TestAC123_UnitPositive_disposableFixturesProveComposedMigrationContract

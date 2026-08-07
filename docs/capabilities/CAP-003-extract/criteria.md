@@ -271,4 +271,13 @@ Feature: Brownfield analysis and extraction — evidence, namespaced ACs, JVM ha
     When the user runs "clue report" against that report
     Then the region is rendered from the manifest and the report's prose outside it is unchanged
     But a report with no derived region is refused rather than given one
+
+  @AC-128
+  Scenario: Parity and carrier commands retain their deterministic failure behavior at assessment scale
+    Test-type: Unit
+    Given a disposable target with hundreds of criteria and classified evidence references plus tens of retired identities
+    When the public `clue` command validates it and runs parity and carrier reconciliation
+    Then clean parity and carrier reports pass, numeric allocation advances past every prefix's recorded population, and identity reservation refuses an existing, retired, or already-reserved identity across a ledger round trip
+    And every required parity and carrier failure class still exits non-zero against that assessment-scale shape
+    But this command-scale fixture does not claim extraction ordering, source-work preservation, or pinned-release evidence
 ```
