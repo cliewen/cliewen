@@ -261,12 +261,34 @@ const (
 	// their live neighbours. Every size-dependent ledger counter and expected
 	// allocation is derived from these bases and the sizes above — the fixed
 	// G and CAP identities stay literal — so changing a size keeps the ledger
-	// consistent with what the fixture asserts, up to the point where a size
-	// grows into the next base, which nothing here prevents and a validate or
-	// parity run would report loudly.
+	// consistent with what the fixture asserts. A size that grew into the next
+	// base would instead reissue a live identity, which is what
+	// assertAssessmentScaleRanges refuses to build.
 	assessmentScaleArchivedBase = 400
 	assessmentScaleInFlightBase = 900
+
+	// assessmentScaleDrafted is the in-flight record whose proof-linked
+	// criterion the negative run drafts. The fixture proof-links IC-<base+i>
+	// to SCL-<i>, so the pair is derived from this one number.
+	assessmentScaleDrafted = 2
 )
+
+// assertAssessmentScaleRanges refuses to build a fixture whose size constants
+// have grown into the next identity band: the ledger would then carry the same
+// SCL component twice, once live and once retired, and the fixture's own
+// contradiction would surface as an unrelated validate failure.
+func assertAssessmentScaleRanges(t *testing.T) {
+	t.Helper()
+	if assessmentScaleCriteria >= assessmentScaleArchivedBase {
+		t.Fatalf("assessmentScaleCriteria (%d) reaches the retired band at %d", assessmentScaleCriteria, assessmentScaleArchivedBase)
+	}
+	if assessmentScaleArchivedBase+assessmentScaleArchived >= assessmentScaleInFlightBase {
+		t.Fatalf("the retired band (%d..%d) reaches the in-flight band at %d", assessmentScaleArchivedBase+1, assessmentScaleArchivedBase+assessmentScaleArchived, assessmentScaleInFlightBase)
+	}
+	if assessmentScaleInFlight < assessmentScaleDrafted {
+		t.Fatalf("assessmentScaleInFlight (%d) does not reach the drafted record at offset %d", assessmentScaleInFlight, assessmentScaleDrafted)
+	}
+}
 
 // assessmentScaleTarget is deliberately generated in a temporary directory:
 // its size is evidence for the composed contract, not a second corpus to
@@ -307,6 +329,7 @@ func assessmentScaleSource(t *testing.T, revision, location string) string {
 // corpus the rehearsal's pins are later verified against.
 func materializeAssessmentScaleTarget(t *testing.T, root, revision, location string) {
 	t.Helper()
+	assertAssessmentScaleRanges(t)
 	var criteria, tests, ledgerFile, importedIndex strings.Builder
 	fmt.Fprint(&criteria, "---\nid: SCL-criteria\ntype: criteria\nstatus: active\nlinks: [CAP-901]\ntitle: Assessment-scale fixture criteria\nac-prefix: SCL\n---\n\n```gherkin\nFeature: Assessment-scale migration\n")
 	fmt.Fprintf(&ledgerFile, "counters:\n  G: 1\n  CAP: 901\n  IC: %d\n  SCL: %d\nentries:\n  - id: G-001\n    kind: numeric\n    state: live\n    prefix: G\n    component: 1\n  - id: CAP-901\n    kind: numeric\n    state: live\n    prefix: CAP\n    component: 901\n  - id: SCL-criteria\n    kind: opaque\n    state: live\n", assessmentScaleInFlightBase+assessmentScaleInFlight, assessmentScaleArchivedBase+assessmentScaleArchived)
@@ -676,7 +699,7 @@ func TestAC129_UnitPositive_orderedPinnedReleasePathHoldsAtAssessmentScale(t *te
 
 	// A record may close only once the work it names is proven, and at this
 	// size it is: promoting one to complete keeps the corpus green.
-	completePath := filepath.Join(targetRoot, "docs", "imported-changes", "IC-901.md")
+	completePath := filepath.Join(targetRoot, "docs", "imported-changes", fmt.Sprintf("IC-%03d.md", assessmentScaleInFlightBase+1))
 	record, err := os.ReadFile(completePath)
 	if err != nil {
 		t.Fatal(err)
@@ -719,10 +742,14 @@ func TestAC129_UnitNegative_orderedPinnedReleasePathRejectsItsViolations(t *test
 	if err != nil {
 		t.Fatal(err)
 	}
-	if err := os.WriteFile(criteriaPath, []byte(strings.Replace(string(criteria), "@SCL-002", "@SCL-002 @draft", 1)), 0o644); err != nil {
+	// The drafted criterion and the record that proof-links it are the same
+	// pair the fixture wrote, so this step stays a proof-backing violation
+	// rather than a missing-file failure when the sizes change.
+	draftedTag := fmt.Sprintf("@SCL-%03d", assessmentScaleDrafted)
+	if err := os.WriteFile(criteriaPath, []byte(strings.Replace(string(criteria), draftedTag, draftedTag+" @draft", 1)), 0o644); err != nil {
 		t.Fatal(err)
 	}
-	completePath := filepath.Join(targetRoot, "docs", "imported-changes", "IC-902.md")
+	completePath := filepath.Join(targetRoot, "docs", "imported-changes", fmt.Sprintf("IC-%03d.md", assessmentScaleInFlightBase+assessmentScaleDrafted))
 	record, err := os.ReadFile(completePath)
 	if err != nil {
 		t.Fatal(err)
