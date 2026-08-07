@@ -1202,15 +1202,15 @@ entries:
       state: retired
     - id: CH-127
       kind: numeric
-      state: live
+      state: retired
       prefix: CH
       component: "127"
     - id: CH-127-questions
       kind: opaque
-      state: live
+      state: retired
     - id: CH-127-tasks
       kind: opaque
-      state: live
+      state: retired
     - id: G-001
       kind: numeric
       state: live
