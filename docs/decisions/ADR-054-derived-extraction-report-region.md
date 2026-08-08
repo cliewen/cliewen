@@ -1,11 +1,11 @@
 ---
 id: ADR-054
 type: decision
-status: inferred
+status: verified
 links: [ADR-049, ADR-053, PDR-020, P-012, CAP-003, C-013]
 title: An extraction report's figures are a rendered region, not prose
 author: agent
-accepted-by: []
+accepted-by: Flemming N. Larsen (2026-08-08, conversation)
 ---
 
 # ADR-054 — An extraction report's figures are a rendered region, not prose

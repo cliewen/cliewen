@@ -1,11 +1,11 @@
 ---
 id: ADR-053
 type: decision
-status: inferred
+status: verified
 links: [ADR-049, PDR-024, P-012, CAP-003, C-013]
 title: Deferred parity dispositions name their source and plan door
 author: agent
-accepted-by: []
+accepted-by: Flemming N. Larsen (2026-08-08, conversation)
 ---
 
 # ADR-053 — Deferred parity dispositions name their source and plan door

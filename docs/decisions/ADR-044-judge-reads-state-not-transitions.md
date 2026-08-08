@@ -1,11 +1,11 @@
 ---
 id: ADR-044
 type: decision
-status: inferred
+status: verified
 links: [P-010, CAP-002, ADR-017, ADR-040, ADR-042, C-002, C-004, C-006, C-008, C-012, C-013]
 title: The judge judges a repository state, never a transition
 author: agent
-accepted-by: []
+accepted-by: Flemming N. Larsen (2026-08-08, conversation)
 ---
 
 # ADR-044 — The judge judges a repository state, never a transition

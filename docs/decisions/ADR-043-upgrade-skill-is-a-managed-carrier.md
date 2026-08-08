@@ -1,11 +1,11 @@
 ---
 id: ADR-043
 type: decision
-status: inferred
+status: verified
 links: [P-010, CAP-001, CAP-004, ADR-021, ADR-022, ADR-031, ADR-039]
 title: The managed skill set includes a human-authorized upgrade entry point
 author: agent
-accepted-by: []
+accepted-by: Flemming N. Larsen (2026-08-08, conversation)
 ---
 
 # ADR-043 — The managed skill set includes a human-authorized upgrade entry point
