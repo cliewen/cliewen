@@ -1218,7 +1218,7 @@ entries:
       component: "128"
     - id: CH-129
       kind: numeric
-      state: live
+      state: retired
       prefix: CH
       component: "129"
     - id: CH-129-questions

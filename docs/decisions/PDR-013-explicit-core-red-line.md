@@ -2,7 +2,7 @@
 id: PDR-013
 type: decision
 status: verified
-links: [G-001, P-005, PDR-006, C-012, C-013]
+links: [G-001, P-005, PDR-006, PDR-029, C-012, C-013]
 title: Cliewen has an explicit core behind a red line; everything else is periphery adopters may extend
 author: agent
 accepted-by: Flemming N. Larsen (2026-08-02, conversation)
@@ -11,6 +11,8 @@ accepted-by: Flemming N. Larsen (2026-08-02, conversation)
 # PDR-013 — Cliewen has an explicit core behind a red line
 
 > **The thread endpoint is refined by [PDR-019](PDR-019-methodology-contract-carriers-move-together.md):** acceptance evidence includes classified executable evidence and the Human acceptance-brief path. The three-element core and red-line rule below remain unchanged.
+>
+> **The reach of *does the core need it?* is qualified by [PDR-029](PDR-029-simplification-tests-by-surface.md):** it remains the test of record for rules, artifact types, required fields, commands, and checks, but carrier prose is judged instead by whether a rule is stated once in a reading path and can be checked. The three-element core and red-line rule below remain unchanged.
 
 ## Context and problem statement
 
