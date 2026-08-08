@@ -1,7 +1,7 @@
 # CH-132 tasks
 
-- [ ] Read AN-018, M-063's linked decisions, and the canonical skill-source layout; identify each required carrier edit and each decision Carrier reference that moves.
-- [ ] Apply the resolved withdrawals and the PDR-033 pause-boundary rewrite in the canonical carrier sources, while preserving every other surviving obligation in its reading path.
+- [x] Read AN-018, M-063's linked decisions, and the canonical skill-source layout; identify each required carrier edit and each decision Carrier reference that moves.
+- [x] Apply the resolved withdrawals and the PDR-033 pause-boundary rewrite in the canonical carrier sources, while preserving every other surviving obligation in its reading path.
 - [ ] Consolidate compatible overlapping and out-of-order carrier rules, including the routing hub, and update each affected decision Carrier reference.
 - [ ] Regenerate every derived skill and scaffold carrier, then update focused output guards without weakening their coverage.
 - [ ] Re-run the AN-018 register against the edited carrier population; record any newly discovered unresolved conflict in `open-questions.md` and stop if human judgment is needed.
