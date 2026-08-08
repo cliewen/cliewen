@@ -2,7 +2,7 @@
 id: P-013
 type: plan
 status: active
-links: [P-012, G-001, ADR-021, ADR-040, PDR-013, PDR-025, PDR-026, PDR-029, AN-006, AN-008, AN-010, AN-012, AN-013]
+links: [P-012, G-001, C-013, ADR-021, ADR-040, PDR-013, PDR-025, PDR-026, PDR-029, AN-006, AN-008, AN-010, AN-012, AN-013]
 title: Cliewen is simplified against a stated criterion
 ---
 
