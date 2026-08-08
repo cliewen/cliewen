@@ -2,7 +2,7 @@
 id: AN-013
 type: analysis
 status: active
-provenance: inferred
+provenance: verified
 reversal-cost: low
 links: [P-008, M-036, G-001, ADR-009, ADR-006, ADR-011, ADR-030, ADR-036, C-011, C-012, C-013, PDR-007, AN-003, AN-011, AN-012]
 title: The corpus cannot say what is accepted, where its evidence actually lives, or which repository a reference means

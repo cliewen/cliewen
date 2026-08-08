@@ -2,7 +2,7 @@
 id: AN-016
 type: analysis
 status: active
-provenance: inferred
+provenance: verified
 reversal-cost: low
 links: [P-011, CAP-003, PDR-020, ADR-048, ADR-049, ADR-050, ADR-051]
 title: Disposable fixtures prove the composed brownfield migration contract

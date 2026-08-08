@@ -1,11 +1,11 @@
 ---
 id: ADR-051
 type: decision
-status: inferred
+status: verified
 links: [ADR-008, ADR-048, ADR-049, PDR-019, PDR-025, P-011, C-013]
 title: A pinned carrier inventory and a deterministic reconciliation check close the operational-carrier gap
 author: agent
-accepted-by: []
+accepted-by: Flemming N. Larsen (2026-08-08, conversation)
 ---
 
 # ADR-051 — A pinned carrier inventory and a deterministic reconciliation check close the operational-carrier gap

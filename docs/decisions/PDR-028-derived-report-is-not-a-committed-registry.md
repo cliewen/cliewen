@@ -1,11 +1,11 @@
 ---
 id: PDR-028
 type: decision
-status: inferred
+status: verified
 links: [P-012, ADR-049, ADR-054, PDR-020, PDR-021, AN-017]
 title: A derived extraction report is not a committed per-criterion registry
 author: agent
-accepted-by: []
+accepted-by: Flemming N. Larsen (2026-08-08, conversation)
 ---
 
 # PDR-028 — A derived extraction report is not a committed per-criterion registry

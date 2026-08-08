@@ -2,7 +2,7 @@
 id: AN-014
 type: analysis
 status: active
-provenance: inferred
+provenance: verified
 reversal-cost: low
 links: [P-009, AN-012, AN-013, ADR-005, ADR-009, ADR-032, PDR-020, CAP-002, CAP-003]
 title: A confidential migration assessment exposes evidence, identity, and enterprise-operation gaps

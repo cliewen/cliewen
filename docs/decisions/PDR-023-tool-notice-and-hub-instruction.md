@@ -1,11 +1,11 @@
 ---
 id: PDR-023
 type: decision
-status: inferred
+status: verified
 links: [P-010, CAP-001, CAP-004, ADR-011, ADR-018, ADR-042, ADR-043, PDR-019, PDR-022, C-013]
 title: The tool carries the notice and the hub carries the instruction, and no vendor configuration is ever emitted
 author: agent
-accepted-by: []
+accepted-by: Flemming N. Larsen (2026-08-08, conversation)
 ---
 
 # PDR-023 — The tool carries the notice and the hub carries the instruction, and no vendor configuration is ever emitted

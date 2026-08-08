@@ -1,11 +1,11 @@
 ---
 id: PDR-026
 type: decision
-status: inferred
+status: verified
 links: [P-011, P-012, P-013, PDR-025, C-013, G-001]
 title: A campaign closes on re-derived gate status, not on its own evidence column
 author: agent
-accepted-by: []
+accepted-by: Flemming N. Larsen (2026-08-08, conversation)
 ---
 
 # PDR-026 — A campaign closes on re-derived gate status, not on its own evidence column

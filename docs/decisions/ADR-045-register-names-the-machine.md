@@ -1,11 +1,11 @@
 ---
 id: ADR-045
 type: decision
-status: inferred
+status: verified
 links: [P-010, CAP-002, ADR-017, ADR-044, C-004, C-011, C-013]
 title: Every constraint names the machine that holds it or the judgment that remains
 author: agent
-accepted-by: []
+accepted-by: Flemming N. Larsen (2026-08-08, conversation)
 ---
 
 # ADR-045 — Every constraint names the machine that holds it or the judgment that remains

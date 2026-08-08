@@ -1,11 +1,11 @@
 ---
 id: ADR-041
 type: decision
-status: inferred
+status: verified
 links: [CAP-002, CAP-005, ADR-017, ADR-019, ADR-035, ADR-046, C-004, C-013, C-016]
 title: Generated index rows state their record, and rows that state only their link are counted
 author: agent
-accepted-by: []
+accepted-by: Flemming N. Larsen (2026-08-08, conversation)
 ---
 
 # ADR-041 — Generated index rows state their record, and rows that state only their link are counted

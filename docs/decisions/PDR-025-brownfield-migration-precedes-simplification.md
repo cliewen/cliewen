@@ -1,11 +1,11 @@
 ---
 id: PDR-025
 type: decision
-status: inferred
+status: verified
 links: [P-010, P-011, PDR-019, PDR-026, C-013]
 title: Truthful brownfield migration precedes simplification
 author: agent
-accepted-by: []
+accepted-by: Flemming N. Larsen (2026-08-08, conversation)
 ---
 
 # PDR-025 — Truthful brownfield migration precedes simplification

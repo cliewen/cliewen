@@ -1,11 +1,11 @@
 ---
 id: ADR-047
 type: decision
-status: inferred
+status: verified
 links: [C-007, CAP-002, ADR-039, ADR-040, PDR-019]
 title: Diagram representation preserves links and assets
 author: agent
-accepted-by: []
+accepted-by: Flemming N. Larsen (2026-08-08, conversation)
 ---
 
 # ADR-047 — Diagram representation preserves links and assets

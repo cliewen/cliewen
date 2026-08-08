@@ -1,11 +1,11 @@
 ---
 id: PDR-027
 type: decision
-status: inferred
+status: verified
 links: [PDR-007, PDR-017, PDR-019, C-012, P-012]
 title: Branch protection enforces admission, not acceptance evidence
 author: agent
-accepted-by: []
+accepted-by: Flemming N. Larsen (2026-08-08, conversation)
 ---
 
 # PDR-027 — Branch protection enforces admission, not acceptance evidence

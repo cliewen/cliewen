@@ -1,11 +1,11 @@
 ---
 id: PDR-024
 type: decision
-status: inferred
+status: verified
 links: [PDR-020, ADR-036, ADR-037, CAP-003, C-013]
 title: Extraction never silently discards acceptance evidence
 author: agent
-accepted-by: []
+accepted-by: Flemming N. Larsen (2026-08-08, conversation)
 ---
 
 # PDR-024 — Extraction never silently discards acceptance evidence

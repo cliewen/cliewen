@@ -1,11 +1,11 @@
 ---
 id: ADR-050
 type: decision
-status: inferred
+status: verified
 links: [ADR-034, ADR-048, ADR-049, P-011, CAP-003, C-013]
 title: In-flight source work becomes a durable imported-change record, never a transient workspace
 author: agent
-accepted-by: []
+accepted-by: Flemming N. Larsen (2026-08-08, conversation)
 ---
 
 # ADR-050 — In-flight source work becomes a durable imported-change record, never a transient workspace

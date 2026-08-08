@@ -1,11 +1,11 @@
 ---
 id: ADR-048
 type: decision
-status: inferred
+status: verified
 links: [ADR-009, ADR-034, ADR-007, P-011, C-013]
 title: A persisted ledger replaces scan-and-max allocation for every native ID prefix
 author: agent
-accepted-by: []
+accepted-by: Flemming N. Larsen (2026-08-08, conversation)
 ---
 
 # ADR-048 — A persisted ledger replaces scan-and-max allocation for every native ID prefix
