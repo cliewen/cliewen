@@ -5,12 +5,12 @@ counters:
     ARCH: "3"
     C: "16"
     CAP: "7"
-    CH: "128"
+    CH: "129"
     G: "3"
     IC: "2"
     LOG: "1"
     P: "13"
-    PDR: "28"
+    PDR: "29"
 entries:
     - id: AC-001
       kind: numeric
@@ -1216,6 +1216,17 @@ entries:
       state: reserved
       prefix: CH
       component: "128"
+    - id: CH-129
+      kind: numeric
+      state: live
+      prefix: CH
+      component: "129"
+    - id: CH-129-questions
+      kind: opaque
+      state: live
+    - id: CH-129-tasks
+      kind: opaque
+      state: live
     - id: G-001
       kind: numeric
       state: live
@@ -1451,3 +1462,8 @@ entries:
       state: live
       prefix: PDR
       component: "28"
+    - id: PDR-029
+      kind: numeric
+      state: live
+      prefix: PDR
+      component: "29"
