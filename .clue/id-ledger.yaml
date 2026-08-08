@@ -1234,15 +1234,15 @@ entries:
       state: retired
     - id: CH-130
       kind: numeric
-      state: live
+      state: retired
       prefix: CH
       component: "130"
     - id: CH-130-questions
       kind: opaque
-      state: live
+      state: retired
     - id: CH-130-tasks
       kind: opaque
-      state: live
+      state: retired
     - id: G-001
       kind: numeric
       state: live
