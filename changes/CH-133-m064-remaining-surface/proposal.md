@@ -1,6 +1,7 @@
 ---
 id: CH-133
 type: change
+status: open
 links: [P-013, M-064, PDR-029, PDR-013, PDR-026, AN-008, AN-018]
 title: Score the remaining surface and register the remaining carrier prose
 ---

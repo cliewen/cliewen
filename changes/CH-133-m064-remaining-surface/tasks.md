@@ -1,3 +1,11 @@
+---
+id: CH-133-tasks
+type: tasks
+status: open
+links: [CH-133, P-013, M-064]
+title: Tasks for the M-064 scoring and register
+---
+
 # CH-133 tasks
 
 - [x] Commit the proposal, then pause: report what the proposal says and what implementation involves, and ask whether implementation begins and whether the branch is pushed

@@ -1,7 +1,7 @@
 counters:
     AC: "129"
     ADR: "54"
-    AN: "20"
+    AN: "21"
     ARCH: "3"
     C: "17"
     CAP: "7"
@@ -997,6 +997,11 @@ entries:
       state: live
       prefix: AN
       component: "20"
+    - id: AN-021
+      kind: numeric
+      state: reserved
+      prefix: AN
+      component: "21"
     - id: ARCH-001
       kind: numeric
       state: live
@@ -1282,9 +1287,15 @@ entries:
       state: live
     - id: CH-133
       kind: numeric
-      state: reserved
+      state: live
       prefix: CH
       component: "133"
+    - id: CH-133-questions
+      kind: opaque
+      state: live
+    - id: CH-133-tasks
+      kind: opaque
+      state: live
     - id: G-001
       kind: numeric
       state: live
