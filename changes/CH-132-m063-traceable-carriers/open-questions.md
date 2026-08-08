@@ -1,5 +1,5 @@
 ---
-id: CH-132-open-questions
+id: CH-132-questions
 type: open-questions
 status: open
 links: [CH-132, P-013, M-063]

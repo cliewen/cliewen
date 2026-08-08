@@ -1,3 +1,11 @@
+---
+id: CH-132-tasks
+type: tasks
+status: open
+links: [CH-132, P-013, M-063]
+title: Tasks for traceable methodology carriers
+---
+
 # CH-132 tasks
 
 - [x] Read AN-018, M-063's linked decisions, and the canonical skill-source layout; identify each required carrier edit and each decision Carrier reference that moves.

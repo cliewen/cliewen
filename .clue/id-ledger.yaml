@@ -1261,9 +1261,15 @@ entries:
       state: retired
     - id: CH-132
       kind: numeric
-      state: reserved
+      state: live
       prefix: CH
       component: "132"
+    - id: CH-132-questions
+      kind: opaque
+      state: live
+    - id: CH-132-tasks
+      kind: opaque
+      state: live
     - id: G-001
       kind: numeric
       state: live
