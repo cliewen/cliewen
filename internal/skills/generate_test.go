@@ -546,7 +546,7 @@ func TestUnit_AgenticReviewLoopConvergesOnCurrentCommit(t *testing.T) {
 		"start a new read-only reviewer without the implementation conversation",
 		"recover a full change's proposal from branch history",
 		"label it `in-context fallback`",
-		"only actionable findings about correctness, intent mismatch, regressions, security, missing evidence, or unjustified complexity",
+		"only findings about correctness, intent mismatch, regressions, security, missing evidence, or unjustified complexity",
 		"operative requirement or declared intent that is violated",
 		"the concrete consequence",
 		"Apply authoritative decisions and the repository's explicit lifecycle rules",
@@ -560,12 +560,15 @@ func TestUnit_AgenticReviewLoopConvergesOnCurrentCommit(t *testing.T) {
 		// list spends the same effort on a stale figure as on a corpus-breaking
 		// defect, and repairing the figure used to restart the whole pass.
 		"Every finding is classified **blocking** or **advisory**",
+		"a blocking finding is actionable",
+		"an advisory is a non-actionable observation for the publication gate",
 		"a reviewer brief cannot redefine the severity model",
 		"A finding whose substance is a count, total, population figure, or arithmetic disagreement is **advisory** whatever the brief called it",
 		"a wrong, missing, or reused identity remains **blocking**",
 		"The reviewer spends no pass re-deriving figures",
 		"An advisory repair may ride before a review pass already required by a blocking repair",
-		"an advisory first reported by a pass with no blocking findings stays open for a later change",
+		"an advisory first reported by a pass with no blocking findings stays in the handoff for a later change",
+		"advisories stay in the verification handoff rather than becoming repair-required conversations",
 		"An advisory finding alone does not start another pass",
 		"without changing its reviewed commit",
 		"Scope that pass to the diff since the reviewed commit plus the carriers those files declare",
@@ -573,6 +576,7 @@ func TestUnit_AgenticReviewLoopConvergesOnCurrentCommit(t *testing.T) {
 		"A fourth or later pass runs only when the immediately preceding pass returned at least one blocking finding",
 		"number of review passes run",
 		"the bounded loop is over, and an edit would create a new candidate that this exact-commit rule requires reviewing",
+		"Advisories do not become repair-required conversations",
 	} {
 		if !strings.Contains(verify, want) {
 			t.Errorf("clue-verify/skill.md does not contain agentic-review rule %q", want)

@@ -18,5 +18,6 @@ title: Tasks for bounding the agentic review loop
 - [x] Run focused tests, the full Go test suite, and `clue validate`
 - [x] Repair pass 1's incomplete carrier inventory and premature plan transition
 - [x] Repair pass 2's advisory-edit conflict without weakening the exact-reviewed-commit boundary
+- [x] Repair pass 3's hosted-conversation conflict by keeping advisories non-actionable for publication
 - [ ] Record the review mode, reviewed commit, pass count, and any advisory findings as M-068 evidence
 - [x] Update P-013 bookkeeping, decision and constraint indexes, and the `[Unreleased]` changelog entry
