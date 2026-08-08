@@ -25,7 +25,7 @@ This index is the register table. Its badge is the enforcement class rather than
 - [C-007 — Diagrams use the clearest renderable form](C-007-diagrams-inline-mermaid.md) · `human`
 - [C-008 — Completed plans are immutable](C-008-completed-plans-immutable.md) · `partial`
 - [C-009 — Type-specific frontmatter fields are present](C-009-type-specific-frontmatter.md) · `machine`
-- [C-010 — Milestone status values follow one vocabulary](C-010-milestone-status-vocabulary.md) · `machine`
+- [C-010 — Milestone status values follow one vocabulary](C-010-milestone-status-vocabulary.md) · `partial`
 - [C-011 — Decision records are routed by type: ADR, PDR, or log row](C-011-decision-records-typed.md) · `human`
 - [C-012 — Changes are reviewed locally, root at main, and remain human-merged](C-012-agents-never-merge-own-changes.md) · `partial`
 - [C-013 — Changes to a core carrier require an explicit decision record and human acceptance](C-013-core-changes-need-decision.md) · `human`

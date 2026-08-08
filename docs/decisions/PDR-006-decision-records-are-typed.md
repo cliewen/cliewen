@@ -2,10 +2,10 @@
 id: PDR-006
 type: decision
 status: verified
-links: [PDR-003, ADR-010]
+links: [PDR-003, ADR-010, P-013]
 title: Decision records are typed — ADRs for architecture, PDRs for project/process, log rows for the cheap
 author: agent
-accepted-by: Flemming N. Larsen (2026-07-15, PR #13 approval)
+accepted-by: Flemming N. Larsen (2026-07-15, PR #13 approval); Flemming N. Larsen (2026-08-08, conversation — the rejected-record clause)
 ---
 
 # PDR-006 — Decision records are typed
@@ -22,9 +22,10 @@ ADR is the industry's one well-known decision record, and its name promises *arc
 - **PDR — Project/Process Decision Record**: expensive-to-reverse decisions about how the project works — change tiers, decision acceptance, validation strategy. Same MADR template, same two-tier provenance ([ADR-010](ADR-010-provenance-field.md)), same folder, own ID series.
 - **Decision log** — unchanged from [PDR-003](PDR-003-decision-log.md): one dated row for the cheap-and-local-to-reverse.
 - **Well-established practices are cited, not re-derived.** A decision that adopts a practice the industry already settled names it (with a source) and records only what is local: why it is adopted here and where this corpus deviates. The record earns its length by local reasoning, not by restating textbooks.
+- **A rejected alternative that is itself a decision gets a rejected decision record, not only a paragraph in a findings document.** Refusing an option is a decision whenever re-proposing it later would be expensive — a route not taken, an interface declined, a mechanism ruled out — and it routes by the same reversal-cost test as any other. A rejection buried in analysis is reachable only by someone who already knows which spike examined it, which is how a settled question gets re-argued; the record is what makes the refusal findable from the decisions folder where a reader looks for it. A rejection that is cheap to revisit stays a paragraph.
 - Reclassification is ordinary change content, applied retroactively: a record filed under the wrong type is renamed into the right series with its text intact; git history keeps the provenance of the rename.
 
-**Carrier:** the decisions folder README prose (ships as `clue init` template prose); the routing wording in the `clue-delta` and `clue-verify` skills (agent); the register entry [C-011](../constraints/C-011-decision-records-typed.md) that holds the routing rule.
+**Carrier:** the decisions folder README prose (ships as `clue init` template prose); the routing wording in the `clue-delta` and `clue-verify` skills (agent); the register entry [C-011](../constraints/C-011-decision-records-typed.md) that holds the routing rule. The rejected-record clause is carried by the same two READMEs and by the `clue-analysis` skill's canonical source, which is where an agent meets it; the shared `decision-records` fragment does not yet state it, and stating it there is [P-013](../plans/P-013-simplification.md)'s M-067 rather than a gap left unrecorded.
 
 ### Rejected: one generic decision-record series for everything
 
