@@ -3,14 +3,14 @@ counters:
     ADR: "54"
     AN: "18"
     ARCH: "3"
-    C: "16"
+    C: "17"
     CAP: "7"
-    CH: "130"
+    CH: "131"
     G: "3"
     IC: "2"
     LOG: "1"
     P: "13"
-    PDR: "34"
+    PDR: "35"
 entries:
     - id: AC-001
       kind: numeric
@@ -1082,6 +1082,11 @@ entries:
       state: live
       prefix: C
       component: "16"
+    - id: C-017
+      kind: numeric
+      state: reserved
+      prefix: C
+      component: "17"
     - id: CAP-001
       kind: numeric
       state: live
@@ -1243,6 +1248,11 @@ entries:
     - id: CH-130-tasks
       kind: opaque
       state: retired
+    - id: CH-131
+      kind: numeric
+      state: reserved
+      prefix: CH
+      component: "131"
     - id: G-001
       kind: numeric
       state: live
@@ -1508,3 +1518,8 @@ entries:
       state: live
       prefix: PDR
       component: "34"
+    - id: PDR-035
+      kind: numeric
+      state: reserved
+      prefix: PDR
+      component: "35"
