@@ -2,7 +2,7 @@
 id: PDR-032
 type: decision
 status: verified
-links: [ADR-002, PDR-017, PDR-007, C-003, C-005, G-001, AN-018]
+links: [ADR-002, PDR-017, PDR-007, C-003, C-005, G-001, P-013, AN-018]
 title: A suggestion raised mid-change is triaged into the current work or into the inbox, never into memory
 author: agent
 accepted-by: Flemming N. Larsen (2026-08-08, conversation)
@@ -44,4 +44,4 @@ Fastest, and it is how scope creep enters a methodology that otherwise forbids i
 
 ## Carrier
 
-The `clue-delta` loop's Propose and Digest steps and the shared `durable-work` fragment state the triage; the goals folder README already states the inbox rule this decision reuses. `clue` holds none of it: a suggestion arriving in conversation is invisible to a judge that reads files, so this is agent-enforced and its residual is stated where the rule is registered.
+One carrier states this rule today: the goals folder README, which already carries the [ADR-002](ADR-002-inbox-is-proposed-goals.md) inbox rule this decision reuses. The carriers it is owed to — the `clue-delta` loop's Propose and Digest steps, the shared `durable-work` fragment, and the change-workspace template — do not yet state it, and that debt is [P-013](../plans/P-013-simplification.md)'s M-067 rather than an omission left unrecorded. `clue` will hold none of it in any case: a suggestion arriving in conversation is invisible to a judge that reads files, so the rule is agent-enforced and the constraint M-067 mints states its residual.
