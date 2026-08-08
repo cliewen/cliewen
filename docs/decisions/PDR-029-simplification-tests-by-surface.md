@@ -10,7 +10,7 @@ accepted-by: Flemming N. Larsen (2026-08-08, conversation)
 
 # PDR-029 — Simplification is judged by two tests, chosen by surface
 
-> **The accepted trace types are widened by [PDR-031](PDR-031-architecture-artifacts-are-traces.md):** an architecture artifact is also a valid trace, under the same restriction the four types below already carry — it traces when the architecture file *states* the rule, never when the rule is merely derivable from it. Everything else this record decides — the two tests, the surface split, the narrowest-artifact rule, the refusal of derivability, the ordering rule, and the overlap rules — is unchanged.
+> **The accepted trace types are widened by [PDR-031](PDR-031-architecture-artifacts-are-traces.md):** an architecture artifact is also a valid trace, under the same restriction the four types below already carry — it traces when the architecture file *states* the rule, never when the rule is merely derivable from it. Everything else this record decides is unchanged, including the two tests, the surface split, the narrowest-artifact rule, the refusal of derivability, the ordering rule, and the overlap rules.
 
 ## Context and problem statement
 
