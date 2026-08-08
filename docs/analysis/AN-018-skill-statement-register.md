@@ -157,7 +157,7 @@ The frozen Foundation Document ([AN-001](AN-001-foundation-v0.4.md)) is **not** 
 | ANL-26 | 8 — "Feed findings to `clue-plan` or `clue-delta`." | rule | PDR-030 | no | yes | |
 | ANL-27 | "Analysis with no consumer is doc-slop; do not write it." | rule | PDR-030 | no | part | |
 
-**`clue-analysis` was the weakest carrier by tracing, and the split was systematic rather than random.** Its *evidence-discipline* rules (ANL-09 … ANL-16) traced cleanly to two decision-log rows written in CH-025 and CH-080. Its *workflow spine* — what a spike is, that one ends in a findings document, that a findings document records rejected options, that analysis needs a consumer — did not trace at all: eight statements rested on [AN-001](AN-001-foundation-v0.4.md), the frozen Foundation Document, and three on nothing found. Eleven rule-bearing statements in the skill that governs how Cliewen writes its shared memory, in a carrier of twenty-five rules.
+**`clue-analysis` was the weakest carrier by tracing, and the split was systematic rather than random.** Its *evidence-discipline* rules (ANL-09 … ANL-16) traced cleanly — seven of them to two decision-log rows written in CH-025 and CH-080, and ANL-15 to ADR-027. Its *workflow spine* — what a spike is, that one ends in a findings document, that a findings document records rejected options, that analysis needs a consumer — did not trace at all: eight statements rested on [AN-001](AN-001-foundation-v0.4.md), the frozen Foundation Document, and three on nothing found. Eleven rule-bearing statements in the skill that governs how Cliewen writes its shared memory, in a carrier of twenty-five rules.
 
 **Answered (Q-01).** The eleven were real rules nobody had recorded, which is the case PDR-029 says is repaired by writing the missing decision rather than deleting the sentence. Ten are one rule and are now stated by [PDR-030](../decisions/PDR-030-analysis-is-a-bounded-spike.md); ANL-25 is about decision records rather than about analysis and is stated by [PDR-006](../decisions/PDR-006-decision-records-are-typed.md), amended in the same change. The rows above carry the resulting traces.
 
@@ -185,7 +185,7 @@ The frozen Foundation Document ([AN-001](AN-001-foundation-v0.4.md)) is **not** 
 | PLN-16 | 4 — "Treat `status: completed` as immutable and never delete a completed plan." | rule | C-008 | **PLN-15** | yes | |
 | PLN-17 | "Before freezing it, distill its durable lessons and rejected paths into decision records." | rule | **NONE** | no | part | |
 
-`clue-plan` is the smallest carrier and the one with no order defect, but it is not as clean as a first reading suggests: 16 rule-bearing statements, two untraceable (PLN-06, PLN-17), two checkability defects (PLN-10, PLN-17), and six duplications. Three of those six are against the hub (PLN-11, PLN-12, PLN-14); PLN-03 and PLN-08 restate the shared review-boundary fragment; and PLN-16 restates PLN-15 *within the same file*. Which layer owns each repair differs accordingly, and M-063 should not treat this carrier as finished. In-carrier duplication is not peculiar to `clue-plan`: ten rows across the register name a duplicate in their own carrier, concentrated in `clue-verify` and `clue-extract` rather than here.
+`clue-plan` is the smallest carrier and the one with no order defect, but it is not as clean as a first reading suggests: 16 rule-bearing statements, two untraceable (PLN-06, PLN-17), two checkability defects (PLN-10, PLN-17), and six duplications. Three of those six are against the hub (PLN-11, PLN-12, PLN-14); PLN-03 and PLN-08 restate the shared review-boundary fragment; and PLN-16 restates PLN-15 *within the same file*. Which layer owns each repair differs accordingly, and M-063 should not treat this carrier as finished. In-carrier duplication is not peculiar to `clue-plan`: ten rows across the register name a duplicate in their own carrier, five of them in `clue-verify` alone.
 
 ---
 
@@ -322,7 +322,7 @@ The pre-verification checklist is registered per checkbox; multi-condition check
 
 ## Register — `clue-extract` body (EXT)
 
-`clue-extract` is the largest carrier and the only one whose rules are almost entirely about a one-time operation. Its target contract is 14 numbered items, each carrying between two and eleven obligations; the register lists them per item with the obligation count, because splitting all 14 into single obligations would produce roughly 90 rows that M-063 must consolidate back into a checkable form anyway. **That consolidation is the point** — the register's finding here is the shape, not the enumeration.
+`clue-extract` is the largest carrier and the only one whose rules are almost entirely about a one-time operation. Its target contract is 14 numbered items, each carrying between one and eleven obligations; the register lists them per item with the obligation count, because splitting all 14 into single obligations would produce roughly 90 rows that M-063 must consolidate back into a checkable form anyway. **That consolidation is the point** — the register's finding here is the shape, not the enumeration.
 
 | ID | Locator | Class | Trace | Dup | Chk | Ord |
 |---|---|---|---|---|---|---|
@@ -491,9 +491,9 @@ These are pairs that cover one situation without pulling a reader in different d
 
 1. **The tier section** (HUB-12…21 against F-CT-01…06). One rule set, two statements of it, on one reading path. The hub's version names this repository's protected surfaces; the fragment's names generic ones. Consolidating means deciding which layer owns the surface inventory — likely the hub, under [ADR-013](../decisions/ADR-013-ships-generic-vs-repo-local.md)'s generic/repo-local split.
 2. **The review boundary** (HUB-27…43 against F-RB-01…08). The hub restates roughly two-thirds of the fragment in compressed form. The compression is where HUB-38's six-condition sentence came from.
-3. **The workspace lifecycle** (HUB-28, HUB-29, DLT-07, DLT-26, VFY-14). Four statements that the workspace is created on the branch, deleted in the digest, and absent from `main`.
+3. **The workspace lifecycle** (HUB-28, HUB-29, DLT-07, DLT-26, VFY-14). Five statements that the workspace is created on the branch, deleted in the digest, and absent from `main`.
 4. **The plan-item declaration** (HUB-44, DLT-08, VFY-07). Three statements of C-005.
-5. **Plan closing** (HUB-45, PLN-11…14, VFY-08). Five statements of one log row, which is itself the record of a change (CH-102) that existed only because seven carriers stated the rule too generically. Consolidating here is repairing the repair.
+5. **Plan closing** (HUB-45, PLN-11, PLN-12, PLN-13, PLN-14, VFY-08). Six statements of one log row, which is itself the record of a change (CH-102) that existed only because seven carriers stated the rule too generically. Consolidating here is repairing the repair.
 6. **Never weaken a check** (HUB-48, VFY-01d, F-RB-04). Three statements of C-004 in one path.
 7. **Open questions stop the work** (HUB-46, DLT-14, VFY-41, EXT-07, F-LC-06, F-DR-05). Six statements of C-011's stopping rule, each scoped slightly differently — the widest reuse of one rule in the set.
 8. **The criterion evidence contract** (DLT-17…22 against VFY-09 against EXT-16). Stated as procedure in `clue-delta`, as one checkbox in `clue-verify`, and as a contract item in `clue-extract`. This is the pair with the highest consolidation value and the highest risk, because the three statements are not word-identical and the differences may be meaningful.
@@ -548,11 +548,11 @@ The milestone asks what durable form the register should take, and names the tra
 
 **Segmenting by sentence alone.** Tried first and abandoned within the hub. It splits qualified obligations from their conditions — HUB-14's protected-surface list becomes a statement with no rule, and the rule it qualifies becomes uncheckable — and it treats every rationale clause as a rule-bearing statement that traces to nothing, which would have inflated the untraceable population roughly fourfold with noise.
 
-**Registering the rendered skills rather than the sources.** It would have counted each shared fragment four to six times and reported a duplication figure that ADR-021 already explains and accepts. The reading-path rule exists because the honest quantity is how many times one *reader* meets one rule, and that is neither the file count nor one.
+**Registering the rendered skills rather than the sources.** It would have counted each shared fragment three to six times and reported a duplication figure that ADR-021 already explains and accepts. The reading-path rule exists because the honest quantity is how many times one *reader* meets one rule, and that is neither the file count nor one.
 
 **Scoring the carriers by word count.** Refused by PDR-029 before this spike began, and the register confirms why: `clue-verify`'s worst defect is VFY-09, whose repair makes the file longer.
 
-**Deciding the escalations.** Seven questions have obvious-looking answers — write the missing decisions for Q-01, Q-03, and Q-04; delete DLT-06 for Q-02; add the row for Q-07. PDR-029 forbids exactly this, and its reason applies here: a statement that traces to nothing may be a real rule nobody recorded, and an agent that resolves it silently has made a methodology decision without a human.
+**Deciding the escalations.** Five of the eight have obvious-looking answers — write the missing decisions for Q-01, Q-03, and Q-04; delete DLT-06 for Q-02; add the row for Q-07. PDR-029 forbids exactly this, and its reason applies here: a statement that traces to nothing may be a real rule nobody recorded, and an agent that resolves it silently has made a methodology decision without a human.
 
 ## What this analysis does not establish
 
@@ -564,4 +564,4 @@ One reading of one revision by one agent. The register has not been independentl
 
 ## Consumer
 
-[P-013](../plans/P-013-simplification.md)'s **M-063**, which trims and reorders against this register and its answers, and **M-067**, which carries the four mechanisms the answers asked for. M-063 is unblocked on Q-01 through Q-07 and blocked on Q-08 for seven statements; the rest of the trim may proceed. [M-065](../plans/P-013-simplification.md) consumes Q-06's second half.
+[P-013](../plans/P-013-simplification.md)'s **M-063**, which trims and reorders against this register and its answers, and **M-067**, which carries the mechanisms the answers asked for. M-063 is unblocked on Q-01 through Q-07 and blocked on Q-08 for seven statements; the rest of the trim may proceed. [M-065](../plans/P-013-simplification.md) consumes Q-06's second half.
