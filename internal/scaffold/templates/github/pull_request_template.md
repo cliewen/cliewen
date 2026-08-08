@@ -51,7 +51,7 @@
 - [ ] Generated artifacts were regenerated from their canonical sources where applicable.
 - [ ] The current commit received a clean agentic review pass, every blocking repair after an earlier pass triggered a new review, and advisories first reported by the clean pass remain open rather than changing its reviewed commit.
 - [ ] Reviews of an existing PR name its hosted head, and actionable findings are unresolved hosted conversations until their reviewed fixes are published.
-- [ ] `go build ./...`, coverage-gated `go test ./...`, `go run ./cmd/clue validate --forbid-changes`, and `git diff --check` pass.
+- [ ] `go build ./...`, coverage-gated `go test ./...`, `go run ./cmd/clue validate --forbid-changes`, and `git diff --check <base> HEAD` pass.
 
 ## Review boundary
 

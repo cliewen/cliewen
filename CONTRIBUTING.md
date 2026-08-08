@@ -44,7 +44,7 @@ The generated `.github/workflows/clue.yml` is a thin caller for Cliewen's upstre
 
 ## Verify Locally
 
-For a plain change, run only checks relevant to its changed surface. A guide-Markdown-only edit runs `git diff --check` and `npm run guide:build`.
+For a plain change, run only checks relevant to its changed surface. A guide-Markdown-only edit runs the whitespace check below and `npm run guide:build`.
 
 For a Cliewen change, commit the complete candidate, then run the repository's full mechanical gates against that commit:
 
@@ -53,7 +53,7 @@ go build ./...
 go test ./... -coverprofile=coverage.out
 go tool cover -func=coverage.out
 go run ./cmd/clue validate --forbid-changes
-git diff --check
+git diff --check $(git merge-base HEAD origin/main) HEAD
 ```
 
 Total Go statement coverage must remain at least 80%. `clue-verify` then automatically reviews that same commit before publication. A coding-agent host with context-isolated delegation starts a fresh read-only reviewer; other hosts disclose an in-context fallback. The loop owns its classification regardless of the reviewer brief: a blocking finding is actionable and enters the hosted repair lifecycle; an advisory is a non-actionable observation for the publication gate and stays in the verification handoff. Counts and arithmetic disagreements are advisory, while a wrong, missing, or reused identity remains blocking, and the reviewer spends no pass re-deriving figures. A blocking finding returns to the implementing context, is committed, checked against that commit, and reviewed again — scoped to what changed and the carriers it declares — until the current commit receives a pass with no blocking findings. An advisory repair may ride before a pass already required by a blocking repair; an advisory first reported by a pass with no blocking findings stays in the handoff for a later change so the published candidate remains the exact reviewed commit without making the advisory a merge gate. The loop runs up to the maximum number of passes [C-017](docs/constraints/C-017-agentic-review-loop-is-bounded.md) states for this repository, and a further pass runs only after a pass with a blocking finding. Reaching the maximum with blocking findings outstanding stops the loop, reports them to the maintainer, and asks whether to run more; it never permits publication. The final verification evidence identifies the review mode, reviewed commit, number of passes run, and advisory findings left open.
