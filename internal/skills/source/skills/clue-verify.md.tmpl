@@ -5,7 +5,7 @@
 
 Run this verification and review workflow before opening or updating any Cliewen PR. Complete the local checks and agentic review loop before publishing; complete the hosted-head check immediately after publishing and before reporting the PR ready. Plain changes use only checks relevant to their changed surface and do not invoke this skill. When the `clue` CLI exists, `clue validate` performs the mechanical half; until then, check by hand. Never fix a failure by weakening the check.
 
-- [ ] The change uses the correct workspace under **Change scope and tiers** below.
+- [ ] The change uses the correct workspace under **Change scope and tiers** above.
 - [ ] Every artifact touched has frontmatter `id`, `type`, `status`, `links`, and `title`, plus decision `author`/`accepted-by`, constraint `source`/`enforcement`, capability `goal`, and any other type-specific fields.
 - [ ] Every `links` entry resolves to an existing ID.
 - [ ] The command name and the citation scheme are written in a code span wherever prose names them, so an ordinary sentence using the word is never read as a broken citation; a real citation is prose and carries no backticks.
@@ -25,7 +25,7 @@ Run this verification and review workflow before opening or updating any Cliewen
 - [ ] Every intended edit, including each review fix, is committed and `git status --porcelain` is empty.
 - [ ] `git merge-base HEAD origin/main` equals `origin/main` after fetching; no other change workspace is visible on this branch.
 - [ ] After publishing, the current branch is the ready hosted PR's head branch, its head SHA equals local `HEAD`, and the reported verification ran against that commit.
-- [ ] The branch and hosted PR satisfy the **Review boundary** below.
+- [ ] The branch and hosted PR satisfy the **Review boundary** above.
 
 ## Agentic review loop
 

@@ -28,7 +28,7 @@ After opening and confirming its initiated PR, an agent stops before initiating 
 After a human reports the merge, orient before starting anything else: describe the plan's next unfinished step in plain language and ask whether to start it, or say that the plan has nothing left and ask what comes next.
 
 
-Brownfield adoption: transform an existing repository's specification corpus into a Cliewen `/docs` corpus. Use once per adopted repository; the extraction is that repository's first `clue-delta` loop. Apply the **Boundaries**, **Rehearsal before mutation**, **Decision records**, and **Repository-local conventions** below.
+Brownfield adoption: transform an existing repository's specification corpus into a Cliewen `/docs` corpus. Use once per adopted repository; the extraction is that repository's first `clue-delta` loop. Apply the **Boundaries** above and **Rehearsal before mutation**, **Decision records**, and **Repository-local conventions** below.
 
 ## Boundaries
 

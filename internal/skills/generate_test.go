@@ -137,6 +137,53 @@ func TestSanity_CommittedSkillsMatchCanonicalSources(t *testing.T) {
 	}
 }
 
+func TestSanity_EveryManagedSkillAppearsInBothRoutingHubs(t *testing.T) {
+	for _, hub := range []string{
+		filepath.Join("..", "..", "AGENTS.md"),
+		filepath.Join("..", "scaffold", "templates", "AGENTS.md"),
+	} {
+		content, err := os.ReadFile(hub)
+		if err != nil {
+			t.Fatal(err)
+		}
+		for _, name := range skillNames {
+			row := "| [`" + name + "`](.agents/skills/" + name + "/skill.md) |"
+			if !strings.Contains(string(content), row) {
+				t.Errorf("%s is missing managed skill row %q", filepath.ToSlash(hub), name)
+			}
+		}
+	}
+}
+
+func TestSanity_MovedSkillSectionsHaveAccuratePointers(t *testing.T) {
+	verify := mustRenderSkill(t, "clue-verify/skill.md")
+	for _, want := range []string{
+		"under **Change scope and tiers** above",
+		"satisfy the **Review boundary** above",
+	} {
+		if !strings.Contains(verify, want) {
+			t.Errorf("clue-verify/skill.md does not carry accurate section pointer %q", want)
+		}
+	}
+
+	extract := mustRenderSkill(t, "clue-extract/skill.md")
+	if !strings.Contains(extract, "Apply the **Boundaries** above and **Rehearsal before mutation**, **Decision records**, and **Repository-local conventions** below") {
+		t.Error("clue-extract/skill.md does not distinguish the section above from those below")
+	}
+}
+
+func TestSanity_SpecFirstPauseReportsProposalAndImplementationStatus(t *testing.T) {
+	delta := mustRenderSkill(t, "clue-delta/skill.md")
+	for _, want := range []string{
+		"report briefly what the proposal says and what implementation involves",
+		"ask whether implementation should begin and whether the branch should be pushed",
+	} {
+		if !strings.Contains(delta, want) {
+			t.Errorf("clue-delta/skill.md does not carry complete spec-first pause instruction %q", want)
+		}
+	}
+}
+
 // AC-054 is an extraction-guidance criterion: what it promises is that the
 // canonical clue-extract skill instructs criterion-level phasing, so the
 // rendered skill text is its evidence. The mechanism that guidance relies on
