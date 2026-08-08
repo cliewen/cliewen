@@ -79,9 +79,9 @@ The frozen Foundation Document ([AN-001](AN-001-foundation-v0.4.md)) is **not** 
 | HUB-19 | Tier 3, full — "Product behavior changes are full even when…" | rule | PDR-018 | **F-CT-05** | yes | |
 | HUB-20 | "**Uncertainty escalates:** … take the higher one." | rule | PDR-002 | **F-CT-06** | yes | |
 | HUB-21 | "**Discovery escalates immediately:** …" | rule | PDR-002 | **F-CT-06** | yes | |
-| HUB-22 | "read `docs/README.md` only when the request does not name or resolve to an artifact" | rule | **NONE** | no | yes | |
-| HUB-23 | "run `clue context` directly and read its outgoing-link slice" | rule | **NONE** | no | yes | |
-| HUB-24 | "Read beyond that slice only when the task or a discovered edge requires it." | rule | **NONE** | no | part (reader's judgement, no test) | |
+| HUB-22 | "read `docs/README.md` only when the request does not name or resolve to an artifact" | rule | PDR-034 | no | yes | |
+| HUB-23 | "run `clue context` directly and read its outgoing-link slice" | rule | PDR-034 | no | yes | |
+| HUB-24 | "Read beyond that slice only when the task or a discovered edge requires it." | rule | PDR-034 | no | part (reader's judgement, no test) | |
 | HUB-25 | "The `/docs` corpus remains the system-of-record and working memory." | rule | ARCH-003 | no | part | |
 | HUB-26 | `## The rules that bind every change` | connective | — | — | — | |
 | HUB-27 | 1 — "Everything that mutates `main` goes through branch + PR." | rule | C-012 | **F-RB-01** | yes | |
@@ -172,7 +172,7 @@ The frozen Foundation Document ([AN-001](AN-001-foundation-v0.4.md)) is **not** 
 | PLN-03 | 1 — "Create or revise a plan through `clue-delta`; a plan mutation is itself a branch and PR." | rule | C-012 | **F-RB-01** | yes | |
 | PLN-04 | "The digest is the plan file in `/docs/plans/`." | rule | PDR-008 | no | yes | |
 | PLN-05 | 2 — "Keep plans as flat `P-xxx-slug.md` files with status in frontmatter (`draft` → `active` → `completed`)." | rule | ADR-025 | no | yes | |
-| PLN-06 | "Milestones (`M-xxx`) are rows in the plan's milestone table, each with a verifiable exit criterion." | rule | **NONE** | no | yes | |
+| PLN-06 | "Milestones (`M-xxx`) are rows in the plan's milestone table, each with a verifiable exit criterion." | rule | C-010 | no | yes | |
 | PLN-07 | 3 — "**Semantic:** Direction, scope, milestone addition/removal … requires human acceptance and a decision record." | rule | PDR-008 | no | yes | |
 | PLN-08 | "Agents may propose; only humans accept." | rule | C-012 | **F-RB-03** | yes | |
 | PLN-09 | "The default vehicle is a dedicated plan change and PR." | rule | PDR-008 | no | yes | |
@@ -183,7 +183,7 @@ The frozen Foundation Document ([AN-001](AN-001-foundation-v0.4.md)) is **not** 
 | PLN-14 | "Designate the successor plan there too when one is decided; not having decided one never holds the closure open." | rule | log 2026-08-02 | **HUB-45** | yes | |
 | PLN-15 | "Every milestone's evidence must be in the table before that digest lands, because the closed plan is immutable afterwards." | rule | C-008 | no | yes | |
 | PLN-16 | 4 — "Treat `status: completed` as immutable and never delete a completed plan." | rule | C-008 | **PLN-15** | yes | |
-| PLN-17 | "Before freezing it, distill its durable lessons and rejected paths into decision records." | rule | **NONE** | no | part | |
+| PLN-17 | "Before freezing it, distill its durable lessons and rejected paths into decision records." | rule | **NONE — withdrawn, removed by M-063** | no | part | |
 
 `clue-plan` is among the smallest carriers and the only skill with no order defect, but it is not as clean as a first reading suggests. Two of its statements trace to nothing (PLN-06, PLN-17) and two fail checkability (PLN-10, PLN-17). Its duplications split three ways, and which layer owns the repair differs with each: PLN-11, PLN-12 and PLN-14 restate the routing hub; PLN-03 and PLN-08 restate the shared review-boundary fragment; and PLN-16 restates PLN-15 *within the same file*. M-063 should not treat this carrier as finished. In-carrier duplication is not peculiar to it either — rows across the register name a duplicate in their own carrier, most of them in `clue-verify`.
 
@@ -233,7 +233,7 @@ The frozen Foundation Document ([AN-001](AN-001-foundation-v0.4.md)) is **not** 
 | DLT-12 | "A behavior-changing task names the acceptance-criterion IDs it serves; if none exists, add the criterion before implementation." | rule | G-001 | no | yes | |
 | DLT-13 | "Tests trace to criteria, never transient tasks." | rule | ADR-005 | **VFY-08** | yes | |
 | DLT-14 | "`open-questions.md` records blocking questions. When one appears, write it and stop; the human answer becomes a decision record." | rule | C-011 | **HUB-46** | yes | |
-| DLT-15 | "A human may opt into a spec-first pause after Propose. Record the pause in `tasks.md` and stop …" | rule | **NONE** | no | yes | |
+| DLT-15 | "A human may opt into a spec-first pause after Propose. Record the pause in `tasks.md` and stop …" | rule | PDR-033 | no | yes | |
 | DLT-16 | 3 — "Update the permanent corpus. Capabilities own README, criteria, and design files." | rule | ADR-025 | no | yes | |
 | DLT-17 | "Write criteria as Gherkin tagged with their canonical `<PREFIX>-<digits>[lowercase-suffix]` identity" | rule | ADR-009, ADR-037 | **VFY-08** | yes | |
 | DLT-18 | "every new or materially revised criterion declares `Test-type: …` and gets focused positive and negative evidence in that class (or `(single-direction)`)" | rule | ADR-032 | **VFY-08** | part (3 conditions) | |
@@ -251,7 +251,7 @@ The frozen Foundation Document ([AN-001](AN-001-foundation-v0.4.md)) is **not** 
 | DLT-30 | "keep it to one screen and never leave template placeholders" | rule | PDR-017 | no | yes | |
 | DLT-31 | "Never ask the human to initiate the review." | rule | PDR-012 | **VFY-16** | yes | |
 | DLT-32 | "Merging accepts the change; decision provenance follows **Decision records** below." | rule | PDR-004 | **F-DR-02** | yes | |
-| DLT-33 | "Keep deltas small: Git merges text, not meaning." | rule | **NONE** | no | part | |
+| DLT-33 | "Keep deltas small: Git merges text, not meaning." | rule | **NONE — withdrawn, removed by M-063** | no | part | |
 
 **DLT-06 is the register's one demonstrated defect, and it was found by running the tool rather than by reading.** [ADR-048](../decisions/ADR-048-corpus-wide-id-ledger.md) supersedes ADR-009's "the corpus is the registry" clause for *every* native ID prefix, `CH` included, and replaces scan-and-max allocation with a persisted ledger — precisely to stop a deleted artifact's ID being re-minted once no scan can see it. ADR-048's closing paragraph defers its own implementation to P-011's M-052; that paragraph is now history. `.clue/id-ledger.yaml` is live in this repository, `clue id next` and `clue id live` are shipped subcommands, and `clue validate` rejects an artifact absent from the ledger. **This change followed DLT-06 as written, derived its CH number by grepping Git history, and produced a corpus `clue validate` rejected.** The skill routes an agent into a failing validate and names no command. Escalated as **Q-02**; the register's own method — reading — would not have caught it, which is a limit stated again under *What this analysis does not establish*.
 
@@ -481,16 +481,16 @@ END{
 | Total registered | 279 |
 | Connective | 19 |
 | Rule-bearing | 260 |
-| — traceable to a live decision, constraint, goal, or criterion | 247 |
+| — traceable to a live decision, constraint, goal, or criterion | 252 |
 | — traceable to an architecture artifact ([PDR-031](../decisions/PDR-031-architecture-artifacts-are-traces.md)) | 3 |
-| — **traceable to nothing found** | 10 |
+| — **traceable to nothing found** | 5 |
 | Rule-bearing statements duplicated in at least one reading path | 124 |
 | Rule-bearing statements failing checkability (`part`) | 63 |
 | Statements binding absolutely but read after what they constrain | 4 |
 
 The trace rows are stated **after** the answers below, and after an adversarial review corrected traces the first pass got wrong in both directions. Rerunning the script against an earlier revision reproduces what it said before; the numbers are not restated here, because a historical figure typed into prose is exactly what this document stopped doing.
 
-The statements that still trace to nothing split two ways, and the split matters to M-063. **Some have answers** whose constraints are minted in M-067 and will trace then: F-DW-03 and F-DW-05 to Q-03's constraint, F-RB-09 to Q-04's. **The rest have no answer at all** — HUB-22, HUB-23, HUB-24, PLN-06, PLN-17, DLT-15, DLT-33 — and they reached that state two different ways. PLN-17, DLT-15 and DLT-33 were recorded as untraceable and never escalated, because the first pass grouped its escalations by carrier and one statement in `clue-plan` and two in `clue-delta` fell between the groups. HUB-22, HUB-23, HUB-24 and PLN-06 are worse: they were recorded as *traced* to artifacts that do not state their rule, and a review caught it. Both are defects in this register rather than in the carriers, and both are escalated below as Q-08.
+Every statement that still traces to nothing has an answer, and the answers split two ways. **Three await their carrier:** F-DW-03 and F-DW-05 trace to the constraint Q-03's answer mints in M-067, F-RB-09 to Q-04's, and neither constraint can be written before the prose it points at exists. **Two are withdrawn:** PLN-17 and DLT-33 were asked what they were for, the answer was *nothing that survives the question*, and M-063 removes them. No rule-bearing statement in these carriers is left both live and unaccounted for.
 
 Two rows deserve their qualification rather than their number. **Duplication** counts rule-bearing statements with at least one duplicate on the `AGENTS.md` → `clue-delta` → `clue-verify` path or the shorter paths through `clue-upgrade` and `clue-extract`; a different path set yields a different total, and the path set is stated above rather than assumed. **Checkability** counts every statement offering more than one independent condition as one obligation. That threshold is two, which is deliberately strict: a two-condition statement is usually fine to read and only awkward to tick, so M-063 should treat that row as a ranked list rather than a defect total.
 
@@ -524,7 +524,7 @@ These are pairs that cover one situation without pulling a reader in different d
 
 ## Escalations
 
-Q-01 through Q-08. Each names the statement, what it traces to or fails to, what removing or retaining it costs, and what judgment is required. Q-01 through Q-07 were raised by the first pass and are answered below. Q-08 is still open and reached this list two ways: some of its statements surfaced while re-deriving the populations against those answers, and the rest came from an adversarial review of this register.
+Q-01 through Q-08. Each names the statement, what it traces to or fails to, what removing or retaining it costs, and what judgment is required. Q-01 through Q-07 were raised by the first pass. Q-08 reached the list two ways — some of its statements surfaced while re-deriving the populations against the first seven answers, and the rest came from an adversarial review of this register. All eight are answered below.
 
 **Q-01 — `clue-analysis`'s workflow spine traces to nothing the method accepts.** ANL-02…05, ANL-17…19, ANL-21, ANL-25…27. *Class: traces to nothing.*
 
@@ -542,7 +542,15 @@ The answer to this question ranged wider than the question. Asked about the plai
 
 **Q-07 — `clue-extract` is missing from the hub's skill table (HUB-59).** The row HUB-59 traces to, [ARCH-002](../architecture/skills.md), carries a section headed "The six skills and how they complement each other" and tables all six. The hub omits `clue-extract`. *Class: coverage, raised here because the fix is a rule-bearing row.*
 
-**Q-08 — untraceable statements this register failed to escalate, by two different failures.** One group was recorded as untraceable and never escalated, because the first pass grouped escalations by carrier and one statement in `clue-plan` and two in `clue-delta` fell between the groups: PLN-17 ("Before freezing a completed plan, distill its durable lessons and rejected paths into decision records"), DLT-15 (the human-requested spec-first pause after Propose), and DLT-33 ("Keep deltas small: Git merges text, not meaning"). The other group was recorded as *traced* to artifacts that do not state their rule, and an adversarial review caught them: HUB-22, HUB-23 and HUB-24 — the read protocol — were traced to AC-053, whose scenario is about what `clue context` emits and says nothing about when to read `docs/README.md` or where to stop reading; PLN-06 was traced to C-010, which states only the milestone status vocabulary. `docs/plans/README.md` comes closest and still does not state PLN-06's rule: it requires a milestone table to declare `ID` and `Status` headers and sends the status cells to C-010, and the words *verifiable exit criterion* appear nowhere in it. The obligation that each milestone carry one is stated in no artifact found. *Class: traces to nothing. Open — no answer yet.*
+**Q-08 — untraceable statements this register failed to escalate, by two different failures.** One group was recorded as untraceable and never escalated, because the first pass grouped escalations by carrier and one statement in `clue-plan` and two in `clue-delta` fell between the groups: PLN-17 (distil a completed plan's lessons before freezing it), DLT-15 (the human-requested pause after Propose), and DLT-33 ("Keep deltas small: Git merges text, not meaning"). The other group was recorded as *traced* to artifacts that do not state their rule, and an adversarial review caught them: HUB-22, HUB-23 and HUB-24 — the read protocol — were traced to AC-053, whose scenario is about what `clue context` emits and says nothing about when to read `docs/README.md` or where to stop reading; PLN-06 was traced to C-010, which stated only the milestone status vocabulary. *Class: traces to nothing.*
+
+**Answered.** Each of the seven was put to the human as *what is this rule for?*, and the answers split three ways.
+
+*Two are withdrawn.* PLN-17 asked every campaign to distil its lessons before freezing, and eight consecutive campaigns closed without doing it at no cost — the lessons that mattered had already been recorded as decisions when they were learned. DLT-33 is true advice that binds nothing: no reader can determine whether a delta was small enough. Both are removed from their skills by M-063, each on a decision-log row stating what the removal gives up.
+
+*One was understated and is now stronger.* DLT-15 read as an optional convenience. Its purpose is that proposing and implementing are different work, and the boundary between them is where a change can be split, redirected, or handed to a different agent — which is why the proposal is committed first. [PDR-033](../decisions/PDR-033-planning-and-implementation-are-separate-steps.md) states it, and adds what the skill never said: at the pause the agent reports briefly and asks two questions — whether implementation begins, and whether the branch is pushed. Pushing is what makes handoff possible and what ends the branch's freedom to be rebased, so it is the human's call rather than a default.
+
+*Four were real rules with no record.* The read protocol (HUB-22…24) is corpus-reading economy: start at the narrowest point that answers the question, widen on a discovered edge. [CAP-007](../capabilities/CAP-007-focused-context/README.md) built the mechanism and nothing ever obliged anyone to use it, so the expensive default — read defensively, decide afterwards what mattered — never looked wrong. [PDR-034](../decisions/PDR-034-the-corpus-is-read-narrowly-by-default.md) states the obligation and adds no mechanism. PLN-06's verifiable exit criterion now lives in [C-010](../constraints/C-010-milestone-status-vocabulary.md) beside the status vocabulary, which moves to `enforcement: partial`: the judge reads the status cell and will never judge whether a promise can be checked, and the constraint says so rather than overclaiming.
 
 ## Answers
 
@@ -552,7 +560,7 @@ Four answers reached past the questions, and each landed on machinery the corpus
 
 **Q-06's second half is [AN-013](AN-013-distributed-work-and-evidence-boundaries.md)'s F1.** The request that unmerged dependent work be recorded durably in the repository is the finding P-009 declined by removing M-043, and [P-013](../plans/P-013-simplification.md)'s M-065 exists to give it a determination. What M-065 lacked was a human judgement that the mechanism is worth building; that judgement has now been given, so M-065 builds rather than repeating "still open". This register does not design the record — M-065's own change does.
 
-**Q-08 is open.** M-063 must not touch HUB-22, HUB-23, HUB-24, PLN-06, PLN-17, DLT-15, or DLT-33 until it is answered.
+**Q-08 is answered.** M-063 removes PLN-17 and DLT-33, and rewrites DLT-15 to carry PDR-033's report-and-ask step. Nothing in this register is left open.
 
 ## Recommendation on the register's durable form
 
@@ -594,4 +602,4 @@ One reading of one revision by one agent. The register has not been independentl
 
 ## Consumer
 
-[P-013](../plans/P-013-simplification.md)'s **M-063**, which trims and reorders against this register and its answers, and **M-067**, which carries the mechanisms the answers asked for. M-063 is unblocked on Q-01 through Q-07 and blocked on Q-08 for the statements Q-08 names; the rest of the trim may proceed. [M-065](../plans/P-013-simplification.md) consumes Q-06's second half.
+[P-013](../plans/P-013-simplification.md)'s **M-063**, which trims and reorders against this register and its answers, and **M-067**, which carries the mechanisms the answers asked for. M-063 is unblocked: every escalation this register raised is answered, and the trim may proceed in full. [M-065](../plans/P-013-simplification.md) consumes Q-06's second half.

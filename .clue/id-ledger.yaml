@@ -10,7 +10,7 @@ counters:
     IC: "2"
     LOG: "1"
     P: "13"
-    PDR: "32"
+    PDR: "34"
 entries:
     - id: AC-001
       kind: numeric
@@ -1498,3 +1498,13 @@ entries:
       state: live
       prefix: PDR
       component: "32"
+    - id: PDR-033
+      kind: numeric
+      state: live
+      prefix: PDR
+      component: "33"
+    - id: PDR-034
+      kind: numeric
+      state: live
+      prefix: PDR
+      component: "34"
