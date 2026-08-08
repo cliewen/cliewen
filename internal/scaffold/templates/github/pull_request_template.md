@@ -24,7 +24,8 @@
 - Change tier: <!-- full or light -->
 - Plan item served: <!-- P-xxx / M-xxx, or explicitly plan-less -->
 - Proposal location: <!-- /changes/CH-xxx-slug/proposal.md for full changes; this PR description for light changes -->
-- Agentic review mode and reviewed commit: <!-- context-isolated or in-context fallback; SHA -->
+- Agentic review mode, reviewed commit, and pass count: <!-- context-isolated or in-context fallback; SHA; number of passes -->
+- Outstanding advisory findings: <!-- links or concise descriptions, or none -->
 - Hosted head reviewed before this update: <!-- SHA, or new PR -->
 - Outstanding actionable findings: <!-- unresolved review-conversation links, or none -->
 
