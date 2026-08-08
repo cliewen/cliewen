@@ -1223,10 +1223,10 @@ entries:
       component: "129"
     - id: CH-129-questions
       kind: opaque
-      state: live
+      state: retired
     - id: CH-129-tasks
       kind: opaque
-      state: live
+      state: retired
     - id: G-001
       kind: numeric
       state: live
