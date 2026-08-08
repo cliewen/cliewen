@@ -40,10 +40,11 @@ Applying steps 1–6 to the seven carriers yields the identifiers used below: `H
 
 **Class.** *Rule* when the statement states something an agent or human must, must not, or may do, or a condition a corpus state must satisfy — including a definition that decides whether another rule applies. *Connective* otherwise: headings, orientation, mechanism description, worked examples, and pointers to another section of the same file. A connective statement carries no obligation and is not scored against the three conditions.
 
-**Trace.** The narrowest **live** corpus artifact — decision, constraint, goal, or acceptance criterion — that *states* the rule. `NONE` means no such artifact was found. Per PDR-029, derivability is not a trace. Two artifact classes are recorded separately rather than counted as traces, and both raise a definitional question the human must settle:
+**Trace.** The narrowest **live** corpus artifact that *states* the rule. `NONE` means no such artifact was found. Per PDR-029, derivability is not a trace.
 
-- **`AN-001`** — the frozen Foundation Document. It is an analysis, not one of PDR-029's four types, and its own banner says the corpus wins where they disagree. Recorded as `AN-001 (frozen)`.
-- **`ARCH-00x`** — architecture files. Also outside PDR-029's four types, yet `AGENTS.md` rule 8 cites `ARCH-003` by ID for the core definition. Recorded as `ARCH-003 (type not in PDR-029)`.
+The accepted types are decision, constraint, goal, acceptance criterion, and — from [PDR-031](../decisions/PDR-031-architecture-artifacts-are-traces.md), which this register's own findings produced — architecture, under the same restriction: it traces when the architecture file *states* the rule, never when the rule is merely derivable from it. The first pass ran before PDR-031 existed and recorded architecture separately; those rows are now ordinary traces.
+
+The frozen Foundation Document ([AN-001](AN-001-foundation-v0.4.md)) is **not** an accepted trace and did not become one. It is an analysis, it is never edited, and its own banner says the corpus wins where the two disagree — an artifact that cannot be amended cannot carry a live rule. The eleven statements that rested on it are now traced to [PDR-030](../decisions/PDR-030-analysis-is-a-bounded-spike.md) and [PDR-006](../decisions/PDR-006-decision-records-are-typed.md), which were written for that purpose.
 
 **Dup.** Whether a live carrier already states the same rule in the same reading path. Reading paths are counted, not files: `AGENTS.md` → `clue-delta` → `clue-verify` is one path an ordinary full change actually walks, so a rule stated in all three is stated three times to one reader. [ADR-021](../decisions/ADR-021-generated-standalone-skills.md)'s deliberate file-level repetition of a shared fragment across skills is **not** scored — a fragment is registered once.
 
@@ -81,7 +82,7 @@ Applying steps 1–6 to the seven carriers yields the identifiers used below: `H
 | HUB-22 | "read `docs/README.md` only when the request does not name or resolve to an artifact" | rule | AC-053 (CAP-007) | no | yes | |
 | HUB-23 | "run `clue context` directly and read its outgoing-link slice" | rule | AC-053 (CAP-007) | no | yes | |
 | HUB-24 | "Read beyond that slice only when the task or a discovered edge requires it." | rule | AC-053 (CAP-007) | no | part (reader's judgement, no test) | |
-| HUB-25 | "The `/docs` corpus remains the system-of-record and working memory." | rule | ARCH-003 (type not in PDR-029) | no | part | |
+| HUB-25 | "The `/docs` corpus remains the system-of-record and working memory." | rule | ARCH-003 | no | part | |
 | HUB-26 | `## The rules that bind every change` | connective | — | — | — | |
 | HUB-27 | 1 — "Everything that mutates `main` goes through branch + PR." | rule | C-012 | **F-RB-01** | yes | |
 | HUB-28 | "the branch is the proposal; transient files live in `/changes/…` and are deleted in the digest commit" | rule | PDR-002 | **DLT-13**, **VFY-14** | yes | |
@@ -114,10 +115,10 @@ Applying steps 1–6 to the seven carriers yields the identifiers used below: `H
 | HUB-53 | "Cutting a release renames that section … the workflow publishes it verbatim and fails without it." | rule | ADR-012 | no | yes | |
 | HUB-54 | "Auto-generated changelogs, PR lists, and @mentions never appear on a release." | rule | ADR-012 | no | yes | |
 | HUB-55 | "update the locally installed `clue` from this checkout with `go install ./cmd/clue`" | rule | log 2026-07-31 | no | yes | |
-| HUB-56 | 8 — "The core is behind a red line." + the three-element definition | rule | ARCH-003 (type not in PDR-029) | no | yes | |
+| HUB-56 | 8 — "The core is behind a red line." + the three-element definition | rule | ARCH-003 | no | yes | |
 | HUB-57 | "A change that alters what any of these means … requires an explicit decision record and human acceptance." | rule | C-013 | no | yes | |
 | HUB-58 | "Periphery never constrains the core." | rule | PDR-013 | no | part | |
-| HUB-59 | `## Skills` table, 5 rows | rule (routing) | ARCH-004 (type not in PDR-029) | no | yes | |
+| HUB-59 | `## Skills` table, 5 rows | rule (routing) | ARCH-004 | no | yes | |
 | HUB-60 | "The skill files are generated artifacts … never edit `.agents/skills/` directly" | rule | ADR-021 | no | yes | |
 
 **Coverage gap in HUB-59.** The table lists five skills. Six ship. `clue-extract` is absent from this repository's hub while the scaffolded adopter hub (`internal/scaffold/templates/AGENTS.md`) lists all six. This may be deliberate — Cliewen has no source corpus to extract — but [ADR-043](../decisions/ADR-043-upgrade-skill-is-a-managed-carrier.md) states a managed set of six, and the hub is the routing surface. Escalated as **Q-07**.
@@ -129,10 +130,10 @@ Applying steps 1–6 to the seven carriers yields the identifiers used below: `H
 | ID | Locator | Class | Trace | Dup | Chk | Ord |
 |---|---|---|---|---|---|---|
 | ANL-01 | `# clue-analysis` | connective | — | — | — | |
-| ANL-02 | "Use when a change has unclear risks or unknowns — **before** planning or implementing." | rule | **NONE** (AN-001 frozen) | no | yes | |
-| ANL-03 | "Spiral's core: retire the biggest risk first." | rule | **NONE** (AN-001 frozen) | no | part | |
-| ANL-04 | 1 — "Name the risk or unknown in one sentence." | rule | **NONE** (AN-001 frozen) | no | yes | |
-| ANL-05 | "If you cannot, that is the first finding." | rule | **NONE** | no | yes | |
+| ANL-02 | "Use when a change has unclear risks or unknowns — **before** planning or implementing." | rule | PDR-030 | no | yes | |
+| ANL-03 | "Spiral's core: retire the biggest risk first." | rule | PDR-030 | no | part | |
+| ANL-04 | 1 — "Name the risk or unknown in one sentence." | rule | PDR-030 | no | yes | |
+| ANL-05 | "If you cannot, that is the first finding." | rule | PDR-030 | no | yes | |
 | ANL-06 | 2 — "Cite outward precisely … full address … `clue:` identity form." | rule | ADR-040 | **VFY-05** | yes | |
 | ANL-07 | "A bare forge number means 'this repository' and is wrong the moment it does not" | rule | ADR-040 | **VFY-05** | yes | |
 | ANL-08 | "Findings pinned to a revision keep the address they observed" | rule | ADR-040 | no | yes | |
@@ -144,19 +145,21 @@ Applying steps 1–6 to the seven carriers yields the identifiers used below: `H
 | ANL-14 | 4 — "Before treating a statistical claim as evidence, name the versioned corpus and population, …" | rule | log 2026-07-29 | no | **part (7 conditions)** | |
 | ANL-15 | "Do not turn an environment-sensitive quality claim into a deterministic acceptance criterion." | rule | ADR-027 | no | yes | |
 | ANL-16 | "When assessing adoption, name the governance or process changes … not neutral scaffolding." | rule | log 2026-07-29 | no | yes | |
-| ANL-17 | 5 — "Run a **spike**: a throwaway investigation…" | rule (definition) | **NONE** (AN-001 frozen) | no | yes | |
-| ANL-18 | "Spikes are disposable; their findings are not." | rule | **NONE** (AN-001 frozen) | no | yes | |
-| ANL-19 | 6 — "End every spike with a findings document in `/docs/analysis/`" | rule | **NONE** (AN-001 frozen) | no | yes | |
+| ANL-17 | 5 — "Run a **spike**: a throwaway investigation…" | rule (definition) | PDR-030 | no | yes | |
+| ANL-18 | "Spikes are disposable; their findings are not." | rule | PDR-030 | no | yes | |
+| ANL-19 | 6 — "End every spike with a findings document in `/docs/analysis/`" | rule | PDR-030 | no | yes | |
 | ANL-20 | "(`AN-xxx-slug.md`, frontmatter: `id`, `type`, `status`, `links`, `title`)" | rule | C-009 | **VFY-02** | yes | |
-| ANL-21 | "Include what was tried, what was rejected, and why" | rule | **NONE** (AN-001 frozen) | no | yes | |
+| ANL-21 | "Include what was tried, what was rejected, and why" | rule | PDR-030 | no | yes | |
 | ANL-22 | "If the finding is an incident where the corpus was green but reality proved a claim wrong, add `reality: contradicted` and link every failed capability…" | rule | ADR-035 | no | part (2 conditions) | |
 | ANL-23 | "This records the edge from reality; it does not ingest production telemetry or open the operations loop." | rule (boundary) | ADR-035 | no | yes | |
 | ANL-24 | 7 — "Route any outcome that constitutes a decision under **Decision records** below." | connective (pointer) | — | — | — | |
-| ANL-25 | "A rejected alternative that is itself a decision gets a rejected decision record, not only a paragraph." | rule | **NONE** | no | yes | |
-| ANL-26 | 8 — "Feed findings to `clue-plan` or `clue-delta`." | rule | **NONE** (ARCH-004 describes it) | no | yes | |
-| ANL-27 | "Analysis with no consumer is doc-slop; do not write it." | rule | **NONE** (AN-001 frozen) | no | part | |
+| ANL-25 | "A rejected alternative that is itself a decision gets a rejected decision record, not only a paragraph." | rule | PDR-006 | no | yes | |
+| ANL-26 | 8 — "Feed findings to `clue-plan` or `clue-delta`." | rule | PDR-030 | no | yes | |
+| ANL-27 | "Analysis with no consumer is doc-slop; do not write it." | rule | PDR-030 | no | part | |
 
-**`clue-analysis` is the weakest carrier by tracing, and the split is systematic, not random.** Its *evidence-discipline* rules (ANL-09 … ANL-16) trace cleanly to two decision-log rows written in CH-025 and CH-080. Its *workflow spine* — what a spike is, that one ends in a findings document, that a findings document records rejected options, that analysis needs a consumer — does not trace at all: eight of those statements trace only to [AN-001](AN-001-foundation-v0.4.md), the frozen Foundation Document whose own banner says the corpus wins where the two disagree, and three trace to nothing found. Eleven rule-bearing statements in the skill that governs how Cliewen writes its shared memory rest on nothing the method accepts as a trace — in a carrier of twenty-five rules. Escalated as **Q-01**.
+**`clue-analysis` was the weakest carrier by tracing, and the split was systematic rather than random.** Its *evidence-discipline* rules (ANL-09 … ANL-16) traced cleanly to two decision-log rows written in CH-025 and CH-080. Its *workflow spine* — what a spike is, that one ends in a findings document, that a findings document records rejected options, that analysis needs a consumer — did not trace at all: eight statements rested on [AN-001](AN-001-foundation-v0.4.md), the frozen Foundation Document, and three on nothing found. Eleven rule-bearing statements in the skill that governs how Cliewen writes its shared memory, in a carrier of twenty-five rules.
+
+**Answered (Q-01).** The eleven were real rules nobody had recorded, which is the case PDR-029 says is repaired by writing the missing decision rather than deleting the sentence. Ten are one rule and are now stated by [PDR-030](../decisions/PDR-030-analysis-is-a-bounded-spike.md); ANL-25 is about decision records rather than about analysis and is stated by [PDR-006](../decisions/PDR-006-decision-records-are-typed.md), amended in the same change. The rows above carry the resulting traces.
 
 ---
 
@@ -454,13 +457,16 @@ These are this spike's own results, produced by counting the register rows above
 | Total registered | 279 |
 | Connective | 19 |
 | Rule-bearing | 260 |
-| — traceable to a live decision, constraint, goal, or criterion | 240 |
-| — traceable only to `AN-001` (frozen analysis) | 8 |
-| — traceable only to an architecture file | 3 |
-| — **traceable to nothing found** | 9 |
+| — traceable to a live decision, constraint, goal, or criterion | 251 |
+| — traceable to an architecture artifact ([PDR-031](../decisions/PDR-031-architecture-artifacts-are-traces.md)) | 3 |
+| — **traceable to nothing found** | 6 |
 | Rule-bearing statements duplicated in at least one reading path | 123 |
 | Rule-bearing statements failing checkability (`part`) | 63 |
 | Statements binding absolutely but read after what they constrain | 4 |
+
+The trace rows are stated **after** the answers below, because five of the seven changed them. Before the answers the first three read 240, 3 recorded separately as outside the accepted types, 8 resting on the frozen Foundation Document, and 9 tracing to nothing.
+
+The six that still trace to nothing split two ways, and the split matters to M-063. Three have answers whose constraints are minted in M-067 and will trace then: F-DW-03 and F-DW-05 to Q-03's constraint, F-RB-09 to Q-04's. **Three have no answer at all** — PLN-17, DLT-15, and DLT-33 — because the first pass grouped its escalations by carrier and these fell between the groups. That is a defect in this register rather than in the carriers, and it is escalated below as Q-08 rather than quietly folded into an existing question.
 
 Two figures deserve their qualification rather than their number. **123 duplications** counts rule-bearing statements with at least one duplicate on the `AGENTS.md` → `clue-delta` → `clue-verify` path or the shorter paths through `clue-upgrade` and `clue-extract`; a different path set yields a different count, and the path set is stated above rather than assumed. **63 checkability failures** counts every statement offering more than one independent condition as one obligation. That threshold is two, which is deliberately strict: a two-condition statement is usually fine to read and only awkward to tick, and M-063 should treat the count as a ranked list rather than a defect total.
 
@@ -494,7 +500,7 @@ These are pairs that cover one situation without pulling a reader in different d
 
 ## Escalations
 
-Seven open questions. Each names the statement, what it traces to or fails to, what removing or retaining it costs, and what judgment is required. They are recorded in this change's `open-questions.md` and answered by the human under [C-011](../constraints/C-011-decision-records-typed.md).
+Eight open questions. Each names the statement, what it traces to or fails to, what removing or retaining it costs, and what judgment is required. Q-01 through Q-07 were raised by the first pass and are answered below; Q-08 was found while recounting the populations against those answers and is still open.
 
 **Q-01 — `clue-analysis`'s workflow spine traces to nothing the method accepts.** Eleven rule-bearing statements (ANL-02…05, ANL-17…19, ANL-21, ANL-25…27). *Class: traces to nothing.*
 
@@ -509,6 +515,18 @@ Seven open questions. Each names the statement, what it traces to or fails to, w
 **Q-06 — plain changes and unmerged work (HUB-16 against F-RB-01).** The hub says plain changes *never* build on unmerged work; the fragment permits building on unmerged work with explicit human authorization and does not exempt plain changes. *Class: obligations that could pull a reader in different directions.*
 
 **Q-07 — `clue-extract` is missing from the hub's skill table (HUB-59).** *Class: coverage, raised here because the fix is a rule-bearing row.*
+
+**Q-08 — three untraceable statements the first pass did not escalate.** PLN-17 ("Before freezing a completed plan, distill its durable lessons and rejected paths into decision records"), DLT-15 (the human-requested spec-first pause after Propose), and DLT-33 ("Keep deltas small: Git merges text, not meaning"). Each traces to nothing found; none was escalated, because the first pass grouped escalations by carrier and these three are one statement each in three different carriers. *Class: traces to nothing. Open — no answer yet.*
+
+## Answers
+
+Q-01 through Q-07 were answered by Flemming N. Larsen on 2026-08-08 in conversation, and recorded under [C-011](../constraints/C-011-decision-records-typed.md) in the same change that wrote this register: [PDR-030](../decisions/PDR-030-analysis-is-a-bounded-spike.md) (Q-01), [PDR-006](../decisions/PDR-006-decision-records-are-typed.md)'s amendment (Q-01's second half), [PDR-031](../decisions/PDR-031-architecture-artifacts-are-traces.md) (Q-05), [PDR-032](../decisions/PDR-032-mid-change-suggestions-are-triaged.md) (Q-06's suggestion half), and five rows in [`log.md`](../decisions/log.md) dated 2026-08-08 (Q-02's routing, Q-03, Q-04, Q-06's plain-change clause, Q-07).
+
+Four answers reached past the questions, and each landed on machinery the corpus already had. Q-04 generalised to *a reference names what it is about*, which is [ADR-046](../decisions/ADR-046-index-rows-say-what-the-artifact-is-about.md)'s index-row rule applied to agent-facing prose. Q-06's suggestion half reuses [ADR-002](../decisions/ADR-002-inbox-is-proposed-goals.md)'s inbox. Q-03 asked for a check that constraints are applied, which lands on VFY-11 — a defect this register had already found by a different route. Q-07 asked for a guard against forgetting, answered in two layers because the hub is Cliewen's file here and the adopter's file there.
+
+**Q-06's second half is [AN-013](AN-013-distributed-work-and-evidence-boundaries.md)'s F1.** The request that unmerged dependent work be recorded durably in the repository is the finding P-009 declined by removing M-043, and [P-013](../plans/P-013-simplification.md)'s M-065 exists to give it a determination. What M-065 lacked was a human judgement that the mechanism is worth building; that judgement has now been given, so M-065 builds rather than repeating "still open". This register does not design the record — M-065's own change does.
+
+**Q-08 is open.** M-063 must not touch PLN-17, DLT-15, or DLT-33 until it is answered.
 
 ## Recommendation on the register's durable form
 
@@ -544,4 +562,4 @@ One reading of one revision by one agent. The register has not been independentl
 
 ## Consumer
 
-[P-013](../plans/P-013-simplification.md)'s **M-063**, which trims and reorders against this register and the human's answers to the seven open questions. M-063 cannot begin until those answers exist, because five of the seven determine whether a statement is removed, rewritten, or backed by a new decision record.
+[P-013](../plans/P-013-simplification.md)'s **M-063**, which trims and reorders against this register and its answers, and **M-067**, which carries the four mechanisms the answers asked for. M-063 is unblocked on Q-01 through Q-07 and blocked on Q-08 for three statements only; the rest of the trim may proceed. [M-065](../plans/P-013-simplification.md) consumes Q-06's second half.
