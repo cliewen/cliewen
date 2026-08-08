@@ -4,7 +4,7 @@ type: constraint
 status: active
 links: [G-001, P-013, AN-018]
 title: Milestone status values in plan tables follow one vocabulary
-source: docs/plans/README.md (milestone table convention)
+source: docs/plans/README.md (milestone table convention); docs/decisions/log.md (2026-08-04 vocabulary, 2026-08-08 exit criterion)
 enforcement: partial
 ---
 

@@ -10,6 +10,8 @@ accepted-by: Flemming N. Larsen (2026-08-02, conversation)
 
 # PDR-017 — The merge gate has content
 
+> **The pre-implementation pause is extended by [PDR-033](PDR-033-planning-and-implementation-are-separate-steps.md):** it states what the pause is for — proposing and implementing are separate work, and the boundary is where a change can split or change hands — and adds that the agent reports briefly there and asks whether implementation begins and whether the branch is pushed. The pause remains opt-in and recorded in tasks, and the ordinary loop remains the default.
+
 ## Context and problem statement
 
 [AN-008](../analysis/AN-008-methodology-critiques.md) pattern A identifies that the corpus carries agent-facing skill instruction and nothing telling the human what to check at merge. The human boundary degrades to rubber-stamping unless it names what remains beyond the validator and review loop. The book's after-gate uses an advisory test-matches-scenario check and supports an opt-in pre-implementation spec review. How can the merge boundary make that human responsibility visible without turning it into duplicate code review or claiming that semantic alignment is mechanically proven?
