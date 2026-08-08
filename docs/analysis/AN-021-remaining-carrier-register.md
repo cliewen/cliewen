@@ -827,6 +827,18 @@ The generated `clue-verify` carrier states the same clause and is rescued by its
 
 The direction looks settled — a constraint outranks contributor prose, and CH-131 wrote the constraint and edited this file without reconciling this paragraph — so the cost of resolving it toward C-017 looks like zero. It is escalated anyway, and the reason is PDR-029's: an agent that resolves a conflict silently has made a methodology decision without a human, and the cheapness of a repair is not evidence that it is the right one. What is required is a one-line confirmation that C-017 governs and CTB-52 is redrafted to its language, or a statement of why the contributor's rule should be stricter than the agent's.
 
+## Answers
+
+Q-01 through Q-03 were answered by Flemming N. Larsen on 2026-08-08 in conversation, in the change that wrote this register, and recorded under [C-011](../constraints/C-011-decision-records-typed.md).
+
+**Q-01 answered: the argument survives its rule.** `guide/design.md`'s review-loop wording is corrected to the bounded loop, and "small deltas" loses its bold heading and becomes the rationale under the branching and one-change-per-author rules it actually explains. What failed the test was stating an uncheckable rule as a named principle, not the observation behind it. Recorded as a [`log.md`](../decisions/log.md) row dated 2026-08-08.
+
+**Q-02 answered: the poor-fit conditions move into the corpus as architecture, not as a constraint.** They are conditions on the adopting repository rather than rules a change can violate, so they now live in [ARCH-003](../architecture/core.md) beside the periphery and extension clauses, where [PDR-031](../decisions/PDR-031-architecture-artifacts-are-traces.md) makes them a valid trace. `guide/adoption.md` and `guide/operations.md` keep their wording and now trace there. Recorded as a `log.md` row.
+
+**Q-03 answered: the constraint governs.** `CONTRIBUTING.md`'s sentence is redrafted to say that a blocking repair invalidates the clean pass and starts a new one while an advisory from a clean pass stays in the handoff — the sentence the generated skill already had. The answer then ranged wider than the question: asked what the bounded loop actually says, the human changed it. The budget is five passes rather than three, and a fifth pass that still returns blocking findings reports them and asks whether to continue instead of earning further passes on the loop's own authority. That is [PDR-036](../decisions/PDR-036-review-loop-budget-and-human-checkpoint.md), and it moved every carrier of the pass rule in the same change.
+
+**Nothing in this register is left open.** The repairs that needed no judgement — the superseded CH-allocation instruction in `CONTRIBUTING.md`, the five-versus-seven notice-command lists in `AGENTS.md` and `guide/operations.md`, and the withdrawn tick-timing rule — were carried out in the same change. The editorial defects listed above and the six consolidation candidates are not: they are the follow-on change's work, and none of them is a rule.
+
 ## Rejected approaches
 
 **Registering every sentence of the guide.** Started and abandoned inside `design.md`. Its nine observed failures of the first iteration, its problem statement, and its cost paragraph are argument: registered per sentence they produce dozens of rows reading `connective | — | — | —`, which buries the rule-bearing rows they surround and makes the document unreadable by the person it is written for. The run form keeps the population exact — a run states its length and the script reads it — while leaving the rows a reader must actually check.

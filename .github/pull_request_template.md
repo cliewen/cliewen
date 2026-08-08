@@ -49,7 +49,7 @@
 - [ ] User-visible impact is described under `[Unreleased]` in `CHANGELOG.md`, or the change has no user-visible impact.
 - [ ] Full-change tasks are complete, plan bookkeeping is current, and no transient `/changes/` workspace remains.
 - [ ] Generated artifacts were regenerated from their canonical sources where applicable.
-- [ ] The current commit received a clean agentic review pass, every substantive fix after an earlier pass triggered a new review, and advisories first reported by the clean pass remain open rather than changing its reviewed commit.
+- [ ] The current commit received a clean agentic review pass, every blocking repair after an earlier pass triggered a new review, and advisories first reported by the clean pass remain open rather than changing its reviewed commit.
 - [ ] Reviews of an existing PR name its hosted head, and actionable findings are unresolved hosted conversations until their reviewed fixes are published.
 - [ ] `go build ./...`, coverage-gated `go test ./...`, `go run ./cmd/clue validate --forbid-changes`, and `git diff --check` pass.
 

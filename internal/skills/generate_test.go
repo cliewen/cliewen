@@ -619,8 +619,14 @@ func TestUnit_AgenticReviewLoopConvergesOnCurrentCommit(t *testing.T) {
 		"An advisory finding alone does not start another pass",
 		"without changing its reviewed commit",
 		"Scope that pass to the diff since the reviewed commit plus the carriers those files declare",
-		"Three passes are the ordinary budget for one change, not a required quota",
-		"A fourth or later pass runs only when the immediately preceding pass returned at least one blocking finding",
+		"Five passes are the ordinary budget for one change, not a required quota",
+		"A further pass runs only when the immediately preceding pass returned at least one blocking finding",
+		// Exhausting the budget is a report and a question, never permission to
+		// publish (PDR-036). The previous rule let a blocking finding on the last
+		// pass earn the next one, which read as a bound and never was one.
+		"When the fifth pass still returns blocking findings, stop and report them to the human",
+		"ask whether to run further passes; only that answer extends the budget",
+		"whether or not the budget is exhausted",
 		"number of review passes run",
 		"the bounded loop is over, and an edit would create a new candidate that this exact-commit rule requires reviewing",
 		"Advisories do not become repair-required conversations",

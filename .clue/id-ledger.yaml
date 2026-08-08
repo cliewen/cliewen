@@ -10,7 +10,7 @@ counters:
     IC: "2"
     LOG: "1"
     P: "13"
-    PDR: "35"
+    PDR: "38"
 entries:
     - id: AC-001
       kind: numeric
@@ -1297,10 +1297,10 @@ entries:
       component: "133"
     - id: CH-133-questions
       kind: opaque
-      state: live
+      state: retired
     - id: CH-133-tasks
       kind: opaque
-      state: live
+      state: retired
     - id: G-001
       kind: numeric
       state: live
@@ -1571,3 +1571,18 @@ entries:
       state: live
       prefix: PDR
       component: "35"
+    - id: PDR-036
+      kind: numeric
+      state: live
+      prefix: PDR
+      component: "36"
+    - id: PDR-037
+      kind: numeric
+      state: live
+      prefix: PDR
+      component: "37"
+    - id: PDR-038
+      kind: numeric
+      state: live
+      prefix: PDR
+      component: "38"

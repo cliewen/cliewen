@@ -2,7 +2,7 @@
 id: ARCH-003
 type: architecture
 status: active
-links: [G-001, PDR-013, PDR-019, C-013]
+links: [G-001, PDR-013, PDR-019, PDR-037, ADR-044, C-013]
 title: The Cliewen core — three load-bearing elements, a red line, and an extensible periphery
 ---
 
@@ -24,7 +24,19 @@ A change that alters the *meaning* of a core element — what the thread connect
 
 ## Periphery
 
-Everything else is periphery: analysis records, the public guide, foreign-soil trials, quality bars, change-tier prose, index generation, scaffold templates, skills wording. Periphery changes go through the ordinary change loop at ordinary cost, and "does the core need it?" is the standing test for whether a peripheral concept earns its place.
+Everything else is periphery: analysis records, the public guide, foreign-soil trials, quality bars, change-tier prose, index generation, scaffold templates, skills wording. Periphery changes go through the ordinary change loop at ordinary cost, and "does the core need it?" is the standing test for whether a peripheral concept earns its place — with one qualification: for a command, check, required field, or artifact type, [PDR-037](../decisions/PDR-037-tooling-is-judged-by-what-it-holds.md) asks instead whether removing it would move an obligation from a machine back to a human, because the core needs guarantees and those are means.
+
+## Where the method does not apply
+
+The core fixes what the thread, the merge boundary, and the judge mean; it does not claim that every repository can carry them. Cliewen is the wrong choice for a repository that cannot own both the intent and its acceptance evidence, and specifically when any of these holds:
+
+- Work does not go through Git branches and a human-controlled merge boundary — there is nowhere for the merge boundary to be.
+- The project cannot run reliable tests or enforce a stable CI check before integration — the judge has nothing to be a wall in front of.
+- The code is a disposable prototype, generated output, or vendored source whose behavior is accepted somewhere else — the thread would trace to a decision made in another repository.
+- One corpus would need to claim test evidence spread across several repositories — validation is repository-local ([ADR-044](../decisions/ADR-044-judge-reads-state-not-transitions.md)).
+- The team will not let agents maintain the corpus with the implementation, or will not review meaning before merge — both halves of the boundary are then unstaffed.
+
+These are conditions on the adopting repository rather than rules a change can violate, which is why they live here and not in the constraint register. The honest answer in those cases is to keep the project's existing lightweight notes and tests: a corpus nobody maintains is worse than no corpus, because it makes a claim about the system that is not being kept true. Stating this is part of the design — a methodology that overclaims trains its readers to stop reading its claims.
 
 ## Extension
 

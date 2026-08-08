@@ -10,6 +10,8 @@ accepted-by: []
 
 # PDR-035 — The agentic review loop owns severity and budget
 
+> **The budget and its exhaustion are replaced by [PDR-036](PDR-036-review-loop-budget-and-human-checkpoint.md):** the ordinary budget is **five** passes, not three, and when the fifth pass still returns blocking findings the loop stops, reports what remains to the human, and asks whether to run further passes — only that answer extends the budget. The "last permitted pass earns the next one" rule below is withdrawn, because it left the loop unbounded whenever it kept finding defects. Everything else this record decides is unchanged: the loop owns its blocking/advisory classification, a caller's brief cannot redefine severity, computed figures are advisory while identities stay blocking, "no blocking findings" is the exit condition, the exact-reviewed-commit boundary holds, and the handoff reports the pass count.
+
 ## Context and problem statement
 
 [PDR-012](PDR-012-agentic-review-before-publication.md) requires an adversarial review loop before publication and rejects a fixed number of ritual passes, but its exit language says both that the loop ends on “no actionable findings” and, through its live carrier, that advisory findings do not gate publication. It also leaves a reviewer brief able to redefine severity, demand exhaustive checking of advisory material, and keep a correct candidate in repeated review. How does the loop retain a real blocking gate without allowing its cost or verdict to be rewritten by each invocation?

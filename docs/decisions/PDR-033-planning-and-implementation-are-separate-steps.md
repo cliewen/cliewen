@@ -30,7 +30,7 @@ Whether the branch is pushed at that moment is a separate question with a real c
 
 *Pushing is asked, never assumed.* Pushing makes the work recoverable and hands it to whoever comes next; it also publishes unfinished work and ends the branch's freedom to be rebased onto a newer `main` under [PDR-007](PDR-007-review-boundary.md). Both are real, the trade differs by change, and the human owns it. An unpushed pause is preserved local work, exactly as [C-012](../constraints/C-012-agents-never-merge-own-changes.md) already describes a human-requested stopping point.
 
-*The pause is recorded, not remembered.* It goes in `tasks.md` under [C-003](../constraints/C-003-tasks-tick-immediately.md), so a later reader — or a later agent — can see that the work stopped deliberately rather than being abandoned.
+*The pause is recorded, not remembered.* It goes in `tasks.md` under [C-003](../constraints/C-003-skipped-tasks-carry-reasons.md), so a later reader — or a later agent — can see that the work stopped deliberately rather than being abandoned.
 
 *Without an opt-in the loop proceeds directly to implementation.* This is PDR-017's rule and it stands: making the pause mandatory would charge every ordinary change for a handoff that almost never happens.
 

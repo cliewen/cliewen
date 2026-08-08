@@ -18,7 +18,7 @@ This index is the register table. Its badge is the enforcement class rather than
 <!-- clue:index:start -->
 - [C-001 — Markdown prose is never hard-wrapped](C-001-no-hard-wrapped-markdown.md) · `machine`
 - [C-002 — Every release-relevant user-visible change adds a changelog entry](C-002-changelog-per-user-visible-change.md) · `partial`
-- [C-003 — Tasks tick immediately; a skipped task carries its reason](C-003-tasks-tick-immediately.md) · `partial`
+- [C-003 — A task marked infeasible carries its reason on the same line](C-003-skipped-tasks-carry-reasons.md) · `partial` — the tick-immediately half was withdrawn on 2026-08-08; a `[-]` with no reason is indistinguishable from a task nobody finished
 - [C-004 — Never weaken a test or a lint rule](C-004-never-weaken-checks.md) · `human`
 - [C-005 — Every Cliewen proposal declares its plan item or plan-less](C-005-proposal-declares-plan-item.md) · `partial`
 - [C-006 — Decision records are timeless prose; a method contract moves every live carrier together](C-006-adrs-timeless-with-carrier.md) · `human`
