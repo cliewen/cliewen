@@ -2,9 +2,9 @@
 id: C-017
 type: constraint
 status: active
-links: [P-013, PDR-012, PDR-035, C-004]
+links: [P-013, PDR-012, PDR-035, PDR-036, C-004, C-012]
 title: The agentic review loop owns severity and stops within its bounded ordinary budget
-source: PDR-035
+source: PDR-035, PDR-036
 enforcement: human
 ---
 
@@ -12,6 +12,6 @@ enforcement: human
 
 Given a Cliewen change entering automatic agentic review, when a caller briefs the reviewer and review passes run, then the loop's own blocking/advisory model governs the verdict; computed counts and arithmetic disagreements remain advisory while wrong, missing, or reused identities remain blocking; the reviewer does not spend a pass re-deriving figures; and the loop stops on the first pass with no blocking findings.
 
-Three passes are the ordinary budget. A fourth or later pass runs only when the immediately preceding pass returned at least one blocking finding. A blocking finding is actionable and enters the unresolved hosted-conversation lifecycle; an advisory is a non-actionable observation for the publication gate and stays in the verification handoff. An advisory may be repaired before a pass already required by a blocking repair; one first reported by a pass with no blocking findings stays in the handoff for a later change so publication remains bound to the exact reviewed commit without making the advisory a merge gate. The verification handoff reports the number of passes run together with the review mode, reviewed commit, and advisory findings left open.
+At most five passes run for one change. That is a maximum and not a quota: one pass with no blocking findings ends the loop, and a further pass runs only when the immediately preceding pass returned at least one blocking finding. When the maximum is reached with blocking findings outstanding, the loop stops, reports those findings to the human, and asks whether to run further passes; only that answer runs another, and reaching the maximum never permits publication. **Five is this repository's default**, and it is the one number a repository may set for itself: an adopter that wants a different maximum states it in its own `AGENTS.md` conventions under [ADR-013](../decisions/ADR-013-ships-generic-vs-repo-local.md), and that number governs there. A blocking finding is actionable and enters the unresolved hosted-conversation lifecycle; an advisory is a non-actionable observation for the publication gate and stays in the verification handoff. An advisory may be repaired before a pass already required by a blocking repair; one first reported by a pass with no blocking findings stays in the handoff for a later change so publication remains bound to the exact reviewed commit without making the advisory a merge gate. The verification handoff reports the number of passes run together with the review mode, reviewed commit, and advisory findings left open.
 
-**Residual:** no repository machine can observe the caller's brief, a delegated reviewer's classification, or the number and sequence of agent turns. The human at the merge boundary judges the reported review evidence against this rule. If that judgment fails, prompt wording can turn advisory work into a false gate or keep a clean candidate in an unbounded loop; treating the budget as a hard stop can instead let a genuinely blocking defect escape its required repair pass.
+**Residual:** no repository machine can observe the caller's brief, a delegated reviewer's classification, or the number and sequence of agent turns. The human at the merge boundary judges the reported review evidence against this rule. If that judgment fails, prompt wording can turn advisory work into a false gate or keep a clean candidate in an unbounded loop; and an agent that treats the exhausted budget as permission to publish, rather than as a report and a question, defeats the boundary the budget was written to protect.

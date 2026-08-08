@@ -10,6 +10,8 @@ accepted-by: Flemming N. Larsen (2026-08-08, conversation)
 
 # PDR-029 — Simplification is judged by two tests, chosen by surface
 
+> **The tooling surface gains its own test in [PDR-037](PDR-037-tooling-is-judged-by-what-it-holds.md):** for commands, checks, required fields, artifact types, and rules that hold a mechanism rather than a meaning, the operative question is *does removing it move an obligation from a machine back to a human?* — a yes is a keep, and a no is a removal candidate the standing preference removes. *Does the core need it?* remains the test of record for anything whose existence changes what the method obliges, and answering it *yes* ends the enquiry. Everything this record decides is otherwise unchanged, including the carrier test's three conditions, the ordering rule, the overlap rules, and the shared-memory clause.
+>
 > **The accepted trace types are widened by [PDR-031](PDR-031-architecture-artifacts-are-traces.md):** an architecture artifact is also a valid trace, under the same restriction the four types below already carry — it traces when the architecture file *states* the rule, never when the rule is merely derivable from it. Everything else this record decides is unchanged, including the two tests, the surface split, the narrowest-artifact rule, the refusal of derivability, the ordering rule, and the overlap rules.
 
 ## Context and problem statement

@@ -22,7 +22,7 @@ For every other change, search existing issues, pull requests, and the system-of
 
 After classification, load the smallest durable slice that can govern the work: run `clue context <id>` when the request names or resolves to an artifact; otherwise orient at `docs/README.md`, select the closest plan, capability, criterion, or decision, and run `clue context` from there. Follow additional edges only when the task discovers them.
 
-Use the next free `CH-xxx` identifier visible in git history and any active `/changes/` workspace, then create a descriptive Cliewen branch such as `ch-031-short-slug`.
+Allocate the next `CH-xxx` identifier with `clue id next CH`, which reserves it in the repository's identity ledger, and mark it live with `clue id live CH-xxx` once the proposal exists. Never derive the number by reading git history: an identifier that a deleted artifact once used would be re-minted, and `clue validate` rejects an artifact missing from the ledger. Then create a descriptive Cliewen branch such as `ch-031-short-slug`.
 
 ## Choose the Change Tier
 
@@ -34,7 +34,7 @@ A product behavior change remains full when an existing criterion already descri
 
 ## Implement and Digest
 
-Keep the change focused on its proposal and tick each task immediately when it is complete. Update permanent capability, acceptance-criteria, decision, constraint, architecture, and plan artifacts when their meaning changes.
+Keep the change focused on its proposal, and give a task you mark `[-]` as infeasible its reason on the same line. Update permanent capability, acceptance-criteria, decision, constraint, architecture, and plan artifacts when their meaning changes.
 
 New or revised machine-proven acceptance criteria declare `Test-type: Unit`, `Integration`, `E2E`, or `Performance` and require supported Go, JVM, or Cucumber evidence classified by that type and positive/negative direction, unless the criterion records `(single-direction)`. JVM evidence carries its AC identity, type, and direction on the same Java or Kotlin executable through literal JUnit method tags or the stable named-executable form; class tags and unrelated methods cannot complete the triple. A genuine `Test-type: Human` criterion is named in the acceptance brief as its proof and needs no code test; `@draft` exempts only one genuinely not-yet-proven criterion; an unannotated legacy criterion retains its one-supported-reference contract. `clue validate` validates declarations and references but does not execute tests. Never weaken a test, lint rule, or quality gate to make a build pass. If a Cliewen-owned skill changes, edit `internal/skills/source/` and run `go generate ./internal/skills`; do not edit `.agents/skills/` or `internal/scaffold/templates/skills/` directly.
 
@@ -44,7 +44,7 @@ The generated `.github/workflows/clue.yml` is a thin caller for Cliewen's upstre
 
 ## Verify Locally
 
-For a plain change, run only checks relevant to its changed surface. A guide-Markdown-only edit runs `git diff --check` and `npm run guide:build`.
+For a plain change, run only checks relevant to its changed surface. A guide-Markdown-only edit runs the whitespace check below and `npm run guide:build`.
 
 For a Cliewen change, commit the complete candidate, then run the repository's full mechanical gates against that commit:
 
@@ -53,14 +53,14 @@ go build ./...
 go test ./... -coverprofile=coverage.out
 go tool cover -func=coverage.out
 go run ./cmd/clue validate --forbid-changes
-git diff --check
+git diff --check $(git merge-base HEAD origin/main) HEAD
 ```
 
-Total Go statement coverage must remain at least 80%. `clue-verify` then automatically reviews that same commit before publication. A coding-agent host with context-isolated delegation starts a fresh read-only reviewer; other hosts disclose an in-context fallback. The loop owns its classification regardless of the reviewer brief: a blocking finding is actionable and enters the hosted repair lifecycle; an advisory is a non-actionable observation for the publication gate and stays in the verification handoff. Counts and arithmetic disagreements are advisory, while a wrong, missing, or reused identity remains blocking, and the reviewer spends no pass re-deriving figures. A blocking finding returns to the implementing context, is committed, checked against that commit, and reviewed again — scoped to what changed and the carriers it declares — until the current commit receives a pass with no blocking findings. An advisory repair may ride before a pass already required by a blocking repair; an advisory first reported by a pass with no blocking findings stays in the handoff for a later change so the published candidate remains the exact reviewed commit without making the advisory a merge gate. Three passes are the ordinary budget, and a fourth or later pass runs only after an immediately preceding pass with a blocking finding. The final verification evidence identifies the review mode, reviewed commit, number of passes run, and advisory findings left open.
+Total Go statement coverage must remain at least 80%. `clue-verify` then automatically reviews that same commit before publication. A coding-agent host with context-isolated delegation starts a fresh read-only reviewer; other hosts disclose an in-context fallback. The loop owns its classification regardless of the reviewer brief: a blocking finding is actionable and enters the hosted repair lifecycle; an advisory is a non-actionable observation for the publication gate and stays in the verification handoff. Counts and arithmetic disagreements are advisory, while a wrong, missing, or reused identity remains blocking, and the reviewer spends no pass re-deriving figures. A blocking finding returns to the implementing context, is committed, checked against that commit, and reviewed again — scoped to what changed and the carriers it declares — until the current commit receives a pass with no blocking findings. An advisory repair may ride before a pass already required by a blocking repair; an advisory first reported by a pass with no blocking findings stays in the handoff for a later change so the published candidate remains the exact reviewed commit without making the advisory a merge gate. The loop runs up to the maximum number of passes [C-017](docs/constraints/C-017-agentic-review-loop-is-bounded.md) states for this repository, and a further pass runs only after a pass with a blocking finding. Reaching the maximum with blocking findings outstanding stops the loop, reports them to the maintainer, and asks whether to run more; it never permits publication. The final verification evidence identifies the review mode, reviewed commit, number of passes run, and advisory findings left open.
 
 ## Open the Pull Request
 
-For a plain change, complete only the pull-request summary and relevant verification, then open the pull request after the applicable checks pass. For a Cliewen change, also complete the template's proposal, traceability, and Cliewen checklist, and open the pull request only after the applicable checks and automatic agentic review pass. Keep review fixes on the same branch and pull request; for a Cliewen change, each substantive fix invalidates the earlier clean pass.
+For a plain change, complete only the pull-request summary and relevant verification, then open the pull request after the applicable checks pass. For a Cliewen change, also complete the template's proposal, traceability, and Cliewen checklist, and open the pull request only after the applicable checks and automatic agentic review pass. Keep review fixes on the same branch and pull request; for a Cliewen change, a blocking repair invalidates the earlier clean pass and starts a new one, while an advisory first reported by a clean pass stays in the handoff for a later change instead of editing the reviewed commit.
 
 The branch and pull request are a proposal; a human maintainer performs the human-controlled merge commit that accepts a full Cliewen change. Configure the protected default branch to allow merge commits and disable squash and rebase-and-merge, so the proposal, implementation, digest, and durable corpus history remain reachable from `main`. Agents must never merge their own pull requests, create local merge commits into `main`, or push directly to `main`.
 
