@@ -542,7 +542,7 @@ The answer to this question ranged wider than the question. Asked about the plai
 
 **Q-07 — `clue-extract` is missing from the hub's skill table (HUB-59).** The row HUB-59 traces to, [ARCH-002](../architecture/skills.md), carries a section headed "The six skills and how they complement each other" and tables all six. The hub omits `clue-extract`. *Class: coverage, raised here because the fix is a rule-bearing row.*
 
-**Q-08 — untraceable statements this register failed to escalate, by two different failures.** They failed three different ways, and the third was found only when the answers were being written.
+**Q-08 — statements this register failed to account for.** They failed three different ways, and the third was found only when the answers were being written.
 
 Two were recorded as untraceable and never escalated, because the first pass grouped escalations by carrier and each stood alone in its file: PLN-17 (distil a completed plan's lessons before freezing it) and DLT-33 ("Keep deltas small: Git merges text, not meaning").
 

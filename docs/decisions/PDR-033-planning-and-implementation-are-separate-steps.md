@@ -2,7 +2,7 @@
 id: PDR-033
 type: decision
 status: verified
-links: [PDR-017, PDR-007, PDR-008, C-003, C-012, G-001, P-013, AN-018]
+links: [PDR-017, PDR-007, PDR-019, C-003, C-012, G-001, P-013, AN-018]
 title: Planning and implementation are separate steps, and the boundary between them is a human decision
 author: agent
 accepted-by: Flemming N. Larsen (2026-08-08, conversation)
@@ -44,6 +44,6 @@ An agent that decides for itself when a proposal is worth stopping on will stop 
 
 ## Carrier
 
-No carrier outside this record states the reporting and asking rules today. The pause itself, in PDR-017's narrower form, is stated by the `clue-delta` source template, its scaffolded copy, and `guide/change-loop.md`; those three are what this amendment is owed to, and updating them is [P-013](../plans/P-013-simplification.md)'s M-063, which owns every edit to a skill in that campaign.
+No carrier outside this record states the reporting and asking rules today. The pause itself, in PDR-017's narrower form, is stated by the `clue-delta` source template and its generated and scaffolded copies, and by `guide/change-loop.md`. All of them are owed this amendment, and [P-013](../plans/P-013-simplification.md) splits them by surface: the skill carriers belong to M-063, which owns every edit to a skill in that campaign, and the guide belongs to M-064, which carries the public guide and the rest of the carrier prose M-063 does not reach.
 
 PDR-017's remaining carriers — `clue-verify`, the shared `durable-work` fragment, the pull-request template, the reusable workflow and its thin caller, and CAP-006's criteria — carry its acceptance-brief and scenario-resolution rules and state nothing about the pause, so this amendment does not reach them. That was checked rather than assumed, because [PDR-019](PDR-019-methodology-contract-carriers-move-together.md)'s inventory obligation runs in both directions.
