@@ -32,4 +32,5 @@ This index is the register table. Its badge is the enforcement class rather than
 - [C-014 — Total Go statement coverage stays at or above 80%](C-014-coverage-floor.md) · `machine`
 - [C-015 — A new user reaches their first green validate in under 30 minutes](C-015-onboarding-under-30-minutes.md) · `human`
 - [C-016 — A generated index row states the record it links and says what it is about, never just its filename](C-016-index-rows-state-their-record.md) · `machine` — Index generation emits the stated row, seeds its description, and the judge counts the rows still restating only their link or saying nothing about the artifact.
+- [C-017 — The agentic review loop owns severity and stops within its bounded ordinary budget](C-017-agentic-review-loop-is-bounded.md) · `active` — Given a Cliewen change entering automatic agentic review, when a caller briefs the reviewer and review passes run, then the loop's own blocking/advisory model governs the verdict; computed counts and…
 <!-- clue:index:end -->

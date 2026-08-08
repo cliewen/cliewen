@@ -555,14 +555,21 @@ func TestUnit_AgenticReviewLoopConvergesOnCurrentCommit(t *testing.T) {
 		"lifecycle-correct state are not actionable defects by themselves",
 		"a previous clean result applies only to the commit it reviewed",
 		"Do not publish with unresolved blocking findings or without such a pass",
-		"Report the final review mode and reviewed commit",
+		"Report the final review mode, reviewed commit, number of review passes run, and advisory findings left open",
 		// The severity gate is what makes the loop terminate: an undifferentiated
 		// list spends the same effort on a stale figure as on a corpus-breaking
 		// defect, and repairing the figure used to restart the whole pass.
 		"Every finding is classified **blocking** or **advisory**",
+		"a reviewer brief cannot redefine the severity model",
+		"A finding whose substance is a count, total, population figure, or arithmetic disagreement is **advisory** whatever the brief called it",
+		"a wrong, missing, or reused identity remains **blocking**",
+		"The reviewer spends no pass re-deriving figures",
 		"Advisory findings are carried in the verification evidence and repaired at the author's discretion",
 		"Repairing an advisory finding does not invalidate a clean result, so the loop terminates",
 		"Scope that pass to the diff since the reviewed commit plus the carriers those files declare",
+		"Three passes are the ordinary budget for one change, not a required quota",
+		"A fourth or later pass runs only when the immediately preceding pass returned at least one blocking finding",
+		"number of review passes run",
 	} {
 		if !strings.Contains(verify, want) {
 			t.Errorf("clue-verify/skill.md does not contain agentic-review rule %q", want)

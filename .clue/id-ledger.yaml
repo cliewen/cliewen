@@ -1084,7 +1084,7 @@ entries:
       component: "16"
     - id: C-017
       kind: numeric
-      state: reserved
+      state: live
       prefix: C
       component: "17"
     - id: CAP-001
@@ -1526,6 +1526,6 @@ entries:
       component: "34"
     - id: PDR-035
       kind: numeric
-      state: reserved
+      state: live
       prefix: PDR
       component: "35"

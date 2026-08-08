@@ -1,0 +1,41 @@
+---
+id: PDR-035
+type: decision
+status: inferred
+links: [P-013, PDR-012, PDR-019, PDR-029, C-004, C-017, ADR-021]
+title: The agentic review loop owns its severity model and has a bounded ordinary budget
+author: agent
+accepted-by: []
+---
+
+# PDR-035 — The agentic review loop owns severity and budget
+
+## Context and problem statement
+
+[PDR-012](PDR-012-agentic-review-before-publication.md) requires an adversarial review loop before publication and rejects a fixed number of ritual passes, but its exit language says both that the loop ends on “no actionable findings” and, through its live carrier, that advisory findings do not gate publication. It also leaves a reviewer brief able to redefine severity, demand exhaustive checking of advisory material, and keep a correct candidate in repeated review. How does the loop retain a real blocking gate without allowing its cost or verdict to be rewritten by each invocation?
+
+## Decision outcome
+
+**The agentic review loop owns its blocking/advisory classification, and an ordinary review has a three-pass budget.**
+
+- **The caller cannot redefine severity.** A brief may identify risks and intent, but asking for a different severity model or an exhaustive sweep of a class the loop calls advisory does not change the verdict or publication gate. Blocking means the change breaks the corpus, gets behaviour wrong, leaves a false normative claim in a live carrier, or ships a criterion its evidence does not hold; advisory material never becomes blocking because the caller labels it so.
+- **Computed figures are advisory.** A finding whose substance is a count, total, population figure, or arithmetic disagreement is advisory regardless of the brief. A wrong, missing, or reused identity remains blocking: allocating an identity is not counting. The reviewer spends no pass re-deriving figures; the author remains responsible for computing and checking them before publication.
+- **Three passes are the ordinary budget, not a ritual minimum.** The loop stops as soon as the current commit receives a pass with no blocking findings. A fourth or later pass runs only when the immediately preceding pass returned at least one blocking finding; when that pass returned none, the loop is over. This does not reinstate the fixed-pass alternative PDR-012 rejected: one clean first pass is sufficient, and nobody runs three merely to reach a quota.
+- **“No blocking findings” is the exit condition.** This settles PDR-012's older “no actionable findings” wording in favour of the severity model already carried by `clue-verify`. Advisory findings stay visible in verification evidence and do not invalidate a clean result.
+- **The handoff reports cost.** Verification reports the review mode, reviewed commit, number of passes run, and any advisory findings left open, so the human merge gate can see both the verdict and what convergence cost.
+
+The bounded budget does not permit publication with an unresolved blocking finding. If the last permitted ordinary pass finds one, its repair earns the next pass; the exceptional pass exists because the gate found a defect, not because a caller demanded more inspection.
+
+**Carrier inventory:** [PDR-012](PDR-012-agentic-review-before-publication.md) carries the amended decision; [C-017](../constraints/C-017-agentic-review-loop-is-bounded.md) registers the standing human-enforced rule; the canonical `internal/skills/source/skills/clue-verify.md.tmpl` states the operating procedure and generates the repository and scaffolded copies; `internal/skills/generate_test.go` pins its stable clauses. `clue-delta`, `clue-extract`, the review-boundary fragment, and the repository and scaffolded routing hubs only invoke or require the review loop and do not state its severity or pass budget, so they remain unchanged.
+
+### Rejected: let each reviewer brief choose its own severity model
+
+That makes publication depend on prompt wording rather than repository methodology. The same candidate could be clean under one caller and blocked under another, and advisory arithmetic could consume the same repair loop as a false normative claim.
+
+### Rejected: stop unconditionally after three passes
+
+A hard stop would make the budget override the gate and could publish a candidate whose third pass found a blocking defect. The exceptional-pass rule keeps the gate intact while preventing a clean pass from being followed by discretionary extra review.
+
+### Rejected: make computed figures blocking when they appear in measured evidence
+
+Authors still owe correct measured evidence, but making the reviewer re-derive it spends review capacity on arithmetic and recreates the non-converging repair cycle this decision closes. A figure can reveal a separate blocking defect; the defect is reported on its operative requirement, not promoted because its symptom is a number.

@@ -30,6 +30,8 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 
 ### Changed
 
+- **Agentic review now stops when its own blocking gate is clean and reports how many passes it used.** A reviewer brief can still point at risks, but it cannot redefine severity or turn computed counts and arithmetic disagreements into publication blockers; wrong, missing, or reused identities remain blocking. Three passes are the ordinary budget, with a later pass allowed only when the immediately preceding pass found a blocking defect, so a clean candidate cannot be kept in discretionary re-review while a repaired blocker still receives its required challenge.
+
 - **The decisions folder now states that an expensive-to-revisit rejection earns its own record.** A rejected option was already kept as history, but nothing said when refusing an option is itself a decision. It is one whenever re-proposing the option later would be expensive — a route not taken, an interface declined, a mechanism ruled out — and it routes by the same reversal-cost test as any other decision. A rejection buried in a findings document is reachable only by someone who already knows which investigation examined it, which is how a settled question gets re-argued; a record makes the refusal findable from the folder where a reader looks for decisions. A rejection that is cheap to revisit stays a paragraph. `clue init` emits the updated wording for new repositories; nothing existing is rewritten and no check changes.
 
 ## [0.13.0] - 2026-08-05
