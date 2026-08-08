@@ -10,7 +10,7 @@ accepted-by: Flemming N. Larsen (2026-07-21, implementation conversation; findin
 
 # PDR-012 — Agentic review before publication
 
-> **Amended by [PDR-035](PDR-035-bounded-agentic-review-loop.md) and [PDR-036](PDR-036-review-loop-budget-and-human-checkpoint.md):** the loop exits on no blocking findings under its own severity model, computed-figure findings are advisory, **five** passes are the ordinary budget with a later pass allowed only after a blocking pass, a fifth pass that still returns blocking findings reports them to the human and asks whether to continue rather than earning further passes, and the handoff reports the pass count.
+> **Amended by [PDR-035](PDR-035-bounded-agentic-review-loop.md) and [PDR-036](PDR-036-review-loop-budget-and-human-checkpoint.md):** the loop exits on no blocking findings under its own severity model, computed-figure findings are advisory, the loop runs to a bounded maximum stated by [C-017](../constraints/C-017-agentic-review-loop-is-bounded.md) with a later pass allowed only after a blocking pass, reaching that maximum with blocking findings outstanding reports them to the human and asks whether to continue rather than earning further passes, and the handoff reports the pass count.
 
 ## Context and problem statement
 
