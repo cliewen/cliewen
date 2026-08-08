@@ -157,9 +157,9 @@ The frozen Foundation Document ([AN-001](AN-001-foundation-v0.4.md)) is **not** 
 | ANL-26 | 8 — "Feed findings to `clue-plan` or `clue-delta`." | rule | PDR-030 | no | yes | |
 | ANL-27 | "Analysis with no consumer is doc-slop; do not write it." | rule | PDR-030 | no | part | |
 
-**`clue-analysis` was the weakest carrier by tracing, and the split was systematic rather than random.** Its *evidence-discipline* rules (ANL-09 … ANL-16) traced cleanly — seven of them to two decision-log rows written in CH-025 and CH-080, and ANL-15 to AC-055. A fourth review pass found that [AC-055](../capabilities/CAP-003-extract/criteria.md) also states ANL-11 through ANL-14 and ANL-16 word for word, so those five rows have two live artifacts stating them and the register names the log rows. Which is the *narrowest* when a criterion and a decision both state a rule is not something PDR-029 settles; it is left as an observation rather than re-traced here. Its *workflow spine* — what a spike is, that one ends in a findings document, that a findings document records rejected options, that analysis needs a consumer — did not trace at all: eight statements rested on [AN-001](AN-001-foundation-v0.4.md), the frozen Foundation Document, and three on nothing found. Eleven rule-bearing statements in the skill that governs how Cliewen writes its shared memory, in a carrier of twenty-five rules.
+**`clue-analysis` was the weakest carrier by tracing, and the split was systematic rather than random.** Its *evidence-discipline* rules (ANL-09 … ANL-16) traced cleanly — seven of them to two decision-log rows written in CH-025 and CH-080, and ANL-15 to AC-055. A fourth review pass found that [AC-055](../capabilities/CAP-003-extract/criteria.md) also states ANL-11 through ANL-14 and ANL-16 word for word, so those five rows have two live artifacts stating them and the register names the log rows. Which is the *narrowest* when a criterion and a decision both state a rule is not something PDR-029 settles; it is left as an observation rather than re-traced here. Its *workflow spine* — what a spike is, that one ends in a findings document, that a findings document records rejected options, that analysis needs a consumer — did not trace at all: most of those statements rested on [AN-001](AN-001-foundation-v0.4.md), the frozen Foundation Document, and the remainder on nothing found. That is the spine of the skill governing how Cliewen writes its shared memory, in a carrier whose evidence-discipline half traces cleanly.
 
-**Answered (Q-01).** The eleven were real rules nobody had recorded, which is the case PDR-029 says is repaired by writing the missing decision rather than deleting the sentence. Ten are one rule and are now stated by [PDR-030](../decisions/PDR-030-analysis-is-a-bounded-spike.md); ANL-25 is about decision records rather than about analysis and is stated by [PDR-006](../decisions/PDR-006-decision-records-are-typed.md), amended in the same change. The rows above carry the resulting traces.
+**Answered (Q-01).** They were real rules nobody had recorded, which is the case PDR-029 says is repaired by writing the missing decision rather than deleting the sentence. All but one are a single rule, now stated by [PDR-030](../decisions/PDR-030-analysis-is-a-bounded-spike.md); ANL-25 is about decision records rather than about analysis and is stated by [PDR-006](../decisions/PDR-006-decision-records-are-typed.md), amended in the same change. The rows above carry the resulting traces.
 
 ---
 
@@ -185,7 +185,7 @@ The frozen Foundation Document ([AN-001](AN-001-foundation-v0.4.md)) is **not** 
 | PLN-16 | 4 — "Treat `status: completed` as immutable and never delete a completed plan." | rule | C-008 | **PLN-15** | yes | |
 | PLN-17 | "Before freezing it, distill its durable lessons and rejected paths into decision records." | rule | **NONE** | no | part | |
 
-`clue-plan` is among the smallest carriers and the only skill with no order defect, but it is not as clean as a first reading suggests: 16 rule-bearing statements, two untraceable (PLN-06, PLN-17), two checkability defects (PLN-10, PLN-17), and six duplications. Three of those six are against the hub (PLN-11, PLN-12, PLN-14); PLN-03 and PLN-08 restate the shared review-boundary fragment; and PLN-16 restates PLN-15 *within the same file*. Which layer owns each repair differs accordingly, and M-063 should not treat this carrier as finished. In-carrier duplication is not peculiar to `clue-plan`: ten rows across the register name a duplicate in their own carrier, five of them in `clue-verify` alone.
+`clue-plan` is among the smallest carriers and the only skill with no order defect, but it is not as clean as a first reading suggests. Two of its statements trace to nothing (PLN-06, PLN-17) and two fail checkability (PLN-10, PLN-17). Its duplications split three ways, and which layer owns the repair differs with each: PLN-11, PLN-12 and PLN-14 restate the routing hub; PLN-03 and PLN-08 restate the shared review-boundary fragment; and PLN-16 restates PLN-15 *within the same file*. M-063 should not treat this carrier as finished. In-carrier duplication is not peculiar to it either — rows across the register name a duplicate in their own carrier, most of them in `clue-verify`.
 
 ---
 
@@ -316,13 +316,13 @@ The pre-verification checklist is registered per checkbox; multi-condition check
 | VFY-48 | 7 — "Report the final review mode and reviewed commit with the verification evidence." | rule | PDR-012 | **VFY-17** | yes | |
 | VFY-49 | "Context isolation reduces implementation anchoring but is not a substitute for human judgment or permission to merge." | rule | C-012 | **F-RB-03** | yes | **!** |
 
-**`clue-verify` is where the checkability defect concentrates.** Thirteen of its rows state more than one independent condition, and three state five or more (VFY-09, VFY-15, VFY-30 — the last a review-loop step rather than a checklist box). VFY-09 is the extreme case: one checkbox covering the identity grammar, a declared machine proof type with evidence classified by type and direction, JVM per-executable attachment, the Human-class brief line, the `@draft` exemption, and the legacy one-reference rule. No reader can honestly tick it when five of those hold and the sixth does not, and a checklist item that cannot be ticked honestly is a checklist item that gets ticked dishonestly.
+**`clue-verify` is where the checkability defect concentrates.** Most of its rows state more than one independent condition, and three state five or more (VFY-09, VFY-15, VFY-30 — the last a review-loop step rather than a checklist box). VFY-09 is the extreme case: one checkbox covering the identity grammar, a declared machine proof type with evidence classified by type and direction, JVM per-executable attachment, the Human-class brief line, the `@draft` exemption, and the legacy one-reference rule. No reader can honestly tick it when all but one of those hold, and a checklist item that cannot be ticked honestly is a checklist item that gets ticked dishonestly.
 
 ---
 
 ## Register — `clue-extract` body (EXT)
 
-`clue-extract` is the largest carrier and the only one whose rules are almost entirely about a one-time operation. Its target contract is 14 numbered items, each carrying between one and eleven obligations; the register lists them per item with the obligation count, because splitting all 14 into single obligations would produce 68 rows that M-063 must consolidate back into a checkable form anyway. **That consolidation is the point** — the register's finding here is the shape, not the enumeration.
+`clue-extract` is the largest carrier and the only one whose rules are almost entirely about a one-time operation. Its target contract is a numbered list whose items carry anywhere from one obligation to eleven; the register lists them per item with each item's obligation count in the checkability column, because splitting them into single obligations would produce a row set M-063 must consolidate back into a checkable form anyway. **That consolidation is the point** — the register's finding here is the shape, not the enumeration.
 
 | ID | Locator | Class | Trace | Dup | Chk | Ord |
 |---|---|---|---|---|---|---|
@@ -450,7 +450,31 @@ A fragment is registered once. The **Paths** column names which reading paths re
 
 Counted over the seven carriers at `e9a7d07`, fragments counted once:
 
-These are this spike's own results, produced by counting the register rows above; a reader who disagrees with a number can recount the column it came from.
+These are this spike's own results. **They are the only figures in this document**, and they are not hand-maintained: the script below recomputes every one of them from the register rows, and a reader who disagrees with a number runs it rather than trusting the prose. Everything outside this table describes shape and names statements by ID; where a count would once have been written into a sentence, the sentence now points here.
+
+```awk
+# awk -f recount.awk AN-018-skill-statement-register.md
+BEGIN{FS="|"}
+/^\| (HUB|ANL|PLN|UPG|DLT|VFY|EXT|F-[A-Z][A-Z])-/ && NF>=8 {
+  total++
+  class=$4; trace=$5; dup=$6; chk=$7
+  gsub(/[* ]/,"",class); gsub(/[* ]/,"",trace); gsub(/[* ]/,"",dup); gsub(/[* ]/,"",chk)
+  if (class ~ /^connective/) { connective++; next }
+  rule++
+  if (dup != "no") duplicated++
+  if (chk ~ /^part/) uncheckable++
+  if (trace ~ /^NONE/) untraced++; else if (trace ~ /^ARCH/) architecture++
+  if (NF>=9 && $8 ~ /!/) misordered++
+}
+END{
+  printf "total %d  connective %d  rule-bearing %d
+", total, connective, rule
+  printf "traceable %d  architecture %d  untraced %d
+", rule-untraced-architecture, architecture, untraced
+  printf "duplicated %d  uncheckable %d  misordered %d
+", duplicated, uncheckable, misordered
+}
+```
 
 | | Statements |
 |---|---|
@@ -464,45 +488,45 @@ These are this spike's own results, produced by counting the register rows above
 | Rule-bearing statements failing checkability (`part`) | 63 |
 | Statements binding absolutely but read after what they constrain | 4 |
 
-The trace rows are stated **after** the answers below, and after an adversarial review of this register corrected six traces the first pass got wrong. As first recorded they read 240 traceable, 3 outside the accepted types, 8 resting on the frozen Foundation Document, and 9 tracing to nothing — figures the review then showed were themselves overstated, because four of those 240 named artifacts that do not state their rule.
+The trace rows are stated **after** the answers below, and after an adversarial review corrected traces the first pass got wrong in both directions. Rerunning the script against an earlier revision reproduces what it said before; the numbers are not restated here, because a historical figure typed into prose is exactly what this document stopped doing.
 
-The ten that still trace to nothing split two ways, and the split matters to M-063. **Three have answers** whose constraints are minted in M-067 and will trace then: F-DW-03 and F-DW-05 to Q-03's constraint, F-RB-09 to Q-04's. **Seven have no answer at all** — HUB-22, HUB-23, HUB-24, PLN-06, PLN-17, DLT-15, DLT-33 — and they reached this state two different ways. PLN-17, DLT-15 and DLT-33 were recorded as untraceable and never escalated, because the first pass grouped its escalations by carrier and one statement in `clue-plan` and two in `clue-delta` fell between the groups. HUB-22, HUB-23, HUB-24 and PLN-06 are worse: they were recorded as *traced* to artifacts that do not state their rule, and a review caught it. Both are defects in this register rather than in the carriers, and both are escalated below as Q-08.
+The statements that still trace to nothing split two ways, and the split matters to M-063. **Some have answers** whose constraints are minted in M-067 and will trace then: F-DW-03 and F-DW-05 to Q-03's constraint, F-RB-09 to Q-04's. **The rest have no answer at all** — HUB-22, HUB-23, HUB-24, PLN-06, PLN-17, DLT-15, DLT-33 — and they reached that state two different ways. PLN-17, DLT-15 and DLT-33 were recorded as untraceable and never escalated, because the first pass grouped its escalations by carrier and one statement in `clue-plan` and two in `clue-delta` fell between the groups. HUB-22, HUB-23, HUB-24 and PLN-06 are worse: they were recorded as *traced* to artifacts that do not state their rule, and a review caught it. Both are defects in this register rather than in the carriers, and both are escalated below as Q-08.
 
-Two figures deserve their qualification rather than their number. **124 duplications** counts rule-bearing statements with at least one duplicate on the `AGENTS.md` → `clue-delta` → `clue-verify` path or the shorter paths through `clue-upgrade` and `clue-extract`; a different path set yields a different count, and the path set is stated above rather than assumed. **63 checkability failures** counts every statement offering more than one independent condition as one obligation. That threshold is two, which is deliberately strict: a two-condition statement is usually fine to read and only awkward to tick, and M-063 should treat the count as a ranked list rather than a defect total.
+Two rows deserve their qualification rather than their number. **Duplication** counts rule-bearing statements with at least one duplicate on the `AGENTS.md` → `clue-delta` → `clue-verify` path or the shorter paths through `clue-upgrade` and `clue-extract`; a different path set yields a different total, and the path set is stated above rather than assumed. **Checkability** counts every statement offering more than one independent condition as one obligation. That threshold is two, which is deliberately strict: a two-condition statement is usually fine to read and only awkward to tick, so M-063 should treat that row as a ranked list rather than a defect total.
 
-The shape matters more than any of these numbers. **Tracing is not Cliewen's largest problem — 250 of 260 rule-bearing statements trace, and the ten that do not are spread across the routing hub, two skills, and two shared fragments rather than concentrated in a rotten one.** Duplication and checkability are the problem, and those *are* concentrated: the tier rules and the review boundary account for most of the duplication, and `clue-verify` and `clue-extract` carry 29 of the 63 checkability failures between them — the largest share by carrier, though not a majority. The tracing figure is the one this pass got wrong twice — first by resting eight rules on a frozen document and three more on nothing, then by claiming six traces the named artifacts do not carry — so it is the figure a second reader should distrust most.
+The shape matters more than any of these numbers. **Tracing is not Cliewen's largest problem — nearly every rule-bearing statement traces, and the ones that do not are spread across the routing hub, two skills, and two shared fragments rather than concentrated in a rotten carrier.** Duplication and checkability are the problem, and those *are* concentrated: the tier rules and the review boundary carry most of the duplication, and `clue-verify` and `clue-extract` carry the largest share of the checkability failures between them, though not a majority. The trace column is the one this pass got wrong twice — first by resting rules on a frozen document, then by claiming traces the named artifacts do not carry — so it is the column a second reader should distrust most.
 
 ## Order assessment
 
-Four statements bind absolutely and are read after the procedure they constrain:
+These statements bind absolutely and are read after the procedure they constrain:
 
 | Statement | Carrier | Position |
 |---|---|---|
 | F-RB-03 ("An agent never merges its own PR…") | `clue-delta`, `clue-verify`, `clue-extract`, `clue-upgrade` | last section, third paragraph |
 | UPG-16 ("Never merge it") | `clue-upgrade` | last numbered step |
 | VFY-49 ("not a substitute for … permission to merge") | `clue-verify` | last line of the review loop |
-| EXT-30 (`## Boundaries`, five prohibitions) | `clue-extract` | after all 14 contract items |
+| EXT-30 (`## Boundaries`, a list of prohibitions) | `clue-extract` | after every contract item |
 
-The shared-fragment order is one authored decision with one repair: the fragments render in the order the skill template lists them, and every skill lists `review-boundary` last. `AGENTS.md` is the counter-example that shows the repair works — it states the merge prohibition as rule 1 of eight, and nothing about that placement made the file harder to read.
+The shared-fragment order is one authored decision with one repair: the fragments render in the order the skill template lists them, and every skill lists `review-boundary` last. `AGENTS.md` is the counter-example that shows the repair works — it states the merge prohibition as its first binding rule, and nothing about that placement made the file harder to read.
 
 ## Compatible overlap candidates for M-063
 
 These are pairs that cover one situation without pulling a reader in different directions. They are consolidation work, not escalations.
 
 1. **The tier section** (HUB-12…21 against F-CT-01…06). One rule set, two statements of it, on one reading path. The hub's version names this repository's protected surfaces; the fragment's names generic ones. Consolidating means deciding which layer owns the surface inventory — likely the hub, under [ADR-013](../decisions/ADR-013-ships-generic-vs-repo-local.md)'s generic/repo-local split.
-2. **The review boundary** (HUB-27…43 against F-RB-01…08). The hub restates roughly two-thirds of the fragment in compressed form. The compression is where HUB-38's six-condition sentence came from.
-3. **The workspace lifecycle** (HUB-28, HUB-29, DLT-07, DLT-26, VFY-14). Five statements that the workspace is created on the branch, deleted in the digest, and absent from `main`.
-4. **The plan-item declaration** (HUB-44, DLT-08, VFY-07). Three statements of C-005.
-5. **Plan closing** (HUB-45, PLN-11, PLN-12, PLN-13, PLN-14, VFY-08). Six statements of one log row, which is itself the record of a change (CH-102) that existed only because seven carriers stated the rule too generically. Consolidating here is repairing the repair.
-6. **Never weaken a check** (HUB-48, VFY-01d, F-RB-04). Three statements of C-004 in one path.
-7. **Open questions stop the work** (HUB-46, DLT-14, VFY-41, EXT-07, F-LC-06, F-DR-05). Six statements of C-011's stopping rule, each scoped slightly differently — tied with candidate 5 for the widest reuse of one rule in the set.
+2. **The review boundary** (HUB-27…43 against F-RB-01…08). The hub restates most of the fragment in compressed form, and that compression is where HUB-38's unreadably conditional sentence came from.
+3. **The workspace lifecycle** (HUB-28, HUB-29, DLT-07, DLT-26, VFY-14). One rule — the workspace is created on the branch, deleted in the digest, and absent from `main` — stated once per listed row.
+4. **The plan-item declaration** (HUB-44, DLT-08, VFY-07). C-005, restated once per listed row.
+5. **Plan closing** (HUB-45, PLN-11, PLN-12, PLN-13, PLN-14, VFY-08). One decision-log row, restated once per listed row — and that log row is itself the record of a change (CH-102) that existed only because the carriers had stated the rule too generically. Consolidating here is repairing the repair.
+6. **Never weaken a check** (HUB-48, VFY-01d, F-RB-04). C-004, restated once per listed row, all on one path.
+7. **Open questions stop the work** (HUB-46, DLT-14, VFY-41, EXT-07, F-LC-06, F-DR-05). C-011's stopping rule, restated once per listed row and each scoped slightly differently — the widest reuse of one rule in the register, tied with candidate 5.
 8. **The criterion evidence contract** (DLT-17…22 against VFY-09 against EXT-16). Stated as procedure in `clue-delta`, as one checkbox in `clue-verify`, and as a contract item in `clue-extract`. This is the pair with the highest consolidation value and the highest risk, because the three statements are not word-identical and the differences may be meaningful.
 
 ## Escalations
 
-Eight open questions. Each names the statement, what it traces to or fails to, what removing or retaining it costs, and what judgment is required. Q-01 through Q-07 were raised by the first pass and are answered below. Q-08 is still open and reached this list two ways: three of its statements surfaced while recounting the populations against those answers, and four came from an adversarial review of this register.
+Q-01 through Q-08. Each names the statement, what it traces to or fails to, what removing or retaining it costs, and what judgment is required. Q-01 through Q-07 were raised by the first pass and are answered below. Q-08 is still open and reached this list two ways: some of its statements surfaced while re-deriving the populations against those answers, and the rest came from an adversarial review of this register.
 
-**Q-01 — `clue-analysis`'s workflow spine traces to nothing the method accepts.** Eleven rule-bearing statements (ANL-02…05, ANL-17…19, ANL-21, ANL-25…27). *Class: traces to nothing.*
+**Q-01 — `clue-analysis`'s workflow spine traces to nothing the method accepts.** ANL-02…05, ANL-17…19, ANL-21, ANL-25…27. *Class: traces to nothing.*
 
 **Q-02 — `clue-delta`'s CH allocator (DLT-06) instructs a method the shipped tool has replaced.** ADR-048 superseded it and its mechanism is live; this change followed the skill and failed `clue validate` as a result. *Class: the decision has outlived its reason.*
 
@@ -510,17 +534,17 @@ Eight open questions. Each names the statement, what it traces to or fails to, w
 
 **Q-04 — the orient-after-merge instruction (F-RB-09) traces to nothing.** *Class: traces to nothing.*
 
-**Q-05 — does an architecture artifact count as a trace?** HUB-25 and HUB-56 trace to [ARCH-003](../architecture/core.md) and HUB-59 to [ARCH-002](../architecture/skills.md), which PDR-029's four types exclude. *Class: definitional; blocks the register's own verdict on three statements.*
+**Q-05 — does an architecture artifact count as a trace?** HUB-25 and HUB-56 trace to [ARCH-003](../architecture/core.md) and HUB-59 to [ARCH-002](../architecture/skills.md), which PDR-029's four types exclude. *Class: definitional; blocks the register's own verdict on the statements above.*
 
 **Q-06 — plain changes and unmerged work (HUB-16 against F-RB-01).** The hub says plain changes *never* build on unmerged work; the fragment permits building on unmerged work with explicit human authorization and does not exempt plain changes. The first pass registered this as an undecided conflict, having mis-traced HUB-16 to PDR-007; review found that [PDR-011](../decisions/PDR-011-plain-changes-bypass-cliewen.md) states the hub's rule verbatim. It is therefore a carrier that drifted from a verified decision rather than two obligations with no adjudicator, which makes the repair cheaper and its direction already settled. *Class: recorded as a conflict, resolved as carrier drift.*
 
-**Q-07 — `clue-extract` is missing from the hub's skill table (HUB-59).** The row HUB-59 traces to, [ARCH-002](../architecture/skills.md), carries a section headed "The six skills and how they complement each other" and tables all six. The hub lists five. *Class: coverage, raised here because the fix is a rule-bearing row.*
+**Q-07 — `clue-extract` is missing from the hub's skill table (HUB-59).** The row HUB-59 traces to, [ARCH-002](../architecture/skills.md), carries a section headed "The six skills and how they complement each other" and tables all six. The hub omits `clue-extract`. *Class: coverage, raised here because the fix is a rule-bearing row.*
 
-**Q-08 — seven untraceable statements this register failed to escalate, by two different failures.** Three were recorded as untraceable and never escalated, because the first pass grouped escalations by carrier and one statement in `clue-plan` and two in `clue-delta` fell between the groups: PLN-17 ("Before freezing a completed plan, distill its durable lessons and rejected paths into decision records"), DLT-15 (the human-requested spec-first pause after Propose), and DLT-33 ("Keep deltas small: Git merges text, not meaning"). Four were recorded as *traced* to artifacts that do not state their rule, and an adversarial review of this register caught them: HUB-22, HUB-23 and HUB-24 — the read protocol — were traced to AC-053, whose scenario is about what `clue context` emits and says nothing about when to read `docs/README.md` or where to stop reading; PLN-06 was traced to C-010, which states only the milestone status vocabulary. `docs/plans/README.md` comes closest and still does not state PLN-06's rule: it requires a milestone table to declare `ID` and `Status` headers and sends the status cells to C-010, and the words *verifiable exit criterion* appear nowhere in it. The obligation that each milestone carry one is stated in no artifact found. *Class: traces to nothing. Open — no answer yet.*
+**Q-08 — untraceable statements this register failed to escalate, by two different failures.** One group was recorded as untraceable and never escalated, because the first pass grouped escalations by carrier and one statement in `clue-plan` and two in `clue-delta` fell between the groups: PLN-17 ("Before freezing a completed plan, distill its durable lessons and rejected paths into decision records"), DLT-15 (the human-requested spec-first pause after Propose), and DLT-33 ("Keep deltas small: Git merges text, not meaning"). The other group was recorded as *traced* to artifacts that do not state their rule, and an adversarial review caught them: HUB-22, HUB-23 and HUB-24 — the read protocol — were traced to AC-053, whose scenario is about what `clue context` emits and says nothing about when to read `docs/README.md` or where to stop reading; PLN-06 was traced to C-010, which states only the milestone status vocabulary. `docs/plans/README.md` comes closest and still does not state PLN-06's rule: it requires a milestone table to declare `ID` and `Status` headers and sends the status cells to C-010, and the words *verifiable exit criterion* appear nowhere in it. The obligation that each milestone carry one is stated in no artifact found. *Class: traces to nothing. Open — no answer yet.*
 
 ## Answers
 
-Q-01 through Q-07 were answered by Flemming N. Larsen on 2026-08-08 in conversation, and recorded under [C-011](../constraints/C-011-decision-records-typed.md) in the same change that wrote this register: [PDR-030](../decisions/PDR-030-analysis-is-a-bounded-spike.md) (Q-01), [PDR-006](../decisions/PDR-006-decision-records-are-typed.md)'s amendment (Q-01's second half), [PDR-031](../decisions/PDR-031-architecture-artifacts-are-traces.md) (Q-05), [PDR-032](../decisions/PDR-032-mid-change-suggestions-are-triaged.md) (Q-06's suggestion half), and five rows in [`log.md`](../decisions/log.md) dated 2026-08-08 (Q-02's routing, Q-03, Q-04, Q-06's plain-change clause, Q-07).
+Q-01 through Q-07 were answered by Flemming N. Larsen on 2026-08-08 in conversation, and recorded under [C-011](../constraints/C-011-decision-records-typed.md) in the same change that wrote this register: [PDR-030](../decisions/PDR-030-analysis-is-a-bounded-spike.md) (Q-01), [PDR-006](../decisions/PDR-006-decision-records-are-typed.md)'s amendment (Q-01's second half), [PDR-031](../decisions/PDR-031-architecture-artifacts-are-traces.md) (Q-05), [PDR-032](../decisions/PDR-032-mid-change-suggestions-are-triaged.md) (Q-06's suggestion half), and rows in [`log.md`](../decisions/log.md) dated 2026-08-08 for Q-02's routing, Q-03, Q-04, Q-06's plain-change clause, and Q-07.
 
 Four answers reached past the questions, and each landed on machinery the corpus already had. Q-04 generalised to *a reference names what it is about*, which is [ADR-046](../decisions/ADR-046-index-rows-say-what-the-artifact-is-about.md)'s index-row rule applied to agent-facing prose. Q-06's suggestion half reuses [ADR-002](../decisions/ADR-002-inbox-is-proposed-goals.md)'s inbox. Q-03 asked for a check that constraints are applied, which lands on VFY-11 — a defect this register had already found by a different route. Q-07 asked for a guard against forgetting, answered in two layers because the hub is Cliewen's file here and the adopter's file there.
 
@@ -544,15 +568,19 @@ The milestone asks what durable form the register should take, and names the tra
 
 **If the human wants the register bound anyway**, the cheapest honest form is a re-runnable spike rather than a committed registry: M-063's evidence already re-runs this walk, and a plan milestone requiring a re-run whenever a carrier changes gets most of the value with none of the second-representation cost. That would be a plan revision with its own decision record, which this milestone recommends and does not build.
 
+**A fourth reason arrived after the recommendation was written, and it is the strongest of them.** The first draft of this document stated its figures in prose in roughly thirty places. The review loop then ran four passes; three of them found nothing but arithmetic — prose saying one total where the rows said another — and each repair wrote new prose carrying new numbers, so the next pass found more. That is the exact failure the shared `durable-work` fragment predicts of a hand-maintained figure, and this register both documented the rule and broke it. The repair was to delete every derived number from the prose and leave the populations table with the script that recomputes it, which is why this file now names statements by ID and describes shape in words.
+
+The lesson generalises past this document. **A register whose numbers are authored is a register that manufactures review findings indefinitely**, and giving that register a mechanism would multiply the surface rather than settle it. A representation that must be kept consistent by hand is not made safe by being checked more often; it is made expensive. The measurement belongs in one place, derived, and the prose around it belongs in prose. That argues against a mechanism more strongly than any of the three reasons above, and it was learned by paying for it.
+
 ## Rejected approaches
 
-**Segmenting by sentence alone.** Tried first and abandoned within the hub. It splits qualified obligations from their conditions — HUB-14's protected-surface list becomes a statement with no rule, and the rule it qualifies becomes uncheckable — and it treats every rationale clause as a rule-bearing statement that traces to nothing, which would have inflated the untraceable population roughly fourfold with noise.
+**Segmenting by sentence alone.** Tried first and abandoned within the hub. It splits qualified obligations from their conditions — HUB-14's protected-surface list becomes a statement with no rule, and the rule it qualifies becomes uncheckable — and it treats every rationale clause as a rule-bearing statement that traces to nothing, which would have buried the untraceable population in noise.
 
-**Registering the rendered skills rather than the sources.** It would have counted each shared fragment three to six times and reported a duplication figure that ADR-021 already explains and accepts. The reading-path rule exists because the honest quantity is how many times one *reader* meets one rule, and that is neither the file count nor one.
+**Registering the rendered skills rather than the sources.** It would have counted each shared fragment once per skill that renders it, and reported a duplication figure that ADR-021 already explains and accepts. The reading-path rule exists because the honest quantity is how many times one *reader* meets one rule, and that is neither the file count nor one.
 
 **Scoring the carriers by word count.** Refused by PDR-029 before this spike began, and the register confirms why: `clue-verify`'s worst defect is VFY-09, whose repair makes the file longer.
 
-**Deciding the escalations.** Five of the eight have obvious-looking answers — write the missing decisions for Q-01, Q-03, and Q-04; delete DLT-06 for Q-02; add the row for Q-07. PDR-029 forbids exactly this, and its reason applies here: a statement that traces to nothing may be a real rule nobody recorded, and an agent that resolves it silently has made a methodology decision without a human.
+**Deciding the escalations.** Most have obvious-looking answers — write the missing decisions for Q-01, Q-03, and Q-04; delete DLT-06 for Q-02; add the row for Q-07. PDR-029 forbids exactly this, and its reason applies here: a statement that traces to nothing may be a real rule nobody recorded, and an agent that resolves it silently has made a methodology decision without a human.
 
 ## What this analysis does not establish
 
@@ -560,8 +588,8 @@ One reading of one revision by one agent. The register has not been independentl
 
 **The method has one demonstrated blind spot.** Reading a carrier against the corpus finds statements that trace to nothing and statements that state one rule twice. It does not find a statement that traces cleanly to a decision whose *mechanism has since shipped and changed the answer* — DLT-06 reads as correct and traces to a real ADR, and only executing it exposed the defect. Everything in this register is a reading; a second pass that ran each instruction rather than reading it would probably find more of these, and no claim is made here that DLT-06 is the only one.
 
-**The trace column was wrong in both directions before review, and the false-trace direction is the dangerous one.** The first pass rested eight rules on a frozen document and three more on nothing, and it claimed six traces the named artifacts do not carry: three to an acceptance criterion about a different subject, one to a constraint stating only a status vocabulary, one to a decision that does not mention the case at all, and one to an architecture ID that does not exist. A false `NONE` costs an unnecessary escalation. A false trace costs the opposite and worse — it retires a question nobody will ask again, and M-063 would have defended four statements on evidence that is not there. The asymmetry stated above, that this method produces false `NONE`s rather than false traces, was itself wrong. Every trace in this register is one reader's judgement that an artifact states a rule, and the only thing that caught these was a second reader opening the artifacts.
+**The trace column was wrong in both directions before review, and the false-trace direction is the dangerous one.** The first pass rested part of `clue-analysis`'s spine on a frozen document, and it claimed traces the named artifacts do not carry: to an acceptance criterion about a different subject, to a constraint stating only a status vocabulary, to a decision that does not mention the case at all, and to an architecture ID that does not exist. A false `NONE` costs an unnecessary escalation. A false trace costs the opposite and worse — it retires a question nobody will ask again, and M-063 would have defended those statements on evidence that is not there. The asymmetry stated above, that this method produces false `NONE`s rather than false traces, was itself wrong. Every trace here is one reader's judgement that an artifact states a rule, and the only thing that caught these was a second reader opening the artifacts.
 
 ## Consumer
 
-[P-013](../plans/P-013-simplification.md)'s **M-063**, which trims and reorders against this register and its answers, and **M-067**, which carries the mechanisms the answers asked for. M-063 is unblocked on Q-01 through Q-07 and blocked on Q-08 for seven statements; the rest of the trim may proceed. [M-065](../plans/P-013-simplification.md) consumes Q-06's second half.
+[P-013](../plans/P-013-simplification.md)'s **M-063**, which trims and reorders against this register and its answers, and **M-067**, which carries the mechanisms the answers asked for. M-063 is unblocked on Q-01 through Q-07 and blocked on Q-08 for the statements Q-08 names; the rest of the trim may proceed. [M-065](../plans/P-013-simplification.md) consumes Q-06's second half.
