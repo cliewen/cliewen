@@ -1,6 +1,12 @@
 {{template "frontmatter" .}}# clue-extract
 
-Brownfield adoption: transform an existing repository's specification corpus into a Cliewen `/docs` corpus. Use once per adopted repository; the extraction is that repository's first `clue-delta` loop. Apply the **Rehearsal before mutation**, **Decision records**, **Repository-local conventions**, and **Review boundary** below.
+{{template "review-boundary" .}}
+
+Brownfield adoption: transform an existing repository's specification corpus into a Cliewen `/docs` corpus. Use once per adopted repository; the extraction is that repository's first `clue-delta` loop. Apply the **Boundaries** above and **Rehearsal before mutation**, **Decision records**, and **Repository-local conventions** below.
+
+## Boundaries
+
+Never invent unstated requirements, renumber or rename IDs, leave the source corpus alive for reference, promote your own output to `verified`, or change test code beyond adding or normalizing the supported purpose and evidence metadata.
 
 ## Rehearsal before mutation
 
@@ -37,10 +43,5 @@ The extraction PR is complete only when all of these hold:
 
 Per-source mappings live in this skill's `mappings/` folder: [openspec.md](mappings/openspec.md) for OpenSpec corpora, [madr.md](mappings/madr.md) for MADR and Nygard-style decision records. The target contract above governs every extraction; a mapping only describes one source format. A new source format adds a mapping file, never another skill. If no mapping exists, writing one is the extraction PR's first task.
 
-## Boundaries
-
-Never invent unstated requirements, renumber or rename IDs, leave the source corpus alive for reference, promote your own output to `verified`, or change test code beyond adding or normalizing the supported purpose and evidence metadata.
-
 {{template "decision-records" .}}
 {{template "local-conventions" .}}
-{{template "review-boundary" .}}

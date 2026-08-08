@@ -348,7 +348,7 @@ func TestSanity_ScaffoldedRoutingClassifiesPlainWorkBeforeCorpus(t *testing.T) {
 		t.Fatal(err)
 	}
 	content := string(data)
-	classify := strings.Index(content, "Before loading the corpus, classify the requested work.")
+	classify := strings.Index(content, "Before loading the corpus, classify the requested work by its effect on meaning.")
 	readCorpus := strings.Index(content, "For a light or full change, read [`docs/README.md`]")
 	if classify < 0 || readCorpus < 0 || classify >= readCorpus {
 		t.Fatalf("AGENTS.md does not classify plain work before routing into the corpus:\n%s", content)
@@ -365,53 +365,61 @@ func TestSanity_ScaffoldedRoutingClassifiesPlainWorkBeforeCorpus(t *testing.T) {
 	}
 }
 
-func TestSanity_ScaffoldedRoutingRequiresExactHostedHandoff(t *testing.T) {
+func TestSanity_ScaffoldedRoutingRoutesDetailedHandoffToCanonicalSkill(t *testing.T) {
 	root, _ := runInto(t)
-	data, err := os.ReadFile(filepath.Join(root, "AGENTS.md"))
+	hub, err := os.ReadFile(filepath.Join(root, "AGENTS.md"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(string(hub), "Use [`clue-delta`](.agents/skills/clue-delta/skill.md)'s change loop") {
+		t.Fatal("AGENTS.md does not route light and full changes to clue-delta")
+	}
+
+	data, err := os.ReadFile(filepath.Join("templates", "skills", "clue-delta", "skill.md"))
 	if err != nil {
 		t.Fatal(err)
 	}
 	content := string(data)
 	for _, want := range []string{
-		"Ready means the hosted PR contains the reviewed and verified state",
-		"Every review of an existing PR names its hosted head",
-		"actionable findings become unresolved hosted review conversations",
-		"Any agent that edits becomes the updater for that turn",
-		"fetch and record the hosted head",
-		"commit and verify the complete repair",
-		"obtain a clean review of that commit",
-		"require a clean worktree",
-		"push without force",
-		"confirm the PR head equals the reviewed commit",
-		"changed head or non-fast-forward rejection requires reconciliation",
-		"merged or closed PR stops with local work reported as unpublished",
-		"local stopping point is preserved work",
-		"incomplete and not mergeable",
+		"Ready means the hosted PR contains the exact locally reviewed and verified state",
+		"Every review of an existing hosted PR is bound to its observed head SHA",
+		"publish the finding there and leave it unresolved until a hosted commit contains the reviewed repair",
+		"Any agent that edits an existing PR becomes the updater for that turn",
+		"record its hosted head",
+		"commit every intended edit",
+		"clean agentic review pass",
+		"git status --porcelain` to be empty",
+		"push the reviewed commit",
+		"confirm that the ready hosted PR's head branch and SHA equal the current local branch and `HEAD`",
+		"If the head changed or the push is rejected as non-fast-forward",
+		"If the PR merged or closed, stop and report local work as unpublished",
+		"human-requested local stopping point such as \"commit only\" is preserved work",
+		"not a completed or mergeable change",
 	} {
 		if !strings.Contains(content, want) {
-			t.Errorf("AGENTS.md does not contain review-handoff rule %q", want)
+			t.Errorf("clue-delta/skill.md does not contain review-handoff rule %q", want)
 		}
 	}
-	commitCandidate := strings.Index(content, "commit and verify the complete repair")
-	reviewCandidate := strings.Index(content, "obtain a clean review of that commit")
-	pushCandidate := strings.Index(content, "push without force")
+	commitCandidate := strings.Index(content, "commit every intended edit")
+	reviewCandidate := strings.Index(content, "clean agentic review pass")
+	pushCandidate := strings.Index(content, "push the reviewed commit")
 	if commitCandidate < 0 || reviewCandidate <= commitCandidate || pushCandidate <= reviewCandidate {
-		t.Error("AGENTS.md must commit and verify the candidate before agentic review, then push the reviewed commit without force")
+		t.Error("clue-delta/skill.md must commit and verify the candidate before agentic review, then push the reviewed commit without force")
 	}
 }
 
-func TestSanity_ScaffoldedRoutingCarriesMergeHistoryBoundary(t *testing.T) {
-	content, err := os.ReadFile(filepath.Join("templates", "AGENTS.md"))
+func TestSanity_ScaffoldedCanonicalSkillCarriesMergeHistoryBoundary(t *testing.T) {
+	content, err := os.ReadFile(filepath.Join("templates", "skills", "clue-delta", "skill.md"))
 	if err != nil {
 		t.Fatal(err)
 	}
 	for _, want := range []string{
-		"Full Cliewen changes use the supported merge-commit mode",
-		"squash and rebase-and-merge are unsupported",
-		"full changes use the supported merge-commit mode",
+		"human accepts the ready pull request with a merge commit",
+		"disable squash and rebase-and-merge",
+		"supported full-change adoption path",
 	} {
 		if !strings.Contains(string(content), want) {
-			t.Errorf("scaffolded routing is missing merge-history contract %q", want)
+			t.Errorf("scaffolded clue-delta skill is missing merge-history contract %q", want)
 		}
 	}
 }

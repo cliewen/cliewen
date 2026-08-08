@@ -30,7 +30,7 @@ Premature human merge remains a human error. This contract makes known findings 
 
 This decision refines PDR-007 clause 2 and supersedes clause 6 as stated above; its other review-boundary rules remain in force.
 
-**Carrier:** the shared review-boundary source and the `clue-verify` review loop (agent); the scaffolded and repository routing hubs and pull-request template (default/local); the protected-host guide's required-conversation-resolution setting (human/machine where supported); CAP-006's tests hold the generated contract and guidance.
+**Carrier:** the shared review-boundary source and the `clue-verify` review loop (agent); the pull-request template (default/local); the protected-host guide's required-conversation-resolution setting (human/machine where supported); CAP-006's tests hold the generated contract and guidance. The repository and scaffolded routing hubs direct light and full changes to `clue-delta`, rather than restating the handoff.
 
 ### Rejected: serialize all Cliewen changes
 
