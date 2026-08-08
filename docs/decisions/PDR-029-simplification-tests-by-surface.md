@@ -2,7 +2,7 @@
 id: PDR-029
 type: decision
 status: inferred
-links: [P-013, PDR-013, PDR-019, PDR-025, PDR-026, ADR-021, ADR-034, AN-006, AN-008, AN-010, AN-012, G-001, C-011, C-013]
+links: [P-013, PDR-013, PDR-019, PDR-025, PDR-026, ADR-021, ADR-034, AN-006, AN-008, AN-010, AN-012, G-001, C-011, C-013, C-016]
 title: Simplification is judged by two tests, chosen by surface
 author: agent
 accepted-by: []
@@ -16,7 +16,7 @@ accepted-by: []
 
 It returns the wrong answer on one surface, and that surface is the one an adopter reads most closely. Applied to Cliewen's own methodology carriers — the skills, the routing hub, the guide — nearly every rule stated there *is* needed by the core, so the test passes almost everything and concludes there is nothing to simplify. What makes those carriers expensive is not unnecessary rules. It is the same necessary rule stated in several places; a rule compressed so far that a reader cannot tell whether it has been satisfied; statements tied to nothing a reader can open; and an order that puts the least violable rules last.
 
-The tie to the corpus is what the criterion is least able to see, and it matters most, because the skills are read adversarially. A reviewer examining a skill closely does not ask whether the file is short. They ask, of a particular sentence, *why do you have this statement?* — and a methodology whose own instructions cannot point at the decision behind a rule has lost the argument before any of its rules are evaluated. Cliewen already demands exactly this of a product: every behavior traceable to a criterion, every criterion to a capability, every capability to a goal. Its own instructions are the one surface where that discipline was never applied, and a methodology that does not hold itself to its central claim is arguing against itself.
+The tie to the corpus is what the criterion is least able to see, and it matters most, because the skills are read adversarially. A reviewer examining a skill closely does not ask whether the file is short. They ask, of a particular sentence, *why do you have this statement?* — and a methodology that cannot say which decision stands behind a rule has lost the argument before any of its rules are evaluated. Cliewen already demands exactly this of a product: every behavior traceable to a criterion, every criterion to a capability, every capability to a goal. Its own instructions are the one surface where that discipline was never applied, and a methodology that does not hold itself to its central claim is arguing against itself.
 
 Order is the other half, and it is invisible to every per-statement test. In this repository's own skills the review boundary — which states that an agent never merges its own pull request and never pushes to `main` — is the final section of both `clue-delta` and `clue-verify`, past three-quarters of each file, after the procedure it constrains. The tier rules that decide whether the skill applies at all sit below the loop that assumes it does. Nothing there is untrue, duplicated, or uncheckable; the file is simply arranged so that a reader who stops early has read the procedure and not the prohibition.
 
