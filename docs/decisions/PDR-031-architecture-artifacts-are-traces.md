@@ -38,4 +38,4 @@ Symmetrical, simple, and it dissolves the test. Analysis records and plans descr
 
 ## Carrier
 
-This record and [PDR-029](PDR-029-simplification-tests-by-surface.md)'s trace-type clause, which is amended here rather than restated. [AN-018](../analysis/AN-018-skill-statement-register.md)'s register applies the widened set. P-013's milestones are unaffected: M-062 recommended and did not build, and M-063 trims against the register as amended.
+This record and [PDR-029](PDR-029-simplification-tests-by-surface.md)'s trace-type clause, which is amended here rather than restated. [AN-018](../analysis/AN-018-skill-statement-register.md)'s register applies the widened set, and P-013's M-062 states it where that milestone enumerates the accepted types. No milestone's *work* changes: M-062 recommended and did not build, and M-063 trims against the register as amended.

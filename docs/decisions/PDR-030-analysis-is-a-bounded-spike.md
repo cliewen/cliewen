@@ -12,7 +12,7 @@ accepted-by: Flemming N. Larsen (2026-08-08, conversation)
 
 ## Context and problem statement
 
-Cliewen's `clue-analysis` skill has stated the shape of a spike since the corpus was seeded: run it before planning or implementing, name the risk in one sentence, treat the investigation as disposable and the findings as durable, end in a findings document under `/docs/analysis/`, record what was rejected, and feed the result to a plan or a change. Every findings document in `/docs/analysis/` has been produced under those rules without exception.
+Cliewen's `clue-analysis` skill has stated the shape of a spike since the corpus was seeded: run it before planning or implementing, name the risk in one sentence, treat the investigation as disposable and the findings as durable, end in a findings document under `/docs/analysis/`, record what was rejected, and feed the result to a plan or a change. Every spike findings document from AN-002 onward has been produced under those rules without exception; AN-001 is the Foundation Document that stated them and is not itself a spike output.
 
 None of them was ever decided. The rules entered the skill from the Foundation Document, which is a frozen analysis whose own banner states that the corpus wins where the two disagree, and no decision, constraint, goal, or criterion ever restated them. Under [PDR-029](PDR-029-simplification-tests-by-surface.md)'s carrier test they trace to nothing, which makes the skill that governs how this project writes its shared memory the least defensible carrier it ships — a reviewer asking *why do you have this statement?* would receive "the founding document said so", which PDR-029 rules out by name.
 
@@ -44,7 +44,7 @@ It would close this gap and every one like it in a single edit, and it is wrong 
 
 ## Rejected: delete the untraceable statements
 
-The mechanical reading of the carrier test, and [PDR-029](PDR-029-simplification-tests-by-surface.md) forbids it explicitly: a statement that traces to nothing may be a real rule nobody recorded, in which case the repair is to write the missing decision. Every findings document in `/docs/analysis/`, produced under these rules, is the evidence that this is that case.
+The mechanical reading of the carrier test, and [PDR-029](PDR-029-simplification-tests-by-surface.md) forbids it explicitly: a statement that traces to nothing may be a real rule nobody recorded, in which case the repair is to write the missing decision. Every spike findings document from AN-002 onward, produced under these rules, is the evidence that this is that case.
 
 ## Carrier
 
