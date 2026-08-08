@@ -1,7 +1,7 @@
 ---
 id: CH-130
 type: change
-status: proposed
+status: open
 links: [P-013, M-062, PDR-029, PDR-013, PDR-028, ADR-021, C-011, C-013]
 title: M-062 — the shipped skills and routing hub get a statement register
 ---
