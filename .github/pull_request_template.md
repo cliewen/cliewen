@@ -24,7 +24,8 @@
 - Change tier: <!-- full or light -->
 - Plan item served: <!-- P-xxx / M-xxx, or explicitly plan-less -->
 - Proposal location: <!-- /changes/CH-xxx-slug/proposal.md for full changes; this PR description for light changes -->
-- Agentic review mode and reviewed commit: <!-- context-isolated or in-context fallback; SHA -->
+- Agentic review mode, reviewed commit, and pass count: <!-- context-isolated or in-context fallback; SHA; number of passes -->
+- Outstanding advisory findings: <!-- links or concise descriptions, or none -->
 - Hosted head reviewed before this update: <!-- SHA, or new PR -->
 - Outstanding actionable findings: <!-- unresolved review-conversation links, or none -->
 
@@ -48,7 +49,7 @@
 - [ ] User-visible impact is described under `[Unreleased]` in `CHANGELOG.md`, or the change has no user-visible impact.
 - [ ] Full-change tasks are complete, plan bookkeeping is current, and no transient `/changes/` workspace remains.
 - [ ] Generated artifacts were regenerated from their canonical sources where applicable.
-- [ ] The current commit received a clean agentic review pass, and every substantive fix after an earlier pass triggered a new review.
+- [ ] The current commit received a clean agentic review pass, every substantive fix after an earlier pass triggered a new review, and advisories first reported by the clean pass remain open rather than changing its reviewed commit.
 - [ ] Reviews of an existing PR name its hosted head, and actionable findings are unresolved hosted conversations until their reviewed fixes are published.
 - [ ] `go build ./...`, coverage-gated `go test ./...`, `go run ./cmd/clue validate --forbid-changes`, and `git diff --check` pass.
 

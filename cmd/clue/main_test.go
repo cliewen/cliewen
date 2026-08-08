@@ -963,8 +963,9 @@ func TestSanity_CommunityFrontDoorIsWellFormed(t *testing.T) {
 	}
 	prTemplate := read(".github/pull_request_template.md")
 	cliewenSection := strings.Index(prTemplate, "## Cliewen proposal")
-	reviewEvidence := strings.Index(prTemplate, "Agentic review mode and reviewed commit")
-	if cliewenSection < 0 || reviewEvidence < cliewenSection {
+	reviewEvidence := strings.Index(prTemplate, "Agentic review mode, reviewed commit, and pass count")
+	advisoryEvidence := strings.Index(prTemplate, "Outstanding advisory findings")
+	if cliewenSection < 0 || reviewEvidence < cliewenSection || advisoryEvidence < reviewEvidence {
 		t.Error(".github/pull_request_template.md must keep agentic-review evidence inside the removable Cliewen-only section")
 	}
 	plainEmail := regexp.MustCompile(`[[:alnum:]._%+-]+@[[:alnum:].-]+\.[[:alpha:]]{2,}`)
