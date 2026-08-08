@@ -864,4 +864,3 @@ Duplication is counted over the four reading paths named above and no others. A 
 ## Consumer
 
 [P-013](../plans/P-013-simplification.md)'s **M-064**, which owns this surface; [AN-022](AN-022-remaining-surface-scored.md) carries the same milestone's scoring of the rules, artifact types, required fields, commands, and checks. Q-01 through Q-03 were answered and their repairs carried out in the same change that wrote this register, because a decision that changes a methodology contract moves its carriers with it. What is left for the follow-on change is the six consolidation candidates and the four editorial defects, none of which is a rule. **M-067** consumes GL-77, whose constraint it already owes.
-
