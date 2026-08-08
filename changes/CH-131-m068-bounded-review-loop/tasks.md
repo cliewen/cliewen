@@ -19,5 +19,5 @@ title: Tasks for bounding the agentic review loop
 - [x] Repair pass 1's incomplete carrier inventory and premature plan transition
 - [x] Repair pass 2's advisory-edit conflict without weakening the exact-reviewed-commit boundary
 - [x] Repair pass 3's hosted-conversation conflict by keeping advisories non-actionable for publication
-- [ ] Record the review mode, reviewed commit, pass count, and any advisory findings as M-068 evidence
+- [-] Record the final review mode, reviewed commit, pass count, and advisories inside the workspace — the formal publication review can only run after digest deletes this workspace; the PR verification handoff records it instead and separately discloses the four pre-digest adversarial iterations
 - [x] Update P-013 bookkeeping, decision and constraint indexes, and the `[Unreleased]` changelog entry
