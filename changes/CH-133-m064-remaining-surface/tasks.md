@@ -1,6 +1,6 @@
 # CH-133 tasks
 
-- [ ] Commit the proposal, then pause: report what the proposal says and what implementation involves, and ask whether implementation begins and whether the branch is pushed
+- [x] Commit the proposal, then pause: report what the proposal says and what implementation involves, and ask whether implementation begins and whether the branch is pushed
 - [ ] Establish the evidence boundary: pin the revision, record the environment, and state what was read and what was not
 - [ ] Reuse AN-018's segmentation rule and record where the remaining carriers force it to be extended
 - [ ] Register `guide/*.md` statement by statement: class, trace, in-path duplication, checkability, order
