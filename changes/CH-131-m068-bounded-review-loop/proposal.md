@@ -1,8 +1,8 @@
 ---
 id: CH-131
 type: change
-status: proposed
-links: [P-013, M-068, PDR-012, PDR-029, PDR-035, C-017, ADR-021, C-004]
+status: open
+links: [P-013, M-068, PDR-012, PDR-029, ADR-021, C-004]
 title: M-068 — bound the agentic review loop
 ---
 
