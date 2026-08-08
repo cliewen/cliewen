@@ -1250,15 +1250,15 @@ entries:
       state: retired
     - id: CH-131
       kind: numeric
-      state: live
+      state: retired
       prefix: CH
       component: "131"
     - id: CH-131-questions
       kind: opaque
-      state: live
+      state: retired
     - id: CH-131-tasks
       kind: opaque
-      state: live
+      state: retired
     - id: G-001
       kind: numeric
       state: live
