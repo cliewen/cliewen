@@ -564,12 +564,15 @@ func TestUnit_AgenticReviewLoopConvergesOnCurrentCommit(t *testing.T) {
 		"A finding whose substance is a count, total, population figure, or arithmetic disagreement is **advisory** whatever the brief called it",
 		"a wrong, missing, or reused identity remains **blocking**",
 		"The reviewer spends no pass re-deriving figures",
-		"Advisory findings are carried in the verification evidence and repaired at the author's discretion",
-		"Repairing an advisory finding does not invalidate a clean result, so the loop terminates",
+		"An advisory repair may ride before a review pass already required by a blocking repair",
+		"an advisory first reported by a pass with no blocking findings stays open for a later change",
+		"An advisory finding alone does not start another pass",
+		"without changing its reviewed commit",
 		"Scope that pass to the diff since the reviewed commit plus the carriers those files declare",
 		"Three passes are the ordinary budget for one change, not a required quota",
 		"A fourth or later pass runs only when the immediately preceding pass returned at least one blocking finding",
 		"number of review passes run",
+		"the bounded loop is over, and an edit would create a new candidate that this exact-commit rule requires reviewing",
 	} {
 		if !strings.Contains(verify, want) {
 			t.Errorf("clue-verify/skill.md does not contain agentic-review rule %q", want)
