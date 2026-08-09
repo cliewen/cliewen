@@ -253,6 +253,16 @@ var legacyDigests = []releaseManifest{
 		"clue-upgrade/skill.md":             "220e6e88663c323b92873e1a3001a0ee9d74a94200707a62d3f78e63d74fe007",
 		"clue-verify/skill.md":              "de0a7e47d48c458addeddbaf074b7fc8028c3bdff3c015e1ea814ea5537331dc",
 	}},
+	{Version: "0.14.1", Files: map[string]string{
+		"clue-analysis/skill.md":            "7f338f95f2e6d6dabb1b11f594fd523143cc8740cb435e0d7bfae2967491cc08",
+		"clue-delta/skill.md":               "8fbbf2eef1257e93283c62fd8e0f284adbc5f119c38c3911dc1cc20067ad1b77",
+		"clue-extract/mappings/madr.md":     "98052e751deebf7b54c896b38bf3045e9ef0f1fd3031797276a5bd224a233368",
+		"clue-extract/mappings/openspec.md": "30e1602709f83e6f10fe4878e289b983b6b241669008cb47ed5670871fb146b3",
+		"clue-extract/skill.md":             "f8686cb98310930c27b7815ed09e11b58665ade5190036ba9172f74d4a3e2c8a",
+		"clue-plan/skill.md":                "c09c098b1863232d027187e385e2cf4ab7049386f7a9007a530f7adf026cb835",
+		"clue-upgrade/skill.md":             "37896d7f1ebbe5daf1bc19e1edebd812c9f34af28ea9710abb93982d8a4260f8",
+		"clue-verify/skill.md":              "57885f8f31006f17fe508a65e8b5dff222aeb28d85b3082269c156517b69040e",
+	}},
 }
 
 // Plan scans the target and returns the complete deterministic migration.
