@@ -1319,7 +1319,7 @@ entries:
       state: retired
     - id: CH-135
       kind: numeric
-      state: live
+      state: retired
       prefix: CH
       component: "135"
     - id: G-001
