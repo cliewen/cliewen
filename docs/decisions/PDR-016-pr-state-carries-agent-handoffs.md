@@ -10,7 +10,7 @@ accepted-by: Flemming N. Larsen (2026-08-02, conversation)
 
 # PDR-016 — Hosted PR state carries review findings and updater handoffs across agents
 
-> **Amended by [PDR-040](PDR-040-push-is-durability-ready-is-explicit.md):** the updater's push is no longer deferred to publication — every turn that changed anything pushes, a repair pushed to a ready PR returns it to draft, and the handoff completes when the repaired head is verified, cleanly reviewed, and the PR is marked ready again. Clause 7's preserved-local-work case narrows to the merged-or-closed stop, the one turn that ends unpushed.
+> **Amended by [PDR-040](PDR-040-push-is-durability-ready-is-explicit.md):** the updater's push is no longer deferred to publication — every turn that changed anything pushes, a repair pushed to a ready PR returns it to draft, and the handoff completes when the repaired head is verified, cleanly reviewed, and the PR is marked ready again. Clause 6's remaining rebase permission ends with the unpublished branch it depended on: a change is published from its first commit, so accepted `main` is always merged in. Clause 7's preserved-local-work case narrows to the merged-or-closed stop, the one turn that ends unpushed.
 
 ## Context and problem statement
 

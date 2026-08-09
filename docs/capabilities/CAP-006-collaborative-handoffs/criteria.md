@@ -22,18 +22,28 @@ Feature: Collaborative pull-request handoffs
     And the resulting commit requires a new review
     But a reviewer unable to publish a resolvable finding reports the pull request as not merge-ready without claiming equivalent enforcement
 
-  @AC-041
+  @AC-041 @retired
   Scenario: Any agent that edits completes the hosted handoff or fails safely
+    # Retired 2026-08-09 (CH-136): the handoff ordering changed. This scenario
+    # placed the push after the clean review and made incorporating main
+    # conditional on "after publication". Under PDR-040 the repair is pushed by
+    # the turn that made it, review follows, and publication is unconditional.
+    # AC-132 states the corrected handoff and carries this scenario's tests.
+
+  @AC-132
+  Scenario: Any agent that edits completes the hosted handoff or fails safely
+    Test-type: Unit
     Given an agent starts from the current hosted head of an open pull request
     When it repairs the change
-    Then it commits and verifies the complete repair
-    And a clean review covers the repaired commit
-    And it pushes without force and confirms the pull request head equals that commit
+    Then it commits and pushes the repair with the turn that made it, without force
+    And a repair pushed to a ready pull request returns it to draft
+    And it verifies the complete repair and a clean review covers the repaired commit
+    And it confirms the pull request head equals that commit before marking it ready again
     And it resolves satisfied findings only after that confirmation
     But if the hosted head changes or a normal push is rejected it does not overwrite remote work or claim the pull request is merge-ready
     And an open changed head is fetched and reconciled before verification and review repeat
-    And if accepted main advances after publication, current main is merged into the pull request branch without rewriting hosted history before verification and review repeat
-    And a merged or closed pull request stops with any local work reported as unpublished
+    And when accepted main advances, current main is merged into the pull request branch without rewriting hosted history before verification and review repeat
+    And a merged or closed pull request stops without a push, reporting where the work stands
 
   @AC-042
   Scenario: The human merge gate receives its remaining semantic decisions

@@ -140,7 +140,7 @@ func TestAC040_CIWallMakesKnownFindingsDurable(t *testing.T) {
 	}
 }
 
-func TestAC041_ChangeLoopCoordinatesOnlyTheSharedPR(t *testing.T) {
+func TestAC132_UnitPositive_ChangeLoopCoordinatesOnlyTheSharedPR(t *testing.T) {
 	content, err := os.ReadFile("change-loop.md")
 	if err != nil {
 		t.Fatal(err)

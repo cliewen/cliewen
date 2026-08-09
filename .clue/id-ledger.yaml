@@ -1,5 +1,5 @@
 counters:
-    AC: "131"
+    AC: "132"
     ADR: "54"
     AN: "22"
     ARCH: "3"
@@ -214,7 +214,7 @@ entries:
       component: "40"
     - id: AC-041
       kind: numeric
-      state: live
+      state: retired
       prefix: AC
       component: "41"
     - id: AC-042
@@ -662,6 +662,11 @@ entries:
       state: live
       prefix: AC
       component: "131"
+    - id: AC-132
+      kind: numeric
+      state: live
+      prefix: AC
+      component: "132"
     - id: ADR-001
       kind: numeric
       state: live

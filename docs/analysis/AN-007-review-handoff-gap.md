@@ -2,7 +2,7 @@
 id: AN-007
 type: analysis
 status: active
-links: [PDR-007, PDR-011, C-012, LOG-001, CAP-006, AC-041]
+links: [PDR-007, PDR-011, C-012, LOG-001, CAP-006, AC-132]
 title: A ready PR can omit intended local review fixes
 ---
 
@@ -40,4 +40,4 @@ The proportionate carrier change is to define readiness as an exact handoff: eve
 
 PDR-007 and PDR-011 already decide the branch, PR, review-fix, and plain-change boundaries. CH-039 consumes this finding by adding a cheap local readiness decision to LOG-001, strengthening C-012 and the routing and skill carriers, and adding regression coverage without creating a new PDR or a plain-change skill.
 
-CAP-006's exact-handoff criteria (AC-040, AC-041) now state the repair this finding called for: the incident is a closed, consumed finding recorded here as history, not a live contradiction.
+CAP-006's exact-handoff criteria (AC-040, AC-132, which supersedes the retired AC-041) now state the repair this finding called for: the incident is a closed, consumed finding recorded here as history, not a live contradiction.

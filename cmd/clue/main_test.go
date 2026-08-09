@@ -1053,7 +1053,7 @@ func TestSanity_ReviewFixConstraintOrdersFinalCandidateBeforeReview(t *testing.T
 	}
 }
 
-func TestAC041_PublicCarriersKeepCrossAgentHelpOutsideTheInitiatedSlot(t *testing.T) {
+func TestAC132_UnitPositive_PublicCarriersKeepCrossAgentHelpOutsideTheInitiatedSlot(t *testing.T) {
 	root := filepath.Join("..", "..")
 	for rel, wants := range map[string][]string{
 		".github/pull_request_template.md": {

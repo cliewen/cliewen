@@ -549,7 +549,7 @@ func TestAC040_ReviewWithoutResolvableHostStateFailsOpenly(t *testing.T) {
 	}
 }
 
-func TestAC041_AnyEditorOwnsTheExactFastForwardHandoff(t *testing.T) {
+func TestAC132_UnitPositive_AnyEditorOwnsTheExactFastForwardHandoff(t *testing.T) {
 	for _, file := range mustRender(t) {
 		if !strings.HasSuffix(file.relativePath, "/skill.md") || (!strings.HasPrefix(file.relativePath, "clue-delta/") && !strings.HasPrefix(file.relativePath, "clue-extract/") && !strings.HasPrefix(file.relativePath, "clue-verify/")) {
 			continue
@@ -570,7 +570,32 @@ func TestAC041_AnyEditorOwnsTheExactFastForwardHandoff(t *testing.T) {
 	}
 }
 
-func TestAC041_ConcurrentOrClosedPRStateFailsSafely(t *testing.T) {
+// AC-041 was retired because its handoff put the push after the clean review
+// and made incorporating `main` conditional on publication. Both readings are
+// still natural to write, and nothing else would notice them returning: the
+// generated text is the whole carrier.
+func TestAC132_UnitNegative_CarriersDoNotRestoreTheRetiredHandoffOrdering(t *testing.T) {
+	for _, file := range mustRender(t) {
+		if !strings.HasSuffix(file.relativePath, "/skill.md") {
+			continue
+		}
+		content := string(file.content)
+		for _, retired := range []string{
+			"obtains a clean review of the repaired commit, pushes without force",
+			"before publishing, recheck that head",
+			"After a PR is published, incorporate a newer accepted `main`",
+			"Rebasing an unpublished local branch before its first publication remains allowed",
+			"never as a draft",
+			`local stopping point such as "commit only"`,
+		} {
+			if strings.Contains(content, retired) {
+				t.Errorf("%s restored the retired handoff ordering %q", file.relativePath, retired)
+			}
+		}
+	}
+}
+
+func TestAC132_UnitPositive_ConcurrentOrClosedPRStateFailsSafely(t *testing.T) {
 	verify := ""
 	for _, file := range mustRender(t) {
 		if file.relativePath == "clue-verify/skill.md" {

@@ -87,7 +87,7 @@ func assertThinCaller(t *testing.T, raw string, workflow ciWorkflow) error {
 	if len(job.Steps) != 0 {
 		return fmt.Errorf("caller embeds %d steps instead of delegating the validation unit", len(job.Steps))
 	}
-	wantInputs := []string{"clue-install-directory", "clue-source", "clue-version", "runner"}
+	wantInputs := []string{"clue-install-directory", "clue-source", "clue-version", "draft-aware", "runner"}
 	gotInputs := make([]string, 0, len(job.With))
 	for input := range job.With {
 		gotInputs = append(gotInputs, input)
@@ -224,6 +224,7 @@ jobs:
       clue-version: 0.10.0
       clue-source: vendored
       clue-install-directory: ''
+      draft-aware: true
 %s`, triggers, ref, extra)
 }
 
