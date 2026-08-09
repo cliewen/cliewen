@@ -28,7 +28,7 @@ import (
 // When no stamp is injected, main falls back to the module version Go
 // embeds in `go install module@vX.Y.Z` builds; checkout and commit builds
 // report "dev" and are exempt from skill-drift checks (ADR-011).
-var version = "dev"
+var version string
 
 // pseudoVersion matches Go pseudo-versions (…-yyyymmddhhmmss-abcdefabcdef):
 // a commit, not a release.
@@ -48,6 +48,18 @@ func releaseFromModuleVersion(v string) string {
 		return ""
 	}
 	return strings.TrimPrefix(base, "v")
+}
+
+// resolvedVersion preserves every explicit linker stamp, including "dev".
+// Only an absent stamp may take a Go module-version fallback.
+func resolvedVersion(stamp, moduleVersion string) string {
+	if stamp != "" {
+		return stamp
+	}
+	if v := releaseFromModuleVersion(moduleVersion); v != "" {
+		return v
+	}
+	return "dev"
 }
 
 const usage = `clue — a verifiable thread from goal to acceptance evidence
@@ -190,13 +202,11 @@ Exit codes: 0 corpus valid · 1 issues found · 2 usage error
 `
 
 func main() {
-	if version == "dev" {
-		if bi, ok := debug.ReadBuildInfo(); ok {
-			if v := releaseFromModuleVersion(bi.Main.Version); v != "" {
-				version = v
-			}
-		}
+	moduleVersion := ""
+	if bi, ok := debug.ReadBuildInfo(); ok {
+		moduleVersion = bi.Main.Version
 	}
+	version = resolvedVersion(version, moduleVersion)
 	if len(os.Args) < 2 {
 		fmt.Fprint(os.Stderr, usage)
 		os.Exit(2)
