@@ -1308,15 +1308,15 @@ entries:
       state: retired
     - id: CH-134
       kind: numeric
-      state: live
+      state: retired
       prefix: CH
       component: "134"
     - id: CH-134-questions
       kind: opaque
-      state: live
+      state: retired
     - id: CH-134-tasks
       kind: opaque
-      state: live
+      state: retired
     - id: G-001
       kind: numeric
       state: live
