@@ -4,6 +4,12 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 
 ## [Unreleased]
 
+## [0.14.1] - 2026-08-09
+
+### Migration
+
+- **No repository migration is required for this patch release.** v0.14.1 records its generated skill bytes so a later `clue migrate` run recognizes this release as an original managed-carrier baseline.
+
 ### Fixed
 
 - **An explicitly `dev`-stamped `clue` build now remains a development build on a release-tag checkout.** The binary no longer inherits the tag's version through embedded module metadata, so its managed skills are not falsely reported as drifted. Unstamped `go install module@vX.Y.Z` builds still report that release as before.
