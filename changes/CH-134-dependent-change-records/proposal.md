@@ -1,6 +1,7 @@
 ---
 id: CH-134
-type: change-proposal
+type: change
+status: open
 links: [P-013]
 title: Dependent changes become durable, reviewable records
 ---
@@ -11,7 +12,7 @@ title: Dependent changes become durable, reviewable records
 
 Serve P-013/M-065 by designing and adopting the durable record AN-013/F1 requires for work that depends on an unmerged change. The record must identify the unaccepted base, the dependency, and the human authorization, and make the dependent change's acceptance brief state what its merge would bind.
 
-This change also obtains and records the required determinations for AN-013/F2's emitted-wall divergence and AN-013/F3's unqualified external references. It implements either a mechanism that the human directs, or the resulting explicit decline or successor route.
+This change records the required determinations for AN-013/F2's emitted-wall divergence and AN-013/F3's unqualified external references: ADR-038 already supplies F2's upstream reusable workflow and thin caller, while ADR-040 already supplies F3's qualified references and lint. It does not duplicate either mechanism.
 
 ## Why
 
@@ -19,4 +20,4 @@ Today, a dependent change can make unaccepted meaning appear as accepted corpus 
 
 ## Boundaries
 
-This change does not treat a pull-request base, a foreign green check, or a forge query as corpus truth. It does not automate stacked merges or permit an agent to merge a change. Any F2 or F3 mechanism must be separately authorized by the human questions in this workspace.
+This change does not treat a pull-request base, a foreign green check, or a forge query as corpus truth. It does not automate stacked merges or permit an agent to merge a change.

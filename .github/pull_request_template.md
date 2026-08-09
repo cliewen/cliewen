@@ -4,7 +4,7 @@
 
 - Plan item and whether it remains wanted: <!-- REQUIRED -->
 - Added or changed criteria, verbatim scenarios, and advisory scenario-resolution verdicts (`verifies`, `verifies-something-adjacent`, or `undetermined`); a criterion newly or materially declaring `Test-type: Human` is named here — this line is that criterion's proof, not a separate confirmation: <!-- REQUIRED, or none -->
-- What becomes binding on merge (inferred decisions, invalidated or superseded records): <!-- REQUIRED, or none -->
+- What becomes binding on merge (inferred decisions, invalidated or superseded records, and any authorized unaccepted base with the meaning it binds): <!-- REQUIRED, or none -->
 
 > A green build, complete form, or confident agent is not evidence that this outcome is wanted or that the criteria reflect reality. Keep this brief to one screen; split a change rather than hiding material meaning.
 
@@ -55,7 +55,7 @@
 
 ## Review boundary
 
-- [ ] The branch started from the current tip of `main` and does not build on unmerged work.
+- [ ] The branch started from the current tip of `main` and does not build on unmerged work, or its committed authorized-dependency record and acceptance-brief disclosure name the base, authorization, and binding meaning.
 - [ ] Every intended edit is committed, the worktree is clean, and the reported verification ran against the current commit.
 - [ ] The branch was updated without force, and this ready pull request's head branch and SHA equal the locally verified branch and `HEAD`.
 - [ ] Satisfied review conversations were resolved only after their reviewed fixes reached this hosted head.

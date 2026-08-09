@@ -4,6 +4,10 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 
 ## [Unreleased]
 
+### Changed
+
+- **An authorized change that depends on unmerged work must now say so where it can be reviewed.** Its committed workspace records the base, the human authorization, and the unaccepted meaning its merge would bind; its acceptance brief repeats the same facts for the human merge decision. This disclosure does not make the base accepted, permit an agent to merge either change, or make validation depend on forge state.
+
 ### Migration
 
 - **Extraction review deliberately has no committed per-criterion registry: the derived report and its pinned manifest are the review material.** The report is the readable summary and mapping table; for an individual criterion mapping, follow its manifest reference and compare it with the target corpus or `clue parity` output. Cliewen deliberately does not create a second committed registry rendering every criterion, so this route involves more navigation but avoids another stored representation of the same mapping.

@@ -2,13 +2,15 @@
 id: PDR-007
 type: decision
 status: verified
-links: [PDR-004, PDR-027, C-004, C-012]
+links: [PDR-004, PDR-027, PDR-039, C-004, C-012]
 title: The PR is the authorization boundary — changes root at main and humans merge
 author: agent
 accepted-by: Flemming N. Larsen (2026-07-18, PR #20 review conversation)
 ---
 
 # PDR-007 — The PR is the authorization boundary
+
+> **Amended by [PDR-039](PDR-039-dependent-changes-carry-authorization.md):** an authorized dependent change retains its answered blocking question in the committed workspace, naming the unmerged base, human authorization, and unaccepted meaning its merge would bind; the ready acceptance brief repeats that disclosure. The exception does not make the base accepted.
 
 ## Context and problem statement
 
