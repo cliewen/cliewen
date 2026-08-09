@@ -2,13 +2,15 @@
 id: PDR-012
 type: decision
 status: verified
-links: [G-001, ARCH-002, PDR-007, C-012]
+links: [G-001, ARCH-002, PDR-007, PDR-040, C-012]
 title: Every Cliewen change receives an automatic agentic review before publication
 author: agent
 accepted-by: Flemming N. Larsen (2026-07-21, implementation conversation; finding-grounding amendment approved 2026-07-22, follow-up conversation)
 ---
 
 # PDR-012 — Agentic review before publication
+
+> **Amended by [PDR-040](PDR-040-push-is-durability-ready-is-explicit.md):** the gate this record places "before publication" now sits before the ready mark. Pushing is unconditional turn-end durability and claims nothing; the clean review pass and local checks bind to the exact hosted head when the draft PR is marked ready for review.
 
 > **Amended by [PDR-035](PDR-035-bounded-agentic-review-loop.md) and [PDR-036](PDR-036-review-loop-budget-and-human-checkpoint.md):** the loop exits on no blocking findings under its own severity model, computed-figure findings are advisory, the loop runs to a bounded maximum stated by [C-017](../constraints/C-017-agentic-review-loop-is-bounded.md) with a later pass allowed only after a blocking pass, reaching that maximum with blocking findings outstanding reports them to the human and asks whether to continue rather than earning further passes, and the handoff reports the pass count.
 

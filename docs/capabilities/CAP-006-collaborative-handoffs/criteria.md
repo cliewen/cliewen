@@ -60,6 +60,17 @@ Feature: Collaborative pull-request handoffs
     And the upstream workflow still owns scope detection, the armed warning, the acceptance-brief gate, and the "clue validate --forbid-changes" step
     And the branch-protection probe can identify the same stable "validate" check
 
+  @AC-131
+  Scenario: Work is continuously published and readiness is a separate explicit act
+    Test-type: Human
+    Given an agent works on a Cliewen change
+    When any working turn changes something
+    Then that turn ends by committing and pushing the change branch, whatever state the work is in
+    And the pull request exists as a draft from first publication, so unfinished work is visible and unmergeable rather than parked in a local worktree
+    And the pull request is marked ready for review only when local verification and a clean agentic review pass are bound to the exact hosted head
+    And a substantive edit to a ready pull request returns it to draft until its new head earns the same binding
+    But a turn that changed nothing pushes nothing, and a pull request found merged or closed stops the turn without a push
+
   @AC-130
   Scenario: An authorized dependent change remains visible at the merge boundary
     Test-type: Human

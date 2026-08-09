@@ -659,7 +659,7 @@ entries:
       component: "130"
     - id: AC-131
       kind: numeric
-      state: reserved
+      state: live
       prefix: AC
       component: "131"
     - id: ADR-001
@@ -1635,6 +1635,6 @@ entries:
       component: "39"
     - id: PDR-040
       kind: numeric
-      state: reserved
+      state: live
       prefix: PDR
       component: "40"

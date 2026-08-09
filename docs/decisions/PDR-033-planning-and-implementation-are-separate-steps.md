@@ -2,13 +2,15 @@
 id: PDR-033
 type: decision
 status: verified
-links: [PDR-017, PDR-007, PDR-019, C-003, C-012, G-001, P-013, AN-018]
+links: [PDR-017, PDR-007, PDR-019, PDR-040, C-003, C-012, G-001, P-013, AN-018]
 title: Planning and implementation are separate steps, and the boundary between them is a human decision
 author: agent
 accepted-by: Flemming N. Larsen (2026-08-08, conversation)
 ---
 
 # PDR-033 — Planning and implementation are separate steps
+
+> **Amended by [PDR-040](PDR-040-push-is-durability-ready-is-explicit.md):** the pause's second question — whether the branch should be pushed — is moot and no longer asked. Every turn pushes, so the proposal is already committed, pushed, and visible on the draft pull request when the pause holds; the pause's one question is whether implementation should begin. The cost this record weighed no longer exists: unfinished work is visible by design, and hosted history was never rebasable.
 
 ## Context and problem statement
 
