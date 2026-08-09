@@ -2,7 +2,7 @@
 id: PDR-017
 type: decision
 status: verified
-links: [G-001, AN-008, P-007, PDR-012, PDR-013, C-012, C-013]
+links: [G-001, AN-008, P-007, PDR-012, PDR-013, PDR-039, C-012, C-013]
 title: The merge gate carries an acceptance brief, and the review loop adds an advisory scenario-resolution step
 author: agent
 accepted-by: Flemming N. Larsen (2026-08-02, conversation)
@@ -11,6 +11,8 @@ accepted-by: Flemming N. Larsen (2026-08-02, conversation)
 # PDR-017 — The merge gate has content
 
 > **The pre-implementation pause is extended by [PDR-033](PDR-033-planning-and-implementation-are-separate-steps.md):** it states what the pause is for — proposing and implementing are separate work, and the boundary is where a change can split or change hands — and adds that the agent reports briefly there and asks whether implementation begins and whether the branch is pushed. The pause remains opt-in and recorded in tasks, and the ordinary loop remains the default.
+
+> **The acceptance brief gains a fourth required item from [PDR-039](PDR-039-dependent-changes-carry-authorization.md):** where a human authorized a change to build on an unmerged base, the brief's binding line names that base and what accepting this change would bind before the base is independently accepted. It is disclosure for the human merge judgment; it does not make the base accepted or permit an agent to merge either change.
 
 ## Context and problem statement
 

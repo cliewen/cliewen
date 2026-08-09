@@ -4,10 +4,6 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 
 ## [Unreleased]
 
-### Changed
-
-- **An authorized change that depends on unmerged work must now say so where it can be reviewed.** Its committed workspace records the base, the human authorization, and the unaccepted meaning its merge would bind; its acceptance brief repeats the same facts for the human merge decision. This disclosure does not make the base accepted, permit an agent to merge either change, or make validation depend on forge state.
-
 ### Migration
 
 - **Extraction review deliberately has no committed per-criterion registry: the derived report and its pinned manifest are the review material.** The report is the readable summary and mapping table; for an individual criterion mapping, follow its manifest reference and compare it with the target corpus or `clue parity` output. Cliewen deliberately does not create a second committed registry rendering every criterion, so this route involves more navigation but avoids another stored representation of the same mapping.
@@ -47,6 +43,8 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 - **The guide and both routing hubs now name all seven commands that print the behind-a-release notice.** `clue id` and `clue report` print it too; the prose listed five and understated what the tool does.
 
 - **The decisions folder now states that an expensive-to-revisit rejection earns its own record.** A rejected option was already kept as history, but nothing said when refusing an option is itself a decision. It is one whenever re-proposing the option later would be expensive — a route not taken, an interface declined, a mechanism ruled out — and it routes by the same reversal-cost test as any other decision. A rejection buried in a findings document is reachable only by someone who already knows which investigation examined it, which is how a settled question gets re-argued; a record makes the refusal findable from the folder where a reader looks for decisions. A rejection that is cheap to revisit stays a paragraph. `clue init` emits the updated wording for new repositories; nothing existing is rewritten and no check changes.
+
+- **An authorized change that depends on unmerged work must now say so where it can be reviewed.** Its committed workspace records the base, the human authorization, and the unaccepted meaning its merge would bind; its acceptance brief repeats the same facts for the human merge decision. This disclosure does not make the base accepted, permit an agent to merge either change, or make validation depend on forge state.
 
 ## [0.13.0] - 2026-08-05
 
