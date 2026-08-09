@@ -59,4 +59,14 @@ Feature: Collaborative pull-request handoffs
     Then the runner, clue source, install directory, and clue version choices remain unchanged
     And the upstream workflow still owns scope detection, the armed warning, the acceptance-brief gate, and the "clue validate --forbid-changes" step
     And the branch-protection probe can identify the same stable "validate" check
+
+  @AC-130
+  Scenario: An authorized dependent change remains visible at the merge boundary
+    Test-type: Human
+    Given a change genuinely depends on an unmerged change
+    And a human has authorized that dependency
+    When the dependent change is prepared for merge
+    Then its committed workspace names the unmerged base, the authorization, and the unaccepted meaning its merge would bind
+    And its acceptance brief repeats that information for the human merge decision
+    But neither record makes the base accepted or permits an agent to merge either change
 ```

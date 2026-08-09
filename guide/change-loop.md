@@ -26,7 +26,7 @@ An existing criterion does not make a behavior change light. The implementation 
 
 ## 1. Branch
 
-Create `ch-xxx-your-slug` from the current tip of `main`. One initiating author takes one initiated Cliewen change to its pull request before starting another, and a change never starts from unaccepted work. Plain changes, reviews, and help updating an existing pull request do not consume another initiated-change slot.
+Create `ch-xxx-your-slug` from the current tip of `main`. One initiating author takes one initiated Cliewen change to its pull request before starting another, and a change never starts from unaccepted work. Plain changes, reviews, and help updating an existing pull request do not consume another initiated-change slot. Work that genuinely depends on an unmerged change stops at a blocking question until a human authorizes it; the answered workspace record names the base, authorization, and meaning that a dependent merge would bind, and remains committed until digest.
 
 ## 2. Propose
 
@@ -60,7 +60,7 @@ Several agents may collaborate without serializing everybody else. Separate auth
 
 The pull request is an authorization and protected-integration gate, not a demand for duplicate human code review. A solo developer may already have accepted the local candidate; the PR still prevents the agent that prepared it from accepting its own work. The agent may publish the branch, but it never merges the pull request or pushes to `main`. For a full change, the human-controlled merge commit is the acceptance act; configure the forge to disable squash and rebase-and-merge so the original proposal, implementation, and digest commits remain reachable from `main`. A local rebase before first publication is allowed, but it is not the acceptance mode.
 
-For a full change, the PR starts with an acceptance brief. It asks whether the plan item is still wanted, puts the added or changed criteria and their scenarios in front of the human, and names what merge binds. The review loop adds an advisory verdict for each changed criterion — whether its referenced tests verify the scenario, something adjacent, or leave it undetermined. That is evidence for human judgment, not a semantic claim by `clue validate`: a green build and a fluent agent do not establish that the outcome is right.
+For a full change, the PR starts with an acceptance brief. It asks whether the plan item is still wanted, puts the added or changed criteria and their scenarios in front of the human, and names what merge binds. An authorized dependent change repeats its unmerged base, authorization, and binding meaning there; disclosure does not make the base accepted. The review loop adds an advisory verdict for each changed criterion — whether its referenced tests verify the scenario, something adjacent, or leave it undetermined. That is evidence for human judgment, not a semantic claim by `clue validate`: a green build and a fluent agent do not establish that the outcome is right.
 
 The PR also gives hosted CI an exact candidate, but a PR alone does not enforce anything. Enforcement requires the CI workflow to run on the PR, its result to be a required status check, and branch protection to block merge until that check passes. Local verification remains fast evidence; protected hosted CI is the safeguard that the agent cannot silently skip. The [CI wall guide](./ci-wall) gives the setup and failing-PR probe. Workflow and protection changes must never weaken the gate merely to make a change pass.
 
