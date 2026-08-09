@@ -3,9 +3,9 @@ counters:
     ADR: "54"
     AN: "22"
     ARCH: "3"
-    C: "17"
+    C: "20"
     CAP: "7"
-    CH: "140"
+    CH: "141"
     G: "4"
     IC: "2"
     LOG: "1"
@@ -1122,6 +1122,21 @@ entries:
       state: live
       prefix: C
       component: "17"
+    - id: C-018
+      kind: numeric
+      state: reserved
+      prefix: C
+      component: "18"
+    - id: C-019
+      kind: numeric
+      state: reserved
+      prefix: C
+      component: "19"
+    - id: C-020
+      kind: numeric
+      state: reserved
+      prefix: C
+      component: "20"
     - id: CAP-001
       kind: numeric
       state: live
@@ -1381,6 +1396,11 @@ entries:
     - id: CH-140-tasks
       kind: opaque
       state: retired
+    - id: CH-141
+      kind: numeric
+      state: reserved
+      prefix: CH
+      component: "141"
     - id: G-001
       kind: numeric
       state: live
