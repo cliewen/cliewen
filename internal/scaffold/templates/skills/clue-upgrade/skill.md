@@ -37,8 +37,6 @@ Ready means the hosted PR contains the exact locally reviewed and verified state
 
 After marking its initiated PR ready and confirming its hosted head, an agent stops before initiating another light or full Cliewen change; independent plain changes may still proceed from accepted `main`, and the agent may review or help update an existing PR under the handoff above. Review fixes stay on the same branch and PR and repeat the complete updater handoff before the PR is ready again. A follow-up Cliewen change exists only when a human has accepted this one and explicitly scoped the follow-up.
 
-After a human reports the merge, orient before starting anything else: describe the plan's next unfinished step in plain language and ask whether to start it, or say that the plan has nothing left and ask what comes next.
-
 
 Use when a repository already uses Cliewen and the human wants to find out whether, or bring it up to, a newer release. This is a route into a reviewed repository change, never a background update or authority to merge.
 
@@ -51,6 +49,8 @@ Use when a repository already uses Cliewen and the human wants to find out wheth
 ## Decision records
 
 Route every decision by reversal cost. A cheap-and-local-to-reverse decision is a dated row in `docs/decisions/log.md` (columns `Date | Decision | Why | Change/PR`); otherwise write an ADR for software or corpus architecture, or a PDR for how the project works. A decision adopting a well-established practice cites it by name and records only the local why.
+
+A rejected alternative that is itself a decision gets a rejected decision record, not only a paragraph in a findings document — a route not taken, an interface declined, a mechanism ruled out — whenever re-proposing it later would be expensive; it routes by the same reversal-cost test as any other decision. A rejection that is cheap to revisit stays a paragraph.
 
 Agent-authored decisions start `status: inferred` and `author: agent`. Merging makes them binding without changing that status. Only explicit human approval promotes a decision to `verified`; record every approver in `accepted-by:`, use the first approval date, and cite the venue. An explicit objection keeps the decision `inferred` and becomes an open question.
 
@@ -69,4 +69,8 @@ For a Cliewen change, apply the repository-local conventions declared in AGENTS.
 
 An agent's private memory is never where work lives. Anything needed to implement, continue, review, or hand off work belongs in a corpus artifact, the change workspace, or the pull request; private conversation does not survive a change of agent.
 
+A suggestion raised mid-change is triaged immediately, into one of two carriers, never into memory. If the change is wrong or incomplete without it, it becomes a task in `tasks.md`, handled before merge. Otherwise it becomes a goal with `status: proposed`, written in the digest so it survives the workspace's deletion. Neither carrier is optional, and "I will remember" is not a third: a suggestion that is neither actioned nor recorded has been declined without anyone deciding to decline it. State which carrier a suggestion went to, and why, when the triage happens.
+
 A durable record never states a figure a command computes — an artifact count, a coverage percentage, a reported population size. Name the command instead. A number written into prose becomes a hand-maintained obligation that goes stale on the next change and that every later reviewer re-derives, and repairing one writes new prose carrying new numbers, so the finding regenerates instead of converging. Measurements that are the point of a record — an analysis's own results, a milestone's observed evidence — are stated with what produced them and when.
+
+After a human reports a Cliewen change's merge, orient before starting anything else: describe the plan's next unfinished step in plain language and ask whether to start it, or say that the plan has nothing left and ask what comes next.

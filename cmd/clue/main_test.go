@@ -194,7 +194,7 @@ func TestAC089_UnitPositive_AgentConstraintCountReported(t *testing.T) {
 	root := validCorpus(t)
 	writeFile(t, root, "docs/README.md", "# Corpus\n\n<!-- clue:index:start -->\n- [goals/](goals/README.md)\n- [constraints/](constraints/README.md)\n<!-- clue:index:end -->\n")
 	writeFile(t, root, "docs/constraints/README.md", "# Constraints\n\n<!-- clue:index:start -->\n- [C-001](C-001-rule.md)\n<!-- clue:index:end -->\n")
-	writeFile(t, root, "docs/constraints/C-001-rule.md", "---\nid: C-001\ntype: constraint\nstatus: active\nlinks: []\ntitle: A rule\nsource: AGENTS.md\nenforcement: agent\n---\n")
+	writeFile(t, root, "docs/constraints/C-001-rule.md", "---\nid: C-001\ntype: constraint\nstatus: active\nlinks: []\ntitle: A rule\nsource: G-001\nenforcement: agent\n---\n")
 	if code := runValidate([]string{root}, io.Discard); code != 0 {
 		t.Fatalf("an agent-enforced constraint is valid; expected exit 0, got %d", code)
 	}
@@ -208,7 +208,7 @@ func TestAC089_UnitNegative_DeclaredConstraintsAreNotBacklog(t *testing.T) {
 	root := validCorpus(t)
 	writeFile(t, root, "docs/README.md", "# Corpus\n\n<!-- clue:index:start -->\n- [goals/](goals/README.md)\n- [constraints/](constraints/README.md)\n<!-- clue:index:end -->\n")
 	writeFile(t, root, "docs/constraints/README.md", "# Constraints\n\n<!-- clue:index:start -->\n- [C-001](C-001-rule.md)\n<!-- clue:index:end -->\n")
-	writeFile(t, root, "docs/constraints/C-001-rule.md", "---\nid: C-001\ntype: constraint\nstatus: active\nlinks: []\ntitle: A rule\nsource: AGENTS.md\nenforcement: machine\n---\n")
+	writeFile(t, root, "docs/constraints/C-001-rule.md", "---\nid: C-001\ntype: constraint\nstatus: active\nlinks: []\ntitle: A rule\nsource: G-001\nenforcement: machine\n---\n")
 	c, _ := corpus.Scan(root)
 	if n := agentConstraintCount(c); n != 0 {
 		t.Fatalf("machine-enforced constraints are not backlog; expected 0, got %d", n)

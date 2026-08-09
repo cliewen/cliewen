@@ -16,7 +16,7 @@ func constraintCorpus(file string) map[string]string {
 }
 
 func constraintFile(enforcement, body string) string {
-	return "---\nid: C-001\ntype: constraint\nstatus: active\nlinks: []\ntitle: A rule\nsource: AGENTS.md rule 5\nenforcement: " + enforcement + "\n---\n\n# C-001\n" + body
+	return "---\nid: C-001\ntype: constraint\nstatus: active\nlinks: []\ntitle: A rule\nsource: G-001\nenforcement: " + enforcement + "\n---\n\n# C-001\n" + body
 }
 
 func assertClean(t *testing.T, issues []Issue, what string) {
@@ -39,10 +39,18 @@ func TestAC089_UnitNegative_RegisterFieldsAndDeclarationsRejected(t *testing.T) 
 	noSource := "---\nid: C-001\ntype: constraint\nstatus: active\nlinks: []\ntitle: A rule\nenforcement: agent\n---\n"
 	assertIssue(t, run(t, constraintCorpus(noSource), false), "constraint missing or empty source field")
 
-	noEnforcement := "---\nid: C-001\ntype: constraint\nstatus: active\nlinks: []\ntitle: A rule\nsource: AGENTS.md rule 5\n---\n"
+	noEnforcement := "---\nid: C-001\ntype: constraint\nstatus: active\nlinks: []\ntitle: A rule\nsource: G-001\n---\n"
 	assertIssue(t, run(t, constraintCorpus(noEnforcement), false), "constraint missing or empty enforcement field")
 
 	assertIssue(t, run(t, constraintCorpus(constraintFile("hope", "")), false), "enforcement hope not allowed (allowed: machine, partial, agent, human)")
+
+	// M-067: a source naming an ID or a file that does not exist does not
+	// resolve, whatever else the string says.
+	deadID := "---\nid: C-001\ntype: constraint\nstatus: active\nlinks: []\ntitle: A rule\nsource: PDR-999\nenforcement: agent\n---\n\n# C-001\n\n**Promotion trigger:** a lint.\n"
+	assertIssue(t, run(t, constraintCorpus(deadID), false), "constraint source names PDR-999, which does not resolve to a live artifact")
+
+	deadPath := "---\nid: C-001\ntype: constraint\nstatus: active\nlinks: []\ntitle: A rule\nsource: docs/nowhere/GONE.md\nenforcement: agent\n---\n\n# C-001\n\n**Promotion trigger:** a lint.\n"
+	assertIssue(t, run(t, constraintCorpus(deadPath), false), "constraint source names docs/nowhere/GONE.md, which does not resolve to a live file")
 
 	// partial owes both declarations: a claimed machine nobody named, and a
 	// residual nobody priced, are the two ways this class could be abused.

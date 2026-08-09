@@ -8,6 +8,12 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 
 - **Release cuts are now short and recoverable.** A release uses a small human-merged PR without a Cliewen workspace or acceptance brief. If its build fails before GitHub creates a release, the repaired main commit automatically retries the same version; once GitHub has a release object, that version remains immutable.
 
+- **A constraint's `source:` field is now checked, not just required to be non-empty.** `clue validate` resolves any corpus ID, file path, shared skill fragment, or managed skill named in a constraint's `source:` and reports one that resolves to nothing. If your own constraints register names something that has since moved or been renamed, point it at the current carrier.
+
+- **`clue-verify`'s constraint checklist item now names its population.** "The change was assessed against every constraint" is replaced by a check against the constraints README index specifically, which a reviewer can actually enumerate.
+
+- **The orient-after-merge instruction moved from the review-boundary section to durable-work state in every generated skill that carries it, and `clue-extract` now also carries durable-work state.** Reading paths are unaffected for `clue-delta`, `clue-upgrade`, and `clue-verify`; `clue-extract` gains the private-memory, mid-change-triage, no-computed-figures, and orient-after-merge rules it previously lacked.
+
 ## [0.14.1] - 2026-08-09
 
 ### Migration

@@ -190,6 +190,8 @@ func checkConstraints(c *Corpus) []Issue {
 		}
 		if s, ok := a.Fields["source"].(string); !ok || s == "" {
 			issues = append(issues, Issue{a.Path, "constraint missing or empty source field"})
+		} else {
+			issues = append(issues, checkConstraintSource(c, a, s)...)
 		}
 		e, _ := a.Fields["enforcement"].(string)
 		switch e {
@@ -214,6 +216,78 @@ func checkConstraints(c *Corpus) []Issue {
 			if !strings.Contains(a.Body, "**"+d+":**") {
 				issues = append(issues, Issue{a.Path, "enforcement " + e + " needs a **" + d + ":** declaration (ADR-045)"})
 			}
+		}
+	}
+	return issues
+}
+
+// constraintSourceIDRe matches a corpus decision, constraint, architecture,
+// goal, capability, analysis, or log ID inside free-form source: prose.
+// M- (milestone) and AC- (criterion) identities are deliberately excluded:
+// neither is a top-level c.ByID entry, so a milestone or criterion mentioned
+// in passing (as this very check's own commentary does) is not a claim the
+// source resolves to.
+var constraintSourceIDRe = regexp.MustCompile(`\b(?:ADR|PDR|ARCH|CAP|AN|LOG|C|G)-\d+\b`)
+
+// constraintSourcePathRe matches a bare or relative markdown file path
+// inside free-form source: prose, such as "AGENTS.md" or
+// "docs/decisions/log.md".
+var constraintSourcePathRe = regexp.MustCompile(`[\w./-]+\.md`)
+
+// constraintSourceFragments and constraintSourceSkills name the shared
+// skill-source fragments and managed skills a source: may point at by name
+// rather than by file path — real files under the repository the check can
+// still resolve against.
+var constraintSourceFragments = []string{"review-boundary", "durable-work", "decision-records", "local-conventions", "change-tiers", "frontmatter"}
+
+// checkConstraintSource enforces that a constraint's source: resolves to
+// something live rather than merely being non-empty (M-067, log.md
+// 2026-08-08): a corpus-ID-shaped token must resolve to a live artifact, and
+// a token naming a markdown path, a shared skill-source fragment, or a
+// managed skill must resolve to a real file. Locating prose that names
+// neither — "step 2 (Propose)", a quoted sentence — asserts nothing this
+// check can verify and is left to human review: deciding that a paragraph
+// still says what its source claims is a judgment about English, which is
+// this rule's own stated residual.
+func checkConstraintSource(c *Corpus, a *Artifact, source string) []Issue {
+	var issues []Issue
+	seen := map[string]bool{}
+	for _, id := range constraintSourceIDRe.FindAllString(source, -1) {
+		if seen[id] {
+			continue
+		}
+		seen[id] = true
+		if _, ok := c.ByID[id]; !ok {
+			issues = append(issues, Issue{a.Path, "constraint source names " + id + ", which does not resolve to a live artifact"})
+		}
+	}
+	for _, p := range constraintSourcePathRe.FindAllString(source, -1) {
+		if seen[p] {
+			continue
+		}
+		seen[p] = true
+		if _, err := os.Stat(filepath.Join(c.Root, filepath.FromSlash(p))); err != nil {
+			issues = append(issues, Issue{a.Path, "constraint source names " + p + ", which does not resolve to a live file"})
+		}
+	}
+	for _, frag := range constraintSourceFragments {
+		if !strings.Contains(source, frag) || seen[frag] {
+			continue
+		}
+		seen[frag] = true
+		p := filepath.Join(c.Root, "internal", "skills", "source", "shared", frag+".md.tmpl")
+		if _, err := os.Stat(p); err != nil {
+			issues = append(issues, Issue{a.Path, "constraint source names the " + frag + " fragment, which does not resolve to a live file"})
+		}
+	}
+	for name := range legacyCliewenSkillNames {
+		if !strings.Contains(source, name) || seen[name] {
+			continue
+		}
+		seen[name] = true
+		p := filepath.Join(c.Root, "internal", "skills", "source", "skills", name+".md.tmpl")
+		if _, err := os.Stat(p); err != nil {
+			issues = append(issues, Issue{a.Path, "constraint source names the " + name + " skill, which does not resolve to a live file"})
 		}
 	}
 	return issues

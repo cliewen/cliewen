@@ -167,7 +167,7 @@ func TestSanity_MovedSkillSectionsHaveAccuratePointers(t *testing.T) {
 	}
 
 	extract := mustRenderSkill(t, "clue-extract/skill.md")
-	if !strings.Contains(extract, "Apply the **Boundaries** above and **Rehearsal before mutation**, **Decision records**, and **Repository-local conventions** below") {
+	if !strings.Contains(extract, "Apply the **Boundaries** above and **Rehearsal before mutation**, **Decision records**, **Repository-local conventions**, and **Durable work state** below") {
 		t.Error("clue-extract/skill.md does not distinguish the section above from those below")
 	}
 }
