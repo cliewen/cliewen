@@ -87,7 +87,10 @@ func buildFixtureClue(version string) (string, error) {
 
 func fixtureClue(t *testing.T) string {
 	t.Helper()
-	clueOnce.Do(func() { cluePath, clueErr = buildFixtureClue("") })
+	// A checkout at a release tag can derive that tag from module build
+	// information even without ldflags. Pin this fixture explicitly to dev so
+	// its source-build path remains distinct from pinnedReleaseClue.
+	clueOnce.Do(func() { cluePath, clueErr = buildFixtureClue("dev") })
 	if clueErr != nil {
 		t.Fatal(clueErr)
 	}

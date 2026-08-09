@@ -263,6 +263,27 @@ func TestUnit_ReleaseFromModuleVersion(t *testing.T) {
 	}
 }
 
+func TestUnit_ResolvedVersionPreservesExplicitDevStamp(t *testing.T) {
+	tests := []struct {
+		name          string
+		stamp         string
+		moduleVersion string
+		want          string
+	}{
+		{name: "explicit dev ignores tagged module", stamp: "dev", moduleVersion: "v0.14.0", want: "dev"},
+		{name: "unstamped tagged module becomes release", moduleVersion: "v0.14.0", want: "0.14.0"},
+		{name: "unstamped development module remains dev", moduleVersion: "(devel)", want: "dev"},
+		{name: "explicit release ignores module", stamp: "9.9.9", moduleVersion: "v0.14.0", want: "9.9.9"},
+	}
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			if got := resolvedVersion(tc.stamp, tc.moduleVersion); got != tc.want {
+				t.Fatalf("resolvedVersion(%q, %q) = %q, want %q", tc.stamp, tc.moduleVersion, got, tc.want)
+			}
+		})
+	}
+}
+
 // AC-033 (wiring): runValidate threads the binary's stamp through
 // corpus.Options.Version into the drift rule — a released clue fails
 // against lagging skills, a matching release passes.
