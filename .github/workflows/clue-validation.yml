@@ -129,15 +129,26 @@ jobs:
           "$install_dir/clue" version
 
       # --forbid-changes is the digest-before-merge gate: main (and any PR
-      # at merge time) must not contain the transient /changes tree.
+      # at merge time) must not contain the transient /changes tree. A draft
+      # legitimately carries its workspace, so it is validated without the
+      # flag; the forge cannot merge a draft, and ready_for_review reruns the
+      # strict form on the same head, so the merge gate is unchanged (PDR-040).
       - name: clue validate --forbid-changes
         if: steps.scope.outputs.cliewen == 'true' && (inputs.clue-source == 'release' || steps.armed.outputs.armed == 'true')
         env:
           CLUE_PATH: ${{ steps.clue.outputs.path }}
-        run: '"$CLUE_PATH" validate --forbid-changes'
+          DRAFT: ${{ github.event.pull_request.draft }}
+        run: |
+          if [ "$DRAFT" = "true" ]; then
+            "$CLUE_PATH" validate
+          else
+            "$CLUE_PATH" validate --forbid-changes
+          fi
 
+      # A draft is not a candidate and has no brief yet; the requirement binds
+      # when the pull request is marked ready (PDR-040).
       - name: Require a completed acceptance brief
-        if: github.event_name == 'pull_request' && steps.scope.outputs.cliewen == 'true'
+        if: github.event_name == 'pull_request' && github.event.pull_request.draft == false && steps.scope.outputs.cliewen == 'true'
         env:
           PR_BODY: ${{ github.event.pull_request.body }}
         run: |
