@@ -25,6 +25,12 @@ name: Validation unit smoke
 
 on:
   pull_request:
+    # Same trigger list `clue init` emits, for the reason stated above: a
+    # caller that omits `ready_for_review` must not pass `draft-aware`, so a
+    # smoke caller missing it would stop being the shape it exists to prove.
+    # `edited` also lets a body-only acceptance-brief repair turn this check
+    # green, the way it already does for ci.yml's required check.
+    types: [opened, synchronize, reopened, edited, ready_for_review]
     paths:
       - .github/workflows/clue-validation.yml
       - .github/workflows/clue-validation-smoke.yml
@@ -78,3 +84,4 @@ jobs:
       clue-version: ${{ inputs.clue-version || needs.pin.outputs.clue-version }}
       clue-source: ${{ inputs.clue-source || 'vendored' }}
       clue-install-directory: ''
+      draft-aware: true
