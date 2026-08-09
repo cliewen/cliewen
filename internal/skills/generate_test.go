@@ -616,7 +616,7 @@ func TestUnit_AgenticReviewLoopConvergesOnCurrentCommit(t *testing.T) {
 		// defect, and repairing the figure used to restart the whole pass.
 		"Every finding is classified **blocking** or **advisory**",
 		"a blocking finding is actionable",
-		"an advisory is a non-actionable observation for the publication gate",
+		"an advisory is a non-actionable observation for the readiness gate",
 		"a reviewer brief cannot redefine the severity model",
 		"A finding whose substance is a count, total, population figure, or arithmetic disagreement is **advisory** whatever the brief called it",
 		"a wrong, missing, or reused identity remains **blocking**",

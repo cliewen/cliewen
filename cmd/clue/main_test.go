@@ -1044,12 +1044,12 @@ func TestSanity_ReviewFixConstraintOrdersFinalCandidateBeforeReview(t *testing.T
 		t.Fatal("C-012 does not define the review-fix handoff")
 	}
 	handoff := content[fixes:]
-	commitCandidate := strings.Index(handoff, "commit")
-	verifyCandidate := strings.Index(handoff, "verifies")
+	pushCandidate := strings.Index(handoff, "commits and pushes its repairs with the turn that made them")
+	verifyCandidate := strings.Index(handoff, "verifies the complete repair")
 	reviewCandidate := strings.Index(handoff, "clean review")
-	pushCandidate := strings.Index(handoff, "push")
-	if commitCandidate < 0 || verifyCandidate <= commitCandidate || reviewCandidate <= verifyCandidate || pushCandidate <= reviewCandidate {
-		t.Error("C-012 must commit a repaired candidate, verify and review that commit, then push the reviewed commit")
+	readyCandidate := strings.Index(handoff, "marking it ready again")
+	if pushCandidate < 0 || verifyCandidate <= pushCandidate || reviewCandidate <= verifyCandidate || readyCandidate <= reviewCandidate {
+		t.Error("C-012 must push the repair with its turn, verify and review that commit, and only then mark the PR ready again")
 	}
 }
 

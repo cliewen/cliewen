@@ -1329,15 +1329,15 @@ entries:
       component: "135"
     - id: CH-136
       kind: numeric
-      state: live
+      state: retired
       prefix: CH
       component: "136"
     - id: CH-136-questions
       kind: opaque
-      state: live
+      state: retired
     - id: CH-136-tasks
       kind: opaque
-      state: live
+      state: retired
     - id: G-001
       kind: numeric
       state: live
