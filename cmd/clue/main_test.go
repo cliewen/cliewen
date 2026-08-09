@@ -749,12 +749,9 @@ func TestAC108_UnitNegative_IDLiveRejectsNonReservedID(t *testing.T) {
 	}
 }
 
-// Sanity: merging a release PR is what cuts the release (PDR-015). The
-// tagging workflow must take its version from the same single bump site the
-// release's drift gate judges, and must start the release explicitly — a tag
-// pushed with GITHUB_TOKEN does not trigger a workflow, so a missing dispatch
-// leaves a tagged commit that never publishes.
-func TestSanity_TagOnMergeDerivesTheVersionAndStartsTheRelease(t *testing.T) {
+// Sanity: a short release PR cuts the release, while an unpublished tag is
+// recoverable and a GitHub Release makes the tag immutable (PDR-015).
+func TestSanity_TagOnMergeRecoversOnlyUnpublishedVersions(t *testing.T) {
 	data, err := os.ReadFile(filepath.Join("..", "..", ".github", "workflows", "tag-on-merge.yml"))
 	if err != nil {
 		t.Fatalf("tag-on-merge workflow not found: %v", err)
@@ -765,40 +762,31 @@ func TestSanity_TagOnMergeDerivesTheVersionAndStartsTheRelease(t *testing.T) {
 	if !strings.Contains(wf, stamp) {
 		t.Errorf("tag-on-merge does not read %s — the tag must come from the same stamp the release gate compares against, not a second source", stamp)
 	}
-	if !strings.Contains(wf, "gh workflow run release.yml") {
-		t.Error("tag-on-merge never dispatches release.yml — a tag pushed with GITHUB_TOKEN does not trigger workflows, so the release would never start")
+	if !strings.Contains(wf, "gh workflow run release.yml") || !strings.Contains(wf, "gh run watch") {
+		t.Error("tag-on-merge does not dispatch and wait for release.yml — a retry could race an old build")
 	}
 	if !strings.Contains(wf, "actions: write") {
 		t.Error("tag-on-merge lacks actions: write — dispatching the release workflow fails with 403 without it")
 	}
-	// Without the already-tagged check this fails on every ordinary merge.
-	if !strings.Contains(wf, "refs/tags/v") {
-		t.Error("tag-on-merge does not check for an existing tag — it must be a quiet no-op on merges that do not raise the version")
+	if !strings.Contains(wf, "gh release view") || !strings.Contains(wf, "retag=true") || !strings.Contains(wf, "git push --force origin") {
+		t.Error("tag-on-merge does not distinguish an unpublished tag from a GitHub Release and retarget the former")
 	}
 	if !strings.Contains(wf, "group: tag-on-main") || !strings.Contains(wf, "queue: max") || !strings.Contains(wf, "cancel-in-progress: false") {
 		t.Error("tag-on-merge does not serialize its release decision and tag push — concurrent main pushes can otherwise tag different commits")
 	}
 	if !strings.Contains(wf, `git diff --quiet "${GITHUB_SHA}^" "${GITHUB_SHA}" -- "$tmpl"`) {
-		t.Errorf("tag-on-merge does not gate releases on %s changing in the pushed commit — an ordinary merge can otherwise tag its own checkout", stamp)
+		t.Errorf("tag-on-merge does not make a new version depend on %s changing", stamp)
 	}
-	// A spent version number cannot be reused, so a missing changelog section
-	// must stop the tag rather than the publish. The checks themselves live in
-	// a script now, because running them only here was too late: tagging fires
-	// only on the merge that raises the stamp, so a release rejected at this
-	// point cannot be retried — the version is abandoned. 0.11.1 was lost that
-	// way. The same script therefore runs on the pull request, and both callers
-	// are asserted, because a gate that exists in only one of them is the exact
-	// failure this pins.
 	const gates = ".github/scripts/release-gates.sh"
 	if !strings.Contains(wf, gates) {
-		t.Errorf("tag-on-merge does not run %s — a stamp raised without notes would burn a tag that can never release (ADR-012)", gates)
+		t.Errorf("tag-on-merge does not run %s before a new release or retry", gates)
 	}
 	ci, err := os.ReadFile(filepath.Join("..", "..", ".github", "workflows", "ci.yml"))
 	if err != nil {
 		t.Fatalf("CI workflow not found: %v", err)
 	}
 	if !strings.Contains(string(ci), gates) {
-		t.Errorf("CI does not run %s — the release gates would run only after the merge, where a rejected version can no longer be retried", gates)
+		t.Errorf("CI does not run %s while a release is still a proposal", gates)
 	}
 	script, err := os.ReadFile(filepath.Join("..", "..", gates))
 	if err != nil {
@@ -809,6 +797,13 @@ func TestSanity_TagOnMergeDerivesTheVersionAndStartsTheRelease(t *testing.T) {
 	}
 	if !strings.Contains(string(script), "internal/migrate") {
 		t.Error("the release gates do not require migration guidance for a release that changes internal/migrate (ADR-039)")
+	}
+	release, err := os.ReadFile(filepath.Join("..", "..", ".github", "workflows", "release.yml"))
+	if err != nil {
+		t.Fatalf("release workflow not found: %v", err)
+	}
+	if !strings.Contains(string(release), "Require the tag to name this run's commit") || !strings.Contains(string(release), "Require no GitHub Release yet") || !strings.Contains(string(release), "Require the tag not to have moved while building") {
+		t.Error("release.yml does not refuse stale runs and already-published versions")
 	}
 }
 

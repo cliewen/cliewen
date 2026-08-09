@@ -4,6 +4,10 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 
 ## [Unreleased]
 
+### Changed
+
+- **Release cuts are now short and recoverable.** A release uses a small human-merged PR without a Cliewen workspace or acceptance brief. If its build fails before GitHub creates a release, the repaired main commit automatically retries the same version; once GitHub has a release object, that version remains immutable.
+
 ## [0.14.1] - 2026-08-09
 
 ### Migration

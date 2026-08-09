@@ -5,9 +5,8 @@
 # These checks used to live only in tag-on-merge.yml, which runs after the
 # human merge. That is too late: a release PR that could never be tagged still
 # looked mergeable, and the failure surfaced as a red run on main with the
-# version stamp already committed. Tagging fires only on the merge that raises
-# the stamp, so that merge cannot be retried — the version has to be abandoned
-# and a new one cut. 0.11.1 was lost exactly that way.
+# version stamp already committed. An unpublished tag is now recoverable, but
+# this gate still protects every initial publication and retry.
 #
 # So the same script now runs on the pull request, where a missing changelog
 # section costs a red check the author can fix, and on the merge, where it
@@ -15,7 +14,7 @@
 # copies of a gate drift and the drift is invisible until a release is already
 # half-made.
 #
-# Usage: release-gates.sh <base-ref> <head-ref>
+# Usage: release-gates.sh <base-ref> <head-ref> [--release]
 #
 # Exits 0 and does nothing when the stamp did not change between the two refs:
 # an ordinary change is not a release and owes none of this.
@@ -23,6 +22,7 @@ set -euo pipefail
 
 base="${1:?usage: release-gates.sh <base-ref> <head-ref>}"
 head="${2:?usage: release-gates.sh <base-ref> <head-ref>}"
+force="${3:-}"
 
 tmpl=internal/skills/source/shared/frontmatter.md.tmpl
 
@@ -30,7 +30,7 @@ tmpl=internal/skills/source/shared/frontmatter.md.tmpl
 # already the input the release's drift gate judges the tag against. Reading
 # the version from anywhere else would create a second source that could
 # disagree with it.
-if git diff --quiet "$base" "$head" -- "$tmpl"; then
+if git diff --quiet "$base" "$head" -- "$tmpl" && [ "$force" != "--release" ]; then
   echo "The version stamp did not change — not a release, so the release gates do not apply."
   exit 0
 fi

@@ -1,14 +1,7 @@
-# Cutting a release is "merge the release PR" (PDR-015).
-#
-# The human merge is the authorization; the tag is a consequence of it, not
-# a second manual act. Before this workflow, a merged version bump sat on
-# main doing nothing until someone remembered to tag — which is exactly what
-# happened to 0.8.0, where the install script kept serving the previous
-# release after the bump had landed.
-#
-# Every ordinary merge runs this and exits quietly: the tag for the version
-# already on main exists, so there is nothing to do. Only a merge that
-# raises the stamp reaches the tagging step.
+# A human merge authorizes release publication (PDR-015). A release is short
+# administrative work: no CH workspace, digest, or acceptance brief is needed.
+# An unpublished tag may be retargeted to a repaired main commit; any GitHub
+# Release object makes its version immutable.
 name: Tag on merge
 
 on:
@@ -16,12 +9,11 @@ on:
     branches: [main]
 
 permissions:
-  contents: write   # push the tag
-  actions: write    # dispatch the release workflow
+  contents: write
+  actions: write
 
-# Keep the version-stamp check and tag push as one critical section. Pushes
-# arrive independently, so a later ordinary merge must wait for a preceding
-# version-bump merge to finish tagging before deciding it has work to do.
+# Hold the lock until the dispatched release completes. A repair cannot retag
+# while an earlier build still has a path to publishing the old commit.
 concurrency:
   group: tag-on-main
   queue: max
@@ -29,17 +21,13 @@ concurrency:
 
 jobs:
   tag:
-    name: Tag a new version
+    name: Tag or recover a version
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
-      # The skills' frontmatter template is the repository's single bump
-      # site and already the input the release's drift gate judges the tag
-      # against. Reading the version from anywhere else would create a
-      # second source that could disagree with it.
       - name: Read the version from the skill stamp
         id: version
         run: |
@@ -51,53 +39,66 @@ jobs:
           fi
           echo "v=${v}" >> "$GITHUB_OUTPUT"
 
-      # Only the merge that changes the stamp can release it. Checking tag
-      # absence alone races with later ordinary merges: either push can see
-      # the same untagged version and tag its own checkout.
-      - name: Check whether this merge raises an untagged version
+      - name: Check whether this merge needs publication
         id: check
         env:
           VERSION: ${{ steps.version.outputs.v }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           tmpl=internal/skills/source/shared/frontmatter.md.tmpl
-          if git diff --quiet "${GITHUB_SHA}^" "${GITHUB_SHA}" -- "$tmpl"; then
-            echo "The version stamp did not change in this merge — nothing to release."
+          tag="v${VERSION}"
+          if gh release view "$tag" --json id >/dev/null 2>&1; then
+            echo "$tag already has a GitHub Release — its tag is immutable."
             echo "release=false" >> "$GITHUB_OUTPUT"
-          elif git rev-parse -q --verify "refs/tags/v${VERSION}" >/dev/null; then
-            echo "v${VERSION} is already tagged — nothing to release."
+          elif git rev-parse -q --verify "refs/tags/$tag" >/dev/null; then
+            echo "$tag is unpublished — retargeting it to this repaired main commit."
+            echo "release=true" >> "$GITHUB_OUTPUT"
+            echo "retag=true" >> "$GITHUB_OUTPUT"
+          elif git diff --quiet "${GITHUB_SHA}^" "${GITHUB_SHA}" -- "$tmpl"; then
+            echo "The version stamp did not change and no unpublished tag needs recovery."
             echo "release=false" >> "$GITHUB_OUTPUT"
           else
+            echo "$tag is a new release."
             echo "release=true" >> "$GITHUB_OUTPUT"
+            echo "retag=false" >> "$GITHUB_OUTPUT"
           fi
 
-      # The gates themselves live in a script the pull request runs too, so a
-      # release that could never be tagged fails while it is still a proposal.
-      # Reaching this point with a missing section means the same script passed
-      # on the PR and the merge changed something — not that the check was
-      # skipped.
-      - name: Run the release gates before tagging
+      - name: Run the release gates
         if: steps.check.outputs.release == 'true'
-        run: .github/scripts/release-gates.sh "${GITHUB_SHA}^" "${GITHUB_SHA}"
+        run: .github/scripts/release-gates.sh "${GITHUB_SHA}^" "${GITHUB_SHA}" --release
 
       - name: Tag the merge commit
         if: steps.check.outputs.release == 'true'
         env:
           VERSION: ${{ steps.version.outputs.v }}
+          RETAG: ${{ steps.check.outputs.retag }}
         run: |
-          git config user.name  "github-actions[bot]"
+          git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git tag -a "v${VERSION}" -m "v${VERSION}"
-          git push origin "v${VERSION}"
+          if [ "$RETAG" = "true" ]; then
+            git tag -fa "v${VERSION}" -m "v${VERSION} (rebuild before publication)"
+            git push --force origin "refs/tags/v${VERSION}"
+          else
+            git tag -a "v${VERSION}" -m "v${VERSION}"
+            git push origin "v${VERSION}"
+          fi
 
-      # A tag pushed with GITHUB_TOKEN does NOT trigger workflows — GitHub
-      # suppresses that to prevent loops — so the release must be started
-      # explicitly. workflow_dispatch is the documented exception to the
-      # suppression, which is why this needs no PAT. Dispatching against the
-      # tag ref satisfies the release workflow's existing tag-only guard, so
-      # the run is identical to one a pushed tag would have produced.
-      - name: Start the release
+      # Tags pushed with GITHUB_TOKEN do not trigger workflows. Dispatching is
+      # the documented exception; waiting preserves the critical section.
+      - name: Start and wait for the release
         if: steps.check.outputs.release == 'true'
         env:
           VERSION: ${{ steps.version.outputs.v }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh workflow run release.yml --ref "v${VERSION}"
+        run: |
+          gh workflow run release.yml --ref "v${VERSION}"
+          for attempt in $(seq 1 30); do
+            run_id=$(gh run list --workflow release.yml --branch "v${VERSION}" --event workflow_dispatch --json databaseId,headSha --jq '.[] | select(.headSha == "'"$GITHUB_SHA"'") | .databaseId' --limit 20 | head -n 1)
+            if [ -n "$run_id" ]; then
+              gh run watch "$run_id" --exit-status
+              exit $?
+            fi
+            sleep 2
+          done
+          echo "Could not find the dispatched release run for v${VERSION}." >&2
+          exit 1

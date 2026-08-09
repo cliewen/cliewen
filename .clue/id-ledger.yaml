@@ -1372,9 +1372,15 @@ entries:
       component: "139"
     - id: CH-140
       kind: numeric
-      state: live
+      state: retired
       prefix: CH
       component: "140"
+    - id: CH-140-questions
+      kind: opaque
+      state: retired
+    - id: CH-140-tasks
+      kind: opaque
+      state: retired
     - id: G-001
       kind: numeric
       state: live

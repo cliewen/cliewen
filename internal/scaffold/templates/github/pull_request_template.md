@@ -12,6 +12,8 @@
 
 <!-- What changes, and why is it needed? -->
 
+<!-- A release PR deletes the Acceptance brief, Cliewen proposal, Traceability and Decisions, Cliewen checklist, and Review boundary sections. It keeps Summary and Verification only. -->
+
 ## Verification
 
 <!-- List the checks relevant to the changed surface and their results. -->
