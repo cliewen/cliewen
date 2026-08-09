@@ -1356,15 +1356,15 @@ entries:
       state: retired
     - id: CH-138
       kind: numeric
-      state: live
+      state: retired
       prefix: CH
       component: "138"
     - id: CH-138-questions
       kind: opaque
-      state: live
+      state: retired
     - id: CH-138-tasks
       kind: opaque
-      state: live
+      state: retired
     - id: G-001
       kind: numeric
       state: live
