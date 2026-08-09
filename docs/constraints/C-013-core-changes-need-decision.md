@@ -4,7 +4,7 @@ type: constraint
 status: active
 links: [PDR-013, PDR-019, C-012]
 title: Changes to a core carrier require an explicit decision record and human acceptance
-source: PDR-013 and PDR-019, AGENTS.md rule 8
+source: PDR-013 and PDR-019, AGENTS.md ("The core is behind a red line")
 enforcement: human
 ---
 

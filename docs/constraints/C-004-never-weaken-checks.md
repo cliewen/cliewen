@@ -4,7 +4,7 @@ type: constraint
 status: active
 links: []
 title: Never weaken a test or a lint rule to make a build pass
-source: AGENTS.md rule 5, clue-verify preamble
+source: the shared review-boundary fragment ("Never weaken the workflow or required-check policy to make a change pass."), clue-verify introduction ("Never fix a failure by weakening the check.")
 enforcement: human
 ---
 
