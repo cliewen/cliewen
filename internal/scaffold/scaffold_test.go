@@ -397,7 +397,7 @@ func TestSanity_ScaffoldedRoutingRoutesDetailedHandoffToCanonicalSkill(t *testin
 		"not a completed or mergeable change",
 		"A review of an existing branch or PR ends in a commit and a push exactly when it changed something",
 		"publication is owed by the repair itself",
-		"A review that produced no repair commits nothing and pushes nothing",
+		"A review that produced no repair commits and pushes nothing of its own",
 	} {
 		if !strings.Contains(content, want) {
 			t.Errorf("clue-delta/skill.md does not contain review-handoff rule %q", want)

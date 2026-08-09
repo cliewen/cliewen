@@ -523,7 +523,8 @@ func TestUnit_ReviewPublishesExactlyWhatItRepaired(t *testing.T) {
 			"pushed to that PR in the same turn",
 			"publication is owed by the repair itself",
 			"An agent never elects a local stopping point for itself",
-			"A review that produced no repair commits nothing and pushes nothing",
+			"A review that produced no repair commits and pushes nothing of its own",
+			"incorporating a newer accepted `main` is the separate obligation stated above and is unaffected",
 			"This constrains when publication happens, never what is published",
 			`local stopping point such as "commit only" exists only because a human asked for one, and is never the agent's own choice`,
 		} {
