@@ -4,6 +4,8 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 
 ## [Unreleased]
 
+## [0.14.0] - 2026-08-09
+
 ### Migration
 
 - **Your CI caller needs two additions before draft pull requests are validated leniently.** Add `ready_for_review` to its `pull_request` trigger types and `draft-aware: true` to the `with:` block. The reusable workflow relaxes the digest gate and the acceptance-brief requirement on a draft only when the caller declares `draft-aware`, because the trigger that guarantees a strict run when a draft becomes a candidate lives in your caller, not upstream. Bumping only the workflow reference is safe and keeps today's behaviour: drafts stay strictly validated, which is red for a change that has not digested yet. `clue init` emits the new shape for a new repository.
