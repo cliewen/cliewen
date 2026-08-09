@@ -70,6 +70,17 @@ test("Sanity: a release-looking change fails closed when it changes code", () =>
   );
 });
 
+test("Sanity: an unrelated skill cannot enter through the release route", () => {
+  assert.deepEqual(
+    classifyChangedFiles([
+      "CHANGELOG.md",
+      "internal/skills/source/shared/frontmatter.md.tmpl",
+      ".agents/skills/third-party/skill.md",
+    ]),
+    { full: true, guide: false, release: false },
+  );
+});
+
 test("Unit: changed paths are read as NUL-delimited data", () => {
   assert.deepEqual(
     parseChangedFiles(

@@ -23,7 +23,7 @@ export function classifyChangedFiles(files) {
     "internal/migrate/migrate.go",
     "internal/skills/source/shared/frontmatter.md.tmpl",
   ]);
-  const generatedSkill = /^(?:\.agents\/skills|internal\/scaffold\/templates\/skills)\/[^/]+\/skill\.md$/;
+  const generatedSkill = /^(?:\.agents\/skills|internal\/scaffold\/templates\/skills)\/(?:clue-analysis|clue-delta|clue-extract|clue-plan|clue-upgrade|clue-verify)\/skill\.md$/;
   const release =
     files.includes("internal/skills/source/shared/frontmatter.md.tmpl") &&
     files.every((file) => releaseFiles.has(file) || generatedSkill.test(file));
