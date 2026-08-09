@@ -1348,6 +1348,12 @@ entries:
       state: live
       prefix: CH
       component: "137"
+    - id: CH-137-questions
+      kind: opaque
+      state: live
+    - id: CH-137-tasks
+      kind: opaque
+      state: live
     - id: G-001
       kind: numeric
       state: live
