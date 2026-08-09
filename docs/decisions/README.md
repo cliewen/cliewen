@@ -59,7 +59,7 @@ The CLI reports inferred ADRs and PDRs as decisions awaiting verification, separ
 - [ADR-030 — Installation is a checksum-verifying script, and release asset names are an append-only contract](ADR-030-verified-install-scripts.md) · `verified`
 - [ADR-031 — The Claude Code plugin ships a bootstrap, and the managed skills never ride in it](ADR-031-plugin-ships-a-bootstrap-only.md) · `verified`
 - [ADR-032 — Acceptance criteria declare classified proof and paired directions](ADR-032-classified-ac-evidence.md) · `verified`
-- [PDR-015 — Merging the release pull request cuts the release; the tag is derived, not performed](PDR-015-merging-cuts-the-release.md) · `verified`
+- [PDR-015 — This repository's release PR cuts a recoverable clue release](PDR-015-merging-cuts-the-release.md) · `verified`
 - [PDR-016 — Hosted PR state carries review findings and updater handoffs across agents](PDR-016-pr-state-carries-agent-handoffs.md) · `verified` · refines PDR-007 clause 2 and supersedes clause 6
 - [PDR-017 — The merge gate carries an acceptance brief, and the review loop adds an advisory scenario-resolution step](PDR-017-merge-gate-has-content.md) · `verified`
 - [ADR-033 — Human proof class, a per-criterion draft exemption, and derived coverage](ADR-033-human-proof-and-draft-criteria.md) · `verified`
