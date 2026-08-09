@@ -46,8 +46,12 @@ func TestAC089_UnitNegative_RegisterFieldsAndDeclarationsRejected(t *testing.T) 
 
 	// M-067: a source naming an ID or a file that does not exist does not
 	// resolve, whatever else the string says.
-	deadID := "---\nid: C-001\ntype: constraint\nstatus: active\nlinks: []\ntitle: A rule\nsource: PDR-999\nenforcement: agent\n---\n\n# C-001\n\n**Promotion trigger:** a lint.\n"
-	assertIssue(t, run(t, constraintCorpus(deadID), false), "constraint source names PDR-999, which does not resolve to a live artifact")
+	for _, id := range []string{"PDR-999", "P-999", "IC-999"} {
+		t.Run(id, func(t *testing.T) {
+			deadID := "---\nid: C-001\ntype: constraint\nstatus: active\nlinks: []\ntitle: A rule\nsource: " + id + "\nenforcement: agent\n---\n\n# C-001\n\n**Promotion trigger:** a lint.\n"
+			assertIssue(t, run(t, constraintCorpus(deadID), false), "constraint source names "+id+", which does not resolve to a live artifact")
+		})
+	}
 
 	deadPath := "---\nid: C-001\ntype: constraint\nstatus: active\nlinks: []\ntitle: A rule\nsource: docs/nowhere/GONE.md\nenforcement: agent\n---\n\n# C-001\n\n**Promotion trigger:** a lint.\n"
 	assertIssue(t, run(t, constraintCorpus(deadPath), false), "constraint source names docs/nowhere/GONE.md, which does not resolve to a live file")

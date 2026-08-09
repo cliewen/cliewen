@@ -222,12 +222,13 @@ func checkConstraints(c *Corpus) []Issue {
 }
 
 // constraintSourceIDRe matches a corpus decision, constraint, architecture,
-// goal, capability, analysis, or log ID inside free-form source: prose.
+// goal, capability, analysis, plan, imported-change, or log ID inside
+// free-form source: prose.
 // M- (milestone) and AC- (criterion) identities are deliberately excluded:
 // neither is a top-level c.ByID entry, so a milestone or criterion mentioned
 // in passing (as this very check's own commentary does) is not a claim the
 // source resolves to.
-var constraintSourceIDRe = regexp.MustCompile(`\b(?:ADR|PDR|ARCH|CAP|AN|LOG|C|G)-\d+\b`)
+var constraintSourceIDRe = regexp.MustCompile(`\b(?:ADR|PDR|ARCH|CAP|AN|LOG|C|G|P|IC)-\d+\b`)
 
 // constraintSourcePathRe matches a bare or relative markdown file path
 // inside free-form source: prose, such as "AGENTS.md" or
