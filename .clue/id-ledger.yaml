@@ -1,16 +1,16 @@
 counters:
-    AC: "130"
+    AC: "131"
     ADR: "54"
     AN: "22"
     ARCH: "3"
     C: "17"
     CAP: "7"
-    CH: "135"
+    CH: "136"
     G: "4"
     IC: "2"
     LOG: "1"
     P: "13"
-    PDR: "39"
+    PDR: "40"
 entries:
     - id: AC-001
       kind: numeric
@@ -657,6 +657,11 @@ entries:
       state: live
       prefix: AC
       component: "130"
+    - id: AC-131
+      kind: numeric
+      state: reserved
+      prefix: AC
+      component: "131"
     - id: ADR-001
       kind: numeric
       state: live
@@ -1322,6 +1327,11 @@ entries:
       state: retired
       prefix: CH
       component: "135"
+    - id: CH-136
+      kind: numeric
+      state: live
+      prefix: CH
+      component: "136"
     - id: G-001
       kind: numeric
       state: live
@@ -1617,3 +1627,8 @@ entries:
       state: live
       prefix: PDR
       component: "39"
+    - id: PDR-040
+      kind: numeric
+      state: reserved
+      prefix: PDR
+      component: "40"
