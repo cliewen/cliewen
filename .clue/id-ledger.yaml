@@ -5,7 +5,7 @@ counters:
     ARCH: "3"
     C: "17"
     CAP: "7"
-    CH: "138"
+    CH: "140"
     G: "4"
     IC: "2"
     LOG: "1"
@@ -1365,6 +1365,16 @@ entries:
     - id: CH-138-tasks
       kind: opaque
       state: retired
+    - id: CH-139
+      kind: numeric
+      state: reserved
+      prefix: CH
+      component: "139"
+    - id: CH-140
+      kind: numeric
+      state: live
+      prefix: CH
+      component: "140"
     - id: G-001
       kind: numeric
       state: live
