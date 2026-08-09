@@ -176,7 +176,7 @@ func TestSanity_SpecFirstPauseReportsProposalAndImplementationStatus(t *testing.
 	delta := mustRenderSkill(t, "clue-delta/skill.md")
 	for _, want := range []string{
 		"report briefly what the proposal says and what implementation involves",
-		"ask whether implementation should begin and whether the branch should be pushed",
+		"ask whether implementation should begin — the proposal is already committed, pushed, and visible on the draft PR",
 	} {
 		if !strings.Contains(delta, want) {
 			t.Errorf("clue-delta/skill.md does not carry complete spec-first pause instruction %q", want)
@@ -219,7 +219,7 @@ func TestAC081_UnitPositive_GeneratedUpgradeSkillRequiresHumanAuthorizedCoordina
 		"Do nothing to the repository until they explicitly choose now",
 		"make the repository green and create a branch",
 		"resolve every finding and notice — including those no command may repair",
-		"open a ready pull request. Never merge it",
+		"mark the upgrade's pull request ready under the review boundary. Never merge it",
 	} {
 		if !strings.Contains(upgrade, want) {
 			t.Errorf("clue-upgrade/skill.md does not carry upgrade boundary %q", want)
@@ -484,8 +484,13 @@ func TestUnit_ReviewBoundaryRequiresExactHostedHandoff(t *testing.T) {
 			"`git status --porcelain` to be empty",
 			"head branch and SHA equal the current local branch and `HEAD`",
 			"If either side differs",
-			`local stopping point such as "commit only"`,
-			"not a completed or mergeable change",
+			"Push is durability, never a signal",
+			"Every working turn that changed anything ends by committing and pushing the change branch",
+			"The PR exists from first publication and starts as a draft",
+			"Marking the PR ready for review is the explicit act that claims a candidate",
+			"A substantive edit to a ready PR returns it to draft",
+			"Stopping anywhere else is ordinary, not an exception",
+			"say where the work stands rather than that a ready PR exists",
 			"Review fixes stay on the same branch and PR and repeat the complete updater handoff",
 		} {
 			if !strings.Contains(content, want) {
@@ -497,7 +502,9 @@ func TestUnit_ReviewBoundaryRequiresExactHostedHandoff(t *testing.T) {
 	verify := rendered["clue-verify/skill.md"]
 	for _, want := range []string{
 		"Every intended edit, including each review fix, is committed and `git status --porcelain` is empty",
-		"After publishing, the current branch is the ready hosted PR's head branch",
+		"Every working turn on this change that changed anything ended by pushing the change branch",
+		"the PR existed as a draft from first publication rather than appearing only at readiness",
+		"When the PR is marked ready, the current branch is its head branch",
 		"reported verification ran against that commit",
 	} {
 		if !strings.Contains(verify, want) {
@@ -542,7 +549,7 @@ func TestAC040_ReviewWithoutResolvableHostStateFailsOpenly(t *testing.T) {
 	}
 }
 
-func TestAC041_AnyEditorOwnsTheExactFastForwardHandoff(t *testing.T) {
+func TestAC132_UnitPositive_AnyEditorOwnsTheExactFastForwardHandoff(t *testing.T) {
 	for _, file := range mustRender(t) {
 		if !strings.HasSuffix(file.relativePath, "/skill.md") || (!strings.HasPrefix(file.relativePath, "clue-delta/") && !strings.HasPrefix(file.relativePath, "clue-extract/") && !strings.HasPrefix(file.relativePath, "clue-verify/")) {
 			continue
@@ -551,8 +558,8 @@ func TestAC041_AnyEditorOwnsTheExactFastForwardHandoff(t *testing.T) {
 		for _, want := range []string{
 			"Any agent that edits an existing PR becomes the updater for that turn",
 			"record its hosted head",
-			"push only a normal fast-forward update, never force",
-			"After a PR is published, incorporate a newer accepted `main` by merging it into the PR branch with a normal push, never by rewriting hosted history",
+			"push only normal fast-forward updates, never force",
+			"When accepted `main` advances while the change is open, incorporate it by merging `main` into the change branch with a normal push, never by rewriting hosted history",
 			"Resolve satisfied review conversations only after the hosted head contains their reviewed repair",
 			"the agent may review or help update an existing PR under the handoff above",
 		} {
@@ -563,7 +570,32 @@ func TestAC041_AnyEditorOwnsTheExactFastForwardHandoff(t *testing.T) {
 	}
 }
 
-func TestAC041_ConcurrentOrClosedPRStateFailsSafely(t *testing.T) {
+// AC-041 was retired because its handoff put the push after the clean review
+// and made incorporating `main` conditional on publication. Both readings are
+// still natural to write, and nothing else would notice them returning: the
+// generated text is the whole carrier.
+func TestAC132_UnitNegative_CarriersDoNotRestoreTheRetiredHandoffOrdering(t *testing.T) {
+	for _, file := range mustRender(t) {
+		if !strings.HasSuffix(file.relativePath, "/skill.md") {
+			continue
+		}
+		content := string(file.content)
+		for _, retired := range []string{
+			"obtains a clean review of the repaired commit, pushes without force",
+			"before publishing, recheck that head",
+			"After a PR is published, incorporate a newer accepted `main`",
+			"Rebasing an unpublished local branch before its first publication remains allowed",
+			"never as a draft",
+			`local stopping point such as "commit only"`,
+		} {
+			if strings.Contains(content, retired) {
+				t.Errorf("%s restored the retired handoff ordering %q", file.relativePath, retired)
+			}
+		}
+	}
+}
+
+func TestAC132_UnitPositive_ConcurrentOrClosedPRStateFailsSafely(t *testing.T) {
 	verify := ""
 	for _, file := range mustRender(t) {
 		if file.relativePath == "clue-verify/skill.md" {
@@ -571,9 +603,10 @@ func TestAC041_ConcurrentOrClosedPRStateFailsSafely(t *testing.T) {
 		}
 	}
 	for _, want := range []string{
-		"If the head changed or the push is rejected as non-fast-forward",
+		"If the head changed underneath the turn or a push is rejected as non-fast-forward",
 		"fetch and reconcile without overwriting remote work",
-		"If the PR merged or closed, stop and report local work as unpublished",
+		"A repair pushed to a ready PR returns it to draft until the repaired head has its own verification and clean review pass",
+		"If the PR merged or closed, stop without pushing — the one case where a turn ends unpushed",
 	} {
 		if !strings.Contains(verify, want) {
 			t.Errorf("clue-verify/skill.md does not fail safely on contested PR state %q", want)
@@ -601,14 +634,14 @@ func TestUnit_AgenticReviewLoopConvergesOnCurrentCommit(t *testing.T) {
 		"lifecycle-successor evidence satisfies a requirement when the repository declares that transition",
 		"lifecycle-correct state are not actionable defects by themselves",
 		"a previous clean result applies only to the commit it reviewed",
-		"Do not publish with unresolved blocking findings or without such a pass",
+		"Do not mark the PR ready with unresolved blocking findings or without such a pass",
 		"Report the final review mode, reviewed commit, number of review passes run, and advisory findings left open",
 		// The severity gate is what makes the loop terminate: an undifferentiated
 		// list spends the same effort on a stale figure as on a corpus-breaking
 		// defect, and repairing the figure used to restart the whole pass.
 		"Every finding is classified **blocking** or **advisory**",
 		"a blocking finding is actionable",
-		"an advisory is a non-actionable observation for the publication gate",
+		"an advisory is a non-actionable observation for the readiness gate",
 		"a reviewer brief cannot redefine the severity model",
 		"A finding whose substance is a count, total, population figure, or arithmetic disagreement is **advisory** whatever the brief called it",
 		"a wrong, missing, or reused identity remains **blocking**",

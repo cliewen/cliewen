@@ -140,7 +140,7 @@ func TestAC040_CIWallMakesKnownFindingsDurable(t *testing.T) {
 	}
 }
 
-func TestAC041_ChangeLoopCoordinatesOnlyTheSharedPR(t *testing.T) {
+func TestAC132_UnitPositive_ChangeLoopCoordinatesOnlyTheSharedPR(t *testing.T) {
 	content, err := os.ReadFile("change-loop.md")
 	if err != nil {
 		t.Fatal(err)
@@ -148,9 +148,10 @@ func TestAC041_ChangeLoopCoordinatesOnlyTheSharedPR(t *testing.T) {
 	for _, required := range []string{
 		"Separate authors keep separate branches from accepted `main`",
 		"Any agent asked to fix one becomes the updater for that turn",
-		"pushes without force",
+		"commits and pushes the repair with the turn that made it",
+		"which returns a ready pull request to draft",
 		"If another updater moved the head",
-		"merge newer accepted `main` into its branch with a normal push instead of rewriting hosted history",
+		"merging newer accepted `main` into the branch with a normal push instead of rewriting hosted history",
 		"the agent says the PR is not merge-ready",
 	} {
 		if !strings.Contains(string(content), required) {
@@ -162,7 +163,7 @@ func TestAC041_ChangeLoopCoordinatesOnlyTheSharedPR(t *testing.T) {
 func TestSanity_FullChangeMergeModeIsExplicitAcrossGuidanceAndProbe(t *testing.T) {
 	requiredByPage := map[string][]string{
 		"operations.md":      {"Full-change merge", "Human-controlled merge commits only", "disable **squash and merge** and **rebase and merge**", "outside Cliewen's supported full-change adoption path"},
-		"change-loop.md":     {"human-controlled merge commit", "disable squash and rebase-and-merge", "local rebase before first publication"},
+		"change-loop.md":     {"human-controlled merge commit", "disable squash and rebase-and-merge", "hosted history is never rebased or rewritten"},
 		"ci-wall.md":         {"Create a merge commit", "Squash and merge", "Rebase and merge", ".allow_merge_commit", ".allow_squash_merge", ".allow_rebase_merge", "not ready for a full Cliewen change"},
 		"getting-started.md": {"protected default branch for human-controlled merge commits only"},
 	}

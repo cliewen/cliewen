@@ -2,13 +2,15 @@
 id: CAP-006-design
 type: design
 status: active
-links: [CAP-006, PDR-016, PDR-039, ADR-038]
+links: [CAP-006, PDR-016, PDR-039, PDR-040, ADR-038]
 title: Design for collaborative PR handoffs
 ---
 
 # Design — CAP-006 Collaborative PR handoffs
 
 The pull request is the coordination unit. Separate changes retain separate branches and proceed in parallel; agents sharing one change coordinate through the hosted head SHA and review conversations.
+
+- **Publication cadence:** a push is durability, never a signal ([PDR-040](../../decisions/PDR-040-push-is-durability-ready-is-explicit.md)). Every working turn that changed anything ends with the change branch pushed; the pull request opens as a draft at first publication and holds unfinished work visibly. Marking it ready is the readiness claim, taken only with verification and a clean review pass bound to the exact hosted head, and a substantive edit returns it to draft.
 
 - **Reviewer:** reads one hosted head, returns a clean result tied to that SHA or publishes actionable findings as unresolved, resolvable review conversations. A reviewer without the necessary host capability exposes the enforcement gap and cannot report merge readiness.
 - **Updater:** any agent that mutates the change for that turn. It observes starting head `S`, fetches it, produces reviewed commit `R`, verifies immediately before publication that the remote still permits a normal fast-forward update, pushes `R`, and confirms the pull request head is `R`.

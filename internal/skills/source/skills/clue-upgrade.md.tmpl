@@ -9,7 +9,7 @@ Use when a repository already uses Cliewen and the human wants to find out wheth
 2. If a newer release is available, read that release's notes, including its `### Migration` section. Identify the coordinated corpus, generated-skill, and CI-caller changes before proposing any repository write.
 3. Ask the human whether to upgrade now or later. Do nothing to the repository until they explicitly choose now. A later answer is complete: report the available release and stop without creating a branch, changing a file, or opening a pull request.
 4. On an explicit yes, make the repository green and create a branch through its normal review process. Move the binary and repository together: preview `clue migrate`, resolve every finding and notice — including those no command may repair — and apply only the complete, preflighted plan with the required reversal-cost choice. Keep the managed skills, the thin caller, and any repository corpus obligations on the chosen release together.
-5. Verify the upgraded repository, commit the complete candidate, run its required checks, and open a ready pull request. Never merge it: the repository's human merge boundary accepts the upgrade.
+5. Verify the upgraded repository, commit the complete candidate, run its required checks, and mark the upgrade's pull request ready under the review boundary. Never merge it: the repository's human merge boundary accepts the upgrade.
 
 {{template "decision-records" .}}
 {{template "local-conventions" .}}

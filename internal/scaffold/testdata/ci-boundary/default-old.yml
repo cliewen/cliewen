@@ -14,3 +14,4 @@ jobs:
       clue-version: 0.10.0
       clue-source: vendored
       clue-install-directory: ''
+      draft-aware: true

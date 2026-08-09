@@ -17,3 +17,4 @@ jobs:
       clue-version: 0.10.0
       clue-source: release
       clue-install-directory: /opt/cliewen-runner/bin
+      draft-aware: true

@@ -8,7 +8,7 @@ name: clue
 
 on:
   pull_request:
-    types: [opened, synchronize, reopened, edited]
+    types: [opened, synchronize, reopened, edited, ready_for_review]
   push:
     branches: [main]
 
@@ -24,3 +24,6 @@ jobs:
       clue-version: __CLUE_VERSION__
       clue-source: vendored
       clue-install-directory: ''
+      # Safe only because the trigger list above includes ready_for_review:
+      # that is what guarantees a strict run when a draft becomes a candidate.
+      draft-aware: true

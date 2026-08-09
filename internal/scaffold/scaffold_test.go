@@ -389,12 +389,15 @@ func TestSanity_ScaffoldedRoutingRoutesDetailedHandoffToCanonicalSkill(t *testin
 		"commit every intended edit",
 		"clean agentic review pass",
 		"git status --porcelain` to be empty",
-		"push the reviewed commit",
-		"confirm that the ready hosted PR's head branch and SHA equal the current local branch and `HEAD`",
-		"If the head changed or the push is rejected as non-fast-forward",
-		"If the PR merged or closed, stop and report local work as unpublished",
-		"human-requested local stopping point such as \"commit only\" is preserved work",
-		"not a completed or mergeable change",
+		"push, and confirm that the hosted PR's head branch and SHA equal the current local branch and `HEAD`",
+		"then mark the PR ready and perform the hosted check again immediately after",
+		"If the head changed underneath the turn or a push is rejected as non-fast-forward",
+		"If the PR merged or closed, stop without pushing — the one case where a turn ends unpushed",
+		"Push is durability, never a signal",
+		"Every working turn that changed anything ends by committing and pushing the change branch",
+		"The PR exists from first publication and starts as a draft",
+		"Marking the PR ready for review is the explicit act that claims a candidate",
+		"Stopping anywhere else is ordinary, not an exception",
 	} {
 		if !strings.Contains(content, want) {
 			t.Errorf("clue-delta/skill.md does not contain review-handoff rule %q", want)
@@ -402,9 +405,9 @@ func TestSanity_ScaffoldedRoutingRoutesDetailedHandoffToCanonicalSkill(t *testin
 	}
 	commitCandidate := strings.Index(content, "commit every intended edit")
 	reviewCandidate := strings.Index(content, "clean agentic review pass")
-	pushCandidate := strings.Index(content, "push the reviewed commit")
-	if commitCandidate < 0 || reviewCandidate <= commitCandidate || pushCandidate <= reviewCandidate {
-		t.Error("clue-delta/skill.md must commit and verify the candidate before agentic review, then push the reviewed commit without force")
+	readyCandidate := strings.Index(content, "then mark the PR ready and perform the hosted check again immediately after")
+	if commitCandidate < 0 || reviewCandidate <= commitCandidate || readyCandidate <= reviewCandidate {
+		t.Error("clue-delta/skill.md must commit and verify the candidate before agentic review, then mark the PR ready only after that binding")
 	}
 }
 

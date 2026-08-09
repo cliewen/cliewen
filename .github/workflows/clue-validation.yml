@@ -26,6 +26,18 @@ on:
         required: false
         type: string
         default: ''
+      # Fail-closed by design. The draft relaxation below is only safe when the
+      # caller also triggers on `ready_for_review`: without that trigger no run
+      # fires when a draft becomes a candidate, and the lenient result from the
+      # draft would stand as the required check on a mergeable pull request.
+      # The trigger lives in the adopter-owned caller (ADR-038), so the caller
+      # is what declares support. An adopter that bumps only the workflow
+      # reference keeps today's strict behaviour rather than a silent hole.
+      draft-aware:
+        description: Caller triggers on ready_for_review, so drafts may skip the digest and acceptance-brief gates
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -129,15 +141,27 @@ jobs:
           "$install_dir/clue" version
 
       # --forbid-changes is the digest-before-merge gate: main (and any PR
-      # at merge time) must not contain the transient /changes tree.
+      # at merge time) must not contain the transient /changes tree. A draft
+      # legitimately carries its workspace, so it is validated without the
+      # flag; the forge cannot merge a draft, and ready_for_review reruns the
+      # strict form on the same head, so the merge gate is unchanged (PDR-040).
       - name: clue validate --forbid-changes
         if: steps.scope.outputs.cliewen == 'true' && (inputs.clue-source == 'release' || steps.armed.outputs.armed == 'true')
         env:
           CLUE_PATH: ${{ steps.clue.outputs.path }}
-        run: '"$CLUE_PATH" validate --forbid-changes'
+          RELAX: ${{ inputs.draft-aware && github.event.pull_request.draft }}
+        run: |
+          if [ "$RELAX" = "true" ]; then
+            "$CLUE_PATH" validate
+          else
+            "$CLUE_PATH" validate --forbid-changes
+          fi
 
+      # A draft is not a candidate and has no brief yet; the requirement binds
+      # when the pull request is marked ready (PDR-040). Skipped only for a
+      # draft-aware caller, for the reason given on that input.
       - name: Require a completed acceptance brief
-        if: github.event_name == 'pull_request' && steps.scope.outputs.cliewen == 'true'
+        if: github.event_name == 'pull_request' && !(inputs.draft-aware && github.event.pull_request.draft) && steps.scope.outputs.cliewen == 'true'
         env:
           PR_BODY: ${{ github.event.pull_request.body }}
         run: |

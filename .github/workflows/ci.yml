@@ -5,7 +5,7 @@ name: CI
 
 on:
   pull_request:
-    types: [opened, synchronize, reopened, edited]
+    types: [opened, synchronize, reopened, edited, ready_for_review]
   push:
     branches: [main]
 
@@ -36,8 +36,11 @@ jobs:
           fi
       - name: Test CI scope classifier
         run: npm run test:ci-scope
+      # A draft is not a candidate: it legitimately has no brief yet. GitHub
+      # cannot merge a draft, and ready_for_review reruns this job on the same
+      # head, so the merge gate is unchanged (PDR-040).
       - name: Require a completed acceptance brief
-        if: github.event_name == 'pull_request' && steps.scope.outputs.full == 'true'
+        if: github.event_name == 'pull_request' && github.event.pull_request.draft == false && steps.scope.outputs.full == 'true'
         env:
           PR_BODY: ${{ github.event.pull_request.body }}
         run: |
@@ -67,9 +70,21 @@ jobs:
         run: |
           npm ci
           npm run guide:build
+      # The digest gate binds where merging is possible: on a ready PR and on
+      # main. A draft legitimately carries its /changes workspace, so it gets
+      # the same validation without --forbid-changes; GitHub cannot merge a
+      # draft, and marking it ready reruns the strict form on the same head,
+      # so nothing reaches the merge boundary ungated (PDR-040).
       - name: Validate corpus (digest-before-merge gate)
         if: steps.scope.outputs.full == 'true'
-        run: go run ./cmd/clue validate --forbid-changes
+        env:
+          DRAFT: ${{ github.event.pull_request.draft }}
+        run: |
+          if [ "$DRAFT" = "true" ]; then
+            go run ./cmd/clue validate
+          else
+            go run ./cmd/clue validate --forbid-changes
+          fi
       # Runs for every scope, plain or full — whitespace hygiene is not a
       # Cliewen concern. Gated on diffok so it shares the classifier's
       # fail-closed path: when the base diff is unresolvable the classifier
