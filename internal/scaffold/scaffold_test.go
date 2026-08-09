@@ -393,8 +393,11 @@ func TestSanity_ScaffoldedRoutingRoutesDetailedHandoffToCanonicalSkill(t *testin
 		"confirm that the ready hosted PR's head branch and SHA equal the current local branch and `HEAD`",
 		"If the head changed or the push is rejected as non-fast-forward",
 		"If the PR merged or closed, stop and report local work as unpublished",
-		"human-requested local stopping point such as \"commit only\" is preserved work",
+		"local stopping point such as \"commit only\" exists only because a human asked for one, and is never the agent's own choice",
 		"not a completed or mergeable change",
+		"A review of an existing branch or PR ends in a commit and a push exactly when it changed something",
+		"publication is owed by the repair itself",
+		"A review that produced no repair commits nothing and pushes nothing",
 	} {
 		if !strings.Contains(content, want) {
 			t.Errorf("clue-delta/skill.md does not contain review-handoff rule %q", want)
