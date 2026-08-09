@@ -69,4 +69,13 @@ Feature: Collaborative pull-request handoffs
     Then its committed workspace names the unmerged base, the authorization, and the unaccepted meaning its merge would bind
     And its acceptance brief repeats that information for the human merge decision
     But neither record makes the base accepted or permits an agent to merge either change
+
+  @AC-131
+  Scenario: A review of existing hosted work publishes exactly what it repaired
+    Test-type: Human
+    Given an agent reviews an existing branch or pull request
+    When that review produces repairs
+    Then the repairs are committed, verified, reviewed again, and pushed to that pull request in the same turn
+    And a repair left committed but unpushed happens only at a stopping point the human asked for, reported as unpublished and not merge-ready
+    But a review that produced no repair commits nothing and pushes nothing, leaving the reviewed commit exactly as reviewed
 ```

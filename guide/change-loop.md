@@ -66,7 +66,7 @@ The PR also gives hosted CI an exact candidate, but a PR alone does not enforce 
 
 Open a ready pull request only after local review and verification pass. Report the review mode, reviewed commit, number of passes run, and advisory findings left open, then confirm that the hosted head branch and SHA equal the clean, locally reviewed branch and `HEAD` before reporting it ready. A requested local branch or commit stopping point preserves work, but it is incomplete and not mergeable.
 
-Review fixes are committed, locally verified, and agent-reviewed again on the same branch. Once the current commit has a clean pass and the worktree is clean, push it to the existing pull request and repeat the hosted-head check before reporting it ready again. After the human merges, orient on the next unfinished plan milestone and ask before beginning it.
+Review fixes are committed, locally verified, and agent-reviewed again on the same branch. Once the current commit has a clean pass and the worktree is clean, push it to the existing pull request and repeat the hosted-head check before reporting it ready again. A review of existing hosted work ends in a commit and a push exactly when it changed something: publication is owed by the repair itself, in the same turn, because a fix living only in somebody's worktree is the private state no handoff survives — and a review that found nothing to repair pushes nothing, leaving the reviewed commit exactly as reviewed. Holding a repair back is your call to make, not the agent's; when you ask for it, the agent says the work is unpublished and the pull request is not merge-ready. After the human merges, orient on the next unfinished plan milestone and ask before beginning it.
 
 ## Next
 

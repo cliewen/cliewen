@@ -1,6 +1,7 @@
 ---
 id: CH-136
-type: change-proposal
+type: change
+status: open
 links: []
 title: A review of existing hosted work publishes exactly what it repaired
 ---
@@ -20,7 +21,7 @@ State one rule in the canonical review-boundary source and carry it to every liv
 
 The obligation half-exists and never binds. [PDR-016](../../docs/decisions/PDR-016-pr-state-carries-agent-handoffs.md) clause 3 already makes the updater commit, review, push, and confirm, and [AC-041](../../docs/capabilities/CAP-006-collaborative-handoffs/criteria.md) states it as a criterion — but every carrier hangs the duty on *before publishing* or *before reporting ready*, which is a condition the agent controls. An agent that repairs, commits, and never claims readiness satisfies all of them while leaving the repairs where no handoff can reach them.
 
-That is not hypothetical. On pull request #141 an agent reviewed the branch, committed seven repairs, reported truthfully that it had not pushed, and stopped; the human merged the pull request without them. The `Durable work state` rule already says an agent's private memory is never where work lives, and an unpushed repair is exactly that — so this change states the consequence rather than inventing a principle.
+That is not hypothetical. On pull request [cliewen/cliewen#141](https://github.com/cliewen/cliewen/pull/141) an agent reviewed the branch, committed seven repairs, reported truthfully that it had not pushed, and stopped; the human merged the pull request without them. The `Durable work state` rule already says an agent's private memory is never where work lives, and an unpushed repair is exactly that — so this change states the consequence rather than inventing a principle.
 
 The *only if* half is stated nowhere at all. The nearest sentence covers advisories from a clean pass, not a review that found nothing.
 

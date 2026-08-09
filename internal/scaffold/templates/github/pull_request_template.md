@@ -58,5 +58,6 @@
 - [ ] The branch started from the current tip of `main` and does not build on unmerged work, or its committed authorized-dependency record and acceptance-brief disclosure name the base, authorization, and binding meaning.
 - [ ] Every intended edit is committed, the worktree is clean, and the reported verification ran against the current commit.
 - [ ] The branch was updated without force, and this ready pull request's head branch and SHA equal the locally verified branch and `HEAD`.
+- [ ] This turn produced a commit and a push exactly when it repaired something: every repair is published here in the same turn, and a review that repaired nothing left the reviewed commit untouched.
 - [ ] Satisfied review conversations were resolved only after their reviewed fixes reached this hosted head.
 - [ ] The pull request is ready for human review and merge; no agent will merge it or push to `main`.

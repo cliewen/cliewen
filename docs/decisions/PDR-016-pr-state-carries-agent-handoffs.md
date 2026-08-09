@@ -2,13 +2,15 @@
 id: PDR-016
 type: decision
 status: verified
-links: [G-001, AN-009, PDR-007, PDR-012, C-012, CAP-006]
+links: [G-001, AN-009, PDR-007, PDR-012, PDR-040, C-012, CAP-006]
 title: Hosted PR state carries review findings and updater handoffs across agents
 author: agent
 accepted-by: Flemming N. Larsen (2026-08-02, conversation)
 ---
 
 # PDR-016 — Hosted PR state carries review findings and updater handoffs across agents
+
+> **The updater clause is amended by [PDR-040](PDR-040-review-publishes-what-it-repaired.md):** the handoff below is stated as a precondition of publishing, which left an agent free to repair, commit, and never publish. Publication is now owed by the repair itself — a review of existing hosted work ends in a commit and a push exactly when it produced one, an agent never elects a local stopping point for itself, and a review that repaired nothing leaves the reviewed commit alone.
 
 ## Context and problem statement
 

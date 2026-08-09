@@ -2,7 +2,7 @@
 id: CAP-006
 type: capability
 status: active
-links: [G-001, PDR-016, PDR-039, C-012]
+links: [G-001, PDR-016, PDR-039, PDR-040, C-012]
 title: Collaborative PR handoffs remain visible and exact across agents
 goal: G-001
 ---
@@ -11,7 +11,7 @@ goal: G-001
 
 ## What
 
-Agents may independently implement, review, and repair changes without losing work between sessions: review results name the hosted commit they cover, actionable findings remain visible on the pull request, an authorized dependency on unmerged work remains explicit until digest, and every agent that edits completes an exact, non-destructive publication handoff before calling the pull request merge-ready.
+Agents may independently implement, review, and repair changes without losing work between sessions: review results name the hosted commit they cover, actionable findings remain visible on the pull request, an authorized dependency on unmerged work remains explicit until digest, a review publishes exactly what it repaired and nothing when it repaired nothing, and every agent that edits completes an exact, non-destructive publication handoff before calling the pull request merge-ready.
 
 ## Why
 

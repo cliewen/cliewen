@@ -506,6 +506,45 @@ func TestUnit_ReviewBoundaryRequiresExactHostedHandoff(t *testing.T) {
 	}
 }
 
+// TestUnit_ReviewPublishesExactlyWhatItRepaired pins PDR-040's biconditional in
+// every carrier that renders the review boundary. Nothing observes a running
+// agent's worktree or its remote, so the generated text is the whole machine:
+// if the clause leaves the sources, no other check notices.
+func TestUnit_ReviewPublishesExactlyWhatItRepaired(t *testing.T) {
+	rendered := map[string]string{}
+	for _, file := range mustRender(t) {
+		rendered[file.relativePath] = string(file.content)
+	}
+
+	for _, name := range []string{"clue-delta/skill.md", "clue-extract/skill.md", "clue-upgrade/skill.md", "clue-verify/skill.md"} {
+		content := rendered[name]
+		for _, want := range []string{
+			"A review of an existing branch or PR ends in a commit and a push exactly when it changed something",
+			"pushed to that PR in the same turn",
+			"publication is owed by the repair itself",
+			"An agent never elects a local stopping point for itself",
+			"A review that produced no repair commits nothing and pushes nothing",
+			"This constrains when publication happens, never what is published",
+			`local stopping point such as "commit only" exists only because a human asked for one, and is never the agent's own choice`,
+		} {
+			if !strings.Contains(content, want) {
+				t.Errorf("%s does not carry the publication obligation %q", name, want)
+			}
+		}
+	}
+
+	verify := rendered["clue-verify/skill.md"]
+	for _, want := range []string{
+		"This turn produced a commit and a push exactly when it repaired something",
+		"a review that repaired nothing left the reviewed commit untouched",
+		"a repair is owed its push in the same turn",
+	} {
+		if !strings.Contains(verify, want) {
+			t.Errorf("clue-verify/skill.md does not carry the publication obligation %q", want)
+		}
+	}
+}
+
 func TestAC040_ReviewResultsAreDurableAndCommitBound(t *testing.T) {
 	for _, file := range mustRender(t) {
 		if !strings.HasSuffix(file.relativePath, "/skill.md") || (!strings.HasPrefix(file.relativePath, "clue-delta/") && !strings.HasPrefix(file.relativePath, "clue-extract/") && !strings.HasPrefix(file.relativePath, "clue-verify/")) {

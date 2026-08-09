@@ -46,6 +46,8 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 
 - **An authorized change that depends on unmerged work must now say so where it can be reviewed.** Its committed workspace records the base, the human authorization, and the unaccepted meaning its merge would bind; its acceptance brief repeats the same facts for the human merge decision. This disclosure does not make the base accepted, permit an agent to merge either change, or make validation depend on forge state.
 
+- **A review of an existing branch or pull request now ends in a commit and a push exactly when it repaired something.** The obligation existed but never bound: every carrier stated it as a precondition of *publishing* or of *reporting the change ready*, so an agent could repair a reviewed pull request, commit the repair, report that it had not published, and stop — leaving the fix where nobody else could fetch it. Publication is now owed by the repair itself, in the same turn, and an agent never elects a local stopping point for itself; only your explicit request holds a repair back, and the agent then says the work is unpublished and the pull request is not merge-ready. The converse binds too: a review that found nothing to repair commits nothing and pushes nothing, leaving the reviewed commit exactly as reviewed. Nothing about the review loop's order changes — the pushed commit is still the one that passed its own local checks and its own review pass — and no new machine is introduced, because CI receives hosted commits and cannot inspect a worktree.
+
 ## [0.13.0] - 2026-08-05
 
 The release that notices you're behind before you ask, hands you a skill to catch up, and stops charging a review's full price for a stale sentence.
