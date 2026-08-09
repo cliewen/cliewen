@@ -8,6 +8,6 @@ title: Tasks for CH-137
 
 # Tasks — CH-137
 
-- [ ] Promote the existing user-facing digest to v0.14.0 and open a fresh `[Unreleased]` section
-- [ ] Bump the canonical skill stamp, regenerate skills, and record v0.14.0 carrier digests in the migration manifest
+- [x] Promote the existing user-facing digest to v0.14.0 and open a fresh `[Unreleased]` section
+- [x] Bump the canonical skill stamp, regenerate skills, and record v0.14.0 carrier digests in the migration manifest
 - [ ] Install `clue` from this checkout, run the release migration preflight, and run the repository's local verification gates
