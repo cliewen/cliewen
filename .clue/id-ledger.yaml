@@ -6,7 +6,7 @@ counters:
     C: "17"
     CAP: "7"
     CH: "134"
-    G: "3"
+    G: "4"
     IC: "2"
     LOG: "1"
     P: "13"
@@ -1332,6 +1332,11 @@ entries:
       state: live
       prefix: G
       component: "3"
+    - id: G-004
+      kind: numeric
+      state: live
+      prefix: G
+      component: "4"
     - id: IC-001
       kind: numeric
       state: live
