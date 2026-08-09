@@ -242,6 +242,14 @@ func TestAC019_UnstampedBuildReportsDev(t *testing.T) {
 	}
 }
 
+// Unit: publishing a repository is not a clue command. Adopters may choose
+// any release process without Cliewen interpreting or driving it.
+func TestUnit_ReleaseCommandIsNotPartOfCLI(t *testing.T) {
+	if code := run("release", nil); code != 2 {
+		t.Fatalf("run(release) = %d, want unknown-command exit 2", code)
+	}
+}
+
 // Unit: the build-info fallback stamps `go install module@vX.Y.Z` builds
 // and nothing else — checkout builds and commit installs stay unstamped
 // (ADR-011: a pseudo-version is a commit, not a release).
@@ -746,64 +754,6 @@ func TestAC108_UnitNegative_IDLiveRejectsNonReservedID(t *testing.T) {
 	}
 	if code := runID([]string{"live", "PDR-001", root}, &out, &errOut); code != 2 {
 		t.Fatalf("second id live exit code = %d, want 2", code)
-	}
-}
-
-// Sanity: a short release PR cuts the release, while an unpublished tag is
-// recoverable and a GitHub Release makes the tag immutable (PDR-015).
-func TestSanity_TagOnMergeRecoversOnlyUnpublishedVersions(t *testing.T) {
-	data, err := os.ReadFile(filepath.Join("..", "..", ".github", "workflows", "tag-on-merge.yml"))
-	if err != nil {
-		t.Fatalf("tag-on-merge workflow not found: %v", err)
-	}
-	wf := string(data)
-
-	const stamp = "internal/skills/source/shared/frontmatter.md.tmpl"
-	if !strings.Contains(wf, stamp) {
-		t.Errorf("tag-on-merge does not read %s — the tag must come from the same stamp the release gate compares against, not a second source", stamp)
-	}
-	if !strings.Contains(wf, "gh workflow run release.yml") || !strings.Contains(wf, "gh run watch") {
-		t.Error("tag-on-merge does not dispatch and wait for release.yml — a retry could race an old build")
-	}
-	if !strings.Contains(wf, "actions: write") {
-		t.Error("tag-on-merge lacks actions: write — dispatching the release workflow fails with 403 without it")
-	}
-	if !strings.Contains(wf, "gh release view") || !strings.Contains(wf, "retag=true") || !strings.Contains(wf, "git push --force origin") {
-		t.Error("tag-on-merge does not distinguish an unpublished tag from a GitHub Release and retarget the former")
-	}
-	if !strings.Contains(wf, "group: tag-on-main") || !strings.Contains(wf, "queue: max") || !strings.Contains(wf, "cancel-in-progress: false") {
-		t.Error("tag-on-merge does not serialize its release decision and tag push — concurrent main pushes can otherwise tag different commits")
-	}
-	if !strings.Contains(wf, `git diff --quiet "${GITHUB_SHA}^" "${GITHUB_SHA}" -- "$tmpl"`) {
-		t.Errorf("tag-on-merge does not make a new version depend on %s changing", stamp)
-	}
-	const gates = ".github/scripts/release-gates.sh"
-	if !strings.Contains(wf, gates) {
-		t.Errorf("tag-on-merge does not run %s before a new release or retry", gates)
-	}
-	ci, err := os.ReadFile(filepath.Join("..", "..", ".github", "workflows", "ci.yml"))
-	if err != nil {
-		t.Fatalf("CI workflow not found: %v", err)
-	}
-	if !strings.Contains(string(ci), gates) {
-		t.Errorf("CI does not run %s while a release is still a proposal", gates)
-	}
-	script, err := os.ReadFile(filepath.Join("..", "..", gates))
-	if err != nil {
-		t.Fatalf("release gates script not found: %v", err)
-	}
-	if !strings.Contains(string(script), "CHANGELOG.md") {
-		t.Error("the release gates do not read CHANGELOG.md — a stamp raised without notes would burn a tag that can never release (ADR-012)")
-	}
-	if !strings.Contains(string(script), "internal/migrate") {
-		t.Error("the release gates do not require migration guidance for a release that changes internal/migrate (ADR-039)")
-	}
-	release, err := os.ReadFile(filepath.Join("..", "..", ".github", "workflows", "release.yml"))
-	if err != nil {
-		t.Fatalf("release workflow not found: %v", err)
-	}
-	if !strings.Contains(string(release), "Require the tag to name this run's commit") || !strings.Contains(string(release), "Require no GitHub Release yet") || !strings.Contains(string(release), "Require the tag not to have moved while building") {
-		t.Error("release.yml does not refuse stale runs and already-published versions")
 	}
 }
 

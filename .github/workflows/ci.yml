@@ -36,6 +36,8 @@ jobs:
           fi
       - name: Test CI scope classifier
         run: npm run test:ci-scope
+      - name: Test this repository's release workflow
+        run: npm run test:release-workflow
       # A draft is not a candidate: it legitimately has no brief yet. GitHub
       # cannot merge a draft, and ready_for_review reruns this job on the same
       # head, so the merge gate is unchanged (PDR-040).
