@@ -3,7 +3,7 @@ id: ADR-019
 type: decision
 status: verified
 links: [ADR-013, CAP-001, P-002]
-title: Index regeneration runs in clue init; ADR-013's emits-empty clause is superseded
+title: Index regeneration runs in clue init
 author: agent
 accepted-by: Flemming N. Larsen (2026-07-18, PR #20 review conversation)
 ---
