@@ -46,12 +46,18 @@ func MultiDocumentBacklog(c *Corpus) []MultiDocumentArtifact {
 // ContextSliceBudgetBacklog reports every durable identity whose ordinary
 // one-hop context read crosses the stated artifact budget. Invalid or
 // ambiguous identities are the validator's existing concern, so they are not
-// rendered as a second read-cost finding.
+// rendered as a second read-cost finding. Identities owned by a completed plan
+// are excluded on the same ground as MultiDocumentBacklog: their links are part
+// of a historical record C-008 makes unavailable for rewriting, so reporting
+// them would name a backlog no change is permitted to repair.
 func ContextSliceBudgetBacklog(c *Corpus) []ContextSliceOverBudget {
 	owners := contextOwners(c)
 	ids := make([]string, 0, len(owners))
 	for id, artifacts := range owners {
-		if len(artifacts) == 1 && strings.HasPrefix(artifacts[0].Path, "docs/") {
+		if len(artifacts) != 1 || artifacts[0].Status == "completed" {
+			continue
+		}
+		if strings.HasPrefix(artifacts[0].Path, "docs/") {
 			ids = append(ids, id)
 		}
 	}

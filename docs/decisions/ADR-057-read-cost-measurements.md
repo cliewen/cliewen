@@ -22,7 +22,7 @@ The capability-folder convention already separates what a reader understands, wh
 
 The first reported population is a live artifact under `docs/` whose body contains more than one rendered H1 outside fenced examples. An H1 begins a rendered document; a second H1 is therefore the observable boundary that a split can preserve. Completed plans are excluded by their `completed` state because [C-008](../constraints/C-008-completed-plans-immutable.md) makes rewriting their historical record unavailable. This is a report, not a verdict: later work decides whether the documents should be split or whether one primary consumer genuinely needs them together.
 
-The second reported population is every durable identity whose ordinary `clue context` slice prints more than eight artifacts: the root and its unique resolvable direct links. Acceptance-criterion and milestone identities count because the command accepts them as entry points. The measurement intentionally calculates only that bounded slice, not its frontier or wider closure; a validator should not traverse the rest of the graph merely to report the cost of what a reader sees by default.
+The second reported population is every durable identity whose ordinary `clue context` slice prints more than eight artifacts: the root and its unique resolvable direct links. Acceptance-criterion and milestone identities count because the command accepts them as entry points. Identities owned by a completed plan are excluded for the same reason as the first population: the slice is wide because of a frozen `links:` list, and C-008 leaves no permitted repair, so reporting them would name a backlog that cannot be worked. The measurement intentionally calculates only that bounded slice, not its frontier or wider closure; a validator should not traverse the rest of the graph merely to report the cost of what a reader sees by default.
 
 Both populations appear as counts on every successful `clue validate` run and are named by `clue validate --read-cost`. Neither is an `Issue` and neither changes the command's exit code. The command derives them fresh from the repository state and writes no registry.
 
@@ -42,7 +42,7 @@ Tokenizer choice, model changes, and language make a token total an unstable pro
 
 ## Rejected: measure only new artifacts
 
-Exempting history would make the oldest and most expensive corpus material permanently invisible, while measuring it only from a diff would violate the judge's state-only boundary. The report reads the current durable corpus uniformly; completed plans are the one state-based exception because their immutability is already an explicit rule.
+Exempting history would make the oldest and most expensive corpus material permanently invisible, while measuring it only from a diff would violate the judge's state-only boundary. The report reads the current durable corpus uniformly; completed plans are the one state-based exception, applied to both populations, because their immutability is already an explicit rule.
 
 ## Carrier
 

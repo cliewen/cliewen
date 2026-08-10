@@ -30,6 +30,7 @@ func TestAC135_UnitNegative_ReadCostBacklogsIgnoreExamplesFrozenPlansAndSlicesAt
 		root,
 		{ID: "AN-001", Path: "docs/analysis/AN-001.md", Type: "analysis", Status: "active", Body: "# One document\n\n```markdown\n# Example only\n```\n"},
 		{ID: "P-001", Path: "docs/plans/P-001.md", Type: "plan", Status: "completed", Body: "# Frozen first\n\n# Frozen second\n"},
+		{ID: "P-002", Path: "docs/plans/P-002.md", Type: "plan", Status: "completed", Links: []string{"G-001", "G-002", "G-003", "G-004", "G-005", "G-006", "G-007", "G-008", "P-001"}},
 	}
 	for _, id := range root.Links {
 		artifacts = append(artifacts, &Artifact{ID: id, Path: "docs/goals/" + id + ".md"})
