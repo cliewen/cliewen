@@ -1482,12 +1482,12 @@ entries:
       state: retired
     - id: CH-145
       kind: numeric
-      state: live
+      state: retired
       prefix: CH
       component: "145"
     - id: CH-145-tasks
       kind: opaque
-      state: live
+      state: retired
     - id: G-001
       kind: numeric
       state: live
