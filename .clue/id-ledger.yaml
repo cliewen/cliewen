@@ -1,6 +1,6 @@
 counters:
     AC: "132"
-    ADR: "56"
+    ADR: "55"
     AN: "22"
     ARCH: "3"
     C: "21"
@@ -914,14 +914,9 @@ entries:
       component: "54"
     - id: ADR-055
       kind: numeric
-      state: reserved
-      prefix: ADR
-      component: "55"
-    - id: ADR-056
-      kind: numeric
       state: live
       prefix: ADR
-      component: "56"
+      component: "55"
     - id: AN-001
       kind: numeric
       state: live
@@ -1435,9 +1430,18 @@ entries:
       state: retired
     - id: CH-143
       kind: numeric
-      state: live
+      state: retired
       prefix: CH
       component: "143"
+    - id: CH-143-open-questions
+      kind: opaque
+      state: retired
+    - id: CH-143-proposal
+      kind: opaque
+      state: retired
+    - id: CH-143-tasks
+      kind: opaque
+      state: retired
     - id: G-001
       kind: numeric
       state: live

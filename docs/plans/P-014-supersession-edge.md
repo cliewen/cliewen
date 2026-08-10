@@ -2,7 +2,7 @@
 id: P-014
 type: plan
 status: completed
-links: [P-013, PDR-038, PDR-026, PDR-029, AN-008, AN-022, ADR-034, ADR-056]
+links: [P-013, PDR-038, PDR-026, PDR-029, AN-008, AN-022, ADR-034, ADR-055]
 title: Cliewen gives a surviving superseded record a machine-visible edge
 ---
 
@@ -16,7 +16,7 @@ Milestone numbering continues corpus-global numbering from [P-013](P-013-simplif
 
 | ID | Milestone (exit criterion) | Status | Evidence |
 |---|---|---|---|
-| M-069 | **The supersession residue PDR-038 named is decided, not merely revisited.** A decision record — an ADR, since this is a corpus-architecture question — either widens `supersedes:` to cover a decision record that is superseded but survives, or declines to do so a second time with a fuller argument than the first. A widening answer states, at minimum: what obligation a superseding change gains that it does not carry today; how `clue validate` distinguishes a live superseded record from a stale one, so the check cannot be satisfied by a pointer nobody maintains; and whether and how the reverse question — what was downstream of a given decision — is answered without the reverse walk the tooling deliberately does not do today. A second decline restates why each of those three costs still exceeds the nine-record problem it would close, rather than repeating PDR-038's reasoning unexamined. Either answer updates the nine affected decision index rows to the settled shape and closes this campaign's only milestone in the same digest. | `done` | [ADR-056](../decisions/ADR-056-surviving-supersession-stays-prose.md) declines the widening a second time, stating the three required costs, and corrects `docs/decisions/README.md`'s nine affected rows to the settled prose shape (CH-143). |
+| M-069 | **The supersession residue PDR-038 named is decided, not merely revisited.** A decision record — an ADR, since this is a corpus-architecture question — either widens `supersedes:` to cover a decision record that is superseded but survives, or declines to do so a second time with a fuller argument than the first. A widening answer states, at minimum: what obligation a superseding change gains that it does not carry today; how `clue validate` distinguishes a live superseded record from a stale one, so the check cannot be satisfied by a pointer nobody maintains; and whether and how the reverse question — what was downstream of a given decision — is answered without the reverse walk the tooling deliberately does not do today. A second decline restates why each of those three costs still exceeds the nine-record problem it would close, rather than repeating PDR-038's reasoning unexamined. Either answer updates the nine affected decision index rows to the settled shape and closes this campaign's only milestone in the same digest. | `done` | [ADR-055](../decisions/ADR-055-surviving-supersession-stays-prose.md) declines the widening a second time, stating the three required costs, and names the settled prose shape for the nine affected rows in `docs/decisions/README.md` — seven of which already used it, with ADR-019's and PDR-007's corrected to match (CH-143). |
 
 ## Mutation rules
 
