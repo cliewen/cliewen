@@ -1,7 +1,7 @@
 ---
 id: CH-145
 type: change
-status: proposed
+status: open
 links: [P-015, M-071, CAP-007, PDR-029]
 title: Measure corpus read cost
 ---

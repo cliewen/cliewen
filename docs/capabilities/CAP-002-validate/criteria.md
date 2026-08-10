@@ -402,4 +402,13 @@ Feature: clue validate — deterministic corpus judgment
     Then the ledger rejects it as already used
     And "clue validate" rejects a live artifact declaring that retired opaque ID
     But a freshly generated, distinct opaque ID passes both checks
+  @AC-135
+  Scenario: Read-cost backlogs are reported without failing the corpus
+    Test-type: Unit
+    Given a live artifact whose body contains two rendered H1 documents and a completed plan with the same shape
+    And an identity whose default bounded context slice prints more than the stated artifact budget
+    When the user runs "clue validate" and "clue validate --read-cost"
+    Then both runs exit with code 0 and the OK line counts the multi-document artifacts and over-budget identity slices
+    And the flag names each counted artifact with its document count and each counted identity with its slice size and budget
+    But an H1 inside a fenced example, a completed plan, and a slice at the budget are not counted
 ```

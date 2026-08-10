@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"fmt"
 	"go/ast"
 	"go/parser"
 	"go/token"
@@ -1341,5 +1342,51 @@ func TestAC099_UnitNegative_DescribedFillerSubfolderAndMultiLinkRowsAreNotCounte
 	// produced. It is adopter prose, so neither population grades it.
 	if strings.Contains(out, "G-005-fifth.md states") {
 		t.Fatalf("a badge-less stated-record row is adopter prose and is left uncounted, output=%q", out)
+	}
+}
+
+func TestAC135_UnitPositive_ReadCostFlagCountsAndNamesMeasuredBacklogs(t *testing.T) {
+	root := validCorpus(t)
+	links := make([]string, 0, corpus.DefaultContextSliceBudget)
+	rows := []string{"# Goals", "", "<!-- clue:index:start -->", "- [G-001](G-001-first.md)"}
+	for n := 2; n <= corpus.DefaultContextSliceBudget+1; n++ {
+		id := fmt.Sprintf("G-%03d", n)
+		links = append(links, id)
+		rows = append(rows, fmt.Sprintf("- [%s](%s-next.md)", id, id))
+		writeFile(t, root, "docs/goals/"+id+"-next.md", fmt.Sprintf("---\nid: %s\ntype: goal\nstatus: accepted\nlinks: []\ntitle: %s\n---\n\n# %s\n", id, id, id))
+	}
+	rows = append(rows, "<!-- clue:index:end -->", "")
+	writeFile(t, root, "docs/goals/README.md", strings.Join(rows, "\n"))
+	writeFile(t, root, "docs/goals/G-001-first.md", "---\nid: G-001\ntype: goal\nstatus: accepted\nlinks: ["+strings.Join(links, ", ")+"]\ntitle: First goal\n---\n\n# First document\n\n# Second document\n")
+
+	code, out := runValidateCapturingStdout(t, []string{"--read-cost", root})
+	if code != 0 {
+		t.Fatalf("read-cost report should not fail validation, got %d: %s", code, out)
+	}
+	if !strings.Contains(out, "docs/goals/G-001-first.md: 2 rendered document(s)") || !strings.Contains(out, "G-001: default context slice prints 9 artifact(s) (budget 8)") || !strings.Contains(out, "1 multi-document artifact(s)") || !strings.Contains(out, "1 identity slice(s) over the 8-artifact budget") {
+		t.Fatalf("read-cost output did not name and count both backlogs: %q", out)
+	}
+}
+
+func TestAC135_UnitNegative_ReadCostFlagOmitsExamplesAndSlicesAtBudget(t *testing.T) {
+	root := validCorpus(t)
+	links := make([]string, 0, corpus.DefaultContextSliceBudget-1)
+	rows := []string{"# Goals", "", "<!-- clue:index:start -->", "- [G-001](G-001-first.md)"}
+	for n := 2; n <= corpus.DefaultContextSliceBudget; n++ {
+		id := fmt.Sprintf("G-%03d", n)
+		links = append(links, id)
+		rows = append(rows, fmt.Sprintf("- [%s](%s-next.md)", id, id))
+		writeFile(t, root, "docs/goals/"+id+"-next.md", fmt.Sprintf("---\nid: %s\ntype: goal\nstatus: accepted\nlinks: []\ntitle: %s\n---\n\n# %s\n", id, id, id))
+	}
+	rows = append(rows, "<!-- clue:index:end -->", "")
+	writeFile(t, root, "docs/goals/README.md", strings.Join(rows, "\n"))
+	writeFile(t, root, "docs/goals/G-001-first.md", "---\nid: G-001\ntype: goal\nstatus: accepted\nlinks: ["+strings.Join(links, ", ")+"]\ntitle: First goal\n---\n\n# One document\n\n```markdown\n# Example only\n```\n")
+
+	code, out := runValidateCapturingStdout(t, []string{"--read-cost", root})
+	if code != 0 {
+		t.Fatalf("read-cost report should not fail validation, got %d: %s", code, out)
+	}
+	if strings.Contains(out, "rendered document(s)") || strings.Contains(out, "over the 8-artifact budget") {
+		t.Fatalf("read-cost report counted an example or at-budget slice: %q", out)
 	}
 }
