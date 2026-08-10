@@ -1414,15 +1414,15 @@ entries:
       state: retired
     - id: CH-142
       kind: numeric
-      state: live
+      state: retired
       prefix: CH
       component: "142"
     - id: CH-142-questions
       kind: opaque
-      state: live
+      state: retired
     - id: CH-142-tasks
       kind: opaque
-      state: live
+      state: retired
     - id: G-001
       kind: numeric
       state: live
