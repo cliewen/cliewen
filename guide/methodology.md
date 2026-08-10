@@ -30,7 +30,7 @@ A Cliewen change is a branch-sized proposal. A full change uses a transient work
 
 Two guards hold above the rules. When the tier is unclear, take the higher one; and the moment a decision, an open question, a meaning change, or a methodology-carrier edit appears during work, move to the full loop before continuing. Product behavior stays full even when an existing criterion already states the behavior: implementation changes executable evidence and can expose disagreement between the criterion, its tests, and reality.
 
-Once classified, `clue context <id>` resolves an artifact, criterion, or milestone identity and prints the transitive outgoing-link slice that governs it. This keeps reading proportional without reverse-expanding through shared goals into the whole corpus.
+Once classified, `clue context <id>` resolves an artifact, criterion, or milestone identity and prints the bounded outgoing-link slice that governs it, naming what the bound held back. This keeps reading proportional without reverse-expanding through shared goals into the whole corpus.
 
 ## Capability and acceptance criterion
 

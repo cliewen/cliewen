@@ -4,7 +4,7 @@ The change loop applies when work belongs in Cliewen. Before loading the corpus,
 
 When meaning is touched, use this loop. The light tier fits when meaning is only touched and no decision, acceptance meaning, plan semantics, or methodology carrier is affected; everything else is full. When the tier is unclear, take the higher one, and move to the full loop the moment a decision, an open question, a meaning change, or a methodology-carrier edit appears during work.
 
-After classification, start from the smallest durable context that governs the task. `clue context <id>` prints the named artifact and the transitive closure of its outgoing links; an acceptance-criterion or milestone ID resolves to the artifact that declares it. If the request gives no usable ID, orient at `docs/README.md`, choose the closest artifact, and run the command from there. Shared goals have many reverse dependents, so `context` deliberately follows declared outgoing dependencies only instead of recreating a full-corpus read.
+After classification, start from the smallest durable context that governs the task. `clue context <id>` prints the named artifact and the artifacts it links, out to a stated number of hops; an acceptance-criterion or milestone ID resolves to the artifact that declares it. The slice defaults to one hop and names what the bound held back, so `--depth` widens it on evidence rather than on caution. If the request gives no usable ID, orient at `docs/README.md`, choose the closest artifact, and run the command from there. Shared goals have many reverse dependents, so `context` deliberately follows declared outgoing dependencies only instead of recreating a full-corpus read.
 
 ## One real change, end to end
 

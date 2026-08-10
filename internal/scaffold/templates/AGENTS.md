@@ -14,7 +14,7 @@ Before loading the corpus, classify the requested work by its effect on meaning.
 
 When the tier is unclear, take the higher one. When a decision, open question, meaning change, or methodology-carrier edit appears during work, move to the full loop before continuing.
 
-For a light or full change, read [`docs/README.md`](docs/README.md) only when the request does not name or resolve to an artifact; use it to identify the closest artifact, then run `clue context <id>`. When an identity is already known, run `clue context` directly and read its outgoing-link slice. Read beyond that slice only when the task or a discovered edge requires it. The `/docs` corpus remains the system-of-record and working memory.
+For a light or full change, read [`docs/README.md`](docs/README.md) only when the request does not name or resolve to an artifact; use it to identify the closest artifact, then run `clue context <id>`. When an identity is already known, run `clue context` directly and read the slice it prints. That slice is bounded and names what it held back, so widening it with `--depth` is a decision made on what the frontier shows, taken when the task or a discovered edge requires it. The `/docs` corpus remains the system-of-record and working memory.
 
 ## Repository conventions
 

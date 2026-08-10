@@ -274,7 +274,7 @@ entries:
       component: "52"
     - id: AC-053
       kind: numeric
-      state: live
+      state: retired
       prefix: AC
       component: "53"
     - id: AC-054
@@ -669,7 +669,7 @@ entries:
       component: "132"
     - id: AC-133
       kind: numeric
-      state: reserved
+      state: live
       prefix: AC
       component: "133"
     - id: AC-134
@@ -929,7 +929,7 @@ entries:
       component: "55"
     - id: ADR-056
       kind: numeric
-      state: reserved
+      state: live
       prefix: ADR
       component: "56"
     - id: AN-001
