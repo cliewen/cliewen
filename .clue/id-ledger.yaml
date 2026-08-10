@@ -1417,6 +1417,12 @@ entries:
       state: live
       prefix: CH
       component: "142"
+    - id: CH-142-questions
+      kind: opaque
+      state: live
+    - id: CH-142-tasks
+      kind: opaque
+      state: live
     - id: G-001
       kind: numeric
       state: live
@@ -1444,7 +1450,7 @@ entries:
       component: "5"
     - id: G-006
       kind: numeric
-      state: reserved
+      state: live
       prefix: G
       component: "6"
     - id: IC-001
