@@ -2,7 +2,7 @@
 id: AN-010
 type: analysis
 status: active
-links: [P-007, M-029, PDR-002, PDR-011]
+links: [P-007, M-029, PDR-002, PDR-011, P-013, PDR-026]
 title: The first adopter history does not support widening the light tier
 ---
 
@@ -52,3 +52,23 @@ The more defensible response is to keep behavior changes full, state why in the 
 ## Consumer
 
 PDR-018 consumes this finding by retaining the full tier for behavior changes and making the evidence-based defence explicit in the public guide. CH-076 consumes the reading-cost finding through `clue context <id>` and focused agent routing. A later adopter history containing behavior changes under existing criteria may reopen the tier boundary with direct evidence.
+
+## Re-derived at head (P-013/M-066, 2026-08-10)
+
+[PDR-026](../decisions/PDR-026-campaigns-close-on-re-derived-evidence.md) requires this cost surface to be measured again rather than read off a milestone table. The boundary extends from this finding's pin `86a4bd58514bcdc4d36f1dd374900e6eae3b29f3` (exclusive) through the adopter's current `origin/main` tip `2005b1d3a77f564a4714a7b0e64ed5545a1a396f` (2026-08-10), the merge commit for PR [#230](https://github.com/robocode-dev/tank-royale/pull/230): nine more first-parent accepted units, none beyond it as of this pin. Measurements repeat the original method — `git log --numstat` over each unit's first-parent/second-parent range, generated skills reported separately — on Microsoft Windows NT 10.0.26200.0 with PowerShell 5.1.26100.8875 and Git 2.55.0.windows.3.
+
+| Accepted unit | Hosted tier claim or observable shape | Branch commits | Transient `changes/` churn | Durable corpus churn | Other churn |
+|---|---|---:|---:|---:|---:|
+| CH-006 / PR [#223](https://github.com/robocode-dev/tank-royale/pull/223) | PR body states **"full"** explicitly | 2 | +71 / -71 | +71 / -4 | skills +110 / -46; repository +104 / -1 |
+| CH-007 / PR [#224](https://github.com/robocode-dev/tank-royale/pull/224) | PR body states **"light"** explicitly | 2 | 0 | 0 | skills +48 / -23; repository +33 / -67 |
+| CH-008 / PR [#225](https://github.com/robocode-dev/tank-royale/pull/225) | PR body states **"light"** explicitly | 2 | 0 | +9 / -9 | skills +14 / -11; repository +8 / -7 |
+| CH-009 / PR [#226](https://github.com/robocode-dev/tank-royale/pull/226) | No literal tier word; full workspace opened and removed within the unit | 6 | +90 / -90 | +145 / -44 | repository +427 / -26 |
+| Direct commit `aa2018f1` | No pull request; single commit | 1 | 0 | 0 | repository (`AGENTS.md`) +4 / -0 |
+| CH-010 / PR [#227](https://github.com/robocode-dev/tank-royale/pull/227) | No literal tier word; full workspace opened and removed within the unit | 7 | +92 / -92 | +93 / -5 | repository +175 / -115 |
+| CH-011 / PR [#228](https://github.com/robocode-dev/tank-royale/pull/228) | No literal tier word; full workspace opened and removed within the unit; no product code touched | 5 | +80 / -80 | +94 / -3 | 0 |
+| CH-012 / PR [#229](https://github.com/robocode-dev/tank-royale/pull/229) | No literal tier word; PR body self-describes as a paused draft | 3 | +75 / -0 (workspace opened, not closed) | +1 / -1 | repository (`.agents/principles-catalog/active.md`) +92 / -0 |
+| CH-012 / PR [#230](https://github.com/robocode-dev/tank-royale/pull/230) | No literal tier word; PR body self-describes as a draft continuation | 2 | +5 / -4 (workspace still open, net +1) | +267 / -34 | 0 |
+
+`.agents/principles-catalog/active.md` is reported on its own line rather than folded into "other," for the same reason generated skills are: one 92-line single-block addition would otherwise dominate and mask the unit's actual repository churn. It appeared once, in one unit, so it is a callout here rather than a fourth standing column.
+
+**What changed:** the sample nearly doubled (5 → 14 accepted units) and, for the first time, contains a full-tier workspace that opens in one accepted unit and is still open two units later — CH-012 spans PR #229 and #230, both self-described as drafts, and `changes/CH-012-create-rumble-client/` remains in the tree at the pin. No unit among the nine modifies an existing acceptance criterion's meaning; every criterion-touching unit adds brand-new draft criteria for a new capability, the same pattern the original five showed. **What did not change:** the light/full split by literal tier word remains legible where a unit states one (2 full, 2 light, 5 unstated), the no-PR direct-commit pattern recurs (`aa2018f1`, no associated pull request, same shape as the original `5173b3f9`), and the CH-004-shaped tension recurs twice more — PR #224 and PR #225 both claim "light" while touching `.agents/skills/*`, the surface PDR-002's light-tier qualification excludes. **What the campaign declined:** re-deriving a transient-per-durable-line ratio across the extended sample the way the original Inferences section did for five units — CH-012's still-open workspace has no closing churn to divide by yet, and folding an in-progress unit into a ratio computed for closed ones would misstate what either number means; whether CH-012's open state is normal churn caught mid-flight or a gap in this adopter's close-out convention is left as an observation, not a finding this closing milestone adjudicates.
