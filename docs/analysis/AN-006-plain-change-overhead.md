@@ -2,7 +2,7 @@
 id: AN-006
 type: analysis
 status: active
-links: [P-003, M-011, PDR-002, PDR-007]
+links: [P-003, M-011, PDR-002, PDR-007, P-013, PDR-026, PDR-011]
 title: The light tier still overcharges changes outside Cliewen
 ---
 
@@ -36,3 +36,11 @@ A meaning-based plain route keeps the human merge boundary while excluding work 
 ## Finding and consumer
 
 Cliewen needs a route outside its light/full tiers. A plain change should use an ordinary branch, relevant checks, a PR, and human merge, with no CH identity or Cliewen artifacts. PDR-011 records the decision; CH-037 carries it into the routing hub, generated skills, contributor surfaces, and CI.
+
+## Re-derived at head (P-013/M-066, 2026-08-10)
+
+[PDR-026](../decisions/PDR-026-campaigns-close-on-re-derived-evidence.md) requires this cost surface to be measured again rather than read off a milestone table. The reproduction environment is Windows amd64 with PowerShell 7.6.4, Go 1.26.5, Git 2.55.0.windows.3, Node.js 24.0.0, and npm 11.18.0 — materially the same toolchain the original finding used. Every merged pull request on `github.com/cliewen/cliewen` was listed (`gh pr list --state merged`, 145 total) and filtered to the seven whose branch name carries no `ch-` prefix — the plain route's observable signature, since a plain change mints no CH identity or branch convention. Three sit after [PDR-011](../decisions/PDR-011-plain-changes-bypass-cliewen.md)'s acceptance (2026-07-20) and outside the later release tier: PR [#42](https://github.com/cliewen/cliewen/pull/42), PR [#66](https://github.com/cliewen/cliewen/pull/66), and PR [#75](https://github.com/cliewen/cliewen/pull/75).
+
+PR [#75](https://github.com/cliewen/cliewen/pull/75), merged 2026-07-27, is the direct successor to this finding's original evidence: a one-line prose change to `guide/design.md`, outside the `/docs` corpus, with no code, configuration, test, decision, plan, or methodology-carrier impact — the same shape PR [#35](https://github.com/cliewen/cliewen/pull/35) had. It carries one commit, no CH identity, and opened and merged inside six minutes. Its hosted CI ran a single `validate` job, not the four separate checks (build, coverage-gated test, guide build, corpus validation) PR [#35](https://github.com/cliewen/cliewen/pull/35) paid: `Classify changed surface` and `Test CI scope classifier` ran in under a second, then `Require a completed acceptance brief`, `Build`, `Test (with coverage)`, `Coverage gate`, and `Validate corpus` all report `skipped`, leaving only `Build public guide` (19s, because the diff touched `guide/`) and `Check diff whitespace` to actually execute. The whole job completed in 27 seconds, start to finish.
+
+**What changed:** the plain route now exists and is observably used — three plain PRs since acceptance, one of them the same shape as this finding's original evidence — and a change-scope classifier in CI skips the corpus validator, the coverage-gated Go test, and the acceptance-brief gate entirely for a guide-only diff, rather than running all of them and reporting only that the untouched corpus stayed valid. **What did not change:** a plain PR still pays for whatever check its actual changed surface triggers (here, the guide build, because the diff touched `guide/`) — the classifier narrows the check set to the changed surface, it does not remove checking; and this finding still makes no numerical token claim, for the same reason the original did not. **What the campaign declined:** re-deriving a churn or duration percentile across the three plain PRs — three is too small a population for a distribution claim, and the single directly comparable pair (PR [#35](https://github.com/cliewen/cliewen/pull/35) and PR [#75](https://github.com/cliewen/cliewen/pull/75)) is reported as a pair, not averaged into one.
