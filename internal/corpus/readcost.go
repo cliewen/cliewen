@@ -92,19 +92,80 @@ func defaultContextSliceSize(owners contextIndex, root *Artifact) int {
 
 // renderedDocumentCount counts H1 headings in an artifact body while skipping
 // fenced examples. A body with no H1 is still one document for the purpose of
-// the convention, but cannot be a multi-document artifact.
+// the convention, but cannot be a multi-document artifact. Both heading forms
+// Markdown renders as an H1 count: an ATX `# ` line and a setext title over a
+// `=` underline.
 func renderedDocumentCount(body string) int {
 	count := 0
-	inFence := false
+	fence := ""
+	prevIsSetextTitle := false
 	for _, line := range strings.Split(body, "\n") {
 		trimmed := strings.TrimLeft(line, " ")
-		if len(line)-len(trimmed) <= 3 && (strings.HasPrefix(trimmed, "```") || strings.HasPrefix(trimmed, "~~~")) {
-			inFence = !inFence
+		indented := len(line)-len(trimmed) > 3
+
+		if marker, closes := fenceMarker(trimmed); marker != "" && !indented {
+			switch {
+			case fence == "":
+				fence = marker
+			case closes && marker[0] == fence[0] && len(marker) >= len(fence):
+				fence = ""
+			}
+			prevIsSetextTitle = false
 			continue
 		}
-		if !inFence && len(line)-len(trimmed) <= 3 && strings.HasPrefix(trimmed, "# ") {
+		if fence != "" || indented {
+			prevIsSetextTitle = false
+			continue
+		}
+
+		switch {
+		case strings.HasPrefix(trimmed, "# "):
 			count++
+			prevIsSetextTitle = false
+		case prevIsSetextTitle && isSetextH1Underline(trimmed):
+			count++
+			prevIsSetextTitle = false
+		default:
+			prevIsSetextTitle = canCarrySetextUnderline(trimmed)
 		}
 	}
 	return count
+}
+
+// fenceMarker returns the leading run of fence characters on a line, and
+// whether the line could close a fence — a closer carries no info string.
+// Tracking the character and the run length keeps a longer outer fence from
+// being closed by the shorter fence it demonstrates, which would invert the
+// in-fence state and hide every heading after it.
+func fenceMarker(trimmed string) (marker string, closes bool) {
+	if !strings.HasPrefix(trimmed, "```") && !strings.HasPrefix(trimmed, "~~~") {
+		return "", false
+	}
+	run := 0
+	for run < len(trimmed) && trimmed[run] == trimmed[0] {
+		run++
+	}
+	return trimmed[:run], strings.TrimSpace(trimmed[run:]) == ""
+}
+
+// isSetextH1Underline reports whether a line is a run of `=`, which underlines
+// the preceding line into a rendered H1. `-` underlines an H2 and is also the
+// frontmatter delimiter, so it is deliberately not recognized here.
+func isSetextH1Underline(trimmed string) bool {
+	trimmed = strings.TrimRight(trimmed, " ")
+	return trimmed != "" && strings.Trim(trimmed, "=") == ""
+}
+
+// canCarrySetextUnderline reports whether a line is ordinary text that a `=`
+// underline would turn into an H1. A blank line, a heading, and the block
+// starters that open their own construct cannot become a setext title.
+func canCarrySetextUnderline(trimmed string) bool {
+	if trimmed == "" {
+		return false
+	}
+	switch trimmed[0] {
+	case '#', '>', '-', '*', '+', '|', '=':
+		return false
+	}
+	return true
 }

@@ -7,6 +7,8 @@ func TestAC135_UnitPositive_ReadCostBacklogsNameMultiDocumentArtifactsAndWideSli
 	artifacts := []*Artifact{
 		root,
 		{ID: "AN-001", Path: "docs/analysis/AN-001.md", Type: "analysis", Status: "active", Body: "# First document\n\n# Second document\n\n```markdown\n# Example only\n```\n"},
+		{ID: "AN-002", Path: "docs/analysis/AN-002.md", Type: "analysis", Status: "active", Body: "First document\n==============\n\n# Second document\n"},
+		{ID: "AN-003", Path: "docs/analysis/AN-003.md", Type: "analysis", Status: "active", Body: "# First document\n\n````markdown\n```sh\n# not a heading\n```\n````\n\n# Second document\n"},
 		{ID: "P-001", Path: "docs/plans/P-001.md", Type: "plan", Status: "completed", Body: "# Frozen first\n\n# Frozen second\n"},
 	}
 	for _, id := range root.Links {
@@ -15,8 +17,13 @@ func TestAC135_UnitPositive_ReadCostBacklogsNameMultiDocumentArtifactsAndWideSli
 	c := &Corpus{Artifacts: artifacts}
 
 	multi := MultiDocumentBacklog(c)
-	if len(multi) != 1 || multi[0].Artifact.ID != "AN-001" || multi[0].Documents != 2 {
-		t.Fatalf("multi-document backlog = %#v, want active AN-001 with two documents", multi)
+	if len(multi) != 3 {
+		t.Fatalf("multi-document backlog = %#v, want the three active artifacts", multi)
+	}
+	for i, want := range []string{"AN-001", "AN-002", "AN-003"} {
+		if multi[i].Artifact.ID != want || multi[i].Documents != 2 {
+			t.Fatalf("multi-document backlog[%d] = %#v, want %s with two documents", i, multi[i], want)
+		}
 	}
 	wide := ContextSliceBudgetBacklog(c)
 	if len(wide) != 1 || wide[0].Identity != "G-001" || wide[0].Artifacts != DefaultContextSliceBudget+1 {
@@ -29,6 +36,7 @@ func TestAC135_UnitNegative_ReadCostBacklogsIgnoreExamplesFrozenPlansAndSlicesAt
 	artifacts := []*Artifact{
 		root,
 		{ID: "AN-001", Path: "docs/analysis/AN-001.md", Type: "analysis", Status: "active", Body: "# One document\n\n```markdown\n# Example only\n```\n"},
+		{ID: "AN-002", Path: "docs/analysis/AN-002.md", Type: "analysis", Status: "active", Body: "# One document\n\nA second section\n----------------\n\n```markdown\nExample title\n=============\n```\n"},
 		{ID: "P-001", Path: "docs/plans/P-001.md", Type: "plan", Status: "completed", Body: "# Frozen first\n\n# Frozen second\n"},
 		{ID: "P-002", Path: "docs/plans/P-002.md", Type: "plan", Status: "completed", Links: []string{"G-001", "G-002", "G-003", "G-004", "G-005", "G-006", "G-007", "G-008", "P-001"}},
 	}
