@@ -55,7 +55,8 @@ func writeContextFile(t *testing.T, root, rel, content string) {
 // silent cap PDR-034 refused.
 func TestAC133_UnitPositive_ContextCommandNamesTheFrontierAndWidens(t *testing.T) {
 	root := t.TempDir()
-	writeContextFile(t, root, "docs/goals/G-101.md", "---\nid: G-101\ntype: goal\nstatus: accepted\nlinks: []\ntitle: Distant goal\n---\n\n# Distant goal body\n")
+	writeContextFile(t, root, "docs/analysis/AN-101.md", "---\nid: AN-101\ntype: analysis\nstatus: active\nlinks: []\ntitle: Furthest\n---\n\n# Furthest body\n")
+	writeContextFile(t, root, "docs/goals/G-101.md", "---\nid: G-101\ntype: goal\nstatus: accepted\nlinks: [AN-101]\ntitle: Distant goal\n---\n\n# Distant goal body\n")
 	writeContextFile(t, root, "docs/plans/P-101.md", "---\nid: P-101\ntype: plan\nstatus: active\nlinks: [G-101]\ntitle: Plan\n---\n\n| M-101 | Do it | todo |\n")
 	writeContextFile(t, root, "docs/capabilities/CAP-101/README.md", "---\nid: CAP-101\ntype: capability\nstatus: active\nlinks: [P-101]\ntitle: Capability\ngoal: G-101\n---\n\n# Capability\n")
 
@@ -70,8 +71,16 @@ func TestAC133_UnitPositive_ContextCommandNamesTheFrontierAndWidens(t *testing.T
 	if !strings.Contains(got, "G-101 | Distant goal") {
 		t.Fatalf("the frontier does not name the artifact the bound held back:\n%s", got)
 	}
-	if !strings.Contains(got, "--depth=all") || !strings.Contains(got, "byte(s) printed") {
+	if !strings.Contains(got, "--depth=all") || !strings.Contains(got, "content byte(s)") {
 		t.Fatalf("the slice does not state how to widen or what it cost:\n%s", got)
+	}
+	// AN-101 sits three hops out: the frontier names the next hop and counts
+	// everything past it, so the report cannot grow with the corpus.
+	if strings.Contains(got, "AN-101 | Furthest") {
+		t.Fatalf("the frontier named an artifact more than one hop past the bound:\n%s", got)
+	}
+	if !strings.Contains(got, "1 further artifact(s) more than 2 hop(s) out") {
+		t.Fatalf("the frontier does not count what it declined to name:\n%s", got)
 	}
 
 	out.Reset()

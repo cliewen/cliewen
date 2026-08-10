@@ -58,4 +58,4 @@ Proposed periodically as a way to keep a bound smart — rank neighbours by how 
 
 ## Carrier
 
-CAP-007's README and design state what a slice contains and where it stops; its criteria state the bound, the widening, and the frontier report. The CLI usage text states the flags. The routing hub and the generated skills state how an agent enters the corpus, which is the instruction this decision changes for every reader who never opens this record.
+CAP-007's README and design state what a slice contains and where it stops; its criteria state the bound, the widening, and the frontier report. The CLI usage text states the flags. The routing hub, and the scaffolded hub an adopter receives, state how an agent enters the corpus — the instruction this decision changes for every reader who never opens this record. The generated skills carry no statement of what a slice contains; they defer corpus entry to the hub, which is why the hub is the carrier that moves.

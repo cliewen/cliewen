@@ -83,7 +83,9 @@ func runContext(args []string, out, errOut io.Writer) int {
 
 	printFrontier(out, frontier, opts.Depth)
 	if *stats {
-		fmt.Fprintf(out, "\n----- %d artifact(s), %d byte(s) printed; %d beyond the slice -----\n", len(artifacts), bytes, len(frontier))
+		// The figure is artifact content, which is what a slice costs a reader
+		// to load; the boundary lines and this report are not counted.
+		fmt.Fprintf(out, "\n----- %d artifact(s), %d content byte(s); %d beyond the slice -----\n", len(artifacts), bytes, len(frontier))
 	}
 	return 0
 }
