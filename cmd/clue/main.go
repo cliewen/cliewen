@@ -67,7 +67,7 @@ const usage = `clue — a verifiable thread from goal to acceptance evidence
 Usage:
   clue init [path]
   clue scaffold [path]
-  clue context <id> [path]
+  clue context [--depth=<n>|all] [--stats] <id> [path]
   clue id next <prefix> [path]
   clue id live <id> [path]
   clue refs [--apply] [--timeout=<duration>] [path]
@@ -94,10 +94,15 @@ Commands:
              touched. Materializes nothing — missing folder READMEs are
              reported, and a path without a docs/ tree is an error.
 
-  context    Print one artifact and the transitive closure of its outgoing
-             links, with complete markdown content in deterministic order.
-             Acceptance-criterion and milestone IDs resolve to the artifact
-             that declares them. Path defaults to ".".
+  context    Print one artifact and its outgoing links, with complete markdown
+             content in deterministic order. Acceptance-criterion and milestone
+             IDs resolve to the artifact that declares them. Path defaults
+             to ".". The slice is bounded so that a corpus which has grown
+             dense still answers with a slice rather than with itself; what
+             the bound held back is named, never silently dropped.
+             --depth=<n>       follow n link hops beyond the root (default 1);
+                               --depth=all follows every edge to exhaustion.
+             --stats           print the slice's artifact and byte counts.
 
   migrate    Preview a versioned corpus and managed-carrier migration; use
              --apply to write the complete safe plan and

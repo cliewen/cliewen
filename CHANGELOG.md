@@ -6,6 +6,8 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 
 ### Changed
 
+- **`clue context` now prints a bounded slice instead of everything an identity can reach.** It emits the artifact and what it links to directly, then names the artifacts one hop further out and counts the rest, so you can see what was held back and ask for it. A corpus densifies as campaigns close — a goal, a plan, or a core constraint ends up on most paths — and the old unbounded slice then returned most of the repository from an ordinary starting point, which is exactly the full-corpus read the command exists to avoid. Use `--depth=<n>` to widen, `--depth=all` for the previous behaviour, and `--stats` to see what a slice cost. An artifact inside the slice is still printed whole; the bound governs how many artifacts are read, never how much of one. If you script against this command, add `--depth=all` to keep today's output.
+
 - **Release cuts are now short and recoverable.** A release uses a small human-merged PR without a Cliewen workspace or acceptance brief. If its build fails before GitHub creates a release, the repaired main commit automatically retries the same version; once GitHub has a release object, that version remains immutable.
 
 - **A constraint's `source:` field is now checked, not just required to be non-empty.** `clue validate` resolves any corpus ID, file path, shared skill fragment, or managed skill named in a constraint's `source:` and reports one that resolves to nothing. If your own constraints register names something that has since moved or been renamed, point it at the current carrier.

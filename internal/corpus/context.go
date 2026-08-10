@@ -12,33 +12,68 @@ import (
 // a declaration, so it must not make the ID look ambiguous.
 var milestoneRowRe = regexp.MustCompile(`(?m)^\s*\|\s*(M-\d+)\s*\|`)
 
-// Context returns the deterministic outgoing-link closure rooted at id.
+// DepthAll follows every outgoing edge to exhaustion: the whole reachable
+// closure, which is what a slice meant before it carried a bound.
+const DepthAll = -1
+
+// ContextOptions bounds a slice.
+type ContextOptions struct {
+	// Depth is how many link hops beyond the root to include: 0 is the root
+	// alone, 1 adds what it links to directly, DepthAll follows every edge to
+	// exhaustion.
+	//
+	// Unlike this package's other options, the zero value is not "use the
+	// default". A depth has a natural zero, and root-only is the safest thing
+	// an unset bound can mean; the command supplies the default a human gets.
+	Depth int
+}
+
+// Frontier is one artifact a slice reached but did not include, with the hop
+// count at which it was reached. Reporting it is what keeps a bounded slice
+// from being a silent omission: a reader sees the edge exists and can widen to
+// it by name. PDR-034 bounds where reading starts, never what it may reach.
+type Frontier struct {
+	Artifact *Artifact
+	Hops     int
+}
+
+// Context returns the deterministic outgoing-link slice rooted at id, bounded
+// by opts.Depth, together with the artifacts beyond that bound.
 // Artifact IDs resolve directly; milestone and acceptance-criterion IDs resolve
 // to the plan or criteria artifact that declares them. The root is first and
-// each breadth-first layer is ordered by repository-relative path.
+// each breadth-first layer is ordered by repository-relative path; the frontier
+// is ordered the same way, by hop count and then path.
 //
 // A link that resolves to no artifact, or to more than one, is reported as an
 // unfollowed-edge issue instead of ending the slice: focused reading stays
 // available while `clue validate` remains the judge of graph health. Only an
-// unresolvable requested id is an error.
-func Context(c *Corpus, id string) ([]*Artifact, []Issue, error) {
+// unresolvable requested id is an error. An edge leaving an artifact the slice
+// did not include is not reported — it describes a part of the graph the reader
+// never sees, and naming it turns a bounded read into someone else's backlog.
+func Context(c *Corpus, id string, opts ContextOptions) ([]*Artifact, []Frontier, []Issue, error) {
 	owners := contextOwners(c)
 	root, err := owners.resolve(id)
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, nil, err
 	}
+	included := func(hops int) bool { return opts.Depth == DepthAll || hops <= opts.Depth }
 
 	var unfollowed []Issue
+	var frontier []Frontier
 	result := []*Artifact{root}
 	seen := map[string]bool{root.Path: true}
 	layer := []*Artifact{root}
-	for len(layer) > 0 {
+	for hops := 1; len(layer) > 0; hops++ {
+		// layer holds the artifacts at hops-1, so their edges reach hops.
+		reportEdges := included(hops - 1)
 		nextByPath := map[string]*Artifact{}
 		for _, artifact := range layer {
 			for _, link := range artifact.Links {
 				target, err := owners.resolve(link)
 				if err != nil {
-					unfollowed = append(unfollowed, Issue{artifact.Path, "link " + link + " not followed: " + err.Error()})
+					if reportEdges {
+						unfollowed = append(unfollowed, Issue{artifact.Path, "link " + link + " not followed: " + err.Error()})
+					}
 					continue
 				}
 				if !seen[target.Path] {
@@ -56,11 +91,15 @@ func Context(c *Corpus, id string) ([]*Artifact, []Issue, error) {
 		for _, path := range paths {
 			artifact := nextByPath[path]
 			seen[path] = true
-			result = append(result, artifact)
+			if included(hops) {
+				result = append(result, artifact)
+			} else {
+				frontier = append(frontier, Frontier{artifact, hops})
+			}
 			layer = append(layer, artifact)
 		}
 	}
-	return result, unfollowed, nil
+	return result, frontier, unfollowed, nil
 }
 
 // contextIndex maps every resolvable identity — artifact IDs plus the

@@ -1,0 +1,33 @@
+---
+id: P-015
+type: plan
+status: active
+links: [CAP-007, PDR-034, PDR-029]
+title: Cliewen's read cost stays flat as a corpus grows
+---
+
+# P-015 — Cliewen's read cost stays flat as a corpus grows
+
+A Cliewen corpus only grows, and [PDR-034](../decisions/PDR-034-the-corpus-is-read-narrowly-by-default.md) already obliges an agent to read it narrowly, naming `clue context` as the mechanism that makes narrow reading possible. That decision describes the command as emitting "one artifact and its transitive link slice". The premise no longer holds: `clue context` followed every outgoing edge to exhaustion, and in a corpus dense enough that a goal, a plan, or a core constraint sits on most paths, the closure from an ordinary artifact is most of the repository. The obligation was written down and the tool could not honour it.
+
+This is a cost adopters pay later and harder than this repository does. A young corpus is a shallow tree and the unbounded slice behaves as designed; the flooding begins when campaigns close and hub artifacts accumulate edges in both directions. Nothing warned anyone, because nothing measured it.
+
+The campaign has three parts, in dependency order. First, bound what the slice prints, and name what the bound holds back so a narrow read is never a silent one. Second, make read cost measurable — both the slice an identity produces and the artifacts that are more than one document — so the repair can be verified and the regression cannot return unseen. Third, repair what the measurements find, and only what they find.
+
+Milestone numbering continues corpus-global numbering from [P-014](P-014-supersession-edge.md)'s M-069.
+
+This plan's `links` list is deliberately short: it names the capability it changes and the two decisions it must argue with. A plan that lists every artifact its campaign touches becomes the hub that floods every slice reaching it, which is the defect this campaign exists to remove.
+
+## Milestones
+
+| ID | Milestone (exit criterion) | Status | Evidence |
+|---|---|---|---|
+| M-070 | **A slice is bounded, and the bound is never silent.** `clue context` follows a stated number of link hops rather than the whole reachable closure, widening is available in the same command, and every artifact the bound held back is named or counted in the output — a slice that silently omits neighbours is the cap PDR-034 refused, while one that states where it stopped is not. A decision record engages that rejection in its own terms and makes the frontier report a condition of the bound rather than a feature of it. The criterion whose meaning the bound contradicts is retired with a tombstone and a new criterion minted, per ADR-007. Every live carrier that describes what `clue context` emits states the same contract. | `done` | CH-144: [ADR-056](../decisions/ADR-056-bounded-context-slice.md) bounds the slice, makes the frontier report a condition of the bound rather than a feature of it, and records the rejected alternatives — an unbounded slice relying on the obligation, a silent bound, naming the whole remainder, and ranking neighbours by centrality. `corpus.Context` takes a depth option and returns the artifacts beyond it; `clue context` gains `--depth` (defaulting to one hop, `all` restoring the previous behaviour) and `--stats`, prints the artifacts one hop past the bound with a count of those further out, and reports an unfollowed edge only when it leaves an included artifact. AC-053 is retired with its tombstone and AC-133 minted, carrying focused positive and negative Unit evidence at both library and command level. CAP-007's README, criteria, and design, the CLI usage text, the routing hub and its scaffolded copy, the guide's change-loop, corpus, methodology, and operations pages, and `[Unreleased]` state the same contract. Measured with `clue context --stats` at this change's head, the slice an ordinary artifact produces falls by more than an order of magnitude against `--depth=all`. |
+| M-071 | **Read cost is measured, not asserted.** `clue validate` reports two derived populations it does not fail on: artifacts carrying more than one document, and identities whose bounded slice exceeds a stated budget. Both are counted on the OK line every run and named behind a flag, following the index-row backlog's precedent. A decision record promotes "one primary consumer per file" from capability-folder convention to corpus-wide principle, states why a structural count is not the size score PDR-029 refused, and carries its rejected alternatives — per-type byte budgets, a failing check, token estimates, and treating new artifacts differently. A constraint declares the rule with its enforcement class and residual. | `todo` | |
+| M-072 | **What the measurements find is repaired, and only that.** Every live artifact the multi-document count reports is either split by consumer — parts joined to the parent by links, as the capability folder already joins its three files — or its count is accepted with a stated reason. Completed plans are outside the population by state, because [C-008](../constraints/C-008-completed-plans-immutable.md)'s guard makes the repair impossible rather than merely unwelcome. Splitting a historical analysis moves sections verbatim and rewrites no finding. The slice budget the corpus reports reaches the number M-071 states. | `todo` | |
+| M-073 | **The methodology carriers an agent loads cost less to load.** The generated skills apply progressive disclosure — a short body that points at reference material read only when a branch is taken — without dropping a rule any carrier states. Regeneration from `internal/skills/source/` produces no drift. | `todo` | |
+| M-074 | **The index answers what an artifact is about.** The index-row backlog `clue validate` reports for undescribed rows reaches zero, so an agent choosing an entry point from an index does not have to open files to find out what they hold. | `todo` | |
+
+## Mutation rules
+
+Status and evidence fields in the milestone table may mutate in an implementing change's merge digest. Everything else changes only through a declared plan revision backed by a decision record routed by reversal cost. Plan adjustments are decisions.

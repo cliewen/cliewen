@@ -21,7 +21,7 @@ func TestAC059_UnitPositive_ExtendedIDsPassAndCoverage(t *testing.T) {
 	if len(issues) != 0 {
 		t.Fatalf("extended corpus scan failed, got %v", issues)
 	}
-	if artifacts, unfollowed, err := Context(c, "SNAP-SQS-002b"); err != nil || len(unfollowed) != 0 || len(artifacts) != 2 || artifacts[0].ID != "CAP-101-criteria" || artifacts[1].ID != "CAP-101" {
+	if artifacts, _, unfollowed, err := Context(c, "SNAP-SQS-002b", ContextOptions{Depth: DepthAll}); err != nil || len(unfollowed) != 0 || len(artifacts) != 2 || artifacts[0].ID != "CAP-101-criteria" || artifacts[1].ID != "CAP-101" {
 		t.Fatalf("extended criterion context = artifacts %v, unfollowed %v, err %v", artifacts, unfollowed, err)
 	}
 }
