@@ -9,7 +9,7 @@ counters:
     G: "5"
     IC: "2"
     LOG: "1"
-    P: "13"
+    P: "14"
     PDR: "40"
 entries:
     - id: AC-001
@@ -1522,6 +1522,11 @@ entries:
       state: live
       prefix: P
       component: "13"
+    - id: P-014
+      kind: numeric
+      state: live
+      prefix: P
+      component: "14"
     - id: PDR-001
       kind: numeric
       state: live
