@@ -1,3 +1,11 @@
+---
+id: CH-145-tasks
+type: tasks
+status: open
+links: [CH-145]
+title: Tasks
+---
+
 # Tasks — CH-145
 
 - [ ] Define the corpus-wide one-primary-consumer-per-file principle, read-cost measurement boundaries, budget, enforcement class, and rejected alternatives in ADR-057 and C-022.
