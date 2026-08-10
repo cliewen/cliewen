@@ -72,7 +72,7 @@ Usage:
   clue id live <id> [path]
   clue refs [--apply] [--timeout=<duration>] [path]
   clue carriers <inventory> [path]
-  clue validate [--forbid-changes] [--coverage] [--reality-gaps] [--index-rows] [path]
+  clue validate [--forbid-changes] [--coverage] [--reality-gaps] [--index-rows] [--read-cost] [path]
   clue latest [--quiet] [--timeout=<duration>]
   clue version
 
@@ -178,6 +178,8 @@ Commands:
                                analyses after their corpus was green.
              --index-rows      print index rows that only restate their own
                                link or say nothing about the artifact.
+             --read-cost       print multi-document artifacts and identities
+                               whose default context slice exceeds the budget.
 
   latest     Report whether a newer clue release exists, and how to install
              it on the machine this is running on — the PowerShell script on
@@ -503,6 +505,7 @@ func runValidate(args []string, out io.Writer) int {
 	coverage := fs.Bool("coverage", false, "print derived per-capability proof coverage; never a committed registry")
 	realityGaps := fs.Bool("reality-gaps", false, "print capabilities contradicted by incident analyses; never a committed registry")
 	indexRows := fs.Bool("index-rows", false, "print index rows that only restate their own link or say nothing about the artifact; never a committed registry")
+	readCost := fs.Bool("read-cost", false, "print multi-document artifacts and bounded context slices over the read-cost budget; never a committed registry")
 	_ = fs.Parse(args)
 	root := "."
 	if fs.NArg() > 0 {
@@ -551,12 +554,22 @@ func runValidate(args []string, out io.Writer) int {
 	// is what makes the number actionable (ADR-041).
 	fillerRows := corpus.IndexRowBacklog(c)
 	undescribed := corpus.IndexDescriptionBacklog(c)
+	multiDocument := corpus.MultiDocumentBacklog(c)
+	overBudget := corpus.ContextSliceBudgetBacklog(c)
 	if *indexRows {
 		for _, row := range fillerRows {
 			fmt.Fprintf(out, "%s: %s states only its own link\n", row.Readme, row.Target)
 		}
 		for _, row := range undescribed {
 			fmt.Fprintf(out, "%s: %s states its record but not what it is about\n", row.Readme, row.Target)
+		}
+	}
+	if *readCost {
+		for _, item := range multiDocument {
+			fmt.Fprintf(out, "%s: %d rendered document(s)\n", item.Artifact.Path, item.Documents)
+		}
+		for _, item := range overBudget {
+			fmt.Fprintf(out, "%s: default context slice prints %d artifact(s) (budget %d)\n", item.Identity, item.Artifacts, corpus.DefaultContextSliceBudget)
 		}
 	}
 	notes := ""
@@ -574,6 +587,12 @@ func runValidate(args []string, out io.Writer) int {
 	}
 	if n := len(undescribed); n > 0 {
 		notes += fmt.Sprintf(", %d index row(s) not saying what the artifact is about", n)
+	}
+	if n := len(multiDocument); n > 0 {
+		notes += fmt.Sprintf(", %d multi-document artifact(s)", n)
+	}
+	if n := len(overBudget); n > 0 {
+		notes += fmt.Sprintf(", %d identity slice(s) over the %d-artifact budget", n, corpus.DefaultContextSliceBudget)
 	}
 	fmt.Fprintf(out, "clue validate: OK (%d artifacts%s)\n", len(c.Artifacts), notes)
 	return 0
