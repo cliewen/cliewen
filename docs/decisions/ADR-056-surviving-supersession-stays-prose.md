@@ -1,5 +1,5 @@
 ---
-id: ADR-055
+id: ADR-056
 type: decision
 status: inferred
 links: [P-014, PDR-038, ADR-034, AN-022, PDR-034, PDR-029, PDR-026, ADR-019]
@@ -8,7 +8,7 @@ author: agent
 accepted-by: []
 ---
 
-# ADR-055 — A live superseded decision stays prose a second time
+# ADR-056 — A live superseded decision stays prose a second time
 
 ## Context and problem statement
 
