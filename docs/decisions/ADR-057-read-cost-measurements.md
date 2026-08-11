@@ -2,7 +2,7 @@
 id: ADR-057
 type: decision
 status: inferred
-links: [P-015, CAP-002, CAP-007, PDR-029, ADR-056, C-022]
+links: [P-015, CAP-002, CAP-007, PDR-029, ADR-056, C-022, ADR-058]
 title: Read cost is reported as a structural backlog, never scored by size
 author: agent
 accepted-by: []
