@@ -2,13 +2,15 @@
 id: ADR-057
 type: decision
 status: inferred
-links: [P-015, CAP-002, CAP-007, PDR-029, ADR-056, C-022]
+links: [P-015, CAP-002, CAP-007, PDR-029, ADR-056, C-022, ADR-058]
 title: Read cost is reported as a structural backlog, never scored by size
 author: agent
 accepted-by: []
 ---
 
 # ADR-057 — Read cost is reported as a structural backlog, never scored by size
+
+> **How the report is worked is stated by [ADR-058](ADR-058-read-cost-is-a-backlog-not-a-target.md):** the over-budget population is a backlog judged artifact by artifact, a `links` entry is never deleted to move the reported count, and an accepted identity keeps its row, so the count is not expected to reach zero. Everything this record decides is unchanged, including both populations, the eight-artifact budget, the exclusion of completed plans, and the refusal of a size score, a failing check, and token estimates.
 
 ## Context and problem statement
 
