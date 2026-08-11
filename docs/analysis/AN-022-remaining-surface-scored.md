@@ -2,7 +2,7 @@
 id: AN-022
 type: analysis
 status: active
-links: [P-013, M-064, PDR-013, PDR-029, PDR-026, ADR-034, ADR-035]
+links: [P-013, M-064, PDR-013, PDR-029, PDR-026, ADR-034, ADR-035, ADR-045, ADR-048, AN-008, AN-021, C-013]
 title: The rules, types, fields, commands, and checks scored against does the core need it, and pattern C determined
 ---
 
@@ -181,8 +181,6 @@ Twenty-two check functions plus the `--forbid-changes` gate.
 ---
 
 # Pattern C — determined
-
-**Primary-consumer exception:** this determination stays in the same analysis as the non-prose scoring above it, because M-064's reader needs that scoring to interpret what follows.
 
 [AN-008](AN-008-methodology-critiques.md)'s pattern C is one paragraph making five claims. Re-derived at head, they do not have one status. Three are answered, one is false as stated, and one is open — and the open one is narrower and sharper than the paragraph suggests.
 

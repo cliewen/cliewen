@@ -1,11 +1,11 @@
 ---
 id: ADR-058
 type: decision
-status: inferred
+status: verified
 links: [P-015, ADR-057, ADR-056, CAP-007, C-022, C-004]
 title: A read-cost report is a backlog judged artifact by artifact, and a link is never deleted to move its count
 author: agent
-accepted-by: []
+accepted-by: Flemming N. Larsen (2026-08-11, conversation)
 ---
 
 # ADR-058 — A read-cost report is a backlog, not a target

@@ -4,7 +4,7 @@ type: analysis
 status: active
 provenance: verified
 reversal-cost: low
-links: [G-001, P-008, AC-036, CAP-002, CAP-003, ARCH-003, C-006]
+links: [G-001, P-008, AC-036, CAP-002, CAP-003, ARCH-003, PDR-013, ADR-032, ADR-033, C-006, P-007]
 title: A green corpus can carry contradictory methodology claims
 ---
 

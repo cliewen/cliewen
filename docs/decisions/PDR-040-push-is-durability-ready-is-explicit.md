@@ -2,7 +2,7 @@
 id: PDR-040
 type: decision
 status: inferred
-links: [G-001, PDR-007, PDR-012, PDR-016, PDR-033, C-004, C-012]
+links: [G-001, PDR-007, PDR-012, PDR-016, PDR-033, C-004, C-012, CAP-006]
 title: Push is durability and the ready mark is the only readiness claim
 author: agent
 accepted-by: []

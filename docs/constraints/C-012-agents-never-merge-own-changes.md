@@ -2,7 +2,7 @@
 id: C-012
 type: constraint
 status: active
-links: [PDR-007, PDR-011, PDR-012, PDR-016, PDR-039, PDR-040, LOG-001]
+links: [PDR-007, PDR-011, PDR-012, PDR-016, PDR-021, PDR-027, PDR-039, PDR-040, LOG-001]
 title: Changes are reviewed locally, root at main, and remain human-merged with preserved history
 source: PDR-007, PDR-011, PDR-012, PDR-016, PDR-040, LOG-001, clue-delta steps 1 and 5
 enforcement: partial

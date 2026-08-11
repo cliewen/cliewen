@@ -2,7 +2,7 @@
 id: AN-008
 type: analysis
 status: active
-links: [P-007, ARCH-003, G-001, C-012, ADR-005, ADR-006, ADR-008]
+links: [P-007, ARCH-003, G-001, C-012, ADR-005, ADR-006, ADR-008, C-006]
 title: Two independent critiques land on the same four half-built patterns
 ---
 

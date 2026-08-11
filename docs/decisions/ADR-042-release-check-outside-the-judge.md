@@ -2,7 +2,7 @@
 id: ADR-042
 type: decision
 status: verified
-links: [P-010, CAP-002, CAP-004, ADR-011, ADR-030, C-004, C-013]
+links: [P-010, CAP-002, CAP-004, ADR-011, ADR-030, ADR-039, ADR-040, C-004, C-013]
 title: A release check reaches the network, reports, and writes nothing
 author: agent
 accepted-by: Flemming N. Larsen (2026-08-03, conversation)

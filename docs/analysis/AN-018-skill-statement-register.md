@@ -2,7 +2,7 @@
 id: AN-018
 type: analysis
 status: active
-links: [P-013, PDR-029, PDR-013, PDR-028, PDR-023, ADR-021]
+links: [P-013, PDR-029, PDR-013, PDR-028, PDR-023, ADR-021, ADR-048, C-011, C-013, G-001]
 title: Statement register for the six shipped skills and the routing hub
 ---
 

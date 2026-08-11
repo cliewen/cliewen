@@ -2,7 +2,7 @@
 id: ADR-049
 type: decision
 status: verified
-links: [ADR-008, ADR-032, ADR-033, ADR-048, PDR-020, PDR-024, C-013]
+links: [ADR-008, ADR-032, ADR-033, ADR-048, PDR-020, PDR-024, P-011, C-013]
 title: A pinned source manifest and a derived target manifest give migration parity one comparable shape
 author: agent
 accepted-by: Flemming N. Larsen (2026-08-08, conversation)

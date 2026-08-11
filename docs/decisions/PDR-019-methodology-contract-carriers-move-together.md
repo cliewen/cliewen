@@ -2,7 +2,7 @@
 id: PDR-019
 type: decision
 status: verified
-links: [G-001, P-008, AN-011, PDR-013, ADR-032, C-006, C-013]
+links: [G-001, P-008, AN-011, PDR-013, ADR-032, ADR-033, C-006, C-013]
 title: Methodology contract changes update every live carrier in the same change
 author: agent
 accepted-by: Flemming N. Larsen (2026-08-02, conversation)
