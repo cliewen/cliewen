@@ -74,16 +74,56 @@ func readContributing(t *testing.T) string {
 	return string(data)
 }
 
+// coverageFixtureModule writes a self-contained module and a profile over it,
+// returning the module directory. The report is run against this instead of
+// against a profile naming this repository's own source: a fixture that cites
+// real line numbers stops proving anything the moment those lines move, and
+// nothing about the documented command has changed when that happens.
+func coverageFixtureModule(t *testing.T) string {
+	t.Helper()
+	dir := t.TempDir()
+	files := map[string]string{
+		"go.mod":     "module example.com/covfixture\n\ngo 1.21\n",
+		"fixture.go": "package covfixture\n\nfunc Covered() int {\n\treturn 1\n}\n\nfunc Uncovered() int {\n\treturn 2\n}\n",
+		// One covered and one uncovered function, so the report has to
+		// attribute statements to reach the total rather than print a header.
+		"coverage.out": "mode: set\nexample.com/covfixture/fixture.go:3.20,5.2 1 1\nexample.com/covfixture/fixture.go:7.22,9.2 1 0\n",
+	}
+	for name, body := range files {
+		if err := os.WriteFile(filepath.Join(dir, name), []byte(body), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+	return dir
+}
+
 func TestAC136_UnitPositive_ContributingDocumentsPortableCoverageCommands(t *testing.T) {
 	if !localVerificationBlockIsShellPortable(readContributing(t)) {
 		t.Fatalf("CONTRIBUTING.md must document %q and %q, and pass no -flag=value with a dot in the value", portableCoverageProfileCommand, portableCoverageReportCommand)
 	}
-	profile := filepath.Join(t.TempDir(), "coverage.out")
-	if err := os.WriteFile(profile, []byte("mode: set\ngithub.com/cliewen/cliewen/cmd/clue/main.go:42.48,43.31 1 1\n"), 0o644); err != nil {
-		t.Fatal(err)
-	}
-	if output, err := exec.Command("go", "tool", "cover", "-func", profile).CombinedOutput(); err != nil {
+	cmd := exec.Command("go", "tool", "cover", "-func", "coverage.out")
+	cmd.Dir = coverageFixtureModule(t)
+	output, err := cmd.CombinedOutput()
+	if err != nil {
 		t.Fatalf("%q did not render a coverage profile: %v\n%s", portableCoverageReportCommand, err, output)
+	}
+	// Read the total by line and by field rather than by exact spacing: the
+	// report pads its columns to the widest function name, so asserting on
+	// runs of whitespace would couple this to the fixture's identifiers.
+	report := string(output)
+	var total string
+	for _, line := range strings.Split(report, "\n") {
+		if fields := strings.Fields(line); len(fields) > 0 && fields[0] == "total:" {
+			total = fields[len(fields)-1]
+		}
+	}
+	if total != "50.0%" {
+		t.Errorf("%q reported total %q, want 50.0%% over one covered and one uncovered function:\n%s", portableCoverageReportCommand, total, report)
+	}
+	for _, fn := range []string{"Covered", "Uncovered"} {
+		if !strings.Contains(report, fn) {
+			t.Errorf("%q attributed no coverage to %s:\n%s", portableCoverageReportCommand, fn, report)
+		}
 	}
 }
 
