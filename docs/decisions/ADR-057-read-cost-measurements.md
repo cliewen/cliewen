@@ -10,6 +10,8 @@ accepted-by: []
 
 # ADR-057 — Read cost is reported as a structural backlog, never scored by size
 
+> **How the report is worked is stated by [ADR-058](ADR-058-read-cost-is-a-backlog-not-a-target.md):** the over-budget population is a backlog judged artifact by artifact, a `links` entry is never deleted to move the reported count, and an accepted identity keeps its row, so the count is not expected to reach zero. Everything this record decides is unchanged, including both populations, the eight-artifact budget, the exclusion of completed plans, and the refusal of a size score, a failing check, and token estimates.
+
 ## Context and problem statement
 
 P-015 has bounded what `clue context` prints, but a corpus can still become costly to read in two ways the bounded command alone does not reveal: one artifact can become several rendered documents with different primary readers, and an identity can directly name enough artifacts that its ordinary one-hop slice is no longer focused. Both shapes become harder to repair after another campaign adds dependent meaning, so they need to be visible before they become a rule-breaking check.
