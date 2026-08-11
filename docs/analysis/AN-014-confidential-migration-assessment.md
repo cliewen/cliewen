@@ -4,7 +4,7 @@ type: analysis
 status: active
 provenance: verified
 reversal-cost: low
-links: [P-009, AN-012, AN-013, ADR-005, ADR-009, PDR-020]
+links: [P-009, CAP-003, AN-012, AN-013, ADR-005, ADR-009, PDR-020]
 title: A confidential migration assessment exposes evidence, identity, and enterprise-operation gaps
 ---
 

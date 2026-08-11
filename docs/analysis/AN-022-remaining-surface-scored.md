@@ -184,6 +184,8 @@ Twenty-two check functions plus the `--forbid-changes` gate.
 
 # Pattern C — determined
 
+**Primary-consumer exception:** this determination stays in the same analysis as the non-prose scoring above it, because M-064's reader needs that scoring to interpret what follows.
+
 [AN-008](AN-008-methodology-critiques.md)'s pattern C is one paragraph making five claims. Re-derived at head, they do not have one status. Three are answered, one is false as stated, and one is open — and the open one is narrower and sharper than the paragraph suggests.
 
 **Claim 1 — "Nothing in the corpus bounds, reverses, or consumes state."** Superseded by claims 2–5, which are its instances. Not scored separately.

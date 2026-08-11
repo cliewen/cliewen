@@ -1493,9 +1493,6 @@ entries:
       state: retired
       prefix: CH
       component: "146"
-    - id: CH-146-open-questions
-      kind: opaque
-      state: retired
     - id: CH-146-proposal
       kind: opaque
       state: retired
