@@ -4,10 +4,6 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 
 ## [Unreleased]
 
-### Fixed
-
-- **The documented local coverage commands no longer depend on how your shell splits arguments.** The repository-local verification block now passes each flag and its value separately — `go test ./... -coverprofile coverage.out` and `go tool cover -func coverage.out` — so the block runs verbatim under PowerShell as well as Bash and `cmd.exe`. PowerShell 7's default `Windows` native-argument mode splits a single-dash `-flag=value.ext` token at the first dot, which quietly wrote the profile to a file named `coverage` and then failed the report against the name it never created. The equals form is valid Go flag syntax on every platform and is unchanged in CI.
-
 ### Changed
 
 - **The read-cost report is a backlog you judge, not a number to drive to zero.** If `clue validate --read-cost` names an identity whose default slice is over budget, the repair is to inspect that artifact and either drop `links` entries a reader of it genuinely does not need or accept the entry path with a stated reason — an accepted identity keeps its row, so the count is not expected to reach zero. Never delete a link to move the count: `clue context` follows links outward only, so a removed entry is not reachable by widening with `--depth` the way an artifact beyond the bound is, and the citation leaves the corpus altogether.
