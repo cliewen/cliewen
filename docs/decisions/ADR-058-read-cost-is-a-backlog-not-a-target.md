@@ -28,7 +28,7 @@ The corpus already holds the general form of this rule for machine checks. [C-00
 - An accepted exception keeps its row in the report. The count is therefore not expected to reach zero, and a plan may not state reaching zero as an exit criterion. What a plan may require is that every reported identity has been inspected and its outcome recorded.
 - A `links` entry records a relationship that holds. Whether it stays is a question about that relationship, never about the population's size.
 - No mechanical rule selects which entries survive. Position in the list, presence of the target's ID in prose, and the existence of a reverse edge are all proxies for relevance, and a proxy applied across a population produces exactly the deletions this record refuses.
-- Where the cost of an entry path is genuinely too high after inspection, the repair belongs to what the reader loads rather than to what the corpus records: [CAP-007](../capabilities/CAP-007-context/README.md) owns how much of a slice prints and how the remainder is named, and bounding it further is a change to that capability.
+- Where the cost of an entry path is genuinely too high after inspection, the repair belongs to what the reader loads rather than to what the corpus records: [CAP-007](../capabilities/CAP-007-focused-context/README.md) owns how much of a slice prints and how the remainder is named, and bounding it further is a change to that capability.
 
 **Carrier:** P-015's M-072, which states the exit criterion this record governs; ADR-057, which gains a note that its report is worked as a backlog; and C-022, whose residual already holds the judgment half of the same measure.
 

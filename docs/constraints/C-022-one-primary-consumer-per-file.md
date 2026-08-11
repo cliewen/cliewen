@@ -12,6 +12,8 @@ enforcement: partial
 
 Each durable artifact serves one primary consumer. A file that contains several rendered documents is split by consumer and connected to its parent by durable links when that is the truthful structure; a file one reader must consume as a whole remains together with a stated reason.
 
+Both reported populations are backlogs worked entry by entry, never counts to be driven down. A reported identity is repaired by inspecting it and recording the outcome: entries removed from `links` where a reader of that artifact genuinely does not need them, or the entry path accepted with its reason. A `links` entry is never removed to reduce the reported count, and an accepted identity keeps its row, so neither count is expected to reach zero ([ADR-058](../decisions/ADR-058-read-cost-is-a-backlog-not-a-target.md)).
+
 **Checked by:** `clue validate` reports, without failing, every non-completed artifact under `docs/` whose body carries more than one rendered H1 outside fenced examples, and every durable identity not owned by a completed plan whose default one-hop context slice prints more than the budget [ADR-057](../decisions/ADR-057-read-cost-measurements.md) states. `clue validate --read-cost` names both populations.
 
 **Residual:** only a reader can decide whether two rendered documents truly have different primary consumers, whether splitting preserves a historical finding verbatim, or whether an exception is coherent. The cost of that judgment is a corpus whose reported backlog must be reviewed rather than silently treated as green.
