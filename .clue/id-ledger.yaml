@@ -1514,18 +1514,18 @@ entries:
       state: retired
     - id: CH-147
       kind: numeric
-      state: live
+      state: retired
       prefix: CH
       component: "147"
     - id: CH-147-open-questions
       kind: opaque
-      state: live
+      state: retired
     - id: CH-147-proposal
       kind: opaque
-      state: live
+      state: retired
     - id: CH-147-tasks
       kind: opaque
-      state: live
+      state: retired
     - id: G-001
       kind: numeric
       state: live
