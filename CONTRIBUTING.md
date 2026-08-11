@@ -52,8 +52,8 @@ For a Cliewen change, commit the complete candidate, then run the repository's f
 
 ```text
 go build ./...
-go test ./... -coverprofile=coverage.out
-go tool cover -func=coverage.out
+go test ./... -coverprofile coverage.out
+go tool cover -func coverage.out
 go run ./cmd/clue validate --forbid-changes
 git diff --check $(git merge-base HEAD origin/main) HEAD
 ```
