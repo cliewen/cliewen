@@ -39,7 +39,7 @@ func readContributing(t *testing.T) string {
 
 func TestAC136_UnitPositive_ContributingDocumentsPortableCoverageCommand(t *testing.T) {
 	if !localVerificationBlockUsesPortableCoverageCommand(readContributing(t)) {
-		t.Fatalf("CONTRIBUTING.md must document %q without the deprecated equals form", portableCoverageReportCommand)
+		t.Fatalf("CONTRIBUTING.md must document %q without the equals form", portableCoverageReportCommand)
 	}
 	profile := filepath.Join(t.TempDir(), "coverage.out")
 	if err := os.WriteFile(profile, []byte("mode: set\ngithub.com/cliewen/cliewen/cmd/clue/main.go:42.48,43.31 1 1\n"), 0o644); err != nil {
@@ -53,6 +53,6 @@ func TestAC136_UnitPositive_ContributingDocumentsPortableCoverageCommand(t *test
 func TestAC136_UnitNegative_EqualsFormIsNotAPortableCoverageCommand(t *testing.T) {
 	const unsupported = "## Verify Locally\n\n```text\ngo tool cover -func=coverage.out\n```\n\nUse go tool cover -func coverage.out outside the verification block.\n"
 	if localVerificationBlockUsesPortableCoverageCommand(unsupported) {
-		t.Fatal("the deprecated equals form was accepted because the portable command appeared outside the verification block")
+		t.Fatal("the equals form was accepted because the portable command appeared outside the verification block")
 	}
 }

@@ -18,5 +18,5 @@ Feature: Local verification commands
     When they inspect and run its coverage-report command on a supported contributor environment
     Then the command is "go tool cover -func coverage.out"
     And it renders a coverage profile
-    And the deprecated equals-form invocation is absent from that block
+    And the equals-form invocation is absent from that block
 ```
