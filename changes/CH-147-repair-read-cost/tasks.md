@@ -1,4 +1,12 @@
-# Tasks
+---
+id: CH-147-tasks
+type: tasks
+status: open
+links: [CH-147-proposal]
+title: Tasks
+---
+
+# Tasks — CH-147
 
 - [ ] Capture the current `clue validate --read-cost` populations and inspect every reported multi-document artifact.
 - [ ] Inspect every reported over-budget context slice and classify each outgoing link as retained, genuinely redundant, or an accepted read path with a stated reason.

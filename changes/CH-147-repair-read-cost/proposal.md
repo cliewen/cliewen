@@ -1,8 +1,8 @@
 ---
-id: CH-147
+id: CH-147-proposal
 type: change
 status: open
-links: [P-015]
+links: [P-015, M-072, C-008, C-022, ADR-057, ADR-058]
 title: Repair the read-cost backlog
 ---
 
