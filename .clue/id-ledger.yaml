@@ -684,7 +684,7 @@ entries:
       component: "135"
     - id: AC-136
       kind: numeric
-      state: reserved
+      state: live
       prefix: AC
       component: "136"
     - id: ADR-001
@@ -1271,9 +1271,15 @@ entries:
       state: live
     - id: CAP-008
       kind: numeric
-      state: reserved
+      state: live
       prefix: CAP
       component: "8"
+    - id: CAP-008-criteria
+      kind: opaque
+      state: live
+    - id: CAP-008-design
+      kind: opaque
+      state: live
     - id: CH-122
       kind: numeric
       state: retired
@@ -1538,18 +1544,18 @@ entries:
       state: retired
     - id: CH-148
       kind: numeric
-      state: reserved
+      state: retired
       prefix: CH
       component: "148"
     - id: CH-148-open-questions
       kind: opaque
-      state: live
+      state: retired
     - id: CH-148-proposal
       kind: opaque
-      state: live
+      state: retired
     - id: CH-148-tasks
       kind: opaque
-      state: live
+      state: retired
     - id: G-001
       kind: numeric
       state: live

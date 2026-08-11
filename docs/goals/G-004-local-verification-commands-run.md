@@ -1,7 +1,7 @@
 ---
 id: G-004
 type: goal
-status: proposed
+status: accepted
 links: [G-001]
 title: Repository-local verification commands run as documented
 ---

@@ -10,4 +10,5 @@ One folder per capability — the middle anchor of the red thread. Every capabil
 - [CAP-005 — Index generation](CAP-005-indexes/README.md) · `active`
 - [CAP-006-collaborative-handoffs/](CAP-006-collaborative-handoffs/README.md)
 - [CAP-007 — Focused corpus context](CAP-007-focused-context/README.md) · `active`
+- [CAP-008 — Local verification](CAP-008-local-verification/README.md) · `active` — Contributors can run the repository-local verification block verbatim on supported environments.
 <!-- clue:index:end -->
