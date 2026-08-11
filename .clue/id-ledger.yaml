@@ -6,7 +6,7 @@ counters:
     C: "22"
     CAP: "8"
     CH: "150"
-    G: "7"
+    G: "8"
     IC: "2"
     LOG: "1"
     P: "15"
@@ -1563,18 +1563,18 @@ entries:
       component: "149"
     - id: CH-150
       kind: numeric
-      state: live
+      state: retired
       prefix: CH
       component: "150"
     - id: CH-150-open-questions
       kind: opaque
-      state: live
+      state: retired
     - id: CH-150-proposal
       kind: opaque
-      state: live
+      state: retired
     - id: CH-150-tasks
       kind: opaque
-      state: live
+      state: retired
     - id: G-001
       kind: numeric
       state: live
@@ -1610,6 +1610,11 @@ entries:
       state: live
       prefix: G
       component: "7"
+    - id: G-008
+      kind: numeric
+      state: live
+      prefix: G
+      component: "8"
     - id: IC-001
       kind: numeric
       state: live

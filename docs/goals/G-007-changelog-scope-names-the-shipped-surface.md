@@ -1,7 +1,7 @@
 ---
 id: G-007
 type: goal
-status: proposed
+status: accepted
 links: [G-003]
 title: The changelog-scope rule names the surface that reaches an adopter
 ---
