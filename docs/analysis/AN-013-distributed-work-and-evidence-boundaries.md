@@ -4,7 +4,7 @@ type: analysis
 status: active
 provenance: verified
 reversal-cost: low
-links: [P-008, P-013, M-036, G-001, ADR-009, ADR-006, ADR-011]
+links: [P-008, P-013, M-036, G-001, ADR-009, ADR-006, AN-011]
 title: The corpus cannot say what is accepted, where its evidence actually lives, or which repository a reference means
 ---
 

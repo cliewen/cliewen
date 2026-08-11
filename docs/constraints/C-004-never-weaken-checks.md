@@ -2,7 +2,7 @@
 id: C-004
 type: constraint
 status: active
-links: []
+links: [ADR-039]
 title: Never weaken a test or a lint rule to make a build pass
 source: the shared review-boundary fragment ("Never weaken the workflow or required-check policy to make a change pass."), clue-verify introduction ("Never fix a failure by weakening the check.")
 enforcement: human

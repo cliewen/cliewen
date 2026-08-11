@@ -4,7 +4,7 @@ type: analysis
 status: active
 provenance: verified
 reversal-cost: low
-links: [P-008, M-035, ADR-013, ADR-011, ADR-022, ADR-030, ADR-035]
+links: [P-008, M-035, ADR-013, ADR-011, ADR-022, ADR-030, CAP-004]
 title: The adopter needs an upgrade path and a wall it need not fork, not a configuration file
 ---
 

@@ -2,7 +2,7 @@
 id: PDR-032
 type: decision
 status: verified
-links: [ADR-002, PDR-017, PDR-007, C-003, C-005, G-001]
+links: [ADR-002, PDR-017, PDR-007, C-003, C-005, G-001, AN-018]
 title: A suggestion raised mid-change is triaged into the current work or into the inbox, never into memory
 author: agent
 accepted-by: Flemming N. Larsen (2026-08-08, conversation)

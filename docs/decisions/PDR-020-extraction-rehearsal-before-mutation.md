@@ -2,7 +2,7 @@
 id: PDR-020
 type: decision
 status: verified
-links: [P-008, CAP-003, AN-003, AN-004, AN-005, ADR-008]
+links: [P-008, CAP-003, AN-004, AN-005, ADR-008, PDR-019, C-013]
 title: Extraction rehearses before it mutates
 author: agent
 accepted-by: Flemming N. Larsen (2026-08-02, conversation)

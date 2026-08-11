@@ -2,7 +2,7 @@
 id: PDR-029
 type: decision
 status: verified
-links: [P-013, PDR-013, PDR-019, PDR-025, PDR-026, ADR-021]
+links: [P-013, PDR-025, PDR-026, AN-006, AN-008, AN-010, AN-012]
 title: Simplification is judged by two tests, chosen by surface
 author: agent
 accepted-by: Flemming N. Larsen (2026-08-08, conversation)

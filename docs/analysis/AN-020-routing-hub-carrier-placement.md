@@ -2,7 +2,7 @@
 id: AN-020
 type: analysis
 status: active
-links: [P-013, M-063, AN-018, PDR-012, PDR-016, PDR-018, PDR-029]
+links: [P-013, PDR-012, PDR-016, PDR-018, PDR-021, PDR-029, PDR-035]
 title: Routing-hub carrier placement after the M-063 decision
 ---
 

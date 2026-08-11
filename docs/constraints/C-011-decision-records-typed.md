@@ -2,7 +2,7 @@
 id: C-011
 type: constraint
 status: active
-links: [PDR-006]
+links: [PDR-006, ADR-039]
 title: Decision records are routed by type — ADR for architecture, PDR for project/process, log row for the cheap
 source: docs/decisions/PDR-006-decision-records-are-typed.md
 enforcement: human
