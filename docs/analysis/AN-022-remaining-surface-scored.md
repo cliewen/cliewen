@@ -8,7 +8,7 @@ title: The rules, types, fields, commands, and checks scored against does the co
 
 # AN-022 — The non-prose surface scored, and pattern C determined
 
-**Primary-consumer exception:** M-064's reader needs the non-prose scoring to interpret the Pattern C determination that follows it, so these rendered documents remain together as one analysis.
+**Primary-consumer exception:** anyone reading the Pattern C determination needs the non-prose scoring that precedes it to interpret the verdict, so these rendered documents remain together as one analysis.
 
 ## The risks this spike retires
 
