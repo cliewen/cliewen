@@ -11,7 +11,7 @@ goal: G-004
 
 ## What
 
-Contributors can run the repository-local verification block in CONTRIBUTING.md verbatim on supported environments, including its coverage-report command.
+Contributors can run the repository-local verification block in CONTRIBUTING.md verbatim on supported environments, including both the command that writes its coverage profile and the one that reports it.
 
 ## Why
 
