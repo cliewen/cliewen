@@ -17,6 +17,6 @@ title: Tasks
 
 ## Baseline — 2026-08-11
 
-`go run ./cmd/clue validate --read-cost` reports one multi-document artifact and 33 identity slices over the eight-artifact budget. `AN-022` has two rendered H1 documents: its core-surface scoring and its Pattern C determination. Both serve M-064's reader, so the classification will assess whether the stated primary-consumer exception is sufficient rather than splitting either finding.
+`go run ./cmd/clue validate --read-cost` reports one multi-document artifact and 33 identity slices over the eight-artifact budget. `AN-022` has two rendered H1 documents: its scoring of the non-prose surface and its Pattern C determination. Both serve M-064's reader, so the classification will assess whether the stated primary-consumer exception is sufficient rather than splitting the artifact.
 
 The over-budget identities are ADR-038, ADR-039, ADR-040, ADR-041, ADR-042, ADR-044, ADR-046, ADR-049, ADR-055, AN-008, AN-011, AN-012, AN-013, AN-014, AN-015, AN-017, AN-018, AN-020, AN-021, AN-022, C-012, CAP-003, CAP-004-design, PDR-017, PDR-019, PDR-020, PDR-021, PDR-023, PDR-029, PDR-032, PDR-033, PDR-035, and PDR-040.
