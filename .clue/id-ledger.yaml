@@ -1493,9 +1493,6 @@ entries:
       state: live
       prefix: CH
       component: "146"
-    - id: CH-146-open-questions
-      kind: opaque
-      state: live
     - id: CH-146-proposal
       kind: opaque
       state: live
