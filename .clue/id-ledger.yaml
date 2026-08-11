@@ -1902,6 +1902,6 @@ entries:
       component: "40"
     - id: PDR-041
       kind: numeric
-      state: reserved
+      state: live
       prefix: PDR
       component: "41"
