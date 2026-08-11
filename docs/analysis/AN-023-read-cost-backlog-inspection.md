@@ -2,7 +2,7 @@
 id: AN-023
 type: analysis
 status: active
-provenance: verified
+provenance: inferred
 reversal-cost: low
 links: [P-015, M-072, ADR-057, ADR-058, C-022]
 title: The read-cost backlog is inspected without treating its count as a target
