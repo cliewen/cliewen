@@ -6,7 +6,7 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 
 ### Changed
 
-- **Existing corpus context reads now stay within the focused-read budget.** `clue context` starts with the artifact's scope and immediate contract; its secondary historical citations remain in the document and are available when you widen the slice. One historical analysis keeps two rendered sections because they serve the same milestone reader, and now states that reason explicitly.
+- **Existing corpus context reads now stay within the focused-read budget.** `clue context` starts with the artifact's scope and immediate contract; secondary historical citations are no longer carried as links, and the ones the prose already names stay readable in the document itself. One historical analysis keeps two rendered sections because they serve the same milestone reader, and now states that reason explicitly.
 
 - **`clue validate` now makes corpus read cost visible without turning it into a failure.** Its OK line counts durable artifacts that contain multiple rendered documents and identities whose default `clue context` slice exceeds the focused-read budget; use `clue validate --read-cost` to name both backlogs. The report ignores fenced examples and completed plans, writes no registry, and leaves the later judgment to split a file or accept an exception with the reader.
 

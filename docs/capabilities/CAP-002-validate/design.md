@@ -2,7 +2,7 @@
 id: CAP-002-design
 type: design
 status: active
-links: [CAP-002, LOG-001]
+links: [CAP-002, LOG-001, C-001]
 title: Design for CAP-002 clue validate
 ---
 

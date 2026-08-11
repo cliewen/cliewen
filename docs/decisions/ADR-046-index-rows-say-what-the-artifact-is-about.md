@@ -2,7 +2,7 @@
 id: ADR-046
 type: decision
 status: verified
-links: [ADR-017, ADR-034, ADR-035, ADR-041, C-004, C-016, CAP-002]
+links: [ADR-017, ADR-034, ADR-041, C-004, C-016, CAP-002, P-010]
 title: An index row says what its artifact is about; the sentence is seeded, curated, and counted when absent
 author: agent
 accepted-by: Flemming N. Larsen (2026-08-08, conversation)
