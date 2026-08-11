@@ -2,7 +2,7 @@
 id: PDR-035
 type: decision
 status: inferred
-links: [P-013, PDR-012, PDR-016, PDR-019, PDR-029, C-004]
+links: [P-013, PDR-012, PDR-016, PDR-019, PDR-029, C-004, C-017]
 title: The agentic review loop owns its severity model and has a bounded ordinary budget
 author: agent
 accepted-by: []
