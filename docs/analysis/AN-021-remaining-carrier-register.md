@@ -2,7 +2,7 @@
 id: AN-021
 type: analysis
 status: active
-links: [P-013, M-064, PDR-029, PDR-031, PDR-019, PDR-035, AN-018, C-011, C-017]
+links: [P-013, M-064, PDR-029, PDR-031, PDR-019, PDR-035, AN-018]
 title: Statement register for the public guide, contributor guidance, and CLI text
 ---
 

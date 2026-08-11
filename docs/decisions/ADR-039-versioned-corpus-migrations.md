@@ -2,7 +2,7 @@
 id: ADR-039
 type: decision
 status: verified
-links: [P-009, M-041, ADR-025, ADR-035, ADR-038, CAP-001, CAP-004, C-004, C-011]
+links: [P-009, M-041, ADR-025, ADR-035, ADR-038, CAP-001, CAP-004]
 title: Versioned corpus migrations plan safe mechanical upgrades
 author: agent
 accepted-by: Flemming N. Larsen (2026-08-02, conversation)

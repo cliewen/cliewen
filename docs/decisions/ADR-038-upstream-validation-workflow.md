@@ -2,7 +2,7 @@
 id: ADR-038
 type: decision
 status: verified
-links: [P-009, M-040, AN-012, AN-014, CAP-001, CAP-006, CAP-004, ADR-030, PDR-021]
+links: [P-009, M-040, AN-012, AN-014, CAP-001, CAP-006, CAP-004]
 title: The CI wall is an upstream reusable workflow with a thin caller
 author: agent
 accepted-by: Flemming N. Larsen (2026-08-02, conversation)

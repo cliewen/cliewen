@@ -2,7 +2,7 @@
 id: CAP-004-design
 type: design
 status: active
-links: [CAP-004, ADR-011, ADR-012, ADR-021, ADR-022, ADR-030, ADR-038, ADR-039, ADR-040, ADR-042, ADR-043]
+links: [CAP-004, ADR-011, ADR-012, ADR-021, ADR-022, ADR-030]
 title: Design for CAP-004 clue ships
 ---
 

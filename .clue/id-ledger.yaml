@@ -1490,15 +1490,15 @@ entries:
       state: retired
     - id: CH-146
       kind: numeric
-      state: live
+      state: retired
       prefix: CH
       component: "146"
     - id: CH-146-proposal
       kind: opaque
-      state: live
+      state: retired
     - id: CH-146-tasks
       kind: opaque
-      state: live
+      state: retired
     - id: G-001
       kind: numeric
       state: live

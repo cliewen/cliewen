@@ -2,7 +2,7 @@
 id: PDR-017
 type: decision
 status: verified
-links: [G-001, AN-008, P-007, PDR-012, PDR-013, PDR-039, C-012, C-013]
+links: [G-001, AN-008, P-007, PDR-012, PDR-013, PDR-039]
 title: The merge gate carries an acceptance brief, and the review loop adds an advisory scenario-resolution step
 author: agent
 accepted-by: Flemming N. Larsen (2026-08-02, conversation)

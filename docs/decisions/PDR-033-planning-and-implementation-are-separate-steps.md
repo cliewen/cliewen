@@ -2,7 +2,7 @@
 id: PDR-033
 type: decision
 status: verified
-links: [PDR-017, PDR-007, PDR-019, PDR-040, C-003, C-012, G-001, P-013, AN-018]
+links: [PDR-017, PDR-007, PDR-019, PDR-040, C-003, C-012]
 title: Planning and implementation are separate steps, and the boundary between them is a human decision
 author: agent
 accepted-by: Flemming N. Larsen (2026-08-08, conversation)

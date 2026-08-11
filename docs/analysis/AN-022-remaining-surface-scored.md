@@ -2,11 +2,13 @@
 id: AN-022
 type: analysis
 status: active
-links: [P-013, M-064, PDR-013, PDR-029, PDR-026, ADR-034, ADR-035, ADR-045, ADR-048, AN-008, AN-021, C-013]
+links: [P-013, M-064, PDR-013, PDR-029, PDR-026, ADR-034, ADR-035]
 title: The rules, types, fields, commands, and checks scored against does the core need it, and pattern C determined
 ---
 
 # AN-022 — The non-prose surface scored, and pattern C determined
+
+**Primary-consumer exception:** M-064's reader needs the non-prose scoring to interpret the Pattern C determination that follows it, so these rendered documents remain together as one analysis.
 
 ## The risks this spike retires
 
