@@ -1,11 +1,11 @@
 counters:
     AC: "135"
     ADR: "58"
-    AN: "22"
+    AN: "23"
     ARCH: "3"
     C: "22"
     CAP: "7"
-    CH: "146"
+    CH: "147"
     G: "6"
     IC: "2"
     LOG: "1"
@@ -1057,6 +1057,11 @@ entries:
       state: live
       prefix: AN
       component: "22"
+    - id: AN-023
+      kind: numeric
+      state: live
+      prefix: AN
+      component: "23"
     - id: ARCH-001
       kind: numeric
       state: live
@@ -1505,6 +1510,20 @@ entries:
       kind: opaque
       state: retired
     - id: CH-146-tasks
+      kind: opaque
+      state: retired
+    - id: CH-147
+      kind: numeric
+      state: retired
+      prefix: CH
+      component: "147"
+    - id: CH-147-open-questions
+      kind: opaque
+      state: retired
+    - id: CH-147-proposal
+      kind: opaque
+      state: retired
+    - id: CH-147-tasks
       kind: opaque
       state: retired
     - id: G-001
