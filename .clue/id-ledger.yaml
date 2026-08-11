@@ -6,7 +6,7 @@ counters:
     C: "22"
     CAP: "8"
     CH: "150"
-    G: "8"
+    G: "10"
     IC: "2"
     LOG: "1"
     P: "15"
@@ -1615,6 +1615,16 @@ entries:
       state: live
       prefix: G
       component: "8"
+    - id: G-009
+      kind: numeric
+      state: live
+      prefix: G
+      component: "9"
+    - id: G-010
+      kind: numeric
+      state: live
+      prefix: G
+      component: "10"
     - id: IC-001
       kind: numeric
       state: live
