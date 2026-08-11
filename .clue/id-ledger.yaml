@@ -1,7 +1,7 @@
 counters:
     AC: "135"
     ADR: "58"
-    AN: "22"
+    AN: "23"
     ARCH: "3"
     C: "22"
     CAP: "7"
@@ -1057,6 +1057,11 @@ entries:
       state: live
       prefix: AN
       component: "22"
+    - id: AN-023
+      kind: numeric
+      state: live
+      prefix: AN
+      component: "23"
     - id: ARCH-001
       kind: numeric
       state: live
