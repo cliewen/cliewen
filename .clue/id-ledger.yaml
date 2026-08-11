@@ -5,12 +5,12 @@ counters:
     ARCH: "3"
     C: "22"
     CAP: "8"
-    CH: "149"
-    G: "6"
+    CH: "150"
+    G: "10"
     IC: "2"
     LOG: "1"
     P: "15"
-    PDR: "40"
+    PDR: "41"
 entries:
     - id: AC-001
       kind: numeric
@@ -1561,6 +1561,20 @@ entries:
       state: reserved
       prefix: CH
       component: "149"
+    - id: CH-150
+      kind: numeric
+      state: retired
+      prefix: CH
+      component: "150"
+    - id: CH-150-open-questions
+      kind: opaque
+      state: retired
+    - id: CH-150-proposal
+      kind: opaque
+      state: retired
+    - id: CH-150-tasks
+      kind: opaque
+      state: retired
     - id: G-001
       kind: numeric
       state: live
@@ -1591,6 +1605,26 @@ entries:
       state: live
       prefix: G
       component: "6"
+    - id: G-007
+      kind: numeric
+      state: live
+      prefix: G
+      component: "7"
+    - id: G-008
+      kind: numeric
+      state: live
+      prefix: G
+      component: "8"
+    - id: G-009
+      kind: numeric
+      state: live
+      prefix: G
+      component: "9"
+    - id: G-010
+      kind: numeric
+      state: live
+      prefix: G
+      component: "10"
     - id: IC-001
       kind: numeric
       state: live
@@ -1881,3 +1915,8 @@ entries:
       state: live
       prefix: PDR
       component: "40"
+    - id: PDR-041
+      kind: numeric
+      state: live
+      prefix: PDR
+      component: "41"
