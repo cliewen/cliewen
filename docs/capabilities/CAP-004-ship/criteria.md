@@ -32,13 +32,20 @@ Feature: clue ships — a versioned binary and versioned skills, drift made lint
     # Retired 2026-07-18 (CH-028): binary drift now applies only after a
     # skill declares Cliewen ownership. AC-033 carries that scoped rule.
 
-  @AC-028
+  @AC-028 @retired
   Scenario: Versioned skills are generated as standalone artifacts
-    Given canonical skill-specific templates and shared instruction fragments
+    # Retired 2026-08-12 (CH-151): file-level completeness loaded every
+    # workflow branch at invocation. AC-137 carries standalone completeness
+    # at the skill-directory boundary with routed local references.
+
+  @AC-137
+  Scenario: Versioned skill directories disclose their instructions progressively
+    Test-type: Unit
+    Given canonical skill entry points, shared instructions, and branch-specific references
     When a maintainer runs the repository skill generator
-    Then it deterministically writes complete skills to both the agent and embedded-template trees
-    And corresponding files in both trees are byte-identical
-    But a missing, changed, or unexpected generated file fails the repository tests and names the drift
+    Then it deterministically writes a short routing skill.md and every routed reference inside each standalone skill directory in both distributed trees
+    And every route names when its reference must be read, every named reference exists locally, and corresponding files in both trees are byte-identical
+    But a missing, changed, or unexpected generated entry point or reference fails the repository tests and names the drift
 
   @AC-029
   Scenario: The ownership marker scopes Cliewen skill validation

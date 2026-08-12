@@ -375,11 +375,7 @@ func TestSanity_ScaffoldedRoutingRoutesDetailedHandoffToCanonicalSkill(t *testin
 		t.Fatal("AGENTS.md does not route light and full changes to clue-delta")
 	}
 
-	data, err := os.ReadFile(filepath.Join("templates", "skills", "clue-delta", "skill.md"))
-	if err != nil {
-		t.Fatal(err)
-	}
-	content := string(data)
+	content := readSkillDirectory(t, filepath.Join("templates", "skills", "clue-delta"))
 	for _, want := range []string{
 		"Ready means the hosted PR contains the exact locally reviewed and verified state",
 		"Every review of an existing hosted PR is bound to its observed head SHA",
@@ -400,31 +396,49 @@ func TestSanity_ScaffoldedRoutingRoutesDetailedHandoffToCanonicalSkill(t *testin
 		"Stopping anywhere else is ordinary, not an exception",
 	} {
 		if !strings.Contains(content, want) {
-			t.Errorf("clue-delta/skill.md does not contain review-handoff rule %q", want)
+			t.Errorf("clue-delta skill directory does not contain review-handoff rule %q", want)
 		}
 	}
 	commitCandidate := strings.Index(content, "commit every intended edit")
 	reviewCandidate := strings.Index(content, "clean agentic review pass")
 	readyCandidate := strings.Index(content, "then mark the PR ready and perform the hosted check again immediately after")
 	if commitCandidate < 0 || reviewCandidate <= commitCandidate || readyCandidate <= reviewCandidate {
-		t.Error("clue-delta/skill.md must commit and verify the candidate before agentic review, then mark the PR ready only after that binding")
+		t.Error("clue-delta skill directory must commit and verify the candidate before agentic review, then mark the PR ready only after that binding")
 	}
 }
 
 func TestSanity_ScaffoldedCanonicalSkillCarriesMergeHistoryBoundary(t *testing.T) {
-	content, err := os.ReadFile(filepath.Join("templates", "skills", "clue-delta", "skill.md"))
-	if err != nil {
-		t.Fatal(err)
-	}
+	content := readSkillDirectory(t, filepath.Join("templates", "skills", "clue-delta"))
 	for _, want := range []string{
 		"human accepts the ready pull request with a merge commit",
 		"disable squash and rebase-and-merge",
 		"supported full-change adoption path",
 	} {
-		if !strings.Contains(string(content), want) {
+		if !strings.Contains(content, want) {
 			t.Errorf("scaffolded clue-delta skill is missing merge-history contract %q", want)
 		}
 	}
+}
+
+func readSkillDirectory(t *testing.T, directory string) string {
+	t.Helper()
+	var content strings.Builder
+	err := filepath.WalkDir(directory, func(filePath string, entry fs.DirEntry, walkErr error) error {
+		if walkErr != nil || entry.IsDir() {
+			return walkErr
+		}
+		data, readErr := os.ReadFile(filePath)
+		if readErr != nil {
+			return readErr
+		}
+		content.Write(data)
+		content.WriteByte('\n')
+		return nil
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	return content.String()
 }
 
 // The CI caller's version pin comes from the embedded skills' stamp, and its

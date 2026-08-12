@@ -10,6 +10,8 @@ accepted-by: Flemming N. Larsen (2026-07-18, conversation)
 
 # ADR-021 — Generated standalone skills
 
+> **ADR-059 revises completeness from one generated file to one generated skill directory:** `skill.md` is now a short router to required local references, while copying the complete directory still preserves every instruction and creates no dependency outside it. Shared canonical authoring, deterministic generation, independent lifecycle entry points, matching output trees, and version stamps remain unchanged.
+
 ## Context and problem statement
 
 Cliewen's skills must be independently installable, yet several skills carry the same cross-cutting methodology rules. Authoring those rules separately makes their consistency depend on every future edit finding every copy. The embedded `clue init` templates add another output tree that must remain identical to the installed skill set.

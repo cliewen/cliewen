@@ -9,7 +9,7 @@ import (
 	"testing"
 )
 
-func TestAC028_GenerationProducesMatchingStandaloneSkillTrees(t *testing.T) {
+func TestAC137_UnitPositive_GenerationProducesRoutedStandaloneSkillDirectories(t *testing.T) {
 	root := t.TempDir()
 	if err := Write(root); err != nil {
 		t.Fatal(err)
@@ -40,30 +40,46 @@ func TestAC028_GenerationProducesMatchingStandaloneSkillTrees(t *testing.T) {
 			t.Fatalf("%s carries no Cliewen ownership marker", file.relativePath)
 		}
 	}
+
+	for name, definition := range skillDefinitions {
+		entrypoint := mustRenderFile(t, path.Join(name, "skill.md"))
+		for _, route := range definition.routes {
+			link := "[" + route.heading + "](references/" + route.file + ")"
+			if !strings.Contains(entrypoint, route.condition) || !strings.Contains(entrypoint, link) {
+				t.Errorf("%s/skill.md does not route %q to %s under its condition", name, route.heading, route.file)
+			}
+			if strings.Contains(entrypoint, "## "+route.heading+"\n") {
+				t.Errorf("%s/skill.md eagerly carries deferred section %q", name, route.heading)
+			}
+			if content := mustRenderFile(t, path.Join(name, "references", route.file)); !strings.HasPrefix(content, "## "+route.heading+"\n") {
+				t.Errorf("%s reference %s does not carry routed section %q", name, route.file, route.heading)
+			}
+		}
+	}
 }
 
-func TestAC028_DriftIsRejected(t *testing.T) {
+func TestAC137_UnitNegative_EntrypointAndReferenceDriftIsRejected(t *testing.T) {
 	tests := map[string]func(*testing.T, string){
-		"changed": func(t *testing.T, root string) {
+		"changed entrypoint": func(t *testing.T, root string) {
 			target := filepath.Join(root, ".agents", "skills", "clue-delta", "skill.md")
 			if err := os.WriteFile(target, []byte("edited generated output\n"), 0o644); err != nil {
 				t.Fatal(err)
 			}
 		},
-		"missing": func(t *testing.T, root string) {
-			target := filepath.Join(root, ".agents", "skills", "clue-delta", "skill.md")
+		"missing reference": func(t *testing.T, root string) {
+			target := filepath.Join(root, ".agents", "skills", "clue-delta", "references", "review-boundary.md")
 			if err := os.Remove(target); err != nil {
 				t.Fatal(err)
 			}
 		},
-		"unexpected": func(t *testing.T, root string) {
-			target := filepath.Join(root, ".agents", "skills", "clue-delta", "manual.md")
+		"unexpected reference": func(t *testing.T, root string) {
+			target := filepath.Join(root, ".agents", "skills", "clue-delta", "references", "manual.md")
 			if err := os.WriteFile(target, []byte("not generated\n"), 0o644); err != nil {
 				t.Fatal(err)
 			}
 		},
-		"changed in template tree": func(t *testing.T, root string) {
-			target := filepath.Join(root, "internal", "scaffold", "templates", "skills", "clue-delta", "skill.md")
+		"changed reference in template tree": func(t *testing.T, root string) {
+			target := filepath.Join(root, "internal", "scaffold", "templates", "skills", "clue-delta", "references", "change-loop.md")
 			if err := os.WriteFile(target, []byte("edited generated output\n"), 0o644); err != nil {
 				t.Fatal(err)
 			}
@@ -155,20 +171,22 @@ func TestSanity_EveryManagedSkillAppearsInBothRoutingHubs(t *testing.T) {
 	}
 }
 
-func TestSanity_MovedSkillSectionsHaveAccuratePointers(t *testing.T) {
-	verify := mustRenderSkill(t, "clue-verify/skill.md")
+func TestSanity_RoutedSkillSectionsUseLocalReferencePointers(t *testing.T) {
+	verify := mustRenderFile(t, "clue-verify/references/verification-checklist.md")
 	for _, want := range []string{
-		"under **Change scope and tiers** above",
-		"satisfy the **Review boundary** above",
+		"under [Change scope and tiers](change-scope-and-tiers.md)",
+		"satisfy the [Review boundary](review-boundary.md)",
 	} {
 		if !strings.Contains(verify, want) {
-			t.Errorf("clue-verify/skill.md does not carry accurate section pointer %q", want)
+			t.Errorf("clue-verify verification reference does not carry accurate local pointer %q", want)
 		}
 	}
 
-	extract := mustRenderSkill(t, "clue-extract/skill.md")
-	if !strings.Contains(extract, "Apply the **Boundaries** above and **Rehearsal before mutation**, **Decision records**, **Repository-local conventions**, and **Durable work state** below") {
-		t.Error("clue-extract/skill.md does not distinguish the section above from those below")
+	extract := mustRenderFile(t, "clue-extract/references/source-mappings.md")
+	for _, want := range []string{"[openspec.md](../mappings/openspec.md)", "[madr.md](../mappings/madr.md)"} {
+		if !strings.Contains(extract, want) {
+			t.Errorf("clue-extract source mapping reference does not resolve local mapping %q", want)
+		}
 	}
 }
 
@@ -190,13 +208,7 @@ func TestSanity_SpecFirstPauseReportsProposalAndImplementationStatus(t *testing.
 // is proven separately against the validator — AC-045 for the Human class and
 // AC-046 for per-criterion @draft, both in internal/corpus.
 func TestAC054_UnitPositive_ExtractionSupportsCriterionLevelPhasing(t *testing.T) {
-	extract := ""
-	for _, file := range mustRender(t) {
-		if file.relativePath == "clue-extract/skill.md" {
-			extract = string(file.content)
-			break
-		}
-	}
+	extract := mustRenderSkill(t, "clue-extract/skill.md")
 	for _, want := range []string{
 		"Whole-file draft phasing remains available",
 		"tag each genuinely not-yet-proven criterion `@draft`",
@@ -242,13 +254,7 @@ func TestAC081_UnitNegative_GeneratedUpgradeSkillDoesNotInventAPlatformRouteOrSe
 }
 
 func TestAC054_UnitNegative_ExtractionRejectsCapabilityOnlyPhasing(t *testing.T) {
-	extract := ""
-	for _, file := range mustRender(t) {
-		if file.relativePath == "clue-extract/skill.md" {
-			extract = string(file.content)
-			break
-		}
-	}
+	extract := mustRenderSkill(t, "clue-extract/skill.md")
 	for _, stale := range []string{
 		"Activation is per criteria file, not per criterion",
 		"a capability is the smallest unit a phasing change can take",
@@ -370,11 +376,8 @@ func TestAC056_UnitNegative_ExtractionRejectsMutationBeforeRehearsal(t *testing.
 }
 
 func TestSanity_MethodologyContractChangesMoveEveryLiveCarrierTogether(t *testing.T) {
-	for _, file := range mustRender(t) {
-		if !strings.HasSuffix(file.relativePath, "/skill.md") {
-			continue
-		}
-		content := string(file.content)
+	for _, name := range skillNames {
+		content := mustRenderSkill(t, name+"/skill.md")
 		for _, want := range []string{
 			"A decision that changes a methodology contract inventories every live carrier",
 			"updates that complete inventory in the same change",
@@ -382,20 +385,14 @@ func TestSanity_MethodologyContractChangesMoveEveryLiveCarrierTogether(t *testin
 			"that general obligation remains agent-enforced",
 		} {
 			if !strings.Contains(content, want) {
-				t.Errorf("%s does not carry same-change methodology-carrier rule %q", file.relativePath, want)
+				t.Errorf("%s does not carry same-change methodology-carrier rule %q", name, want)
 			}
 		}
 	}
 }
 
 func TestSanity_VerifyRecognizesTheCompleteEvidenceContract(t *testing.T) {
-	verify := ""
-	for _, file := range mustRender(t) {
-		if file.relativePath == "clue-verify/skill.md" {
-			verify = string(file.content)
-			break
-		}
-	}
+	verify := mustRenderSkill(t, "clue-verify/skill.md")
 	for _, want := range []string{
 		"supported Go, JVM, or Cucumber evidence",
 		"positive/negative direction",
@@ -420,8 +417,8 @@ func TestSanity_VerifyRecognizesTheCompleteEvidenceContract(t *testing.T) {
 
 func TestAC058_UnitPositive_GeneratedSkillsStatePerExecutableJVMContract(t *testing.T) {
 	rendered := map[string]string{}
-	for _, file := range mustRender(t) {
-		rendered[file.relativePath] = string(file.content)
+	for _, name := range skillNames {
+		rendered[name+"/skill.md"] = mustRenderSkill(t, name+"/skill.md")
 	}
 	required := map[string][]string{
 		"clue-delta/skill.md": {
@@ -449,18 +446,15 @@ func TestAC058_UnitPositive_GeneratedSkillsStatePerExecutableJVMContract(t *test
 }
 
 func TestAC058_UnitNegative_GeneratedSkillsRejectTheObsoleteJVMCarrier(t *testing.T) {
-	for _, file := range mustRender(t) {
-		if !strings.HasSuffix(file.relativePath, "/skill.md") {
-			continue
-		}
-		content := string(file.content)
+	for _, name := range skillNames {
+		content := mustRenderSkill(t, name+"/skill.md")
 		for _, stale := range []string{
 			"install an ArchUnit or equivalent rule enforcing one purpose tag per test",
 			"`clue` only harvests at file level",
 			"JVM test files use JUnit tags harvested at file level",
 		} {
 			if strings.Contains(content, stale) {
-				t.Errorf("%s still carries obsolete JVM evidence rule %q", file.relativePath, stale)
+				t.Errorf("%s still carries obsolete JVM evidence rule %q", name, stale)
 			}
 		}
 	}
@@ -468,8 +462,8 @@ func TestAC058_UnitNegative_GeneratedSkillsRejectTheObsoleteJVMCarrier(t *testin
 
 func TestUnit_ReviewBoundaryRequiresExactHostedHandoff(t *testing.T) {
 	rendered := map[string]string{}
-	for _, file := range mustRender(t) {
-		rendered[file.relativePath] = string(file.content)
+	for _, name := range skillNames {
+		rendered[name+"/skill.md"] = mustRenderSkill(t, name+"/skill.md")
 	}
 
 	for _, name := range []string{"clue-delta/skill.md", "clue-extract/skill.md", "clue-verify/skill.md"} {
@@ -514,30 +508,22 @@ func TestUnit_ReviewBoundaryRequiresExactHostedHandoff(t *testing.T) {
 }
 
 func TestAC040_ReviewResultsAreDurableAndCommitBound(t *testing.T) {
-	for _, file := range mustRender(t) {
-		if !strings.HasSuffix(file.relativePath, "/skill.md") || (!strings.HasPrefix(file.relativePath, "clue-delta/") && !strings.HasPrefix(file.relativePath, "clue-extract/") && !strings.HasPrefix(file.relativePath, "clue-verify/")) {
-			continue
-		}
-		content := string(file.content)
+	for _, name := range []string{"clue-delta", "clue-extract", "clue-verify"} {
+		content := mustRenderSkill(t, name+"/skill.md")
 		for _, want := range []string{
 			"Every review of an existing hosted PR is bound to its observed head SHA",
 			"A clean result applies only to that commit; every substantive edit invalidates it",
 			"publish the finding there and leave it unresolved until a hosted commit contains the reviewed repair",
 		} {
 			if !strings.Contains(content, want) {
-				t.Errorf("%s does not carry durable review state %q", file.relativePath, want)
+				t.Errorf("%s does not carry durable review state %q", name, want)
 			}
 		}
 	}
 }
 
 func TestAC040_ReviewWithoutResolvableHostStateFailsOpenly(t *testing.T) {
-	verify := ""
-	for _, file := range mustRender(t) {
-		if file.relativePath == "clue-verify/skill.md" {
-			verify = string(file.content)
-		}
-	}
+	verify := mustRenderSkill(t, "clue-verify/skill.md")
 	for _, want := range []string{
 		"If the reviewer cannot publish a resolvable finding, report the PR as not merge-ready",
 		"never claim a chat-only finding has equivalent protection",
@@ -550,11 +536,8 @@ func TestAC040_ReviewWithoutResolvableHostStateFailsOpenly(t *testing.T) {
 }
 
 func TestAC132_UnitPositive_AnyEditorOwnsTheExactFastForwardHandoff(t *testing.T) {
-	for _, file := range mustRender(t) {
-		if !strings.HasSuffix(file.relativePath, "/skill.md") || (!strings.HasPrefix(file.relativePath, "clue-delta/") && !strings.HasPrefix(file.relativePath, "clue-extract/") && !strings.HasPrefix(file.relativePath, "clue-verify/")) {
-			continue
-		}
-		content := string(file.content)
+	for _, name := range []string{"clue-delta", "clue-extract", "clue-verify"} {
+		content := mustRenderSkill(t, name+"/skill.md")
 		for _, want := range []string{
 			"Any agent that edits an existing PR becomes the updater for that turn",
 			"record its hosted head",
@@ -564,7 +547,7 @@ func TestAC132_UnitPositive_AnyEditorOwnsTheExactFastForwardHandoff(t *testing.T
 			"the agent may review or help update an existing PR under the handoff above",
 		} {
 			if !strings.Contains(content, want) {
-				t.Errorf("%s does not carry the exact updater handoff %q", file.relativePath, want)
+				t.Errorf("%s does not carry the exact updater handoff %q", name, want)
 			}
 		}
 	}
@@ -573,13 +556,10 @@ func TestAC132_UnitPositive_AnyEditorOwnsTheExactFastForwardHandoff(t *testing.T
 // AC-041 was retired because its handoff put the push after the clean review
 // and made incorporating `main` conditional on publication. Both readings are
 // still natural to write, and nothing else would notice them returning: the
-// generated text is the whole carrier.
+// generated skill directory is the whole carrier.
 func TestAC132_UnitNegative_CarriersDoNotRestoreTheRetiredHandoffOrdering(t *testing.T) {
-	for _, file := range mustRender(t) {
-		if !strings.HasSuffix(file.relativePath, "/skill.md") {
-			continue
-		}
-		content := string(file.content)
+	for _, name := range skillNames {
+		content := mustRenderSkill(t, name+"/skill.md")
 		for _, retired := range []string{
 			"obtains a clean review of the repaired commit, pushes without force",
 			"before publishing, recheck that head",
@@ -589,19 +569,14 @@ func TestAC132_UnitNegative_CarriersDoNotRestoreTheRetiredHandoffOrdering(t *tes
 			`local stopping point such as "commit only"`,
 		} {
 			if strings.Contains(content, retired) {
-				t.Errorf("%s restored the retired handoff ordering %q", file.relativePath, retired)
+				t.Errorf("%s restored the retired handoff ordering %q", name, retired)
 			}
 		}
 	}
 }
 
 func TestAC132_UnitPositive_ConcurrentOrClosedPRStateFailsSafely(t *testing.T) {
-	verify := ""
-	for _, file := range mustRender(t) {
-		if file.relativePath == "clue-verify/skill.md" {
-			verify = string(file.content)
-		}
-	}
+	verify := mustRenderSkill(t, "clue-verify/skill.md")
 	for _, want := range []string{
 		"If the head changed underneath the turn or a push is rejected as non-fast-forward",
 		"fetch and reconcile without overwriting remote work",
@@ -616,8 +591,8 @@ func TestAC132_UnitPositive_ConcurrentOrClosedPRStateFailsSafely(t *testing.T) {
 
 func TestUnit_AgenticReviewLoopConvergesOnCurrentCommit(t *testing.T) {
 	rendered := map[string]string{}
-	for _, file := range mustRender(t) {
-		rendered[file.relativePath] = string(file.content)
+	for _, name := range skillNames {
+		rendered[name+"/skill.md"] = mustRenderSkill(t, name+"/skill.md")
 	}
 
 	verify := rendered["clue-verify/skill.md"]
@@ -686,21 +661,35 @@ func TestUnit_AgenticReviewLoopConvergesOnCurrentCommit(t *testing.T) {
 }
 
 func TestSanity_GeneratedSkillsCarryMergeHistoryBoundary(t *testing.T) {
-	for _, file := range mustRender(t) {
-		if file.relativePath != "clue-delta/skill.md" && file.relativePath != "clue-verify/skill.md" && file.relativePath != "clue-extract/skill.md" {
-			continue
-		}
-		content := string(file.content)
+	for _, name := range []string{"clue-delta", "clue-extract", "clue-verify"} {
+		content := mustRenderSkill(t, name+"/skill.md")
 		if !strings.Contains(content, "human accepts the ready pull request with a merge commit") {
-			t.Errorf("%s does not state the supported merge-commit acceptance mode", file.relativePath)
+			t.Errorf("%s does not state the supported merge-commit acceptance mode", name)
 		}
 		if !strings.Contains(content, "disable squash and rebase-and-merge") {
-			t.Errorf("%s does not reject provenance-losing merge modes", file.relativePath)
+			t.Errorf("%s does not reject provenance-losing merge modes", name)
 		}
 	}
 }
 
 func mustRenderSkill(t *testing.T, relativePath string) string {
+	t.Helper()
+	directory := strings.TrimSuffix(relativePath, "/skill.md") + "/"
+	var content strings.Builder
+	for _, file := range mustRender(t) {
+		if strings.HasPrefix(file.relativePath, directory) {
+			content.Write(file.content)
+			content.WriteByte('\n')
+		}
+	}
+	if content.Len() == 0 {
+		t.Fatalf("%s was not rendered", relativePath)
+	}
+	return content.String()
+
+}
+
+func mustRenderFile(t *testing.T, relativePath string) string {
 	t.Helper()
 	for _, file := range mustRender(t) {
 		if file.relativePath == relativePath {
