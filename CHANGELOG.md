@@ -4,6 +4,12 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 
 ## [Unreleased]
 
+## [0.15.0] - 2026-08-12
+
+### Migration
+
+- **No repository migration is required for this minor release.** v0.15.0 records every generated skill file in its release manifest, so a later `clue migrate` run can recognize the complete progressive-disclosure skill directory as a managed baseline.
+
 - **Generated skills now load detailed instructions only when their workflow branch needs them.** Each `skill.md` is a short router to required references inside the same skill directory, so invoking one lifecycle entry point no longer loads every shared boundary and later branch up front. Copying the complete directory still carries the full standalone instruction set, and generation checks every entry point and reference in both distributed trees for drift.
 
 ### Changed
