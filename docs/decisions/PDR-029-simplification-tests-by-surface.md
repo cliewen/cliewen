@@ -10,6 +10,8 @@ accepted-by: Flemming N. Larsen (2026-08-08, conversation)
 
 # PDR-029 — Simplification is judged by two tests, chosen by surface
 
+> **ADR-059 reopens and changes the generated file shape, not this decision's carrier test:** a standalone skill is now a directory with a short routing entry point and required local references. The tracing, single-statement, checkability, and binding-order tests below apply across that generated directory just as they applied to the former complete file.
+
 > **The tooling surface gains its own test in [PDR-037](PDR-037-tooling-is-judged-by-what-it-holds.md):** for commands, checks, required fields, artifact types, and rules that hold a mechanism rather than a meaning, the operative question is *does removing it move an obligation from a machine back to a human?* — a yes is a keep, and a no is a removal candidate the standing preference removes. *Does the core need it?* remains the test of record for anything whose existence changes what the method obliges, and answering it *yes* ends the enquiry. Everything this record decides is otherwise unchanged, including the carrier test's three conditions, the ordering rule, the overlap rules, and the shared-memory clause.
 >
 > **The accepted trace types are widened by [PDR-031](PDR-031-architecture-artifacts-are-traces.md):** an architecture artifact is also a valid trace, under the same restriction the four types below already carry — it traces when the architecture file *states* the rule, never when the rule is merely derivable from it. Everything else this record decides is unchanged, including the two tests, the surface split, the narrowest-artifact rule, the refusal of derivability, the ordering rule, and the overlap rules.
@@ -65,7 +67,7 @@ A count is tempting because it is deterministic, and it is precisely wrong here.
 
 ## Rejected: remove the duplication by making skills reference each other
 
-[ADR-021](ADR-021-generated-standalone-skills.md) considered exactly this and rejected it, so that copying one skill folder yields complete instructions with no dependency on a repository layout outside itself. That reasoning is untouched here. The file-level repetition is deliberate and is not the cost this decision targets; the second test's duplication condition is about repetition inside a single reading path, which is a different quantity and does not require reopening ADR-021. Its other conditions — tracing, checkability, and order — are properties of the authored source fragments and apply whatever the generator renders them into, so nothing in this decision depends on how many files a fragment reaches.
+[ADR-021](ADR-021-generated-standalone-skills.md) considered runtime sharing outside a skill and rejected it, so copying one skill folder yields complete instructions with no dependency on repository layout outside itself. [ADR-059](ADR-059-progressive-standalone-skill-directories.md) preserves that boundary while splitting the folder into a routing entry point and local references. The second test's duplication condition remains about repetition inside a single reading path; tracing, checkability, and order remain properties of the authored source fragments and apply across whatever files the generator renders them into.
 
 ## Carrier
 

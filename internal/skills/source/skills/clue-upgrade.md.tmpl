@@ -3,6 +3,8 @@
 {{template "change-tiers" .}}
 {{template "review-boundary" .}}
 
+## Upgrade workflow
+
 Use when a repository already uses Cliewen and the human wants to find out whether, or bring it up to, a newer release. This is a route into a reviewed repository change, never a background update or authority to merge.
 
 1. Run `clue latest`. It determines whether a newer release is available and, when one is, prints the installation route for the machine it is running on. Do not reproduce an installation command here: one distributed skill cannot know the user's platform. If the release list cannot be reached, explain that Cliewen cannot tell and stop; do not call the repository current.

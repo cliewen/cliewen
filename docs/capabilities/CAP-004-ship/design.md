@@ -26,9 +26,9 @@ Issues sort into the same `path: message` stream as every other rule.
 
 ## Skill authoring and generation
 
-The complete skill files remain the installed, ownership-marked and versioned artifacts described above, but their authoring source is centralized under `internal/skills/source/` ([ADR-021](../../decisions/ADR-021-generated-standalone-skills.md)). Skill-specific templates compose shared instruction fragments at generation time; no generated skill has a runtime dependency on another skill or on the source tree.
+The complete skill directories are the installed artifacts, with their `skill.md` entry points carrying the ownership and version markers described above. Authoring remains centralized under `internal/skills/source/` ([ADR-021](../../decisions/ADR-021-generated-standalone-skills.md)). Skill-specific templates compose shared instruction fragments at generation time; the generator emits each section as a local reference and emits its read condition in the short entry point. No generated skill directory has a runtime dependency on another skill or on the source tree ([ADR-059](../../decisions/ADR-059-progressive-standalone-skill-directories.md)).
 
-`go generate ./internal/skills` writes both `.agents/skills/` and `internal/scaffold/templates/skills/`. The generator owns the six `clue-*` directories in both trees, including `clue-extract` resources, and normalizes output to LF for deterministic bytes. AC-028 tests exercise generation into an empty repository and reject missing, changed, or unexpected files. A Sanity test checks the committed outputs against the same in-memory rendering, so editing a generated skill instead of its source fails the build.
+`go generate ./internal/skills` writes both `.agents/skills/` and `internal/scaffold/templates/skills/`. The generator owns the six `clue-*` directories in both trees, including routed references and `clue-extract` resources, and normalizes output to LF for deterministic bytes. AC-137 tests exercise generation into an empty repository, prove that every routed local reference exists and both trees agree, and reject missing, changed, or unexpected entry points or references. A Sanity test checks the committed outputs against the same in-memory rendering, so editing any generated file instead of its source fails the build.
 
 ## Release pipeline
 

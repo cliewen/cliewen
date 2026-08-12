@@ -4,6 +4,8 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 
 ## [Unreleased]
 
+- **Generated skills now load detailed instructions only when their workflow branch needs them.** Each `skill.md` is a short router to required references inside the same skill directory, so invoking one lifecycle entry point no longer loads every shared boundary and later branch up front. Copying the complete directory still carries the full standalone instruction set, and generation checks every entry point and reference in both distributed trees for drift.
+
 ### Changed
 
 - **The read-cost report is a backlog you judge, not a number to drive to zero.** If `clue validate --read-cost` names an identity whose default slice is over budget, the repair is to inspect that artifact and either drop `links` entries a reader of it genuinely does not need or accept the entry path with a stated reason — an accepted identity keeps its row, so the count is not expected to reach zero. Never delete a link to move the count: `clue context` follows links outward only, so a removed entry is not reachable by widening with `--depth` the way an artifact beyond the bound is, and the citation leaves the corpus altogether.

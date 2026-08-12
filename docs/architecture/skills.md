@@ -10,7 +10,7 @@ title: The skills layer — process knowledge as versioned artifacts
 
 ## Why skills exist
 
-Skills are the **process-knowledge actor** in the four-actor model ([architecture.md](architecture.md)): they tell the agent what the next right step is, so the CLI only has to judge whether it was done right. Everything that can be convention in a skill is deliberately kept **out of the CLI** — the judge stays boring and finished; the guidance stays editable prose. Skills live in `.agents/skills/` (what agents read), not in `/docs` (what the system is): this file documents *why the set looks like it does*; each generated skill file is the complete operational instruction agents consume.
+Skills are the **process-knowledge actor** in the four-actor model ([architecture.md](architecture.md)): they tell the agent what the next right step is, so the CLI only has to judge whether it was done right. Everything that can be convention in a skill is deliberately kept **out of the CLI** — the judge stays boring and finished; the guidance stays editable prose. Skills live in `.agents/skills/` (what agents read), not in `/docs` (what the system is): this file documents *why the set looks like it does*. Each generated skill directory is the complete operational instruction; its short `skill.md` entry point routes the agent to required local references only when their condition is reached ([ADR-059](../decisions/ADR-059-progressive-standalone-skill-directories.md)).
 
 ## The six skills and how they complement each other
 
@@ -29,9 +29,9 @@ Two invariants tie them together: **every path through the skills ends at the sa
 
 ## Shared rules and standalone outputs
 
-The six skills repeat cross-cutting instructions because each skill must remain independently installable. They are not independently authored: `internal/skills/source/skills/` holds the workflow templates and `internal/skills/source/shared/` holds shared rules such as decision routing, change tiers, repository-local conventions, and the review boundary ([ADR-021](../decisions/ADR-021-generated-standalone-skills.md)).
+The six skill directories repeat the cross-cutting instructions each one can need because every directory must remain independently installable. They are not independently authored: `internal/skills/source/skills/` holds the workflow templates and `internal/skills/source/shared/` holds shared rules such as decision routing, change tiers, repository-local conventions, and the review boundary ([ADR-021](../decisions/ADR-021-generated-standalone-skills.md)). The generator splits those rendered sections into local references and writes the condition for reading each one into the directory's `skill.md` router.
 
-`go generate ./internal/skills` composes complete skill artifacts into `.agents/skills/` and the embedded `clue init` template tree. Repository tests compare both trees with the canonical rendering and fail on changed, missing, or unexpected generator-owned files. Contributors edit the source tree and regenerate; generated outputs are never edited directly.
+`go generate ./internal/skills` composes complete skill directories into `.agents/skills/` and the embedded `clue init` template tree. Repository tests compare every entry point and reference in both trees with the canonical rendering and fail on changed, missing, or unexpected generator-owned files. Contributors edit the source tree and regenerate; generated outputs are never edited directly.
 
 ## Rules for future skills
 
