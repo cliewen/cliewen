@@ -1587,15 +1587,15 @@ entries:
       state: retired
     - id: CH-151
       kind: numeric
-      state: live
+      state: retired
       prefix: CH
       component: "151"
     - id: CH-151-open-questions
       kind: opaque
-      state: live
+      state: retired
     - id: CH-151-tasks
       kind: opaque
-      state: live
+      state: retired
     - id: G-001
       kind: numeric
       state: live
