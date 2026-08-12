@@ -10,6 +10,8 @@ accepted-by: Flemming N. Larsen (2026-08-08, conversation)
 
 # ADR-041 — Generated index rows state their record, and rows that state only their link are counted
 
+> **Amended 2026-08-12 (CH-152):** an appended constraint row uses its `enforcement` class in the badge position rather than its generic `status`; other artifact types keep the status badge. A direct constraint row whose badge disagrees with its target's enforcement is reported by `clue validate --index-rows`, never failed on or rewritten. The original row shape, plain-link fallback, and preservation rules are otherwise unchanged.
+
 ## Context and problem statement
 
 Index generation appended every missing entry as the target's filename with the extension removed: `- [ADR-039-versioned-corpus-migrations](ADR-039-versioned-corpus-migrations.md)`. The label restates the link and adds nothing — no title, so a reader must open the file to learn what the record says; no status, so provenance is invisible in the one place that lists every record in a folder.

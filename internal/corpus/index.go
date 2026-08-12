@@ -10,12 +10,12 @@ import (
 )
 
 // IndexRowIdentity is what a taxonomy index row states about the artifact it
-// links: the record's own id and title, and the status its frontmatter
-// declares.
+// links: the record's own id and title, and the badge its type makes useful to
+// the reader.
 type IndexRowIdentity struct {
-	ID     string
-	Title  string
-	Status string
+	ID    string
+	Title string
+	Badge string
 }
 
 // RowIdentity reads the identity an index row states for the artifact file at
@@ -24,9 +24,11 @@ type IndexRowIdentity struct {
 // value, not the quoting.
 //
 // All three of id, title, and status must be readable, or this returns false
-// and the caller emits the plain link. A row is one shape or the other, never a
-// third carrying an empty status badge — an artifact missing a core field is
-// the judge's to report, not index generation's to half-render.
+// and the caller emits the plain link. A constraint also needs a readable
+// enforcement class, because that is the badge its register publishes. A row
+// is one shape or the other, never a third carrying an empty badge — an
+// artifact missing a required field is the judge's to report, not index
+// generation's to half-render.
 func RowIdentity(p string) (IndexRowIdentity, bool) {
 	raw, err := os.ReadFile(p)
 	if err != nil {
@@ -42,7 +44,15 @@ func RowIdentity(p string) (IndexRowIdentity, bool) {
 	if id == "" || title == "" || status == "" {
 		return IndexRowIdentity{}, false
 	}
-	return IndexRowIdentity{ID: id, Title: title, Status: status}, true
+	badge := status
+	if artifactType, _ := fields["type"].(string); artifactType == "constraint" {
+		var ok bool
+		badge, ok = fields["enforcement"].(string)
+		if !ok || badge == "" {
+			return IndexRowIdentity{}, false
+		}
+	}
+	return IndexRowIdentity{ID: id, Title: title, Badge: badge}, true
 }
 
 // descriptionLimit bounds the seeded sentence. A row is one line, because a
@@ -387,14 +397,14 @@ func IndexRowBacklog(c *Corpus) []IndexRowFiller {
 }
 
 // IndexRowUndescribed is one index row that states its record — id, title, and
-// status — but says nothing about what the artifact contains.
+// badge — but says nothing about what the artifact contains.
 type IndexRowUndescribed struct {
 	Readme string // repo-relative taxonomy README carrying the row
 	Target string // the row's link target, relative to that README
 }
 
 // rowTailRe matches a stated-record row and captures whatever follows its
-// status badge. A row with no badge is not this population's business: the
+// record badge. A row with no badge is not this population's business: the
 // generator always writes one, so a row without it is adopter prose in a shape
 // no release produced. Where its label also restates the target's filename,
 // IndexRowBacklog counts it; where it does not, no population counts it, which
@@ -415,7 +425,7 @@ var rowTailRe = regexp.MustCompile("\\)\\s*·\\s*`[^`]*`\\s*(.*)$")
 // rest are artifacts whose body holds no readable opening sentence, where the
 // generator still emits the shorter row by design.
 //
-// A row that states a record without the status badge the generator always
+// A row that states a record without the badge the generator always
 // writes is adopter prose in a shape no release produced, so it is left
 // uncounted. ADR-041 drew that line first: the count names generated output and
 // never grades a curated row.
@@ -468,6 +478,78 @@ func IndexDescriptionBacklog(c *Corpus) []IndexRowUndescribed {
 			return out[i].Readme < out[j].Readme
 		}
 		return out[i].Target < out[j].Target
+	})
+	return out
+}
+
+// IndexRowConstraintBadgeMismatch is one constraint index row whose badge does
+// not state the enforcement class its target declares. It is a report, never an
+// Issue: regeneration preserves existing rows, including curated ones, so the
+// mismatch is visible without letting a newly tightened generator make an
+// adopter's existing corpus fail.
+type IndexRowConstraintBadgeMismatch struct {
+	Readme      string // repo-relative taxonomy README carrying the row
+	Target      string // the row's link target, relative to that README
+	Badge       string // what the row currently says
+	Enforcement string // what its constraint target declares
+}
+
+// rowBadgeRe captures the record badge on an index row. A badge-less direct
+// constraint row is a mismatch too, so callers treat no match as an empty
+// badge rather than leaving it outside the report.
+var rowBadgeRe = regexp.MustCompile("\\)\\s*·\\s*`([^`]*)`")
+
+// IndexRowConstraintBadgeBacklog reports direct constraint rows whose badge
+// differs from their target's enforcement field. Like the other index-row
+// populations, a subfolder or multi-target curated row is not interpreted: it
+// does not state one constraint record in the generator's row shape.
+func IndexRowConstraintBadgeBacklog(c *Corpus) []IndexRowConstraintBadgeMismatch {
+	var out []IndexRowConstraintBadgeMismatch
+	for _, a := range c.Artifacts {
+		if a.Type != "constraint" {
+			continue
+		}
+		enforcement, _ := a.Fields["enforcement"].(string)
+		if enforcement == "" {
+			continue // checkConstraints owns a malformed constraint field
+		}
+		readme := path.Join(path.Dir(a.Path), "README.md")
+		if !isTaxonomyReadme(readme) {
+			continue
+		}
+		text, ok := c.Contents[readme]
+		if !ok {
+			continue
+		}
+		start := strings.Index(text, indexStart)
+		end := strings.Index(text, indexEnd)
+		if start < 0 || end < 0 || end < start {
+			continue // checkIndexes already reports missing or malformed markers
+		}
+		target := path.Base(a.Path)
+		for _, line := range strings.Split(text[start+len(indexStart):end], "\n") {
+			line = strings.TrimSuffix(line, "\r")
+			links := indexRowLinkRe.FindAllStringSubmatch(line, -1)
+			if len(links) != 1 || path.Clean(links[0][2]) != target {
+				continue
+			}
+			badge := ""
+			if m := rowBadgeRe.FindStringSubmatch(line); m != nil {
+				badge = m[1]
+			}
+			if badge != enforcement {
+				out = append(out, IndexRowConstraintBadgeMismatch{Readme: readme, Target: target, Badge: badge, Enforcement: enforcement})
+			}
+		}
+	}
+	sort.Slice(out, func(i, j int) bool {
+		if out[i].Readme != out[j].Readme {
+			return out[i].Readme < out[j].Readme
+		}
+		if out[i].Target != out[j].Target {
+			return out[i].Target < out[j].Target
+		}
+		return out[i].Badge < out[j].Badge
 	})
 	return out
 }

@@ -1,11 +1,11 @@
 counters:
-    AC: "137"
+    AC: "138"
     ADR: "59"
     AN: "23"
     ARCH: "3"
     C: "22"
     CAP: "8"
-    CH: "151"
+    CH: "152"
     G: "10"
     IC: "2"
     LOG: "1"
@@ -369,7 +369,7 @@ entries:
       component: "72"
     - id: AC-073
       kind: numeric
-      state: live
+      state: retired
       prefix: AC
       component: "73"
     - id: AC-074
@@ -692,6 +692,11 @@ entries:
       state: live
       prefix: AC
       component: "137"
+    - id: AC-138
+      kind: numeric
+      state: live
+      prefix: AC
+      component: "138"
     - id: ADR-001
       kind: numeric
       state: live
@@ -1594,6 +1599,14 @@ entries:
       kind: opaque
       state: retired
     - id: CH-151-tasks
+      kind: opaque
+      state: retired
+    - id: CH-152
+      kind: numeric
+      state: retired
+      prefix: CH
+      component: "152"
+    - id: CH-152-tasks
       kind: opaque
       state: retired
     - id: G-001

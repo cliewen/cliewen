@@ -219,11 +219,12 @@ func TestAC027_NoDocsTreeIsAnErrorAndCreatesNothing(t *testing.T) {
 	}
 }
 
-// AC-073: an appended index row states the record it links — id, title, and
-// status — rather than restating the filename the link already carries. The
-// title here is YAML-quoted because its value contains a colon; the row must
-// spell the parsed value, never the quoting.
-func TestAC073_UnitPositive_AppendedRowStatesItsRecord(t *testing.T) {
+// AC-138: an appended index row states the record it links — id, title, and
+// status for an ordinary artifact, enforcement for a constraint — rather than
+// restating the filename the link already carries. The title here is
+// YAML-quoted because its value contains a colon; the row must spell the
+// parsed value, never the quoting.
+func TestAC138_UnitPositive_AppendedRowsUseStatusOrConstraintEnforcement(t *testing.T) {
 	root, _ := runInto(t)
 	readme := filepath.Join(root, "docs", "goals", "README.md")
 	prose := "# Goals\n\n<!-- clue:index:start -->\n<!-- clue:index:end -->\n"
@@ -232,6 +233,10 @@ func TestAC073_UnitPositive_AppendedRowStatesItsRecord(t *testing.T) {
 	}
 	artifact := "---\nid: G-001\ntype: goal\nstatus: proposed\nlinks: []\ntitle: \"First goal: it carries a colon\"\n---\n"
 	if err := os.WriteFile(filepath.Join(root, "docs", "goals", "G-001-first.md"), []byte(artifact), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	constraint := "---\nid: C-999\ntype: constraint\nstatus: active\nlinks: [C-001]\ntitle: First constraint\nsource: C-001\nenforcement: machine\n---\n"
+	if err := os.WriteFile(filepath.Join(root, "docs", "constraints", "C-999-first.md"), []byte(constraint), 0o644); err != nil {
 		t.Fatal(err)
 	}
 	if _, err := Regen(root); err != nil {
@@ -244,6 +249,14 @@ func TestAC073_UnitPositive_AppendedRowStatesItsRecord(t *testing.T) {
 	want := "- [G-001 — First goal: it carries a colon](G-001-first.md) · `proposed`"
 	if !strings.Contains(string(got), want) {
 		t.Fatalf("appended row does not state the record:\nwant %q\ngot:\n%s", want, got)
+	}
+	constraints, err := os.ReadFile(filepath.Join(root, "docs", "constraints", "README.md"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	constraintRow := "- [C-999 — First constraint](C-999-first.md) · `machine`"
+	if !strings.Contains(string(constraints), constraintRow) {
+		t.Fatalf("appended constraint row does not state enforcement:\nwant %q\ngot:\n%s", constraintRow, constraints)
 	}
 	if issues := validateAt(t, root); len(issues) > 0 {
 		t.Fatalf("expected green after regen, got: %v", issues)
@@ -474,10 +487,10 @@ func TestAC098_UnitNegative_CuratedRowForAMissingTargetIsStillDropped(t *testing
 	}
 }
 
-// AC-073 negative: a target with no readable identity falls back to the plain
-// link instead of emitting a half-formed row, and a subfolder row states a
-// section rather than a record so it carries no title or status.
-func TestAC073_UnitNegative_UnreadableIdentityAndSubfolderRowsStayPlain(t *testing.T) {
+// AC-138 negative: a target with no readable identity or no required
+// constraint enforcement falls back to the plain link instead of emitting a
+// half-formed row, and a subfolder row states a section rather than a record.
+func TestAC138_UnitNegative_UnreadableIdentityAndSubfolderRowsStayPlain(t *testing.T) {
 	root, _ := runInto(t)
 	readme := filepath.Join(root, "docs", "goals", "README.md")
 	prose := "# Goals\n\n<!-- clue:index:start -->\n<!-- clue:index:end -->\n"
@@ -492,6 +505,10 @@ func TestAC073_UnitNegative_UnreadableIdentityAndSubfolderRowsStayPlain(t *testi
 	// carrying an empty status badge.
 	noStatus := "---\nid: G-004\ntype: goal\nlinks: []\ntitle: Statusless goal\n---\n"
 	if err := os.WriteFile(filepath.Join(root, "docs", "goals", "G-004-statusless.md"), []byte(noStatus), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	noEnforcement := "---\nid: C-998\ntype: constraint\nstatus: active\nlinks: []\ntitle: Enforcementless constraint\nsource: C-001\n---\n"
+	if err := os.WriteFile(filepath.Join(root, "docs", "constraints", "C-998-enforcementless.md"), []byte(noEnforcement), 0o644); err != nil {
 		t.Fatal(err)
 	}
 	if err := os.MkdirAll(filepath.Join(root, "docs", "extra"), 0o755); err != nil {
@@ -518,6 +535,16 @@ func TestAC073_UnitNegative_UnreadableIdentityAndSubfolderRowsStayPlain(t *testi
 	}
 	if strings.Contains(string(got), "· ``") {
 		t.Fatalf("no row may carry an empty status badge:\n%s", got)
+	}
+	constraintsReadme, err := os.ReadFile(filepath.Join(root, "docs", "constraints", "README.md"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if want := "- [C-998-enforcementless](C-998-enforcementless.md)\n"; !strings.Contains(string(constraintsReadme), want) {
+		t.Fatalf("a constraint without enforcement must fall back to the plain link, want %q, got:\n%s", want, constraintsReadme)
+	}
+	if strings.Contains(string(constraintsReadme), "C-998-enforcementless.md) ·") {
+		t.Fatalf("a constraint without enforcement must carry no badge:\n%s", constraintsReadme)
 	}
 	rootReadme, err := os.ReadFile(filepath.Join(root, "docs", "README.md"))
 	if err != nil {
