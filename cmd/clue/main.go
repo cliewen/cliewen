@@ -177,7 +177,8 @@ Commands:
              --reality-gaps    print capabilities contradicted by incident
                                analyses after their corpus was green.
              --index-rows      print index rows that only restate their own
-                               link or say nothing about the artifact.
+                               link, say nothing about the artifact, or give
+                               a constraint a badge other than enforcement.
              --read-cost       print multi-document artifacts and identities
                                whose default context slice exceeds the budget.
 
@@ -504,7 +505,7 @@ func runValidate(args []string, out io.Writer) int {
 	forbid := fs.Bool("forbid-changes", false, "fail when /changes contains files")
 	coverage := fs.Bool("coverage", false, "print derived per-capability proof coverage; never a committed registry")
 	realityGaps := fs.Bool("reality-gaps", false, "print capabilities contradicted by incident analyses; never a committed registry")
-	indexRows := fs.Bool("index-rows", false, "print index rows that only restate their own link or say nothing about the artifact; never a committed registry")
+	indexRows := fs.Bool("index-rows", false, "print index rows that only restate their own link, say nothing about the artifact, or mismatch constraint enforcement; never a committed registry")
 	readCost := fs.Bool("read-cost", false, "print multi-document artifacts and bounded context slices over the read-cost budget; never a committed registry")
 	_ = fs.Parse(args)
 	root := "."
@@ -554,6 +555,7 @@ func runValidate(args []string, out io.Writer) int {
 	// is what makes the number actionable (ADR-041).
 	fillerRows := corpus.IndexRowBacklog(c)
 	undescribed := corpus.IndexDescriptionBacklog(c)
+	constraintBadges := corpus.IndexRowConstraintBadgeBacklog(c)
 	multiDocument := corpus.MultiDocumentBacklog(c)
 	overBudget := corpus.ContextSliceBudgetBacklog(c)
 	if *indexRows {
@@ -562,6 +564,9 @@ func runValidate(args []string, out io.Writer) int {
 		}
 		for _, row := range undescribed {
 			fmt.Fprintf(out, "%s: %s states its record but not what it is about\n", row.Readme, row.Target)
+		}
+		for _, row := range constraintBadges {
+			fmt.Fprintf(out, "%s: %s has index badge %q, not enforcement %q\n", row.Readme, row.Target, row.Badge, row.Enforcement)
 		}
 	}
 	if *readCost {
@@ -587,6 +592,9 @@ func runValidate(args []string, out io.Writer) int {
 	}
 	if n := len(undescribed); n > 0 {
 		notes += fmt.Sprintf(", %d index row(s) not saying what the artifact is about", n)
+	}
+	if n := len(constraintBadges); n > 0 {
+		notes += fmt.Sprintf(", %d constraint index badge(s) not stating enforcement", n)
 	}
 	if n := len(multiDocument); n > 0 {
 		notes += fmt.Sprintf(", %d multi-document artifact(s)", n)

@@ -538,14 +538,15 @@ func regenIndex(root, rel string) (bool, error) {
 			continue
 		}
 		// An appended row states the record it links — its id, its title, and
-		// its status — rather than restating the filename the link already
-		// carries (ADR-041), and says what the artifact is about (ADR-046).
+		// its reader-facing badge — rather than restating the filename the link
+		// already carries (ADR-041), and says what the artifact is about
+		// (ADR-046).
 		// An artifact whose frontmatter cannot be read falls back to the plain
 		// link: index generation reports nothing and fails on nothing, and the
 		// judge is what names a malformed artifact.
 		full := filepath.Join(root, filepath.FromSlash(path.Join(dir, t)))
 		if id, ok := corpus.RowIdentity(full); ok {
-			row := "- [" + id.ID + " — " + id.Title + "](" + t + ") · `" + id.Status + "`"
+			row := "- [" + id.ID + " — " + id.Title + "](" + t + ") · `" + id.Badge + "`"
 			// The description is seeded, not asserted: the author corrects it
 			// and regeneration never rewrites it. An artifact with no readable
 			// sentence keeps the shorter row rather than carrying an empty

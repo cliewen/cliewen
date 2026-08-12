@@ -27,7 +27,7 @@ Feature: Index generation — clue scaffold
     Then no file is created or deleted and no file outside the taxonomy READMEs is modified
     And on a path without a docs tree the command exits non-zero, names the problem, and creates nothing
 
-  @AC-073
+  @AC-073 @retired
   Scenario: An appended index row states the record it links
     Test-type: Unit
     Given a taxonomy folder holding an artifact no index row references
@@ -36,6 +36,21 @@ Feature: Index generation — clue scaffold
     And a title whose value contains a colon is spelled as the parsed value, not as its YAML quoting
     But an artifact missing any of a readable id, title, and status falls back to the plain link, rather than a row carrying an empty status
     And a row referencing a subfolder README carries no title or status, because it states a section rather than a record
+    # Retired 2026-08-12 (CH-152): a constraint's register reader needs its
+    # enforcement class in this position rather than its generic lifecycle
+    # status; AC-138 carries the type-aware row and report contract.
+
+  @AC-138
+  Scenario: A constraint index badge states enforcement and a mismatch is visible
+    Test-type: Unit
+    Given a taxonomy folder holding an unindexed constraint with a readable enforcement class
+    And an existing direct constraint index row whose badge differs from its target's enforcement class
+    When the index block is regenerated and the user runs "clue validate --index-rows"
+    Then the appended constraint row states its id, title, and enforcement class in the badge position
+    And an appended row for an artifact other than a constraint still states its status in that position
+    And the validation run exits zero, counts the mismatched constraint badge, and names the README and target a reader opens to
+    But a constraint missing readable enforcement falls back to the plain link rather than carrying an empty or status badge
+    And a matching direct constraint row, a subfolder row, and a curated row covering several targets are not counted as mismatches
 
   @AC-096
   Scenario: An appended index row says what the artifact is about

@@ -369,7 +369,7 @@ entries:
       component: "72"
     - id: AC-073
       kind: numeric
-      state: live
+      state: retired
       prefix: AC
       component: "73"
     - id: AC-074
@@ -694,7 +694,7 @@ entries:
       component: "137"
     - id: AC-138
       kind: numeric
-      state: reserved
+      state: live
       prefix: AC
       component: "138"
     - id: ADR-001
@@ -1603,12 +1603,12 @@ entries:
       state: retired
     - id: CH-152
       kind: numeric
-      state: live
+      state: retired
       prefix: CH
       component: "152"
     - id: CH-152-tasks
       kind: opaque
-      state: live
+      state: retired
     - id: G-001
       kind: numeric
       state: live

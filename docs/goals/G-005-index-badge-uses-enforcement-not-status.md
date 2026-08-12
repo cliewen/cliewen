@@ -1,7 +1,7 @@
 ---
 id: G-005
 type: goal
-status: proposed
+status: accepted
 links: [G-001, C-016]
 title: A constraint's generated index badge shows its enforcement class
 ---
