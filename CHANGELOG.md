@@ -4,6 +4,12 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 
 ## [Unreleased]
 
+## [0.16.0] - 2026-08-13
+
+### Migration
+
+- **Upgrade the generated skills and CI caller together with `clue migrate`.** Existing `AGENTS.md` files remain adopter-owned and are never rewritten: replace any plain/light/full routing there with the new simple/full recommendation based on accepted-contract change, retain explicit user authority over integration, and keep release policy repository-local. Preview the complete migration before applying it, as usual.
+
 ### Changed
 
 - **Agents now recommend process from whether the accepted contract changes.** Simple work — including observational analysis, fixes and regression evidence for unchanged criteria, in-contract configuration, refactors, maintenance, and editorial corrections — stays outside the Cliewen change loop, while criteria, capability, decision, policy, plan-promise, methodology, and uncovered-behavior changes are recommended for the full loop. The agent explains and reassesses its recommendation, but the user and repository retain integration authority; an explicit simple override of a full recommendation is recorded in Git trailers. Release remains each adopter's own concern rather than a Cliewen route.
