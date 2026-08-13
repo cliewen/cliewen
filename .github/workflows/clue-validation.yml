@@ -59,6 +59,7 @@ jobs:
         id: scope
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
         run: |
           if ! git diff --name-only "$BASE_SHA" "$GITHUB_SHA" > "$RUNNER_TEMP/changed-files"; then
             echo "cliewen=true" >> "$GITHUB_OUTPUT"
@@ -77,7 +78,7 @@ jobs:
             if git log --format= --name-only "$BASE_SHA..$GITHUB_SHA" -- changes | grep -Eq '^changes/CH-[^/]+/proposal\.md$'; then
               proposal=true
             fi
-            message="$(git log -1 --format=%B "$GITHUB_SHA")"
+            message="$(git log -1 --format=%B "$HEAD_SHA")"
             override=false
             if printf '%s\n' "$message" | grep -Eiq '^Cliewen-Route:[[:space:]]*simple[[:space:]]*$' && \
                printf '%s\n' "$message" | grep -Eiq '^Cliewen-Recommendation:[[:space:]]*full[[:space:]]*$' && \

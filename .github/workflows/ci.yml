@@ -25,11 +25,12 @@ jobs:
         id: scope
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
         run: |
           if git diff --name-only -z "$BASE_SHA" "$GITHUB_SHA" > "$RUNNER_TEMP/changed-files"; then
             echo "diffok=true" >> "$GITHUB_OUTPUT"
             git log --format= --name-only -z "$BASE_SHA..$GITHUB_SHA" -- changes > "$RUNNER_TEMP/history-files"
-            git log -1 --format=%B "$GITHUB_SHA" > "$RUNNER_TEMP/head-message"
+            git log -1 --format=%B "$HEAD_SHA" > "$RUNNER_TEMP/head-message"
             node .github/scripts/ci-scope.mjs "$RUNNER_TEMP/history-files" "$RUNNER_TEMP/head-message" < "$RUNNER_TEMP/changed-files" >> "$GITHUB_OUTPUT"
           else
             echo "diffok=false" >> "$GITHUB_OUTPUT"

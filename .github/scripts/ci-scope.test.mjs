@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import fs from "node:fs";
 import test from "node:test";
 
 import {
@@ -48,6 +49,15 @@ test("AC-139 Unit negative: incomplete trailers never override a full proposal",
       classifyChange(["cmd/clue/main.go"], ["changes/CH-200-example/proposal.md"], message).full,
       true,
     );
+  }
+});
+
+test("AC-139 Unit positive: workflows read override trailers from the authored PR head", () => {
+  for (const workflow of [".github/workflows/ci.yml", ".github/workflows/clue-validation.yml"]) {
+    const source = fs.readFileSync(workflow, "utf8");
+    assert.match(source, /HEAD_SHA: \$\{\{ github\.event\.pull_request\.head\.sha \|\| github\.sha \}\}/);
+    assert.match(source, /git log -1 --format=%B "\$HEAD_SHA"/);
+    assert.match(source, /git diff --name-only(?: -z)? "\$BASE_SHA" "\$GITHUB_SHA"/);
   }
 });
 
