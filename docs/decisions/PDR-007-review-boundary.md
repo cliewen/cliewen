@@ -2,13 +2,15 @@
 id: PDR-007
 type: decision
 status: verified
-links: [PDR-004, PDR-027, PDR-039, PDR-040, C-004, C-012]
+links: [PDR-004, PDR-027, PDR-039, PDR-040, PDR-042, C-004, C-012]
 title: The PR is the authorization boundary — changes root at main and humans merge
 author: agent
 accepted-by: Flemming N. Larsen (2026-07-18, PR #20 review conversation)
 ---
 
 # PDR-007 — The PR is the authorization boundary
+
+> **Scope amended by [PDR-042](PDR-042-routing-recommends-contract-aware-effort.md):** this PR acceptance boundary governs a full loop the user chose. Simple integration follows explicit user authority and repository policy instead.
 
 > **Amended by [PDR-040](PDR-040-push-is-durability-ready-is-explicit.md):** the PR opens as a draft at first publication rather than only when a reviewed candidate exists; marking it ready is the readiness claim, and the one-change-in-flight stop condition anchors to that mark. Clause 6's rebase path closes with the pre-publication window: accepted `main` is always incorporated by merging it into the change branch.
 

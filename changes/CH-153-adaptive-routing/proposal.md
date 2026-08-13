@@ -2,7 +2,7 @@
 id: CH-153
 type: change
 status: open
-links: [CAP-006, PDR-007, PDR-011, PDR-018]
+links: [G-008, CAP-006, PDR-007, PDR-011, PDR-018]
 title: Route by accepted-contract change and leave integration authority with the user
 ---
 

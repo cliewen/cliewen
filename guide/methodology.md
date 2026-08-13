@@ -11,7 +11,7 @@ flowchart TD
     AC --> E{Acceptance evidence}
     E --> T[Test reference<br/>type + direction]
     E --> H[Human acceptance brief]
-    C[Constraints<br/>including verifiable quality bars] -. laws checked against every Cliewen change .-> CH
+    C[Constraints<br/>including verifiable quality bars] -. laws checked throughout full changes .-> CH
 ```
 
 ## Goal
@@ -24,11 +24,9 @@ A plan is a finite campaign serving a goal. Its milestones have explicit exit cr
 
 ## Change
 
-Cliewen does not own every repository edit. Three rules set the tier, by how deeply a change reaches into meaning; the first that matches wins. A change is **plain** when nothing about meaning changes: it affects no product behavior, intent, evidence, decision, plan, policy, or methodology, so it uses an ordinary branch, checks relevant to the edited surface, a pull request, and human merge, without a CH number or corpus work. It is **light** when meaning is touched but not changed: no decision, no acceptance meaning change, no semantic plan mutation, no methodology carrier touched. Everything else is **full**.
+Cliewen recommends **simple** when the accepted contract remains unchanged and **full** when it changes. Simple covers observational analysis, unchanged-criterion bug fixes and regression evidence, in-contract configuration, refactoring, maintenance, and editorial work; it has no CH identity or loop bookkeeping. Full covers acceptance-criterion, capability, decision, policy, plan-promise, methodology, and uncovered-behavior meaning changes and uses a transient workspace under `/changes/CH-xxx-*` that Git retains after digest.
 
-A Cliewen change is a branch-sized proposal. A full change uses a transient workspace under `/changes/CH-xxx-*` for the proposal, ordered tasks, and blocking questions. The workspace is deleted during the digest because the current system truth belongs in `/docs`, while Git keeps the proposal history. A light change skips that workspace and its ready pull-request description becomes the proposal, but the branch and human merge boundary remain.
-
-Two guards hold above the rules. When the tier is unclear, take the higher one; and the moment a decision, an open question, a meaning change, or a methodology-carrier edit appears during work, move to the full loop before continuing. Product behavior stays full even when an existing criterion already states the behavior: implementation changes executable evidence and can expose disagreement between the criterion, its tests, and reality.
+The agent states its recommendation before editing, names what would change it, reassesses on semantic discovery and before integration, and treats paths or diff size only as warnings. If the user rejects a full recommendation, simple work proceeds with the override and risk recorded in Git trailers. Route selection never authorizes a push: users and repository permissions control integration. Release is not a Cliewen route; adopters own their release process.
 
 Once classified, `clue context <id>` resolves an artifact, criterion, or milestone identity and prints the bounded outgoing-link slice that governs it, naming what the bound held back. This keeps reading proportional without reverse-expanding through shared goals into the whole corpus.
 

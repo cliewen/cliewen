@@ -2,13 +2,15 @@
 id: PDR-002
 type: decision
 status: verified
-links: [PDR-003]
+links: [PDR-003, PDR-042]
 title: A light change tier — the PR description is the proposal
 author: agent
 accepted-by: Flemming N. Larsen (2026-07-14, PR #9)
 ---
 
 # PDR-002 — A light change tier: the PR description is the proposal
+
+> **Superseded by [PDR-042](PDR-042-routing-recommends-contract-aware-effort.md):** light and plain are one simple recommendation outside the loop; accepted-contract change is recommended for the full loop.
 
 ## Context and problem statement
 

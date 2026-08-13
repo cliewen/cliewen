@@ -5,10 +5,10 @@
 
 ## Change loop
 
-Use for every Cliewen change: features, fixes, docs, and plans whose meaning belongs in the corpus or methodology. Plain changes are classified by AGENTS.md before the corpus is loaded and do not invoke this skill. Apply [Decision records](decision-records.md), [Repository-local conventions](repository-local-conventions.md), and [Durable work state](durable-work-state.md) throughout the loop.
+Use when the user chooses the full Cliewen loop recommended for accepted-contract change. Simple work is recommended before this skill and does not invoke it. Apply [Decision records](decision-records.md), [Repository-local conventions](repository-local-conventions.md), and [Durable work state](durable-work-state.md) throughout the loop.
 
 1. **Branch:** Follow the review boundary, get the next CH identity with `clue id next CH`, and name the branch `ch-xxx-slug` with that identity.
-2. **Propose:** For a full change, create `/changes/CH-xxx-slug/`, commit and push it before implementation, and open the draft PR under the review boundary; a light change opens its draft PR at its first commit instead:
+2. **Propose:** Create `/changes/CH-xxx-slug/`, commit and push it before implementation, and open the draft PR under the review boundary:
    - `proposal.md` states what and why; its frontmatter `links` names the real plan item it serves or explicitly declares the change plan-less.
    - `tasks.md` is an ordered `- [ ]` checklist with dependencies first and at most one nested level. Mark an infeasible task `[-]` with its reason on the same line, whenever it is marked. A behavior-changing task names the acceptance-criterion IDs it serves; if none exists, add the criterion before implementation. Tests trace to criteria, never transient tasks.
    - `open-questions.md` records blocking questions. When one appears, write it and stop; the human answer becomes a decision record.

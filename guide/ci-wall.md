@@ -66,9 +66,9 @@ Do not edit `clue-version` without replacing both vendored files from the matchi
 | State | What the `validate` job does | Can it protect the corpus? |
 |---|---|---|
 | Unarmed | Reports a warning and skips `clue validate` | No |
-| Armed | Verifies the vendored checksum, stages `clue` in the selected writable directory, prints its version, and runs `clue validate --forbid-changes` for Cliewen changes | Yes, once the check is required |
-| Release source | Downloads the matching binary and `SHA256SUMS`, verifies the checksum, stages `clue`, and runs `clue validate --forbid-changes` for Cliewen changes | Yes, once the check is required |
-| Plain Markdown change | Keeps the stable `validate` job green without running the corpus validator | Yes; the same required check still exists |
+| Armed | Verifies the vendored checksum, stages `clue`, and validates corpus-relevant changes; only full proposal history enables the acceptance-brief gate | Yes, once the check is required |
+| Release source | Downloads and verifies the matching binary, then applies the same corpus and full-loop distinction | Yes, once the check is required |
+| Simple non-corpus Markdown change | Keeps the stable `validate` job green without running the corpus validator | Yes; the same required check still exists |
 
 The `--forbid-changes` flag is the digest boundary. A pull request with a transient `/changes/CH-xxx-*` workspace is unfinished, even if ordinary validation passes. The hosted check turns red until the change is digested into the permanent corpus and the workspace is removed.
 
@@ -180,7 +180,7 @@ Forge menus differ, so copy the contract rather than GitHub's labels:
 
 - Run the generated workflow's equivalent on every proposed change to the protected branch.
 - Keep one stable check name, `validate`.
-- Verify and execute the pinned `clue` release, then run `clue validate --forbid-changes` for every Cliewen change.
+- Verify and execute the pinned `clue` release for corpus-relevant changes, while requiring an acceptance brief only when branch history contains a full proposal without a complete simple override.
 - Require a merge request or pull request and the successful `validate` check before integration.
 - Require resolvable review conversations to be closed before integration; an agent finding remains open until its reviewed fix is hosted.
 - Give normal users and automation no bypass for direct pushes, failed checks, force pushes, or branch deletion.

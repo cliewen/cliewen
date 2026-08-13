@@ -1,6 +1,6 @@
 # The corpus
 
-This directory is the **system-of-record**: the permanent, durable truth about the system. Cliewen changes are transient deltas on branches that get **digested** into this corpus at merge — `git log docs/` is the audit trail. Entry point for humans and agents alike; agents treat this tree as working memory when a change affects product or methodology meaning. Plain changes classified by AGENTS.md stay outside the corpus.
+This directory is the **system-of-record**: the permanent, durable truth about the system. Full Cliewen changes are transient deltas on branches that get **digested** into this corpus at merge — `git log docs/` is the audit trail. Entry point for humans and agents alike; agents treat this tree as working memory when a change affects product or methodology meaning. Simple work uses no Cliewen workspace but still leaves any corpus surface it touches truthful.
 
 ## How the corpus is wired
 
@@ -22,10 +22,10 @@ When a released `clue` adds or narrows a corpus obligation, preview `clue migrat
 
 ## What lives where — and when a change updates it
 
-Each folder below holds one kind of record. A Cliewen change (the `clue-delta` loop) updates, in the same branch and PR as the code, every record its work touches:
+Each folder below holds one kind of record. A full change (the `clue-delta` loop) updates every record its work touches in the same integration; simple work remains responsible for any durable record it touches even though it uses no workspace or digest:
 
 - **Goals** (`goals/`) — who wants the system and why. A new wish enters here as `status: proposed`; a change rarely touches goals.
-- **Plans** (`plans/`) — campaigns with verifiable milestones. Every Cliewen change names the plan item it serves (or declares itself plan-less); the digest updates plan bookkeeping, including closing a plan whose last milestone the change completes.
+- **Plans** (`plans/`) — campaigns with verifiable milestones. Every full change names the plan item it serves (or declares itself plan-less); the digest updates plan bookkeeping, including closing a plan whose last milestone the change completes.
 - **Capabilities** (`capabilities/`) — one folder per capability: `README.md` (what and why), `criteria.md` (acceptance criteria as Gherkin, each tied to its declared acceptance evidence), `design.md` (how it works). **Design is documented per capability** — a change that alters a capability's behavior updates its criteria and design in the same PR.
 - **Architecture** (`architecture/`) — the shape of the whole: the expensive-to-change. Updated when a change alters the system's structure or public surface, not for local detail.
 - **Decisions** (`decisions/`) — why things are the way they are. An **ADR** records an architectural decision, a **PDR** a decision about how the project works; both are expensive to reverse. Cheap-and-local-to-reverse decisions are one-line rows in `log.md`. Every decision made during a change is recorded in its digest.

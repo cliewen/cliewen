@@ -28,11 +28,17 @@ jobs:
         run: |
           if git diff --name-only -z "$BASE_SHA" "$GITHUB_SHA" > "$RUNNER_TEMP/changed-files"; then
             echo "diffok=true" >> "$GITHUB_OUTPUT"
-            node .github/scripts/ci-scope.mjs < "$RUNNER_TEMP/changed-files" >> "$GITHUB_OUTPUT"
+            git log --format= --name-only -z "$BASE_SHA..$GITHUB_SHA" -- changes > "$RUNNER_TEMP/history-files"
+            git log -1 --format=%B "$GITHUB_SHA" > "$RUNNER_TEMP/head-message"
+            node .github/scripts/ci-scope.mjs "$RUNNER_TEMP/history-files" "$RUNNER_TEMP/head-message" < "$RUNNER_TEMP/changed-files" >> "$GITHUB_OUTPUT"
           else
             echo "diffok=false" >> "$GITHUB_OUTPUT"
             echo "full=true" >> "$GITHUB_OUTPUT"
+            echo "go=true" >> "$GITHUB_OUTPUT"
+            echo "corpus=true" >> "$GITHUB_OUTPUT"
             echo "guide=true" >> "$GITHUB_OUTPUT"
+            echo "release=false" >> "$GITHUB_OUTPUT"
+            echo "override=false" >> "$GITHUB_OUTPUT"
           fi
       - name: Test CI scope classifier
         run: npm run test:ci-scope
@@ -49,26 +55,26 @@ jobs:
           printf '%s' "$PR_BODY" | grep -Fq '## Acceptance brief' || { echo 'FAIL: full Cliewen PRs need an acceptance brief'; exit 1; }
           ! printf '%s' "$PR_BODY" | grep -Fq '<!-- REQUIRED' || { echo 'FAIL: replace every acceptance-brief REQUIRED placeholder'; exit 1; }
       - uses: actions/setup-go@v7
-        if: steps.scope.outputs.full == 'true' || steps.scope.outputs.guide == 'true' || steps.scope.outputs.release == 'true'
+        if: steps.scope.outputs.go == 'true' || steps.scope.outputs.corpus == 'true' || steps.scope.outputs.guide == 'true'
         with:
           go-version: stable
       - name: Test guide evidence
-        if: steps.scope.outputs.guide == 'true' && steps.scope.outputs.full != 'true'
+        if: steps.scope.outputs.guide == 'true' && steps.scope.outputs.go != 'true'
         run: go test ./guide
       - name: Build
-        if: steps.scope.outputs.full == 'true' || steps.scope.outputs.release == 'true'
+        if: steps.scope.outputs.go == 'true'
         run: go build ./...
       - name: Test (with coverage)
-        if: steps.scope.outputs.full == 'true' || steps.scope.outputs.release == 'true'
+        if: steps.scope.outputs.go == 'true'
         run: go test ./... -coverprofile=coverage.out
       - name: Coverage gate (C-014, total >= 80%)
-        if: steps.scope.outputs.full == 'true' || steps.scope.outputs.release == 'true'
+        if: steps.scope.outputs.go == 'true'
         run: |
           total=$(go tool cover -func=coverage.out | awk '/^total:/ {sub(/%/,"",$3); print $3}')
           echo "total statement coverage: ${total}%"
           awk -v t="$total" 'BEGIN { exit !(t >= 80) }' || { echo "FAIL: ${total}% is below the 80% gate (C-014)"; exit 1; }
       - name: Build public guide (strict dead-link check)
-        if: steps.scope.outputs.full == 'true' || steps.scope.outputs.guide == 'true' || steps.scope.outputs.release == 'true'
+        if: steps.scope.outputs.guide == 'true'
         run: |
           npm ci
           npm run guide:build
@@ -78,7 +84,7 @@ jobs:
       # draft, and marking it ready reruns the strict form on the same head,
       # so nothing reaches the merge boundary ungated (PDR-040).
       - name: Validate corpus (digest-before-merge gate)
-        if: steps.scope.outputs.full == 'true' || steps.scope.outputs.release == 'true'
+        if: steps.scope.outputs.corpus == 'true'
         env:
           DRAFT: ${{ github.event.pull_request.draft }}
         run: |

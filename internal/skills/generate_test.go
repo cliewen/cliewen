@@ -174,7 +174,7 @@ func TestSanity_EveryManagedSkillAppearsInBothRoutingHubs(t *testing.T) {
 func TestSanity_RoutedSkillSectionsUseLocalReferencePointers(t *testing.T) {
 	verify := mustRenderFile(t, "clue-verify/references/verification-checklist.md")
 	for _, want := range []string{
-		"under [Change scope and tiers](change-scope-and-tiers.md)",
+		"under [Change routing](change-scope-and-tiers.md)",
 		"satisfy the [Review boundary](review-boundary.md)",
 	} {
 		if !strings.Contains(verify, want) {

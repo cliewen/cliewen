@@ -896,7 +896,7 @@ func TestSanity_CommunityFrontDoorIsWellFormed(t *testing.T) {
 	)
 
 	for rel, wants := range map[string][]string{
-		"CONTRIBUTING.md": {"CODE_OF_CONDUCT.md", "SECURITY.md", conductMailto, "human maintainer", "plan-less", "plain change", "For a plain change", "For a Cliewen change", "automatic agentic review pass"},
+		"CONTRIBUTING.md": {"CODE_OF_CONDUCT.md", "SECURITY.md", conductMailto, "human maintainer", "plan-less", "Simple work", "For simple work", "For a full change", "automatic agentic review"},
 		"CODE_OF_CONDUCT.md": {
 			"Contributor Covenant 3.0 Code of Conduct",
 			"## Encouraged Behaviors",
@@ -913,9 +913,8 @@ func TestSanity_CommunityFrontDoorIsWellFormed(t *testing.T) {
 			"Do not open a public issue",
 		},
 		".github/pull_request_template.md": {
-			"plain change",
+			"simple work",
 			"Change ID",
-			"Change tier",
 			"Plan item served",
 			"clue validate --forbid-changes",
 			"human review and merge",
@@ -1028,12 +1027,12 @@ func TestAC132_UnitPositive_PublicCarriersKeepCrossAgentHelpOutsideTheInitiatedS
 			"review or update help on an existing PR does not consume another slot",
 		},
 		"CONTRIBUTING.md": {
-			"A contributor may initiate one Cliewen change at a time",
-			"reviewing, and helping update an existing pull request do not consume another initiated-change slot",
+			"A contributor may initiate one full change at a time",
+			"reviewing, and helping update an existing pull request consume no full-change slot",
 		},
 		"guide/change-loop.md": {
-			"One initiating author takes one initiated Cliewen change",
-			"reviews, and help updating an existing pull request do not consume another initiated-change slot",
+			"One initiating author takes one full change",
+			"Simple work and help on another pull request consume no full-change slot",
 		},
 	} {
 		data, err := os.ReadFile(filepath.Join(root, filepath.FromSlash(rel)))
@@ -1075,7 +1074,7 @@ func TestSanity_PRBoundaryExplainsAuthorizationAndCIEnforcement(t *testing.T) {
 			"mandatory authorization and protected-integration boundary",
 		},
 		"docs/constraints/README.md": {
-			"C-012 — Changes are reviewed locally, root at main, and remain human-merged",
+			"C-012 — Full changes remain human-accepted while simple integration follows explicit user authority",
 		},
 	} {
 		data, err := os.ReadFile(filepath.Join(root, filepath.FromSlash(rel)))
@@ -1101,9 +1100,9 @@ func TestSanity_AgenticFindingsRequireOperativeViolations(t *testing.T) {
 			"lifecycle-correct state are not actionable defects by themselves",
 		},
 		"guide/change-loop.md": {
-			"Every finding identifies the operative requirement or declared intent that is violated and its concrete consequence",
-			"Human-controlled merge does not imply duplicate human code review",
-			"a release cut uses its versioned changelog section instead of `[Unreleased]`",
+			"Blocking findings are repaired, rechecked, and reviewed again",
+			"not a demand for duplicate human code review",
+			"Release is not a Cliewen route",
 		},
 	} {
 		data, err := os.ReadFile(filepath.Join(root, filepath.FromSlash(rel)))
@@ -1119,20 +1118,23 @@ func TestSanity_AgenticFindingsRequireOperativeViolations(t *testing.T) {
 	}
 }
 
-// Sanity: guide-only editorial changes take the focused CI path, while
-// the classifier and workflow retain a fail-closed full path.
-func TestSanity_CIHasFailClosedFocusedGuideScope(t *testing.T) {
+// Sanity: semantic route and changed-surface checks are independent, while
+// an unresolvable diff still fails closed into every gate.
+func TestSanity_CISeparatesSemanticRouteFromRelevantChecks(t *testing.T) {
 	root := filepath.Join("..", "..")
 	for rel, wants := range map[string][]string{
 		".github/scripts/ci-scope.mjs": {
-			"files.length > 0",
+			"proposal && !override",
 			`file.startsWith("guide/")`,
-			`file.endsWith(".md")`,
-			"full: !focusedGuide",
+			"hasCompleteSimpleOverride",
+			"corpus",
+			"go",
 		},
 		".github/workflows/ci.yml": {
 			"Classify changed surface",
 			"full=true",
+			"corpus=true",
+			"go=true",
 			"guide=true",
 			"steps.scope.outputs.full == 'true'",
 			"npm run guide:build",

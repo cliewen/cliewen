@@ -2,13 +2,15 @@
 id: PDR-041
 type: decision
 status: inferred
-links: [G-007, C-002, ADR-012, ADR-013]
+links: [G-007, C-002, ADR-012, ADR-013, PDR-042]
 title: A change owes a release note when it changes what an adopter receives
 author: agent
 accepted-by: []
 ---
 
 # PDR-041 — Release-note scope is the shipped surface
+
+> **Terminology amended by [PDR-042](PDR-042-routing-recommends-contract-aware-effort.md):** simple/full routing replaces plain/light/full, but route still does not decide release-note scope; the shipped-surface test below does.
 
 ## Context and problem statement
 
@@ -21,7 +23,7 @@ accepted-by: []
 **A change owes a release note when it changes what an adopter receives; every term in the scope list names that shipped surface.**
 
 - **The test.** Does the change alter the behaviour of `clue`, the text of a generated skill, or an artifact `clue init` or `clue scaffold` materializes into an adopter repository? If none of the three, no entry is owed.
-- **This repository's own layer is outside the scope**, including its corpus, its contributor guidance, and its local conventions — even when what changed is genuinely a capability, a contract, a command, or a workflow of this repository. That a change is not plain, and carries full Cliewen bookkeeping, says nothing about whether it owes an entry.
+- **This repository's own layer is outside the scope**, including its corpus, its contributor guidance, and its local conventions — even when what changed is genuinely a capability, a contract, a command, or a workflow of this repository. That a change is recommended full, and carries full Cliewen bookkeeping, says nothing about whether it owes an entry.
 - **The test governs whenever it and a category disagree.** A category list is a shortcut for the common case and cannot be the rule, because a directory that reads as local holds shipped files: `.github/` contains this repository's own `ci.yml` alongside `pull_request_template.md`, which a positive test holds byte-identical to what `clue init` writes, and `clue-validation.yml`, the reusable workflow an adopter's caller references. A change to either of the latter two owes an entry, and any shortcut implying otherwise is wrong rather than merely incomplete.
 - **A change spanning both writes the entry for the adopter-visible part alone**, in the reader's terms, and says nothing about the repo-local half.
 - **The residual stays judgment.** The test names the surface; whether a given edit changes what that surface *means* to a user is still a reading, and the release gates continue to check only that a version section exists.

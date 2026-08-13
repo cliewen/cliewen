@@ -2,13 +2,15 @@
 id: PDR-016
 type: decision
 status: verified
-links: [G-001, AN-009, PDR-007, PDR-012, PDR-040, C-012, CAP-006]
+links: [G-001, AN-009, PDR-007, PDR-012, PDR-040, PDR-042, C-012, CAP-006]
 title: Hosted PR state carries review findings and updater handoffs across agents
 author: agent
 accepted-by: Flemming N. Larsen (2026-08-02, conversation)
 ---
 
 # PDR-016 — Hosted PR state carries review findings and updater handoffs across agents
+
+> **Scope amended by [PDR-042](PDR-042-routing-recommends-contract-aware-effort.md):** these hosted handoff guarantees govern a full loop the user chose; simple work follows user authorization and repository policy.
 
 > **Amended by [PDR-040](PDR-040-push-is-durability-ready-is-explicit.md):** the updater's push is no longer deferred to publication — every turn that changed anything pushes, a repair pushed to a ready PR returns it to draft, and the handoff completes when the repaired head is verified, cleanly reviewed, and the PR is marked ready again. Clause 6's remaining rebase permission ends with the unpublished branch it depended on: a change is published from its first commit, so accepted `main` is always merged in. Clause 7's preserved-local-work case narrows to the merged-or-closed stop, the one turn that ends unpushed.
 

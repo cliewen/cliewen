@@ -62,14 +62,34 @@ jobs:
         run: |
           if ! git diff --name-only "$BASE_SHA" "$GITHUB_SHA" > "$RUNNER_TEMP/changed-files"; then
             echo "cliewen=true" >> "$GITHUB_OUTPUT"
+            echo "full=true" >> "$GITHUB_OUTPUT"
           elif [ ! -s "$RUNNER_TEMP/changed-files" ]; then
             echo "cliewen=true" >> "$GITHUB_OUTPUT"
-          elif grep -Eqv '\.md$' "$RUNNER_TEMP/changed-files"; then
-            echo "cliewen=true" >> "$GITHUB_OUTPUT"
-          elif grep -Eq '^(docs/|changes/|\.agents/|\.claude/|\.github/|AGENTS\.md$|CHANGELOG\.md$|CONTRIBUTING\.md$|SECURITY\.md$|CODE_OF_CONDUCT\.md$)' "$RUNNER_TEMP/changed-files"; then
-            echo "cliewen=true" >> "$GITHUB_OUTPUT"
+            echo "full=true" >> "$GITHUB_OUTPUT"
           else
-            echo "cliewen=false" >> "$GITHUB_OUTPUT"
+            if grep -Eqv '\.md$' "$RUNNER_TEMP/changed-files" || grep -Eq '^(docs/|changes/|\.agents/|\.claude/|\.github/|AGENTS\.md$|CHANGELOG\.md$|CONTRIBUTING\.md$|SECURITY\.md$|CODE_OF_CONDUCT\.md$)' "$RUNNER_TEMP/changed-files"; then
+              echo "cliewen=true" >> "$GITHUB_OUTPUT"
+            else
+              echo "cliewen=false" >> "$GITHUB_OUTPUT"
+            fi
+
+            proposal=false
+            if git log --format= --name-only "$BASE_SHA..$GITHUB_SHA" -- changes | grep -Eq '^changes/CH-[^/]+/proposal\.md$'; then
+              proposal=true
+            fi
+            message="$(git log -1 --format=%B "$GITHUB_SHA")"
+            override=false
+            if printf '%s\n' "$message" | grep -Eiq '^Cliewen-Route:[[:space:]]*simple[[:space:]]*$' && \
+               printf '%s\n' "$message" | grep -Eiq '^Cliewen-Recommendation:[[:space:]]*full[[:space:]]*$' && \
+               printf '%s\n' "$message" | grep -Eiq '^Cliewen-Override:[[:space:]]*[^[:space:]].+$'; then
+              override=true
+            fi
+            if [ "$proposal" = true ] && [ "$override" = false ]; then
+              echo "full=true" >> "$GITHUB_OUTPUT"
+              echo "cliewen=true" >> "$GITHUB_OUTPUT"
+            else
+              echo "full=false" >> "$GITHUB_OUTPUT"
+            fi
           fi
 
       - name: Validate clue source choice
@@ -161,9 +181,9 @@ jobs:
       # when the pull request is marked ready (PDR-040). Skipped only for a
       # draft-aware caller, for the reason given on that input.
       - name: Require a completed acceptance brief
-        if: github.event_name == 'pull_request' && !(inputs.draft-aware && github.event.pull_request.draft) && steps.scope.outputs.cliewen == 'true'
+        if: github.event_name == 'pull_request' && !(inputs.draft-aware && github.event.pull_request.draft) && steps.scope.outputs.full == 'true'
         env:
           PR_BODY: ${{ github.event.pull_request.body }}
         run: |
-          printf '%s' "$PR_BODY" | grep -Fq '## Acceptance brief' || { echo 'FAIL: Cliewen PRs need an acceptance brief'; exit 1; }
+          printf '%s' "$PR_BODY" | grep -Fq '## Acceptance brief' || { echo 'FAIL: full-loop PRs need an acceptance brief'; exit 1; }
           ! printf '%s' "$PR_BODY" | grep -Fq '<!-- REQUIRED' || { echo 'FAIL: replace every acceptance-brief REQUIRED placeholder'; exit 1; }

@@ -90,4 +90,17 @@ Feature: Collaborative pull-request handoffs
     Then its committed workspace names the unmerged base, the authorization, and the unaccepted meaning its merge would bind
     And its acceptance brief repeats that information for the human merge decision
     But neither record makes the base accepted or permits an agent to merge either change
+
+  @AC-139
+  Scenario: The agent recommends proportionate process while the user controls integration
+    Test-type: Unit
+    Given an agent has inspected the smallest relevant context for requested work
+    When it recommends a route before editing and audits the complete diff before integration
+    Then it recommends simple when the accepted contract remains unchanged and full when an acceptance criterion, capability, decision, policy, plan promise, methodology contract, or uncovered behavior changes
+    And it names what discovery would change that recommendation without using path or diff size as the semantic verdict
+    And an observational analysis, unchanged-criterion defect correction, regression test, in-contract configuration adjustment, refactor, maintenance, or editorial correction may remain simple
+    And relevant checks follow the changed surfaces independently of whether full-loop bookkeeping applies
+    But if semantic scope grows it pauses and recommends full, while an explicit user refusal proceeds as simple with complete route, recommendation, and risk trailers in Git history
+    And neither route authorizes an agent push without explicit user permission and repository permission
+    And releases remain adopter-defined while this repository's administrative version cut is only a local simple-work specialization
 ```

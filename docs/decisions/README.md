@@ -1,6 +1,6 @@
 # Decisions
 
-Three records live here ([PDR-006](PDR-006-decision-records-are-typed.md), [PDR-003](PDR-003-decision-log.md)), routed by two questions. Is reversing the decision cheap and local? Then it is a row in the **[decision log](log.md)** — one dated line per decision. Otherwise, is it about architecture or about how the project works? **ADRs** (Architectural Decision Records, in Nygard's strict sense) record decisions about the structure of the software and the corpus format; **PDRs** (Project/Process Decision Records) record decisions about how the project works — change tiers, acceptance mechanics, validation strategy. A decision that adopts a well-established practice cites it by name and records only the local why and deviations.
+Three records live here ([PDR-006](PDR-006-decision-records-are-typed.md), [PDR-003](PDR-003-decision-log.md)), routed by two questions. Is reversing the decision cheap and local? Then it is a row in the **[decision log](log.md)** — one dated line per decision. Otherwise, is it about architecture or about how the project works? **ADRs** (Architectural Decision Records, in Nygard's strict sense) record decisions about the structure of the software and the corpus format; **PDRs** (Project/Process Decision Records) record decisions about how the project works — change routing, acceptance mechanics, validation strategy. A decision that adopts a well-established practice cites it by name and records only the local why and deviations.
 
 ADRs and PDRs share the MADR format and two-tier provenance: `inferred` (binding once merged, but no human has signed it) → `verified` (at least one human has explicitly approved — the act that makes provenance auditable). Every record carries `author: agent|human` and `accepted-by:`. **Rejected alternatives are half of "why does the system look like this"** — rejected records live here too, and a rejection that would be expensive to revisit is itself a decision that earns one, routed by the same reversal-cost test rather than left as a paragraph in a findings document. **Decisions are never deleted** — retention applies to the decision, not the file format: a record demoted under the litmus test survives as a dated log row, a record filed under the wrong type is renamed into the right series, and git history keeps the full provenance.
 
@@ -36,20 +36,20 @@ The CLI reports inferred ADRs and PDRs as decisions awaiting verification, separ
 - [ADR-020 — The scaffolded register seeds only conventions without a versioned carrier](ADR-020-scaffolded-register-scope.md) · `verified`
 - [ADR-021 — Skills are generated as standalone artifacts from shared canonical sources](ADR-021-generated-standalone-skills.md) · `verified`
 - [PDR-001 — PR approval is ADR acceptance — the agent performs the clerical promotion](PDR-001-pr-approval-promotes-adrs.md) · `verified` · superseded by PDR-004
-- [PDR-002 — A light change tier — the PR description is the proposal](PDR-002-light-change-tier.md) · `verified` · the light/full split now applies after the plain-route boundary in PDR-011
+- [PDR-002 — A light change tier — the PR description is the proposal](PDR-002-light-change-tier.md) · `verified` · superseded by PDR-042's simple/full recommendation
 - [PDR-003 — ADRs are for expensive-to-reverse decisions; the rest is a decision log](PDR-003-decision-log.md) · `verified` · superseded by PDR-006
 - [PDR-004 — Merge makes a decision binding; approval verifies it — approvers sign, first signature dates it](PDR-004-merge-binds-approval-signs.md) · `verified`
 - [PDR-005 — Validation requires foreign soil — trials on external repos, as findings not adoptions](PDR-005-foreign-soil-trials.md) · `verified`
 - [PDR-006 — Decision records are typed — ADRs for architecture, PDRs for project/process, log rows for the cheap](PDR-006-decision-records-are-typed.md) · `verified`
-- [PDR-007 — The PR is the authorization boundary — changes root at main and humans merge](PDR-007-review-boundary.md) · `verified` · amended by PDR-011, which narrows the one-in-flight slot to Cliewen changes; amended by PDR-016, which refines the initiating-author scope and supersedes mandatory rebase for published PRs
+- [PDR-007 — The PR is the authorization boundary — changes root at main and humans merge](PDR-007-review-boundary.md) · `verified` · PDR-042 scopes this boundary to a chosen full loop
 - [PDR-008 — A declared plan revision may ride with its implementing change](PDR-008-plan-revisions-may-ride.md) · `verified`
 - [LOG-001 — Decision log](log.md) · `active` · dated rows for the cheap-to-reverse (ADR-003 and ADR-004 demoted here)
 - [PDR-009 — Going public is a campaign — readiness first, one release, then the flip](PDR-009-going-public.md) · `verified`
 - [ADR-022 — Cliewen skills declare ownership in frontmatter](ADR-022-skill-ownership-marker.md) · `verified`
-- [PDR-010 — Community participation enters through structured intake, private safety channels, and human review](PDR-010-community-participation.md) · `verified` · PDR-011 removes Cliewen fields from plain PRs
+- [PDR-010 — Community participation enters through structured intake, private safety channels, and human review](PDR-010-community-participation.md) · `verified` · PDR-042 keeps simple integrations outside Cliewen bookkeeping
 - [ADR-023 — The public guide is an isolated VitePress site with a visibility-gated Pages deployment](ADR-023-public-guide-architecture.md) · `verified`
-- [PDR-011 — Plain changes stay outside Cliewen while retaining human merge](PDR-011-plain-changes-bypass-cliewen.md) · `verified`
-- [PDR-012 — Every Cliewen change receives an automatic agentic review before publication](PDR-012-agentic-review-before-publication.md) · `verified`
+- [PDR-011 — Plain changes stay outside Cliewen while retaining human merge](PDR-011-plain-changes-bypass-cliewen.md) · `verified` · superseded by PDR-042's broader simple recommendation and user integration authority
+- [PDR-012 — Every chosen full change receives an automatic agentic review before readiness](PDR-012-agentic-review-before-publication.md) · `verified` · PDR-042 scopes mandatory review to the chosen full loop
 - [ADR-024 — The public guide is canonical at the cliewen.dev root](ADR-024-custom-domain-root.md) · `verified`
 - [PDR-013 — Cliewen has an explicit core behind a red line; everything else is periphery adopters may extend](PDR-013-explicit-core-red-line.md) · `verified`
 - [ADR-025 — One default status lifecycle — draft → active → retired — plus named exceptions](ADR-025-one-status-lifecycle.md) · `verified`
@@ -67,7 +67,7 @@ The CLI reports inferred ADRs and PDRs as decisions awaiting verification, separ
 - [ADR-033 — Human proof class, a per-criterion draft exemption, and derived coverage](ADR-033-human-proof-and-draft-criteria.md) · `verified`
 - [ADR-034 — Retirement is deletion; supersedes carries the pointer forward](ADR-034-retirement-is-deletion.md) · `verified`
 - [ADR-035 — Cost bounds inferred provenance and incident analyses return an edge from reality](ADR-035-bounded-provenance-and-reality-edges.md) · `verified`
-- [PDR-018 — Behavior changes remain full until adopter evidence supports a narrower loop](PDR-018-behavior-changes-remain-full.md) · `verified`
+- [PDR-018 — Behavior changes remain full until adopter evidence supports a narrower loop](PDR-018-behavior-changes-remain-full.md) · `verified` · superseded by PDR-042 for unchanged-contract defect corrections
 - [PDR-019 — Methodology contract changes update every live carrier in the same change](PDR-019-methodology-contract-carriers-move-together.md) · `verified`
 - [PDR-020 — Extraction rehearses before it mutates](PDR-020-extraction-rehearsal-before-mutation.md) · `verified`
 - [ADR-036 — JVM evidence is credited only from one statically attributable executable](ADR-036-jvm-evidence-per-executable.md) · `verified`
@@ -115,4 +115,5 @@ The CLI reports inferred ADRs and PDRs as decisions awaiting verification, separ
 - [ADR-058 — A read-cost report is a backlog judged artifact by artifact, and a link is never deleted to move its count](ADR-058-read-cost-is-a-backlog-not-a-target.md) · `verified` — The over-budget read-cost population is inspected artifact by artifact and each outcome recorded; a links entry is never deleted to move the reported count, and an accepted identity keeps its row.
 - [PDR-041 — A change owes a release note when it changes what an adopter receives](PDR-041-release-note-scope-is-the-shipped-surface.md) · `inferred` — `CHANGELOG.md` is published verbatim as the GitHub release body (ADR-012), so its audience is whoever installs `clue` or adopts the skills.
 - [ADR-059 — A generated skill is a standalone directory with a routing entry point](ADR-059-progressive-standalone-skill-directories.md) · `inferred` — ADR-021 made every generated `skill.md` a complete standalone carrier so copying one file preserved every rule the skill could need.
+- [PDR-042 — Routing recommends effort from accepted-contract change while the user retains integration authority](PDR-042-routing-recommends-contract-aware-effort.md) · `verified` — Agents recommend simple or full from accepted-contract impact, reassess before integration, record an explicit simple override in Git trailers, and leave integration authority and release policy with the repository owner.
 <!-- clue:index:end -->

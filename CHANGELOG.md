@@ -4,6 +4,10 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 
 ## [Unreleased]
 
+### Changed
+
+- **Agents now recommend process from whether the accepted contract changes.** Simple work — including observational analysis, fixes and regression evidence for unchanged criteria, in-contract configuration, refactors, maintenance, and editorial corrections — stays outside the Cliewen change loop, while criteria, capability, decision, policy, plan-promise, methodology, and uncovered-behavior changes are recommended for the full loop. The agent explains and reassesses its recommendation, but the user and repository retain integration authority; an explicit simple override of a full recommendation is recorded in Git trailers. Release remains each adopter's own concern rather than a Cliewen route.
+
 ## [0.15.0] - 2026-08-12
 
 ### Migration

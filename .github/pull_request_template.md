@@ -1,5 +1,7 @@
 ## Acceptance brief
 
+<!-- Delete this entire section and every Cliewen-specific section below for simple work. Simple means the accepted contract remains unchanged. -->
+
 <!-- REQUIRED: Replace this comment with a concise, human-facing brief before requesting merge. -->
 
 - Plan item and whether it remains wanted: <!-- REQUIRED -->
@@ -18,12 +20,11 @@
 
 ## Cliewen proposal
 
-<!-- Delete this section and the Cliewen checklist for a plain change. Plain means no effect on behavior, intent, evidence, decisions, plans, policy, commands, contracts, user workflow, or methodology. -->
+<!-- Full loop only. If the agent recommended full but the user chose simple, delete this section and retain the three PDR-042 override trailers in Git history. -->
 
 - Change ID: `CH-xxx`
-- Change tier: <!-- full or light -->
 - Plan item served: <!-- P-xxx / M-xxx, or explicitly plan-less -->
-- Proposal location: <!-- /changes/CH-xxx-slug/proposal.md for full changes; this PR description for light changes -->
+- Proposal location: <!-- /changes/CH-xxx-slug/proposal.md -->
 - Agentic review mode, reviewed commit, and pass count: <!-- context-isolated or in-context fallback; SHA; number of passes -->
 - Outstanding advisory findings: <!-- links or concise descriptions, or none -->
 - Hosted head reviewed before this update: <!-- SHA, or new PR -->
@@ -38,9 +39,9 @@
 ## Cliewen checklist
 
 - [ ] This is the initiating author's only initiated Cliewen change; review or update help on an existing PR does not consume another slot.
-- [ ] The proposal was committed before implementation, or this is a correctly scoped light change whose proposal is this PR description.
+- [ ] The full proposal was committed before implementation.
 - [ ] The plan item or plan-less declaration is truthful, and all artifact links resolve.
-- [ ] Decisions are recorded at the right tier, and active constraints were assessed.
+- [ ] Consequential decisions are recorded, and active constraints were assessed.
 - [ ] Changed active acceptance criteria satisfy the evidence contract, each by one of these routes:
   - classified positive/negative Go, JVM, or Cucumber evidence at the declared machine proof type, with JVM identity/type/direction attached to the same executable, or an explicit `(single-direction)`;
   - Human proof named in the acceptance brief;
@@ -60,4 +61,4 @@
 - [ ] The branch was updated without force, and this ready pull request's head branch and SHA equal the locally verified branch and `HEAD`.
 - [ ] This pull request existed as a draft from first publication, every working turn that changed anything ended by pushing the branch, and marking it ready was the explicit act binding verification and a clean review pass to the current head.
 - [ ] Satisfied review conversations were resolved only after their reviewed fixes reached this hosted head.
-- [ ] The pull request is ready for human review and merge; no agent will merge it or push to `main`.
+- [ ] The full change is ready for human review and merge; no agent will accept its own full change.

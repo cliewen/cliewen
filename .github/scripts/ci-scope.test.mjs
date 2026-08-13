@@ -2,90 +2,93 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import {
-  classifyChangedFiles,
-  parseChangedFiles,
+  classifyChange,
+  hasCompleteSimpleOverride,
+  parseNulDelimited,
 } from "./ci-scope.mjs";
 
-test("Sanity: a guide-Markdown-only diff uses focused checks", () => {
+test("AC-139 Unit positive: analysis checks corpus without becoming full", () => {
   assert.deepEqual(
-    classifyChangedFiles([
-      "guide/what-is-cliewen.md",
-      "guide/reference/nested.md",
+    classifyChange([
+      "docs/analysis/AN-024-example.md",
+      "docs/analysis/README.md",
+      ".clue/id-ledger.yaml",
     ]),
-    { full: false, guide: true, release: false },
+    { full: false, go: false, corpus: true, guide: false, release: false, override: false },
   );
 });
 
-test("Sanity: a mixed guide and corpus diff fails closed", () => {
+test("AC-139 Unit positive: a full proposal in branch history selects full gates", () => {
   assert.deepEqual(
-    classifyChangedFiles([
-      "guide/methodology.md",
-      "docs/decisions/PDR-011-plain-changes-bypass-cliewen.md",
-    ]),
-    { full: true, guide: true, release: false },
+    classifyChange(
+      ["cmd/clue/main.go", "docs/capabilities/CAP-002-validate/criteria.md"],
+      ["changes/CH-200-example/proposal.md"],
+    ),
+    { full: true, go: true, corpus: true, guide: true, release: false, override: false },
   );
 });
 
-test("Sanity: guide configuration is not editorial prose", () => {
+test("AC-139 Unit positive: a complete current-head override suppresses full bookkeeping only", () => {
+  const message = `Fix the defect\n\nCliewen-Route: simple\nCliewen-Recommendation: full\nCliewen-Override: user chose simple; criterion risk accepted\n`;
   assert.deepEqual(
-    classifyChangedFiles(["guide/.vitepress/config.mts"]),
-    { full: true, guide: true, release: false },
+    classifyChange(["cmd/clue/main.go"], ["changes/CH-200-example/proposal.md"], message),
+    { full: false, go: true, corpus: false, guide: false, release: false, override: true },
   );
 });
 
-test("Sanity: code and empty input fail closed", () => {
-  assert.deepEqual(classifyChangedFiles(["cmd/clue/main.go"]), {
-    full: true,
-    guide: false,
-    release: false,
+test("AC-139 Unit negative: incomplete trailers never override a full proposal", () => {
+  for (const message of [
+    "Cliewen-Route: simple\nCliewen-Recommendation: full\n",
+    "Cliewen-Route: simple\nCliewen-Override: user chose simple; risk\n",
+    "Cliewen-Recommendation: full\nCliewen-Override: user chose simple; risk\n",
+    "Cliewen-Route: simple\nCliewen-Recommendation: full\nCliewen-Override: \n",
+  ]) {
+    assert.equal(hasCompleteSimpleOverride(message), false);
+    assert.equal(
+      classifyChange(["cmd/clue/main.go"], ["changes/CH-200-example/proposal.md"], message).full,
+      true,
+    );
+  }
+});
+
+test("Sanity: paths select relevant checks without deciding semantic route", () => {
+  assert.deepEqual(classifyChange(["guide/what-is-cliewen.md"]), {
+    full: false, go: false, corpus: false, guide: true, release: false, override: false,
   });
-  assert.deepEqual(classifyChangedFiles([]), {
-    full: true,
-    guide: false,
-    release: false,
+  assert.deepEqual(classifyChange(["cmd/clue/main.go"]), {
+    full: false, go: true, corpus: false, guide: false, release: false, override: false,
+  });
+  assert.deepEqual(classifyChange([]), {
+    full: false, go: false, corpus: false, guide: false, release: false, override: false,
   });
 });
 
-test("Sanity: an exact release surface uses the short release route", () => {
+test("Sanity: this repository's exact release surface is a local simple specialization", () => {
   assert.deepEqual(
-    classifyChangedFiles([
+    classifyChange([
       "CHANGELOG.md",
       "internal/skills/source/shared/frontmatter.md.tmpl",
       "internal/migrate/migrate.go",
       ".agents/skills/clue-delta/skill.md",
       "internal/scaffold/templates/skills/clue-delta/skill.md",
     ]),
-    { full: false, guide: false, release: true },
+    { full: false, go: true, corpus: true, guide: true, release: true, override: false },
   );
 });
 
-test("Sanity: a release-looking change fails closed when it changes code", () => {
-  assert.deepEqual(
-    classifyChangedFiles([
-      "CHANGELOG.md",
-      "internal/skills/source/shared/frontmatter.md.tmpl",
-      "cmd/clue/main.go",
-    ]),
-    { full: true, guide: false, release: false },
-  );
+test("Sanity: release-looking work with implementation is ordinary checked work", () => {
+  const scope = classifyChange([
+    "CHANGELOG.md",
+    "internal/skills/source/shared/frontmatter.md.tmpl",
+    "cmd/clue/main.go",
+  ]);
+  assert.equal(scope.release, false);
+  assert.equal(scope.go, true);
 });
 
-test("Sanity: an unrelated skill cannot enter through the release route", () => {
+test("Unit: NUL-delimited paths preserve spaces", () => {
   assert.deepEqual(
-    classifyChangedFiles([
-      "CHANGELOG.md",
-      "internal/skills/source/shared/frontmatter.md.tmpl",
-      ".agents/skills/third-party/skill.md",
-    ]),
-    { full: true, guide: false, release: false },
-  );
-});
-
-test("Unit: changed paths are read as NUL-delimited data", () => {
-  assert.deepEqual(
-    parseChangedFiles(
-      Buffer.from("guide/file with spaces.md\0guide/other.md\0"),
-    ),
-    ["guide/file with spaces.md", "guide/other.md"],
+    parseNulDelimited(Buffer.from(" guide/file with spaces.md \0guide/other.md\0")),
+    [" guide/file with spaces.md ", "guide/other.md"],
   );
 });
