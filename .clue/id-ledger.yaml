@@ -1616,15 +1616,15 @@ entries:
       state: retired
     - id: CH-153
       kind: numeric
-      state: live
+      state: retired
       prefix: CH
       component: "153"
     - id: CH-153-open-questions
       kind: opaque
-      state: live
+      state: retired
     - id: CH-153-tasks
       kind: opaque
-      state: live
+      state: retired
     - id: G-001
       kind: numeric
       state: live
