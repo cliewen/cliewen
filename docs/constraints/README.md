@@ -27,7 +27,7 @@ This index is the register table. Its badge is the enforcement class rather than
 - [C-009 — Type-specific frontmatter fields are present](C-009-type-specific-frontmatter.md) · `machine`
 - [C-010 — Milestone status values follow one vocabulary](C-010-milestone-status-vocabulary.md) · `partial`
 - [C-011 — Decision records are routed by type: ADR, PDR, or log row](C-011-decision-records-typed.md) · `human`
-- [C-012 — Changes are reviewed locally, root at main, and remain human-merged](C-012-agents-never-merge-own-changes.md) · `partial`
+- [C-012 — Full changes remain human-accepted while simple integration follows explicit user authority](C-012-agents-never-merge-own-changes.md) · `partial`
 - [C-013 — Changes to a core carrier require an explicit decision record and human acceptance](C-013-core-changes-need-decision.md) · `human`
 - [C-014 — Total Go statement coverage stays at or above 80%](C-014-coverage-floor.md) · `machine`
 - [C-015 — A new user reaches their first green validate in under 30 minutes](C-015-onboarding-under-30-minutes.md) · `human`

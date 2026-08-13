@@ -2,13 +2,15 @@
 id: PDR-011
 type: decision
 status: verified
-links: [PDR-002, PDR-007, C-002, C-005, C-012, AN-006]
+links: [PDR-002, PDR-007, PDR-042, C-002, C-005, C-012, AN-006]
 title: Plain changes stay outside Cliewen while retaining human merge
 author: agent
 accepted-by: Flemming N. Larsen (2026-07-20, planning conversation)
 ---
 
 # PDR-011 — Plain changes stay outside Cliewen
+
+> **Superseded by [PDR-042](PDR-042-routing-recommends-contract-aware-effort.md):** the simple recommendation includes work that leaves the accepted contract intact, even when it touches protected surfaces or restores runtime behavior, and integration belongs to the user and repository.
 
 ## Context and problem statement
 

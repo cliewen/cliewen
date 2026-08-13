@@ -23,17 +23,16 @@ Goodhart guard: **machines enforce form, humans verify meaning.** The linter che
 
 ```mermaid
 flowchart TD
-    A[Agent] --> Q{Cliewen<br/>relevant?}
-    Q -->|no: plain| P[Ordinary branch<br/>focused checks]
-    P --> H{Human PR review:<br/>change OK?}
-    Q -->|yes| S[Skills<br/>process knowledge]
-    S -->|guide| B[Branch = proposal<br/>light or full CH-xxx]
+    A[Agent] --> Q{Accepted contract<br/>changes?}
+    Q -->|no: recommend simple| P[User-authorized integration<br/>relevant checks]
+    P --> R[Repository state<br/>outside full-loop graph]
+    Q -->|yes or uncertain:<br/>recommend full| S[Skills<br/>process knowledge]
+    S -->|guide| B[Branch = proposal<br/>full CH-xxx]
     B -->|clue validate| C{CLI: form OK?}
     C -->|no| A
     C -->|yes| H
     H -->|no| A
     H -->|supported merge commit = acceptance| D[/docs corpus<br/>system-of-record/]
-    H -->|merge plain change| R[Repository state<br/>outside corpus]
     D -->|working memory| A
     W[CI wall<br/>upstream workflow + thin caller] -.enforces.- C
 ```
@@ -44,7 +43,7 @@ flowchart TD
 2. **Transient** — `/changes/<CH-xxx>/` on a branch only. Dies at merge, digested into permanent docs. CI gate: `main` never contains `/changes/`.
 3. **Campaign** — `/docs/plans`. Live on `main`, mutate continuously (bookkeeping in digests, semantic changes via ADR-backed revisions), frozen immutable at `status: completed` — never deleted.
 
-Git is the engine: for a full Cliewen change the branch is the proposal, the PR is the review gate, the supported merge commit is the acceptance, and the reachable Git history is the provenance archive. A squash or rebase-and-merge may produce the same final tree but is unsupported because it loses the reviewed branch commit chain; a plain change stays outside the artifact graph but retains the branch, PR, and human merge boundary ([PDR-011](../decisions/PDR-011-plain-changes-bypass-cliewen.md)). Repo-native, never forge-native.
+Git is the engine: for a chosen full loop the branch is the proposal, the PR is the review gate, the supported merge commit is acceptance, and reachable history is the provenance archive. Simple work stays outside that graph and follows explicit user authority and repository policy; a declined full recommendation is retained in vendor-neutral Git trailers ([PDR-042](../decisions/PDR-042-routing-recommends-contract-aware-effort.md)). Repo-native, never forge-native.
 
 ## The frontmatter graph
 

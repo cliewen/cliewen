@@ -341,26 +341,42 @@ func TestSanity_EmbeddedSkillsMatchCanonicalSkills(t *testing.T) {
 	})
 }
 
-func TestSanity_ScaffoldedRoutingClassifiesPlainWorkBeforeCorpus(t *testing.T) {
+func TestAC139_UnitPositive_ScaffoldedRoutingRecommendsByAcceptedContractBeforeCorpus(t *testing.T) {
 	root, _ := runInto(t)
 	data, err := os.ReadFile(filepath.Join(root, "AGENTS.md"))
 	if err != nil {
 		t.Fatal(err)
 	}
 	content := string(data)
-	classify := strings.Index(content, "Before loading the corpus, classify the requested work by its effect on meaning.")
-	readCorpus := strings.Index(content, "For a light or full change, read [`docs/README.md`]")
+	classify := strings.Index(content, "Recommended route: simple")
+	readCorpus := strings.Index(content, "For a full change, read [`docs/README.md`]")
 	if classify < 0 || readCorpus < 0 || classify >= readCorpus {
-		t.Fatalf("AGENTS.md does not classify plain work before routing into the corpus:\n%s", content)
+		t.Fatalf("AGENTS.md does not recommend a route before loading full-change corpus context:\n%s", content)
 	}
 	for _, want := range []string{
-		"no CH identity",
-		"relevant checks for the changed surface",
-		"Plain changes do not consume the one-Cliewen-change-in-flight slot",
-		"the tier is unclear, take the higher one",
+		"accepted contract unchanged",
+		"defect correction restoring an unchanged criterion",
+		"Paths and diff size may warn but never decide meaning",
+		"Cliewen-Route: simple",
+		"explicit user authorization and repository permission",
+		"Release is not a Cliewen route",
 	} {
 		if !strings.Contains(content, want) {
-			t.Errorf("AGENTS.md does not contain plain-change boundary %q", want)
+			t.Errorf("AGENTS.md does not contain adaptive-routing rule %q", want)
+		}
+	}
+}
+
+func TestAC139_UnitNegative_ScaffoldedRoutingDoesNotExportLegacyTiersOrReleasePolicy(t *testing.T) {
+	root, _ := runInto(t)
+	data, err := os.ReadFile(filepath.Join(root, "AGENTS.md"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	content := string(data)
+	for _, forbidden := range []string{"**Plain", "**Light", "release route", "version cut"} {
+		if strings.Contains(content, forbidden) {
+			t.Errorf("scaffolded AGENTS.md exports retired or repository-local routing %q", forbidden)
 		}
 	}
 }
@@ -371,13 +387,13 @@ func TestSanity_ScaffoldedRoutingRoutesDetailedHandoffToCanonicalSkill(t *testin
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !strings.Contains(string(hub), "Use [`clue-delta`](.agents/skills/clue-delta/skill.md)'s change loop") {
-		t.Fatal("AGENTS.md does not route light and full changes to clue-delta")
+	if !strings.Contains(string(hub), "Use [`clue-delta`](.agents/skills/clue-delta/skill.md)'s full loop") {
+		t.Fatal("AGENTS.md does not route a chosen full recommendation to clue-delta")
 	}
 
 	content := readSkillDirectory(t, filepath.Join("templates", "skills", "clue-delta"))
 	for _, want := range []string{
-		"Ready means the hosted PR contains the exact locally reviewed and verified state",
+		"Before marking a change ready",
 		"Every review of an existing hosted PR is bound to its observed head SHA",
 		"publish the finding there and leave it unresolved until a hosted commit contains the reviewed repair",
 		"Any agent that edits an existing PR becomes the updater for that turn",
@@ -385,12 +401,11 @@ func TestSanity_ScaffoldedRoutingRoutesDetailedHandoffToCanonicalSkill(t *testin
 		"commit every intended edit",
 		"clean agentic review pass",
 		"git status --porcelain` to be empty",
-		"push, and confirm that the hosted PR's head branch and SHA equal the current local branch and `HEAD`",
+		"head branch and SHA equal the current local branch and `HEAD`",
 		"then mark the PR ready and perform the hosted check again immediately after",
 		"If the head changed underneath the turn or a push is rejected as non-fast-forward",
-		"If the PR merged or closed, stop without pushing — the one case where a turn ends unpushed",
+		"If the PR merged or closed, stop without pushing",
 		"Push is durability, never a signal",
-		"Every working turn that changed anything ends by committing and pushing the change branch",
 		"The PR exists from first publication and starts as a draft",
 		"Marking the PR ready for review is the explicit act that claims a candidate",
 		"Stopping anywhere else is ordinary, not an exception",

@@ -2,13 +2,15 @@
 id: PDR-013
 type: decision
 status: verified
-links: [G-001, P-005, PDR-006, PDR-029, C-012, C-013]
+links: [G-001, P-005, PDR-006, PDR-029, PDR-042, C-012, C-013]
 title: Cliewen has an explicit core behind a red line; everything else is periphery adopters may extend
 author: agent
 accepted-by: Flemming N. Larsen (2026-08-02, conversation)
 ---
 
 # PDR-013 — Cliewen has an explicit core behind a red line
+
+> **Acceptance scope amended by [PDR-042](PDR-042-routing-recommends-contract-aware-effort.md):** a core change is always recommended for the full loop, but an explicit user choice may take the simple route with its risk recorded; Cliewen does not veto its repository owner.
 
 > **The thread endpoint is refined by [PDR-019](PDR-019-methodology-contract-carriers-move-together.md):** acceptance evidence includes classified executable evidence and the Human acceptance-brief path. The three-element core and red-line rule below remain unchanged.
 >

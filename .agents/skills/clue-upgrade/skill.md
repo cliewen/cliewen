@@ -13,7 +13,7 @@ Check for a newer Cliewen release and, only with explicit human authorization, c
 
 Read each reference when its condition is reached, before taking action governed by it. The references are required instructions, not optional background.
 
-- If the human chooses to upgrade now and before classifying the repository change, read [Change scope and tiers](references/change-scope-and-tiers.md).
+- If the human chooses to upgrade now and before recommending its route, read [Change routing](references/change-scope-and-tiers.md).
 - If an upgrade change begins and before branching, publishing, or handing it off, read [Review boundary](references/review-boundary.md).
 - Before checking or acting on an available release, read [Upgrade workflow](references/upgrade-workflow.md).
 - When the upgrade requires a consequential local choice, read [Decision records](references/decision-records.md).

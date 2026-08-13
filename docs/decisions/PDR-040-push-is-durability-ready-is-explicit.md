@@ -2,13 +2,15 @@
 id: PDR-040
 type: decision
 status: inferred
-links: [G-001, PDR-007, PDR-012, PDR-016, PDR-033, C-004, C-012, CAP-006]
+links: [G-001, PDR-007, PDR-012, PDR-016, PDR-033, PDR-042, C-004, C-012, CAP-006]
 title: Push is durability and the ready mark is the only readiness claim
 author: agent
 accepted-by: []
 ---
 
 # PDR-040 — Push is durability, ready is the explicit act
+
+> **Scope amended by [PDR-042](PDR-042-routing-recommends-contract-aware-effort.md):** automatic branch publication and the ready mark govern a full loop the user chose. A simple route supplies no push authority by itself.
 
 ## Context and problem statement
 

@@ -2,22 +2,22 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-export function parseChangedFiles(input) {
+export function parseNulDelimited(input) {
   return input
     .toString("utf8")
     .split("\0")
-    .filter((file) => file.length > 0);
+    .filter((value) => value.length > 0);
 }
 
-export function classifyChangedFiles(files) {
-  const focusedGuide =
-    files.length > 0 &&
-    files.every(
-      (file) =>
-        file.startsWith("guide/") &&
-        file.endsWith(".md"),
-    );
+export function hasCompleteSimpleOverride(message) {
+  const lines = message.toString("utf8").split(/\r?\n/);
+  const route = lines.some((line) => /^Cliewen-Route:\s*simple\s*$/i.test(line));
+  const recommendation = lines.some((line) => /^Cliewen-Recommendation:\s*full\s*$/i.test(line));
+  const risk = lines.some((line) => /^Cliewen-Override:\s*\S.+$/i.test(line));
+  return route && recommendation && risk;
+}
 
+export function classifyChange(files, historyFiles = [], headMessage = "") {
   const releaseFiles = new Set([
     "CHANGELOG.md",
     "internal/migrate/migrate.go",
@@ -28,18 +28,38 @@ export function classifyChangedFiles(files) {
     files.includes("internal/skills/source/shared/frontmatter.md.tmpl") &&
     files.every((file) => releaseFiles.has(file) || generatedSkill.test(file));
 
-  return {
-    full: !focusedGuide && !release,
-    guide: focusedGuide || files.some((file) => file.startsWith("guide/")),
-    release,
-  };
+  const proposal = historyFiles.some((file) => /^changes\/CH-[^/]+\/proposal\.md$/.test(file));
+  const override = hasCompleteSimpleOverride(headMessage);
+  const full = proposal && !override;
+
+  const guide = full || release || files.some((file) => file.startsWith("guide/"));
+  const corpus =
+    full ||
+    release ||
+    files.some((file) =>
+      /^(?:docs\/|changes\/|\.clue\/|\.agents\/|AGENTS\.md$)/.test(file),
+    );
+  const go =
+    full ||
+    release ||
+    files.some((file) =>
+      /^(?:cmd\/|internal\/|\.github\/|go\.mod$|go\.sum$)/.test(file),
+    );
+
+  return { full, go, corpus, guide, release, override };
 }
 
 function printGitHubOutputs(scope) {
-  process.stdout.write(`full=${scope.full}\nguide=${scope.guide}\nrelease=${scope.release}\n`);
+  for (const [name, value] of Object.entries(scope)) {
+    process.stdout.write(`${name}=${value}\n`);
+  }
 }
 
 const invokedPath = process.argv[1] ? path.resolve(process.argv[1]) : "";
 if (invokedPath === fileURLToPath(import.meta.url)) {
-  printGitHubOutputs(classifyChangedFiles(parseChangedFiles(fs.readFileSync(0))));
+  const historyPath = process.argv[2];
+  const messagePath = process.argv[3];
+  const history = historyPath ? parseNulDelimited(fs.readFileSync(historyPath)) : [];
+  const message = messagePath ? fs.readFileSync(messagePath, "utf8") : "";
+  printGitHubOutputs(classifyChange(parseNulDelimited(fs.readFileSync(0)), history, message));
 }

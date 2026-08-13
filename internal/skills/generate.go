@@ -73,11 +73,11 @@ var skillDefinitions = map[string]skillDefinition{
 		},
 	},
 	"clue-delta": {
-		description: "Run a Cliewen change from classification and proposal through implementation, digest, verification, and human-controlled merge.",
+		description: "Run a chosen full Cliewen change from proposal through implementation, digest, verification, and human-controlled merge.",
 		routes: []skillRoute{
-			{heading: "Change scope and tiers", file: "change-scope-and-tiers.md", condition: "Before classifying or starting any repository change"},
+			{heading: "Change routing", file: "change-scope-and-tiers.md", condition: "Before recommending a route or starting a full change"},
 			{heading: "Review boundary", file: "review-boundary.md", condition: "Before branching, publishing, updating a hosted PR, or handing work to a human"},
-			{heading: "Change loop", file: "change-loop.md", condition: "After classification selects a light or full Cliewen change"},
+			{heading: "Change loop", file: "change-loop.md", condition: "After the user chooses the recommended full loop"},
 			{heading: "Decision records", file: "decision-records.md", condition: "When the change makes, rejects, or carries a decision"},
 			{heading: "Repository-local conventions", file: "repository-local-conventions.md", condition: "Before applying repository-specific implementation or digest rules"},
 			{heading: "Durable work state", file: "durable-work-state.md", condition: "When a change starts or resumes, a suggestion arrives, or a merge is reported"},
@@ -99,7 +99,7 @@ var skillDefinitions = map[string]skillDefinition{
 	"clue-upgrade": {
 		description: "Check for a newer Cliewen release and, only with explicit human authorization, carry out its coordinated repository upgrade.",
 		routes: []skillRoute{
-			{heading: "Change scope and tiers", file: "change-scope-and-tiers.md", condition: "If the human chooses to upgrade now and before classifying the repository change"},
+			{heading: "Change routing", file: "change-scope-and-tiers.md", condition: "If the human chooses to upgrade now and before recommending its route"},
 			{heading: "Review boundary", file: "review-boundary.md", condition: "If an upgrade change begins and before branching, publishing, or handing it off"},
 			{heading: "Upgrade workflow", file: "upgrade-workflow.md", condition: "Before checking or acting on an available release"},
 			{heading: "Decision records", file: "decision-records.md", condition: "When the upgrade requires a consequential local choice"},
@@ -108,9 +108,9 @@ var skillDefinitions = map[string]skillDefinition{
 		},
 	},
 	"clue-verify": {
-		description: "Verify a Cliewen change and run its bounded adversarial review before claiming the hosted pull request is ready.",
+		description: "Verify a chosen full Cliewen change and run its bounded adversarial review before claiming the hosted pull request is ready.",
 		routes: []skillRoute{
-			{heading: "Change scope and tiers", file: "change-scope-and-tiers.md", condition: "Before deciding which verification path applies"},
+			{heading: "Change routing", file: "change-scope-and-tiers.md", condition: "Before confirming that full-loop verification applies"},
 			{heading: "Review boundary", file: "review-boundary.md", condition: "Before inspecting or updating hosted pull-request state and before the readiness handoff"},
 			{heading: "Verification checklist", file: "verification-checklist.md", condition: "Before running readiness verification"},
 			{heading: "Agentic review loop", file: "agentic-review-loop.md", condition: "After the complete candidate is committed and its applicable local checks pass"},

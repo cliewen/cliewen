@@ -1,8 +1,8 @@
 ## Verification checklist
 
-Run this verification and review workflow before marking any Cliewen PR ready for review. Pushing needs no verification — every working turn pushes under the [Review boundary](review-boundary.md) — but the readiness claim does: complete the local checks and agentic review loop before marking the PR ready, and complete the hosted-head check immediately after. Plain changes use only checks relevant to their changed surface and do not invoke this skill. When the `clue` CLI exists, `clue validate` performs the mechanical half; until then, check by hand. Never fix a failure by weakening the check.
+Run this verification and review workflow before marking a full Cliewen PR ready for review. Pushing inside that loop needs no verification — every changed turn pushes under the [Review boundary](review-boundary.md) — but the readiness claim does: complete the local checks and agentic review loop before marking the PR ready, and complete the hosted-head check immediately after. Simple work uses only checks relevant to its changed surfaces and does not invoke this skill. When the `clue` CLI exists, `clue validate` performs the mechanical half; until then, check by hand. Never fix a failure by weakening the check.
 
-- [ ] The change uses the correct workspace under [Change scope and tiers](change-scope-and-tiers.md).
+- [ ] The change uses the correct workspace under [Change routing](change-scope-and-tiers.md).
 - [ ] Every artifact touched has frontmatter `id`, `type`, `status`, `links`, and `title`, plus decision `author`/`accepted-by`, constraint `source`/`enforcement`, capability `goal`, and any other type-specific fields.
 - [ ] Every `links` entry resolves to an existing ID.
 - [ ] The command name and the citation scheme are written in a code span wherever prose names them, so an ordinary sentence using the word is never read as a broken citation; a real citation is prose and carries no backticks.

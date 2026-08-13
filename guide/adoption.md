@@ -8,7 +8,7 @@ Tell the agent what outcome you want. You should not have to mirror every code c
 
 `clue validate` checks the parts a machine can judge: artifact structure, links, generated indexes, and traceability from active acceptance criteria to their declared acceptance evidence. A human still reviews whether the documentation and implementation say the right thing.
 
-This is agent-maintained documentation, not background synchronization. `clue` does not watch a wiki or ticket system, and it does not invent missing intent from code. The change loop requires local validation before a Cliewen pull request is ready for review. Once the [generated CI caller](./ci-wall) is armed and its upstream validation job is a required check, broken traceability blocks merge. Plain changes keep the same required job but do not invoke the corpus validator.
+This is agent-maintained documentation, not background synchronization. `clue` does not watch a wiki or ticket system, and it does not invent missing intent from code. A chosen full loop requires local validation before its pull request is ready. Once the [generated CI caller](./ci-wall) is armed and its upstream validation job is required, broken traceability blocks integration. Simple work runs the checks relevant to its surfaces without full-loop bookkeeping.
 
 ## Start with the minimum
 

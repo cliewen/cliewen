@@ -6,7 +6,7 @@ A plan names the goals it serves and breaks the campaign into milestones (M-xxx)
 
 Closing the plan is that same bookkeeping: the change completing the last milestone sets it `completed` in its digest, rather than a separate change afterwards. A campaign is over once its last milestone is evidenced, and leaving it `active` makes this index claim work is in flight that is not. Designate a successor plan there when one is decided; not having decided one is no reason to hold the closure open. Because the closed plan is immutable, every milestone's evidence must be in the table before that digest lands.
 
-Every Cliewen change proposal names the plan item it serves, or explicitly declares itself plan-less — silence is not an option.
+Every full change proposal names the plan item it serves, or explicitly declares itself plan-less — silence is not an option.
 
 <!-- clue:index:start -->
 <!-- clue:index:end -->

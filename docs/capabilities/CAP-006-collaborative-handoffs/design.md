@@ -2,13 +2,15 @@
 id: CAP-006-design
 type: design
 status: active
-links: [CAP-006, PDR-016, PDR-039, PDR-040, ADR-038]
+links: [CAP-006, PDR-016, PDR-039, PDR-040, PDR-042, ADR-038]
 title: Design for collaborative PR handoffs
 ---
 
 # Design — CAP-006 Collaborative PR handoffs
 
-The pull request is the coordination unit. Separate changes retain separate branches and proceed in parallel; agents sharing one change coordinate through the hosted head SHA and review conversations.
+Routing precedes coordination. The agent states a simple or full recommendation from accepted-contract impact, identifies its escalation conditions, and repeats the assessment against the complete diff. Paths select checks but do not select meaning. A user-directed simple override of a full recommendation is retained in Git trailers; it creates no corpus artifact. Route selection never supplies push authority, and repository-local integration policy remains controlling.
+
+For a chosen full loop, the pull request is the coordination unit. Separate changes retain separate branches and proceed in parallel; agents sharing one change coordinate through the hosted head SHA and review conversations.
 
 - **Publication cadence:** a push is durability, never a signal ([PDR-040](../../decisions/PDR-040-push-is-durability-ready-is-explicit.md)). Every working turn that changed anything ends with the change branch pushed; the pull request opens as a draft at first publication and holds unfinished work visibly. Marking it ready is the readiness claim, taken only with verification and a clean review pass bound to the exact hosted head, and a substantive edit returns it to draft.
 

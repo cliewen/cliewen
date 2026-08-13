@@ -2,7 +2,7 @@
 id: ARCH-002
 type: architecture
 status: active
-links: [ARCH-001, ADR-021, ADR-043]
+links: [ARCH-001, ADR-021, ADR-043, PDR-042]
 title: The skills layer — process knowledge as versioned artifacts
 ---
 
@@ -25,11 +25,11 @@ The set is not arbitrary — it is the lifecycle (Foundation §10) cut at its ph
 | `clue-verify` | Pre-merge verification followed by automatic adversarial agent review | the locally verified and reviewed candidate, then the PR (human controls merge; CI verifies form) |
 | `clue-extract` | Brownfield adoption: one-time transform of an existing corpus into `/docs`, everything born `inferred` and non-decisions classified by reversal cost (ADR-008, ADR-035) | `clue-delta` (the extraction runs as the adopted repo's first change loop) |
 
-Two invariants tie them together: **every path through the skills ends at the same gate** (implement → commit → verify → context-isolated review where supported → PR → merge), and **every skill produces a hand-off the next one consumes** — findings feed plans, plans frame deltas, review findings return to the implementing context, and deltas produce the corpus that analysis reads next time. A plain change is classified before this layer and invokes no Cliewen skill ([PDR-011](../decisions/PDR-011-plain-changes-bypass-cliewen.md)). A skill whose output nothing consumes gets removed, the same §2 rule that governs corpus artifacts.
+Two invariants tie them together: **every full-loop path through the skills ends at the same gate** (implement → commit → verify → context-isolated review where supported → PR → merge), and **every skill produces a hand-off the next one consumes** — findings feed plans or changes, review findings return to implementation, and deltas produce the corpus that analysis reads next time. Simple work is recommended before this layer and invokes no lifecycle skill ([PDR-042](../decisions/PDR-042-routing-recommends-contract-aware-effort.md)); an observational analysis may still invoke `clue-analysis` for the investigation without turning its resulting document into a full delta. A skill whose output nothing consumes gets removed.
 
 ## Shared rules and standalone outputs
 
-The six skill directories repeat the cross-cutting instructions each one can need because every directory must remain independently installable. They are not independently authored: `internal/skills/source/skills/` holds the workflow templates and `internal/skills/source/shared/` holds shared rules such as decision routing, change tiers, repository-local conventions, and the review boundary ([ADR-021](../decisions/ADR-021-generated-standalone-skills.md)). The generator splits those rendered sections into local references and writes the condition for reading each one into the directory's `skill.md` router.
+The six skill directories repeat the cross-cutting instructions each one can need because every directory must remain independently installable. They are not independently authored: `internal/skills/source/skills/` holds the workflow templates and `internal/skills/source/shared/` holds shared rules such as decision routing, simple/full change routing, repository-local conventions, and the review boundary ([ADR-021](../decisions/ADR-021-generated-standalone-skills.md)). The generator splits those rendered sections into local references and writes the condition for reading each one into the directory's `skill.md` router.
 
 `go generate ./internal/skills` composes complete skill directories into `.agents/skills/` and the embedded `clue init` template tree. Repository tests compare every entry point and reference in both trees with the canonical rendering and fail on changed, missing, or unexpected generator-owned files. Contributors edit the source tree and regenerate; generated outputs are never edited directly.
 
@@ -37,4 +37,4 @@ The six skill directories repeat the cross-cutting instructions each one can nee
 
 - A new skill must claim a **lifecycle slot or a recurring hand-off** the existing set does not cover, and name the artifacts or hand-off it reads and produces. "Might be useful" is not a slot.
 - `clue-` prefix, namespacing against user skills; independent skills (e.g. `dot-*`) live beside them, never coupled.
-- Skills mutate through the full change loop: improving a skill is never plain, edits the canonical source fragments or templates, runs the generator, and records a decision when the improvement stems from one.
+- A change to methodology meaning is recommended for the full loop, edits canonical source fragments or templates, runs the generator, and records a decision when the improvement stems from one.
