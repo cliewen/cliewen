@@ -1642,15 +1642,15 @@ entries:
       state: retired
     - id: CH-154
       kind: numeric
-      state: live
+      state: retired
       prefix: CH
       component: "154"
     - id: CH-154-open-questions
       kind: opaque
-      state: live
+      state: retired
     - id: CH-154-tasks
       kind: opaque
-      state: live
+      state: retired
     - id: G-001
       kind: numeric
       state: live
