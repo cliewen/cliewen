@@ -126,7 +126,7 @@ Feature: Onboarding — install to first green validate
   @AC-141
   Scenario: Migration reports a competing validation wall beside the caller
     Test-type: Unit
-    Given an adopted repository whose own workflow other than the thin caller installs or runs "clue validate"
+    Given an adopted repository whose own workflow other than the thin caller runs the installed binary's "clue validate"
     When the user runs "clue migrate"
     Then it reports a finding naming that workflow file and its job
     And no file is changed

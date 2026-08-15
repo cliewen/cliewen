@@ -24,7 +24,7 @@ A second gap sits behind the same upgrade. A repository whose pre-caller CI inst
 
 **Migration creates a missing thin CI caller from its embedded template at the template's default adopter choices.** The absence becomes a planned change rather than a notice, previewed and applied under the same atomic preflight as every other migration write. `clue init` keeps its role as the materializer for a repository that has no corpus yet.
 
-**A competing `clue validate` wall is reported, never rewritten.** When a repository-owned workflow other than the caller installs or runs `clue validate`, migration raises a finding naming the file and job so a human resolves it. Migration gains no authority over a workflow it did not write.
+**A competing `clue validate` wall is reported, never rewritten.** When a job in a repository-owned workflow other than the caller runs the installed binary's `clue validate`, migration raises a finding naming the file and job so a human resolves it. A source build such as `go run ./cmd/clue validate` is how a repository dogfoods its own working tree and is not a wall; neither is a reusable workflow definition, which becomes one only where a caller references it. Migration gains no authority over a workflow it did not write.
 
 Everything else ADR-052 decides is unchanged: a missing optional carrier still does not block an independent safe migration, a present caller whose content cannot be safely recognized remains a blocking finding, and ambiguous corpus meaning and locally modified managed carriers still fail without partial writes.
 
