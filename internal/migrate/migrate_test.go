@@ -250,25 +250,44 @@ jobs:
 	if err := os.WriteFile(legacyPath, legacy, 0o644); err != nil {
 		t.Fatal(err)
 	}
+	// The sequence form of on: is as common as the mapping form, and reading
+	// only the mapping form made the whole file unparseable and skipped —
+	// hiding exactly the wall this check exists to find.
+	listForm := []byte(`name: legacy
+on: [push, pull_request]
+jobs:
+  corpus-wall:
+    runs-on: ubuntu-latest
+    steps:
+      - run: clue validate --forbid-changes
+`)
+	if err := os.WriteFile(filepath.Join(root, ".github", "workflows", "legacy.yml"), listForm, 0o644); err != nil {
+		t.Fatal(err)
+	}
 
 	plan, err := Plan(root, Options{ReversalCost: "low"})
 	if err != nil {
 		t.Fatal(err)
 	}
-	var reported bool
+	reported := map[string]string{}
 	for _, finding := range plan.Findings {
-		if finding.Path != ".github/workflows/ci.yml" || finding.Migration != MigrationCompetingWall {
-			continue
-		}
-		reported = true
-		// The file alone is not actionable in a workflow with several jobs;
-		// the adopter has to be told which one to reconcile.
-		if !strings.Contains(finding.Message, `"validate"`) {
-			t.Fatalf("finding did not name the competing job: %q", finding.Message)
+		if finding.Migration == MigrationCompetingWall {
+			reported[finding.Path] = finding.Message
 		}
 	}
-	if !reported {
-		t.Fatalf("competing validation wall was not reported: %+v", plan.Findings)
+	// The file alone is not actionable in a workflow with several jobs; the
+	// adopter has to be told which one to reconcile.
+	for path, job := range map[string]string{
+		".github/workflows/ci.yml":     `"validate"`,
+		".github/workflows/legacy.yml": `"corpus-wall"`,
+	} {
+		message, ok := reported[path]
+		if !ok {
+			t.Fatalf("competing validation wall in %s was not reported: %+v", path, plan.Findings)
+		}
+		if !strings.Contains(message, job) {
+			t.Fatalf("finding for %s did not name the competing job: %q", path, message)
+		}
 	}
 
 	if err := Apply(root, plan); err == nil {
@@ -301,6 +320,14 @@ jobs:
 		"clue-validation.yml": `name: clue-validation
 on:
   workflow_call:
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - run: clue validate --forbid-changes
+`,
+		"reusable-list.yml": `name: reusable-list
+on: [workflow_call]
 jobs:
   validate:
     runs-on: ubuntu-latest

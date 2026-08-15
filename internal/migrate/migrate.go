@@ -61,8 +61,9 @@ const (
 	// currently-live ID, counters seeded at each prefix's current max, so
 	// existing history is not renumbered (ADR-048).
 	MigrationLedgerBackfill = "MIG-008"
-	// MigrationCompetingWall reports a repository-owned workflow that installs
-	// or runs clue validate beside the thin caller. It never repairs one: the
+	// MigrationCompetingWall reports a repository-owned workflow that runs the
+	// installed clue binary's validate beside the thin caller. It never
+	// repairs one: the
 	// job is the adopter's own prose with their pinned versions and intent,
 	// and ADR-013 puts their CI outside the shipped surface. Naming the
 	// conflict costs them one decision; rewriting it would cost Cliewen the
@@ -1323,9 +1324,6 @@ func planLedgerBackfill(root string, result *MigrationPlan) {
 	})
 }
 
-// linksToHub reports whether an entry point is a symlink resolving to the
-// repository's own AGENTS.md. Both sides are resolved, so a checkout reached
-// through a link — a worktree, a shared tree — compares equal to itself.
 // planCompetingWall reports a repository-owned workflow job that runs the
 // installed clue binary's validate beside the thin caller. Two walls judge the
 // same pull request under different rules, and the older one fails work the
@@ -1354,9 +1352,7 @@ func planCompetingWall(root string, result *MigrationPlan) {
 			continue
 		}
 		var file struct {
-			// A reusable workflow is not a wall in the repository that hosts
-			// it; it only becomes one where a caller references it.
-			On   map[string]yaml.Node `yaml:"on"`
+			On   yaml.Node `yaml:"on"`
 			Jobs map[string]struct {
 				Steps []struct {
 					Run string `yaml:"run"`
@@ -1367,7 +1363,9 @@ func planCompetingWall(root string, result *MigrationPlan) {
 		if err := yaml.Unmarshal(data, &file); err != nil {
 			continue
 		}
-		if _, reusable := file.On["workflow_call"]; reusable {
+		// A reusable workflow is not a wall in the repository that hosts it;
+		// it only becomes one where a caller references it.
+		if declaresWorkflowCall(file.On) {
 			continue
 		}
 		jobs := make([]string, 0, len(file.Jobs))
@@ -1404,6 +1402,34 @@ func runsInstalledValidate(run string) bool {
 	return false
 }
 
+// declaresWorkflowCall reports whether a workflow's on: trigger includes
+// workflow_call in any of the three shapes GitHub accepts — a mapping, a
+// sequence, or a bare scalar. Reading only the mapping form would make
+// "on: [push, workflow_call]" unparseable into the struct and skip the whole
+// file, which would hide exactly the legacy wall this check exists to find.
+func declaresWorkflowCall(on yaml.Node) bool {
+	switch on.Kind {
+	case yaml.MappingNode:
+		for i := 0; i < len(on.Content); i += 2 {
+			if on.Content[i].Value == "workflow_call" {
+				return true
+			}
+		}
+	case yaml.SequenceNode:
+		for _, item := range on.Content {
+			if item.Value == "workflow_call" {
+				return true
+			}
+		}
+	case yaml.ScalarNode:
+		return on.Value == "workflow_call"
+	}
+	return false
+}
+
+// linksToHub reports whether an entry point is a symlink resolving to the
+// repository's own AGENTS.md. Both sides are resolved, so a checkout reached
+// through a link — a worktree, a shared tree — compares equal to itself.
 func linksToHub(entry, hub string) bool {
 	target, err := filepath.EvalSymlinks(entry)
 	if err != nil {
