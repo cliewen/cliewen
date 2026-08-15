@@ -1,8 +1,8 @@
 ---
 id: CH-154
 type: change
-status: active
-links: [CAP-001, ADR-052, AC-124]
+status: open
+links: [CAP-001, ADR-052]
 title: Migration materializes a missing thin CI caller and reports a competing validation wall
 ---
 

@@ -105,15 +105,32 @@ Feature: Onboarding — install to first green validate
     And applying the plan produces a no-op on a second run
     But a partial or locally modified remaining set leaves the new directory a finding and blocks every write
 
-  @AC-124
+  @AC-124 @retired
   Scenario: A missing thin CI caller does not block an unrelated safe migration
+    # Retired 2026-08-15 (CH-154): ADR-060 reverses the clause that migration
+    # neither creates nor rewrites the caller. The surviving half — a missing
+    # optional carrier never blocks an independent safe migration — is carried
+    # by AC-140, which also proves the materialization this criterion forbade.
+
+  @AC-140
+  Scenario: Migration materializes a missing thin CI caller
     Test-type: Unit
     Given an adopted repository without the optional ".github/workflows/clue.yml" thin caller
     And the migration plans a safe independent update
-    When the user runs "clue migrate --apply"
-    Then it applies the independent update
-    And it reports that the caller is absent and names "clue init" as its materialization route
-    But it neither creates nor rewrites the caller
+    When the user previews "clue migrate"
+    Then the plan creates the caller from the embedded template at its default runner, clue-source, and install-directory choices
+    And "clue migrate --apply" applies the creation and the independent update together
+    And a second run is a no-op
+    But a present caller keeps its adopter-owned choices and receives only its reference and version updates, and one whose content cannot be safely recognized remains a blocking finding
+
+  @AC-141
+  Scenario: Migration reports a competing validation wall beside the caller
+    Test-type: Unit
+    Given an adopted repository whose own workflow other than the thin caller installs or runs "clue validate"
+    When the user runs "clue migrate"
+    Then it reports a finding naming that workflow file and its job
+    And no file is changed
+    But a repository whose only validation wall is the thin caller reports no such finding, and the finding never rewrites or deletes the repository-owned workflow
 
   @AC-071
   Scenario: init emits a Claude Code entry point that only points at the hub
