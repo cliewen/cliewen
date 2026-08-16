@@ -4,6 +4,12 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 
 ## [Unreleased]
 
+## [0.18.0] - 2026-08-17
+
+### Migration
+
+- **No repository migration is required for this minor release.** `clue migrate` recognizes this release's generated carriers as a managed baseline; there is nothing else to act on.
+
 ### Changed
 
 - **Upgrading Cliewen is now simple work, and the `clue-upgrade` skill says so.** The skill sent the agent to the generic routing text to decide the upgrade's route, which reads a rewrite of the managed skills, the CI caller, and corpus shape as a methodology change and answers "full loop" — so a version move cost a change identity, a workspace, a digest, and an acceptance brief. It no longer does: a release's contract changes are argued and accepted before it is published, so adopting one leaves your repository's own accepted contract unchanged. Run the checks its changed surfaces need and integrate it the way you integrate anything else. One thing still escalates, and it is the one worth escalating: a decision of your own that the release forces on you — an obligation you must choose how to meet, or a reconciliation that changes what your criteria or your CI wall promise — is a full change on its own terms, while the version move around it stays simple. The human authorization before any repository write and the human merge boundary are unchanged. A hub written by a fresh `clue init` states the route on its upgrade row too; your existing `AGENTS.md` is yours and is never rewritten, so the skill is what carries this to a repository already onboarded.
