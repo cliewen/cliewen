@@ -4,11 +4,21 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 
 ## [Unreleased]
 
+## [0.17.0] - 2026-08-16
+
+### Migration
+
+- **If your repository predates the thin CI caller, `clue migrate` now materializes it instead of telling you to run `clue init`.** Run `clue migrate` to preview the addition at the template's default runner, clue-source, and install-directory choices; a caller that already exists is untouched apart from the reference and version updates migration already performed, and one whose content cannot be safely recognized still blocks. If the preview also reports `MIG-009`, your own workflows still run a pre-caller job that installs and runs `clue validate` alongside the new caller, judging the same pull request under different rules — the older job fails work the caller was configured to treat leniently. `MIG-009` names the workflow file and job so you can remove or reconcile it; migration never rewrites a workflow it did not write.
+
 ### Changed
 
 - **`clue migrate` now creates a missing `.github/workflows/clue.yml` instead of telling you to run `clue init`.** The thin caller first shipped in v0.10.0, so a repository adopted before that has none for a reason unrelated to its CI policy, and `clue init` was a poor route to it — safe, because it never overwrites, but it also materializes corpus stubs an established repository may deliberately not carry. The caller is now planned like any other migration write, at the template's default runner, clue-source, and install-directory choices, and previewed before it is applied. A caller that already exists is untouched apart from the reference and version updates migration already performed, and one whose content cannot be safely recognized still blocks.
 
 - **`clue migrate` now reports a job in your own workflows that validates beside the caller.** After the caller arrives, a pre-caller job that installs and runs `clue validate` keeps running, and the two walls judge the same pull request under different rules — the older one fails work the caller was configured to treat leniently. The new `MIG-009` names the workflow file and the job so you can remove or reconcile it; migration never rewrites a workflow it did not write. A source build such as `go run ./cmd/clue validate` and a reusable workflow definition are not walls and are not reported.
+
+### Install
+
+`curl -fsSL https://cliewen.dev/install.sh | sh` on macOS and Linux, `irm https://cliewen.dev/install.ps1 | iex` on Windows, or `go install github.com/cliewen/cliewen/cmd/clue@v0.17.0`. You can still download a prebuilt binary from the release assets and verify it against `SHA256SUMS` by hand; those asset names are unchanged, so a vendored CI wall pinned to an earlier release keeps working exactly as before. Update vendored Cliewen skills from this release's `.agents/skills/`; a 0.17.0 binary rejects older Cliewen skill versions as drift. Upgrading an existing repository: run `clue migrate` to preview the corpus and carrier upgrade, or run the `clue-upgrade` skill to be walked through the whole thing, and read the notices — this release adds one about a CI caller your repository may still be missing.
 
 ## [0.16.0] - 2026-08-13
 
