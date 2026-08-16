@@ -24,7 +24,7 @@ The number of files a migration rewrites, the size of its diff, and the presence
 
 Nothing else about the upgrade changes. The human is still asked whether to upgrade now or later before any repository write, and the pull request is still accepted by a human under the repository's merge boundary; ADR-043's two visible boundaries are exactly what a simple route leaves intact.
 
-**Carrier inventory:** the canonical `clue-upgrade` skill source and both generated skill trees; CAP-004's criteria (AC-081 retired, AC-142) and design; the skills architecture hand-off table; `guide/operations.md`; and the tests pinning the generated upgrade skill. PDR-042 and ADR-043 gain a link from this record rather than new text: neither said the wrong thing, and this decision states what both left unstated.
+**Carrier inventory:** the canonical `clue-upgrade` skill source and both generated skill trees; CAP-004's criteria (AC-081 retired, AC-142) and design; the skills architecture hand-off table and its simple-work exception; this repository's routing hub and the one `clue init` materializes, whose upgrade row now carries the route for an agent that recommends one before invoking the skill; `guide/operations.md`; and the tests pinning the generated upgrade skill. An existing adopter's hub is adopter-owned and is never rewritten, so the skill is what carries this to a repository already onboarded. PDR-042 and ADR-043 gain a link from this record rather than new text: neither said the wrong thing, and this decision states what both left unstated.
 
 ### Rejected: route every upgrade through the full loop
 
