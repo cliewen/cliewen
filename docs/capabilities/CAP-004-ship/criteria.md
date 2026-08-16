@@ -135,14 +135,23 @@ Feature: clue ships — a versioned binary and versioned skills, drift made lint
     And each run also prints the coordinated migrate preview-and-apply sequence, because moving the binary alone produces drift rather than resolving it
     But no run writes a file in the repository, with or without flags, and no run replaces the binary
 
-  @AC-081
+  @AC-081 @retired
   Scenario: A generated skill routes an existing adopter through a human-authorized upgrade
+    # Retired 2026-08-16 (CH-155): the criterion described the upgrade's steps
+    # without naming its route, so the shared tier text answered instead and
+    # recommended the full loop. AC-142 carries the same boundary with the
+    # route and its escalation condition stated.
+
+  @AC-142
+  Scenario: A generated skill routes an existing adopter through a human-authorized upgrade as simple work
     Test-type: Unit
     Given a repository carrying the generated Cliewen skill set
     When an agent invokes the managed upgrade skill
     Then it runs the release check and reads the selected release's migration guidance
     And it asks the human whether to upgrade now or later before changing a repository
-    And an affirmative answer makes the repository green, branches, moves the coordinated set, resolves every notice, verifies, and opens a pull request without merging it
+    And it recommends the simple route, because the release's contract changes were accepted upstream and the adopting repository's own accepted contract is unchanged
+    And it escalates to the full loop only for a decision of the repository's own that applying the release requires, never for the migration's file count or paths
+    And an affirmative answer makes the repository green, branches, moves the coordinated set, resolves every notice, verifies, and hands over a pull request without merging it
     But the skill names no platform installation command and a later answer changes no repository file or hosted state
 
   @AC-076

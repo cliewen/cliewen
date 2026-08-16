@@ -409,7 +409,7 @@ entries:
       component: "80"
     - id: AC-081
       kind: numeric
-      state: live
+      state: retired
       prefix: AC
       component: "81"
     - id: AC-082
@@ -714,7 +714,7 @@ entries:
       component: "141"
     - id: AC-142
       kind: numeric
-      state: reserved
+      state: live
       prefix: AC
       component: "142"
     - id: ADR-001
@@ -1661,6 +1661,12 @@ entries:
       state: live
       prefix: CH
       component: "155"
+    - id: CH-155-open-questions
+      kind: opaque
+      state: live
+    - id: CH-155-tasks
+      kind: opaque
+      state: live
     - id: G-001
       kind: numeric
       state: live
@@ -2013,6 +2019,6 @@ entries:
       component: "42"
     - id: PDR-043
       kind: numeric
-      state: reserved
+      state: live
       prefix: PDR
       component: "43"

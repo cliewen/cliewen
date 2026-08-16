@@ -20,7 +20,7 @@ The set is not arbitrary — it is the lifecycle (Foundation §10) cut at its ph
 |---|---|---|
 | `clue-analysis` | Risks and unknowns first: spikes ending in findings docs (`/docs/analysis`) | `clue-plan` (findings feed plans) or `clue-delta` (findings feed a change) |
 | `clue-plan` | Campaign layer: create or revise a plan with verifiable milestones | `clue-delta` (every plan mutation is itself a change) |
-| `clue-upgrade` | Existing-adopter release check and human-authorized coordinated upgrade | `clue-delta` (the affirmative choice becomes a reviewed repository change) |
+| `clue-upgrade` | Existing-adopter release check and human-authorized coordinated upgrade | the reviewed repository change the affirmative choice becomes — simple work by default, and `clue-delta` only for a decision of the repository's own that the release forces ([PDR-043](../decisions/PDR-043-upgrade-routes-as-simple-work.md)) |
 | `clue-delta` | The change loop: branch → propose → implement → digest → merge | `clue-verify` (before every Cliewen PR) |
 | `clue-verify` | Pre-merge verification followed by automatic adversarial agent review | the locally verified and reviewed candidate, then the PR (human controls merge; CI verifies form) |
 | `clue-extract` | Brownfield adoption: one-time transform of an existing corpus into `/docs`, everything born `inferred` and non-decisions classified by reversal cost (ADR-008, ADR-035) | `clue-delta` (the extraction runs as the adopted repo's first change loop) |

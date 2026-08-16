@@ -1,7 +1,7 @@
 ---
 id: CH-155
 type: change
-status: active
+status: open
 links: [CAP-004, ADR-043, PDR-042]
 title: An upgrade routes as simple work unless the release makes the adopter decide
 ---

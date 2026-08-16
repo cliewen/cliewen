@@ -99,9 +99,9 @@ var skillDefinitions = map[string]skillDefinition{
 	"clue-upgrade": {
 		description: "Check for a newer Cliewen release and, only with explicit human authorization, carry out its coordinated repository upgrade.",
 		routes: []skillRoute{
-			{heading: "Change routing", file: "change-scope-and-tiers.md", condition: "If the human chooses to upgrade now and before recommending its route"},
+			{heading: "Upgrade workflow", file: "upgrade-workflow.md", condition: "Before checking or acting on an available release, and before recommending the upgrade's route"},
+			{heading: "Change routing", file: "change-scope-and-tiers.md", condition: "When the upgrade escalates a decision of this repository's own to the full loop"},
 			{heading: "Review boundary", file: "review-boundary.md", condition: "If an upgrade change begins and before branching, publishing, or handing it off"},
-			{heading: "Upgrade workflow", file: "upgrade-workflow.md", condition: "Before checking or acting on an available release"},
 			{heading: "Decision records", file: "decision-records.md", condition: "When the upgrade requires a consequential local choice"},
 			{heading: "Repository-local conventions", file: "repository-local-conventions.md", condition: "Before applying repository-specific upgrade or verification rules"},
 			{heading: "Durable work state", file: "durable-work-state.md", condition: "When an upgrade change starts or resumes, a suggestion arrives, or a merge is reported"},

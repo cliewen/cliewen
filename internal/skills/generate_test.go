@@ -222,17 +222,23 @@ func TestAC054_UnitPositive_ExtractionSupportsCriterionLevelPhasing(t *testing.T
 	}
 }
 
-func TestAC081_UnitPositive_GeneratedUpgradeSkillRequiresHumanAuthorizedCoordinatedUpgrade(t *testing.T) {
+func TestAC142_UnitPositive_GeneratedUpgradeSkillRoutesAHumanAuthorizedCoordinatedUpgradeAsSimpleWork(t *testing.T) {
 	upgrade := mustRenderSkill(t, "clue-upgrade/skill.md")
 	for _, want := range []string{
 		"Run `clue latest`",
 		"`### Migration` section",
 		"Ask the human whether to upgrade now or later",
 		"Do nothing to the repository until they explicitly choose now",
+		"**An upgrade is simple work.**",
+		"Recommend `Recommended route: simple`",
+		"needs no CH identity, workspace, plan declaration, digest, acceptance brief, or mandatory agentic review",
+		"How many files the migration rewrites, and whether corpus or skill paths are among them, never makes the route full",
+		"Escalate only on a semantic discovery",
+		"recommend the full loop for that decision on its own terms",
 		"make the repository green and create a branch",
 		"resolve every finding and notice — including those no command may repair — except the explicitly non-blocking `MIG-009` competing-wall notice",
 		"reconcile that job by hand after applying",
-		"mark the upgrade's pull request ready under the review boundary. Never merge it",
+		"Never merge it",
 	} {
 		if !strings.Contains(upgrade, want) {
 			t.Errorf("clue-upgrade/skill.md does not carry upgrade boundary %q", want)
@@ -240,17 +246,36 @@ func TestAC081_UnitPositive_GeneratedUpgradeSkillRequiresHumanAuthorizedCoordina
 	}
 }
 
-func TestAC081_UnitNegative_GeneratedUpgradeSkillDoesNotInventAPlatformRouteOrSelfAuthorize(t *testing.T) {
+func TestAC142_UnitNegative_GeneratedUpgradeSkillDoesNotInventAPlatformRouteSelfAuthorizeOrBindSimpleWorkToTheFullLoopBoundary(t *testing.T) {
 	upgrade := mustRenderSkill(t, "clue-upgrade/skill.md")
 	for _, forbidden := range []string{
 		"curl -fsSL https://cliewen.dev/install.sh | sh",
 		"irm https://cliewen.dev/install.ps1 | iex",
 		"automatically upgrade",
 		"merge the pull request",
+		"mark the upgrade's pull request ready under the review boundary",
 	} {
 		if strings.Contains(upgrade, forbidden) {
 			t.Errorf("clue-upgrade/skill.md exceeds its route and authority boundary with %q", forbidden)
 		}
+	}
+}
+
+// The upgrade skill's router must reach its workflow — where the route is
+// stated — before the generic tier text, or the agent recommends a route from
+// text that cannot know the contract change already happened upstream.
+func TestAC142_UnitNegative_UpgradeRouterDoesNotSendTheAgentToGenericTiersForItsRoute(t *testing.T) {
+	upgrade := mustRenderSkill(t, "clue-upgrade/skill.md")
+	workflow := strings.Index(upgrade, "references/upgrade-workflow.md")
+	tiers := strings.Index(upgrade, "references/change-scope-and-tiers.md")
+	if workflow < 0 || tiers < 0 {
+		t.Fatalf("clue-upgrade/skill.md does not route both the upgrade workflow and change routing")
+	}
+	if workflow > tiers {
+		t.Errorf("clue-upgrade/skill.md routes generic change routing before its own workflow, so the route is decided without it")
+	}
+	if strings.Contains(upgrade, "before recommending its route") {
+		t.Errorf("clue-upgrade/skill.md still sends the agent to the generic tier text to recommend the upgrade's route")
 	}
 }
 
