@@ -33,7 +33,7 @@ For a full change, read [`docs/README.md`](docs/README.md) only when the request
 |---|---|
 | [`clue-analysis`](.agents/skills/clue-analysis/skill.md) | Risks/unknowns first: spikes that end in findings docs |
 | [`clue-plan`](.agents/skills/clue-plan/skill.md) | Creating or revising a plan |
-| [`clue-upgrade`](.agents/skills/clue-upgrade/skill.md) | Checking for and, with human approval, carrying out a coordinated repository upgrade |
+| [`clue-upgrade`](.agents/skills/clue-upgrade/skill.md) | Checking for and, with human approval, carrying out a coordinated repository upgrade — simple work, because the release's contract changes were accepted upstream before it was published ([PDR-043](docs/decisions/PDR-043-upgrade-routes-as-simple-work.md)) |
 | [`clue-delta`](.agents/skills/clue-delta/skill.md) | The change loop: branch → implement → digest → merge |
 | [`clue-extract`](.agents/skills/clue-extract/skill.md) | Brownfield adoption: turn one existing corpus into Cliewen's durable corpus |
 | [`clue-verify`](.agents/skills/clue-verify/skill.md) | Pre-merge verification and automatic agentic review before any Cliewen PR |

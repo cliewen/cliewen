@@ -1,16 +1,16 @@
 counters:
-    AC: "141"
+    AC: "142"
     ADR: "60"
     AN: "23"
     ARCH: "3"
     C: "22"
     CAP: "8"
-    CH: "154"
+    CH: "155"
     G: "10"
     IC: "2"
     LOG: "1"
     P: "15"
-    PDR: "42"
+    PDR: "43"
 entries:
     - id: AC-001
       kind: numeric
@@ -409,7 +409,7 @@ entries:
       component: "80"
     - id: AC-081
       kind: numeric
-      state: live
+      state: retired
       prefix: AC
       component: "81"
     - id: AC-082
@@ -712,6 +712,11 @@ entries:
       state: live
       prefix: AC
       component: "141"
+    - id: AC-142
+      kind: numeric
+      state: live
+      prefix: AC
+      component: "142"
     - id: ADR-001
       kind: numeric
       state: live
@@ -1651,6 +1656,17 @@ entries:
     - id: CH-154-tasks
       kind: opaque
       state: retired
+    - id: CH-155
+      kind: numeric
+      state: live
+      prefix: CH
+      component: "155"
+    - id: CH-155-open-questions
+      kind: opaque
+      state: live
+    - id: CH-155-tasks
+      kind: opaque
+      state: live
     - id: G-001
       kind: numeric
       state: live
@@ -2001,3 +2017,8 @@ entries:
       state: live
       prefix: PDR
       component: "42"
+    - id: PDR-043
+      kind: numeric
+      state: live
+      prefix: PDR
+      component: "43"
