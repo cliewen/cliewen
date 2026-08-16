@@ -122,11 +122,17 @@ func TestAC064_UnitPositive_MigrationIsPreviewableIdempotentAndCoordinated(t *te
 	}
 }
 
-// AC-124: a caller that was never materialized is an adopter-facing notice,
-// not authority to stop independent safe migrations such as a ledger backfill.
-func TestAC124_UnitPositive_MissingThinCallerDoesNotBlockSafeMigration(t *testing.T) {
+// AC-140: a repository adopted before the caller shipped has no caller because
+// the template did not exist yet. Migration materializes it alongside whatever
+// independent safe work the same plan carries, which is the upgrade an adopter
+// crossing the caller's introduction actually asked for (ADR-060).
+func TestAC140_UnitPositive_MigrationMaterializesMissingThinCaller(t *testing.T) {
 	root := migrationFixture(t, "")
 	caller := filepath.Join(root, ".github", "workflows", "clue.yml")
+	want, err := os.ReadFile(caller)
+	if err != nil {
+		t.Fatal(err)
+	}
 	if err := os.Remove(caller); err != nil {
 		t.Fatal(err)
 	}
@@ -140,33 +146,51 @@ func TestAC124_UnitPositive_MissingThinCallerDoesNotBlockSafeMigration(t *testin
 			t.Fatalf("missing caller blocked the plan: %+v", finding)
 		}
 	}
-	// The route matters as much as the report: an adopter who is told only that
-	// the caller is absent has no way to learn that init, not migrate, owns it.
-	var noticed bool
-	for _, notice := range plan.Notices {
-		if notice.Path == ".github/workflows/clue.yml" && notice.Migration == MigrationManagedCarriers {
-			noticed = true
-			if !strings.Contains(notice.Message, "clue init") {
-				t.Fatalf("notice did not name clue init as the materialization route: %q", notice.Message)
-			}
+	var planned bool
+	for _, change := range plan.Changes {
+		if change.Path != ".github/workflows/clue.yml" {
+			continue
+		}
+		planned = true
+		if change.Existed {
+			t.Fatalf("creation was planned as a replacement: %+v", change)
+		}
+		// The preview has to say the write creates the file, or an adopter
+		// reading it cannot tell it apart from a carrier refresh.
+		if !strings.Contains(change.Description, "create") {
+			t.Fatalf("preview did not describe a creation: %q", change.Description)
 		}
 	}
-	if !noticed {
-		t.Fatalf("missing caller was not reported: %+v", plan.Notices)
+	if !planned {
+		t.Fatalf("missing caller was not planned: %+v", plan.Changes)
 	}
 
 	if err := Apply(root, plan); err != nil {
-		t.Fatalf("safe migration was blocked by the absent caller: %v", err)
+		t.Fatalf("migration did not apply: %v", err)
 	}
+	got, err := os.ReadFile(caller)
+	if err != nil {
+		t.Fatalf("migration did not materialize the caller: %v", err)
+	}
+	if !bytes.Equal(got, want) {
+		t.Fatalf("materialized caller is not the embedded template:\n%s", got)
+	}
+	// The independent work in the same plan still lands: the caller's absence
+	// never blocked it before ADR-060 and does not block it after.
 	if _, err := os.Stat(filepath.Join(root, ".clue", "id-ledger.yaml")); err != nil {
 		t.Fatalf("ledger backfill was not applied: %v", err)
 	}
-	if _, err := os.Stat(caller); !os.IsNotExist(err) {
-		t.Fatalf("migration materialized the absent caller: %v", err)
+
+	repeat, err := Plan(root, Options{ReversalCost: "low"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(repeat.Changes) != 0 || len(repeat.Findings) != 0 {
+		t.Fatalf("materialization is not idempotent: changes=%+v findings=%+v", repeat.Changes, repeat.Findings)
 	}
 }
 
-func TestAC124_UnitNegative_UnrecognizedPresentThinCallerStillBlocksMigration(t *testing.T) {
+func TestAC140_UnitNegative_UnrecognizedPresentThinCallerStillBlocksMigration(t *testing.T) {
 	root := migrationFixture(t, "")
 	caller := filepath.Join(root, ".github", "workflows", "clue.yml")
 	local := []byte("name: local validation\njobs:\n  validate:\n    steps:\n      - run: local command\n")
@@ -198,6 +222,144 @@ func TestAC124_UnitNegative_UnrecognizedPresentThinCallerStillBlocksMigration(t 
 	}
 	if !bytes.Equal(got, local) {
 		t.Fatalf("migration rewrote the unrecognized caller:\n%s", got)
+	}
+}
+
+// AC-141: an upgrade across the caller's introduction leaves the repository's
+// own pre-caller wall in place, and two walls then judge the same pull request
+// under different rules. Migration names the conflict; resolving it is the
+// adopter's, because the job is their prose (ADR-060).
+func TestAC141_UnitPositive_MigrationReportsCompetingValidationWall(t *testing.T) {
+	root := migrationFixture(t, "")
+	legacy := []byte(`name: ci
+on:
+  pull_request:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - run: go build ./...
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: install vendored clue
+        run: install -m 0755 .github/tools/clue-0.6.0-linux-amd64 /usr/local/bin/clue
+      - run: clue validate --forbid-changes
+`)
+	legacyPath := filepath.Join(root, ".github", "workflows", "ci.yml")
+	if err := os.WriteFile(legacyPath, legacy, 0o644); err != nil {
+		t.Fatal(err)
+	}
+	// The sequence form of on: is as common as the mapping form, and reading
+	// only the mapping form made the whole file unparseable and skipped —
+	// hiding exactly the wall this check exists to find.
+	listForm := []byte(`name: legacy
+on: [push, pull_request]
+jobs:
+  corpus-wall:
+    runs-on: ubuntu-latest
+    steps:
+      - run: clue validate --forbid-changes
+`)
+	if err := os.WriteFile(filepath.Join(root, ".github", "workflows", "legacy.yml"), listForm, 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	plan, err := Plan(root, Options{ReversalCost: "low"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	reported := map[string]string{}
+	for _, finding := range plan.Findings {
+		if finding.Migration == MigrationCompetingWall {
+			reported[finding.Path] = finding.Message
+		}
+	}
+	// The file alone is not actionable in a workflow with several jobs; the
+	// adopter has to be told which one to reconcile.
+	for path, job := range map[string]string{
+		".github/workflows/ci.yml":     `"validate"`,
+		".github/workflows/legacy.yml": `"corpus-wall"`,
+	} {
+		message, ok := reported[path]
+		if !ok {
+			t.Fatalf("competing validation wall in %s was not reported: %+v", path, plan.Findings)
+		}
+		if !strings.Contains(message, job) {
+			t.Fatalf("finding for %s did not name the competing job: %q", path, message)
+		}
+	}
+
+	if err := Apply(root, plan); err == nil {
+		t.Fatal("migration wrote despite a competing validation wall")
+	}
+	got, err := os.ReadFile(legacyPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !bytes.Equal(got, legacy) {
+		t.Fatalf("migration rewrote the repository-owned workflow:\n%s", got)
+	}
+}
+
+func TestAC141_UnitNegative_OrdinaryWorkflowsAreNotCompetingWalls(t *testing.T) {
+	root := migrationFixture(t, "")
+	// Each of these has been mistaken for a wall by a looser rule: a source
+	// build is how a repository dogfoods its own working tree, and a reusable
+	// workflow only becomes a wall where a caller references it.
+	for name, body := range map[string]string{
+		"ci.yml": `name: ci
+on:
+  pull_request:
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - run: go run ./cmd/clue validate --forbid-changes
+`,
+		"clue-validation.yml": `name: clue-validation
+on:
+  workflow_call:
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - run: clue validate --forbid-changes
+`,
+		"reusable-list.yml": `name: reusable-list
+on: [workflow_call]
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - run: clue validate --forbid-changes
+`,
+		"docs.yml": `name: docs
+on:
+  push:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "see clue validate in CONTRIBUTING"
+`,
+	} {
+		if err := os.WriteFile(filepath.Join(root, ".github", "workflows", name), []byte(body), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	plan, err := Plan(root, Options{ReversalCost: "low"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, finding := range plan.Findings {
+		if finding.Migration == MigrationCompetingWall {
+			t.Fatalf("ordinary workflow reported as a competing wall: %+v", finding)
+		}
+	}
+	if err := Apply(root, plan); err != nil {
+		t.Fatalf("migration was blocked by a workflow that is not a wall: %v", err)
 	}
 }
 
@@ -383,7 +545,7 @@ func TestAC064_UnitNegative_MigrationRejectsChangedSourceAfterPreview(t *testing
 
 func TestAC064_UnitPositive_MigrationRegistryIsOrdered(t *testing.T) {
 	registry := Registry()
-	want := []string{MigrationReversalCost, MigrationStatusLifecycle, MigrationManagedCarriers, MigrationQualifiedReferences, MigrationClaudeEntryPoint, MigrationHubReleaseCheck, MigrationPromotedConstraints, MigrationLedgerBackfill}
+	want := []string{MigrationReversalCost, MigrationStatusLifecycle, MigrationManagedCarriers, MigrationQualifiedReferences, MigrationClaudeEntryPoint, MigrationHubReleaseCheck, MigrationPromotedConstraints, MigrationLedgerBackfill, MigrationCompetingWall}
 	if len(registry) != len(want) {
 		t.Fatalf("registry has %d entries, want %d", len(registry), len(want))
 	}

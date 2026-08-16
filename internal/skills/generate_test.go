@@ -230,7 +230,8 @@ func TestAC081_UnitPositive_GeneratedUpgradeSkillRequiresHumanAuthorizedCoordina
 		"Ask the human whether to upgrade now or later",
 		"Do nothing to the repository until they explicitly choose now",
 		"make the repository green and create a branch",
-		"resolve every finding and notice — including those no command may repair",
+		"resolve every finding and notice — including those no command may repair — except the explicitly non-blocking `MIG-009` competing-wall notice",
+		"reconcile that job by hand after applying",
 		"mark the upgrade's pull request ready under the review boundary. Never merge it",
 	} {
 		if !strings.Contains(upgrade, want) {

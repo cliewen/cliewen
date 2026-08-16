@@ -61,6 +61,14 @@ const (
 	// currently-live ID, counters seeded at each prefix's current max, so
 	// existing history is not renumbered (ADR-048).
 	MigrationLedgerBackfill = "MIG-008"
+	// MigrationCompetingWall reports a repository-owned workflow that runs the
+	// installed clue binary's validate beside the thin caller. It never
+	// repairs one: the
+	// job is the adopter's own prose with their pinned versions and intent,
+	// and ADR-013 puts their CI outside the shipped surface. Naming the
+	// conflict costs them one decision; rewriting it would cost Cliewen the
+	// line it holds against every other locally modified carrier (ADR-060).
+	MigrationCompetingWall = "MIG-009"
 )
 
 // Options controls planning. Preview is the default; applying a plan is a
@@ -86,6 +94,7 @@ var orderedMigrations = []MigrationDefinition{
 	{ID: MigrationHubReleaseCheck, Description: "report a routing hub that never asks whether the repository is behind"},
 	{ID: MigrationPromotedConstraints, Description: "report a scaffolded constraint awaiting a machine check this release implements"},
 	{ID: MigrationLedgerBackfill, Description: "seed the identity ledger from the current corpus scan"},
+	{ID: MigrationCompetingWall, Description: "report a repository-owned workflow that validates beside the thin caller"},
 }
 
 // Registry returns the migration order without exposing mutable package state.
@@ -131,6 +140,10 @@ var (
 	fieldLineRe     = regexp.MustCompile(`(?m)^([ \t]*)([A-Za-z][A-Za-z0-9_-]*):([ \t]*)([^\r\n]*)(\r?\n|$)`)
 	callerUsesRe    = regexp.MustCompile(`(?m)^([ \t]*)uses:([ \t]*)(cliewen/cliewen/\.github/workflows/clue-validation\.yml)@([^\s#]+)([ \t]*(?:#.*)?)(\r?\n|$)`)
 	callerVersionRe = regexp.MustCompile(`(?m)^([ \t]*)clue-version:([ \t]*)([^\s#]+)([ \t]*(?:#.*)?)(\r?\n|$)`)
+	// clue must begin a statement rather than sit anywhere in the line, so a
+	// vendored ".github/tools/clue-0.6.0-linux-amd64 validate" path and an
+	// echoed sentence mentioning clue validate are both left alone.
+	installedValidateRe = regexp.MustCompile(`(^|[;&|(])\s*clue\s+validate(\s|$)`)
 )
 
 // releaseManifest is one published release's generated-carrier digests.
@@ -372,6 +385,7 @@ func Plan(root string, opts Options) (MigrationPlan, error) {
 	planHubReleaseCheck(root, &result)
 	planPromotedConstraints(root, &result)
 	planLedgerBackfill(root, &result)
+	planCompetingWall(root, &result)
 	sortPlan(&result)
 	return result, nil
 }
@@ -822,7 +836,13 @@ func planCaller(root, rel string, want []byte, target string, result *MigrationP
 	full := filepath.Join(root, filepath.FromSlash(rel))
 	got, err := os.ReadFile(full)
 	if os.IsNotExist(err) {
-		result.Notices = append(result.Notices, Notice{Path: rel, Migration: MigrationManagedCarriers, Message: "thin CI caller is missing; run clue init to materialize it, but unrelated safe migrations may continue"})
+		// ADR-060: a repository adopted before the caller shipped has no
+		// caller because the template did not exist yet, not because it
+		// declined one. The bytes are the target's own, and the adopter-owned
+		// choices this write leaves at their defaults are the same ones an
+		// update already preserves, so creation takes no authority an update
+		// did not already hold.
+		result.Changes = append(result.Changes, Change{Path: rel, Migration: MigrationManagedCarriers, Description: fmt.Sprintf("create the thin CI caller with release %s content at the template's default runner, clue-source, and install-directory choices", target), After: want})
 		return
 	}
 	if err != nil {
@@ -1302,6 +1322,109 @@ func planLedgerBackfill(root string, result *MigrationPlan) {
 		Existed:     false,
 		After:       data,
 	})
+}
+
+// planCompetingWall reports a repository-owned workflow job that runs the
+// installed clue binary's validate beside the thin caller. Two walls judge the
+// same pull request under different rules, and the older one fails work the
+// caller was configured to treat leniently — the failure an adopter upgrading
+// across the caller's introduction actually hits (ADR-060).
+func planCompetingWall(root string, result *MigrationPlan) {
+	dir := filepath.Join(root, ".github", "workflows")
+	entries, err := os.ReadDir(dir)
+	if err != nil {
+		return
+	}
+	names := make([]string, 0, len(entries))
+	for _, entry := range entries {
+		if entry.IsDir() {
+			continue
+		}
+		ext := strings.ToLower(filepath.Ext(entry.Name()))
+		if ext == ".yml" || ext == ".yaml" {
+			names = append(names, entry.Name())
+		}
+	}
+	sort.Strings(names)
+	for _, name := range names {
+		data, err := os.ReadFile(filepath.Join(dir, name))
+		if err != nil {
+			continue
+		}
+		var file struct {
+			On   yaml.Node `yaml:"on"`
+			Jobs map[string]struct {
+				Steps []struct {
+					Run string `yaml:"run"`
+				} `yaml:"steps"`
+			} `yaml:"jobs"`
+		}
+		// A workflow this package cannot parse is not this package's to judge.
+		if err := yaml.Unmarshal(data, &file); err != nil {
+			continue
+		}
+		// A reusable workflow is not a wall in the repository that hosts it;
+		// it only becomes one where a caller references it.
+		if declaresWorkflowCall(file.On) {
+			continue
+		}
+		jobs := make([]string, 0, len(file.Jobs))
+		for job := range file.Jobs {
+			jobs = append(jobs, job)
+		}
+		sort.Strings(jobs)
+		rel := path.Join(".github/workflows", name)
+		for _, job := range jobs {
+			for _, step := range file.Jobs[job].Steps {
+				if !runsInstalledValidate(step.Run) {
+					continue
+				}
+				result.Findings = append(result.Findings, Finding{Path: rel, Migration: MigrationCompetingWall, Message: fmt.Sprintf("job %q runs clue validate beside the thin CI caller; remove or reconcile it by hand — migration never rewrites a workflow it did not write", job)})
+				break
+			}
+		}
+	}
+}
+
+// runsInstalledValidate reports whether a run block invokes the installed clue
+// binary's validate. A source build is deliberately excluded: `go run
+// ./cmd/clue validate` is how a repository dogfoods its own working tree, not
+// a stale vendored wall an upgrade left behind.
+func runsInstalledValidate(run string) bool {
+	for _, line := range strings.Split(run, "\n") {
+		if strings.Contains(line, "go run") || strings.Contains(line, "cmd/clue") {
+			continue
+		}
+		if installedValidateRe.MatchString(line) {
+			return true
+		}
+	}
+	return false
+}
+
+// declaresWorkflowCall reports whether a workflow's on: trigger includes
+// workflow_call in any of the three shapes GitHub accepts — a mapping, a
+// sequence, or a bare scalar. Reading only the mapping form would make
+// "on: [push, workflow_call]" unparseable into the struct and skip the whole
+// file, which would hide exactly the legacy wall this check exists to find.
+func declaresWorkflowCall(on yaml.Node) bool {
+	switch on.Kind {
+	case yaml.MappingNode:
+		for i := 0; i < len(on.Content); i += 2 {
+			if on.Content[i].Value == "workflow_call" {
+				return true
+			}
+		}
+	case yaml.SequenceNode:
+		for _, item := range on.Content {
+			if item.Value == "workflow_call" {
+				return true
+			}
+		}
+	case yaml.ScalarNode:
+		return on.Value == "workflow_call"
+	}
+	return false
 }
 
 // linksToHub reports whether an entry point is a symlink resolving to the

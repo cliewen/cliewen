@@ -10,6 +10,8 @@ accepted-by: Flemming N. Larsen (2026-08-06, conversation)
 
 # ADR-052 — A missing optional generated carrier does not block an independent safe migration
 
+> **Migration now materializes the missing caller instead of only reporting it, under [ADR-060](ADR-060-migration-materializes-a-missing-caller.md):** a missing thin CI caller is a planned change created from the embedded template at its default adopter choices, and the rejected alternative below is reversed for the upgrade case it did not consider — a repository adopted before v0.10.0 has no caller because the template did not exist yet, not because it declined one. Everything else this record decides is unchanged, including that a missing optional carrier never blocks an independent safe migration, that a present caller whose content cannot be safely recognized stays a blocking finding, and that ambiguous meaning and locally modified carriers fail without partial writes.
+
 ## Context and problem statement
 
 `clue migrate` plans all safe changes as one atomic write. It also reports a missing thin CI caller, because `clue init` is the only authority that may materialize it. Treating that absence as a blocking finding made an independent ledger backfill impossible in a repository whose existing CI does not use the caller.

@@ -4,6 +4,12 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 
 ## [Unreleased]
 
+### Changed
+
+- **`clue migrate` now creates a missing `.github/workflows/clue.yml` instead of telling you to run `clue init`.** The thin caller first shipped in v0.10.0, so a repository adopted before that has none for a reason unrelated to its CI policy, and `clue init` was a poor route to it — safe, because it never overwrites, but it also materializes corpus stubs an established repository may deliberately not carry. The caller is now planned like any other migration write, at the template's default runner, clue-source, and install-directory choices, and previewed before it is applied. A caller that already exists is untouched apart from the reference and version updates migration already performed, and one whose content cannot be safely recognized still blocks.
+
+- **`clue migrate` now reports a job in your own workflows that validates beside the caller.** After the caller arrives, a pre-caller job that installs and runs `clue validate` keeps running, and the two walls judge the same pull request under different rules — the older one fails work the caller was configured to treat leniently. The new `MIG-009` names the workflow file and the job so you can remove or reconcile it; migration never rewrites a workflow it did not write. A source build such as `go run ./cmd/clue validate` and a reusable workflow definition are not walls and are not reported.
+
 ## [0.16.0] - 2026-08-13
 
 ### Migration
