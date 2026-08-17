@@ -161,6 +161,16 @@ func TestAC143_UnitNegative_LegacyAndUnsupportedDecisionNamesFail(t *testing.T) 
 	assertIssue(t, issues, "docs/decisions may contain only ADR, PDR, or IDR")
 }
 
+func TestAC143_UnitNegative_NestedDecisionLogFails(t *testing.T) {
+	files := with(validFiles, map[string]string{
+		"docs/README.md":                   "# Corpus\n\n<!-- clue:index:start -->\n- [goals/](goals/README.md)\n- [plans/](plans/README.md)\n- [decisions/](decisions/README.md)\n<!-- clue:index:end -->\n",
+		"docs/decisions/README.md":         "# Decisions\n\n<!-- clue:index:start -->\n- [archive/](archive/README.md)\n<!-- clue:index:end -->\n",
+		"docs/decisions/archive/README.md": "# Archived decisions\n\n<!-- clue:index:start -->\n- [log](log.md)\n<!-- clue:index:end -->\n",
+		"docs/decisions/archive/log.md":    "---\nid: LOG-001\ntype: log\nstatus: active\nlinks: []\ntitle: Nested decision log\n---\n",
+	})
+	assertIssue(t, run(t, files, false), "legacy decision logs are not supported")
+}
+
 func decisionFixture(id string) string {
 	return "---\nid: " + id + "\ntype: decision\nstatus: inferred\nlinks: []\ntitle: Fixture decision\nauthor: agent\naccepted-by: []\n---\n\n# " + id + "\n"
 }
