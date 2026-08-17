@@ -2,7 +2,7 @@
 id: P-016
 type: plan
 status: active
-links: [PDR-044, PDR-003, PDR-006]
+links: [PDR-044, PDR-045, PDR-003, PDR-006]
 title: Decision records are concise, typed, and migration-safe
 ---
 

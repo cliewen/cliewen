@@ -2053,6 +2053,6 @@ entries:
       component: "44"
     - id: PDR-045
       kind: numeric
-      state: reserved
+      state: live
       prefix: PDR
       component: "45"

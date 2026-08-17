@@ -8,6 +8,6 @@ title: Tasks for keeping P-016 outcome-neutral
 
 # Tasks
 
-- [ ] Apply the preserved human-authored commit `35e734c` without rewriting its authorship.
-- [ ] Record the P-016 plan revision in PDR-045.
-- [ ] Regenerate and verify the affected indexes.
+- [x] Apply the preserved human-authored commit `35e734c` without rewriting its authorship.
+- [x] Record the P-016 plan revision in PDR-045.
+- [x] Regenerate and verify the affected indexes.
