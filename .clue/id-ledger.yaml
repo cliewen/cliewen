@@ -5,13 +5,13 @@ counters:
     ARCH: "3"
     C: "22"
     CAP: "8"
-    CH: "156"
+    CH: "157"
     G: "10"
     IC: "2"
     IDR: "1"
     LOG: "1"
     P: "17"
-    PDR: "44"
+    PDR: "45"
 entries:
     - id: AC-001
       kind: numeric
@@ -1676,6 +1676,17 @@ entries:
     - id: CH-156-tasks
       kind: opaque
       state: live
+    - id: CH-157
+      kind: numeric
+      state: live
+      prefix: CH
+      component: "157"
+    - id: CH-157-open-questions
+      kind: opaque
+      state: live
+    - id: CH-157-tasks
+      kind: opaque
+      state: live
     - id: G-001
       kind: numeric
       state: live
@@ -2051,3 +2062,8 @@ entries:
       state: live
       prefix: PDR
       component: "44"
+    - id: PDR-045
+      kind: numeric
+      state: reserved
+      prefix: PDR
+      component: "45"
