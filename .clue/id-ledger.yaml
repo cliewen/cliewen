@@ -5,7 +5,7 @@ counters:
     ARCH: "3"
     C: "22"
     CAP: "8"
-    CH: "157"
+    CH: "159"
     G: "10"
     IC: "2"
     IDR: "1"
@@ -1687,6 +1687,22 @@ entries:
     - id: CH-157-tasks
       kind: opaque
       state: live
+    - id: CH-158
+      kind: numeric
+      state: live
+      prefix: CH
+      component: "158"
+    - id: CH-158-open-questions
+      kind: opaque
+      state: live
+    - id: CH-158-tasks
+      kind: opaque
+      state: live
+    - id: CH-159
+      kind: numeric
+      state: reserved
+      prefix: CH
+      component: "159"
     - id: G-001
       kind: numeric
       state: live
