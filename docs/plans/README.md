@@ -13,9 +13,9 @@ The campaign layer: P-xxx plans with M-xxx milestones. This folder is **flat** �
 - [P-004 — Cliewen earns the first try](P-004-first-try.md) · `completed` (2026-07-23)
 - [P-005 — Cliewen draws its core](P-005-explicit-core.md) · `completed` (2026-07-24)
 - [P-006 — Cliewen digests its first adoption](P-006-first-adoption.md) · `completed` (2026-07-25)
-- [P-007 — Cliewen hardens its core](P-007-core-hardening.md) · `completed`
-- [P-008 — Cliewen agrees with itself before widening its promises](P-008-self-consistency.md) · `completed`
-- [P-009 — Cliewen closes migration blockers and distributed boundaries](P-009-migration-readiness.md) · `completed`
+- [P-007 — Cliewen hardens its core](P-007-core-hardening.md) · `completed` — Gave the human merge gate an acceptance brief, classified machine and Human evidence, defined deletion-based retirement and reality edges, and kept behavior changes on the full loop pending adopter evidence.
+- [P-008 — Cliewen agrees with itself before widening its promises](P-008-self-consistency.md) · `completed` — Reconciled the evidence contract across every live methodology carrier, bounded inferred meaning and review handoffs, and analyzed the remaining distributed-work gaps before adding interfaces.
+- [P-009 — Cliewen closes migration blockers and distributed boundaries](P-009-migration-readiness.md) · `completed` — Made JVM proof executable-specific, preserved brownfield identities, fixed merge-history and CI-wall boundaries, added versioned migrations, and qualified external references without networking the judge.
 - [P-010 — Cliewen makes staying current something an adopter notices](P-010-adopters-keep-current.md) · `completed` (2026-08-05)
 - [P-011 — Cliewen makes brownfield migration truthful](P-011-truthful-brownfield-migration.md) · `completed` (2026-08-06) — Makes source deletion safe: criterion identity, proof parity, in-flight work, and operational carriers all survive an extraction before the source corpus is removed.
 - [P-012 — Cliewen closes the brownfield migration gap on re-derived evidence](P-012-migration-gap-closes-on-evidence.md) · `completed` (2026-08-07) — Closed the re-derived migration gaps: an honest evidence base, accountable deferrals, a report bound to its own tree, the per-criterion registry declined in the open, and the ordered migration path proven at assessment scale under a pinned release. Successor: P-013.
