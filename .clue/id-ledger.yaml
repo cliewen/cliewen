@@ -10,7 +10,6 @@ counters:
     IC: "2"
     IDR: "1"
     LOG: "1"
-    M: "2"
     P: "17"
     PDR: "44"
 entries:
@@ -1747,16 +1746,6 @@ entries:
       state: live
       prefix: LOG
       component: "1"
-    - id: M-001
-      kind: numeric
-      state: reserved
-      prefix: M
-      component: "1"
-    - id: M-002
-      kind: numeric
-      state: reserved
-      prefix: M
-      component: "2"
     - id: P-001
       kind: numeric
       state: live
