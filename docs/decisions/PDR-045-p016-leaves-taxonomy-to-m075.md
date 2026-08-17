@@ -5,7 +5,7 @@ status: verified
 links: [P-016, PDR-044]
 title: P-016 leaves the decision-record contract to M-075
 author: human
-accepted-by: Flemming N. Larsen (2026-08-17, commit 35e734c and conversation)
+accepted-by: Flemming N. Larsen (2026-08-17, PR #169, commit dc121c1 and conversation)
 ---
 
 # PDR-045 — P-016 leaves the decision-record contract to M-075
