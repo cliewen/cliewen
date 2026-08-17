@@ -47,6 +47,33 @@ func TestAC144_UnitNegative_LegacyDecisionRowsBlockWithoutGuessing(t *testing.T)
 	}
 }
 
+func TestAC144_UnitNegative_LegacyRowsWithoutOuterPipesAreInventoried(t *testing.T) {
+	root := migrationFixture(t, "")
+	dir := filepath.Join(root, "docs", "decisions")
+	if err := os.MkdirAll(dir, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	log := "---\nid: LOG-001\ntype: log\nstatus: active\nlinks: []\ntitle: Decision log\n---\n\nDate | Decision | Why\n--- | --- | ---\n2026-01-01 | Keep `left | right` local | Fast\n2026-01-02 | Publish signed builds | Trust \\| provenance\n"
+	if err := os.WriteFile(filepath.Join(dir, "log.md"), []byte(log), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	plan, err := Plan(root, Options{ReversalCost: "low"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	var messages []string
+	for _, finding := range plan.Findings {
+		if finding.Migration == MigrationLegacyDecisionLog {
+			messages = append(messages, finding.Message)
+		}
+	}
+	joined := strings.Join(messages, "\n")
+	if len(messages) != 2 || !strings.Contains(joined, "Keep `left | right` local") || !strings.Contains(joined, "Publish signed builds") {
+		t.Fatalf("legacy inventory did not preserve both rows: %v", messages)
+	}
+}
+
 func TestAC144_UnitPositive_ConvertedCorpusHasNoLegacyMigrationWork(t *testing.T) {
 	root := migrationFixture(t, "")
 	plan, err := Plan(root, Options{ReversalCost: "low"})

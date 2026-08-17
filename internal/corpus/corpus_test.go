@@ -140,6 +140,7 @@ func TestAC143_UnitPositive_SubjectTypedDecisionNamesPass(t *testing.T) {
 		"docs/decisions/ADR-001-architecture.md":   decisionFixture("ADR-001"),
 		"docs/decisions/PDR-001-process.md":        decisionFixture("PDR-001"),
 		"docs/decisions/IDR-001-implementation.md": decisionFixture("IDR-001"),
+		"docs/goals/G-001-first.md":                "---\nid: G-001\ntype: log\nstatus: active\nlinks: []\ntitle: An adopter-defined operational log\n---\n",
 	}
 	if issues := run(t, with(validFiles, decisionFiles), false); len(issues) != 0 {
 		t.Fatalf("subject-typed decisions should pass; got %v", issues)

@@ -1438,23 +1438,86 @@ func planLegacyDecisionLog(root string, result *MigrationPlan) {
 
 func legacyDecisionRows(text string) []string {
 	var rows []string
+	inTable := false
+	wantDelimiter := false
 	for _, line := range strings.Split(text, "\n") {
-		trimmed := strings.TrimSpace(line)
-		if !strings.HasPrefix(trimmed, "|") || !strings.HasSuffix(trimmed, "|") {
+		cells := legacyTableCells(line)
+		if !inTable {
+			if wantDelimiter && legacyTableDelimiter(cells) {
+				inTable = true
+				wantDelimiter = false
+				continue
+			}
+			wantDelimiter = len(cells) >= 2 && strings.EqualFold(strings.TrimSpace(cells[0]), "date") && strings.EqualFold(strings.TrimSpace(cells[1]), "decision")
 			continue
 		}
-		cells := strings.Split(strings.Trim(trimmed, "|"), "|")
 		if len(cells) < 2 {
+			inTable = false
 			continue
 		}
 		date := strings.TrimSpace(cells[0])
 		decision := strings.TrimSpace(cells[1])
-		if date == "" || strings.EqualFold(date, "date") || strings.Trim(date, "-: ") == "" {
+		if date == "" || decision == "" {
 			continue
 		}
 		rows = append(rows, date+" — "+decision)
 	}
 	return rows
+}
+
+func legacyTableDelimiter(cells []string) bool {
+	if len(cells) < 2 {
+		return false
+	}
+	for _, cell := range cells {
+		trimmed := strings.TrimSpace(cell)
+		if len(strings.Trim(trimmed, ":")) < 3 || strings.Trim(strings.Trim(trimmed, ":"), "-") != "" {
+			return false
+		}
+	}
+	return true
+}
+
+// legacyTableCells accepts either Markdown table form and keeps pipes escaped
+// or enclosed in a code span inside their cell.
+func legacyTableCells(row string) []string {
+	var cells []string
+	var current strings.Builder
+	openTicks := 0
+	runes := []rune(strings.TrimSpace(row))
+	for i := 0; i < len(runes); i++ {
+		switch c := runes[i]; {
+		case c == '\\' && i+1 < len(runes):
+			current.WriteRune(c)
+			i++
+			current.WriteRune(runes[i])
+		case c == '`':
+			run := 1
+			for i+run < len(runes) && runes[i+run] == '`' {
+				run++
+			}
+			if openTicks == 0 {
+				openTicks = run
+			} else if openTicks == run {
+				openTicks = 0
+			}
+			current.WriteString(strings.Repeat("`", run))
+			i += run - 1
+		case c == '|' && openTicks == 0:
+			cells = append(cells, strings.TrimSpace(current.String()))
+			current.Reset()
+		default:
+			current.WriteRune(c)
+		}
+	}
+	cells = append(cells, strings.TrimSpace(current.String()))
+	if len(cells) > 0 && cells[0] == "" {
+		cells = cells[1:]
+	}
+	if len(cells) > 0 && cells[len(cells)-1] == "" {
+		cells = cells[:len(cells)-1]
+	}
+	return cells
 }
 
 // runsInstalledValidate reports whether a run block invokes the installed clue

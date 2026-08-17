@@ -112,7 +112,7 @@ var decisionIDRe = regexp.MustCompile(`^(ADR|PDR|IDR)-[0-9]+$`)
 func checkDecisionTaxonomy(c *Corpus) []Issue {
 	var issues []Issue
 	for _, a := range c.Artifacts {
-		if a.Type == "log" {
+		if path.Dir(a.Path) == "docs/decisions" && a.Type == "log" {
 			issues = append(issues, Issue{a.Path, "legacy decision logs are not supported — classify future-shaping rows into ADR, PDR, or IDR records in a reviewed full change"})
 			continue
 		}
