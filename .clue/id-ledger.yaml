@@ -1689,15 +1689,15 @@ entries:
       state: live
     - id: CH-158
       kind: numeric
-      state: live
+      state: retired
       prefix: CH
       component: "158"
     - id: CH-158-open-questions
       kind: opaque
-      state: live
+      state: retired
     - id: CH-158-tasks
       kind: opaque
-      state: live
+      state: retired
     - id: CH-159
       kind: numeric
       state: reserved
