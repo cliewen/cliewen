@@ -28,7 +28,7 @@ Each folder below holds one kind of record. A full change (the `clue-delta` loop
 - **Plans** (`plans/`) — campaigns with verifiable milestones. Every full change names the plan item it serves (or declares itself plan-less); the digest updates plan bookkeeping, including closing a plan whose last milestone the change completes.
 - **Capabilities** (`capabilities/`) — one folder per capability: `README.md` (what and why), `criteria.md` (acceptance criteria as Gherkin, each tied to its declared acceptance evidence), `design.md` (how it works). **Design is documented per capability** — a change that alters a capability's behavior updates its criteria and design in the same PR.
 - **Architecture** (`architecture/`) — the shape of the whole: the expensive-to-change. Updated when a change alters the system's structure or public surface, not for local detail.
-- **Decisions** (`decisions/`) — why things are the way they are. An **ADR** records an architectural decision, a **PDR** a decision about how the project works; both are expensive to reverse. Cheap-and-local-to-reverse decisions are one-line rows in `log.md`. Every decision made during a change is recorded in its digest.
+- **Decisions** (`decisions/`) — why future work is constrained. A future-shaping choice routes by subject: **ADR** for software or corpus architecture, **PDR** for project/process or methodology, **IDR** for implementation. Routine facts and chronology stay in their natural carriers.
 - **Constraints** (`constraints/`) — rules the system must not break: laws, licenses, policies, and verifiable quality bars (a coverage floor, a response-time bound). Each names its `source` and how it is `enforcement`-checked. Updated when the outside world imposes something or a quality bar moves.
 - **Analysis** (`analysis/`) — findings from spikes and extractions. Historical records: written once, never rewritten.
 
@@ -41,7 +41,6 @@ Each folder below holds one kind of record. A full change (the `clue-delta` loop
 | goal | `proposed` → `accepted` | proposed goals are the inbox |
 | plan | `draft` → `active` → `completed` | `completed` is immutable |
 | decision | `inferred` → `verified` | provenance lives in status; human acceptance promotes |
-| log | `active` | one register — rows are its lifecycle |
 | change, tasks | `open` | transient workspace artifacts |
 | open-questions | `open` → `resolved` | transient workspace artifacts |
 
@@ -52,7 +51,7 @@ Each folder below holds one kind of record. A full change (the `clue-delta` loop
 - [plans/](plans/README.md) — P-xxx: campaigns and milestones
 - [capabilities/](capabilities/README.md) — CAP-xxx: one folder per capability (README / criteria / design)
 - [architecture/](architecture/README.md) — the whole, the expensive-to-change
-- [decisions/](decisions/README.md) — ADR-xxx, PDR-xxx and the decision log
+- [decisions/](decisions/README.md) — ADR-xxx, PDR-xxx, and IDR-xxx future-shaping choices
 - [constraints/](constraints/README.md) — C-xxx: laws, licenses, policies, and verifiable quality bars you must not break
 - [analysis/](analysis/README.md) — spike findings, extraction reports
 <!-- clue:index:end -->

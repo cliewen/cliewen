@@ -16,4 +16,4 @@ A task in `tasks.md` marked `[-]` is addressed-but-not-feasible and carries its 
 
 **Residual:** whether the prose after `[-]` is a reason at all. A machine sees that something was written and cannot judge whether it explains anything, so `[-] no` passes the check and tells a later reader nothing.
 
-The rule this constraint used to carry as well — that a task is ticked the moment it completes and never in batch at the end — was withdrawn on 2026-08-08 (see [`log.md`](../decisions/log.md)). It bound every change to a discipline about a file the digest deletes, its timing half was unobservable in the file, and nothing was lost by it. What survives is the part a reader depends on: a `[-]` with no reason is indistinguishable from a task nobody finished.
+The rule this constraint used to carry as well — that a task is ticked the moment it completes and never in batch at the end — was withdrawn by CH-133. It bound every change to a discipline about a file the digest deletes, its timing half was unobservable in the file, and nothing was lost by it. What survives is the part a reader depends on: a `[-]` with no reason is indistinguishable from a task nobody finished.

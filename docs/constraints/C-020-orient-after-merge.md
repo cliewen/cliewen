@@ -2,9 +2,9 @@
 id: C-020
 type: constraint
 status: active
-links: [P-013]
+links: [P-013, PDR-047]
 title: An agent orients on the plan after a human reports a merge
-source: docs/decisions/log.md (2026-08-09 orient-after-merge row), the shared durable-work fragment
+source: PDR-047, the shared durable-work fragment
 enforcement: human
 ---
 

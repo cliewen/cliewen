@@ -4,6 +4,14 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 
 ## [Unreleased]
 
+### Migration
+
+- **Repositories with `docs/decisions/log.md` need a reviewed full change before upgrading.** `clue migrate` now reports every legacy row as `MIG-010` and blocks all writes; classify each future-shaping choice by subject into an ADR, PDR, or IDR, explicitly account for routine narrative, repair references, and remove the log. Migration never guesses those semantic dispositions.
+
+### Changed
+
+- **Decision records are concise and route by subject.** ADRs hold software and corpus architecture, PDRs hold project/process and methodology, and new IDRs hold implementation choices. Only future-shaping choices earn records; routine facts and chronology stay in their natural carriers. Fresh `clue init` corpora contain no decision log, `clue validate` rejects legacy logs and unsupported decision identities or filenames, extraction inventories legacy rows before deletion, and every generated lifecycle skill carries the same compact record shape.
+
 ## [0.18.0] - 2026-08-17
 
 ### Migration

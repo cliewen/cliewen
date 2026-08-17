@@ -10,6 +10,8 @@ accepted-by: Flemming N. Larsen (2026-08-02, conversation)
 
 # ADR-034 — Retirement is deletion; supersedes carries the pointer forward
 
+> **Amended by [PDR-046](PDR-046-decisions-route-by-subject.md):** decision records are retained and no longer demote into a log. For any other retired artifact, the successor or best live next stop carries `supersedes:`; criteria tombstones and completed plans remain the named file-retaining exceptions.
+
 ## Context and problem statement
 
 ADR-025 gives every default-lifecycle type a `draft → active → retired` vocabulary, but no artifact in the corpus has ever actually reached `retired`: the conventions that exist in practice are a criteria tombstone (`@retired` tag, the file stays so a stale test tag keeps failing loudly) and a demoted decision (the file is deleted and its content folded into a dated row in `docs/decisions/log.md`, per PDR-003). Both are deletion in substance. A `retired` status value that no committed file is ever observed holding is not a reachable terminal state — it is a word in a vocabulary table with no corresponding fact on disk. Deletion also currently leaves no machine-visible trace of what replaced a removed artifact beyond prose ("supersedes ADR-006's …") and git history, so a reader who has not memorized the corpus's history cannot tell, from the files alone, that a dangling-looking reference in an old PR or a changelog line once pointed at something real.
@@ -18,7 +20,7 @@ ADR-025 gives every default-lifecycle type a `draft → active → retired` voca
 
 **Retiring any artifact means deleting its file in the same change that retires it.** There is no committed state in which a file carries `status: retired` on `main` — that value never needs to exist, because the file it would describe is gone. `retired` is removed from the default lifecycle ADR-025 states; retirement is an event (deletion), not a status a surviving file holds.
 
-**A `supersedes:` frontmatter field, optional on any artifact type, names the IDs a retirement deleted.** It is carried by whichever artifact is the reader's best next stop: the successor record where a direct one exists, or — for a decision demoted with no successor record — `docs/decisions/log.md` itself, whose own frontmatter accumulates every ID it has absorbed since this decision (a decision demoted before this one keeps its existing plain-prose row; the field is not retrofitted onto history). Git history remains the archive of the full retired text; `supersedes:` is only the pointer, not a copy.
+**A `supersedes:` frontmatter field, optional on any artifact type, names the IDs a retirement deleted.** It is carried by whichever artifact is the reader's best next stop: the direct successor where one exists, or the best live next stop otherwise. Git history remains the archive of the full retired text; `supersedes:` is only the pointer, not a copy.
 
 **The validator enforces the half of this it can see:** an ID named in any artifact's `supersedes:` list must not resolve to a live artifact — if it does, the retirement was declared but not actually done, and `clue validate` rejects it. This is new: `checkLinks` already rejects any other artifact's `links:` entry that resolves to nothing, which is the enforcement half that already existed and needed no new rule — a live artifact still pointing at a deleted ID was already a validation failure before this decision; `supersedes:` gives that failure a resolution path (repoint the link to the ID naming the successor in its `supersedes:` list) instead of a bare "resolves to no artifact."
 
@@ -29,10 +31,10 @@ ADR-025 gives every default-lifecycle type a `draft → active → retired` voca
 
 **This decision supersedes two specific clauses, not the records that carry them:**
 
-- **PDR-003's demotion mechanic** — "file deleted, row added, inbound references repointed" — is unchanged in effect but now names its mechanism: the row is (or, for a demoting change, gains) the `supersedes:` pointer on `log.md`, and "inbound references repointed" is what `checkLinks` was already enforcing.
+- **Decision records are retained** under PDR-046; the former demotion mechanic is retired with the decision log.
 - **ADR-025's claim that `retired` is a reachable terminal state** is corrected for the default lifecycle and goals: no file was ever observed reaching it, and this decision states why that was never a bug to fix — the state was never meant to be a resting place. `ADR-025`'s other exception vocabularies (plan, decision, log, transient workspace types) are unchanged.
 
-**Carrier:** the `Supersedes` field on `internal/corpus.Artifact` and the `checkSupersedes` rule in `internal/corpus/rules.go` (machine); the retirement sentence in `clue-delta`'s Implement step, extended to name `supersedes:` alongside the existing criteria-tombstone sentence (agent); the decisions folder README and `docs/decisions/log.md`'s header preamble (default).
+**Carrier:** the `Supersedes` field on `internal/corpus.Artifact` and the `checkSupersedes` rule in `internal/corpus/rules.go` (machine); the retirement sentence in `clue-delta`'s digest step (agent); and the decisions folder README (default).
 
 ## Consequences
 

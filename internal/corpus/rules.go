@@ -116,11 +116,16 @@ func checkDecisionTaxonomy(c *Corpus) []Issue {
 			issues = append(issues, Issue{a.Path, "legacy decision logs are not supported — classify future-shaping rows into ADR, PDR, or IDR records in a reviewed full change"})
 			continue
 		}
+		if path.Dir(a.Path) == "docs/decisions" && a.Type != "decision" {
+			issues = append(issues, Issue{a.Path, "docs/decisions may contain only ADR, PDR, or IDR decision records"})
+			continue
+		}
 		if a.Type != "decision" {
 			continue
 		}
 		base := path.Base(a.Path)
-		validName := decisionIDRe.MatchString(a.ID) && path.Dir(a.Path) == "docs/decisions" && strings.HasPrefix(base, a.ID+"-") && strings.HasSuffix(base, ".md")
+		slug := strings.TrimSuffix(strings.TrimPrefix(base, a.ID+"-"), ".md")
+		validName := decisionIDRe.MatchString(a.ID) && path.Dir(a.Path) == "docs/decisions" && strings.HasPrefix(base, a.ID+"-") && strings.HasSuffix(base, ".md") && slug != ""
 		if !validName {
 			issues = append(issues, Issue{a.Path, "decision records must live in docs/decisions and use an ADR-<number>-, PDR-<number>-, or IDR-<number>- filename matching their ID"})
 		}
@@ -246,7 +251,7 @@ func checkConstraints(c *Corpus) []Issue {
 }
 
 // constraintSourceIDRe matches a corpus decision, constraint, architecture,
-// goal, capability, analysis, plan, imported-change, or log ID inside
+// goal, capability, analysis, plan, imported-change, or legacy log ID inside
 // free-form source: prose.
 // M- (milestone) and AC- (criterion) identities are deliberately excluded:
 // neither is a top-level c.ByID entry, so a milestone or criterion mentioned
@@ -255,8 +260,7 @@ func checkConstraints(c *Corpus) []Issue {
 var constraintSourceIDRe = regexp.MustCompile(`\b(?:ADR|PDR|ARCH|CAP|AN|LOG|C|G|P|IC)-\d+\b`)
 
 // constraintSourcePathRe matches a bare or relative markdown file path
-// inside free-form source: prose, such as "AGENTS.md" or
-// "docs/decisions/log.md".
+// inside free-form source: prose, such as "AGENTS.md" or a decision path.
 var constraintSourcePathRe = regexp.MustCompile(`[\w./-]+\.md`)
 
 // constraintSourceFragments and constraintSourceSkills name the shared
@@ -266,8 +270,8 @@ var constraintSourcePathRe = regexp.MustCompile(`[\w./-]+\.md`)
 var constraintSourceFragments = []string{"review-boundary", "durable-work", "decision-records", "local-conventions", "change-tiers", "frontmatter"}
 
 // checkConstraintSource enforces that a constraint's source: resolves to
-// something live rather than merely being non-empty (M-067, log.md
-// 2026-08-08): a corpus-ID-shaped token must resolve to a live artifact, and
+// something live rather than merely being non-empty (PDR-049): a
+// corpus-ID-shaped token must resolve to a live artifact, and
 // a token naming a markdown path, a shared skill-source fragment, or a
 // managed skill must resolve to a real file. Locating prose that names
 // neither — "step 2 (Propose)", a quoted sentence — asserts nothing this

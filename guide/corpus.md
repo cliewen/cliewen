@@ -10,7 +10,7 @@ The `/docs` tree is Cliewen's permanent working memory. After classifying a task
 | `plans/` | `P-xxx` with `M-xxx` milestones | What bounded campaign moves a goal forward? |
 | `capabilities/` | `CAP-xxx` with criteria and design | What can the system do, how is it verified, and how is it built? |
 | `architecture/` | `ARCH-xxx` | What describes the whole system or an expensive-to-change boundary? |
-| `decisions/` | `ADR-xxx`, `PDR-xxx`, and a decision log | Why is the system or project shaped this way? |
+| `decisions/` | `ADR-xxx`, `PDR-xxx`, and `IDR-xxx` | Why is the architecture, project, or implementation shaped this way? |
 | `constraints/` | `C-xxx` | What rule must every relevant change obey — including a verifiable quality bar such as a coverage floor? |
 | `analysis/` | `AN-xxx` | What did a time-boxed investigation find? |
 
@@ -45,15 +45,15 @@ The separation is intentionally strict: a fact with two homes will eventually di
 
 ## Choose the right decision record
 
-Start with the cost of reversing the decision, then ask what it changes:
+First ask whether the choice constrains future work. If it does, route it by subject:
 
 | Decision | Record |
 |---|---|
-| Cheap and local to reverse | A dated row in `docs/decisions/log.md` |
-| Expensive to reverse and about software architecture or the corpus format, such as frontmatter fields or extraction mappings | An ADR, or Architectural Decision Record |
-| Expensive to reverse and about project workflow or process | A PDR, or Project/Process Decision Record |
+| Software architecture or the corpus format | An ADR, or Architectural Decision Record |
+| Project workflow, process, or methodology | A PDR, or Project/Process Decision Record |
+| Implementation | An IDR, or Implementation Decision Record |
 
-The log is for choices that do not need a full argument preserved. ADRs and PDRs use the same decision template because expensive choices need context, alternatives, and rationale; the different names tell readers whether the decision shapes the system or the way the project works.
+Routine facts, chronology, and implementation history are not decision records. ADRs, PDRs, and IDRs keep enduring context and the decision, with alternatives and consequences only when they materially help a future reader.
 
 ## See a living corpus
 

@@ -152,10 +152,12 @@ func TestAC143_UnitNegative_LegacyAndUnsupportedDecisionNamesFail(t *testing.T) 
 		"docs/decisions/README.md":              "# Decisions\n\n<!-- clue:index:start -->\n- [log](log.md)\n- [DEC-001](DEC-001-unsupported.md)\n<!-- clue:index:end -->\n",
 		"docs/decisions/log.md":                 "---\nid: LOG-001\ntype: log\nstatus: active\nlinks: []\ntitle: Decision log\n---\n",
 		"docs/decisions/DEC-001-unsupported.md": decisionFixture("DEC-001"),
+		"docs/decisions/notes.md":               "---\nid: NOTES-001\ntype: analysis\nstatus: active\nlinks: []\ntitle: Notes\n---\n",
 	})
 	issues := run(t, files, false)
 	assertIssue(t, issues, "legacy decision logs are not supported")
 	assertIssue(t, issues, "ADR-<number>-, PDR-<number>-, or IDR-<number>-")
+	assertIssue(t, issues, "docs/decisions may contain only ADR, PDR, or IDR")
 }
 
 func decisionFixture(id string) string {

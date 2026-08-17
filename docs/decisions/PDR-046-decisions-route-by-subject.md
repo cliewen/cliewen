@@ -6,6 +6,7 @@ links: [P-016, PDR-003, PDR-006, PDR-044, PDR-045, C-011, C-013]
 title: Future-shaping decisions route by subject into concise records
 author: agent
 accepted-by: []
+supersedes: [LOG-001]
 ---
 
 # PDR-046 — Future-shaping decisions route by subject into concise records

@@ -2,9 +2,9 @@
 id: C-012
 type: constraint
 status: active
-links: [PDR-007, PDR-012, PDR-016, PDR-021, PDR-027, PDR-039, PDR-040, PDR-042, LOG-001]
+links: [PDR-007, PDR-012, PDR-016, PDR-021, PDR-027, PDR-039, PDR-040, PDR-042]
 title: Full changes remain human-accepted while simple integration follows explicit user authority
-source: PDR-007, PDR-012, PDR-016, PDR-040, PDR-042, LOG-001, clue-delta steps 1 and 5
+source: PDR-007, PDR-012, PDR-016, PDR-040, PDR-042, clue-delta steps 1 and 5
 enforcement: partial
 ---
 

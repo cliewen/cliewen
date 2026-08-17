@@ -12,7 +12,7 @@ title: Cliewen earns the first try — value, safe proof, enforced adoption
 
 P-001 established the verifiable thread, P-002 made it distributable, and P-003 made the repository and newcomer guide public. This campaign makes that public path earn a newcomer's first try: state the value before the vocabulary, demonstrate a real validation failure without risking an existing repository, make the CI safeguard actionable, and state the product's operating boundaries honestly. It serves [G-001](../goals/G-001-verifiable-thread.md) without changing the validator or [QS-002](../quality/QS-002-onboarding-under-30-minutes.md).
 
-The campaign is deliberately sequential. Each milestone is a separate Cliewen change rooted at accepted `main`, published as a ready pull request, and accepted by human merge before the next begins. The scope decision and deferrals are recorded in the [decision log](../decisions/log.md) row dated 2026-07-22.
+The campaign is deliberately sequential. Each milestone is a separate Cliewen change rooted at accepted `main`, published as a ready pull request, and accepted by human merge before the next begins. The scope decision and deferrals are recorded in the [decision log](../decisions/PDR-014-distribution-reopens-on-the-active-campaign.md) row dated 2026-07-22.
 
 ## Milestones
 

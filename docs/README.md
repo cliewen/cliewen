@@ -29,7 +29,6 @@ Small consumed extensions keep the graph explicit. `ac-prefix` on a criteria.md 
 | goal | `proposed` → `accepted` | proposed goals ARE the inbox (ADR-002) |
 | plan | `draft` → `active` → `completed` | `completed` is immutable, not `retired` (C-008) |
 | decision | `inferred` → `verified` | provenance lives in status; human acceptance promotes (ADR-010) |
-| log | `active` | one register — rows are its lifecycle (PDR-003) |
 | change, tasks | `open` | transient workspace artifacts |
 | open-questions | `open` → `resolved` | transient workspace artifacts |
 | imported-change | `in-progress` → `complete` | durable, never `retired` — the record survives its extracted source (ADR-050) |
@@ -43,7 +42,7 @@ Types on the default: capability, criteria, design, constraint, architecture, an
 - [plans/](plans/README.md) — P-xxx: campaign layer; flat, status in frontmatter
 - [capabilities/](capabilities/README.md) — CAP-xxx: one folder per capability (README / criteria / design)
 - [architecture/](architecture/README.md) — system scope: the whole, the expensive-to-change
-- [decisions/](decisions/README.md) — ADR-xxx (architecture) and PDR-xxx (project/process): MADR + provenance, including rejected records
+- [decisions/](decisions/README.md) — future-shaping choices by subject: ADR-xxx architecture, PDR-xxx project/process, IDR-xxx implementation
 - [constraints/](constraints/README.md) — C-xxx: laws, licenses, policies, and verifiable quality bars you must not break
 - [analysis/](analysis/README.md) — spike findings, extraction reports
 - [imported-changes/](imported-changes/README.md) — IC-xxx: durable records of in-flight source work brownfield extraction preserves

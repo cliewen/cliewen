@@ -19,7 +19,7 @@ The method's first enforced requirement is its own accessibility — instant usa
 
 The layered guide, layers kept strictly separate:
 
-1. **Command (seconds):** `clue init` materializes the whole convention — `/docs` taxonomy, README indexes, skills, CI workflow — in one call; `clue migrate` later upgrades a released corpus through a previewed, safe plan.
+1. **Command (seconds):** `clue init` materializes the whole convention — `/docs` taxonomy, README indexes, skills, CI workflow — in one call; `clue migrate` later upgrades a released corpus through a previewed, safe plan. A legacy decision log is the semantic exception: MIG-010 inventories every row and blocks every write until a reviewed full change classifies future-shaping choices by subject, accounts for narrative, repairs references, and removes the log.
 2. **Quickstart (5 minutes):** one page — install, `clue init`, first change loop, watch `validate` go green.
 3. **Skills** — learned during use.
 4. **Book** — the why; depth, secondary.

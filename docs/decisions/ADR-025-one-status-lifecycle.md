@@ -23,7 +23,6 @@ The exceptions, and why each earns one:
 - **goal** — `proposed → accepted`: proposed goals *are* the inbox ([ADR-002](ADR-002-inbox-is-proposed-goals.md)); `proposed` is a distinct meaning, not a draft, and [ADR-034](ADR-034-retirement-is-deletion.md) removes `retired` as a resting status.
 - **plan** — `draft → active → completed`: `completed` is immutable ([C-008](../constraints/C-008-completed-plans-immutable.md)), a terminal state `retired` does not capture.
 - **decision** — `inferred → verified`: a decision expresses its provenance in `status` ([ADR-010](ADR-010-provenance-field.md)), where `verified` means a human accepted it.
-- **log** — `active`: the decision log is one standing register; its rows, not the file, carry lifecycle ([PDR-003](PDR-003-decision-log.md)).
 - **change, tasks** — `open`; **open-questions** — `open → resolved`: transient workspace artifacts that never reach `main`.
 
 Every other type — capability, criteria, design, constraint, quality, architecture, analysis, and any adopter-defined type ([ADR-026](ADR-026-adopter-types-default-lifecycle.md)) — uses the default.

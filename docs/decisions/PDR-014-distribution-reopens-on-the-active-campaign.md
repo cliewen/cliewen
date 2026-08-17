@@ -12,7 +12,7 @@ accepted-by: Flemming N. Larsen (2026-08-02, conversation)
 
 ## Context and problem statement
 
-Installation distribution — installer scripts and package-manager channels alike — has been parked three times. The [decision log](log.md) row of 2026-07-22 placed both outside the first-try campaign "until supported by their own evidence and scope", and P-004, P-005 and P-006 each restated them in their exclusion lists. The parking was conditional, and the condition was evidence — but nothing in the corpus says who decides the condition is met, or where the work lands when it is.
+Installation distribution — installer scripts and package-manager channels alike — has been parked three times. The [decision log](PDR-046-decisions-route-by-subject.md) row of 2026-07-22 placed both outside the first-try campaign "until supported by their own evidence and scope", and P-004, P-005 and P-006 each restated them in their exclusion lists. The parking was conditional, and the condition was evidence — but nothing in the corpus says who decides the condition is met, or where the work lands when it is.
 
 Two questions follow. Does the evidence now exist? And if it does, does distribution wait for a successor plan, or join the campaign already in flight?
 

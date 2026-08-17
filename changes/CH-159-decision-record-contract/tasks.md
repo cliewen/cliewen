@@ -15,6 +15,6 @@ title: Tasks for CH-159
 - [x] Update `clue init`, index scaffolding, and their canonical templates so a new corpus materializes only the settled decision-record contract (AC-145).
 - [x] Update the canonical extraction contract and source mappings so brownfield decisions route to the settled types and a legacy log cannot be silently carried or discarded (AC-146).
 - [x] Update the canonical lifecycle-skill sources and regenerate both distributed skill trees with focused parity evidence (AC-147).
-- [ ] Classify every row in this repository's decision log, create or amend the reviewed destinations, repair all live references, retire LOG-001, and remove the legacy log without changing immutable completed-plan prose beyond link targets.
-- [ ] Update current corpus explanations, public guidance, constraints and capabilities affected by the new contract, plus the adopter-facing `[Unreleased]` note.
+- [x] Classify every row in this repository's decision log, create or amend the reviewed destinations, repair all live references, retire LOG-001, and remove the legacy log without changing immutable completed-plan prose beyond link targets.
+- [x] Update current corpus explanations, public guidance, constraints and capabilities affected by the new contract, plus the adopter-facing `[Unreleased]` note.
 - [ ] Run the repository-local verification required for every changed surface and confirm the migration is a no-op on the converted repository.

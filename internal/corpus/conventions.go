@@ -64,7 +64,7 @@ var (
 	planItemRe    = regexp.MustCompile(`^[PM]-\d+$`)
 
 	// MilestoneStatuses is the vocabulary a plan table's status cell may use
-	// (C-010, decision log 2026-08-04).
+	// (C-010, PDR-048).
 	MilestoneStatuses = []string{"todo", "doing", "done", "dropped"}
 )
 

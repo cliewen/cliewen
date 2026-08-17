@@ -20,7 +20,7 @@ When every recorded decision is an ADR, the decisions folder fills with library 
 
 ## Decision outcome
 
-**ADRs are reserved for decisions that are expensive to reverse: architecture, methodology mechanics, public contracts, AC semantics. Everything else is a row in [`docs/decisions/log.md`](log.md).**
+**ADRs are reserved for decisions that are expensive to reverse: architecture, methodology mechanics, public contracts, AC semantics. Everything else is a row in [`docs/decisions/log.md`](PDR-046-decisions-route-by-subject.md).**
 
 - **Litmus test:** if reversing the decision later is cheap and local, it is a log row; if it constrains future changes, it is an ADR.
 - **Log format:** one table, columns `Date | Decision | Why | Change/PR` — the same rows-in-a-table pattern plans use for milestones. The Why is one line; a why that will not fit one line is a sign the decision belongs in an ADR.
