@@ -1730,18 +1730,18 @@ entries:
       state: retired
     - id: CH-159
       kind: numeric
-      state: live
+      state: retired
       prefix: CH
       component: "159"
     - id: CH-159-open-questions
       kind: opaque
-      state: live
+      state: retired
     - id: CH-159-log-classification
       kind: opaque
-      state: live
+      state: retired
     - id: CH-159-tasks
       kind: opaque
-      state: live
+      state: retired
     - id: G-001
       kind: numeric
       state: live
