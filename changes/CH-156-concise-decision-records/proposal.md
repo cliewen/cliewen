@@ -1,7 +1,7 @@
 ---
 id: CH-156
 type: change
-status: active
+status: open
 links: [PDR-003, PDR-006]
 title: Plan concise typed decision records
 ---
@@ -14,7 +14,7 @@ Create a dedicated campaign plan for replacing the decision log with subject-typ
 
 The accepted method currently routes cheap decisions to `docs/decisions/log.md` and uses reversal cost before subject. The requested model removes that artifact, routes durable decisions by subject, and records only future-shaping choices. Because this changes methodology meaning and several adopter-facing carriers, implementation needs staged full changes rather than one unreviewable rewrite.
 
-This change will record the campaign decision, create the plan with independently verifiable milestones, and regenerate the plan and decision indexes. It is plan-less because it creates the plan that subsequent changes will serve.
+This change will record the campaign decision, create the plan with independently verifiable milestones, and regenerate the plan and decision indexes. This change is plan-less because it creates the plan that subsequent changes will serve.
 
 ## Scope boundary
 

@@ -1671,9 +1671,12 @@ entries:
       state: live
     - id: CH-156
       kind: numeric
-      state: reserved
+      state: live
       prefix: CH
       component: "156"
+    - id: CH-156-tasks
+      kind: opaque
+      state: live
     - id: G-001
       kind: numeric
       state: live
@@ -1734,6 +1737,11 @@ entries:
       state: live
       prefix: IC
       component: "2"
+    - id: IDR-001
+      kind: numeric
+      state: reserved
+      prefix: IDR
+      component: "1"
     - id: LOG-001
       kind: numeric
       state: live
@@ -1744,6 +1752,11 @@ entries:
       state: reserved
       prefix: M
       component: "1"
+    - id: M-002
+      kind: numeric
+      state: reserved
+      prefix: M
+      component: "2"
     - id: P-001
       kind: numeric
       state: live
@@ -1821,9 +1834,14 @@ entries:
       component: "15"
     - id: P-016
       kind: numeric
-      state: reserved
+      state: live
       prefix: P
       component: "16"
+    - id: P-017
+      kind: numeric
+      state: reserved
+      prefix: P
+      component: "17"
     - id: PDR-001
       kind: numeric
       state: live
@@ -2039,3 +2057,8 @@ entries:
       state: live
       prefix: PDR
       component: "43"
+    - id: PDR-044
+      kind: numeric
+      state: live
+      prefix: PDR
+      component: "44"
