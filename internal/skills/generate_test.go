@@ -107,6 +107,53 @@ func TestAC137_UnitNegative_EntrypointAndReferenceDriftIsRejected(t *testing.T) 
 	}
 }
 
+func TestAC147_UnitPositive_EveryLifecycleSkillCarriesSubjectTypedDecisionGuidance(t *testing.T) {
+	for name := range skillDefinitions {
+		content := mustRenderFile(t, path.Join(name, "references", "decision-records.md"))
+		for _, want := range []string{"future-shaping choice", "ADR for software or corpus architecture", "PDR for how the project", "IDR for implementation", "timeless and compact"} {
+			if !strings.Contains(content, want) {
+				t.Errorf("%s decision guidance is missing %q", name, want)
+			}
+		}
+	}
+}
+
+func TestAC147_UnitNegative_GeneratedSkillsOmitLegacyDecisionRouting(t *testing.T) {
+	for name := range skillDefinitions {
+		content := mustRenderFile(t, path.Join(name, "references", "decision-records.md"))
+		for _, legacy := range []string{"Route every decision by reversal cost", "docs/decisions/log.md"} {
+			if strings.Contains(content, legacy) {
+				t.Errorf("%s decision guidance retains legacy contract %q", name, legacy)
+			}
+		}
+	}
+}
+
+func TestAC146_UnitPositive_ExtractionClassifiesDecisionsAndInventoriesLegacyRows(t *testing.T) {
+	target := mustRenderFile(t, "clue-extract/references/target-contract.md")
+	mapping := mustRenderFile(t, "clue-extract/mappings/madr.md")
+	for _, want := range []string{"decisions route by subject", "ADR for architecture", "PDR for project/process", "IDR for implementation", "legacy decision log", "never guesses or silently drops"} {
+		if !strings.Contains(target, want) {
+			t.Errorf("extraction target contract is missing %q", want)
+		}
+	}
+	for _, want := range []string{"decision's subject", "ADR-xxx", "PDR-xxx", "IDR-xxx", "legacy decision log table", "never infer one mechanically"} {
+		if !strings.Contains(mapping, want) {
+			t.Errorf("MADR mapping is missing %q", want)
+		}
+	}
+}
+
+func TestAC146_UnitNegative_ExtractionDoesNotGuessOrRouteEveryRecordToADR(t *testing.T) {
+	target := mustRenderFile(t, "clue-extract/references/target-contract.md")
+	mapping := mustRenderFile(t, "clue-extract/mappings/madr.md")
+	for _, legacy := range []string{"their ADR/PDR record type is already the high-cost route", "the number becomes the `ADR-xxx` ID"} {
+		if strings.Contains(target, legacy) || strings.Contains(mapping, legacy) {
+			t.Errorf("extraction retains legacy routing %q", legacy)
+		}
+	}
+}
+
 func TestSanity_EveryMappingSourceHasAGeneratedCounterpart(t *testing.T) {
 	mappingsDir := filepath.Join("source", "resources", "clue-extract", "mappings")
 

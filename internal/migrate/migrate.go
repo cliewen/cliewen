@@ -69,6 +69,11 @@ const (
 	// conflict costs them one decision; rewriting it would cost Cliewen the
 	// line it holds against every other locally modified carrier (ADR-060).
 	MigrationCompetingWall = "MIG-009"
+	// MigrationLegacyDecisionLog inventories a legacy decision log and blocks
+	// every write until a reviewed full change classifies its durable rows and
+	// removes the register. Classification is semantic, so migration never
+	// guesses a destination or edits the log (PDR-046).
+	MigrationLegacyDecisionLog = "MIG-010"
 )
 
 // Options controls planning. Preview is the default; applying a plan is a
@@ -95,6 +100,7 @@ var orderedMigrations = []MigrationDefinition{
 	{ID: MigrationPromotedConstraints, Description: "report a scaffolded constraint awaiting a machine check this release implements"},
 	{ID: MigrationLedgerBackfill, Description: "seed the identity ledger from the current corpus scan"},
 	{ID: MigrationCompetingWall, Description: "report a repository-owned workflow that validates beside the thin caller"},
+	{ID: MigrationLegacyDecisionLog, Description: "inventory a legacy decision log for reviewed subject classification"},
 }
 
 // Registry returns the migration order without exposing mutable package state.
@@ -404,6 +410,7 @@ func Plan(root string, opts Options) (MigrationPlan, error) {
 	planPromotedConstraints(root, &result)
 	planLedgerBackfill(root, &result)
 	planCompetingWall(root, &result)
+	planLegacyDecisionLog(root, &result)
 	sortPlan(&result)
 	return result, nil
 }
@@ -1402,6 +1409,115 @@ func planCompetingWall(root string, result *MigrationPlan) {
 			}
 		}
 	}
+}
+
+// planLegacyDecisionLog reports every legacy row separately so the preview is
+// the classification inventory. Presence alone is blocking: only a reviewed
+// full change can decide whether a row becomes an ADR, PDR, or IDR, amends an
+// existing record, or is routine narrative that may be discarded.
+func planLegacyDecisionLog(root string, result *MigrationPlan) {
+	const rel = "docs/decisions/log.md"
+	data, err := os.ReadFile(filepath.Join(root, filepath.FromSlash(rel)))
+	if os.IsNotExist(err) {
+		return
+	}
+	if err != nil {
+		result.Findings = append(result.Findings, Finding{Path: rel, Migration: MigrationLegacyDecisionLog, Message: "legacy decision log cannot be read; resolve it before reviewed classification"})
+		return
+	}
+
+	rows := legacyDecisionRows(string(data))
+	if len(rows) == 0 {
+		result.Findings = append(result.Findings, Finding{Path: rel, Migration: MigrationLegacyDecisionLog, Message: "legacy decision log remains; remove it in a reviewed full change after confirming it contains no durable unclassified choice"})
+		return
+	}
+	for _, row := range rows {
+		result.Findings = append(result.Findings, Finding{Path: rel, Migration: MigrationLegacyDecisionLog, Message: "legacy row " + row + " — in a reviewed full change classify any future-shaping choice by subject as ADR, PDR, or IDR, account explicitly for narrative, repair references, and remove the log; migration never guesses"})
+	}
+}
+
+func legacyDecisionRows(text string) []string {
+	var rows []string
+	inTable := false
+	wantDelimiter := false
+	for _, line := range strings.Split(text, "\n") {
+		cells := legacyTableCells(line)
+		if !inTable {
+			if wantDelimiter && legacyTableDelimiter(cells) {
+				inTable = true
+				wantDelimiter = false
+				continue
+			}
+			wantDelimiter = len(cells) >= 2 && strings.EqualFold(strings.TrimSpace(cells[0]), "date") && strings.EqualFold(strings.TrimSpace(cells[1]), "decision")
+			continue
+		}
+		if len(cells) < 2 {
+			inTable = false
+			continue
+		}
+		date := strings.TrimSpace(cells[0])
+		decision := strings.TrimSpace(cells[1])
+		if date == "" || decision == "" {
+			continue
+		}
+		rows = append(rows, date+" — "+decision)
+	}
+	return rows
+}
+
+func legacyTableDelimiter(cells []string) bool {
+	if len(cells) < 2 {
+		return false
+	}
+	for _, cell := range cells {
+		trimmed := strings.TrimSpace(cell)
+		if len(strings.Trim(trimmed, ":")) < 3 || strings.Trim(strings.Trim(trimmed, ":"), "-") != "" {
+			return false
+		}
+	}
+	return true
+}
+
+// legacyTableCells accepts either Markdown table form and keeps pipes escaped
+// or enclosed in a code span inside their cell.
+func legacyTableCells(row string) []string {
+	var cells []string
+	var current strings.Builder
+	openTicks := 0
+	runes := []rune(strings.TrimSpace(row))
+	for i := 0; i < len(runes); i++ {
+		switch c := runes[i]; {
+		case c == '\\' && i+1 < len(runes):
+			current.WriteRune(c)
+			i++
+			current.WriteRune(runes[i])
+		case c == '`':
+			run := 1
+			for i+run < len(runes) && runes[i+run] == '`' {
+				run++
+			}
+			if openTicks == 0 {
+				openTicks = run
+			} else if openTicks == run {
+				openTicks = 0
+			}
+			current.WriteString(strings.Repeat("`", run))
+			i += run - 1
+		case c == '|' && openTicks == 0:
+			cells = append(cells, strings.TrimSpace(current.String()))
+			current.Reset()
+		default:
+			current.WriteRune(c)
+		}
+	}
+	cells = append(cells, strings.TrimSpace(current.String()))
+	if len(cells) > 0 && cells[0] == "" {
+		cells = cells[1:]
+	}
+	if len(cells) > 0 && cells[len(cells)-1] == "" {
+		cells = cells[:len(cells)-1]
+	}
+	return cells
 }
 
 // runsInstalledValidate reports whether a run block invokes the installed clue

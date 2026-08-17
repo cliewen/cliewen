@@ -288,4 +288,13 @@ Feature: Brownfield analysis and extraction — evidence, namespaced ACs, JVM ha
     When the rehearsal pins are written before the target exists and the approved mutation is verified against those unmodified pins
     Then the stamped binary validates the target, the rehearsal's own source manifest still compares clean afterwards without having changed, a carrier inventory pinned at mutation reconciles clean, and every in-flight imported change keeps its pinned origin, rationale sections, and proof links to live criteria
     But a skill stamp disagreeing with the pinned release is reported as drift, a parity claim or a mapped carrier claim made before the target exists fails, and an imported change claiming complete over an unproven criterion is rejected at that size
+
+  @AC-146
+  Scenario: Brownfield decisions are classified by subject without losing a legacy log
+    Test-type: Unit
+    Given a source corpus containing individual decision records and a legacy table of dated decisions
+    When the generated extraction skill maps its decisions into Cliewen
+    Then future-shaping choices route to ADR, PDR, or IDR by subject and use the compact decision shape
+    And every legacy row is inventoried for reviewed classification before its source register is removed
+    But routine facts and chronology do not become records, and no row is silently classified or discarded
 ```

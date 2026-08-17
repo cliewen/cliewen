@@ -1069,10 +1069,6 @@ func TestSanity_PRBoundaryExplainsAuthorizationAndCIEnforcement(t *testing.T) {
 			"does not require repeating a code review",
 			"required check and branch protection",
 		},
-		"docs/decisions/log.md": {
-			"PDR-007 supersedes CH-023's “human review gate” interpretation",
-			"mandatory authorization and protected-integration boundary",
-		},
 		"docs/constraints/README.md": {
 			"C-012 — Full changes remain human-accepted while simple integration follows explicit user authority",
 		},

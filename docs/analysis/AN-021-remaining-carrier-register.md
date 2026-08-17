@@ -831,7 +831,7 @@ The direction looks settled — a constraint outranks contributor prose, and CH-
 
 Q-01 through Q-03 were answered by Flemming N. Larsen on 2026-08-08 in conversation, in the change that wrote this register, and recorded under [C-011](../constraints/C-011-decision-records-typed.md).
 
-**Q-01 answered: the argument survives its rule.** `guide/design.md`'s review-loop wording is corrected to the bounded loop, and "small deltas" loses its bold heading and becomes the rationale under the branching and one-change-per-author rules it actually explains. What failed the test was stating an uncheckable rule as a named principle, not the observation behind it. Recorded as a [`log.md`](../decisions/log.md) row dated 2026-08-08.
+**Q-01 answered: the argument survives its rule.** `guide/design.md`'s review-loop wording is corrected to the bounded loop, and "small deltas" loses its bold heading and becomes the rationale under the branching and one-change-per-author rules it actually explains. What failed the test was stating an uncheckable rule as a named principle, not the observation behind it. Recorded as a [`log.md`](../decisions/PDR-029-simplification-tests-by-surface.md) row dated 2026-08-08.
 
 **Q-02 answered: the poor-fit conditions move into the corpus as architecture, not as a constraint.** They are conditions on the adopting repository rather than rules a change can violate, so they now live in [ARCH-003](../architecture/core.md) beside the periphery and extension clauses, where [PDR-031](../decisions/PDR-031-architecture-artifacts-are-traces.md) makes them a valid trace. `guide/adoption.md` and `guide/operations.md` keep their wording and now trace there. Recorded as a `log.md` row.
 

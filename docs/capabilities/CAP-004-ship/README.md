@@ -25,4 +25,4 @@ Acceptance criteria: [criteria.md](criteria.md) · design and the release pipeli
 
 ## Status note
 
-`active`: `clue version`, the skill stamps, release artifacts, and the drift rule ship with tests carrying the AC-IDs. P-002's completed M-004 row preserves the historical adopter-CI evidence; the analysis index identifies the private-repository boundary around that evidence. The capability's normative contract and verification remain entirely in this repository.
+`active`: `clue version`, the skill stamps, release artifacts, and the drift rule ship with tests carrying the AC-IDs. AC-147 additionally holds the shared ADR/PDR/IDR subject-routing and compact-shape instruction across every generated lifecycle skill and both distributed trees. P-002's completed M-004 row preserves the historical adopter-CI evidence; the analysis index identifies the private-repository boundary around that evidence. The capability's normative contract and verification remain entirely in this repository.

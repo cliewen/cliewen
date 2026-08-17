@@ -1,6 +1,6 @@
 counters:
-    AC: "142"
-    ADR: "60"
+    AC: "147"
+    ADR: "61"
     AN: "23"
     ARCH: "3"
     C: "22"
@@ -8,10 +8,10 @@ counters:
     CH: "159"
     G: "10"
     IC: "2"
-    IDR: "1"
+    IDR: "8"
     LOG: "1"
     P: "17"
-    PDR: "45"
+    PDR: "50"
 entries:
     - id: AC-001
       kind: numeric
@@ -718,6 +718,31 @@ entries:
       state: live
       prefix: AC
       component: "142"
+    - id: AC-143
+      kind: numeric
+      state: live
+      prefix: AC
+      component: "143"
+    - id: AC-144
+      kind: numeric
+      state: live
+      prefix: AC
+      component: "144"
+    - id: AC-145
+      kind: numeric
+      state: live
+      prefix: AC
+      component: "145"
+    - id: AC-146
+      kind: numeric
+      state: live
+      prefix: AC
+      component: "146"
+    - id: AC-147
+      kind: numeric
+      state: live
+      prefix: AC
+      component: "147"
     - id: ADR-001
       kind: numeric
       state: live
@@ -993,6 +1018,11 @@ entries:
       state: live
       prefix: ADR
       component: "60"
+    - id: ADR-061
+      kind: numeric
+      state: live
+      prefix: ADR
+      component: "61"
     - id: AN-001
       kind: numeric
       state: live
@@ -1700,9 +1730,18 @@ entries:
       state: retired
     - id: CH-159
       kind: numeric
-      state: reserved
+      state: retired
       prefix: CH
       component: "159"
+    - id: CH-159-open-questions
+      kind: opaque
+      state: retired
+    - id: CH-159-log-classification
+      kind: opaque
+      state: retired
+    - id: CH-159-tasks
+      kind: opaque
+      state: retired
     - id: G-001
       kind: numeric
       state: live
@@ -1765,12 +1804,47 @@ entries:
       component: "2"
     - id: IDR-001
       kind: numeric
-      state: reserved
+      state: live
       prefix: IDR
       component: "1"
-    - id: LOG-001
+    - id: IDR-002
       kind: numeric
       state: live
+      prefix: IDR
+      component: "2"
+    - id: IDR-003
+      kind: numeric
+      state: live
+      prefix: IDR
+      component: "3"
+    - id: IDR-004
+      kind: numeric
+      state: live
+      prefix: IDR
+      component: "4"
+    - id: IDR-005
+      kind: numeric
+      state: live
+      prefix: IDR
+      component: "5"
+    - id: IDR-006
+      kind: numeric
+      state: live
+      prefix: IDR
+      component: "6"
+    - id: IDR-007
+      kind: numeric
+      state: live
+      prefix: IDR
+      component: "7"
+    - id: IDR-008
+      kind: numeric
+      state: live
+      prefix: IDR
+      component: "8"
+    - id: LOG-001
+      kind: numeric
+      state: retired
       prefix: LOG
       component: "1"
     - id: P-001
@@ -2083,3 +2157,28 @@ entries:
       state: live
       prefix: PDR
       component: "45"
+    - id: PDR-046
+      kind: numeric
+      state: live
+      prefix: PDR
+      component: "46"
+    - id: PDR-047
+      kind: numeric
+      state: live
+      prefix: PDR
+      component: "47"
+    - id: PDR-048
+      kind: numeric
+      state: live
+      prefix: PDR
+      component: "48"
+    - id: PDR-049
+      kind: numeric
+      state: live
+      prefix: PDR
+      component: "49"
+    - id: PDR-050
+      kind: numeric
+      state: live
+      prefix: PDR
+      component: "50"
