@@ -11,7 +11,7 @@ counters:
     IDR: "1"
     LOG: "1"
     P: "17"
-    PDR: "45"
+    PDR: "46"
 entries:
     - id: AC-001
       kind: numeric
@@ -720,27 +720,27 @@ entries:
       component: "142"
     - id: AC-143
       kind: numeric
-      state: reserved
+      state: live
       prefix: AC
       component: "143"
     - id: AC-144
       kind: numeric
-      state: reserved
+      state: live
       prefix: AC
       component: "144"
     - id: AC-145
       kind: numeric
-      state: reserved
+      state: live
       prefix: AC
       component: "145"
     - id: AC-146
       kind: numeric
-      state: reserved
+      state: live
       prefix: AC
       component: "146"
     - id: AC-147
       kind: numeric
-      state: reserved
+      state: live
       prefix: AC
       component: "147"
     - id: ADR-001
@@ -2114,3 +2114,8 @@ entries:
       state: live
       prefix: PDR
       component: "45"
+    - id: PDR-046
+      kind: numeric
+      state: live
+      prefix: PDR
+      component: "46"

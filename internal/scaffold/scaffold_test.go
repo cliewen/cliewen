@@ -45,6 +45,58 @@ func TestAC002_InitOutputPassesValidateUnchanged(t *testing.T) {
 	}
 }
 
+func TestAC145_UnitPositive_InitAndScaffoldUseSubjectTypedDecisions(t *testing.T) {
+	root, _ := runInto(t)
+	readme := filepath.Join(root, "docs", "decisions", "README.md")
+	content, err := os.ReadFile(readme)
+	if err != nil {
+		t.Fatal(err)
+	}
+	text := string(content)
+	for _, want := range []string{"ADR-xxx", "PDR-xxx", "IDR-xxx", "Subject alone selects the type"} {
+		if !strings.Contains(text, want) {
+			t.Errorf("scaffolded decisions guidance is missing %q", want)
+		}
+	}
+	if _, err := os.Stat(filepath.Join(root, "docs", "decisions", "log.md")); !os.IsNotExist(err) {
+		t.Fatalf("init materialized a legacy decision log: %v", err)
+	}
+	before := text
+	if _, err := Run(root); err != nil {
+		t.Fatal(err)
+	}
+	after, err := os.ReadFile(readme)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if string(after) != before {
+		t.Fatalf("scaffold changed an already-current empty decision index:\n%s", after)
+	}
+	if issues := validateAt(t, root); len(issues) != 0 {
+		t.Fatalf("subject-typed scaffold does not validate: %v", issues)
+	}
+}
+
+func TestAC145_UnitNegative_ScaffoldDoesNotOverwriteExistingDecision(t *testing.T) {
+	root, _ := runInto(t)
+	rel := filepath.Join("docs", "decisions", "IDR-001-local-choice.md")
+	decision := "---\nid: IDR-001\ntype: decision\nstatus: inferred\nlinks: []\ntitle: Local choice\nauthor: human\naccepted-by: []\n---\n\n# IDR-001 — Local choice\n"
+	full := filepath.Join(root, rel)
+	if err := os.WriteFile(full, []byte(decision), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := Run(root); err != nil {
+		t.Fatal(err)
+	}
+	got, err := os.ReadFile(full)
+	if err != nil || string(got) != decision {
+		t.Fatalf("scaffold overwrote an existing decision: err=%v\n%s", err, got)
+	}
+	if _, err := os.Stat(filepath.Join(root, "docs", "decisions", "log.md")); !os.IsNotExist(err) {
+		t.Fatalf("scaffold invented a legacy log while indexing an existing decision: %v", err)
+	}
+}
+
 // AC-042: every initialized repository receives the PR form required by the
 // scaffolded CI wall, rather than leaving authors to recreate it by hand.
 func TestAC042_InitOutputIncludesAcceptanceBriefTemplate(t *testing.T) {

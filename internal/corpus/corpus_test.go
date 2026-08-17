@@ -133,18 +133,33 @@ func TestUnit_AdopterTypeValidatesAgainstDefault(t *testing.T) {
 	assertIssue(t, run(t, files, false), "status accepted not allowed for type risk (allowed: draft, active)")
 }
 
-func TestUnit_LogStatusVocab(t *testing.T) {
-	logFiles := map[string]string{
-		"docs/README.md":           "# Corpus\n\n<!-- clue:index:start -->\n- [goals/](goals/README.md)\n- [plans/](plans/README.md)\n- [decisions/](decisions/README.md)\n<!-- clue:index:end -->\n",
-		"docs/decisions/README.md": "# Decisions\n\n<!-- clue:index:start -->\n- [log](log.md)\n<!-- clue:index:end -->\n",
-		"docs/decisions/log.md":    "---\nid: LOG-001\ntype: log\nstatus: active\nlinks: []\ntitle: Decision log\n---\n\n| Date | Decision | Why | Change/PR |\n",
+func TestAC143_UnitPositive_SubjectTypedDecisionNamesPass(t *testing.T) {
+	decisionFiles := map[string]string{
+		"docs/README.md":                           "# Corpus\n\n<!-- clue:index:start -->\n- [goals/](goals/README.md)\n- [plans/](plans/README.md)\n- [decisions/](decisions/README.md)\n<!-- clue:index:end -->\n",
+		"docs/decisions/README.md":                 "# Decisions\n\n<!-- clue:index:start -->\n- [ADR-001](ADR-001-architecture.md)\n- [PDR-001](PDR-001-process.md)\n- [IDR-001](IDR-001-implementation.md)\n<!-- clue:index:end -->\n",
+		"docs/decisions/ADR-001-architecture.md":   decisionFixture("ADR-001"),
+		"docs/decisions/PDR-001-process.md":        decisionFixture("PDR-001"),
+		"docs/decisions/IDR-001-implementation.md": decisionFixture("IDR-001"),
 	}
-	if issues := run(t, with(validFiles, logFiles), false); len(issues) != 0 {
-		t.Fatalf("an active log is valid; expected no issues, got %v", issues)
+	if issues := run(t, with(validFiles, decisionFiles), false); len(issues) != 0 {
+		t.Fatalf("subject-typed decisions should pass; got %v", issues)
 	}
+}
 
-	logFiles["docs/decisions/log.md"] = strings.Replace(logFiles["docs/decisions/log.md"], "status: active", "status: open", 1)
-	assertIssue(t, run(t, with(validFiles, logFiles), false), "status open not allowed for type log")
+func TestAC143_UnitNegative_LegacyAndUnsupportedDecisionNamesFail(t *testing.T) {
+	files := with(validFiles, map[string]string{
+		"docs/README.md":                        "# Corpus\n\n<!-- clue:index:start -->\n- [goals/](goals/README.md)\n- [plans/](plans/README.md)\n- [decisions/](decisions/README.md)\n<!-- clue:index:end -->\n",
+		"docs/decisions/README.md":              "# Decisions\n\n<!-- clue:index:start -->\n- [log](log.md)\n- [DEC-001](DEC-001-unsupported.md)\n<!-- clue:index:end -->\n",
+		"docs/decisions/log.md":                 "---\nid: LOG-001\ntype: log\nstatus: active\nlinks: []\ntitle: Decision log\n---\n",
+		"docs/decisions/DEC-001-unsupported.md": decisionFixture("DEC-001"),
+	})
+	issues := run(t, files, false)
+	assertIssue(t, issues, "legacy decision logs are not supported")
+	assertIssue(t, issues, "ADR-<number>-, PDR-<number>-, or IDR-<number>-")
+}
+
+func decisionFixture(id string) string {
+	return "---\nid: " + id + "\ntype: decision\nstatus: inferred\nlinks: []\ntitle: Fixture decision\nauthor: agent\naccepted-by: []\n---\n\n# " + id + "\n"
 }
 
 func TestUnit_FolderWithoutReadme(t *testing.T) {

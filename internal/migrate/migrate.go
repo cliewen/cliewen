@@ -69,6 +69,11 @@ const (
 	// conflict costs them one decision; rewriting it would cost Cliewen the
 	// line it holds against every other locally modified carrier (ADR-060).
 	MigrationCompetingWall = "MIG-009"
+	// MigrationLegacyDecisionLog inventories a legacy decision log and blocks
+	// every write until a reviewed full change classifies its durable rows and
+	// removes the register. Classification is semantic, so migration never
+	// guesses a destination or edits the log (PDR-046).
+	MigrationLegacyDecisionLog = "MIG-010"
 )
 
 // Options controls planning. Preview is the default; applying a plan is a
@@ -95,6 +100,7 @@ var orderedMigrations = []MigrationDefinition{
 	{ID: MigrationPromotedConstraints, Description: "report a scaffolded constraint awaiting a machine check this release implements"},
 	{ID: MigrationLedgerBackfill, Description: "seed the identity ledger from the current corpus scan"},
 	{ID: MigrationCompetingWall, Description: "report a repository-owned workflow that validates beside the thin caller"},
+	{ID: MigrationLegacyDecisionLog, Description: "inventory a legacy decision log for reviewed subject classification"},
 }
 
 // Registry returns the migration order without exposing mutable package state.
@@ -404,6 +410,7 @@ func Plan(root string, opts Options) (MigrationPlan, error) {
 	planPromotedConstraints(root, &result)
 	planLedgerBackfill(root, &result)
 	planCompetingWall(root, &result)
+	planLegacyDecisionLog(root, &result)
 	sortPlan(&result)
 	return result, nil
 }
@@ -1402,6 +1409,52 @@ func planCompetingWall(root string, result *MigrationPlan) {
 			}
 		}
 	}
+}
+
+// planLegacyDecisionLog reports every legacy row separately so the preview is
+// the classification inventory. Presence alone is blocking: only a reviewed
+// full change can decide whether a row becomes an ADR, PDR, or IDR, amends an
+// existing record, or is routine narrative that may be discarded.
+func planLegacyDecisionLog(root string, result *MigrationPlan) {
+	const rel = "docs/decisions/log.md"
+	data, err := os.ReadFile(filepath.Join(root, filepath.FromSlash(rel)))
+	if os.IsNotExist(err) {
+		return
+	}
+	if err != nil {
+		result.Findings = append(result.Findings, Finding{Path: rel, Migration: MigrationLegacyDecisionLog, Message: "legacy decision log cannot be read; resolve it before reviewed classification"})
+		return
+	}
+
+	rows := legacyDecisionRows(string(data))
+	if len(rows) == 0 {
+		result.Findings = append(result.Findings, Finding{Path: rel, Migration: MigrationLegacyDecisionLog, Message: "legacy decision log remains; remove it in a reviewed full change after confirming it contains no durable unclassified choice"})
+		return
+	}
+	for _, row := range rows {
+		result.Findings = append(result.Findings, Finding{Path: rel, Migration: MigrationLegacyDecisionLog, Message: "legacy row " + row + " — in a reviewed full change classify any future-shaping choice by subject as ADR, PDR, or IDR, account explicitly for narrative, repair references, and remove the log; migration never guesses"})
+	}
+}
+
+func legacyDecisionRows(text string) []string {
+	var rows []string
+	for _, line := range strings.Split(text, "\n") {
+		trimmed := strings.TrimSpace(line)
+		if !strings.HasPrefix(trimmed, "|") || !strings.HasSuffix(trimmed, "|") {
+			continue
+		}
+		cells := strings.Split(strings.Trim(trimmed, "|"), "|")
+		if len(cells) < 2 {
+			continue
+		}
+		date := strings.TrimSpace(cells[0])
+		decision := strings.TrimSpace(cells[1])
+		if date == "" || strings.EqualFold(date, "date") || strings.Trim(date, "-: ") == "" {
+			continue
+		}
+		rows = append(rows, date+" — "+decision)
+	}
+	return rows
 }
 
 // runsInstalledValidate reports whether a run block invokes the installed clue

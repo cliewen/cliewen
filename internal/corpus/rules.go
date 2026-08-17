@@ -42,7 +42,6 @@ var statusVocabExceptions = map[string][]string{
 	"goal":            {"proposed", "accepted"},         // proposed goals are the inbox (ADR-002)
 	"plan":            {"draft", "active", "completed"}, // completed is immutable (C-008)
 	"decision":        {"inferred", "verified"},         // provenance lives in status (ADR-010)
-	"log":             {"active"},                       // one register; rows are its lifecycle (PDR-003)
 	"change":          {"open"},                         // transient workspace artifact
 	"tasks":           {"open"},                         // transient workspace artifact
 	"open-questions":  {"open", "resolved"},             // transient workspace artifact
@@ -85,6 +84,7 @@ func Validate(c *Corpus, opts Options) []Issue {
 	issues = append(issues, checkReality(c)...)
 	issues = append(issues, checkConstraints(c)...)
 	issues = append(issues, checkTypeFields(c)...)
+	issues = append(issues, checkDecisionTaxonomy(c)...)
 	issues = append(issues, checkProseLayout(c)...)
 	issues = append(issues, checkSkippedTasks(c)...)
 	issues = append(issues, checkProposalPlanItem(c)...)
@@ -101,6 +101,30 @@ func Validate(c *Corpus, opts Options) []Issue {
 		}
 		return issues[i].Msg < issues[j].Msg
 	})
+	return issues
+}
+
+var decisionIDRe = regexp.MustCompile(`^(ADR|PDR|IDR)-[0-9]+$`)
+
+// checkDecisionTaxonomy enforces AC-143's subject-typed decision boundary.
+// The generic `decision` artifact type keeps provenance and lifecycle uniform;
+// the ID and filename carry the subject type a reader chooses from the index.
+func checkDecisionTaxonomy(c *Corpus) []Issue {
+	var issues []Issue
+	for _, a := range c.Artifacts {
+		if a.Type == "log" {
+			issues = append(issues, Issue{a.Path, "legacy decision logs are not supported — classify future-shaping rows into ADR, PDR, or IDR records in a reviewed full change"})
+			continue
+		}
+		if a.Type != "decision" {
+			continue
+		}
+		base := path.Base(a.Path)
+		validName := decisionIDRe.MatchString(a.ID) && path.Dir(a.Path) == "docs/decisions" && strings.HasPrefix(base, a.ID+"-") && strings.HasSuffix(base, ".md")
+		if !validName {
+			issues = append(issues, Issue{a.Path, "decision records must live in docs/decisions and use an ADR-<number>-, PDR-<number>-, or IDR-<number>- filename matching their ID"})
+		}
+	}
 	return issues
 }
 

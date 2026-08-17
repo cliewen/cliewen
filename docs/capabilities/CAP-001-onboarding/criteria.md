@@ -186,4 +186,22 @@ Feature: Onboarding — install to first green validate
     And it seeds each prefix's counter at that prefix's current maximum numeric component
     And a second run reports zero changes
     But a corpus that already carries a ".clue/id-ledger.yaml" file is left untouched by this step
+
+  @AC-144
+  Scenario: A legacy decision log requires reviewed classification before migration
+    Test-type: Unit
+    Given an adopted corpus whose legacy decision log contains several dated rows
+    When the user previews or applies "clue migrate"
+    Then the migration inventories every row and blocks all writes with guidance to classify future-shaping choices in a full change
+    And a corpus whose reviewed conversion has removed the log receives no legacy-log finding or change
+    But the migration never guesses a row's subject, durability, destination, or whether it is narrative that may be discarded
+
+  @AC-145
+  Scenario: A new corpus starts with only the subject-typed decision contract
+    Test-type: Unit
+    Given an empty git repository
+    When the user runs "clue init" and then "clue scaffold"
+    Then the decisions folder explains ADR, PDR, and IDR routing by subject and contains no decision log
+    And the regenerated index remains valid without inventing a legacy register
+    But existing decision files are not overwritten by either command
 ```

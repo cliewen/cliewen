@@ -411,4 +411,12 @@ Feature: clue validate — deterministic corpus judgment
     Then both runs exit with code 0 and the OK line counts the multi-document artifacts and over-budget identity slices
     And the flag names each counted artifact with its document count and each counted identity with its slice size and budget
     But an H1 inside a fenced example, a shorter fence nested in a longer one, an H2 "-" underline, either population's completed plan, and a slice at the budget are not counted
+
+  @AC-143
+  Scenario: The decision corpus contains only subject-typed records
+    Test-type: Unit
+    Given decision artifacts named with ADR, PDR, and IDR identities and carrying the decision provenance fields
+    When the user runs "clue validate"
+    Then those records pass the decision-taxonomy check
+    But a legacy log artifact or a decision artifact whose filename is outside the ADR, PDR, and IDR forms fails and names the accepted record forms
 ```
