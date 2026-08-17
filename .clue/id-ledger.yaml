@@ -8,8 +8,9 @@ counters:
     CH: "157"
     G: "10"
     IC: "2"
+    IDR: "1"
     LOG: "1"
-    P: "16"
+    P: "17"
     PDR: "45"
 entries:
     - id: AC-001
@@ -1746,6 +1747,11 @@ entries:
       state: live
       prefix: IC
       component: "2"
+    - id: IDR-001
+      kind: numeric
+      state: reserved
+      prefix: IDR
+      component: "1"
     - id: LOG-001
       kind: numeric
       state: live
@@ -1831,6 +1837,11 @@ entries:
       state: live
       prefix: P
       component: "16"
+    - id: P-017
+      kind: numeric
+      state: reserved
+      prefix: P
+      component: "17"
     - id: PDR-001
       kind: numeric
       state: live
