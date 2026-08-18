@@ -190,4 +190,4 @@ If your forge or hosting plan cannot enforce those conditions, local Cliewen val
 
 ## Next
 
-[Choose the smallest Cliewen practice your repository needs.](./adoption)
+[Learn what is supported and how to recover.](./operations)

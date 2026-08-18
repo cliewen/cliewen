@@ -70,4 +70,4 @@ When your repository's ownership, test evidence, or merge boundary cannot meet t
 
 ## Next
 
-[Use the adoption guide to choose the smallest practice your repository needs.](./adoption)
+[See the verifiable thread the method is built on.](./methodology)

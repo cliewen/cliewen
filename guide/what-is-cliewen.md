@@ -4,6 +4,18 @@ Cliewen is a methodology and a command-line tool for building software with codi
 
 The central idea is simple: the durable documentation describes the system as it exists, not a pile of past change requests. A goal leads to a capability, a capability owns acceptance criteria, and each active criterion reaches its declared acceptance evidence. Machine-proven criteria use supported, classified test references; genuine Human-class criteria use the pull request acceptance brief. The `clue` command checks that this thread is intact.
 
+```mermaid
+graph LR
+  G["Goal: why anyone wants it"] --> C["Capability: what the system can do"]
+  C --> A["Acceptance criterion: the observable example"]
+  A --> T["Classified test evidence"]
+  A --> H["Human proof in the acceptance brief"]
+  T --> V["clue validate"]
+  H --> V
+```
+
+That picture is the whole product. Everything else on this site is about keeping one of those arrows from going missing while an agent works fast.
+
 ## Why another workflow?
 
 Coding agents can produce changes faster than people can review them. That moves the bottleneck from writing code to deciding whether a change is correct and safe to merge. A patch can look convincing while missing why the system exists, updating a specification without its tests, leaving a decision in chat, or changing the meaning of an acceptance criterion.
@@ -18,6 +30,19 @@ Cliewen first recommends simple work when the accepted contract remains intact a
 
 The pull request is also where hosted CI becomes enforceable when the repository requires its status check and protects `main`. A pull request without a required check and branch protection only displays CI; the combination is what prevents an agent from silently skipping the gate.
 
+```mermaid
+graph LR
+  subgraph "An agent may do all of this"
+    B["Branch from accepted main"] --> W["Corpus, code, evidence"]
+    W --> V["clue validate and the tests"]
+    V --> P["Pull request with its brief"]
+  end
+  subgraph "Only a human does this"
+    M["Merge commit accepts the change"]
+  end
+  P --> M
+```
+
 ## Born from Intent Engineering and spec-driven development
 
 Cliewen builds on the ideas in [Intent Engineering for Coding Agents](https://intent-engineering-for-coding-agents.github.io/book/), written by Cliewen's author, Flemming N. Larsen: human intent is written down before an agent implements it, and the shared ground between human and agent lives in the repository under version control. Cliewen carries that approach one step further. The durable documentation is where that intent lives, and the `clue` binary enforces what the book otherwise leaves to discipline.
@@ -30,8 +55,14 @@ That combination prevents two common failures of change-centered specifications:
 
 ## What Cliewen is not
 
-Cliewen is not an issue tracker, a project-management service, or a way to remove humans from engineering decisions. It is also not a replacement for test runners: `clue` validates references but does not execute tests. Canonical criterion IDs use `<PREFIX>-<digits>[lowercase-suffix]`, so brownfield identities such as `SNAP-SQS-001` and `ADP-045b` remain stable; Go/JVM named forms remove prefix hyphens and literal JVM/Cucumber tags may use underscores as documented aliases. A new or revised machine-proven criterion declares its proof type and needs classified positive and negative evidence through supported Go test names, per-executable Java/Kotlin JUnit method tags or the stable JVM test-name form, or Cucumber scenario tags, unless it explicitly records `(single-direction)`. JVM metadata split across methods or inherited from a class receives no evidence credit. An unannotated legacy criterion keeps the one-supported-reference rule. A genuine `Test-type: Human` criterion is proven by its acceptance-brief line without fake code evidence, while `@draft` exempts only one not-yet-proven criterion inside an otherwise active file.
+Cliewen is not an issue tracker, a project-management service, or a way to remove humans from engineering decisions. It is also not a replacement for test runners: `clue` validates references but does not execute tests.
+
+::: details The exact evidence rules — the reference your agent needs, not your first read
+
+Canonical criterion IDs use `<PREFIX>-<digits>[lowercase-suffix]`, so brownfield identities such as `SNAP-SQS-001` and `ADP-045b` remain stable; Go/JVM named forms remove prefix hyphens and literal JVM/Cucumber tags may use underscores as documented aliases. A new or revised machine-proven criterion declares its proof type and needs classified positive and negative evidence through supported Go test names, per-executable Java/Kotlin JUnit method tags or the stable JVM test-name form, or Cucumber scenario tags, unless it explicitly records `(single-direction)`. JVM metadata split across methods or inherited from a class receives no evidence credit. An unannotated legacy criterion keeps the one-supported-reference rule. A genuine `Test-type: Human` criterion is proven by its acceptance-brief line without fake code evidence, while `@draft` exempts only one not-yet-proven criterion inside an otherwise active file.
+
+:::
 
 ## Next
 
-[Understand why Cliewen is designed the way it is.](./design)
+[Install `clue` with one command.](./install)

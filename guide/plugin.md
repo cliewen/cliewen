@@ -7,7 +7,7 @@ If you already work inside Claude Code, you can install `clue` without leaving t
 /plugin install cliewen@cliewen
 ```
 
-The plugin adds one skill, `/cliewen:setup`. It works out your platform, installs `clue` through the same checksum-verifying script the [Get started](./getting-started) page documents, confirms the binary reports a release version, and then **asks** before running `clue init`. Nothing is written into your repository until you say so.
+The plugin adds one skill, `/cliewen:setup`. It works out your platform, installs `clue` through the same checksum-verifying script the [Install](./install) page documents, confirms the binary reports a release version, and then **asks** before running `clue init`. Nothing is written into your repository until you say so.
 
 That is the entire plugin. The rest of this page is about what it does not do, which is the part worth understanding before you go looking for it.
 
@@ -32,11 +32,11 @@ The plugin and the install script install the same binary from the same release,
 | You are | Use |
 |---|---|
 | Working in Claude Code | The plugin — it saves you the context switch |
-| At a terminal, or scripting a machine | [`install.sh` or `install.ps1`](./getting-started#_1-install-clue) |
+| At a terminal, or scripting a machine | [`install.sh` or `install.ps1`](./install#install-clue) |
 | Setting up CI | The [pinned, checksum-verified binary](./ci-wall) the generated workflow installs — never a plugin |
 
 Upgrading `clue` moves the binary only. For a repository already using Cliewen that is half an upgrade; preview and apply the coordinated repository migration with `clue migrate`, and use the drift report as the check that the pair still needs work. [Operate safely](./operations) explains the recovery boundary.
 
 ## Next
 
-[Run the first change loop in a disposable repository.](./getting-started)
+[Watch the judge accept and reject a thread.](./getting-started)

@@ -289,14 +289,14 @@ func TestSanity_TheRoutesAreTheOnesActuallyPublished(t *testing.T) {
 
 	// The two script routes are the commands the guide publishes, character
 	// for character: the check must not invent a third spelling.
-	quickstart, err := os.ReadFile(filepath.Join("..", "..", "guide", "getting-started.md"))
+	installPage, err := os.ReadFile(filepath.Join("..", "..", "guide", "install.md"))
 	if err != nil {
 		t.Fatal(err)
 	}
 	for _, p := range []release.Platform{{OS: "windows", Arch: "amd64"}, {OS: "linux", Arch: "amd64"}} {
 		route := routeFor(t, p)
-		if !strings.Contains(string(quickstart), route) {
-			t.Errorf("%s/%s is offered %q, which the quickstart does not publish", p.OS, p.Arch, route)
+		if !strings.Contains(string(installPage), route) {
+			t.Errorf("%s/%s is offered %q, which the install page does not publish", p.OS, p.Arch, route)
 		}
 	}
 }

@@ -94,4 +94,4 @@ Stating limits plainly is part of the design — a methodology that overclaims t
 
 ## Next
 
-[See how the verifiable thread carries all of this.](./methodology)
+[Read the source and open an issue on GitHub.](https://github.com/cliewen/cliewen)

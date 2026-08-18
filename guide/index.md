@@ -10,10 +10,7 @@ hero:
     alt: Cliewen logo
   actions:
     - theme: brand
-      text: Try it safely
-      link: /getting-started
-    - theme: alt
-      text: Why Cliewen?
+      text: Start reading
       link: /what-is-cliewen
 
 features:
@@ -27,6 +24,18 @@ features:
     details: Agents prepare the corpus and verified proposal; humans keep control of intent and merge. Small work that changes no meaning stays outside the full loop.
 ---
 
+## Three moves
+
+```mermaid
+graph LR
+  I["Install clue"] --> P["Prompt your agent"]
+  P --> A["It writes the code, the corpus, and the evidence"]
+  A --> V["clue validate and CI check the thread"]
+  V --> M["You merge"]
+```
+
+Install takes one command. Prompting takes ordinary words. The only step Cliewen refuses to do for you is the last one.
+
 ## Next
 
-[Try Cliewen safely in a disposable repository.](./getting-started)
+[Start with what Cliewen is and why it exists.](./what-is-cliewen)

@@ -6,6 +6,19 @@ Paths and diff size may warn but do not decide meaning. The agent reassesses whe
 
 After classification, start from the smallest durable context that governs the task. `clue context <id>` prints the named artifact and the artifacts it links, out to a stated number of hops; an acceptance-criterion or milestone ID resolves to the artifact that declares it. The slice defaults to one hop and names what the bound held back, so `--depth` widens it on evidence rather than on caution. If the request gives no usable ID, orient at `docs/README.md`, choose the closest artifact, and run the command from there. Shared goals have many reverse dependents, so `context` deliberately follows declared outgoing dependencies only instead of recreating a full-corpus read.
 
+The full loop has six stages, and only the last one is yours:
+
+```mermaid
+graph LR
+  R["Recommend a route"] --> B["1. Branch"]
+  B --> P["2. Propose"]
+  P --> I["3. Implement"]
+  I --> D["4. Digest"]
+  D --> V["5. Verify and review"]
+  V --> G["6. Human merge"]
+  V -- "blocking finding" --> I
+```
+
 ## One real change, end to end
 
 [Cliewen pull request #2](https://github.com/cliewen/cliewen/pull/2) made the last edge of the thread machine-checkable. Before that change, an active acceptance criterion could lose its test reference without `clue` noticing; after it, the validator reports the criterion and exits non-zero.

@@ -31,4 +31,4 @@ This makes process changes reviewable and reproducible: the agent guidance that 
 
 ## Next
 
-[Practice the loop in a disposable repository.](./getting-started)
+[Make the checks blocking in CI.](./ci-wall)

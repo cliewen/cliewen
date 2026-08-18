@@ -4,6 +4,20 @@ The `/docs` tree is Cliewen's permanent working memory. After classifying a task
 
 ## The taxonomy
 
+```mermaid
+graph LR
+  D["docs/"] --> G["goals/ — why"]
+  D --> P["plans/ — what campaign"]
+  D --> C["capabilities/ — what it does"]
+  D --> S["the supporting record"]
+  C --> CR["criteria.md — the promises"]
+  C --> DS["design.md — how it works"]
+  S --> A["architecture/"]
+  S --> DE["decisions/"]
+  S --> CO["constraints/"]
+  S --> AN["analysis/"]
+```
+
 | Folder | Artifact | Question it answers |
 |---|---|---|
 | `goals/` | `G-xxx` | Who needs an outcome, and why? |
@@ -61,4 +75,4 @@ Cliewen dogfoods the methodology. Browse its [corpus entry point](https://github
 
 ## Next
 
-[Follow one proposal through the change loop.](./change-loop)
+[Read why Cliewen is designed the way it is.](./design)

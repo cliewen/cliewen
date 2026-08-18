@@ -41,7 +41,7 @@ Then:
 
 The macOS binaries are unsigned and not notarized, so a binary downloaded through a browser can be blocked by Gatekeeper. First confirm the checksum matches, try `clue version` once, then open **System Settings → Privacy & Security** and click **Open Anyway**. Apple documents this exception in [Open a Mac app from an unknown developer](https://support.apple.com/guide/mac-help/open-a-mac-app-from-an-unknown-developer-mh40616/mac). The install script is not affected — a download made outside the browser carries no quarantine attribute.
 
-The [installation guide](https://cliewen.dev/getting-started#_1-install-clue) has the same short path with a little more context, but it is not required for the quickstart.
+The [installation guide](https://cliewen.dev/install) has the same short path with a little more context, but it is not required for the quickstart.
 
 `clue version` reports the release it was built from — a checkout build (`go build ./cmd/clue`) or an install of an untagged commit reports `dev`. A tagged release (`vX.Y.Z`) builds the cross-platform binaries and stamps each with its version; the agent skills carry the same version, and `clue validate` flags drift between them ([CAP-004](docs/capabilities/CAP-004-ship/README.md), [ADR-011](docs/decisions/ADR-011-version-stamping.md)).
 
@@ -59,7 +59,7 @@ clue init
 clue validate
 ```
 
-`init` materializes the whole convention in one call: the `docs/` corpus, an `AGENTS.md` routing hub, agent skills, and a GitHub workflow. On a fresh repository `validate` is green immediately. Continue with the [safe demo](https://cliewen.dev/getting-started#_3-see-clue-catch-a-broken-thread) to activate an acceptance criterion without evidence and watch `clue` name the missing test; remove `cliewen-demo` afterwards.
+`init` materializes the whole convention in one call: the `docs/` corpus, an `AGENTS.md` routing hub, agent skills, and a GitHub workflow. On a fresh repository `validate` is green immediately. Continue with the [safe demo](https://cliewen.dev/getting-started#_2-see-clue-catch-a-broken-thread) to activate an acceptance criterion without evidence and watch `clue` name the missing test; remove `cliewen-demo` afterwards.
 
 **2. Make your first change.** The generated `AGENTS.md` recommends simple when the accepted contract stays unchanged and full when acceptance-criterion, capability, decision, policy, plan-promise, methodology, or uncovered-behavior meaning changes. Simple work uses relevant checks and the integration mechanism the user authorizes and the repository permits. A chosen full loop uses `clue context <id>` to load the relevant outgoing-link slice, branches from accepted `main`, commits `/changes/CH-001-your-slug/`, and opens a draft PR with that proposal so work is durable from first publication; it then implements against the corpus, digests into `docs/`, and runs the pre-ready checks and automatic agentic review in [`clue-verify`](.agents/skills/clue-verify/skill.md). Your coding agent loads broader corpus context only when the task discovers that it needs it.
 
