@@ -382,6 +382,24 @@ var legacyDigests = []releaseManifest{
 		"clue-upgrade/skill.md":                       "f266b34423297af3adcddce9d92117d431c91dabd15f4061e51367d798a5b28d",
 		"clue-verify/skill.md":                        "482fde6a9d3bbbbd61e832fc8dde8bf9dfca9d158c2852c669097eb9c69582a6",
 	}},
+	{Version: "0.19.0", Files: map[string]string{
+		"clue-analysis/references/decision-records.md": "8fb311b41e3ff51c64183afd60de398786d91742cb3b0bb56fdca860cc5e6ea4",
+		"clue-analysis/skill.md":                       "b7e1739feb4bd282131a1ca06d716c8ea2ccd9854724ea7ea76bea3d4f9fc964",
+		"clue-delta/references/change-loop.md":         "13027a969c5d52cb372cc6867614d6f146bcd5d4d7641083e13bb6c430e7e22e",
+		"clue-delta/references/decision-records.md":    "8fb311b41e3ff51c64183afd60de398786d91742cb3b0bb56fdca860cc5e6ea4",
+		"clue-delta/skill.md":                          "383a4b2f503eb9ae8cddcd2978a8e578a175b4feed8555f3d0960a9c7e9b38f6",
+		"clue-extract/mappings/madr.md":                "ada94471063f7d76c6b4f92f6cad08fe8bade409eb6ad13177e8efae0e9ebd9e",
+		"clue-extract/references/decision-records.md":  "8fb311b41e3ff51c64183afd60de398786d91742cb3b0bb56fdca860cc5e6ea4",
+		"clue-extract/references/target-contract.md":   "dfb8c24869c4b4d958e87e065c2dbf274b6b11d6cddf0e4e601b5b6d38c1a09e",
+		"clue-extract/skill.md":                        "502bc96fc42bcbcdfc3b9de75e897c7c35eaeeb837bc07f31acd424d2de306bc",
+		"clue-plan/references/decision-records.md":     "8fb311b41e3ff51c64183afd60de398786d91742cb3b0bb56fdca860cc5e6ea4",
+		"clue-plan/skill.md":                           "770772e2133a540ef08010113e6bf3c2ce106e381b11754ccc0f9298970e2950",
+		"clue-upgrade/references/decision-records.md":  "8fb311b41e3ff51c64183afd60de398786d91742cb3b0bb56fdca860cc5e6ea4",
+		"clue-upgrade/references/upgrade-workflow.md":  "2c853f9479162feadd596df40ad3295b0bc3f4bba15b063453bce0a0a5d2c5e6",
+		"clue-upgrade/skill.md":                        "31a6dfbaaf8ef98734ea3e53728dddc93ba7d63fecac2881e9e074328d9b8f04",
+		"clue-verify/references/decision-records.md":   "8fb311b41e3ff51c64183afd60de398786d91742cb3b0bb56fdca860cc5e6ea4",
+		"clue-verify/skill.md":                         "6f6b1287c5ca830101577c0436a2ed9dec3bcf14b7b3d3951ef60c3cc4e7c753",
+	}},
 }
 
 // Plan scans the target and returns the complete deterministic migration.

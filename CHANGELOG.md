@@ -4,6 +4,8 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 
 ## [Unreleased]
 
+## [0.19.0] - 2026-08-18
+
 ### Migration
 
 - **Repositories with `docs/decisions/log.md` need a reviewed full change before upgrading.** `clue migrate` now reports every legacy row as `MIG-010` and blocks all writes; classify each future-shaping choice by subject into an ADR, PDR, or IDR, explicitly account for routine narrative, repair references, and remove the log. Migration never guesses those semantic dispositions.
