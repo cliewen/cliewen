@@ -1052,9 +1052,8 @@ func TestSanity_PRBoundaryExplainsAuthorizationAndCIEnforcement(t *testing.T) {
 	for rel, wants := range map[string][]string{
 		"docs/decisions/PDR-007-review-boundary.md": {
 			"authorization and protected-integration boundary",
-			"not a requirement that a solo developer repeat a code review",
-			"The PR alone is insufficient",
-			"required check",
+			"The agent never merges its own pull request, creates a local merge into `main`, or pushes directly to `main`",
+			"not acceptance evidence for a criterion",
 			"branch protection",
 		},
 		"guide/change-loop.md": {
@@ -1090,10 +1089,10 @@ func TestSanity_AgenticFindingsRequireOperativeViolations(t *testing.T) {
 	root := filepath.Join("..", "..")
 	for rel, wants := range map[string][]string{
 		"docs/decisions/PDR-012-agentic-review-before-publication.md": {
-			"A finding is grounded in an operative requirement",
-			"human-controlled merge is mandatory but duplicate human code review is not",
-			"a release cut renames `[Unreleased]` to the versioned section",
-			"lifecycle-correct state are not actionable defects by themselves",
+			"actionable only when grounded in an operative requirement or declared intent",
+			"tied to a concrete consequence",
+			"The reviewer is read-only",
+			"each repair invalidates the prior clean pass",
 		},
 		"guide/change-loop.md": {
 			"Blocking findings are repaired, rechecked, and reviewed again",
