@@ -10,34 +10,22 @@ accepted-by: []
 
 # PDR-041 — Release-note scope is the shipped surface
 
-> **Terminology amended by [PDR-042](PDR-042-routing-recommends-contract-aware-effort.md):** simple/full routing replaces plain/light/full, but route still does not decide release-note scope; the shipped-surface test below does.
+> **Terminology amended by [PDR-042](PDR-042-routing-recommends-contract-aware-effort.md):** simple/full routing replaces plain/light/full; route does not decide release-note scope.
 
 ## Context and problem statement
 
-`CHANGELOG.md` is published verbatim as the GitHub release body ([ADR-012](ADR-012-release-notes-from-changelog.md)), so its audience is whoever installs `clue` or adopts the skills. The rule saying which changes owe an entry listed the triggers as shipped behavior, a capability, a contract, a command, or a user workflow. Every term in that list is also true of something this repository holds locally and no adopter ever sees: it has its own capabilities, its own contributor contract, its own commands, and its own workflows.
-
-[ADR-013](ADR-013-ships-generic-vs-repo-local.md) already draws the line the rule needs — what ships to adopters is generic, and `AGENTS.md` is the repo-local layer — but the scope rule did not name it. Applying the rule therefore meant reaching past it to that decision and re-deriving the boundary, and two readings of the same change could reasonably reach opposite answers. The failure is asymmetric: an entry wrongly written describes something the reader does not have, and it is published before anyone notices, while an entry wrongly omitted is caught when the release is written.
+Because `CHANGELOG.md` is published as the release body, its scope must distinguish adopter-visible behavior from this repository's own corpus, contributor guidance, commands, and workflows.
 
 ## Decision outcome
 
-**A change owes a release note when it changes what an adopter receives; every term in the scope list names that shipped surface.**
+**A change owes a release note when it changes what an adopter receives.** The test is whether it changes `clue` behavior, generated skill text, or an artifact materialized by `clue init` or `clue scaffold`; if none changes, no entry is owed. The test governs over category shortcuts, so a shipped file under `.github/` owes a note even when neighboring files are repository-local. A change spanning both layers describes only the adopter-visible part.
 
-- **The test.** Does the change alter the behaviour of `clue`, the text of a generated skill, or an artifact `clue init` or `clue scaffold` materializes into an adopter repository? If none of the three, no entry is owed.
-- **This repository's own layer is outside the scope**, including its corpus, its contributor guidance, and its local conventions — even when what changed is genuinely a capability, a contract, a command, or a workflow of this repository. That a change is recommended full, and carries full Cliewen bookkeeping, says nothing about whether it owes an entry.
-- **The test governs whenever it and a category disagree.** A category list is a shortcut for the common case and cannot be the rule, because a directory that reads as local holds shipped files: `.github/` contains this repository's own `ci.yml` alongside `pull_request_template.md`, which a positive test holds byte-identical to what `clue init` writes, and `clue-validation.yml`, the reusable workflow an adopter's caller references. A change to either of the latter two owes an entry, and any shortcut implying otherwise is wrong rather than merely incomplete.
-- **A change spanning both writes the entry for the adopter-visible part alone**, in the reader's terms, and says nothing about the repo-local half.
-- **The residual stays judgment.** The test names the surface; whether a given edit changes what that surface *means* to a user is still a reading, and the release gates continue to check only that a version section exists.
+Whether an edit changes the meaning received by a user remains human judgment; release gates continue to require a reviewed version section rather than deriving the obligation mechanically from paths.
 
-**Carrier:** [C-002](../constraints/C-002-changelog-per-user-visible-change.md) states the rule and the test; the release-notes convention in `AGENTS.md` and the digest sentence in `CONTRIBUTING.md` state the same rule for the agent and the contributor. The generated skills are deliberately not carriers: they say only that a repository's own conventions may require a user-facing changelog entry, and naming this repository's scope test in shipped text is what [ADR-013](ADR-013-ships-generic-vs-repo-local.md) forbids.
+## Rejected: say only "user-visible" or list paths
 
-### Rejected: replace the list with "is it user-visible?"
+Those answers leave adopter and contributor audiences ambiguous, and path lists go stale while comments, corpus changes, or generated output can change the shipped surface without changing their directory label.
 
-That question is the ambiguity, not a resolution of it — "user" is exactly the word that reads as either an adopter or a contributor, and the list at least names candidate triggers.
+## Carrier
 
-### Rejected: derive the obligation mechanically from changed paths
-
-A path list asserting "these files ship" goes stale silently as the repository grows, and it answers the wrong question: a comment in shipped code changes a shipped file without changing anything an adopter receives, while a corpus edit can change a skill's generated text. The judge reads state rather than transitions ([ADR-044](ADR-044-judge-reads-state-not-transitions.md)), and this obligation is about what a change did.
-
-### Rejected: an entry for every Cliewen change
-
-It would remove the judgment and the ambiguity with it, at the cost of release bodies that read as an internal commit log — the outcome ADR-012 exists to prevent.
+C-002, the `AGENTS.md` release-note convention, and the digest guidance in `CONTRIBUTING.md` carry the test; generated skills remain generic and do not carry this repository's scope.

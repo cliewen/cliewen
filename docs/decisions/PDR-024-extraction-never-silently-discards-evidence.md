@@ -12,20 +12,18 @@ accepted-by: Flemming N. Larsen (2026-08-08, conversation)
 
 ## Context and problem statement
 
-ADR-036 limits one JVM executable to one credited acceptance-criterion identity so unrelated evidence cannot cross-product. A source executable can nevertheless carry several source identities, and a class-level identity can describe structural evidence that belongs to no individual inherited test method. Selecting, moving, or deleting either form changes what source evidence says, and a normalizer cannot determine its correct executable destination.
+One source executable or class can carry several criterion identities even though ADR-036 credits one JVM executable to one identity; choosing a destination would change what the source evidence says.
 
 ## Decision outcome
 
-**An extraction normalizer may diagnose non-attributable evidence but never silently discard, select, or relocate acceptance evidence.** A rehearsal inventories every multi-identity executable and class-level criterion tag with its source location, identities, behavior or structural scope, and proposed resolution before mutating source tests.
+**Extraction may diagnose non-attributable evidence but never silently discard, select, or relocate it.** The rehearsal inventories every multi-identity executable and class-level criterion tag with its location, identities, scope, and proposed resolution before mutation.
 
-**The human selects the resolution after the rehearsal.** A multi-identity executable either splits into executable methods that each carry one criterion and retain the relevant assertions, or keeps one reviewed primary criterion while every other identity receives a recorded dedicated-proof or `@draft` disposition. A class-level criterion tag moves only to an existing executable that actually proves it, or to a new attributable test introduced in scoped implementation work. When that test work is explicitly out of scope, the converted criterion may be `@draft` only with the original class-level source location and a named plan door recorded in the extraction report. A source tag may be removed only as part of one of these reviewed, recorded resolutions.
+The human resolves the finding: an executable is split so each method carries one criterion, or one reviewed primary is retained while other identities receive dedicated-proof or `@draft` dispositions; a class tag moves only to an attributable existing or newly scoped test. An out-of-scope test may be `@draft` only with its source location and plan door recorded. Until resolved, the evidence remains unchanged and mutation is blocked; `clue validate` does not credit ambiguous or class-level JVM metadata.
 
-**No resolution is a finding, not a default.** The source evidence remains unchanged, is recorded as an open question, and blocks mutation that would alter it. `clue validate` continues to give ambiguous or class-level JVM metadata no classified credit under ADR-036; it does not rewrite source.
+## Rejected: discard a tag without executable credit
 
-## Rejected: discard a tag because no executable credit is available
-
-Annotation order is not a statement that the final identity is primary, and an architectural class tag can state a structural claim without naming one inherited method. Removing either form makes the discarded criterion appear untested rather than making the non-attribution visible.
+Annotation order does not establish which identity is primary, and removing a class-level or multi-identity tag hides the source evidence instead of making its non-attribution reviewable.
 
 ## Carrier
 
-PDR-020's rehearsal boundary and the canonical `clue-extract` skill require the inventory and human resolution. The OpenSpec mapping applies the same rule to JUnit tags. ADR-036 remains the deterministic attribution rule.
+PDR-020's rehearsal boundary, the canonical `clue-extract` skill, and the OpenSpec mapping require inventory and human resolution; ADR-036 remains the deterministic attribution rule.
