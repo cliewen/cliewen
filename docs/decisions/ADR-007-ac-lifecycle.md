@@ -12,17 +12,13 @@ accepted-by: Flemming N. Larsen (2026-07-12)
 
 ## Context and problem statement
 
-Requirements change; acceptance criteria die or change meaning. But AC IDs leak into places the repo cannot fix — tickets, commit messages, review threads — so an ID whose meaning changes silently poisons every old reference (§4: external systems reference IDs; IDs are eternal identity).
+Acceptance-criterion IDs escape the repository into tickets, commits, and reviews, so changing an ID's meaning silently corrupts old references.
 
 ## Decision outcome
 
-- **An AC ID's meaning is immutable.** A change that alters what the criterion *means* retires the old ID and mints a new one. Cosmetic rewording that preserves meaning may keep the ID — whether meaning changed is exactly what PR review judges (machines enforce form, humans verify meaning).
-- **Retire, don't delete.** A dead AC stays in `criteria.md` as a tombstone: its scenario keeps its tag line with `@retired` added (`@AC-012 @retired` or `@SNAP-SQS-001 @retired`). The tombstone is what makes ID-reuse physically visible without git archaeology, and it preserves what old references meant. The canonical ID grammar and carrier aliases are defined by ADR-037.
-- **A retired AC's tests must die.** Retired ACs require no tests, and a test still referencing one fails the build — the linter forces the cleanup rather than requesting it. (Deleting the AC outright also breaks the build via the unknown-reference rule, but loses the tombstone; deletion is for mistakes, retirement is for requirement changes.)
-- **Duplicate AC declarations fail.** The criteria files are the AC registry — `clue` builds it by scanning — and a registry's one hard guarantee is uniqueness.
+- **An AC ID's meaning is immutable.** A meaning change retires the old ID and mints a new one; cosmetic wording may keep it, with the distinction judged in review.
+- **Retire, don't delete.** A retired scenario remains as a tombstone tagged `@retired`, preserving what old references meant. The canonical grammar and aliases follow ADR-037.
+- **Retired ACs have no tests.** A test referencing one fails validation, forcing cleanup; deletion is reserved for mistakes.
+- **Duplicate declarations fail.** The criteria files are the registry and `clue` enforces corpus-wide uniqueness.
 
-**Carrier:** the retirement and uniqueness rules in `clue`'s `checkACTests` (machine); the retire-don't-delete convention in the `clue-delta` skill (agent).
-
-### Rejected: a standalone AC registry
-
-Unnecessary — the AC↔test contract means an unimplemented AC fails the build, so there is no phantom-AC backlog to track, and a registry file would be the hand-maintained index that rots first. The corpus is the registry.
+**Carrier:** `checkACTests` and the retire-don't-delete rule in `clue-delta`. A standalone registry is rejected because it would duplicate the corpus and become a hand-maintained index.

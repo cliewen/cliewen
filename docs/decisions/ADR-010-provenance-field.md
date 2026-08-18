@@ -12,22 +12,12 @@ accepted-by: Flemming N. Larsen (2026-07-12)
 
 ## Context and problem statement
 
-Decisions already carry two-tier provenance in their `status` (`inferred` → `verified`). Extraction ([ADR-008](ADR-008-extraction-is-a-skill.md)) mints dozens of *non-decision* artifacts in one PR — goals, plans, capabilities, criteria — all agent-reconstructed and none yet human truth. Their `status` vocabularies are lifecycle words (`draft`/`active`/…) and must stay that way: an extracted capability with passing tests is genuinely `active`, and marking it `draft` would exempt its criteria from the AC↔test contract (AC-009) — the opposite of what extraction needs.
+Extraction creates non-decision artifacts whose lifecycle may already be active even though an agent reconstructed their meaning. Reusing `status` for both facts would either misclassify lifecycle or hide the lack of human review.
 
 ## Decision outcome
 
-**Provenance and lifecycle are separate axes.** Any artifact may carry an optional frontmatter field `provenance: inferred | verified`; extraction writes `provenance: inferred` on everything it mints. An absent field means human-authored — the existing corpus needs no touch. Decisions keep expressing provenance in `status` as today; a decision does not carry the separate field.
+**Keep provenance and lifecycle separate.** Non-decision artifacts may carry `provenance: inferred | verified`; extraction writes `inferred`, and human review promotes it. Decisions continue to express provenance through `status: inferred | verified` and do not carry the separate field.
 
-Promotion is the human review of the extraction PR: flipping `inferred` → `verified` file-by-file as meaning is confirmed (or in bulk when the reviewer accepts the whole corpus); the PR history is the audit record of who verified.
+[ADR-035](ADR-035-bounded-provenance-and-reality-edges.md) bounds the inferred state: non-decisions declare cheap or expensive reversal, and expensive inferred meaning blocks activation in its immediate graph slice. The CLI reports those blockers separately from decisions awaiting verification.
 
-**The unbounded counter is corrected by [ADR-035](ADR-035-bounded-provenance-and-reality-edges.md).** An inferred non-decision also declares whether its meaning is cheap or expensive to reverse. Cheap inferred findings may remain legitimately deferred; expensive inferred meaning blocks an active capability in its immediate graph slice. The CLI reports those activation blockers separately from inferred decisions awaiting verification instead of counting every inferred non-decision forever.
-
-**Carrier:** the vocabulary and reversal-cost lint in `clue` (machine); the born-inferred and cost-routing rule in the `clue-extract` skill (agent).
-
-### Rejected: adding `inferred` to every status vocabulary
-
-Conflates lifecycle with provenance: an extracted, tested capability would have to choose between "not yet active" (false, and it disables the test contract) and "active" (losing the unverified marker).
-
-### Rejected: no marker at all — the PR review is enough
-
-The review event is transient; the corpus is the system of record. Six months later nobody can tell which artifacts a human actually read. §7's rule holds — the field earns its place because `clue` reads it.
+**Carrier:** provenance vocabulary and reversal-cost lint in `clue`, plus the born-inferred rule in `clue-extract`. Adding `inferred` to every lifecycle vocabulary or relying only on transient PR review is rejected because each conflates axes or loses durable evidence.

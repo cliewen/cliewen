@@ -14,21 +14,10 @@ accepted-by: Flemming N. Larsen (2026-07-18, PR #20 review conversation)
 
 ## Context and problem statement
 
-`clue init` materializes the foundation every adopting repo starts from: the `/docs` taxonomy, the AGENTS.md routing hub, the skills, and a CI workflow template ([CAP-001](../capabilities/CAP-001-onboarding/README.md)). That content has to travel with the binary somehow, and the delivery mechanism decides whether onboarding needs a network, credentials, or a checkout of this repo — and whether the scaffolding can drift from the binary that emits it.
-
-## Considered options
-
-1. **Fetch from this repo at init time** — always current, but requires network access and (while the repo is private) credentials; a user's first command can fail for reasons that have nothing to do with them, and the fetched scaffolding may not match the binary's version.
-2. **Ship templates as a separate release asset** — no network at init time, but two artifacts to download and keep matched; the pair-version discipline ADR-011 built for skills would need a third leg.
-3. **Embed the templates in the binary via `go:embed`** — the installed binary is self-contained; scaffolding and binary version as one unit, exactly like the skill stamps.
+`clue init` must materialize the taxonomy, routing hub, skills, and CI caller without network access or drift between the installed binary and its templates.
 
 ## Decision outcome
 
-**Option 3.** The template tree lives at `internal/scaffold/templates/` and is compiled in via `go:embed`. Two placement facts follow from the toolchain, not from preference: the Go tool ignores directories whose names start with `.` or `_`, so neither the originally sketched `/.cliewen/templates` nor the canonical `.agents/skills` can be embedded directly. Consequences:
+**Embed `internal/scaffold/templates/` with `go:embed`.** The binary is self-contained and template changes reach adopters only through a release. Go's embedding rules require dot-prefixed targets to live under ordinary source paths; the `.github` target is mapped at emit time.
 
-- The **skills are duplicated** into the template tree as generated distribution artifacts; a Sanity test holds both trees to their shared canonical render, so drift between the authored sources, canonical skills, and what `init` emits fails the build.
-- The `.github/` workflow template is stored under a `github/` path and mapped to its dotted target at emit time.
-- The CI caller's `clue-version` pin is substituted from the embedded skills' version stamp — the pair version (ADR-011) has a single carrier — and its reusable-workflow reference is substituted from the emitting source commit when build metadata is available.
-- That reference is the one substituted value no embedding can supply, because a commit cannot contain its own hash. It comes from Go's VCS build metadata, and for builds Go leaves unstamped, from this package's own source checkout on disk — identified as this project by its contents before `git` is consulted, and only when that checkout is the repository root and its tracked tree still matches the commit. Every unmet condition falls back to the release tag. This is a narrow, read-only exception to "no checkout of this repo", and it never inspects the repository being scaffolded; `init` still needs no network and no credentials ([ADR-038](ADR-038-upstream-validation-workflow.md)).
-- `init` emits the skills twice in the target repo: `.agents/skills/` as the canonical location and a `.claude/skills/` mirror in the Claude Code spelling (`SKILL.md`), matching the layout proven in the first adopter repo. The emitted set also includes the vendor entry point that makes the mirror useful — a `CLAUDE.md` pointing at `AGENTS.md`, on the terms [PDR-022](PDR-022-vendor-entry-points-only-point.md) sets.
-- Template changes reach users only through a release — the same doctrine as the skills: released binaries and their scaffolding never disagree.
+The skills are generated into the embedded tree and checked against the canonical render. Init emits the `.agents/skills` tree, a `.claude/skills` mirror, and `CLAUDE.md` pointing at `AGENTS.md`; it substitutes the CI version and source reference from build metadata, falling back to the release tag. This read-only source-checkout lookup never inspects the target repository. Fetching templates at init or shipping a separate asset is rejected because it adds network/credential or version-pair failure modes.

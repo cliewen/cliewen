@@ -12,27 +12,10 @@ accepted-by: Flemming N. Larsen (2026-07-12)
 
 ## Context and problem statement
 
-Where does an idea or bug report live *before* it is a change? The Foundation Document flagged this as an open gap to decide early in the baseline.
-
-## Decision drivers
-
-- Provenance must be **repo-native, never forge-native** (§3).
-- **Status lives in frontmatter, never in paths**; status views are generated (§4).
-- Intake friction must stay near zero or the inbox gets bypassed.
-
-## Considered options
-
-1. **Goals with `status: proposed`** in `/docs/goals`
-2. **GitHub Issues as a non-binding forecourt**
+Ideas and bug reports need a pre-change home whose provenance remains in the repository, whose status is explicit, and whose intake is low-friction.
 
 ## Decision outcome
 
-**Goals with `status: proposed`.** An idea enters the corpus as a goal file with `status: proposed`; promotion to `accepted` is a human decision made through a change/PR, which puts intake on the same provenance chain as everything else. The generated goals index doubles as the backlog view.
+**Use goal files with `status: proposed` in `/docs/goals`.** Promotion to `accepted` is a human decision made through a change and pull request, and the generated goals index is the backlog view.
 
-### Carrier (added 2026-07-12, per the carrier rule)
-
-The `/docs/goals` README that `clue init` scaffolds: its prose declares the folder the inbox and the `proposed` status the entry state. This repo's own [goals/README.md](../goals/README.md) is the template source.
-
-### Rejected: GitHub Issues forecourt
-
-Zero-friction intake, but it places the pre-change record outside the corpus and leans on exactly the forge dependency §3 forbids. Issues may still exist socially, but the corpus-native record is the proposed goal, and tickets reference IDs, never the reverse.
+The `/docs/goals` README that `clue init` scaffolds carries the inbox rule and entry status; this repository's [goals/README.md](../goals/README.md) is the template source. GitHub Issues may provide social intake, but they are not the corpus record: tickets reference goal IDs and never replace them.
