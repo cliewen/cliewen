@@ -12,38 +12,12 @@ accepted-by: Flemming N. Larsen (2026-08-02, conversation)
 
 ## Context and problem statement
 
-Cliewen is deliberately cross-agent: `AGENTS.md` is the single routing hub and the skills are written for any assistant that can read them. Assistants, however, do not agree on which file they load. Claude Code documents that it reads `CLAUDE.md` and not `AGENTS.md`, and offers an import as the supported bridge; other tools name other files.
-
-`clue init` therefore materializes a hub that a widely used assistant never opens, while ADR-018 already mirrors the skills into that same assistant's directory. The result is worse than either consistent choice: the adopter's agent lists the lifecycle skills and never receives the routing that says when to invoke them, so it can execute the method precisely while classifying the change wrongly. This repository ran with that gap and the errors it produced are recorded in its own history.
-
-May a cross-agent methodology emit a vendor's flagship instruction file, and if so, what may that file contain?
+`AGENTS.md` is the cross-agent routing hub, but some assistants load a vendor-specific entry file instead. A missing bridge lets an assistant see skills while missing the routing that classifies work, and adding a second rule-bearing hub would make carriers diverge.
 
 ## Decision outcome
 
-**The scaffold may emit a vendor entry point, and the file may contain nothing but a pointer to `AGENTS.md` and the explanation of why it is a pointer.**
+**The scaffold may emit a vendor entry point whose only methodology content is a pointer to `AGENTS.md` and an explanation of that pointer.** No rule lives in the vendor file, and adding one is a methodology-carrier change governed by PDR-019. The emitted file is adopter-owned: `clue init` never overwrites it and `clue migrate` never rewrites it, so adopter-specific instructions remain below the pointer.
 
-Three conditions bound it.
+A vendor qualifies by published evidence that its normal loading behavior otherwise makes the hub unreachable; Claude Code is the current case. `clue migrate` reports a missing or unrouted entry point and repairs neither; rerunning the non-destructive `clue init` is the available missing-file remedy, while an adopter-authored file is not migration-owned. No opt-out is decided here because the corpus cannot distinguish non-use of the vendor from an adopter who needs the warning.
 
-**No rule ever lives in a vendor file.** A rule written there is invisible to every other assistant, which recreates the split the single hub exists to prevent — and it would be invisible in the direction that matters least visibly, since the agent that reads it behaves correctly while the others silently do not. Adding a rule to a vendor entry point is a methodology-carrier change and is governed by PDR-019 like any other.
-
-**The file is adopter-owned on arrival.** `clue init` never overwrites it and `clue migrate` never rewrites it. An adopter's own assistant-specific instructions sit below the import and are safe from every tool this project ships, which is what makes emitting the file honest rather than a claim on their repository.
-
-**A vendor qualifies on evidence, not popularity.** An entry point is emitted for an assistant whose published behavior makes the hub unreachable without one, and Claude Code is that case today. This is the same evidence bar ADR-018 met for the skills mirror; it is not a standing invitation to accumulate one file per tool. Adding the next one is a decision, and the cost of the wrong answer is a repository root full of files nobody reads.
-
-For an adopter who onboarded before this, `clue migrate` reports a missing or unrouted entry point and repairs neither: the missing case is already solved by re-running the non-destructive `clue init`, and a `CLAUDE.md` the adopter wrote themselves is their prose, which no migration edits.
-
-**A team that does not use Claude Code cannot clear that report, and no opt-out is decided here.** The notice fires on the file's absence, and the absence is indistinguishable from the case it exists to catch: nothing in an adopted repository says which assistants its people actually run, and `clue init` emits the skills mirror to every repository regardless, so there is no signal to read. Such a team sees one line per `clue migrate` about a vendor they never chose, and the only way to silence it is to add a file for a tool they do not use. That cost is accepted rather than overlooked, because the alternative — suppressing the report unless the repository proves it uses the assistant — would require the scaffold to guess at a fact the corpus does not record, and would silence the notice for exactly the adopter it was written for, the one who never knew Claude Code reads a different file. The failure mode worth watching is not this one notice but its class: notices are unblocking by design, and an adopter who learns to skip them loses the ones that matter. Should a second unclearable notice appear, or should adopters report skipping them, the answer is a decision about opting out of a migration by name — not a special case for this one.
-
-### Rejected: emit nothing and keep the methodology purely neutral
-
-Neutrality that an assistant cannot observe is not neutrality; it is a hub the tool never reads. The cost lands entirely on the adopter, who must discover the vendor's loading rule themselves, and it lands silently, because nothing reports that the routing never arrived. Cliewen already abandoned this position for the skills mirror, and holding it for the hub while conceding it for the manuals is the least defensible of the three options.
-
-### Rejected: let the vendor file carry Claude-specific methodology
-
-It splits the contract across two files with no mechanism keeping them in agreement, and the divergence is undetectable from inside any single assistant. PDR-019 exists because carriers drift; the fix is fewer carriers of the rule, not a sanctioned second one.
-
-### Rejected: make the entry point a managed carrier that migration keeps current
-
-A managed carrier is refreshed from Cliewen's own bytes, which would silently discard the assistant-specific instructions the adopter is explicitly invited to add below the import. A pointer that never changes needs no refresh; the only thing worth reporting is its absence, and a notice does that without touching a file.
-
-**Carrier:** CAP-001's criteria and design carry what `clue init` emits and what `clue migrate` reports; the scaffolded `CLAUDE.md` template carries the pointer contract for adopters; ADR-018 names the emitted set.
+CAP-001, the scaffolded `CLAUDE.md` pointer, ADR-018, and migration behavior carry the boundary. The decision rejects both vendor-specific methodology and an unbounded list of popularity-based entry points.

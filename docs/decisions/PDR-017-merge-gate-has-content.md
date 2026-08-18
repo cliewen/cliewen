@@ -10,33 +10,18 @@ accepted-by: Flemming N. Larsen (2026-08-02, conversation)
 
 # PDR-017 — The merge gate has content
 
-> **The pre-implementation pause is extended by [PDR-033](PDR-033-planning-and-implementation-are-separate-steps.md):** it states what the pause is for — proposing and implementing are separate work, and the boundary is where a change can split or change hands — and adds that the agent reports briefly there and asks whether implementation begins and whether the branch is pushed. The pause remains opt-in and recorded in tasks, and the ordinary loop remains the default.
+> **Extended by [PDR-033](PDR-033-planning-and-implementation-are-separate-steps.md):** an optional pre-implementation pause records where work may split or change hands and asks whether implementation begins.
 
-> **The acceptance brief gains a fourth required item from [PDR-039](PDR-039-dependent-changes-carry-authorization.md):** where a human authorized a change to build on an unmerged base, the brief's binding line names that base and what accepting this change would bind before the base is independently accepted. It is disclosure for the human merge judgment; it does not make the base accepted or permit an agent to merge either change.
+> **Extended by [PDR-039](PDR-039-dependent-changes-carry-authorization.md):** a dependent change's acceptance brief names its unmerged base, authorization, and the meaning its merge would bind.
 
 ## Context and problem statement
 
-[AN-008](../analysis/AN-008-methodology-critiques.md) pattern A identifies that the corpus carries agent-facing skill instruction and nothing telling the human what to check at merge. The human boundary degrades to rubber-stamping unless it names what remains beyond the validator and review loop. The book's after-gate uses an advisory test-matches-scenario check and supports an opt-in pre-implementation spec review. How can the merge boundary make that human responsibility visible without turning it into duplicate code review or claiming that semantic alignment is mechanically proven?
+The validator and agent review loop cannot replace the human judgment at merge. The boundary needed durable content telling the human what remains to verify, while semantic alignment checks had to remain advisory rather than pretending to be deterministic proof.
 
 ## Decision outcome
 
-**The digest emits an acceptance brief at the top of the PR body, the review loop adds a non-blocking per-criterion scenario-resolution step that feeds it, and Propose gains an opt-in pre-implementation pause.**
+**The digest emits an acceptance brief at the top of the PR body, the review loop adds a non-blocking per-criterion scenario-resolution verdict, and Propose may opt into a pre-implementation pause.** The brief asks whether the plan item remains wanted, lists every added or changed criterion with its scenarios, names inferred decisions and invalidated or superseded records, and includes the competence warning and one-screen pressure.
 
-- The acceptance brief is the human's verification surface. It asks whether the plan item remains wanted, lists every added or changed criterion verbatim with its scenarios, and names the inferred decisions that merge binds plus records invalidated or superseded. It carries a competence-heuristic warning and a one-screen cap as prose pressure toward small deltas, not a CI-enforced truncation rule.
-- The review loop compares every added or changed criterion with executable evidence against its referenced tests' setup, action, and assertions and records one advisory verdict: `verifies`, `verifies-something-adjacent`, or `undetermined`. For a genuine `Test-type: Human` criterion, the acceptance brief's required criterion-and-scenario entry is its proof; the review confirms that entry rather than comparing it with a nonexistent test. The verdict is informational brief content, not an actionable finding or a `clue validate` gate. A real problem it reveals follows the ordinary actionable-finding lifecycle.
-- A full change may opt into a spec-first pause after Propose; it records the pause in tasks and waits for human direction. The ordinary ready-PR loop remains the default.
-- Work needed to implement, continue, review, or hand off a change belongs in a corpus artifact, change workspace, or pull request. An agent's private memory is never an authoritative carrier.
+For executable evidence the review records `verifies`, `verifies-something-adjacent`, or `undetermined` after comparing setup, action, and assertions. A genuine Human criterion is proved by its criterion-and-scenario entry in the acceptance brief, not by an invented code test. The verdict is informational; actual defects follow the normal finding path. The pause remains opt-in, and work or handoff authority lives in corpus artifacts, the change workspace, or the PR rather than private memory.
 
-**Carrier:** the `clue-delta` and `clue-verify` source templates and their shared durable-work fragment (agent); the pull-request template (human/default); the upstream reusable workflow and its scaffolded thin caller (machine/default); CAP-006 criteria and tests (evidence); and the public guide (human explanation).
-
-### Rejected: make the scenario-resolution verdict a blocking check
-
-Turning an advisory semantic judgment into a failing validator result would claim that the deterministic judge proves meaning. Semantic drift is a human merge question; automating it away would re-empty the boundary this decision closes.
-
-### Rejected: require every scenario verdict to become a hosted review conversation
-
-Every criterion would mint a conversation on every change, most reporting `verifies` and closing immediately. That noise trains reviewers to resolve without reading; the brief carries the verdict at the point the human decides, while actual defects already use the existing conversation path.
-
-### Rejected: make the pre-implementation pause the default
-
-A mandatory pause before every full change adds a second gate even where the completed-candidate PR is sufficient. The pause is valuable when a human wants design review before code exists, not by default regardless of size or risk.
+`clue-delta`, `clue-verify`, their durable-work fragment, the PR template, the reusable workflow and caller, CAP-006, and the public guide carry this merge content.

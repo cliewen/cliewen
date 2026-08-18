@@ -10,40 +10,14 @@ accepted-by: Flemming N. Larsen (2026-07-20, planning conversation)
 
 # PDR-011 — Plain changes stay outside Cliewen
 
-> **Superseded by [PDR-042](PDR-042-routing-recommends-contract-aware-effort.md):** the simple recommendation includes work that leaves the accepted contract intact, even when it touches protected surfaces or restores runtime behavior, and integration belongs to the user and repository.
+> **Superseded by [PDR-042](PDR-042-routing-recommends-contract-aware-effort.md):** simple work now includes the accepted-contract-preserving cases named there, and route selection does not itself authorize integration.
 
 ## Context and problem statement
 
-PDR-002 removed the transient workspace from light changes but kept CH identity, proposal metadata, plan declaration, Cliewen verification, and full-repository checks. AN-006 shows that this still charges a guide-only editorial change for a methodology that produces no relevant evidence. Where should Cliewen stop?
+The light tier still charged purely editorial work with Cliewen identity, proposal metadata, corpus loading, and unrelated verification even when the change produced no relevant evidence. The methodology needed a boundary for edits that carry no product, contract, decision, plan, policy, or methodology meaning.
 
 ## Decision outcome
 
-**Cliewen owns light and full changes, not every repository edit. A third route, the plain change, stays outside Cliewen.**
+**The original plain route kept meaning-free editorial changes outside Cliewen while retaining an ordinary human-reviewed branch and pull request.** Plain work carried no CH identity, plan declaration, proposal, corpus read, Cliewen verification, plan bookkeeping, or mandated changelog entry. Protected surfaces and uncertainty failed closed, and paths or diff size could not decide meaning.
 
-A change is plain only when it has no effect on product behavior, intent, acceptance evidence, decisions, plans, policy, or methodology. Acceptance evidence includes executable evidence and genuine `Test-type: Human` proof carried by the pull-request acceptance brief. `/docs`, `/changes`, product code, tests, configuration, build and release machinery, security and governance policy, AGENTS.md rules, skills, and lint rules are protected surfaces and cannot use the plain route. Changes to commands, contracts, user workflow, or normative instructions are not editorial. Uncertainty fails closed: classify the work as light or full before implementation.
-
-Classify the requested work before loading the corpus. A plain change uses an ordinary branch rooted at accepted `main`, runs only checks relevant to the changed surface, opens a ready PR, and is merged by a human. It has no CH identity, plan or plan-less declaration, proposal artifact, corpus read, Cliewen skill, `clue validate` requirement, Cliewen verification checklist, plan bookkeeping, or Cliewen-mandated changelog entry.
-
-Plain PRs do not consume the one-Cliewen-change-in-flight slot. They may proceed independently but never build on an unmerged branch. Agents still never push to `main`, merge their own PRs, or manufacture a local merge as acceptance.
-
-PDR-002 continues to define the light/full split after a change enters Cliewen. Its global CH sequence covers those two tiers only. Editorial copy is not release history; a plain prose correction needs no changelog entry. If prose changes shipped behavior, a contract, a command, or a user workflow, it is not plain and the repository's release-note rule applies.
-
-Repositories choose focused verification for their own surfaces. The generated corpus wall treats only Markdown outside protected corpus, policy, configuration, and methodology paths as eligible to pass through; every other diff fails closed. Cliewen's repository is narrower: only a guide-Markdown-only diff receives focused whitespace and production-guide checks. Mixed, protected, empty, unreadable, or unknown input uses the full CI path.
-
-**Carrier:** the pre-corpus fast path in generated and repository routing hubs; the canonical change-tier and review-boundary skill sources and their generated standalone skills; the contributor and PR guidance; and repository-specific focused CI selection. The CLI and corpus format do not change.
-
-### Rejected: direct commits to main
-
-The expensive work was Cliewen metadata and irrelevant verification, not the ordinary protected-repository review boundary. Direct pushes make an agent's self-classification unreviewable.
-
-### Rejected: keeping CH identity for provenance
-
-A CH number says Cliewen participated. Assigning one when no corpus, plan, decision, capability, or evidence is involved creates bookkeeping without traceability.
-
-### Rejected: path patterns as the definition
-
-Paths are useful for fail-closed automation but cannot decide meaning. A one-line guide edit can change a command or policy, while a large copy edit may preserve meaning. Protected paths can disqualify a plain change; an allowed path cannot prove one.
-
-### Rejected: full verification after skipping metadata
-
-Running unrelated builds and corpus checks preserves most of the time and resource cost while producing no evidence about the edited surface.
+PDR-042 replaces the narrow plain/light hierarchy with the simple/full recommendation and defines current simple work. The surviving boundary is that Cliewen does not own every repository edit, while integration authority remains with the user and repository policy; agents still do not push to `main` or merge their own full changes. The routing hubs, canonical tier and boundary skills, contributor guidance, and focused CI selection carry the rule.

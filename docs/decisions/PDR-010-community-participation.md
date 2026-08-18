@@ -12,28 +12,12 @@ accepted-by: Flemming N. Larsen (2026-07-19, planning conversation — conduct s
 
 ## Context and problem statement
 
-A public repository needs to welcome bugs, new direction, contributions, conduct reports, and vulnerability disclosures without turning issue activity into accepted plans, exposing sensitive reports, or weakening the human review boundary. Which entry points let strangers participate while preserving Cliewen's system-of-record and decision mechanics?
+A public repository needs to receive defects, proposed direction, contributions, conduct reports, and vulnerability disclosures without turning demand into accepted plans, exposing sensitive reports, or weakening human review.
 
 ## Decision outcome
 
-**Cliewen's public front door separates demand, proposed changes, and private safety reports, and every code or corpus change still ends at human review.**
+**The public front door separates demand, proposed changes, and private safety reports, and every code or corpus change still ends at human review.** Bug and proposed-goal forms distinguish reproducible defects from desired outcomes; submissions are demand, not acceptance or plan authority; and blank issues stay disabled.
 
-- **Issues distinguish defects from direction.** A bug form asks for reproducible evidence. A proposed-goal form asks who wants an outcome and why; submission records demand, not acceptance or plan authority. Blank issues stay disabled so security reports and unsupported free-form requests are not invited into public discussion.
-- **Pull requests carry the change loop.** The template requires a CH identity, plan item or explicit plan-less declaration, tier, traceability and decision impact, verification evidence, digest state, and acknowledgment that a human maintainer merges. [PDR-007](PDR-007-review-boundary.md) remains unchanged.
-- **Contributor Covenant 3.0 governs participation.** Conduct reports use a dedicated published email alias with a `[Cliewen Conduct]` subject. Access to that channel stays narrower than general project discussion even if its backing mailbox or team routing changes.
-- **Vulnerabilities use coordinated disclosure.** Reports use a separate dedicated published email alias with a `[Cliewen Security]` subject; reporters are told not to open public issues. Cliewen aims to acknowledge within seven calendar days and provide an initial status within fourteen, without promising a fixed remediation date. Security support covers `main` and the latest release; older releases must upgrade.
-- **Forge-native security intake is additive.** Private vulnerability reporting may supplement email where the forge supports it, but the published email remains stable across hosting changes.
+Pull requests carry the change-loop declarations, evidence, and human-merge acknowledgment. Contributor reports use a dedicated `[Cliewen Conduct]` channel, and vulnerabilities use a separate `[Cliewen Security]` channel with coordinated disclosure, a seven-calendar-day acknowledgement target, a fourteen-day initial-status target, and support for `main` and the latest release. Forge-native private security intake may supplement but not replace the published security channel.
 
-**Carrier:** `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, `SECURITY.md`, and the repository's issue and pull-request templates. Repo-local — none of these files ships to adopting repositories through `clue init`.
-
-### Rejected: unstructured public intake
-
-Blank issues make the exceptional path the easiest path and invite vulnerability disclosure, support requests without a support strategy, and feature activity that looks more authoritative than it is.
-
-### Rejected: public security issues
-
-Public disclosure before triage can expose users before a fix exists. A coordinated private channel lets the reporter and maintainer establish impact, remediation, and disclosure timing first.
-
-### Rejected: one safety mailbox without routing
-
-Security and conduct reports need different handling and potentially different future access. Separate stable aliases preserve that boundary while still allowing a solo maintainer to route both into one underlying mailbox today.
+`CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, `SECURITY.md`, and the issue and pull-request templates carry this repository-local front door. Separate channels reject both unstructured public intake and a shared safety mailbox whose routing would blur conduct and security handling.
