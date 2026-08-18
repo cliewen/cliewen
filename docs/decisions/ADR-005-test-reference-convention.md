@@ -12,21 +12,10 @@ accepted-by: Flemming N. Larsen (2026-07-12)
 
 ## Context and problem statement
 
-The AC↔test lint (M-002) needs a deterministic way to know which acceptance criteria a test verifies. Where does the reference live?
+The AC↔test lint needs a deterministic reference from each test to the acceptance criterion it verifies.
 
 ## Decision outcome
 
-**Use the test framework's native tag mechanism wherever one exists; fall back to a function-name convention where none does.**
+**Use the test framework's native tag mechanism wherever one exists, and a function-name convention where none does.** Tags such as JUnit `@Tag("AC-004")`, pytest markers, and NUnit categories remain filterable and visible to the runner. The canonical identity is `<PREFIX>-<digits><lowercase-suffix>`, with documented carrier aliases normalized by the harvester. Go's `testing` fallback uses names such as `TestAC004_ValidCorpus`.
 
-- **Primary convention — framework tags**: JUnit 5 `@Tag("AC-004")`, `@Tag("SNAP-SQS-001")`, pytest `@pytest.mark.ac004` / custom markers, NUnit `[Category("AC-004")]`, and equivalents. Tags are the framework's own metadata channel: filterable in runners, visible in reports, and attached to the test by the framework itself rather than by naming discipline. The canonical identity is `<PREFIX>-<digits>[lowercase-suffix]`; segmented prefixes and suffixes are preserved in the tag, with only documented carrier aliases such as `SNAP_SQS_001` normalized by the harvester.
-- **Fallback — function names**: for frameworks with no tag mechanism (Go's `testing`), a test references `AC-<digits>[lowercase-suffix]` by carrying the normalized prefix and identity in its function name (`TestAC004_ValidCorpus…` or `TestSNAPSQS001_ValidCorpus…`). The name is what `go test -run`, CI logs and grep already display. (This fallback was the original agent proposal; the general tag-first rule is the human decision.)
-
-Consequence for `clue`: the AC harvester is **per-language** — each language profile reads that framework's tag mechanism. The baseline ships the Go harvester (names); harvesters for tagged frameworks arrive with their language profiles, reading tags.
-
-### Rejected: structured comments
-
-`// verifies: AC-004` drifts — nothing attaches it to the test but proximity, and refactoring silently detaches it.
-
-### Rejected: external mapping file
-
-A manifest linking tests to AC-IDs is exactly the hand-maintained index the methodology forbids: the first artifact type to rot.
+The AC harvester is per-language: each profile reads its framework's tag channel or fallback naming convention. Structured comments drift because proximity is not attached to the test, and an external mapping file would be a hand-maintained index that can rot.

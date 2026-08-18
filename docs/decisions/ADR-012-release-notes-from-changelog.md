@@ -12,31 +12,10 @@ accepted-by: Flemming N. Larsen (2026-07-13, PR #7)
 
 ## Context and problem statement
 
-Release pages are the first thing an adopter of [CAP-004](../capabilities/CAP-004-ship/README.md)'s pipeline sees; they need what-it-is, how-to-install, what-changed-for-me prose. GitHub's auto-generated release notes produce the opposite — a "What's Changed" list of PR titles with contributor @mentions: the repo's internal change history, not the product's (the first tagged release shipped exactly that). Where do user-facing release words live, who writes them when, and what stops the PR dump from coming back?
+Adopters need release prose about the product, not an unreviewed list of pull requests or mentions.
 
 ## Decision outcome
 
-**A root `CHANGELOG.md` ([Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format) is the single source of truth for user-visible history; the release workflow extracts the tag's `## [X.Y.Z]` section verbatim as the release body and fails the release when the section is missing or empty.**
+**Root `CHANGELOG.md` in Keep a Changelog format is the source of truth.** Each change writes user-facing impact under `[Unreleased]`; a release renames that section to `## [X.Y.Z]`, extracts it verbatim, and fails if it is missing or empty. The workflow verifies the published release body matches the extracted section and rejects GitHub's `generate_release_notes`.
 
-- **Written at merge time, not tag time.** Each change records its user-visible impact in the `[Unreleased]` section during the digest — phrased for a user of the tool, not a reviewer of the repo. Cutting a release renames `[Unreleased]` to the version and tags; the notes were already written and reviewed when the changes were fresh. Notes that do not exist until tag time get reconstructed from change history — which is the failure this decision removes.
-- **The 1-1 map is structural.** The workflow publishes the section as the release body — through `body_path` originally, through goreleaser's `--release-notes` since CH-066 — so the release page cannot say anything the reviewed file does not. The extraction guard follows the wall philosophy ([ADR-011](ADR-011-version-stamping.md)'s drift rule, applied to prose): no section, no release — a rule that only warned would be ignored.
-- **The map is verified, not assumed** (added 2026-07-27, CH-069). The release reads the published body back and fails if it is not the extracted section. This exists because the map broke while every structural check stayed green: a goreleaser config key added to *strengthen* this decision (`changelog: {disable: true}`) is documented to discard `--release-notes` as well, and v0.8.0 published a blank page. Configuration states what was requested; only the release page shows what was published, and a dry run cannot show it at all, because `--skip=publish` creates no page.
-- **Auto-generation is banned, and lintably so.** `generate_release_notes` is removed and `TestSanity_ReleaseNotesComeFromChangelog` fails the build if it (or the extraction's absence) reappears in `release.yml`.
-
-**Carrier:** the `release.yml` extraction, its post-publish body verification, and the sanity test (machine); AGENTS.md rule 7 (agent — the repo-local convention layer). The skills are **not** a carrier: they ship verbatim to every adopting repo and stay generic, so they reference only "repo-local digest conventions in AGENTS.md", never `CHANGELOG.md` by name — the changelog is this repo's convention, not adopter methodology (the general principle is [ADR-013](ADR-013-ships-generic-vs-repo-local.md)). The `clue init` template may offer the convention as a default once M-005 ships (a door, not yet built).
-
-### Rejected: GitHub's `generate_release_notes`
-
-It describes PRs, not the product; it @-mentions contributors — internal credit, not product information; and it writes the page at tag time from data no human reviewed as release prose.
-
-### Rejected: per-release note files (`docs/releases/vX.Y.Z.md`)
-
-Workflow-simpler (`body_path` directly), but it scatters history across files nobody reads in sequence, puts user-facing prose in a nonstandard location, and loses the `[Unreleased]` accumulator — the mechanism that makes notes get written at merge time is the point, not the file layout.
-
-### Rejected: annotated tag messages as the body
-
-Tag messages bypass the PR review gate — the release page would be the one user-facing artifact no human verified. They are also invisible in the repo's rendered view.
-
-### Deferred: a `clue` rule linting CHANGELOG.md structure
-
-`clue validate` could check that `[Unreleased]` exists or that a stamped version has a section. The workflow guard already enforces the invariant at the moment it bites (the release), so a corpus rule is a door for when adopters carry the convention (M-005), not part of this decision.
+**Carrier:** release extraction, post-publish body verification, the sanity test, and this repository's AGENTS.md convention. Skills stay generic and do not name this repository's changelog. Per-release files, annotated tag messages, and warning-only structure lint are rejected or deferred because they bypass review, scatter the history, or add a second carrier.
