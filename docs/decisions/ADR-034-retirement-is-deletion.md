@@ -10,42 +10,16 @@ accepted-by: Flemming N. Larsen (2026-08-02, conversation)
 
 # ADR-034 — Retirement is deletion; supersedes carries the pointer forward
 
-> **Amended by [PDR-046](PDR-046-decisions-route-by-subject.md):** decision records are retained and no longer demote into a log. For any other retired artifact, the successor or best live next stop carries `supersedes:`; criteria tombstones and completed plans remain the named file-retaining exceptions.
+> **Amended by [PDR-046](PDR-046-decisions-route-by-subject.md):** decision records are retained and no longer demote into a log. Other retired artifacts still delete their files, with the named exceptions below.
 
 ## Context and problem statement
 
-ADR-025 gives every default-lifecycle type a `draft → active → retired` vocabulary, but no artifact in the corpus has ever actually reached `retired`: the conventions that exist in practice are a criteria tombstone (`@retired` tag, the file stays so a stale test tag keeps failing loudly) and a demoted decision (the file is deleted and its content folded into a dated row in `docs/decisions/log.md`, per PDR-003). Both are deletion in substance. A `retired` status value that no committed file is ever observed holding is not a reachable terminal state — it is a word in a vocabulary table with no corresponding fact on disk. Deletion also currently leaves no machine-visible trace of what replaced a removed artifact beyond prose ("supersedes ADR-006's …") and git history, so a reader who has not memorized the corpus's history cannot tell, from the files alone, that a dangling-looking reference in an old PR or a changelog line once pointed at something real.
+The default lifecycle called `retired` a terminal status even though retired artifacts were deleted in practice, leaving no durable pointer from a deleted ID to the reader's next stop. Criteria tombstones and completed plans are different because they deliberately remain on disk.
 
 ## Decision outcome
 
-**Retiring any artifact means deleting its file in the same change that retires it.** There is no committed state in which a file carries `status: retired` on `main` — that value never needs to exist, because the file it would describe is gone. `retired` is removed from the default lifecycle ADR-025 states; retirement is an event (deletion), not a status a surviving file holds.
+**Retiring an artifact deletes its file in the same change; `status: retired` is not a surviving default-lifecycle state.** A `supersedes:` frontmatter field is optional on any artifact and is carried by the direct successor or best live next stop, while Git history remains the archive of the deleted text. `clue validate` rejects a `supersedes:` target that still resolves to a live artifact.
 
-**A `supersedes:` frontmatter field, optional on any artifact type, names the IDs a retirement deleted.** It is carried by whichever artifact is the reader's best next stop: the direct successor where one exists, or the best live next stop otherwise. Git history remains the archive of the full retired text; `supersedes:` is only the pointer, not a copy.
+Criteria retain their `@retired` tombstones so stale test tags fail loudly, and completed plans remain frozen under C-008 rather than being retired. Decision records are retained under PDR-046, which retires the former decision-log demotion instead of deleting those records. ADR-025's default lifecycle and goals are corrected accordingly.
 
-**The validator enforces the half of this it can see:** an ID named in any artifact's `supersedes:` list must not resolve to a live artifact — if it does, the retirement was declared but not actually done, and `clue validate` rejects it. This is new: `checkLinks` already rejects any other artifact's `links:` entry that resolves to nothing, which is the enforcement half that already existed and needed no new rule — a live artifact still pointing at a deleted ID was already a validation failure before this decision; `supersedes:` gives that failure a resolution path (repoint the link to the ID naming the successor in its `supersedes:` list) instead of a bare "resolves to no artifact."
-
-**Two exceptions stand, because they are not this kind of retirement:**
-
-- **Criteria tombstones.** A retired acceptance criterion keeps its `@retired` tag and its file, because a stale test tag has to keep failing loudly rather than disappear silently (ADR-007). It is deliberately the one case where "retired" is a status a surviving artifact holds.
-- **Completed plans.** [C-008](../constraints/C-008-completed-plans-immutable.md) keeps a completed plan frozen and on disk forever; it is not retired at all, and nothing here changes that.
-
-**This decision supersedes two specific clauses, not the records that carry them:**
-
-- **Decision records are retained** under PDR-046; the former demotion mechanic is retired with the decision log.
-- **ADR-025's claim that `retired` is a reachable terminal state** is corrected for the default lifecycle and goals: no file was ever observed reaching it, and this decision states why that was never a bug to fix — the state was never meant to be a resting place. `ADR-025`'s other exception vocabularies (plan, decision, log, transient workspace types) are unchanged.
-
-**Carrier:** the `Supersedes` field on `internal/corpus.Artifact` and the `checkSupersedes` rule in `internal/corpus/rules.go` (machine); the retirement sentence in `clue-delta`'s digest step (agent); and the decisions folder README (default).
-
-## Consequences
-
-- `clue validate` can tell "this file was deleted and its retirement is machine-visible" from "this file was deleted and something still links to it" — the second case fails, naming a fix.
-- ADR-025's status table shrinks by one value for the types that shared it; nothing that ever relied on `retired` existing (nothing does) breaks.
-- A reader following a `supersedes:` pointer never has to grep git log to find out what happened to a missing ID mentioned in old prose.
-
-### Rejected: keep `retired` as a real status and require a tombstone file for every type
-
-This is what criteria already do, and it is the right shape for a test tag that must keep failing. Generalizing it to every type would mean every capability, design, decision, and analysis record still exists forever, just inert — which is exactly the "graph only accumulates" pattern [AN-008](../analysis/AN-008-methodology-critiques.md) named as one of the four patterns this campaign works core-first. Deletion plus a machine-visible pointer keeps the corpus's live size honest while keeping the successor findable.
-
-### Rejected: no structured field, prose supersession only
-
-Prose already carries "supersedes ADR-006" today and is not going away for partial-clause supersession between two records that both stay on disk (ADR-024's "supersedes only its published-URL clause" of ADR-023 is exactly that, unaffected by this decision). But for a fully retired-and-deleted ID, prose alone gives a human reader a pointer and gives the validator nothing to check — the corpus could accumulate dangling prose claims with no way to verify any of them stayed true as the corpus grew. A field the validator reads closes that gap for the one case that matters most: an ID that no longer exists anywhere.
+**Carrier:** the `supersedes:` validator rule, lifecycle and status descriptions, and the successor artifact that carries each retirement pointer.

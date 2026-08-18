@@ -12,25 +12,14 @@ accepted-by: Flemming N. Larsen (2026-08-02, conversation)
 
 ## Context and problem statement
 
-ADR-006 deliberately left a per-criterion test-type annotation unenforced because a declaration with no consumer would double bookkeeping. M-025 gives it a consumer: `checkACTests` can count evidence by the classes each scenario declares. A single unclassified reference proves only that a string occurred in a test suite; it cannot show that the intended boundary was exercised or that both directions were considered.
+An unclassified test reference proves only that an acceptance-criterion ID occurs in a test suite; it does not prove which boundary or direction was exercised. `checkACTests` therefore needs a scenario-level declaration that it can compare with named evidence.
 
 ## Decision outcome
 
-> **Partially superseded by [ADR-036](ADR-036-jvm-evidence-per-executable.md) and extended by [ADR-037](ADR-037-brownfield-ac-id-grammar.md):** proof classes, paired directions, Go names, and Cucumber scenario tags remain current; JVM classified evidence now belongs to one statically attributable executable rather than a file-level tag cross-product, and segmented or letter-suffixed canonical IDs use ADR-037's carrier normalization.
+> **Partially superseded by [ADR-036](ADR-036-jvm-evidence-per-executable.md) and extended by [ADR-037](ADR-037-brownfield-ac-id-grammar.md):** proof classes, paired directions, Go names, and Cucumber scenario tags remain current; JVM evidence is attributed to one executable, and segmented or letter-suffixed IDs use ADR-037's carrier normalization.
 
-An acceptance-criterion scenario that opts into classified evidence declares its required proof class on the first non-blank line of the scenario body: `Test-type: Unit`, `Test-type: Integration`, `Test-type: E2E`, or `Test-type: Performance`. This is a design-time declaration reviewed with the scenario, not a path to a test file. An unannotated legacy scenario keeps ADR-006's one-reference rule; every newly added or materially revised scenario declares a test type.
+New or materially revised classified scenarios declare `Test-type: Unit`, `Integration`, `E2E`, or `Performance` on their first non-blank line. Each declared class requires one `positive` and one `negative` reference, except an explicit `(single-direction)` declaration. Go names, JVM executable tags, and Cucumber scenario tags carry the AC identity, class, and direction; profiles without native tags use the stable named-executable fallback, while proximity comments remain unsupported. Unannotated legacy scenarios retain ADR-006's one-reference rule.
 
-Each declared class requires one `positive` and one `negative` reference. A scenario whose statement itself has one direction may state `Test-type: <class> (single-direction)` and requires one reference in that class. The exemption is explicit because it is a claim about the scenario, not an absence the checker can infer.
+The purpose taxonomy remains `AC`, `Unit`, `Sanity`, and `Arch`; test type and direction are evidence metadata consumed by `checkACTests`, not new test purposes. A missing class or direction is diagnosed rather than inferred.
 
-Go names carry all three parts: `TestAC042_IntegrationPositive_…` and `TestAC042_IntegrationNegative_…`, with segmented prefixes normalized by removing hyphens and lowercase letter suffixes retained under ADR-037. JVM executables use `@Tag("AC_042")` with `@Tag("integration")` and `@Tag("positive")` or `@Tag("negative")`; Cucumber `.feature` scenarios use the equivalent `@AC-042 @integration @positive` tags. JVM evidence is attributed per executable under ADR-036, not cross-producted at file level. Cucumber tags are scenario-level. `checkACTests` counts only references that match a declared class and reports a missing class or direction.
-
-The purpose taxonomy remains `AC`, `Unit`, `Sanity`, and `Arch`: an AC reference is still a test's one purpose. Test type is runner metadata; positive and negative are evidence direction metadata. Their new consumer is the evidence checker, so they are no longer ignored.
-
-Gatling and similar profiles without native tags use the same stable test-name fallback as Go, not structured comments. A profile that cannot attach an AC ID, type, and direction to a named executable test is unsupported for automated AC evidence until it supplies an equally stable framework-native carrier. This preserves ADR-005's rejection of proximity comments and supersedes ADR-006's deferred `QS<digits>` purpose lane: performance is the `Performance` test type attached to a named AC, rather than a second purpose namespace.
-
-## Consequences
-
-- The validator distinguishes an ordinary legacy reference from classified coverage and can fail an incomplete pair deterministically.
-- A test type remains visible where it is cheapest to challenge: the scenario review.
-- Existing accepted criteria do not need a mechanical rewrite merely to retain their existing contract.
-- Human-only proof and per-criterion draft exemptions remain M-026 work.
+**Carrier:** `checkACTests`, the supported Go/JVM/Cucumber evidence harvesters, CAP-002 and CAP-003 criteria, and the generated guidance that describes the declaration.

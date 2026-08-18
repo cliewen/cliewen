@@ -8,24 +8,16 @@ author: agent
 accepted-by: Flemming N. Larsen (2026-08-08, conversation)
 ---
 
-# ADR-053 — Deferred parity dispositions name their source and plan door
+# ADR-053 — Deferred parity dispositions are accountable
 
 ## Context and problem statement
 
-ADR-049 required a migration parity disposition to carry a free-text justification. A repeated sentence can satisfy that shape for every criterion while leaving neither the original source location nor the work that will resolve the disposition inspectable. P-012 M-058 requires a disposition to be honest or fail.
+Parity can deliberately defer a source criterion as `draft`, `human`, or `retired`, but a readable justification alone does not identify the source material or the milestone responsible for resolving the deferral.
 
 ## Decision outcome
 
-**Every `draft`, `human`, or `retired` source-manifest disposition carries `disposition-source-location` and `plan-door` in addition to its readable `justification`.** The source location points to the particular source material that warranted the disposition. The plan door is a declared milestone identity such as `M-060`, unique to that deferred criterion; `clue parity` derives the target corpus's declared milestone set and fails an otherwise matching disposition whose door is absent or reused.
+**Every deferred source-manifest disposition carries `disposition-source-location` and a unique `plan-door` in addition to its justification.** The source location identifies the material that warranted the disposition; the plan door identifies a milestone whose declared identity must exist exactly once in the target corpus. `clue parity` derives the target milestone set and rejects an absent or reused door.
 
-`clue parity` reports the count of unique criterion IDs carrying a disposition on both clean and failing runs. The count is derived from the authored source manifest and is a visible backlog, not a threshold: a migration may defer several criteria when each has its own accountable record, and a single genuine disposition continues to pass.
+Parity reports the count of unique criterion IDs with dispositions on both clean and failing runs. The count is visible backlog, not a threshold, and the contract applies only to migration source manifests; `clue validate` remains a one-corpus judge.
 
-This contract applies only to source manifests consumed by migration parity. `clue validate` remains a one-corpus judge, and a greenfield criterion has no source migration location or plan door to supply.
-
-## Rejected: infer accountability from the justification
-
-Natural-language parsing cannot establish whether a location or plan door exists, and it would preserve the repeated-prose loophole that M-058 identifies.
-
-## Carrier
-
-`internal/parity`, AC-125 in CAP-003, the `clue parity` report, and the canonical `clue-extract` mapping guidance carry this decision.
+**Carrier:** the source-manifest schema, parity validation, and the extraction plan/milestone corpus.
