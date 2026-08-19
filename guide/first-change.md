@@ -1,6 +1,6 @@
 # What one change produces
 
-This page follows one small change from a sentence you type to a merge commit, and shows the artifacts and command output it actually produces. Everything below is copied from a real run of `clue 0.18.0` in a disposable repository, not written from memory.
+This page traces one small change from your request to a merge commit. It shows the artifacts and command output from a real `clue 0.18.0` run in a disposable repository.
 
 ```mermaid
 sequenceDiagram
@@ -38,7 +38,7 @@ the accepted contract. What would change the recommendation: discovering that an
 criterion already promises this, which would make it a defect correction and therefore simple.
 ```
 
-That is the moment to disagree. Once you say go ahead, the agent works.
+This is where you can disagree. Once you say go ahead, the agent starts work.
 
 ## 3. It takes an identity and a branch
 
@@ -60,7 +60,7 @@ MIG-008 .clue/id-ledger.yaml: seed the identity ledger with 2 live id(s) from th
 clue migrate: applied 1 file(s)
 ```
 
-The identity comes from that ledger, never from reading Git history — an identifier a deleted artifact once used is never minted twice. The branch takes the same name: `ch-001-greet-by-name`.
+The identity comes from the ledger, not Git history. An identifier once used by a deleted artifact is never minted again. The branch takes the same name: `ch-001-greet-by-name`.
 
 ## 4. It writes the proposal before it writes any code
 
@@ -71,7 +71,7 @@ changes/CH-001-greet-by-name/
 └── open-questions.md   blocking questions; when one appears, work stops
 ```
 
-This is a transient workspace, not documentation. It is committed and pushed as a draft pull request straight away, so the work is visible from its first minute instead of living in someone's local checkout.
+This is a transient workspace, not documentation. It is committed and pushed as a draft pull request immediately, so the work is visible instead of sitting in one person's local checkout.
 
 ```markdown
 ---
@@ -87,7 +87,7 @@ title: A greeting can be requested by name
 Plan-less: this repository has no plan yet, and this change deliberately declares itself plan-less.
 ```
 
-`clue validate` already has an opinion about the workspace itself:
+`clue validate` already validates the workspace itself:
 
 ```text
 clue validate: OK (5 artifacts)
@@ -103,7 +103,7 @@ docs/capabilities/CAP-001-greeting/README.md        what the system can now do
 docs/capabilities/CAP-001-greeting/criteria.md      the acceptance criterion, as tagged Gherkin
 ```
 
-The criterion is the load-bearing artifact. It carries a stable identity and declares how it will be proven:
+The criterion is the central artifact. It has a stable identity and declares how it will be proven:
 
 ````markdown
 ```gherkin
@@ -130,7 +130,7 @@ clue scaffold: 2 index block(s) regenerated
 
 ## 6. The evidence is named by the criterion it proves
 
-The implementation is ordinary code. Its tests are not ordinary in one respect: their names carry the criterion identity, the declared test type, and the direction.
+The implementation is ordinary code. Its tests carry the criterion identity, declared test type, and direction in their names.
 
 ```go
 func TestAC001_UnitPositive_GreetsASuppliedName(t *testing.T) { … }
@@ -161,7 +161,7 @@ ok      example.com/greeting    0.264s
 
 ## 7. The digest deletes the workspace
 
-The proposal and its checklist were scaffolding. Once the durable corpus says everything the change means, the workspace is deleted — that deletion *is* the digest, which is why it is never one of the tasks.
+The proposal and checklist are scaffolding. Once the durable corpus captures everything the change means, the workspace is deleted. That deletion *is* the digest, so it is never a separate task.
 
 Before the digest, CI's stricter invocation refuses the branch:
 
@@ -180,7 +180,7 @@ clue validate: OK (5 artifacts)
 
 ## 8. The pull request states what merging would accept
 
-The agent marks the draft ready with an acceptance brief at the top of the body: the plan item and whether it is still wanted, every added or changed criterion with its verdict, any `Test-type: Human` criterion whose proof is that brief line, and what merge binds. One screen, no placeholders. A change too big for one screen is telling you to split it.
+The agent marks the draft ready with an acceptance brief at the top of the body. It names the plan item and whether it is still wanted, every added or changed criterion with its verdict, any `Test-type: Human` criterion whose proof is that brief line, and what the merge binds. Keep it to one screen with no placeholders. If it cannot fit, split the change.
 
 Then it stops. The last act is yours: a human-controlled merge commit accepts the change, and the reachable history keeps the proposal, the implementation, the digest, and the corpus together.
 

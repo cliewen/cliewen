@@ -1,6 +1,6 @@
 # Greenfield and brownfield
 
-Cliewen works for a new system and for one that already has years of history. The difference is the first move: a greenfield project can state its intended outcomes directly, while a brownfield project must first find and reconcile the intent that already exists.
+Cliewen works for new systems and systems with years of history. The first step differs: a greenfield project can state its intended outcomes directly, while a brownfield project must find and reconcile the intent that already exists.
 
 ```mermaid
 graph LR
@@ -30,7 +30,7 @@ Do not fill every corpus folder because the scaffold created it. A useful first 
 | Acceptance criterion | What observable example makes the behavior specific enough to accept? |
 | Acceptance evidence | Does the behavior work, and does it reject or survive the important counter-case — or, for a genuinely human judgment, does the acceptance brief put that proof in front of the person who merges? |
 
-Your agent writes those four records; you say what the outcome is. The rules below are what `clue` will hold that agent to, and they are here so you can check its work — not because you have to memorize them first.
+Your agent writes those four records; you state the outcome. The rules below let you check its work. You do not need to memorize them before starting.
 
 ::: details The exact evidence rules for a criterion
 
@@ -74,9 +74,13 @@ You do not need to speak Cliewen's internal language. Describe what you want and
 
 Use `clue-extract` once when the repository already contains specifications, decision notes, tagged tests, or other durable intent.
 
-Extraction is a meaning-level conversion, not a file copy. After its full change is proposed, the agent first writes a report-only rehearsal in that change's `/changes/` workspace. It inventories the source, proposed mappings, ID preservation or minting, uncertainty, test-purpose work, instruction conflicts, planned deletions, and plan doors without changing the target corpus, tests, routing, or hosted state. An unresolved conflict stops as an open question. Only explicit human direction starts the same change's mutation phase; that phase digests the rehearsal into the durable extraction report and eventually removes the old parallel specification corpus in the ready pull request. The report's criterion counts and mapping table are not typed: they live in one region rendered by `clue report` from the same pinned source manifest `clue parity` compares, and `clue validate` re-renders that region, so a report cannot describe a corpus other than the one the migration actually checked. That report is the readable summary, not a committed per-criterion registry: to inspect one criterion's mapping, follow the report's manifest reference and read the pinned manifest beside the target corpus or the `clue parity` output. Cliewen deliberately does not store a second document rendering every criterion, so this costs you some navigation and saves you a duplicate representation of the same mapping.
+Extraction converts meaning, not just files. After proposing its full change, the agent writes a report-only rehearsal in that change's `/changes/` workspace. It inventories the source, proposed mappings, ID preservation or minting, uncertainty, test-purpose work, instruction conflicts, planned deletions, and plan doors without changing the target corpus, tests, routing, or hosted state. An unresolved conflict becomes an open question.
 
-Every extracted artifact begins inferred: non-decision artifacts use `provenance: inferred` plus `reversal-cost: low|high`, classifying whether their meaning is cheap and local or expensive to reverse, while decisions use `status: inferred` and `author: agent` because ADR/PDR routing already marks them expensive. Human review promotes only the meaning it verifies; an active capability cannot depend on high-cost inferred meaning in its immediate graph slice, while low-cost findings may remain deferred.
+Only explicit human direction starts the mutation phase. That phase digests the rehearsal into the durable extraction report and removes the old parallel specification corpus before the pull request is ready. The report's criterion counts and mapping table live in one region rendered by `clue report` from the pinned source manifest that `clue parity` compares. `clue validate` renders it again, so the report cannot describe a different corpus from the one the migration checked.
+
+The report is a readable summary, not a committed registry of every criterion. To inspect one mapping, follow its manifest reference and read the pinned manifest beside the target corpus or `clue parity` output. This adds one navigation step but avoids maintaining two versions of the same mapping.
+
+Every extracted artifact starts inferred. Non-decision artifacts use `provenance: inferred` and `reversal-cost: low|high` to show whether their meaning is cheap and local or expensive to reverse. Decisions use `status: inferred` and `author: agent` because ADR/PDR routing already treats them as expensive. Human review promotes only meaning it verifies. An active capability cannot depend on high-cost inferred meaning in its immediate graph slice, while low-cost findings may remain deferred.
 
 Two extraction mappings ship today. OpenSpec, as extended in [Intent Engineering for Coding Agents](https://intent-engineering-for-coding-agents.github.io/book/): stock OpenSpec does not tag scenarios with stable IDs, so the mapping expects the book's conventions, specs become capabilities, scenario IDs survive as acceptance-criterion IDs so existing test tags keep working, and archived changes remain Git history. MADR, including the older Nygard heading-only form the same folders often mix in: the numeric filename prefix survives as the decision's ID, every converted record is born `inferred` because an agent wrote it and no human has yet verified it here — `accepted` in the source is emphatically not a shortcut to `verified` — and acceptance that predates the corpus is preserved as body prose rather than written into `accepted-by:`, which stays reserved for approval given under this repository's own merge boundary. If the source format has no extraction mapping yet, writing that mapping is the first extraction task.
 

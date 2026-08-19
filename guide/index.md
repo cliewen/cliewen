@@ -4,7 +4,7 @@ layout: home
 hero:
   name: Cliewen
   text: Evidence-backed Intent Engineering for coding agents
-  tagline: Coding agents produce plausible changes faster than anyone can confidently accept them. Cliewen keeps requirements, decisions, implementation, and acceptance evidence connected in Git—and checks that the connection is still intact before merge.
+  tagline: Coding agents can produce plausible changes faster than a person can confidently accept them. Cliewen keeps the requirement, implementation, and acceptance evidence connected in Git, then checks that the connection is intact before merge.
   image:
     src: /cliewen-logo.svg
     alt: Cliewen logo
@@ -15,7 +15,7 @@ hero:
 
 features:
   - title: For agent-driven pull requests
-    details: Built for repositories where coding agents implement real product changes and tests through Git branches and pull requests.
+    details: Built for repositories where coding agents make real product changes through Git branches and pull requests.
   - title: One thread the repository can check
     details: Goals lead to capabilities, acceptance criteria, and declared evidence—classified test references or genuine Human proof. The clue CLI reports broken links and missing evidence locally and in CI without executing tests.
   - title: Methodology, judge, and memory

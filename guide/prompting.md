@@ -12,7 +12,7 @@ graph LR
   F --> H
 ```
 
-The first thing a well-behaved Cliewen agent says back is a sentence of the form *Recommended route: simple* or *Recommended route: full*, with the reason and what discovery would change it. If you never see that sentence, the agent has not read the repository's routing hub.
+A Cliewen agent starts by saying *Recommended route: simple* or *Recommended route: full*, followed by its reason and what discovery could change that recommendation. If you do not see that sentence, the agent has not read the repository's routing hub.
 
 ## Start something new
 
@@ -22,7 +22,7 @@ After `clue init`, give the agent the first outcome rather than a proposed file 
 I'm starting a new system that should <outcome>. Help me work out a small first version.
 ```
 
-The agent should establish the goal, make uncertainty visible, and propose the smallest verifiable plan before implementation. Expect questions: an outcome nobody can observe cannot become an acceptance criterion, and the agent is supposed to say so rather than invent one.
+The agent should establish the goal, make uncertainty visible, and propose the smallest verifiable plan before implementation. Expect questions. An outcome nobody can observe cannot become an acceptance criterion, so the agent should say that rather than invent one.
 
 ## Adopt an existing repository
 
@@ -32,7 +32,7 @@ Use this once, when the repository already contains specifications, decision not
 Bring this repository into Cliewen. Keep the links between its existing specifications and tests, and flag anything that disagrees.
 ```
 
-The agent should route this to the extraction skill as a full change, and its first output is a report-only rehearsal — an inventory and a proposed mapping — not a rewritten corpus. Nothing is transformed until you say so. [Greenfield and brownfield](./adoption#adopt-one-existing-repository) explains what that rehearsal contains and why every extracted artifact is born `inferred`.
+The agent should route this to the extraction skill as a full change. Its first output is a report-only rehearsal: an inventory and proposed mapping, not a rewritten corpus. Nothing changes until you direct it. [Greenfield and brownfield](./adoption#adopt-one-existing-repository) explains the rehearsal and why every extracted artifact starts as `inferred`.
 
 ## Make a routine change
 
@@ -52,14 +52,14 @@ This is the prompt to use after a week away, and it is deliberately short:
 What is next?
 ```
 
-There is no `clue next` command, and nothing about this prompt is magic. It works because the plan is a file the agent can read:
+There is no `clue next` command. This prompt works because the plan is a file the agent can read:
 
 1. It reads `AGENTS.md`, the routing hub every agent starts from.
 2. It opens the active plan under `docs/plans/` — a plan is a flat `P-xxx-slug.md` file whose milestone table has one row per milestone, with an exit criterion, a status, and an evidence cell.
 3. It reports the first milestone whose exit criterion is not yet satisfied by evidence, quoting that row rather than paraphrasing it.
 4. It recommends a route for that work and waits, because choosing what to do next is your decision, not its own.
 
-If you want the reasoning made explicit — worth it when several plans are open, or when you suspect the repository disagrees with your memory — ask for it:
+When several plans are open, or the repository may disagree with your memory, ask the agent to make its reasoning explicit:
 
 ```text
 What is next? Read the active plan, name the first milestone that has no evidence yet, quote its exit criterion, and recommend a route. Do not change anything yet.

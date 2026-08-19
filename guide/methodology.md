@@ -24,7 +24,7 @@ A plan is a finite campaign serving a goal. Its milestones have explicit exit cr
 
 ## Change
 
-Cliewen recommends **simple** when the accepted contract remains unchanged and **full** when it changes. Simple covers observational analysis, unchanged-criterion bug fixes and regression evidence, in-contract configuration, refactoring, maintenance, and editorial work; it has no CH identity or loop bookkeeping. Full covers acceptance-criterion, capability, decision, policy, plan-promise, methodology, and uncovered-behavior meaning changes and uses a transient workspace under `/changes/CH-xxx-*` that Git retains after digest.
+Cliewen recommends **simple** when the accepted contract remains unchanged and **full** when it changes. Simple covers observational analysis, unchanged-criterion bug fixes and regression evidence, in-contract configuration, refactoring, maintenance, and editorial work; it has no CH identity or loop bookkeeping. Full covers acceptance-criterion, capability, decision, policy, plan-promise, methodology, and uncovered-behavior meaning changes. It uses a transient workspace under `/changes/CH-xxx-*`; the digest folds its meaning into `/docs` and deletes the workspace before merge.
 
 The agent states its recommendation before editing, names what would change it, reassesses on semantic discovery and before integration, and treats paths or diff size only as warnings. If the user rejects a full recommendation, simple work proceeds with the override and risk recorded in Git trailers. Route selection never authorizes a push: users and repository permissions control integration. Release is not a Cliewen route; adopters own their release process.
 

@@ -16,15 +16,14 @@ clue init
 clue validate
 ```
 
-The current release reports every created file, then ends like this:
+On a fresh repository, the important final lines look like this:
 
 ```text
-clue init: 92 created, 0 skipped, 0 linked, 0 index block(s) regenerated
 next: run `clue validate` — green on a fresh scaffold; then read docs/README.md
 clue validate: OK (2 artifacts)
 ```
 
-The exact count can grow in a future release. The important result is the final `OK`. The top-level tree is:
+The created-file count can change between releases. Look for the final `OK`. The top-level tree is:
 
 ```text
 cliewen-demo/
@@ -36,9 +35,9 @@ cliewen-demo/
 └── CLAUDE.md             a pointer, because Claude Code does not read AGENTS.md
 ```
 
-You will be told when this repository falls behind, in one line on standard error, without asking: the `clue` workflow commands print it themselves, and `AGENTS.md` additionally asks your agent to run `clue latest --quiet` before its first tool call, for sessions that run no `clue` command at all. Never from `clue validate`, never when `CI` carries a value, and `CLUE_NO_UPDATE_NOTIFIER` turns the unasked notice off — the check your agent runs on purpose still answers; standard output and the exit code never change. Cliewen emits no configuration for any assistant to make that happen — the hub is the file they all read, and what your tools run is your business.
+When a newer release is available, ordinary `clue` workflow commands print a one-line notice. It never changes `clue validate` output or its exit status. Run `clue latest` when you want to check deliberately; [Operate Cliewen safely](./operations) explains the update behavior and controls.
 
-`clue init` copies defaults but does not take ownership of your repository. You and your agent own the corpus prose and repository-specific instructions. `clue scaffold` and repeated `clue init` regenerate only the marked README index blocks; existing files are otherwise skipped, never replaced. The copied skills and workflow are versioned repository files, not background-managed services.
+`clue init` gives you a starting set of repository files; it does not take ownership of them. You and your agent own the corpus prose and repository-specific instructions. A later `clue init` or `clue scaffold` regenerates only marked README index blocks and skips existing files rather than replacing them. The copied skills and workflow are versioned repository files, not background-managed services.
 
 ## 2. See `clue` catch a broken thread
 
@@ -132,9 +131,15 @@ docs/capabilities/CAP-001-greeting/criteria.md: AC-001 has no test (convention p
 clue validate: 1 issue(s)
 ```
 
-That is the product's job: an active machine-proven promise cannot silently lose its acceptance evidence. This deliberately small example is an unannotated legacy criterion, so one supported reference would satisfy it. To return the demo to green, set the whole criteria file back to `draft`. In a real new or revised criterion, declare `Test-type: Unit`, `Integration`, `E2E`, or `Performance` and add classified positive and negative evidence through supported Go, JVM, or Cucumber carriers; on the JVM, the AC identity, type, and direction belong to the same Java or Kotlin executable. Use `(single-direction)` only when one direction is honest. If only that criterion is not ready, put `@draft` on its tag line instead of drafting proven siblings or the capability.
+That is the product's job: an active machine-proven promise cannot silently lose its acceptance evidence. This deliberately small example is an unannotated legacy criterion, so one supported reference would satisfy it. To return the demo to green, set the whole criteria file back to `draft`.
+
+::: details Evidence rules for production criteria
+
+A new or revised machine-proven criterion declares `Test-type: Unit`, `Integration`, `E2E`, or `Performance` and adds classified positive and negative evidence through supported Go, JVM, or Cucumber carriers. On the JVM, the AC identity, type, and direction belong to the same Java or Kotlin executable. Use `(single-direction)` only when one direction is honest. If only one criterion is not ready, put `@draft` on its tag line instead of drafting proven siblings or the capability.
 
 For a criterion whose proof is inherently human, declare `Test-type: Human`; naming it in the pull request acceptance brief is its proof, and no code test is invented. `clue validate` recognizes the Human declaration and waives code evidence, but it cannot check that the brief supplies the proof — the pull request workflow and human merge gate do that. The judge also checks classified pairs, single-direction declarations, and `@draft`; it does not run tests, so your normal test runner remains responsible for whether executable evidence passes.
+
+:::
 
 ## 3. Remove the experiment or continue
 

@@ -1,6 +1,6 @@
 # What is Cliewen?
 
-Cliewen is a methodology and a command-line tool for building software with coding agents while keeping intent, implementation, and evidence connected. Its name comes from the Old English word for a ball of thread: the same word that became *clue*.
+Cliewen is a methodology and command-line tool for teams that build software with coding agents. It keeps intent, implementation, and evidence connected. Its name comes from the Old English word for a ball of thread, which became *clue*.
 
 The central idea is simple: the durable documentation describes the system as it exists, not a pile of past change requests. A goal leads to a capability, a capability owns acceptance criteria, and each active criterion reaches its declared acceptance evidence. Machine-proven criteria use supported, classified test references; genuine Human-class criteria use the pull request acceptance brief. The `clue` command checks that this thread is intact.
 
@@ -14,7 +14,7 @@ graph LR
   H --> V
 ```
 
-That picture is the whole product. Everything else on this site is about keeping one of those arrows from going missing while an agent works fast.
+That diagram is the core of the product. The rest of this guide explains how to keep those links intact while an agent works quickly.
 
 ## Evidence-backed Intent Engineering
 
@@ -26,7 +26,7 @@ That phrase is Cliewen's own description of its approach, not an established ind
 4. Tooling checks mechanically that the chain from intent to evidence is complete.
 5. A human decides whether a full change is accepted and merged.
 
-The word doing the work is *backed*. Cliewen makes the connection between intent and acceptance evidence explicit, reviewable, and mechanically checkable. It does not prove that your software satisfies your intent: `clue` validates structure, links, declarations, and supported evidence references, but it does not execute tests, judge whether a test asserts the right behavior, or know whether the intent was right in the first place. Semantic acceptance stays with review and with the human at the merge gate. [The design of Cliewen](./design) draws that boundary in full — it is deliberate, and it is why a green check here stays worth trusting.
+The important word is *backed*. Cliewen makes the connection between intent and acceptance evidence explicit, reviewable, and mechanically checkable. It does not prove that your software fulfills its intent. `clue` validates structure, links, declarations, and supported evidence references, but it does not execute tests, decide whether a test checks the right behavior, or know whether the intent was right. Review and the human at the merge gate make that semantic decision. [The design of Cliewen](./design) explains the boundary in detail.
 
 ## Why another workflow?
 
@@ -57,13 +57,13 @@ graph LR
 
 ## Born from Intent Engineering and spec-driven development
 
-Cliewen builds on the ideas in [Intent Engineering for Coding Agents](https://intent-engineering-for-coding-agents.github.io/book/), written by Cliewen's author, Flemming N. Larsen: human intent is written down before an agent implements it, and the shared ground between human and agent lives in the repository under version control. Cliewen carries that approach one step further, and the *evidence-backed* half of the label is precisely that step: the durable documentation is where that intent lives, and the `clue` binary enforces what the book otherwise leaves to discipline.
+Cliewen builds on [Intent Engineering for Coding Agents](https://intent-engineering-for-coding-agents.github.io/book/) by Cliewen's author, Flemming N. Larsen. That approach records human intent before an agent implements it and keeps the shared context under version control. Cliewen adds the evidence-backed part: intent lives in durable documentation, and `clue` checks the links that discipline alone can miss.
 
-The book's working example of spec-driven development is [OpenSpec](https://github.com/Fission-AI/OpenSpec), where a change-sized spec is proposed, applied, and then moved to an archive folder to keep the workspace clean. Cliewen keeps that proposal layer for full work but needs no archive step: by the time a pull request merges, the transient `/changes` workspace has been digested into the durable documentation under `/docs` and deleted, and the supported merge commit keeps the accepted branch history in the repository. The pull request authorizes that full-loop merge but is not the system of record, so squash and rebase-and-merge are outside the full-change support boundary. Instead of a spec that goes stale after implementation, the documentation is the spec, and every integration is required to leave it true whether its recommended route was simple or full. A repository already using the book's extended OpenSpec format can be adopted with its IDs and test traceability intact; the [greenfield and brownfield guide](./adoption) shows how.
+The book's working spec-driven-development example is [OpenSpec](https://github.com/Fission-AI/OpenSpec). It proposes a change-sized spec, applies it, and archives it afterwards. Cliewen keeps a proposal layer for full work, but not an archive: before merge, the transient `/changes` workspace is digested into `/docs` and deleted. The supported merge commit keeps the accepted branch history in the repository. The pull request authorizes a full-loop merge but is not the system of record, so squash and rebase-and-merge are outside the full-change support boundary. In Cliewen, the documentation is the specification and every integration must leave it true, whether the recommended route was simple or full. A repository using the book's extended OpenSpec format can be adopted with its IDs and test traceability intact; see [Greenfield and brownfield](./adoption).
 
 Decisions inside a full loop follow the same rhythm. A future-shaping choice routes by subject to ADR, PDR, or IDR. A decision an agent records is born `inferred`; merging the pull request makes it binding, and later explicit human approval promotes it to `verified`. A user who declines the full recommendation chooses simple process for that integration; the agent records the override risk in Git history rather than manufacturing a corpus decision.
 
-That combination prevents two common failures of change-centered specifications: a growing archive of stale proposals that must be reconstructed to understand current behavior, and a polished permanent specification whose connection to executable evidence is only assumed.
+This avoids two common failures of change-centered specifications: an archive of stale proposals that readers must reconstruct, and a permanent specification that only appears connected to executable evidence.
 
 ## What Cliewen is not
 
