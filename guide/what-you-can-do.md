@@ -24,7 +24,7 @@ One boundary matters here: the supported evidence harvesters read Go, JVM, and C
 
 ```mermaid
 graph TD
-  Y["You state an outcome"] --> A["The agent implements it<br/>and records what it planned,<br/>decided, and designed"]
+  Y["You state an outcome"] --> A["The agent implements it<br/>and records what it planned,<br/>decided, and designed<br/>&nbsp;"]
   A --> M["You merge"]
   M --> R["That record becomes<br/>the next turn's context"]
   R --> Y
