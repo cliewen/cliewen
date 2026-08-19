@@ -9,7 +9,7 @@ After classification, start with the smallest durable context that governs the t
 The full loop has six stages, and only the last one is yours:
 
 ```mermaid
-graph LR
+graph TD
   R["Recommend a route"] --> B["1. Branch"]
   B --> P["2. Propose"]
   P --> I["3. Implement"]

@@ -3,7 +3,7 @@
 Cliewen works for new systems and systems with years of history. The first step differs: a greenfield project can state its intended outcomes directly, while a brownfield project must find and reconcile the intent that already exists.
 
 ```mermaid
-graph LR
+graph TD
   S["Your repository"] --> Q{"Does durable intent already exist?"}
   Q -- "No, greenfield" --> G["State the first outcome"]
   Q -- "Yes, brownfield" --> B["Extract and reconcile it first"]

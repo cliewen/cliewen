@@ -5,7 +5,7 @@ Cliewen is a methodology and command-line tool for teams that build software wit
 The central idea is simple: the durable documentation describes the system as it exists, not a pile of past change requests. A goal leads to a capability, a capability owns acceptance criteria, and each active criterion reaches its declared acceptance evidence. Machine-proven criteria use supported, classified test references; genuine Human-class criteria use the pull request acceptance brief. The `clue` command checks that this thread is intact.
 
 ```mermaid
-graph LR
+graph TD
   G["Goal: why anyone wants it"] --> C["Capability: what the system can do"]
   C --> A["Acceptance criterion: the observable example"]
   A --> T["Classified test evidence"]
@@ -43,7 +43,7 @@ Cliewen first recommends simple work when the accepted contract remains intact a
 The pull request is also where hosted CI becomes enforceable when the repository requires its status check and protects `main`. A pull request without a required check and branch protection only displays CI; the combination is what prevents an agent from silently skipping the gate.
 
 ```mermaid
-graph LR
+graph TD
   subgraph "An agent may do all of this"
     B["Branch from accepted main"] --> W["Corpus, code, evidence"]
     W --> V["clue validate and the tests"]
