@@ -1,8 +1,10 @@
 # Cliewen
 
-> Ship agent-written changes without losing the intent.
+> Evidence-backed Intent Engineering for coding agents.
 
 **Cliewen** is a methodology for repositories where coding agents implement real product changes through pull requests. It keeps requirements, decisions, implementation, and acceptance evidence connected in Git, and catches missing evidence before merge. **`clue`** is its command-line judge; the **corpus** under `docs/` is the permanent system record that agents maintain with the code.
+
+*Evidence-backed Intent Engineering* is Cliewen's own description of its approach, not an established industry label: human intent is recorded as durable goals, capabilities, decisions, constraints, and acceptance criteria; every active criterion declares the evidence that accepts it — a classified executable reference or explicitly identified human verification — and tooling checks mechanically that the chain is complete before a human merges. It makes the connection between intent and acceptance evidence explicit, reviewable, and checkable. It does not prove your software satisfies your intent: `clue` does not execute tests, judge whether a test asserts the right behavior, or know whether the intent was right in the first place. Semantic acceptance stays with review and the human at the merge gate.
 
 The name comes from Old English *cliewen*, “ball of thread” — the word that became *clue*. The enforced thread is **goal → capability → acceptance criterion → acceptance evidence**: classified executable references for machine-proven criteria or the pull request acceptance brief for genuine Human proof.
 
@@ -70,6 +72,8 @@ Adopting a repo with an existing spec corpus instead? That is the [`clue-extract
 ## Public guide
 
 The handwritten [Cliewen guide](https://cliewen.dev/) explains the methodology, corpus taxonomy, change loop, and skills for newcomers who are not yet inside a Cliewen repository. Its [source](guide/index.md) builds with strict dead-link checking in CI and deploys from `main` through GitHub Pages.
+
+If you are evaluating Cliewen, read it in this order: [What is Cliewen?](https://cliewen.dev/what-is-cliewen) for the approach and where it came from, [The design of Cliewen](https://cliewen.dev/design) for why acceptance and evidence are central and what the method does not solve, [The verifiable thread](https://cliewen.dev/methodology) for the concrete goal-to-evidence model, and [Get started](https://cliewen.dev/getting-started) for a disposable example that deliberately breaks the thread so you can watch `clue` catch it.
 
 ## Developing the skills
 

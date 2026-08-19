@@ -16,6 +16,18 @@ graph LR
 
 That picture is the whole product. Everything else on this site is about keeping one of those arrows from going missing while an agent works fast.
 
+## Evidence-backed Intent Engineering
+
+That phrase is Cliewen's own description of its approach, not an established industry label, so here is exactly what it means:
+
+1. Human intent is recorded as durable goals, capabilities, decisions, constraints, and acceptance criteria.
+2. Every active acceptance criterion declares the evidence by which it is accepted.
+3. That evidence is either a classified executable test reference or explicitly identified human verification.
+4. Tooling checks mechanically that the chain from intent to evidence is complete.
+5. A human decides whether a full change is accepted and merged.
+
+The word doing the work is *backed*. Cliewen makes the connection between intent and acceptance evidence explicit, reviewable, and mechanically checkable. It does not prove that your software satisfies your intent: `clue` validates structure, links, declarations, and supported evidence references, but it does not execute tests, judge whether a test asserts the right behavior, or know whether the intent was right in the first place. Semantic acceptance stays with review and with the human at the merge gate. [The design of Cliewen](./design) draws that boundary in full — it is deliberate, and it is why a green check here stays worth trusting.
+
 ## Why another workflow?
 
 Coding agents can produce changes faster than people can review them. That moves the bottleneck from writing code to deciding whether a change is correct and safe to merge. A patch can look convincing while missing why the system exists, updating a specification without its tests, leaving a decision in chat, or changing the meaning of an acceptance criterion.
@@ -45,7 +57,7 @@ graph LR
 
 ## Born from Intent Engineering and spec-driven development
 
-Cliewen builds on the ideas in [Intent Engineering for Coding Agents](https://intent-engineering-for-coding-agents.github.io/book/), written by Cliewen's author, Flemming N. Larsen: human intent is written down before an agent implements it, and the shared ground between human and agent lives in the repository under version control. Cliewen carries that approach one step further. The durable documentation is where that intent lives, and the `clue` binary enforces what the book otherwise leaves to discipline.
+Cliewen builds on the ideas in [Intent Engineering for Coding Agents](https://intent-engineering-for-coding-agents.github.io/book/), written by Cliewen's author, Flemming N. Larsen: human intent is written down before an agent implements it, and the shared ground between human and agent lives in the repository under version control. Cliewen carries that approach one step further, and the *evidence-backed* half of the label is precisely that step: the durable documentation is where that intent lives, and the `clue` binary enforces what the book otherwise leaves to discipline.
 
 The book's working example of spec-driven development is [OpenSpec](https://github.com/Fission-AI/OpenSpec), where a change-sized spec is proposed, applied, and then moved to an archive folder to keep the workspace clean. Cliewen keeps that proposal layer for full work but needs no archive step: by the time a pull request merges, the transient `/changes` workspace has been digested into the durable documentation under `/docs` and deleted, and the supported merge commit keeps the accepted branch history in the repository. The pull request authorizes that full-loop merge but is not the system of record, so squash and rebase-and-merge are outside the full-change support boundary. Instead of a spec that goes stale after implementation, the documentation is the spec, and every integration is required to leave it true whether its recommended route was simple or full. A repository already using the book's extended OpenSpec format can be adopted with its IDs and test traceability intact; the [greenfield and brownfield guide](./adoption) shows how.
 

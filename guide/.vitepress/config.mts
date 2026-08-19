@@ -21,7 +21,7 @@ const mermaidConfigPlugin = {
 export default defineConfig({
   lang: "en-US",
   title: "Cliewen",
-  description: "A verifiable thread from goal to acceptance evidence for agent-driven development.",
+  description: "A verifiable thread from goal to acceptance evidence, checked before merge: Evidence-backed Intent Engineering for coding agents.",
   base: "/",
   cleanUrls: true,
   ignoreDeadLinks: false,
