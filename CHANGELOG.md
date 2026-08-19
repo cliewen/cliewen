@@ -4,6 +4,10 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 
 ## [Unreleased]
 
+### Changed
+
+- **New repositories tell coding agents how to write accessible guide content.** The generated agent instructions require the Humanizer skill for `/guide` prose when it is available, ask for it to be installed when it is not, and tell agents to introduce technical terms or link to a short glossary definition.
+
 ## [0.19.0] - 2026-08-18
 
 ### Migration
