@@ -21,6 +21,8 @@ For a full change, read [`docs/README.md`](docs/README.md) only when the request
 
 **Markdown prose is never hard-wrapped.** One line per paragraph and per list item; wrapping is the reader's IDE concern. Line breaks are structural only (headings, lists, tables, code fences).
 
+**Guide writing is clear for software practitioners.** When changing prose in `/guide`, use the `humanizer` AI skill if it is installed. If it is not installed, ask the user to install it in the coding agent's local user directory before changing guide prose. The guide is for developers, people who work with coding agents, team leads, and architects. Use plain language, and explain a technical term when it first appears or link to a short glossary definition.
+
 **The core is behind a red line.** Cliewen's core is the verifiable thread (goal → plan → change → capability → criterion → acceptance evidence, including classified executable references and genuine Human proof in the acceptance brief), the full-loop human acceptance boundary, and `clue validate` as deterministic judge. A change that alters what any of these means changes the accepted contract, so the agent recommends full and records an explicit decision; the user retains the authority to choose simple with the required override trailers. Everything else is periphery you may freely extend — including your own artifact types under `docs/` — and periphery never constrains the core.
 
 ## Skills

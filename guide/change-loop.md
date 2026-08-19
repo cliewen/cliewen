@@ -4,7 +4,20 @@ Before editing, the agent recommends **simple** or **full**, says why, and names
 
 Paths and diff size may warn but do not decide meaning. The agent reassesses when semantic scope grows and against the complete diff before integration. If it recommends full and the user explicitly chooses simple, the work proceeds without making the repository untruthful and the final authored commit records `Cliewen-Route: simple`, `Cliewen-Recommendation: full`, and a concise `Cliewen-Override` risk. The user and repository retain integration authority: a route never authorizes an agent push, and an agent pushes directly only with explicit user authorization and repository permission. Release is not a Cliewen route; each adopter defines or omits its own release process.
 
-After classification, start from the smallest durable context that governs the task. `clue context <id>` prints the named artifact and the artifacts it links, out to a stated number of hops; an acceptance-criterion or milestone ID resolves to the artifact that declares it. The slice defaults to one hop and names what the bound held back, so `--depth` widens it on evidence rather than on caution. If the request gives no usable ID, orient at `docs/README.md`, choose the closest artifact, and run the command from there. Shared goals have many reverse dependents, so `context` deliberately follows declared outgoing dependencies only instead of recreating a full-corpus read.
+After classification, start with the smallest durable context that governs the task. `clue context <id>` prints the named artifact and its linked artifacts to a stated number of hops. An acceptance-criterion or milestone ID resolves to the artifact that declares it. The slice defaults to one hop and says what it left out, so use `--depth` when the task needs more context. If the request gives no usable ID, start at `docs/README.md`, choose the closest artifact, and run the command there. Shared goals have many reverse dependents, so `context` follows declared outgoing dependencies rather than recreating a full-corpus read.
+
+The full loop has six stages, and only the last one is yours:
+
+```mermaid
+graph LR
+  R["Recommend a route"] --> B["1. Branch"]
+  B --> P["2. Propose"]
+  P --> I["3. Implement"]
+  I --> D["4. Digest"]
+  D --> V["5. Verify and review"]
+  V --> G["6. Human merge"]
+  V -- "blocking finding" --> I
+```
 
 ## One real change, end to end
 
@@ -20,7 +33,7 @@ After classification, start from the smallest durable context that governs the t
 | Digest | The transient CH-003 workspace disappeared; the capability, criteria, decisions, implementation, and tests remained |
 | Acceptance | The branch became PR #2, CI ran the candidate, and a human merge accepted it into `main` |
 
-That same shape applies to an ordinary product request: state the desired behavior, connect it to a criterion and evidence, implement until the thread and tests are green, digest the temporary proposal, and hand the exact verified commit to the protected pull request.
+The same shape applies to an ordinary product request. State the behavior, connect it to a criterion and evidence, implement until the thread and tests are green, digest the temporary proposal, and hand the exact verified commit to the protected pull request.
 
 A correction that restores behavior already promised by an unchanged criterion may remain simple, with focused regression evidence. If the criterion must change or the implementation introduces behavior it does not cover, the accepted contract changes and the full loop is recommended.
 
@@ -32,7 +45,7 @@ For a chosen full loop, create `ch-xxx-your-slug` from accepted `main`. One init
 
 A full change commits `/changes/CH-xxx-your-slug/proposal.md` before implementation, pushes it, and opens the pull request as a draft. The proposal says what will change, why it matters, which plan item it serves or that it is plan-less, and where the decision boundary lies. The draft is where unfinished work lives and stays visible: it claims nothing and cannot be merged.
 
-When the human wants to review that shape before code exists, they can opt into a spec-first pause. It is not the default loop, and it is not merely a convenience: proposing and implementing are different work, and the boundary between them is where a change can still be split, redirected, or handed to a different agent — which is why the proposal is committed first. At the pause the agent records it in tasks, reports briefly what the proposal says and what implementation involves, and asks whether implementation begins — the proposal is already pushed and readable on the draft pull request. Then it stops until they answer.
+When the human wants to review the shape before code exists, they can opt into a spec-first pause. It is not the default. Proposing and implementing are different work, and their boundary is where a change can still be split, redirected, or handed to another agent. That is why the proposal is committed first. At the pause, the agent records it in tasks, briefly explains the proposal and implementation, and asks whether implementation should begin. The proposal is already pushed and readable on the draft pull request. The agent then waits for an answer.
 
 `tasks.md` is an ordered checklist with dependencies first, and a task you mark `[-]` as infeasible says why on the same line. If a blocking decision appears, write it to `open-questions.md` and stop; the answer becomes a typed decision record rather than disappearing into chat.
 
@@ -52,9 +65,9 @@ Deletion is the digest: the proposal has been absorbed into the current system t
 
 ## 5. Verify and review
 
-Commit the complete candidate, run the repository tests and `clue validate --forbid-changes` against that commit, then run `clue-verify` on the same commit. The skill automatically challenges the full candidate before the pull request is marked ready: a host with context-isolated delegation starts a fresh read-only reviewer with the declared intent but without the implementation conversation; other hosts disclose an in-context fallback. Blocking findings are repaired, rechecked, and reviewed again; advisories stay in the handoff rather than rewriting a clean commit. The loop stops on a pass with no blocking findings or at the repository's maximum for a human decision. If accepted `main` advances, reconciliation means merging newer accepted `main` into the branch with a normal push instead of rewriting hosted history before checks repeat.
+Commit the complete candidate, run the repository tests and `clue validate --forbid-changes` against that commit, then run `clue-verify` on the same commit. The skill challenges the full candidate before the pull request is marked ready. A host with context-isolated delegation starts a fresh read-only reviewer with the declared intent but without the implementation conversation; other hosts disclose an in-context fallback. Blocking findings are repaired, rechecked, and reviewed again. Keep advisories in the handoff rather than rewriting a clean commit. The loop stops after a pass with no blocking findings, or at the repository's maximum while waiting for a human decision. If accepted `main` advances, reconciliation means merging newer accepted `main` into the branch with a normal push instead of rewriting hosted history before checks repeat.
 
-Several agents may collaborate without serializing everybody else. Separate authors keep separate branches from accepted `main`; collaboration is scoped to one pull request. A review of an existing PR names the hosted head it inspected, and actionable findings live as unresolved hosted review conversations where the forge supports them. Any agent asked to fix one becomes the updater for that turn: it fetches and records that head, commits and pushes the repair with the turn that made it — which returns a ready pull request to draft — reviews the repaired commit, confirms the hosted head is the reviewed commit, marks the pull request ready again, and only then resolves the finding. If another updater moved the head, normal Git non-fast-forward protection forces reconciliation and a new verification pass. If findings cannot be published as resolvable conversations, the agent says the PR is not merge-ready and names the enforcement gap; no forge can detect an edit or intention that remained solely in a private worktree.
+Several agents can collaborate without waiting for one another. Separate authors keep separate branches from accepted `main`, and collaboration stays within one pull request. A review of an existing PR names the hosted head it inspected. Where the forge supports them, actionable findings stay in unresolved review conversations. Any agent asked to fix one becomes the updater for that turn. It fetches and records that head, commits and pushes the repair with the turn that made it, which returns a ready pull request to draft. It reviews the repaired commit, confirms the hosted head is the reviewed commit, marks the pull request ready again, and only then resolves the finding. If another updater moved the head, normal Git non-fast-forward protection forces reconciliation and a new verification pass. If findings cannot be published as resolvable conversations, the agent says the PR is not merge-ready and names the enforcement gap. No forge can detect an edit or intent that remained only in a private worktree.
 
 ## 6. Open the review gate
 

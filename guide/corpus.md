@@ -1,8 +1,22 @@
 # The corpus
 
-The `/docs` tree is Cliewen's permanent working memory. After classifying a task, agents read the bounded slice from `clue context <id>` and widen it with `--depth` only when its frontier shows an edge the task needs; people review the durable artifacts with the implementation, and Git records every accepted mutation.
+The `/docs` tree is Cliewen's permanent working memory. After classifying a task, agents read the slice from `clue context <id>` and use `--depth` only when the task needs another linked artifact. People review durable artifacts with the implementation, and Git records every accepted change.
 
 ## The taxonomy
+
+```mermaid
+graph LR
+  D["docs/"] --> G["goals/ — why"]
+  D --> P["plans/ — what campaign"]
+  D --> C["capabilities/ — what it does"]
+  D --> S["the supporting record"]
+  C --> CR["criteria.md — the promises"]
+  C --> DS["design.md — how it works"]
+  S --> A["architecture/"]
+  S --> DE["decisions/"]
+  S --> CO["constraints/"]
+  S --> AN["analysis/"]
+```
 
 | Folder | Artifact | Question it answers |
 |---|---|---|
@@ -41,7 +55,7 @@ This makes refactoring the corpus safe. A file can move without becoming a diffe
 
 System-wide and expensive-to-change design belongs under `architecture/`. Per-capability design lives beside the capability. Decisions explain durable choices but do not become substitute design documents. Findings record what an investigation observed but do not silently become accepted intent.
 
-The separation is intentionally strict: a fact with two homes will eventually disagree with itself.
+The separation is strict for a practical reason: a fact with two homes will eventually disagree with itself.
 
 ## Choose the right decision record
 
@@ -53,7 +67,7 @@ First ask whether the choice constrains future work. If it does, route it by sub
 | Project workflow, process, or methodology | A PDR, or Project/Process Decision Record |
 | Implementation | An IDR, or Implementation Decision Record |
 
-Routine facts, chronology, and implementation history are not decision records. ADRs, PDRs, and IDRs keep enduring context and the decision, with alternatives and consequences only when they materially help a future reader.
+Routine facts, chronology, and implementation history are not decision records. ADRs, PDRs, and IDRs keep the context and decision, with alternatives and consequences only when they will help a future reader.
 
 ## See a living corpus
 
@@ -61,4 +75,4 @@ Cliewen dogfoods the methodology. Browse its [corpus entry point](https://github
 
 ## Next
 
-[Follow one proposal through the change loop.](./change-loop)
+[Read why Cliewen is designed the way it is.](./design)

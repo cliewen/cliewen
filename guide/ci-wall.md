@@ -1,8 +1,8 @@
 # Make CI enforce Cliewen
 
-`clue init` gives you a thin GitHub Actions caller for Cliewen's upstream reusable validation workflow. The caller starts unarmed when it uses the default vendored source, so the job warns and skips corpus validation until the pinned Linux release binary and its checksum file are committed under `.github/tools/`.
+`clue init` gives you a thin GitHub Actions caller for Cliewen's upstream reusable validation workflow. With the default vendored source, the caller starts unarmed. The job warns and skips corpus validation until you commit the pinned Linux release binary and its checksum file under `.github/tools/`.
 
-There are three separate jobs here:
+You need to do three things:
 
 1. Choose the caller inputs that your runner and binary-delivery policy require.
 2. Arm the upstream workflow so hosted CI runs the same judge you use locally.
@@ -12,9 +12,9 @@ CI without branch protection is a dashboard. Branch protection without the valid
 
 ## 1. Choose the caller inputs
 
-Open `.github/workflows/clue.yml`. It should contain one `uses:` reference to `cliewen/cliewen/.github/workflows/clue-validation.yml` at an immutable reference, and four inputs: the generated `clue-version` plus the three local policy choices `runner`, `clue-source`, and `clue-install-directory`. Use the exact generated version; do not substitute `latest`.
+Open `.github/workflows/clue.yml`. It should contain one immutable `uses:` reference to `cliewen/cliewen/.github/workflows/clue-validation.yml` and four inputs: the generated `clue-version` plus `runner`, `clue-source`, and `clue-install-directory`. Use the generated version exactly; do not substitute `latest`.
 
-The default caller uses `runner: '["ubuntu-latest"]'`, `clue-source: vendored`, and an empty `clue-install-directory`, which stages the verified executable in the runner's temporary directory without requiring root. A repository that needs a self-hosted/no-root runner changes only the caller's runner-label JSON and writable install directory. A repository that downloads the release instead of committing `.github/tools/` changes only `clue-source: release`; the upstream workflow downloads the matching binary and `SHA256SUMS` over HTTPS and verifies the checksum before execution.
+The default caller uses `runner: '["ubuntu-latest"]'`, `clue-source: vendored`, and an empty `clue-install-directory`. It stages the verified executable in the runner's temporary directory without requiring root. A self-hosted, no-root runner changes only the runner-label JSON and writable install directory. To download the release instead of committing `.github/tools/`, change only `clue-source: release`; the upstream workflow downloads the matching binary and `SHA256SUMS` over HTTPS and verifies the checksum before execution.
 
 Prefer an install directory outside the checkout. An empty value uses the runner's temporary directory, which is cleaned between runs; a path inside the workspace such as `.cliewen/bin` leaves an untracked executable in the working tree, and on a persistent self-hosted runner it survives into the next run. If your policy requires a path inside the workspace, add it to `.gitignore`.
 
@@ -26,7 +26,7 @@ Release binaries emit the reusable workflow's source commit as the reference. A 
 
 ## 2. Arm the pinned judge
 
-The default vendored path keeps the release asset and checksum file in the repository. The examples below use `0.7.0`; replace it with the `clue-version` in your caller.
+The default vendored path keeps the release asset and checksum file in the repository. The examples use `0.19.0`; replace every instance with the `clue-version` in your caller.
 
 Create the tools directory, then download the Linux amd64 binary and the release checksum file:
 
@@ -34,28 +34,28 @@ Create the tools directory, then download the Linux amd64 binary and the release
 
 ```powershell [Windows PowerShell]
 New-Item -ItemType Directory -Force .github/tools | Out-Null
-gh release download v0.7.0 --repo cliewen/cliewen --pattern 'clue-0.7.0-linux-amd64' --pattern 'SHA256SUMS' --dir .github/tools
+gh release download v0.19.0 --repo cliewen/cliewen --pattern 'clue-0.19.0-linux-amd64' --pattern 'SHA256SUMS' --dir .github/tools
 ```
 
 ```sh [macOS and Linux]
 mkdir -p .github/tools
-gh release download v0.7.0 --repo cliewen/cliewen --pattern 'clue-0.7.0-linux-amd64' --pattern 'SHA256SUMS' --dir .github/tools
+gh release download v0.19.0 --repo cliewen/cliewen --pattern 'clue-0.19.0-linux-amd64' --pattern 'SHA256SUMS' --dir .github/tools
 ```
 
 :::
 
-The runner is Linux amd64 even when you develop on Windows or macOS. Verify the vendored file before committing it:
+The runner is Linux amd64, even if you develop on Windows or macOS. Verify the vendored file before committing it:
 
 | System | Check |
 |---|---|
-| Windows PowerShell | Run `Get-FileHash .github/tools/clue-0.7.0-linux-amd64 -Algorithm SHA256`, then compare it with the matching line in `.github/tools/SHA256SUMS` |
-| macOS | Run `shasum -a 256 .github/tools/clue-0.7.0-linux-amd64`, then compare it with the matching line in `.github/tools/SHA256SUMS` |
+| Windows PowerShell | Run `Get-FileHash .github/tools/clue-0.19.0-linux-amd64 -Algorithm SHA256`, then compare it with the matching line in `.github/tools/SHA256SUMS` |
+| macOS | Run `shasum -a 256 .github/tools/clue-0.19.0-linux-amd64`, then compare it with the matching line in `.github/tools/SHA256SUMS` |
 | Linux | Run `(cd .github/tools && sha256sum -c --ignore-missing SHA256SUMS)` |
 
 Commit both files with the generated caller:
 
 ```sh
-git add .github/workflows/clue.yml .github/tools/SHA256SUMS .github/tools/clue-0.7.0-linux-amd64
+git add .github/workflows/clue.yml .github/tools/SHA256SUMS .github/tools/clue-0.19.0-linux-amd64
 git commit -m "Arm the Cliewen CI wall"
 ```
 
@@ -78,7 +78,7 @@ Push the caller and let its pull request run once. GitHub needs a recent check b
 
 Then open **Settings → Rules → Rulesets → New ruleset → New branch ruleset**. GitHub's [ruleset instructions](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/creating-rulesets-for-a-repository) and [branch-rule reference](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/available-rules-for-rulesets) describe the current controls.
 
-Two separate surfaces control which merge methods are available, and Cliewen needs both pointed the same way. The ruleset's pull-request rule constrains the branches it targets, and that is what enforces the boundary on `main`. **Settings → General → Pull Requests** constrains the whole repository: allow **Create a merge commit**, and disable **Squash and merge** and **Rebase and merge**. A merge commit keeps the exact proposal, implementation, and digest commits reachable from `main`; the other methods can leave the same final tree while losing the reviewed branch chain.
+Two settings control available merge methods, and Cliewen needs them aligned. The ruleset's pull-request rule enforces the boundary on `main`. **Settings → General → Pull Requests** controls the whole repository. Allow **Create a merge commit**, and disable **Squash and merge** and **Rebase and merge**. A merge commit keeps the exact proposal, implementation, and digest commits reachable from `main`; the other methods can leave the same final tree while losing the reviewed branch chain.
 
 Configure one active ruleset:
 
@@ -120,7 +120,7 @@ Do not remove an existing stronger requirement merely to match this minimum. If 
 
 ## 5. Prove failure blocks merge
 
-Do this once in a disposable branch. The probe creates a valid change workspace, so normal validation stays green while the merge-time command fails only because the workspace has not been digested. Run it only after the merge-method checks above pass; the final pull request must be accepted with a merge commit.
+Do this once in a disposable branch. The probe creates a valid change workspace, so normal validation stays green while the merge-time command fails only because the workspace is undigested. Run it after the merge-method checks above pass; the final pull request must be accepted with a merge commit.
 
 ```sh
 git switch main
@@ -190,4 +190,4 @@ If your forge or hosting plan cannot enforce those conditions, local Cliewen val
 
 ## Next
 
-[Choose the smallest Cliewen practice your repository needs.](./adoption)
+[Learn what is supported and how to recover.](./operations)

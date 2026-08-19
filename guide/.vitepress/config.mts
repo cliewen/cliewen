@@ -21,7 +21,7 @@ const mermaidConfigPlugin = {
 export default defineConfig({
   lang: "en-US",
   title: "Cliewen",
-  description: "A verifiable thread from goal to acceptance evidence for agent-driven development.",
+  description: "A verifiable thread from goal to acceptance evidence, checked before merge: Evidence-backed Intent Engineering for coding agents.",
   base: "/",
   cleanUrls: true,
   ignoreDeadLinks: false,
@@ -56,17 +56,33 @@ export default defineConfig({
     logo: "/cliewen-logo.svg",
     nav: [
       { text: "Guide", link: "/what-is-cliewen" },
-      { text: "Get started", link: "/getting-started" },
+      { text: "Install", link: "/install" },
       { text: "GitHub", link: "https://github.com/cliewen/cliewen" },
     ],
     sidebar: [
       {
-        text: "Start here",
+        text: "Introduction",
         items: [
           { text: "What is Cliewen?", link: "/what-is-cliewen" },
-          { text: "Get started", link: "/getting-started" },
+          { text: "What you can do with it", link: "/what-you-can-do" },
+          { text: "Install", link: "/install" },
           { text: "Install from Claude Code", link: "/plugin" },
+        ],
+      },
+      {
+        text: "Your first steps",
+        items: [
+          { text: "See the judge work", link: "/getting-started" },
           { text: "Greenfield and brownfield", link: "/adoption" },
+          { text: "How to prompt the agent", link: "/prompting" },
+          { text: "What one change produces", link: "/first-change" },
+        ],
+      },
+      {
+        text: "Working with Cliewen",
+        items: [
+          { text: "The change loop", link: "/change-loop" },
+          { text: "The skills", link: "/skills" },
           { text: "Enforce CI", link: "/ci-wall" },
           { text: "Operate safely", link: "/operations" },
         ],
@@ -74,11 +90,9 @@ export default defineConfig({
       {
         text: "How the method works",
         items: [
-          { text: "The design of Cliewen", link: "/design" },
           { text: "The verifiable thread", link: "/methodology" },
           { text: "The corpus", link: "/corpus" },
-          { text: "The change loop", link: "/change-loop" },
-          { text: "The skills", link: "/skills" },
+          { text: "The design of Cliewen", link: "/design" },
         ],
       },
     ],
