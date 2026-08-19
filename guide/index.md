@@ -47,7 +47,7 @@ Pick up any artifact and follow it back to why it exists, or forward to what pro
 ```mermaid
 graph LR
   I["Install clue"] --> P["Prompt your agent"]
-  P --> A["It writes the code, the corpus, and the evidence"]
+  P --> A["It writes the change, the corpus, and the evidence"]
   A --> V["clue validate and CI check the thread"]
   V --> M["You merge"]
 ```

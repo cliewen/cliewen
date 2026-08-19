@@ -64,6 +64,7 @@ export default defineConfig({
         text: "Introduction",
         items: [
           { text: "What is Cliewen?", link: "/what-is-cliewen" },
+          { text: "What you can do with it", link: "/what-you-can-do" },
           { text: "Install", link: "/install" },
           { text: "Install from Claude Code", link: "/plugin" },
         ],

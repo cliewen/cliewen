@@ -77,4 +77,4 @@ Canonical criterion IDs use `<PREFIX>-<digits>[lowercase-suffix]`, so brownfield
 
 ## Next
 
-[Install `clue` with one command.](./install)
+[See what you can actually do with it.](./what-you-can-do)
