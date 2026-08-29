@@ -4,6 +4,12 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 
 ## [Unreleased]
 
+## [0.20.0] - 2026-08-29
+
+### Migration
+
+- **No repository migration is required for this minor release.** `clue migrate` recognizes this release's generated carriers as a managed baseline; there is nothing else to act on.
+
 ### Changed
 
 - **The upgrade skill now separates release freshness from local carrier currency.** After `clue latest`, it previews `clue migrate` even when the installed CLI is the newest or the release list is unavailable. A clean preview proves that local carriers match the installed binary, but only a reachable release check with no newer version permits the repository to be called fully current; nothing is applied before human authorization. A repository that keeps its own validation job beside the thin caller emits the non-blocking `MIG-009` competing-wall notice on every preview, and that notice alone no longer counts as drift, so such a repository still gets an honest offline report instead of being asked to upgrade with nothing to upgrade to.
