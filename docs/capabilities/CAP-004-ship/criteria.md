@@ -154,6 +154,16 @@ Feature: clue ships — a versioned binary and versioned skills, drift made lint
     And an affirmative answer makes the repository green, branches, moves the coordinated set, resolves every notice, verifies, and hands over a pull request without merging it
     But the skill names no platform installation command and a later answer changes no repository file or hosted state
 
+  @AC-148
+  Scenario: Upgrade discovery previews repository carrier drift after checking release availability
+    Test-type: Unit
+    Given a repository whose managed Cliewen carriers are older than its installed clue binary
+    When an agent runs the managed upgrade skill and "clue latest" reports no newer release
+    Then it still runs "clue migrate" without "--apply" before deciding that no upgrade is needed
+    And the preview's planned changes, findings, and notices are treated as repository drift to resolve
+    And only a preview with no changes and no findings lets the agent report the repository's managed carriers current
+    But the preview does not apply migration or change repository state before the human authorizes an upgrade
+
   @AC-076
   Scenario: The quiet mode is silent unless there is something to say
     Test-type: Unit

@@ -745,7 +745,7 @@ entries:
       component: "147"
     - id: AC-148
       kind: numeric
-      state: reserved
+      state: live
       prefix: AC
       component: "148"
     - id: ADR-001
@@ -1752,6 +1752,12 @@ entries:
       state: live
       prefix: CH
       component: "160"
+    - id: CH-160-open-questions
+      kind: opaque
+      state: live
+    - id: CH-160-tasks
+      kind: opaque
+      state: live
     - id: G-001
       kind: numeric
       state: live

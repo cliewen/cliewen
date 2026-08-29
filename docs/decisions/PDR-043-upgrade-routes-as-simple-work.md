@@ -12,11 +12,11 @@ accepted-by: []
 
 ## Context and problem statement
 
-The upgrade workflow rewrites managed surfaces and therefore looked full by path, even though its release contract had already been accepted upstream and the adopter's own accepted contract had not changed.
+The upgrade workflow rewrites managed surfaces and therefore looked full by path, even though its release contract had already been accepted upstream and the adopter's own accepted contract had not changed. Its release-availability check also cannot see a repository whose installed binary is current while its managed carriers are older, so treating that check as proof of repository currency leaves a coordinated migration undiscovered.
 
 ## Decision outcome
 
-**An upgrade is simple work.** It adopts an upstream release whose contract was accepted before publication, so the adopter's capabilities, criteria, decisions, plans, and constraints remain unchanged; it uses relevant surface checks and the repository's integration rules without full-change bookkeeping. If applying the release forces a decision about the adopter's own obligation, criteria, CI wall, or migration finding, that decision is routed as full work while the mechanical upgrade remains simple.
+**An upgrade is simple work.** It adopts an upstream release whose contract was accepted before publication, so the adopter's capabilities, criteria, decisions, plans, and constraints remain unchanged; it uses relevant surface checks and the repository's integration rules without full-change bookkeeping. Upgrade discovery runs `clue latest` for published release availability and then a no-apply `clue migrate` preview for repository carrier currency, even when the installed release is the newest; only a preview with no changes and no findings proves the managed carriers current. If applying the release forces a decision about the adopter's own obligation, criteria, CI wall, or migration finding, that decision is routed as full work while the mechanical upgrade remains simple.
 
 Changed-file count, diff size, and `/docs` or skill paths do not change the route. The human is still asked whether to upgrade before any write, and the human merge boundary remains unchanged.
 
