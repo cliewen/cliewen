@@ -1,11 +1,11 @@
 counters:
-    AC: "148"
+    AC: "149"
     ADR: "61"
     AN: "23"
     ARCH: "3"
     C: "22"
     CAP: "8"
-    CH: "160"
+    CH: "161"
     G: "10"
     IC: "2"
     IDR: "8"
@@ -748,6 +748,11 @@ entries:
       state: live
       prefix: AC
       component: "148"
+    - id: AC-149
+      kind: numeric
+      state: live
+      prefix: AC
+      component: "149"
     - id: ADR-001
       kind: numeric
       state: live
@@ -1756,6 +1761,17 @@ entries:
       kind: opaque
       state: live
     - id: CH-160-tasks
+      kind: opaque
+      state: live
+    - id: CH-161
+      kind: numeric
+      state: live
+      prefix: CH
+      component: "161"
+    - id: CH-161-open-questions
+      kind: opaque
+      state: live
+    - id: CH-161-tasks
       kind: opaque
       state: live
     - id: G-001
