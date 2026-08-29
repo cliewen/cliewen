@@ -167,11 +167,12 @@ Feature: clue ships — a versioned binary and versioned skills, drift made lint
   @AC-149
   Scenario: Upgrade discovery previews local carriers when release availability is unknown
     Test-type: Unit
-    Given a repository whose managed Cliewen carriers are older than its installed clue binary
+    Given a repository with managed Cliewen carriers and an installed clue binary
     When an agent runs the managed upgrade skill and the release list cannot be reached
     Then it still runs "clue migrate" without "--apply" as a local preview
     And it treats the release freshness as unknown rather than calling the repository current
     And it can report only that local carriers match the installed binary when the preview has no changes, no findings, and no notices
+    And it reports carrier drift rather than current when the preview has planned changes, findings, or notices
     But a clean preview does not ask the human to upgrade when no newer release or carrier drift is known
     And the preview does not apply migration or change repository state before the human authorizes an upgrade
 
