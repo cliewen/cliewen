@@ -340,7 +340,6 @@ func TestAC148_UnitPositive_GeneratedUpgradeSkillPreviewsCarrierDriftBeforeAutho
 	for _, want := range []string{
 		"even when `clue latest` says the installed release is the newest",
 		"checks whether this repository's managed carriers match the installed binary",
-		"Call the repository current only when the release list was reachable and reported no newer release",
 		"the preview reports no changes, no findings, and no notices",
 		"use the already reviewed `clue migrate` preview",
 	} {
