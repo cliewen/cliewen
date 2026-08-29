@@ -6,7 +6,7 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 
 ### Changed
 
-- **The upgrade skill now checks repository carrier drift before concluding that no upgrade is needed.** After `clue latest`, it previews `clue migrate` even when the installed CLI is the newest, because release availability cannot prove that the repository's managed skills and other carriers match it. Only a preview with no changes and no findings permits the repository to be called current; nothing is applied before human authorization.
+- **The upgrade skill now checks repository carrier drift before concluding that no upgrade is needed.** After `clue latest`, it previews `clue migrate` even when the installed CLI is the newest, because release availability cannot prove that the repository's managed skills and other carriers match it. Only a preview with no changes, no findings, and no notices permits the repository to be called current; nothing is applied before human authorization.
 - **New repositories tell coding agents how to write accessible guide content.** The generated agent instructions require the Humanizer skill for `/guide` prose when it is available, ask for it to be installed when it is not, and tell agents to introduce technical terms or link to a short glossary definition.
 
 ## [0.19.0] - 2026-08-18

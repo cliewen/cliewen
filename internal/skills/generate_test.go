@@ -340,7 +340,7 @@ func TestAC148_UnitPositive_GeneratedUpgradeSkillPreviewsCarrierDriftBeforeAutho
 	for _, want := range []string{
 		"even when `clue latest` says the installed release is the newest",
 		"checks whether this repository's managed carriers match the installed binary",
-		"call the repository current only when the preview reports no changes and no findings",
+		"call the repository current only when the preview reports no changes, no findings, and no notices",
 		"use the already reviewed `clue migrate` preview",
 	} {
 		if !strings.Contains(upgrade, want) {

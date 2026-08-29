@@ -161,7 +161,7 @@ Feature: clue ships — a versioned binary and versioned skills, drift made lint
     When an agent runs the managed upgrade skill and "clue latest" reports no newer release
     Then it still runs "clue migrate" without "--apply" before deciding that no upgrade is needed
     And the preview's planned changes, findings, and notices are treated as repository drift to resolve
-    And only a preview with no changes and no findings lets the agent report the repository's managed carriers current
+    And only a preview with no changes, no findings, and no notices lets the agent report the repository's managed carriers current
     But the preview does not apply migration or change repository state before the human authorizes an upgrade
 
   @AC-076
