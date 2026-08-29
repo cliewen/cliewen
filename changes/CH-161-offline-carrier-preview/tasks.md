@@ -13,4 +13,4 @@ title: Tasks for CH-161
 - [x] Update the canonical `clue-upgrade` workflow and regenerate both managed skill trees and scaffold templates, including the no-known-target stop case.
 - [x] Add focused positive and negative generated-skill evidence for the offline preview and honest reporting boundaries, serving AC-149.
 - [x] Update CAP-004 explanations, guide operations, and `[Unreleased]` with the adopter-visible workflow correction.
-- [ ] Run the repository-local verification against the complete candidate.
+- [x] Run the repository-local verification against the complete candidate.
