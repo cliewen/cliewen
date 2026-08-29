@@ -6,7 +6,7 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 
 ### Changed
 
-- **The upgrade skill now separates release freshness from local carrier currency.** After `clue latest`, it previews `clue migrate` even when the installed CLI is the newest or the release list is unavailable. A clean preview proves that local carriers match the installed binary, but only a reachable release check with no newer version permits the repository to be called fully current; nothing is applied before human authorization.
+- **The upgrade skill now separates release freshness from local carrier currency.** After `clue latest`, it previews `clue migrate` even when the installed CLI is the newest or the release list is unavailable. A clean preview proves that local carriers match the installed binary, but only a reachable release check with no newer version permits the repository to be called fully current; nothing is applied before human authorization. A repository that keeps its own validation job beside the thin caller emits the non-blocking `MIG-009` competing-wall notice on every preview, and that notice alone no longer counts as drift, so such a repository still gets an honest offline report instead of being asked to upgrade with nothing to upgrade to.
 - **New repositories tell coding agents how to write accessible guide content.** The generated agent instructions require the Humanizer skill for `/guide` prose when it is available, ask for it to be installed when it is not, and tell agents to introduce technical terms or link to a short glossary definition.
 
 ## [0.19.0] - 2026-08-18
