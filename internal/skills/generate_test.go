@@ -326,6 +326,42 @@ func TestAC142_UnitNegative_UpgradeRouterDoesNotSendTheAgentToGenericTiersForIts
 	}
 }
 
+func TestAC148_UnitPositive_GeneratedUpgradeSkillPreviewsCarrierDriftBeforeAuthorization(t *testing.T) {
+	upgrade := mustRenderSkill(t, "clue-upgrade/skill.md")
+	latest := strings.Index(upgrade, "Run `clue latest`")
+	preview := strings.Index(upgrade, "Immediately after `clue latest`, run `clue migrate` without `--apply` as a preview")
+	approval := strings.Index(upgrade, "Ask the human whether to upgrade now or later")
+	if latest < 0 || preview < 0 || approval < 0 {
+		t.Fatalf("clue-upgrade/skill.md does not carry the release, preview, and authorization sequence")
+	}
+	if !(latest < preview && preview < approval) {
+		t.Fatalf("clue-upgrade/skill.md does not preview repository state after availability and before authorization")
+	}
+	for _, want := range []string{
+		"even when `clue latest` says the installed release is the newest",
+		"checks whether this repository's managed carriers match the installed binary",
+		"call the repository current only when the preview reports no changes, no findings, and no notices",
+		"use the already reviewed `clue migrate` preview",
+	} {
+		if !strings.Contains(upgrade, want) {
+			t.Errorf("clue-upgrade/skill.md does not carry carrier-drift preview rule %q", want)
+		}
+	}
+}
+
+func TestAC148_UnitNegative_GeneratedUpgradeSkillDoesNotConflateReleaseAvailabilityWithCarrierCurrency(t *testing.T) {
+	upgrade := mustRenderSkill(t, "clue-upgrade/skill.md")
+	for _, forbidden := range []string{
+		"If no newer release is available, stop",
+		"call the repository current because `clue latest` says the installed release is the newest",
+		"Ask the human whether to upgrade now or later before running `clue migrate`",
+	} {
+		if strings.Contains(upgrade, forbidden) {
+			t.Errorf("clue-upgrade/skill.md still conflates release availability with carrier currency through %q", forbidden)
+		}
+	}
+}
+
 func TestAC054_UnitNegative_ExtractionRejectsCapabilityOnlyPhasing(t *testing.T) {
 	extract := mustRenderSkill(t, "clue-extract/skill.md")
 	for _, stale := range []string{

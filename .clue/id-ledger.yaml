@@ -1,11 +1,11 @@
 counters:
-    AC: "147"
+    AC: "148"
     ADR: "61"
     AN: "23"
     ARCH: "3"
     C: "22"
     CAP: "8"
-    CH: "159"
+    CH: "160"
     G: "10"
     IC: "2"
     IDR: "8"
@@ -743,6 +743,11 @@ entries:
       state: live
       prefix: AC
       component: "147"
+    - id: AC-148
+      kind: numeric
+      state: live
+      prefix: AC
+      component: "148"
     - id: ADR-001
       kind: numeric
       state: live
@@ -1733,15 +1738,26 @@ entries:
       state: retired
       prefix: CH
       component: "159"
-    - id: CH-159-open-questions
+    - id: CH-159-log-classification
       kind: opaque
       state: retired
-    - id: CH-159-log-classification
+    - id: CH-159-open-questions
       kind: opaque
       state: retired
     - id: CH-159-tasks
       kind: opaque
       state: retired
+    - id: CH-160
+      kind: numeric
+      state: live
+      prefix: CH
+      component: "160"
+    - id: CH-160-open-questions
+      kind: opaque
+      state: live
+    - id: CH-160-tasks
+      kind: opaque
+      state: live
     - id: G-001
       kind: numeric
       state: live
