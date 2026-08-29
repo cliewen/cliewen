@@ -274,7 +274,7 @@ func TestAC142_UnitPositive_GeneratedUpgradeSkillRoutesAHumanAuthorizedCoordinat
 	for _, want := range []string{
 		"Run `clue latest`",
 		"`### Migration` section",
-		"Ask the human whether to upgrade now or later",
+		"ask the human whether to upgrade now or later",
 		"Do nothing to the repository until they explicitly choose now",
 		"**An upgrade is simple work.**",
 		"Recommend `Recommended route: simple`",
@@ -329,8 +329,8 @@ func TestAC142_UnitNegative_UpgradeRouterDoesNotSendTheAgentToGenericTiersForIts
 func TestAC148_UnitPositive_GeneratedUpgradeSkillPreviewsCarrierDriftBeforeAuthorization(t *testing.T) {
 	upgrade := mustRenderSkill(t, "clue-upgrade/skill.md")
 	latest := strings.Index(upgrade, "Run `clue latest`")
-	preview := strings.Index(upgrade, "Immediately after `clue latest`, run `clue migrate` without `--apply` as a preview")
-	approval := strings.Index(upgrade, "Ask the human whether to upgrade now or later")
+	preview := strings.Index(upgrade, "run `clue migrate` without `--apply` as a preview")
+	approval := strings.Index(upgrade, "ask the human whether to upgrade now or later")
 	if latest < 0 || preview < 0 || approval < 0 {
 		t.Fatalf("clue-upgrade/skill.md does not carry the release, preview, and authorization sequence")
 	}
@@ -340,7 +340,8 @@ func TestAC148_UnitPositive_GeneratedUpgradeSkillPreviewsCarrierDriftBeforeAutho
 	for _, want := range []string{
 		"even when `clue latest` says the installed release is the newest",
 		"checks whether this repository's managed carriers match the installed binary",
-		"call the repository current only when the preview reports no changes, no findings, and no notices",
+		"Call the repository current only when the release list was reachable and reported no newer release",
+		"the preview reports no changes, no findings, and no notices",
 		"use the already reviewed `clue migrate` preview",
 	} {
 		if !strings.Contains(upgrade, want) {
@@ -358,6 +359,45 @@ func TestAC148_UnitNegative_GeneratedUpgradeSkillDoesNotConflateReleaseAvailabil
 	} {
 		if strings.Contains(upgrade, forbidden) {
 			t.Errorf("clue-upgrade/skill.md still conflates release availability with carrier currency through %q", forbidden)
+		}
+	}
+}
+
+func TestAC149_UnitPositive_GeneratedUpgradeSkillPreviewsCarriersWhenReleaseAvailabilityIsUnknown(t *testing.T) {
+	upgrade := mustRenderSkill(t, "clue-upgrade/skill.md")
+	latest := strings.Index(upgrade, "Run `clue latest`")
+	preview := strings.Index(upgrade, "Regardless of whether `clue latest` could reach the release list")
+	unknown := strings.Index(upgrade, "release freshness is unknown")
+	stop := strings.Index(upgrade, "stop without calling the repository current or asking whether to upgrade")
+	approval := strings.Index(upgrade, "When a newer release or carrier drift is known, ask the human whether to upgrade now or later")
+	if latest < 0 || preview < 0 || unknown < 0 || stop < 0 || approval < 0 {
+		t.Fatalf("clue-upgrade/skill.md does not carry the offline preview and reporting boundaries")
+	}
+	if !(latest < preview && preview < unknown && unknown < stop && stop < approval) {
+		t.Fatalf("clue-upgrade/skill.md does not preserve the offline preview and authorization sequence")
+	}
+	for _, want := range []string{
+		"continue to the next step",
+		"needs no network access",
+		"Call the repository current only when the release list was reachable and reported no newer release",
+		"the installed release is the target for the carrier repair; do not invent a newer release",
+	} {
+		if !strings.Contains(upgrade, want) {
+			t.Errorf("clue-upgrade/skill.md does not carry offline preview rule %q", want)
+		}
+	}
+}
+
+func TestAC149_UnitNegative_GeneratedUpgradeSkillDoesNotTreatAnUnavailableReleaseListAsCurrentOrAnUpgradeTarget(t *testing.T) {
+	upgrade := mustRenderSkill(t, "clue-upgrade/skill.md")
+	for _, forbidden := range []string{
+		"If the release list cannot be reached, explain that Cliewen cannot tell and stop",
+		"If the release list is unavailable and the preview is clean, call the repository current",
+		"If the release list is unavailable and the preview is clean, ask the human whether to upgrade",
+		"the installed release is the target for the carrier repair; invent a newer release",
+	} {
+		if strings.Contains(upgrade, forbidden) {
+			t.Errorf("clue-upgrade/skill.md conflates unknown release availability with local carrier state through %q", forbidden)
 		}
 	}
 }

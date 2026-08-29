@@ -750,7 +750,7 @@ entries:
       component: "148"
     - id: AC-149
       kind: numeric
-      state: reserved
+      state: live
       prefix: AC
       component: "149"
     - id: ADR-001
