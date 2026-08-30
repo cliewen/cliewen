@@ -15,6 +15,8 @@ Paths and diff size may warn but never decide meaning. Reassess on semantic disc
 
 A route does not authorize a push. Push directly to an integration branch only with explicit user authorization and repository permission; humans may integrate however this repository permits. This repository is stricter for coding agents: every agent-authored change uses a pull request and human merge. Its administrative version cut is a local specialization of simple work with an exact release surface and focused checks; release is not an adopter-facing Cliewen route.
 
+Every change assesses documentation impact before it closes. Keep `/docs/architecture/README.md` current for system structure and `/docs/design/README.md` current for cross-cutting behaviour; capability `design.md` holds local detail. Add or update a document only when it answers a reader question that existing material cannot answer without duplication. Draft missing overviews from repository evidence and ask the user when a material boundary or intent remains unclear. Use Mermaid when it makes a relationship, boundary, or flow easier to review; retain SVG when Mermaid is inadequate. State in the change or pull-request handoff which durable documentation changed, or why none was needed; the corpus is current truth, not a second change log.
+
 For a full change, read [`docs/README.md`](docs/README.md) only when the request does not name or resolve to an artifact; use it to identify the closest artifact, then run `clue context <id>`. When an identity is already known, run `clue context` directly and read the bounded slice it prints. The `/docs` corpus remains the system-of-record and working memory.
 
 ## Repository conventions

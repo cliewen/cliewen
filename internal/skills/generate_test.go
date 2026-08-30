@@ -820,6 +820,32 @@ func TestSanity_GeneratedSkillsCarryMergeHistoryBoundary(t *testing.T) {
 	}
 }
 
+func TestAC152_UnitPositive_LifecycleSkillsCarryLivingOverviewLoop(t *testing.T) {
+	rendered := map[string]string{}
+	for _, name := range []string{"clue-delta", "clue-extract", "clue-upgrade", "clue-verify"} {
+		rendered[name] = mustRenderSkill(t, name+"/skill.md")
+	}
+	for name, want := range map[string]string{
+		"clue-delta":   "assess documentation impact",
+		"clue-extract": "grouped source-to-target mapping",
+		"clue-upgrade": "unactivated architecture or design overview",
+		"clue-verify":  "documentation-impact disposition",
+	} {
+		if !strings.Contains(rendered[name], want) {
+			t.Errorf("%s does not carry the living-overview rule %q", name, want)
+		}
+	}
+}
+
+func TestAC152_UnitNegative_LifecycleSkillsDoNotRequireDocumentationHistory(t *testing.T) {
+	for _, name := range []string{"clue-delta", "clue-extract", "clue-upgrade", "clue-verify"} {
+		content := mustRenderSkill(t, name+"/skill.md")
+		if strings.Contains(content, "append a permanent documentation change log") {
+			t.Errorf("%s requires a permanent documentation history", name)
+		}
+	}
+}
+
 func mustRenderSkill(t *testing.T, relativePath string) string {
 	t.Helper()
 	directory := strings.TrimSuffix(relativePath, "/skill.md") + "/"

@@ -21,17 +21,54 @@ func runInto(t *testing.T) (string, *Report) {
 	return root, rep
 }
 
-func validateAt(t *testing.T, root string) []corpus.Issue {
+// activatedValidateAt activates the scaffolded overview bootstraps on disk
+// and then validates root. The activation is a write: every scaffold carries
+// the two bootstrap markers, and validate is red while they stand, so a test
+// that wants to judge anything else has to replace them first. A test that
+// asserts on the overview files' own content must read them before calling
+// this.
+func activatedValidateAt(t *testing.T, root string) []corpus.Issue {
 	t.Helper()
+	activateOverviewBootstraps(t, root)
 	c, issues := corpus.Scan(root)
 	return append(issues, corpus.Validate(c, corpus.Options{})...)
 }
 
-// AC-002: init produces a corpus that validate accepts unchanged.
-func TestAC002_InitOutputPassesValidateUnchanged(t *testing.T) {
+func activateOverviewBootstraps(t *testing.T, root string) {
+	t.Helper()
+	for _, rel := range []string{"docs/architecture/README.md", "docs/design/README.md"} {
+		full := filepath.Join(root, filepath.FromSlash(rel))
+		content, err := os.ReadFile(full)
+		if err != nil {
+			t.Fatal(err)
+		}
+		updated := strings.Replace(string(content), OverviewBootstrapMarker, "Repository-specific overview.", 1)
+		if err := os.WriteFile(full, []byte(updated), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+}
+
+// AC-150: init creates the two required bootstraps, and validation stays red
+// until an agent replaces them with repository-specific truth.
+func TestAC150_UnitPositive_InitBootstrapsRequireActivation(t *testing.T) {
 	root, _ := runInto(t)
-	if issues := validateAt(t, root); len(issues) > 0 {
-		t.Fatalf("expected a green corpus, got issues: %v", issues)
+	c, scanIssues := corpus.Scan(root)
+	if len(scanIssues) != 0 {
+		t.Fatal(scanIssues)
+	}
+	issues := corpus.Validate(c, corpus.Options{})
+	if len(issues) != 2 {
+		t.Fatalf("expected two bootstrap issues, got %v", issues)
+	}
+	for _, issue := range issues {
+		if !strings.Contains(issue.Msg, "scaffold bootstrap") {
+			t.Fatalf("unexpected bootstrap issue: %v", issue)
+		}
+	}
+	activateOverviewBootstraps(t, root)
+	if issues := activatedValidateAt(t, root); len(issues) > 0 {
+		t.Fatalf("expected a green corpus after activation, got issues: %v", issues)
 	}
 	// The pair is coherent for a released binary too: the emitted skills'
 	// stamp matches what a release stamped with the same version expects.
@@ -39,7 +76,7 @@ func TestAC002_InitOutputPassesValidateUnchanged(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	c, _ := corpus.Scan(root)
+	c, _ = corpus.Scan(root)
 	if issues := corpus.Validate(c, corpus.Options{Version: version}); len(issues) > 0 {
 		t.Fatalf("emitted skills drift from pair version %s: %v", version, issues)
 	}
@@ -72,7 +109,7 @@ func TestAC145_UnitPositive_InitAndScaffoldUseSubjectTypedDecisions(t *testing.T
 	if string(after) != before {
 		t.Fatalf("scaffold changed an already-current empty decision index:\n%s", after)
 	}
-	if issues := validateAt(t, root); len(issues) != 0 {
+	if issues := activatedValidateAt(t, root); len(issues) != 0 {
 		t.Fatalf("subject-typed scaffold does not validate: %v", issues)
 	}
 }
@@ -136,14 +173,14 @@ func TestSanity_ScaffoldedEvidenceModelCarriersAgree(t *testing.T) {
 	}
 }
 
-// AC-002 negative: the green result is not vacuous — validate really
-// judges the generated corpus and catches damage to it.
-func TestAC002_DamagedScaffoldIsCaught(t *testing.T) {
+// The green result is not vacuous — validate really judges the generated
+// corpus and catches damage to it.
+func TestUnit_DamagedScaffoldIsCaught(t *testing.T) {
 	root, _ := runInto(t)
 	if err := os.Remove(filepath.Join(root, "docs", "goals", "README.md")); err != nil {
 		t.Fatal(err)
 	}
-	if issues := validateAt(t, root); len(issues) == 0 {
+	if issues := activatedValidateAt(t, root); len(issues) == 0 {
 		t.Fatal("expected issues after damaging the scaffold, got none")
 	}
 }
@@ -160,7 +197,7 @@ func TestAC003_BrokenLinkNamesFileAndMissingID(t *testing.T) {
 	if _, err := Run(root); err != nil { // re-index so only the dangling link is at fault
 		t.Fatal(err)
 	}
-	issues := validateAt(t, root)
+	issues := activatedValidateAt(t, root)
 	if len(issues) == 0 {
 		t.Fatal("expected the dangling link to be reported")
 	}
@@ -186,7 +223,7 @@ func TestAC003_ResolvedLinkRestoresGreen(t *testing.T) {
 	if _, err := Run(root); err != nil {
 		t.Fatal(err)
 	}
-	if issues := validateAt(t, root); len(issues) > 0 {
+	if issues := activatedValidateAt(t, root); len(issues) > 0 {
 		t.Fatalf("expected green after fixing, got: %v", issues)
 	}
 }
@@ -228,7 +265,7 @@ func TestAC024_RerunIndexesNewArtifactAndKeepsProse(t *testing.T) {
 	if !indexed {
 		t.Fatalf("expected docs/goals/README.md in the indexed report, got %v", rep.Indexed)
 	}
-	if issues := validateAt(t, root); len(issues) > 0 {
+	if issues := activatedValidateAt(t, root); len(issues) > 0 {
 		t.Fatalf("expected green after re-index, got: %v", issues)
 	}
 }
@@ -258,10 +295,10 @@ func TestAC024_MarkerlessReadmeGainsAppendedBlock(t *testing.T) {
 	if !strings.Contains(text, "Pre-existing prose without any markers.") {
 		t.Fatalf("pre-existing prose was lost:\n%s", text)
 	}
-	if !strings.Contains(text, indexStart) || !strings.Contains(text, indexEnd) {
+	if !strings.Contains(text, IndexStart) || !strings.Contains(text, IndexEnd) {
 		t.Fatalf("no index block was appended:\n%s", text)
 	}
-	if issues := validateAt(t, root); len(issues) > 0 {
+	if issues := activatedValidateAt(t, root); len(issues) > 0 {
 		t.Fatalf("expected green after marker append, got: %v", issues)
 	}
 }
@@ -618,9 +655,9 @@ func TestUnit_ScaffoldWallClassifierClassifiesByShippedPatterns(t *testing.T) {
 // and the file is left byte-for-byte untouched (the prose promise).
 func TestUnit_MalformedMarkersErrorAndLeaveFileUntouched(t *testing.T) {
 	cases := map[string]string{
-		"lone end":      "# Goals\n\nProse that must survive.\n\n" + indexEnd + "\n",
-		"lone start":    "# Goals\n\n" + indexStart + "\n\nProse that must survive.\n",
-		"reversed pair": "# Goals\n\n" + indexEnd + "\n\nProse that must survive.\n\n" + indexStart + "\n",
+		"lone end":      "# Goals\n\nProse that must survive.\n\n" + IndexEnd + "\n",
+		"lone start":    "# Goals\n\n" + IndexStart + "\n\nProse that must survive.\n",
+		"reversed pair": "# Goals\n\n" + IndexEnd + "\n\nProse that must survive.\n\n" + IndexStart + "\n",
 	}
 	for name, content := range cases {
 		t.Run(name, func(t *testing.T) {
@@ -685,7 +722,7 @@ func TestUnit_CrlfReadmeKeepsItsLineEndings(t *testing.T) {
 	root, _ := runInto(t)
 	readme := filepath.Join(root, "docs", "goals", "README.md")
 	proseCRLF := "# Goals\r\n\r\nProse that must stay CRLF.\r\n\r\n"
-	crlf := proseCRLF + indexStart + "\r\n" + indexEnd + "\r\n"
+	crlf := proseCRLF + IndexStart + "\r\n" + IndexEnd + "\r\n"
 	if err := os.WriteFile(readme, []byte(crlf), 0o644); err != nil {
 		t.Fatal(err)
 	}

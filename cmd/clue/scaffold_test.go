@@ -28,6 +28,7 @@ func TestAC026_ScaffoldThenValidateExitsZero(t *testing.T) {
 	if !strings.Contains(out.String(), "indexed  docs/goals/README.md") {
 		t.Fatalf("report does not name the regenerated index:\n%s", out.String())
 	}
+	activateSystemOverviews(t, root)
 	if code := runValidate([]string{root}, io.Discard); code != 0 {
 		t.Fatalf("validate after scaffold: expected exit 0, got %d", code)
 	}

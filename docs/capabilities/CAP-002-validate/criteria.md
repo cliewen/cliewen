@@ -17,6 +17,14 @@ Feature: clue validate — deterministic corpus judgment
     Then it exits with code 0
     And reports the number of artifacts discovered
 
+  @AC-151
+  Scenario: Unactivated or missing system overviews fail validation
+    Test-type: Unit
+    Given a Cliewen corpus carrying an architecture or design overview folder
+    When either canonical overview README is missing or contains the scaffold bootstrap marker
+    Then "clue validate" exits with a non-zero code and names the overview path and repair
+    But activated concise overview READMEs pass without a content-length or diagram rule
+
   @AC-005
   Scenario: A missing core field fails loudly
     Given an artifact missing one of the core frontmatter fields

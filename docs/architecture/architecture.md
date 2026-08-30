@@ -39,7 +39,7 @@ flowchart TD
 
 ## Three artifact lifetime classes
 
-1. **Permanent** — `/docs`. Lives forever, updated by every Cliewen merge.
+1. **Permanent** — `/docs`. Lives forever; every change assesses its documentation impact and updates the affected truth.
 2. **Transient** — `/changes/<CH-xxx>/` on a branch only. Dies at merge, digested into permanent docs. CI gate: `main` never contains `/changes/`.
 3. **Campaign** — `/docs/plans`. Live on `main`, mutate continuously (bookkeeping in digests, semantic changes via ADR-backed revisions), frozen immutable at `status: completed` — never deleted.
 

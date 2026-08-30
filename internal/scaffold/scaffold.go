@@ -47,6 +47,10 @@ const versionPlaceholder = "__CLUE_VERSION__"
 
 const workflowRefPlaceholder = "__CLUE_WORKFLOW_REF__"
 
+// OverviewBootstrapMarker marks a scaffolded system overview that an agent
+// must replace with repository-specific truth before validation can pass.
+const OverviewBootstrapMarker = "<!-- clue:overview:bootstrap -->"
+
 // Report lists what a Run did, repo-relative with forward slashes.
 type Report struct {
 	Created        []string
@@ -102,6 +106,21 @@ func ManagedCarrierFiles() (map[string][]byte, error) {
 	})
 	if err != nil {
 		return nil, err
+	}
+	return files, nil
+}
+
+// OverviewBootstrapFiles returns the repository-owned overview templates a
+// migration may add when their canonical paths are absent. Unlike managed
+// carriers, these files are never replaced once an adopter owns them.
+func OverviewBootstrapFiles() (map[string][]byte, error) {
+	files := map[string][]byte{}
+	for _, rel := range []string{"docs/architecture/README.md", "docs/design/README.md"} {
+		data, err := templates.ReadFile("templates/" + rel)
+		if err != nil {
+			return nil, err
+		}
+		files[rel] = append([]byte(nil), data...)
 	}
 	return files, nil
 }
@@ -379,9 +398,13 @@ func writeIfAbsent(root, target string, data []byte, rep *Report, links map[stri
 // one validate's index rule recognizes (no anchor, no continuation
 // lines) — anything else is replaced by a plain generated entry, the
 // same reading checkIndexes applies.
+// IndexStart and IndexEnd bound a generated taxonomy index block. They are
+// exported because the migration planner writes index rows for folders it
+// creates before those folders exist on disk, so it cannot reach the block
+// through regeneration.
 const (
-	indexStart = "<!-- clue:index:start -->"
-	indexEnd   = "<!-- clue:index:end -->"
+	IndexStart = "<!-- clue:index:start -->"
+	IndexEnd   = "<!-- clue:index:end -->"
 )
 
 var indexLinkRe = regexp.MustCompile(`\]\(([^)#\s]+)\)`)
@@ -447,8 +470,8 @@ func regenIndex(root, rel string) (bool, error) {
 	if strings.Contains(orig, "\r\n") {
 		eol = "\r\n"
 	}
-	start := strings.Index(text, indexStart)
-	end := strings.Index(text, indexEnd)
+	start := strings.Index(text, IndexStart)
+	end := strings.Index(text, IndexEnd)
 	switch {
 	case start < 0 && end < 0:
 		// A pre-existing taxonomy README without markers would fail
@@ -458,15 +481,15 @@ func regenIndex(root, rel string) (bool, error) {
 		if !strings.HasSuffix(text, "\n") {
 			text += eol
 		}
-		text += eol + indexStart + eol + indexEnd + eol
-		start = strings.Index(text, indexStart)
-		end = strings.Index(text, indexEnd)
+		text += eol + IndexStart + eol + IndexEnd + eol
+		start = strings.Index(text, IndexStart)
+		end = strings.Index(text, IndexEnd)
 	case start < 0 || end < 0 || end < start:
 		// A lone or reversed marker is ambiguous: guessing at the block's
 		// bounds could swallow prose between the stray marker and the end
 		// of the file. Error loudly instead — the user fixes the markers,
 		// init never guesses.
-		return false, fmt.Errorf("%s: index markers malformed (lone or reversed %s … %s) — fix the markers by hand and re-run", rel, indexStart, indexEnd)
+		return false, fmt.Errorf("%s: index markers malformed (lone or reversed %s … %s) — fix the markers by hand and re-run", rel, IndexStart, IndexEnd)
 	}
 
 	wanted, err := indexTargets(root, path.Dir(rel))
@@ -495,7 +518,7 @@ func regenIndex(root, rel string) (bool, error) {
 	}
 	var lines []string
 	covered := map[string]bool{}
-	for _, line := range strings.Split(text[start+len(indexStart):end], "\n") {
+	for _, line := range strings.Split(text[start+len(IndexStart):end], "\n") {
 		line = strings.TrimSuffix(line, "\r")
 		if strings.TrimSpace(line) == "" {
 			continue
@@ -560,7 +583,7 @@ func regenIndex(root, rel string) (bool, error) {
 		lines = append(lines, "- ["+strings.TrimSuffix(t, ".md")+"]("+t+")")
 	}
 
-	block := indexStart + eol
+	block := IndexStart + eol
 	if len(lines) > 0 {
 		block += strings.Join(lines, eol) + eol
 	}

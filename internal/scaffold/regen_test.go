@@ -44,7 +44,7 @@ func TestAC026_RegenIndexesNewArtifactAndKeepsProse(t *testing.T) {
 	if !found {
 		t.Fatalf("expected docs/goals/README.md in the indexed report, got %v", rep.Indexed)
 	}
-	if issues := validateAt(t, root); len(issues) > 0 {
+	if issues := activatedValidateAt(t, root); len(issues) > 0 {
 		t.Fatalf("expected green after regen, got: %v", issues)
 	}
 }
@@ -106,7 +106,7 @@ func TestAC026_CuratedDescendantEntrySurvives(t *testing.T) {
 	if strings.Contains(string(got), "](goals/README.md)") {
 		t.Fatalf("generated entry was appended although the subfolder is covered:\n%s", got)
 	}
-	if issues := validateAt(t, root); len(issues) > 0 {
+	if issues := activatedValidateAt(t, root); len(issues) > 0 {
 		t.Fatalf("expected green with the curated entry, got: %v", issues)
 	}
 }
@@ -147,7 +147,7 @@ func TestAC026_MultiLinkCuratedLineCoversAllTargets(t *testing.T) {
 			t.Fatalf("generated duplicate for already-covered %s:\n%s", target, text)
 		}
 	}
-	if issues := validateAt(t, root); len(issues) > 0 {
+	if issues := activatedValidateAt(t, root); len(issues) > 0 {
 		t.Fatalf("expected green with the curated line, got: %v", issues)
 	}
 }
@@ -258,7 +258,7 @@ func TestAC138_UnitPositive_AppendedRowsUseStatusOrConstraintEnforcement(t *test
 	if !strings.Contains(string(constraints), constraintRow) {
 		t.Fatalf("appended constraint row does not state enforcement:\nwant %q\ngot:\n%s", constraintRow, constraints)
 	}
-	if issues := validateAt(t, root); len(issues) > 0 {
+	if issues := activatedValidateAt(t, root); len(issues) > 0 {
 		t.Fatalf("expected green after regen, got: %v", issues)
 	}
 }
@@ -311,7 +311,7 @@ func TestAC096_UnitPositive_AppendedRowSaysWhatTheArtifactIsAbout(t *testing.T) 
 	if strings.Contains(got, "Second sentence") || strings.Contains(got, "must not be chosen") {
 		t.Fatalf("only the first sentence of the chosen paragraph is seeded, got:\n%s", got)
 	}
-	if issues := validateAt(t, root); len(issues) > 0 {
+	if issues := activatedValidateAt(t, root); len(issues) > 0 {
 		t.Fatalf("expected green after regen, got: %v", issues)
 	}
 }
@@ -352,7 +352,7 @@ func TestAC096_UnitNegative_LongSentenceIsCutAtAWordBoundary(t *testing.T) {
 	if strings.Contains(row, "elaborat…") || strings.Contains(row, "elaboratio…") {
 		t.Fatalf("the cut must fall on a word boundary, got %q", row)
 	}
-	if issues := validateAt(t, root); len(issues) > 0 {
+	if issues := activatedValidateAt(t, root); len(issues) > 0 {
 		t.Fatalf("expected green after regen, got: %v", issues)
 	}
 }
@@ -417,7 +417,7 @@ func TestAC097_UnitPositive_NoReadableSentenceLeavesNoEmptyTail(t *testing.T) {
 	if strings.Contains(string(raw), "`proposed` —") {
 		t.Fatalf("a row must never carry an empty description tail, got:\n%s", raw)
 	}
-	if issues := validateAt(t, root); len(issues) > 0 {
+	if issues := activatedValidateAt(t, root); len(issues) > 0 {
 		t.Fatalf("expected green after regen, got: %v", issues)
 	}
 }
@@ -482,7 +482,7 @@ func TestAC098_UnitNegative_CuratedRowForAMissingTargetIsStillDropped(t *testing
 	if strings.Contains(string(raw), "before the file was removed") {
 		t.Fatalf("the curated description must go with its row, got:\n%s", raw)
 	}
-	if issues := validateAt(t, root); len(issues) > 0 {
+	if issues := activatedValidateAt(t, root); len(issues) > 0 {
 		t.Fatalf("expected green after regen, got: %v", issues)
 	}
 }

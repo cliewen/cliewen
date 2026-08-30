@@ -183,6 +183,29 @@ func TestUnit_FolderWithoutReadme(t *testing.T) {
 	assertIssue(t, run(t, files, false), "docs/runbooks: folder has no README.md")
 }
 
+func TestAC151_UnitPositive_SystemOverviewsAreRequiredAndActivated(t *testing.T) {
+	overviews := map[string]string{
+		"docs/README.md":              "# Corpus\n\n<!-- clue:index:start -->\n- [goals/](goals/README.md)\n- [plans/](plans/README.md)\n- [architecture/](architecture/README.md)\n- [design/](design/README.md)\n<!-- clue:index:end -->\n",
+		"docs/architecture/README.md": "# Architecture\n\nRepository structure.\n\n<!-- clue:index:start -->\n<!-- clue:index:end -->\n",
+		"docs/design/README.md":       "# Design\n\nCross-cutting behaviour.\n\n<!-- clue:index:start -->\n<!-- clue:index:end -->\n",
+	}
+	if issues := run(t, with(validFiles, overviews), false); len(issues) != 0 {
+		t.Fatalf("activated system overviews should pass, got %v", issues)
+	}
+
+}
+
+func TestAC151_UnitNegative_MissingOrBootstrapSystemOverviewFails(t *testing.T) {
+	overviews := map[string]string{
+		"docs/README.md":              "# Corpus\n\n<!-- clue:index:start -->\n- [goals/](goals/README.md)\n- [plans/](plans/README.md)\n- [architecture/](architecture/README.md)\n- [design/](design/README.md)\n<!-- clue:index:end -->\n",
+		"docs/architecture/README.md": "# Architecture\n\nRepository structure.\n\n<!-- clue:index:start -->\n<!-- clue:index:end -->\n",
+	}
+	assertIssue(t, run(t, with(validFiles, overviews), false), "docs/design/README.md: required system overview is missing")
+
+	overviews["docs/design/README.md"] = "# Design\n\n<!-- clue:overview:bootstrap -->\n"
+	assertIssue(t, run(t, with(validFiles, overviews), false), "system overview is still the scaffold bootstrap")
+}
+
 // AC-007: index drift — a block link to a missing file, or a sibling
 // artifact the block does not reference.
 func TestAC007_IndexDriftReported(t *testing.T) {

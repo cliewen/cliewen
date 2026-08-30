@@ -11,7 +11,7 @@ goal: G-001
 
 ## What
 
-Before editing, an agent recommends simple work or the full Cliewen loop from whether the accepted contract changes, names what would alter that recommendation, and leaves route and integration authority with the user. When the full loop is chosen, agents may independently implement, review, and repair changes without losing work between sessions: every changed turn pushes the change branch, the pull request exists as a draft from first publication, review results name the hosted commit they cover, actionable findings remain visible, and marking the pull request ready binds verification and a clean review to its exact hosted head.
+Before editing, an agent recommends simple work or the full Cliewen loop from whether the accepted contract changes, names what would alter that recommendation, and leaves route and integration authority with the user. Every route also assesses documentation impact: architecture owns system structure, design owns cross-cutting behaviour, and capability designs own local detail. The handoff says what documentation changed or why no durable update was needed. When the full loop is chosen, agents may independently implement, review, and repair changes without losing work between sessions: every changed turn pushes the change branch, the pull request exists as a draft from first publication, review results name the hosted commit they cover, actionable findings remain visible, and marking the pull request ready binds verification and a clean review to its exact hosted head.
 
 ## Why
 

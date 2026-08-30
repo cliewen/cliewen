@@ -87,6 +87,10 @@ Commands:
              is left untouched: nothing is written through it, and it is
              reported as linked.
 
+             The architecture and design overview templates are marked
+             bootstrap placeholders. Replace them with concise,
+             repository-specific truth before clue validate can pass.
+
   scaffold   Regenerate the taxonomy README index blocks under path
              (default ".") from folder contents: entries whose targets
              survive keep their hand-written lines, missing entries are
@@ -165,7 +169,8 @@ Commands:
   validate   Scan docs/ and changes/ under path (default ".") and check
              the frontmatter graph: core fields, unique IDs, link
              resolution, status vocabularies, folder READMEs, index
-             integrity, skill version drift, and every derived extraction
+             integrity, activated architecture and design overviews, skill
+             version drift, and every derived extraction
              report region against the manifest it names.
 
              --forbid-changes  fail when /changes contains files — the

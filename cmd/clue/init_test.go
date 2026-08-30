@@ -9,16 +9,33 @@ import (
 	"testing"
 )
 
-// AC-002: the command-level path — init then validate exits 0 with no
-// manual edits in between.
-func TestAC002_InitThenValidateExitsZero(t *testing.T) {
+func activateSystemOverviews(t *testing.T, root string) {
+	t.Helper()
+	for _, rel := range []string{"docs/architecture/README.md", "docs/design/README.md"} {
+		path := filepath.Join(root, filepath.FromSlash(rel))
+		content, err := os.ReadFile(path)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if err := os.WriteFile(path, []byte(strings.Replace(string(content), "<!-- clue:overview:bootstrap -->", "Repository-specific overview.", 1)), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+}
+
+// AC-150: init leaves explicit overview bootstraps for the agent to complete.
+func TestAC150_InitThenValidateNamesOverviewBootstraps(t *testing.T) {
 	root := t.TempDir()
 	var out bytes.Buffer
 	if code := runInit([]string{root}, &out, &out); code != 0 {
 		t.Fatalf("init: expected exit 0, got %d\n%s", code, out.String())
 	}
-	if code := runValidate([]string{root}, io.Discard); code != 0 {
-		t.Fatalf("validate after init: expected exit 0, got %d", code)
+	var validateOut bytes.Buffer
+	if code := runValidate([]string{root}, &validateOut); code != 1 {
+		t.Fatalf("validate after init: expected exit 1, got %d", code)
+	}
+	if !strings.Contains(validateOut.String(), "docs/architecture/README.md") || !strings.Contains(validateOut.String(), "docs/design/README.md") {
+		t.Fatalf("validate does not name both required overview paths:\n%s", validateOut.String())
 	}
 }
 

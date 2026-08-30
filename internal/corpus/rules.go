@@ -1,6 +1,7 @@
 package corpus
 
 import (
+	"errors"
 	"io/fs"
 	"os"
 	"path"
@@ -76,6 +77,7 @@ func Validate(c *Corpus, opts Options) []Issue {
 	issues = append(issues, checkLinks(c)...)
 	issues = append(issues, checkSupersedes(c)...)
 	issues = append(issues, checkFolderReadmes(c)...)
+	issues = append(issues, checkSystemOverviews(c)...)
 	issues = append(issues, checkIndexes(c)...)
 	issues = append(issues, checkExternalReferences(c)...)
 	issues = append(issues, checkForeignPointers(c)...)
@@ -102,6 +104,70 @@ func Validate(c *Corpus, opts Options) []Issue {
 		return issues[i].Msg < issues[j].Msg
 	})
 	return issues
+}
+
+// checkSystemOverviews holds the structural half of the living-overview
+// contract. A corpus that carries either convention folder is a Cliewen
+// corpus: it needs both canonical READMEs, and a template marker cannot be
+// mistaken for a repository-specific overview. Agents, not the judge, decide
+// whether prose is truthful and sufficiently concise.
+//
+// A tree carrying neither folder is silently exempt, and that is deliberate
+// rather than an oversight: it is the shape of a docs/ tree that is not (yet)
+// a Cliewen corpus — a brownfield checkout mid-extraction, or a plain
+// documentation folder validate was pointed at — and the judge does not
+// convert one into a Cliewen obligation. Every scaffold has carried
+// docs/architecture since long before this rule, so a real corpus reaches
+// the exemption only by deleting both folders, which is opt-out by removing
+// the convention rather than a way to hold the convention and skip it.
+func checkSystemOverviews(c *Corpus) []Issue {
+	architecture := "docs/architecture/README.md"
+	design := "docs/design/README.md"
+	_, hasArchitecture := c.Contents[architecture]
+	_, hasDesign := c.Contents[design]
+	architectureDir, architectureIssue := overviewFolderPresent(c.Root, "architecture")
+	designDir, designIssue := overviewFolderPresent(c.Root, "design")
+	// An unreadable folder is neither presence nor absence. Reporting it as
+	// itself keeps the operator off the wrong repair: "required system
+	// overview is missing" would send them to write a file that may already
+	// be there behind a permission or path error.
+	if architectureIssue != nil || designIssue != nil {
+		var issues []Issue
+		for _, issue := range []*Issue{architectureIssue, designIssue} {
+			if issue != nil {
+				issues = append(issues, *issue)
+			}
+		}
+		return issues
+	}
+	if !hasArchitecture && !hasDesign && !architectureDir && !designDir {
+		return nil
+	}
+	var issues []Issue
+	for _, rel := range []string{architecture, design} {
+		content, ok := c.Contents[rel]
+		if !ok {
+			issues = append(issues, Issue{rel, "required system overview is missing"})
+			continue
+		}
+		if strings.Contains(content, "<!-- clue:overview:bootstrap -->") {
+			issues = append(issues, Issue{rel, "system overview is still the scaffold bootstrap — replace it with concise repository-specific truth"})
+		}
+	}
+	return issues
+}
+
+// overviewFolderPresent reports whether a convention folder exists. Any stat
+// failure that is not "absent" is returned as an issue naming that failure,
+// never folded into either answer.
+func overviewFolderPresent(root, name string) (bool, *Issue) {
+	if _, err := os.Stat(filepath.Join(root, "docs", name)); err != nil {
+		if errors.Is(err, fs.ErrNotExist) {
+			return false, nil
+		}
+		return false, &Issue{"docs/" + name, "convention folder cannot be inspected: " + err.Error()}
+	}
+	return true, nil
 }
 
 var decisionIDRe = regexp.MustCompile(`^(ADR|PDR|IDR)-[0-9]+$`)
