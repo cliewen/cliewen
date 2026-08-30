@@ -23,15 +23,46 @@ func runInto(t *testing.T) (string, *Report) {
 
 func validateAt(t *testing.T, root string) []corpus.Issue {
 	t.Helper()
+	activateOverviewBootstraps(t, root)
 	c, issues := corpus.Scan(root)
 	return append(issues, corpus.Validate(c, corpus.Options{})...)
 }
 
-// AC-002: init produces a corpus that validate accepts unchanged.
-func TestAC002_InitOutputPassesValidateUnchanged(t *testing.T) {
+func activateOverviewBootstraps(t *testing.T, root string) {
+	t.Helper()
+	for _, rel := range []string{"docs/architecture/README.md", "docs/design/README.md"} {
+		full := filepath.Join(root, filepath.FromSlash(rel))
+		content, err := os.ReadFile(full)
+		if err != nil {
+			t.Fatal(err)
+		}
+		updated := strings.Replace(string(content), OverviewBootstrapMarker, "Repository-specific overview.", 1)
+		if err := os.WriteFile(full, []byte(updated), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+}
+
+// AC-150: init creates the two required bootstraps, and validation stays red
+// until an agent replaces them with repository-specific truth.
+func TestAC150_UnitPositive_InitBootstrapsRequireActivation(t *testing.T) {
 	root, _ := runInto(t)
+	c, scanIssues := corpus.Scan(root)
+	if len(scanIssues) != 0 {
+		t.Fatal(scanIssues)
+	}
+	issues := corpus.Validate(c, corpus.Options{})
+	if len(issues) != 2 {
+		t.Fatalf("expected two bootstrap issues, got %v", issues)
+	}
+	for _, issue := range issues {
+		if !strings.Contains(issue.Msg, "scaffold bootstrap") {
+			t.Fatalf("unexpected bootstrap issue: %v", issue)
+		}
+	}
+	activateOverviewBootstraps(t, root)
 	if issues := validateAt(t, root); len(issues) > 0 {
-		t.Fatalf("expected a green corpus, got issues: %v", issues)
+		t.Fatalf("expected a green corpus after activation, got issues: %v", issues)
 	}
 	// The pair is coherent for a released binary too: the emitted skills'
 	// stamp matches what a release stamped with the same version expects.
@@ -39,7 +70,7 @@ func TestAC002_InitOutputPassesValidateUnchanged(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	c, _ := corpus.Scan(root)
+	c, _ = corpus.Scan(root)
 	if issues := corpus.Validate(c, corpus.Options{Version: version}); len(issues) > 0 {
 		t.Fatalf("emitted skills drift from pair version %s: %v", version, issues)
 	}
@@ -138,7 +169,7 @@ func TestSanity_ScaffoldedEvidenceModelCarriersAgree(t *testing.T) {
 
 // AC-002 negative: the green result is not vacuous — validate really
 // judges the generated corpus and catches damage to it.
-func TestAC002_DamagedScaffoldIsCaught(t *testing.T) {
+func TestUnit_DamagedScaffoldIsCaught(t *testing.T) {
 	root, _ := runInto(t)
 	if err := os.Remove(filepath.Join(root, "docs", "goals", "README.md")); err != nil {
 		t.Fatal(err)

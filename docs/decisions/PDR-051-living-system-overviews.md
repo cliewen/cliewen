@@ -24,4 +24,4 @@ The judge holds the canonical paths and explicit bootstrap state. Lifecycle guid
 
 ## Carrier
 
-The corpus overview READMEs, CAP-001/CAP-002/CAP-006, their criteria and designs, the validator and migration planner, the scaffold and generated lifecycle skills, the routing hub, extraction mapping, guidance, and release notes carry this contract. [ARCH-003](../architecture/core.md) records why the validator portion crosses the red line.
+The [architecture overview](../architecture/README.md), [design overview](../design/README.md), CAP-001/CAP-002/CAP-006, their criteria and designs, the validator and migration planner, the scaffold and generated lifecycle skills, the routing hub, extraction mapping, guidance, and release notes carry this contract. [ARCH-003](../architecture/core.md) records why the validator portion crosses the red line.

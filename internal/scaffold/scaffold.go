@@ -47,6 +47,10 @@ const versionPlaceholder = "__CLUE_VERSION__"
 
 const workflowRefPlaceholder = "__CLUE_WORKFLOW_REF__"
 
+// OverviewBootstrapMarker marks a scaffolded system overview that an agent
+// must replace with repository-specific truth before validation can pass.
+const OverviewBootstrapMarker = "<!-- clue:overview:bootstrap -->"
+
 // Report lists what a Run did, repo-relative with forward slashes.
 type Report struct {
 	Created        []string
@@ -102,6 +106,21 @@ func ManagedCarrierFiles() (map[string][]byte, error) {
 	})
 	if err != nil {
 		return nil, err
+	}
+	return files, nil
+}
+
+// OverviewBootstrapFiles returns the repository-owned overview templates a
+// migration may add when their canonical paths are absent. Unlike managed
+// carriers, these files are never replaced once an adopter owns them.
+func OverviewBootstrapFiles() (map[string][]byte, error) {
+	files := map[string][]byte{}
+	for _, rel := range []string{"docs/architecture/README.md", "docs/design/README.md"} {
+		data, err := templates.ReadFile("templates/" + rel)
+		if err != nil {
+			return nil, err
+		}
+		files[rel] = append([]byte(nil), data...)
 	}
 	return files, nil
 }

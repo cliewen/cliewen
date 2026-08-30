@@ -103,4 +103,13 @@ Feature: Collaborative pull-request handoffs
     But if semantic scope grows it pauses and recommends full, while an explicit user refusal proceeds as simple with complete route, recommendation, and risk trailers in Git history
     And neither route authorizes an agent push without explicit user permission and repository permission
     And releases remain adopter-defined while this repository's administrative version cut is only a local simple-work specialization
+
+  @AC-152
+  Scenario: Lifecycle guidance keeps the system documentation current without duplication
+    Test-type: Unit
+    Given an agent initializes, extracts, upgrades, implements, or verifies a Cliewen repository
+    When system structure, cross-cutting behaviour, or local capability design is affected
+    Then the guidance assigns architecture, design, and capability detail to one clear home and requires a documentation-impact disposition
+    And it drafts missing overviews from evidence, asks about material unknowns, and asks consent before relocating an existing overview
+    But it does not require a second change-history document, duplicate source prose, or a decorative diagram
 ```

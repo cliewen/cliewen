@@ -1,6 +1,6 @@
 # Capabilities
 
-One folder per capability — the middle anchor of the red thread. Every capability folder holds exactly three files, **one primary consumer each**: `README.md` for whoever must *understand* (what + why, goal reference), `criteria.md` for the linter/tester that must *verify* (only Gherkin with AC-IDs), `design.md` for the implementer who must *build* (how, diagrams in the clearest renderable form under C-007). A fourth file that cannot answer "who reads it?" does not get in.
+One folder per capability — the middle anchor of the red thread. Every capability folder holds exactly three files, **one primary consumer each**: `README.md` for whoever must *understand* (what + why, goal reference), `criteria.md` for the linter/tester that must *verify* (only Gherkin with AC-IDs), `design.md` for the implementer who must *build* (how, diagrams in the clearest renderable form under C-007). A fourth file that cannot answer "who reads it?" does not get in. System structure stays in [architecture](../architecture/README.md) and cross-cutting flows and patterns stay in [design](../design/README.md), so a capability design does not become a second system overview.
 
 <!-- clue:index:start -->
 - [CAP-001 — Onboarding](CAP-001-onboarding/README.md) · `active`

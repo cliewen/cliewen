@@ -13,17 +13,17 @@ mkdir cliewen-demo
 cd cliewen-demo
 git init
 clue init
-clue validate
 ```
+
+`clue init` creates marked architecture and design overview bootstraps. An agent completes them from the repository's code and existing documentation; when a material boundary or intent is unclear, it asks you. That is why a newly initialized repository is deliberately not green yet.
 
 On a fresh repository, the important final lines look like this:
 
 ```text
-next: run `clue validate` — green on a fresh scaffold; then read docs/README.md
-clue validate: OK (2 artifacts)
+next: replace the marked architecture and design overview bootstraps with repository truth, then run `clue validate`
 ```
 
-The created-file count can change between releases. Look for the final `OK`. The top-level tree is:
+After the two short overviews are written, run `clue validate`. It then becomes the normal first green check. The created-file count can change between releases. The top-level tree is:
 
 ```text
 cliewen-demo/

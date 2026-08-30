@@ -16,6 +16,23 @@ import (
 	"github.com/cliewen/cliewen/internal/scaffold"
 )
 
+func activateOverviewBootstraps(t *testing.T, root string) {
+	t.Helper()
+	for _, rel := range []string{"docs/architecture/README.md", "docs/design/README.md"} {
+		path := filepath.Join(root, filepath.FromSlash(rel))
+		content, err := os.ReadFile(path)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if err := os.WriteFile(path, bytes.Replace(content, []byte(scaffold.OverviewBootstrapMarker), []byte("Repository-specific overview."), 1), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+	if _, err := scaffold.Regen(root); err != nil {
+		t.Fatal(err)
+	}
+}
+
 func TestAC064_UnitPositive_MigrationIsPreviewableIdempotentAndCoordinated(t *testing.T) {
 	root := migrationFixture(t, "")
 
@@ -82,6 +99,7 @@ func TestAC064_UnitPositive_MigrationIsPreviewableIdempotentAndCoordinated(t *te
 	if err := Apply(root, preview); err != nil {
 		t.Fatal(err)
 	}
+	activateOverviewBootstraps(t, root)
 
 	docAfter, err := os.ReadFile(filepath.Join(root, "docs", "analysis", "AN-001.md"))
 	if err != nil {
@@ -545,7 +563,7 @@ func TestAC064_UnitNegative_MigrationRejectsChangedSourceAfterPreview(t *testing
 
 func TestAC064_UnitPositive_MigrationRegistryIsOrdered(t *testing.T) {
 	registry := Registry()
-	want := []string{MigrationReversalCost, MigrationStatusLifecycle, MigrationManagedCarriers, MigrationQualifiedReferences, MigrationClaudeEntryPoint, MigrationHubReleaseCheck, MigrationPromotedConstraints, MigrationLedgerBackfill, MigrationCompetingWall, MigrationLegacyDecisionLog}
+	want := []string{MigrationReversalCost, MigrationStatusLifecycle, MigrationManagedCarriers, MigrationQualifiedReferences, MigrationClaudeEntryPoint, MigrationHubReleaseCheck, MigrationPromotedConstraints, MigrationLedgerBackfill, MigrationCompetingWall, MigrationLegacyDecisionLog, MigrationSystemOverviews}
 	if len(registry) != len(want) {
 		t.Fatalf("registry has %d entries, want %d", len(registry), len(want))
 	}
@@ -557,6 +575,62 @@ func TestAC064_UnitPositive_MigrationRegistryIsOrdered(t *testing.T) {
 	registry[0].ID = "changed"
 	if Registry()[0].ID != MigrationReversalCost {
 		t.Fatal("Registry exposed mutable package state")
+	}
+}
+
+func TestAC150_UnitPositive_MigrationCreatesMissingOverviewBootstraps(t *testing.T) {
+	root := migrationFixture(t, "")
+	plan, err := Plan(root, Options{ReversalCost: "low"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	paths := map[string]bool{}
+	for _, change := range plan.Changes {
+		if change.Migration != MigrationSystemOverviews {
+			continue
+		}
+		paths[change.Path] = true
+		if change.Existed || !bytes.Contains(change.After, []byte(scaffold.OverviewBootstrapMarker)) {
+			t.Fatalf("unexpected overview bootstrap change: %+v", change)
+		}
+	}
+	for _, rel := range []string{"docs/architecture/README.md", "docs/design/README.md"} {
+		if !paths[rel] {
+			t.Fatalf("migration did not plan %s: %+v", rel, plan.Changes)
+		}
+	}
+	if err := Apply(root, plan); err != nil {
+		t.Fatal(err)
+	}
+	for _, rel := range []string{"docs/architecture/README.md", "docs/design/README.md"} {
+		content, err := os.ReadFile(filepath.Join(root, filepath.FromSlash(rel)))
+		if err != nil || !bytes.Contains(content, []byte(scaffold.OverviewBootstrapMarker)) {
+			t.Fatalf("migration did not create marked overview %s: %v\n%s", rel, err, content)
+		}
+	}
+}
+
+func TestAC150_UnitNegative_MigrationKeepsExistingOverviewProse(t *testing.T) {
+	root := migrationFixture(t, "")
+	path := filepath.Join(root, "docs", "architecture", "README.md")
+	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	const existing = "# Architecture\n\nRepository-owned overview.\n\n<!-- clue:index:start -->\n<!-- clue:index:end -->\n"
+	if err := os.WriteFile(path, []byte(existing), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	plan, err := Plan(root, Options{ReversalCost: "low"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, change := range plan.Changes {
+		if change.Path == "docs/architecture/README.md" {
+			t.Fatalf("migration planned to replace existing overview prose: %+v", change)
+		}
+	}
+	if got, err := os.ReadFile(path); err != nil || string(got) != existing {
+		t.Fatalf("planning changed existing overview prose: %v\n%s", err, got)
 	}
 }
 

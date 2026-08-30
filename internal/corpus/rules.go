@@ -76,6 +76,7 @@ func Validate(c *Corpus, opts Options) []Issue {
 	issues = append(issues, checkLinks(c)...)
 	issues = append(issues, checkSupersedes(c)...)
 	issues = append(issues, checkFolderReadmes(c)...)
+	issues = append(issues, checkSystemOverviews(c)...)
 	issues = append(issues, checkIndexes(c)...)
 	issues = append(issues, checkExternalReferences(c)...)
 	issues = append(issues, checkForeignPointers(c)...)
@@ -101,6 +102,35 @@ func Validate(c *Corpus, opts Options) []Issue {
 		}
 		return issues[i].Msg < issues[j].Msg
 	})
+	return issues
+}
+
+// checkSystemOverviews holds the structural half of the living-overview
+// contract. A corpus that carries either convention folder is a Cliewen
+// corpus: it needs both canonical READMEs, and a template marker cannot be
+// mistaken for a repository-specific overview. Agents, not the judge, decide
+// whether prose is truthful and sufficiently concise.
+func checkSystemOverviews(c *Corpus) []Issue {
+	architecture := "docs/architecture/README.md"
+	design := "docs/design/README.md"
+	_, hasArchitecture := c.Contents[architecture]
+	_, hasDesign := c.Contents[design]
+	_, architectureDirErr := os.Stat(filepath.Join(c.Root, "docs", "architecture"))
+	_, designDirErr := os.Stat(filepath.Join(c.Root, "docs", "design"))
+	if !hasArchitecture && !hasDesign && os.IsNotExist(architectureDirErr) && os.IsNotExist(designDirErr) {
+		return nil
+	}
+	var issues []Issue
+	for _, rel := range []string{architecture, design} {
+		content, ok := c.Contents[rel]
+		if !ok {
+			issues = append(issues, Issue{rel, "required system overview is missing"})
+			continue
+		}
+		if strings.Contains(content, "<!-- clue:overview:bootstrap -->") {
+			issues = append(issues, Issue{rel, "system overview is still the scaffold bootstrap — replace it with concise repository-specific truth"})
+		}
+	}
 	return issues
 }
 

@@ -13,14 +13,23 @@ Feature: Onboarding — install to first green validate
   Scenario: A new user reaches green validate in under 30 minutes
     # Retired 2026-07-17 (CH-020): the 30-minute clock spans a human
     # journey (reading, installing) no focused test pair can verify.
-    # The mechanical path is covered by AC-002/AC-024/AC-025; the
+    # The mechanical path is covered by AC-150/AC-024/AC-025; the
     # 30-minute end-to-end promise is C-015, owned by the quickstart.
 
-  @AC-002
+  @AC-002 @retired
   Scenario: init produces a corpus that validate accepts unchanged
-    Given an empty git repository
-    When the user runs "clue init"
-    Then "clue validate" exits with code 0 without any manual edits
+    # Retired 2026-08-30 (CH-162): a CLI cannot honestly invent a repository's
+    # system picture. AC-150 requires the explicit architecture and design
+    # bootstrap that an agent activates from repository evidence.
+
+  @AC-150
+  Scenario: init and migration establish mandatory system-overview bootstraps
+    Test-type: Unit
+    Given an empty repository or an adopted Cliewen corpus missing a canonical system overview
+    When the user runs "clue init" or previews and applies "clue migrate"
+    Then the canonical architecture and design README paths are created with marked bootstraps without replacing existing overview prose
+    And init tells the operator to replace the bootstraps before validation
+    But migration neither writes through a symlink nor claims the bootstrap is repository-specific truth
 
   @AC-003
   Scenario: validate fails loudly on a broken corpus

@@ -4,6 +4,14 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 
 ## [Unreleased]
 
+### Migration
+
+- **System architecture and design overviews are now mandatory.** `clue init` and `clue migrate` add marked templates at `docs/architecture/README.md` and `docs/design/README.md`; replace each marker with concise, repository-specific truth before `clue validate` can pass. Migration does not overwrite prose that already exists, and the lifecycle skills direct an agent to ask before moving an existing overview from another location.
+
+### Changed
+
+- **Cliewen now keeps system documentation living and reviewable.** The generated lifecycle skills require a documentation-impact assessment for every change, keep architecture structure separate from cross-cutting design, retain capability-local design documents, and use Mermaid when a diagram makes the change easier to understand. Decisions now point readers to the relevant overview instead of duplicating it.
+
 ## [0.20.0] - 2026-08-29
 
 ### Migration

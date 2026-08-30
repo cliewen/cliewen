@@ -43,7 +43,7 @@ func runInit(args []string, out, errOut io.Writer) int {
 	}
 	fmt.Fprintf(out, "clue init: %d created, %d skipped, %d linked, %d index block(s) regenerated\n", len(rep.Created), len(rep.Skipped), len(rep.Linked), len(rep.Indexed))
 	if len(rep.Created) > 0 {
-		fmt.Fprintln(out, "next: run `clue validate` — green on a fresh scaffold; then read docs/README.md")
+		fmt.Fprintln(out, "next: replace the marked architecture and design overview bootstraps with repository truth, then run `clue validate`")
 		fmt.Fprintln(out, "(a docs/ tree that predates init may need adoption first — see the clue-extract skill)")
 	}
 	return 0

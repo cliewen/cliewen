@@ -42,6 +42,7 @@ Types on the default: capability, criteria, design, constraint, architecture, an
 - [plans/](plans/README.md) — P-xxx: campaign layer; flat, status in frontmatter
 - [capabilities/](capabilities/README.md) — CAP-xxx: one folder per capability (README / criteria / design)
 - [architecture/](architecture/README.md) — system scope: the whole, the expensive-to-change
+- [design/](design/README.md) — cross-cutting behaviour: flows, interactions, and shared patterns
 - [decisions/](decisions/README.md) — future-shaping choices by subject: ADR-xxx architecture, PDR-xxx project/process, IDR-xxx implementation
 - [constraints/](constraints/README.md) — C-xxx: laws, licenses, policies, and verifiable quality bars you must not break
 - [analysis/](analysis/README.md) — spike findings, extraction reports

@@ -1,6 +1,16 @@
 # Architecture
 
-System scope: the whole, the cross-cutting, the expensive-to-change. Per-capability *design* is colocated with its capability — one home per scope, or the trees drift apart. Prefer embedded Mermaid where it is clear, use ASCII art for structures it communicates clearly, and use SVG when neither is adequate under C-007.
+This is Cliewen's system-structure overview: the actors, boundaries, and durable technology choices that shape every capability. The cross-cutting runtime view is [design/](../design/README.md); capability-local implementation detail remains in each capability's `design.md`. Keep this page concise and update it when the system's structure changes.
+
+```mermaid
+flowchart LR
+    Agent[Agent] --> Skills[Generated skills]
+    Skills --> CLI[clue CLI]
+    CLI --> Corpus[/docs corpus/]
+    CI[CI wall] --> CLI
+    Human[Human] --> PR[Pull request]
+    PR --> Corpus
+```
 
 <!-- clue:index:start -->
 - [architecture.md](architecture.md) — actors, lifetime classes, the frontmatter graph

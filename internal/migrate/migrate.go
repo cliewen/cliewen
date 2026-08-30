@@ -74,6 +74,10 @@ const (
 	// removes the register. Classification is semantic, so migration never
 	// guesses a destination or edits the log (PDR-046).
 	MigrationLegacyDecisionLog = "MIG-010"
+	// MigrationSystemOverviews adds a missing canonical overview bootstrap.
+	// The semantic drafting and any source-document relocation remain the
+	// lifecycle agent's work, because migration cannot infer either safely.
+	MigrationSystemOverviews = "MIG-011"
 )
 
 // Options controls planning. Preview is the default; applying a plan is a
@@ -101,6 +105,7 @@ var orderedMigrations = []MigrationDefinition{
 	{ID: MigrationLedgerBackfill, Description: "seed the identity ledger from the current corpus scan"},
 	{ID: MigrationCompetingWall, Description: "report a repository-owned workflow that validates beside the thin caller"},
 	{ID: MigrationLegacyDecisionLog, Description: "inventory a legacy decision log for reviewed subject classification"},
+	{ID: MigrationSystemOverviews, Description: "add missing canonical architecture and design overview bootstraps"},
 }
 
 // Registry returns the migration order without exposing mutable package state.
@@ -438,8 +443,35 @@ func Plan(root string, opts Options) (MigrationPlan, error) {
 	planLedgerBackfill(root, &result)
 	planCompetingWall(root, &result)
 	planLegacyDecisionLog(root, &result)
+	if err := planSystemOverviews(root, &result); err != nil {
+		return MigrationPlan{}, err
+	}
 	sortPlan(&result)
 	return result, nil
+}
+
+func planSystemOverviews(root string, result *MigrationPlan) error {
+	files, err := scaffold.OverviewBootstrapFiles()
+	if err != nil {
+		return err
+	}
+	for rel, content := range files {
+		if hasLinkBoundary(root, rel) {
+			result.Findings = append(result.Findings, Finding{Path: rel, Migration: MigrationSystemOverviews, Message: "canonical system overview is behind a symlink; resolve the repository-owned path before migration"})
+			continue
+		}
+		full := filepath.Join(root, filepath.FromSlash(rel))
+		existing, readErr := os.ReadFile(full)
+		switch {
+		case os.IsNotExist(readErr):
+			result.Changes = append(result.Changes, Change{Path: rel, Migration: MigrationSystemOverviews, Description: "create the canonical system overview bootstrap; draft repository-specific truth before validation", After: content})
+		case readErr != nil:
+			return readErr
+		case bytes.Contains(existing, []byte(scaffold.OverviewBootstrapMarker)):
+			result.Notices = append(result.Notices, Notice{Path: rel, Migration: MigrationSystemOverviews, Message: "canonical system overview is still a bootstrap; draft repository-specific truth before validation"})
+		}
+	}
+	return nil
 }
 
 // Apply writes a complete, previously planned migration. It rechecks every
