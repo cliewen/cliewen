@@ -28,9 +28,6 @@ func activateOverviewBootstraps(t *testing.T, root string) {
 			t.Fatal(err)
 		}
 	}
-	if _, err := scaffold.Regen(root); err != nil {
-		t.Fatal(err)
-	}
 }
 
 func TestAC064_UnitPositive_MigrationIsPreviewableIdempotentAndCoordinated(t *testing.T) {
@@ -586,8 +583,8 @@ func TestAC150_UnitPositive_MigrationCreatesMissingOverviewBootstraps(t *testing
 	}
 	paths := map[string]bool{}
 	for _, change := range plan.Changes {
-		if change.Migration != MigrationSystemOverviews {
-			continue
+		if change.Migration != MigrationSystemOverviews || change.Path == "docs/README.md" {
+			continue // the corpus index row has its own test
 		}
 		paths[change.Path] = true
 		if change.Existed || !bytes.Contains(change.After, []byte(scaffold.OverviewBootstrapMarker)) {
@@ -606,6 +603,58 @@ func TestAC150_UnitPositive_MigrationCreatesMissingOverviewBootstraps(t *testing
 		content, err := os.ReadFile(filepath.Join(root, filepath.FromSlash(rel)))
 		if err != nil || !bytes.Contains(content, []byte(scaffold.OverviewBootstrapMarker)) {
 			t.Fatalf("migration did not create marked overview %s: %v\n%s", rel, err, content)
+		}
+	}
+}
+
+// The overview folders MIG-011 creates are the first files a migration writes
+// inside docs/, so they are also the first that can leave the corpus index
+// stale. An applied migration must not hand the operator index drift they did
+// not cause: no clue scaffold run stands between Apply and validate here.
+func TestAC150_UnitPositive_MigrationIndexesTheOverviewFoldersItCreates(t *testing.T) {
+	root := migrationFixture(t, "")
+	plan, err := Plan(root, Options{ReversalCost: "low"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	var indexed *Change
+	for i := range plan.Changes {
+		if plan.Changes[i].Path == "docs/README.md" {
+			indexed = &plan.Changes[i]
+		}
+	}
+	if indexed == nil {
+		t.Fatalf("migration did not plan the corpus index rows: %+v", plan.Changes)
+	}
+	if !indexed.Existed || indexed.Migration != MigrationSystemOverviews {
+		t.Fatalf("unexpected corpus index change: %+v", *indexed)
+	}
+	for _, want := range []string{"- [architecture/](architecture/README.md)", "- [design/](design/README.md)"} {
+		if !bytes.Contains(indexed.After, []byte(want)) {
+			t.Fatalf("planned index is missing %q:\n%s", want, indexed.After)
+		}
+	}
+	if err := Apply(root, plan); err != nil {
+		t.Fatal(err)
+	}
+	activateOverviewBootstraps(t, root)
+	c, issues := corpus.Scan(root)
+	issues = append(issues, corpus.Validate(c, corpus.Options{})...)
+	for _, issue := range issues {
+		if strings.Contains(issue.Msg, "index does not reference subfolder") {
+			t.Fatalf("applied migration left index drift: %+v", issues)
+		}
+	}
+
+	// A second plan is empty of overview work: the rows are already there,
+	// and a migration never repairs index drift it did not create.
+	second, err := Plan(root, Options{ReversalCost: "low"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, change := range second.Changes {
+		if change.Migration == MigrationSystemOverviews {
+			t.Fatalf("overview migration is not idempotent: %+v", change)
 		}
 	}
 }

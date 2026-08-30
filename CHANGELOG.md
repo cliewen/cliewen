@@ -6,7 +6,7 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 
 ### Migration
 
-- **System architecture and design overviews are now mandatory.** `clue init` and `clue migrate` add marked templates at `docs/architecture/README.md` and `docs/design/README.md`; replace each marker with concise, repository-specific truth before `clue validate` can pass. Migration does not overwrite prose that already exists, and the lifecycle skills direct an agent to ask before moving an existing overview from another location.
+- **System architecture and design overviews are now mandatory.** `clue init` and `clue migrate` add marked templates at `docs/architecture/README.md` and `docs/design/README.md`; replace each marker with concise, repository-specific truth before `clue validate` can pass. Migration does not overwrite prose that already exists, indexes the folders it creates so an applied plan leaves no index drift behind, and the lifecycle skills direct an agent to ask before moving an existing overview from another location.
 
 ### Changed
 

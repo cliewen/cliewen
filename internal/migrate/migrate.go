@@ -455,6 +455,7 @@ func planSystemOverviews(root string, result *MigrationPlan) error {
 	if err != nil {
 		return err
 	}
+	var created []string
 	for rel, content := range files {
 		if hasLinkBoundary(root, rel) {
 			result.Findings = append(result.Findings, Finding{Path: rel, Migration: MigrationSystemOverviews, Message: "canonical system overview is behind a symlink; resolve the repository-owned path before migration"})
@@ -465,12 +466,79 @@ func planSystemOverviews(root string, result *MigrationPlan) error {
 		switch {
 		case os.IsNotExist(readErr):
 			result.Changes = append(result.Changes, Change{Path: rel, Migration: MigrationSystemOverviews, Description: "create the canonical system overview bootstrap; draft repository-specific truth before validation", After: content})
+			created = append(created, rel)
 		case readErr != nil:
 			return readErr
 		case bytes.Contains(existing, []byte(scaffold.OverviewBootstrapMarker)):
 			result.Notices = append(result.Notices, Notice{Path: rel, Migration: MigrationSystemOverviews, Message: "canonical system overview is still a bootstrap; draft repository-specific truth before validation"})
 		}
 	}
+	sort.Strings(created)
+	return planOverviewIndexRows(root, created, result)
+}
+
+// planOverviewIndexRows keeps the corpus index truthful about the folders
+// this migration creates. Every other migration writes outside docs/, so
+// MIG-011 is the first that can leave the taxonomy index behind: a created
+// docs/architecture or docs/design would otherwise be an unreferenced
+// subfolder, which validate reports as drift the operator never caused.
+// Only rows for folders this plan creates are added — pre-existing index
+// drift belongs to clue scaffold, not to a migration.
+func planOverviewIndexRows(root string, created []string, result *MigrationPlan) error {
+	if len(created) == 0 {
+		return nil
+	}
+	const rel = "docs/README.md"
+	if hasLinkBoundary(root, rel) {
+		result.Findings = append(result.Findings, Finding{Path: rel, Migration: MigrationSystemOverviews, Message: "corpus index is behind a symlink; resolve the repository-owned path before migration"})
+		return nil
+	}
+	before, err := os.ReadFile(filepath.Join(root, filepath.FromSlash(rel)))
+	if os.IsNotExist(err) {
+		return nil // no corpus index to keep truthful; validate reports the missing README
+	}
+	if err != nil {
+		return err
+	}
+	text := string(before)
+	start := strings.Index(text, scaffold.IndexStart)
+	end := strings.Index(text, scaffold.IndexEnd)
+	if start < 0 || end < 0 || end < start {
+		result.Notices = append(result.Notices, Notice{Path: rel, Migration: MigrationSystemOverviews, Message: "corpus index block is missing or malformed, so the new overview folders were not indexed; repair the markers and run clue scaffold"})
+		return nil
+	}
+	eol := "\n"
+	if strings.Contains(text, "\r\n") {
+		eol = "\r\n"
+	}
+	block := text[start+len(scaffold.IndexStart) : end]
+	var rows string
+	for _, overview := range created {
+		folder := path.Base(path.Dir(overview)) // architecture, design
+		target := folder + "/README.md"
+		if strings.Contains(block, "("+target+")") || strings.Contains(block, "("+folder+"/") {
+			continue
+		}
+		// The same row shape scaffold appends for a subfolder, so a later
+		// regeneration recognizes this line as covering the entry and leaves
+		// any description the author adds to it alone.
+		rows += "- [" + folder + "/](" + target + ")" + eol
+	}
+	if rows == "" {
+		return nil
+	}
+	if !strings.HasSuffix(block, eol) {
+		rows = eol + rows
+	}
+	after := text[:end] + rows + text[end:]
+	result.Changes = append(result.Changes, Change{
+		Path:        rel,
+		Migration:   MigrationSystemOverviews,
+		Description: "index the system overview folders this migration creates",
+		Existed:     true,
+		Before:      before,
+		After:       []byte(after),
+	})
 	return nil
 }
 
