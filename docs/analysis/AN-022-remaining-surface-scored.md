@@ -2,7 +2,7 @@
 id: AN-022
 type: analysis
 status: active
-links: [P-013, M-064, PDR-013, PDR-029, PDR-026, ADR-034, ADR-035, ADR-045, ADR-048, AN-008, C-013]
+links: [P-013, M-064, PDR-013, PDR-029, PDR-026, ADR-034, ADR-035, ADR-045, ADR-048, AN-008, AN-021, C-013]
 title: The rules, types, fields, commands, and checks scored against does the core need it, and pattern C determined
 ---
 
@@ -238,7 +238,7 @@ Q-04 through Q-06 were answered by Flemming N. Larsen on 2026-08-08 in conversat
 
 ## Rejected approaches
 
-**Scoring the 84 decisions individually against the criterion.** Attempted and abandoned. Every decision states a rule, so the population looks like the right one — but the rules decisions carry reach their readers through carriers, and AN-021 and AN-018 have now registered every statement of every carrier and traced each to its decision. Scoring the decisions as well would score the same rules twice, and the second scoring would have no carrier to point at. What the decision layer needs is not scoring but the screening AN-018 already demonstrated: DLT-06 was found because a *carrier* instructed something a shipped mechanism had replaced. Only two such cases exist in either register so far (DLT-06 and GD-71), both found from the carrier side.
+**Scoring the 84 decisions individually against the criterion.** Attempted and abandoned. Every decision states a rule, so the population looks like the right one — but the rules decisions carry reach their readers through carriers, and [AN-021](AN-021-remaining-carrier-register.md) and AN-018 have now registered every statement of every carrier and traced each to its decision. Scoring the decisions as well would score the same rules twice, and the second scoring would have no carrier to point at. What the decision layer needs is not scoring but the screening AN-018 already demonstrated: DLT-06 was found because a *carrier* instructed something a shipped mechanism had replaced. Only two such cases exist in either register so far (DLT-06 and GD-71), both found from the carrier side.
 
 **Counting artifacts, lines, or commands removed.** Refused by PDR-029 before this spike, and this spike is why the refusal matters: the honest result of the scoring is that almost nothing should be removed, and a campaign measured by removals would have to manufacture some.
 
@@ -258,4 +258,4 @@ The check population is scored from source rather than from behaviour. A `dev` b
 
 ## Consumer
 
-[P-013](../plans/P-013-simplification.md)'s **M-064**, whose scoring and pattern C determination this is; AN-021 carries the same milestone's carrier register. **M-067** consumes the five stale constraint `source:` values as the population for the rule it already owns. **M-066** consumes the determination: pattern C is routed rather than closed, and the campaign cannot report it closed without Q-06's answer.
+[P-013](../plans/P-013-simplification.md)'s **M-064**, whose scoring and pattern C determination this is; [AN-021](AN-021-remaining-carrier-register.md) carries the same milestone's carrier register. **M-067** consumes the five stale constraint `source:` values as the population for the rule it already owns. **M-066** consumes the determination: pattern C is routed rather than closed, and the campaign cannot report it closed without Q-06's answer.
