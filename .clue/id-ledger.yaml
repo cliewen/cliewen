@@ -1861,7 +1861,7 @@ entries:
       component: "165"
     - id: CH-165-tasks
       kind: opaque
-      state: live
+      state: retired
     - id: G-001
       kind: numeric
       state: live
