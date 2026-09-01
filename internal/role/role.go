@@ -63,11 +63,11 @@ func Load(root string) (r Role, declared bool, err error) {
 	}
 	var f file
 	if err := yaml.Unmarshal(data, &f); err != nil {
-		return Adopter, false, fmt.Errorf("%s: %w", path, err)
+		return Adopter, false, fmt.Errorf("%s: %w", DefaultPath, err)
 	}
 	value := Role(strings.TrimSpace(f.Role))
 	if !Valid(value) {
-		return Adopter, false, fmt.Errorf("%s: role must be %s or %s, not %q", path, Source, Adopter, f.Role)
+		return Adopter, false, fmt.Errorf("%s: role must be %s or %s, not %q", DefaultPath, Source, Adopter, f.Role)
 	}
 	return value, true, nil
 }

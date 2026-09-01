@@ -46,11 +46,18 @@ func checkBoundary(c *Corpus) []Issue {
 			issues = append(issues, Issue{a.Path, "binds must be adopter or repo (ADR-062)"})
 		}
 	}
+	// A marker that cannot be read is reported, never defaulted. The role is
+	// the only switch on the rule below, so swallowing the error would let a
+	// one-character typo turn off a validator rule with no output anywhere —
+	// exactly the silent drift the marker exists to end.
+	declared, _, err := role.Load(c.Root)
+	if err != nil {
+		return append(issues, Issue{role.DefaultPath, "role marker cannot be read, so the repository's role is unknown: " + err.Error() + " (ADR-062)"})
+	}
 	// Only the source repository ships anything, so only it can be asked
 	// whether an adopter-binding rule reached the shipped surface. An
 	// adopter's corpus, and an undeclared one, are never judged by this.
-	declared, _, err := role.Load(c.Root)
-	if err != nil || declared != role.Source {
+	if declared != role.Source {
 		return issues
 	}
 	for _, a := range c.Artifacts {

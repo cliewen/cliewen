@@ -64,6 +64,22 @@ func TestAC154_UnitPositive_AnAdopterAndAnUndeclaredRepoAreNotJudged(t *testing.
 	}
 }
 
+// The role is the only switch on the carrier rule, so a marker that cannot
+// be read must say so. Defaulting a malformed marker to "not source" would
+// let a one-character typo disable the rule with no output anywhere.
+func TestAC153_UnitNegative_AnUnreadableRoleMarkerIsReportedNotDefaulted(t *testing.T) {
+	for name, marker := range map[string]string{
+		"unknown role": "role: sorce\n",
+		"empty role":   "role:\n",
+		"not yaml":     "role: [source\n",
+	} {
+		files := with(validFiles, with(boundaryFiles, map[string]string{".clue/role.yaml": marker}))
+		t.Run(name, func(t *testing.T) {
+			assertIssue(t, run(t, files, false), "role marker cannot be read")
+		})
+	}
+}
+
 func TestAC154_UnitNegative_AnUnknownOrMisplacedBindsFails(t *testing.T) {
 	unknown := sourceRepo(map[string]string{
 		"docs/decisions/ADR-001-a-rule.md": "---\nid: ADR-001\ntype: decision\nstatus: inferred\nlinks: []\nbinds: everyone\ntitle: A rule\nauthor: agent\naccepted-by: []\n---\n\n# ADR-001\n",
