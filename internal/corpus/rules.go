@@ -84,6 +84,8 @@ func Validate(c *Corpus, opts Options) []Issue {
 	issues = append(issues, checkACTests(c)...)
 	issues = append(issues, checkProvenance(c)...)
 	issues = append(issues, checkReality(c)...)
+	issues = append(issues, checkCarriedBy(c)...)
+	issues = append(issues, checkBoundary(c)...)
 	issues = append(issues, checkConstraints(c)...)
 	issues = append(issues, checkTypeFields(c)...)
 	issues = append(issues, checkDecisionTaxonomy(c)...)

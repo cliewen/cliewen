@@ -31,6 +31,7 @@ import (
 	"strings"
 
 	"github.com/cliewen/cliewen/internal/corpus"
+	"github.com/cliewen/cliewen/internal/role"
 )
 
 //go:embed all:templates
@@ -271,6 +272,17 @@ func Run(root string) (*Report, error) {
 		return nil
 	})
 	if err != nil {
+		return nil, err
+	}
+	// The role marker is not a template: a fresh repository is an adopter,
+	// while Cliewen's own repository declares itself the source by hand
+	// (PDR-052). writeIfAbsent keeps init a materializer — a repository
+	// that already declares a role is never rewritten.
+	roleData, err := role.Bytes(role.Adopter)
+	if err != nil {
+		return nil, err
+	}
+	if err := writeIfAbsent(root, role.DefaultPath, roleData, rep, links); err != nil {
 		return nil, err
 	}
 	if err := regenIndexes(root, rep); err != nil {

@@ -2,7 +2,7 @@
 id: CH-163
 type: change
 status: open
-links: [G-011, P-019, M-081, M-082, PDR-052, ADR-013, ADR-034, CAP-001, CAP-002]
+links: [G-011, P-019, M-081, M-082, ADR-062, PDR-052, ADR-013, ADR-034, CAP-001, CAP-002]
 title: A repository declares its Cliewen role, and a spent analysis is reported for retirement
 ---
 

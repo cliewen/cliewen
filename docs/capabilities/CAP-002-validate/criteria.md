@@ -427,4 +427,21 @@ Feature: clue validate — deterministic corpus judgment
     When the user runs "clue validate"
     Then those records pass the decision-taxonomy check
     But a legacy log artifact or a decision artifact whose filename is outside the ADR, PDR, and IDR forms fails and names the accepted record forms
+
+  @AC-154
+  Scenario: An adopter-binding rule is checked for a shipped carrier only in the source repository
+    Test-type: Unit
+    Given a corpus declaring the source role whose decision or constraint binds adopter behaviour, and the same corpus declaring the adopter role
+    When the user runs "clue validate"
+    Then the source-role corpus fails when that rule names no carrier on the shipped surface, and names the artifact and what it must carry
+    And the adopter-role corpus and an undeclared corpus pass unchanged, because the rule never judges a repository that ships nothing
+    But a source-role rule naming a canonical skill source or a scaffolded template passes
+
+  @AC-155
+  Scenario: An analysis says where its findings landed, and the claim is kept honest
+    Test-type: Unit
+    Given analysis artifacts declaring "carried-by" and artifacts of other types doing the same
+    When the user runs "clue validate"
+    Then an analysis naming durable artifacts that resolve passes, and an analysis declaring nothing passes unchanged
+    But the field on a non-analysis artifact, an empty list, an unresolvable ID, a self-reference, and an ID naming another analysis each fail and name the offending artifact
 ```

@@ -20,6 +20,7 @@ import (
 
 	"github.com/cliewen/cliewen/internal/corpus"
 	"github.com/cliewen/cliewen/internal/ledger"
+	"github.com/cliewen/cliewen/internal/role"
 	"github.com/cliewen/cliewen/internal/scaffold"
 	"gopkg.in/yaml.v3"
 )
@@ -78,6 +79,17 @@ const (
 	// The semantic drafting and any source-document relocation remain the
 	// lifecycle agent's work, because migration cannot infer either safely.
 	MigrationSystemOverviews = "MIG-011"
+	// MigrationRoleMarker reports a repository that has not yet declared
+	// whether it is Cliewen's source or an adopter. It is a notice and never
+	// a finding: every repository onboarded before the marker existed lacks
+	// one, and blocking a migration on a file the adopter had no way to
+	// write would strand them on the release that introduced it (ADR-062).
+	MigrationRoleMarker = "MIG-012"
+	// MigrationSpentAnalysis reports an analysis whose plans are complete
+	// and whose declared carriers resolve. It writes nothing: retirement is
+	// deletion in a reviewed change (ADR-034), and which spike is genuinely
+	// finished is a judgment migration never makes (PDR-052).
+	MigrationSpentAnalysis = "MIG-013"
 )
 
 // Options controls planning. Preview is the default; applying a plan is a
@@ -106,6 +118,8 @@ var orderedMigrations = []MigrationDefinition{
 	{ID: MigrationCompetingWall, Description: "report a repository-owned workflow that validates beside the thin caller"},
 	{ID: MigrationLegacyDecisionLog, Description: "inventory a legacy decision log for reviewed subject classification"},
 	{ID: MigrationSystemOverviews, Description: "add missing canonical architecture and design overview bootstraps"},
+	{ID: MigrationRoleMarker, Description: "report a repository that has not declared its Cliewen role"},
+	{ID: MigrationSpentAnalysis, Description: "report an analysis whose findings a durable artifact now carries"},
 }
 
 // Registry returns the migration order without exposing mutable package state.
@@ -487,8 +501,49 @@ func Plan(root string, opts Options) (MigrationPlan, error) {
 	if err := planSystemOverviews(root, &result); err != nil {
 		return MigrationPlan{}, err
 	}
+	planRoleMarker(root, &result)
+	planSpentAnalyses(root, &result)
 	sortPlan(&result)
 	return result, nil
+}
+
+// planRoleMarker reports an undeclared repository and writes nothing.
+//
+// Materializing the marker here would be a guess with a plausible-looking
+// answer: migration cannot tell Cliewen's own repository from an adopter,
+// which is the very ambiguity the marker exists to end. clue init writes it
+// for a new repository; an established one declares its role in a reviewed
+// change.
+func planRoleMarker(root string, result *MigrationPlan) {
+	if role.Exists(root) {
+		return
+	}
+	result.Notices = append(result.Notices, Notice{
+		Path:      role.DefaultPath,
+		Migration: MigrationRoleMarker,
+		Message:   "repository has not declared its Cliewen role; add " + role.DefaultPath + " with role: adopter, or role: source in Cliewen's own repository",
+	})
+}
+
+// planSpentAnalyses reports each analysis that has done its work.
+//
+// The report is deliberately inert. Whether a spike is genuinely finished
+// rests on a human's declaration that its findings reached a durable
+// artifact, and acting on that declaration is a deletion — which ADR-034
+// keeps inside a reviewed change with Git history as the archive.
+func planSpentAnalyses(root string, result *MigrationPlan) {
+	c, issues := corpus.Scan(root)
+	if len(issues) > 0 {
+		return // parse-level problems are corpus.Validate's judgment, not migration's
+	}
+	for _, spent := range corpus.SpentAnalyses(c) {
+		result.Notices = append(result.Notices, Notice{
+			Path:      spent.Path,
+			Migration: MigrationSpentAnalysis,
+			Message: "findings are carried by " + strings.Join(spent.CarriedBy, ", ") +
+				" and " + strings.Join(spent.Plans, ", ") + " is complete; retire it in a reviewed change if it has nothing left to say",
+		})
+	}
 }
 
 func planSystemOverviews(root string, result *MigrationPlan) error {

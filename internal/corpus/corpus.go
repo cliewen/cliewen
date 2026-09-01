@@ -28,6 +28,8 @@ type Artifact struct {
 	Supersedes   []string // IDs this artifact's frontmatter declares retired (ADR-034)
 	ReversalCost string   // low|high for inferred non-decisions (ADR-035)
 	Reality      string   // contradicted marks an incident analysis (ADR-035)
+	CarriedBy    []string // durable artifacts now carrying an analysis's findings (PDR-052)
+	Binds        string   // adopter|repo: whose behaviour a decision or constraint binds (ADR-062)
 	Title        string
 	Path         string // repo-relative, forward slashes
 	Body         string
@@ -119,6 +121,8 @@ func Scan(root string) (*Corpus, []Issue) {
 			a.Supersedes, _ = stringList(fields["supersedes"])
 			a.ReversalCost, _ = fields["reversal-cost"].(string)
 			a.Reality, _ = fields["reality"].(string)
+			a.CarriedBy, _ = stringList(fields["carried-by"])
+			a.Binds, _ = fields["binds"].(string)
 			c.Artifacts = append(c.Artifacts, a)
 			if a.ID != "" {
 				c.ByID[a.ID] = append(c.ByID[a.ID], a)
