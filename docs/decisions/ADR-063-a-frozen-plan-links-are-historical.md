@@ -27,8 +27,10 @@ The alternative was to carve a link-repair exemption into C-008 and its guard. T
 
 **Accepted cost:** a completed plan's *prose* may still contain a markdown link to a deleted file, which no check covers and which C-008 forbids repairing. Such a link will not resolve for a reader. The plan's sentence remains a true statement about what the campaign referenced, and Git history holds the target, but the convenience of following it is gone. Repairing it would require editing frozen history, which is a worse trade.
 
+**Accepted cost:** `clue context` reports each such link as an edge it could not follow. That output is expected for a frozen plan rather than a defect, and it does not affect the command's exit code.
+
 The corpus structure this affects is described in [`docs/architecture/README.md`](../architecture/README.md).
 
 ## Carrier
 
-The completed-plan allowance in `internal/corpus`, its criterion, this record, and the scaffolded corpus guidance in `internal/scaffold/templates/docs/README.md` describing what a frozen plan's links mean.
+The completed-plan allowance in `internal/corpus`, its criterion, this record, the `checkLinks` description in `docs/capabilities/CAP-002-validate/design.md`, and the scaffolded corpus guidance in `internal/scaffold/templates/docs/README.md` describing what a frozen plan's links mean.
