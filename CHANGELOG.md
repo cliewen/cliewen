@@ -24,6 +24,12 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 
 - **The lifecycle skills now read your repository's role before applying a rule that differs by repository kind.** Cliewen's own repository and an adopter's carry the same corpus shape, and rules about releases, generated skills, and the shipped surface exist only in the former. The generated skills now direct an agent to `.clue/role.yaml` rather than inferring the answer from a directory listing, and never to apply a source-repository rule to an adopter's work. The marker records the role and nothing else — your Cliewen version is already carried by the managed skills' `version:` stamp and your CI caller's `clue-version` input, and a third copy would only drift.
 
+### Fixed
+
+- **A completed plan may now keep a link to a retired artifact, which is what makes retirement possible at all.** Three rules contradicted each other the moment you tried to retire something a finished campaign linked: retirement is a deletion, `clue validate` rejected the surviving link and demanded a repoint, and a completed plan is frozen — the repair failed the freeze while skipping it failed the judge. Because a campaign's plan naturally links the spikes that fed it, every one of those spikes became permanently unretirable the moment that campaign closed.
+
+  A finished campaign records what it referenced while it ran; its links are history, not navigation a reader follows, so a frozen document is no longer asked to keep a pointer current. The allowance is deliberately narrow: `completed` plans only, and only for an artifact some live record names in its `supersedes:` field. An **active** plan still repoints, and a link to an ID no artifact ever declared still fails everywhere, because that is a typo rather than history. Nothing about the freeze on completed plans changed. One cost is accepted and worth knowing: a frozen plan's *prose* may still contain a Markdown link to a deleted file, which no check covers and the freeze forbids repairing — the sentence stays true and Git history holds the target, but following the link will not work.
+
 ## [0.21.0] - 2026-08-30
 
 ### Migration

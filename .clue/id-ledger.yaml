@@ -1,16 +1,16 @@
 counters:
-    AC: "156"
-    ADR: "62"
+    AC: "157"
+    ADR: "63"
     AN: "23"
     ARCH: "3"
     C: "22"
     CAP: "8"
-    CH: "163"
+    CH: "164"
     G: "11"
     IC: "2"
     IDR: "8"
     LOG: "1"
-    P: "19"
+    P: "20"
     PDR: "52"
 entries:
     - id: AC-001
@@ -788,6 +788,11 @@ entries:
       state: live
       prefix: AC
       component: "156"
+    - id: AC-157
+      kind: numeric
+      state: live
+      prefix: AC
+      component: "157"
     - id: ADR-001
       kind: numeric
       state: live
@@ -1073,6 +1078,11 @@ entries:
       state: live
       prefix: ADR
       component: "62"
+    - id: ADR-063
+      kind: numeric
+      state: live
+      prefix: ADR
+      component: "63"
     - id: AN-001
       kind: numeric
       state: live
@@ -1827,10 +1837,21 @@ entries:
       state: live
       prefix: CH
       component: "163"
+    - id: CH-163-open-questions
+      kind: opaque
+      state: retired
     - id: CH-163-tasks
       kind: opaque
       state: retired
-    - id: CH-163-open-questions
+    - id: CH-164
+      kind: numeric
+      state: live
+      prefix: CH
+      component: "164"
+    - id: CH-164-open-questions
+      kind: opaque
+      state: retired
+    - id: CH-164-tasks
       kind: opaque
       state: retired
     - id: G-001
@@ -2038,6 +2059,11 @@ entries:
       state: live
       prefix: P
       component: "19"
+    - id: P-020
+      kind: numeric
+      state: live
+      prefix: P
+      component: "20"
     - id: PDR-001
       kind: numeric
       state: live

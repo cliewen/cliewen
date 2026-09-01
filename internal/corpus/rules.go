@@ -598,6 +598,15 @@ func checkLinks(c *Corpus) []Issue {
 			}
 			if _, ok := c.ByID[l]; !ok {
 				if successor, retired := supersededBy[l]; retired {
+					// A completed plan records what a finished campaign
+					// referenced while it ran; its links are history, not
+					// live navigation (ADR-063). C-008 freezes the file, so
+					// demanding a repoint would ask for an edit the guard
+					// forbids — and every spike a campaign fed on would be
+					// unretirable the moment that campaign closed.
+					if a.Type == "plan" && a.Status == "completed" {
+						continue
+					}
 					issues = append(issues, Issue{a.Path, "link " + l + " was retired — repoint to its successor " + successor + ", which names " + l + " in its supersedes field"})
 				} else {
 					issues = append(issues, Issue{a.Path, "link " + l + " resolves to no artifact"})
