@@ -4,6 +4,22 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 
 ## [Unreleased]
 
+### Migration
+
+- **Declare what kind of repository yours is.** `clue migrate` now reports `MIG-012` when a repository has never said whether it adopted Cliewen or is Cliewen's own source repository. Add `.clue/role.yaml` containing `role: adopter` — that is the answer for every repository that adopted Cliewen. The notice is non-blocking and nothing else waits on it: a repository without the marker is treated as an adopter, and no check fails for its absence. `clue init` writes the marker for a new repository and never overwrites an existing one. Migration deliberately does not write it for you, because it cannot tell the two kinds of repository apart, which is the ambiguity the marker exists to end.
+
+### Added
+
+- **An analysis can say where its findings ended up, so a spent spike can leave.** A spike is a measurement pinned to the revision it observed, not permanent truth, but until now nothing said when one had done its work — so findings accumulated in every corpus forever. An analysis may now carry `carried-by: [ID, …]` naming the durable artifacts its findings reached: an architecture or design overview, a decision, a capability. Once every plan that analysis serves is complete, `clue migrate` reports it as `MIG-013` with the evidence behind the claim. Both conditions are required, and the declaration is the half no tool can infer — a completed campaign says the campaign ended, not that its findings survived anywhere, so plan completion alone would sweep up every spike you have at once.
+
+  The report is a candidate and never a verdict. **No command deletes a document.** Migration writes nothing for a reported analysis and refuses nothing because of one; retiring an approved spike deletes its file in a reviewed change, naming it in a successor's `supersedes:`, with Git history as the archive. The `clue-upgrade` skill walks the reported list one document at a time and asks before anything goes. Do not empty a document instead of deleting it: that keeps its index row, its link targets, and the reader's navigation cost while removing the only part with value. The field is optional and its absence is never an error, so a corpus that was green yesterday stays green.
+
+- **`clue validate` keeps a `carried-by:` claim honest.** The field belongs to analysis, must name at least one artifact, and must name something that resolves and is not itself another spike — a spike carrying another spike's findings is a forwarding address, not durability. Validation gains no expiry rule of its own: an unexpired analysis is not an invalid corpus.
+
+### Changed
+
+- **The lifecycle skills now read your repository's role before applying a rule that differs by repository kind.** Cliewen's own repository and an adopter's carry the same corpus shape, and rules about releases, generated skills, and the shipped surface exist only in the former. The generated skills now direct an agent to `.clue/role.yaml` rather than inferring the answer from a directory listing, and never to apply a source-repository rule to an adopter's work. The marker records the role and nothing else — your Cliewen version is already carried by the managed skills' `version:` stamp and your CI caller's `clue-version` input, and a third copy would only drift.
+
 ## [0.21.0] - 2026-08-30
 
 ### Migration

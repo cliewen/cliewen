@@ -4,6 +4,7 @@ type: decision
 status: inferred
 links: [G-011, P-019, M-082, ADR-034, ADR-044, ADR-062, PDR-046, CAP-001, CAP-002]
 title: An analysis declares where its findings landed, and a spent one is reported rather than retained
+binds: adopter
 author: agent
 accepted-by: []
 ---
@@ -32,4 +33,4 @@ Trimming a spent analysis to a stub keeps the file, its index row, and its link 
 
 ## Carrier
 
-The `carried-by:` field and its validation, the spent-analysis derivation, the report-only migration, the canonical analysis and upgrade skill sources, the scaffolded analysis guidance, and the adopter-facing changelog entry.
+The `carried-by:` field and its validation, the spent-analysis derivation, the report-only migration, the spike-retirement instruction in `internal/skills/source/skills/clue-analysis.md.tmpl` and the `MIG-013` walk in `internal/skills/source/skills/clue-upgrade.md.tmpl`, the scaffolded guidance in `internal/scaffold/templates/docs/analysis/README.md`, and the adopter-facing changelog entry.

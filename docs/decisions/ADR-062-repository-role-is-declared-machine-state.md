@@ -4,6 +4,7 @@ type: decision
 status: inferred
 links: [G-011, P-019, M-081, ADR-013, ADR-011, ADR-048, ADR-044, CAP-001, CAP-002]
 title: A repository declares its Cliewen role as machine state, and an adopter-binding rule names a shipped carrier
+binds: adopter
 author: agent
 accepted-by: []
 ---
@@ -32,4 +33,4 @@ Deriving the role from the presence of `cmd/clue` and `internal/skills/source/` 
 
 ## Carrier
 
-The `internal/role` package and its marker, `clue init`'s materialization, the source-only carrier rule in `internal/corpus`, the canonical skill sources that direct an agent to read the role, this repository's own separated routing text, and the adopter-facing changelog entry.
+The `internal/role` package and its marker, `clue init`'s materialization, the source-only carrier rule in `internal/corpus`, the role-reading instruction in `internal/skills/source/shared/local-conventions.md.tmpl` and the `MIG-012` step in `internal/skills/source/skills/clue-upgrade.md.tmpl`, the scaffolded corpus guidance in `internal/scaffold/templates/docs/README.md`, this repository's own separated routing text, and the adopter-facing changelog entry.
