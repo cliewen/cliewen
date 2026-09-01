@@ -1165,17 +1165,17 @@ entries:
       component: "18"
     - id: AN-019
       kind: numeric
-      state: live
+      state: retired
       prefix: AN
       component: "19"
     - id: AN-020
       kind: numeric
-      state: live
+      state: retired
       prefix: AN
       component: "20"
     - id: AN-021
       kind: numeric
-      state: live
+      state: retired
       prefix: AN
       component: "21"
     - id: AN-022
@@ -1835,9 +1835,12 @@ entries:
       state: retired
     - id: CH-164
       kind: numeric
-      state: reserved
+      state: live
       prefix: CH
       component: "164"
+    - id: CH-164-tasks
+      kind: opaque
+      state: retired
     - id: G-001
       kind: numeric
       state: live
@@ -2045,7 +2048,7 @@ entries:
       component: "19"
     - id: P-020
       kind: numeric
-      state: reserved
+      state: live
       prefix: P
       component: "20"
     - id: PDR-001
