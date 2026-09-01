@@ -428,6 +428,15 @@ Feature: clue validate — deterministic corpus judgment
     Then those records pass the decision-taxonomy check
     But a legacy log artifact or a decision artifact whose filename is outside the ADR, PDR, and IDR forms fails and names the accepted record forms
 
+  @AC-157
+  Scenario: A completed plan may keep a link to a retired artifact
+    Test-type: Unit
+    Given a completed plan and an active plan that each link an artifact some live record names in its supersedes field
+    When the user runs "clue validate"
+    Then the completed plan passes, because a finished campaign records what it referenced rather than navigating a reader anywhere
+    And the active plan still fails and names the successor to repoint to
+    But a completed plan linking an ID no artifact ever declared still fails, because that is a typo rather than history
+
   @AC-154
   Scenario: An adopter-binding rule is checked for a shipped carrier only in the source repository
     Test-type: Unit

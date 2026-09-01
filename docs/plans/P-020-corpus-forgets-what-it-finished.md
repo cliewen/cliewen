@@ -2,7 +2,7 @@
 id: P-020
 type: plan
 status: active
-links: [G-011, PDR-052, ADR-034, P-019, CAP-002]
+links: [G-011, PDR-052, ADR-034, ADR-063, C-008, P-019, CAP-002]
 title: Cliewen's corpus forgets what it has finished with
 ---
 
@@ -12,7 +12,7 @@ P-019 built the mechanism for a spike to leave the corpus and deliberately prune
 
 The analysis folder is the corpus's largest population and none of it has ever left. Every plan this repository has run is `completed`, so the completed-plan half of the expiry test does not discriminate — each spike's disposition is a judgement someone makes and records, which is what [PDR-052](../decisions/PDR-052-a-spent-analysis-is-reported-not-retained.md)'s declared carrier exists to force. Retirement is deletion with Git history as the archive ([ADR-034](../decisions/ADR-034-retirement-is-deletion.md)); nothing here is hollowed out into a stub, because that keeps a document's index row and read cost while removing the only part with value.
 
-A completed plan that links a retired artifact is the campaign's hard constraint: C-008 freezes the plan, `checkLinks` rejects the dangling link, and ADR-034 offers no third option, so nothing a completed plan links can be retired until that contradiction is settled. Batches are ordered by how much a retirement costs a live reader, cheapest first. A spike that a live decision cites as its evidence base is a materially harder case than one only a completed campaign refers to, and this campaign does not prejudge it.
+A completed plan that links a retired artifact is the campaign's hard constraint: C-008 freezes the plan, `checkLinks` rejects the dangling link, and ADR-034 offers no third option, so nothing a completed plan links can be retired until that contradiction is settled. M-083 settles it before any batch runs. Batches are ordered by how much a retirement costs a live reader, cheapest first. A spike that a live decision cites as its evidence base is a materially harder case than one only a completed campaign refers to, and this campaign does not prejudge it.
 
 Milestone numbering continues corpus-global numbering from P-019's M-082. The identity ledger still does not cover milestones ([G-006](../goals/G-006-milestone-ids-in-the-ledger.md)), so these are assigned by reading the corpus maximum.
 
@@ -20,9 +20,10 @@ Milestone numbering continues corpus-global numbering from P-019's M-082. The id
 
 | ID | Milestone (exit criterion) | Status | Evidence |
 |---|---|---|---|
-| M-083 | **The simplification campaign's transient registers that no live decision cites are retired.** Each of them declares the durable artifacts carrying its findings, is deleted rather than emptied, and is named in a `supersedes:` field on exactly one live successor. Every inbound reference is repaired without editing a frozen plan, which C-008 and its CI guard forbid entirely. `clue validate` is green and the retired identities are `retired` in the ledger. | `todo` |  |
-| M-084 | **Every analysis a live decision cites as its evidence base has a recorded disposition.** The campaign answers whether a decision's cited evidence may be deleted while the decision stands, records that answer as a decision record, and then either retires each spike with its citations repaired or retains it with the reason stated. No spike is retired on carrier grounds alone while a live decision rests on it. | `todo` | |
-| M-085 | **Every remaining analysis has a recorded disposition, and the folder holds only spikes that still describe the system.** Findings that are still live truth but sit in the spike folder are moved to the durable artifact that owns them rather than being retired; the rest are retired under the same rule. The campaign closes on a re-derived `clue validate --read-cost` and a `clue migrate` preview whose spent-analysis report is empty or explained. | `todo` | |
+| M-083 | **A completed plan may keep a link to a retired artifact, so retirement is possible at all.** `clue validate` accepts a `completed` plan whose links name an artifact a live record supersedes, still requires an active plan to repoint, and still rejects a link to an ID no artifact ever declared. C-008's freeze is unchanged. Focused positive and negative evidence covers all three. | `done` | CH-164: ADR-063 records that a finished campaign's links are history rather than navigation. AC-157 covers a completed plan passing with a retired target, an active plan still repointing and naming its successor, and a completed plan still failing on an ID no artifact ever declared. C-008 and `.github/scripts/completed-plans.sh` are unchanged. The branch history holds the reverted first batch that found the contradiction. `go test ./...`, `go run ./cmd/clue validate`, and the CONTRIBUTING verification block passed before review. |
+| M-084 | **The simplification campaign's transient registers that no live decision cites are retired.** Each of them declares the durable artifacts carrying its findings, is deleted rather than emptied, and is named in a `supersedes:` field on exactly one live successor. Every inbound reference is repaired without editing a frozen plan, which C-008 and its CI guard forbid entirely. `clue validate` is green and the retired identities are `retired` in the ledger. | `todo` |  |
+| M-085 | **Every analysis a live decision cites as its evidence base has a recorded disposition.** The campaign answers whether a decision's cited evidence may be deleted while the decision stands, records that answer as a decision record, and then either retires each spike with its citations repaired or retains it with the reason stated. No spike is retired on carrier grounds alone while a live decision rests on it. | `todo` | |
+| M-086 | **Every remaining analysis has a recorded disposition, and the folder holds only spikes that still describe the system.** Findings that are still live truth but sit in the spike folder are moved to the durable artifact that owns them rather than being retired; the rest are retired under the same rule. The campaign closes on a re-derived `clue validate --read-cost` and a `clue migrate` preview whose spent-analysis report is empty or explained. | `todo` | |
 
 ## Mutation rules
 

@@ -138,4 +138,5 @@ The CLI reports inferred ADRs, PDRs, and IDRs as decisions awaiting verification
 - [PDR-051 — Every Cliewen corpus maintains concise system architecture and design overviews](PDR-051-living-system-overviews.md) · `inferred` — Capability design and decisions can be correct while the system picture is absent, stale, or spread across unrelated documents.
 - [ADR-062 — A repository declares its Cliewen role as machine state, and an adopter-binding rule names a shipped carrier](ADR-062-repository-role-is-declared-machine-state.md) · `inferred` — ADR-013 separates the generic shipped surface from the one repo-local layer, but nothing in a repository says which kind of repository it is.
 - [PDR-052 — An analysis declares where its findings landed, and a spent one is reported rather than retained](PDR-052-a-spent-analysis-is-reported-not-retained.md) · `inferred` — An analysis exists to retire a risk.
+- [ADR-063 — A completed plan's links are a historical record, not live navigation](ADR-063-a-frozen-plan-links-are-historical.md) · `inferred` — Three accepted rules cannot all hold when a completed plan links an artifact being retired.
 <!-- clue:index:end -->

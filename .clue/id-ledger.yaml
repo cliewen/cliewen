@@ -1,6 +1,6 @@
 counters:
-    AC: "156"
-    ADR: "62"
+    AC: "157"
+    ADR: "63"
     AN: "23"
     ARCH: "3"
     C: "22"
@@ -788,6 +788,11 @@ entries:
       state: live
       prefix: AC
       component: "156"
+    - id: AC-157
+      kind: numeric
+      state: live
+      prefix: AC
+      component: "157"
     - id: ADR-001
       kind: numeric
       state: live
@@ -1073,6 +1078,11 @@ entries:
       state: live
       prefix: ADR
       component: "62"
+    - id: ADR-063
+      kind: numeric
+      state: live
+      prefix: ADR
+      component: "63"
     - id: AN-001
       kind: numeric
       state: live
@@ -1838,12 +1848,12 @@ entries:
       state: live
       prefix: CH
       component: "164"
-    - id: CH-164-tasks
-      kind: opaque
-      state: live
     - id: CH-164-open-questions
       kind: opaque
-      state: live
+      state: retired
+    - id: CH-164-tasks
+      kind: opaque
+      state: retired
     - id: G-001
       kind: numeric
       state: live
