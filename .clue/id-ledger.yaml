@@ -5,12 +5,12 @@ counters:
     ARCH: "3"
     C: "22"
     CAP: "8"
-    CH: "163"
+    CH: "164"
     G: "11"
     IC: "2"
     IDR: "8"
     LOG: "1"
-    P: "19"
+    P: "20"
     PDR: "52"
 entries:
     - id: AC-001
@@ -1827,12 +1827,17 @@ entries:
       state: live
       prefix: CH
       component: "163"
-    - id: CH-163-tasks
-      kind: opaque
-      state: retired
     - id: CH-163-open-questions
       kind: opaque
       state: retired
+    - id: CH-163-tasks
+      kind: opaque
+      state: retired
+    - id: CH-164
+      kind: numeric
+      state: reserved
+      prefix: CH
+      component: "164"
     - id: G-001
       kind: numeric
       state: live
@@ -2038,6 +2043,11 @@ entries:
       state: live
       prefix: P
       component: "19"
+    - id: P-020
+      kind: numeric
+      state: reserved
+      prefix: P
+      component: "20"
     - id: PDR-001
       kind: numeric
       state: live
