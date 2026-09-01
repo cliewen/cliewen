@@ -6,7 +6,9 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 
 ### Migration
 
-- **Declare what kind of repository yours is.** `clue migrate` now reports `MIG-012` when a repository has never said whether it adopted Cliewen or is Cliewen's own source repository. Add `.clue/role.yaml` containing `role: adopter` — that is the answer for every repository that adopted Cliewen. The notice is non-blocking and nothing else waits on it: a repository without the marker is treated as an adopter, and no check fails for its absence. `clue init` writes the marker for a new repository and never overwrites an existing one. Migration deliberately does not write it for you, because it cannot tell the two kinds of repository apart, which is the ambiguity the marker exists to end.
+- **Declare what kind of repository yours is.** `clue migrate` now reports `MIG-012` when a repository has never said whether it adopted Cliewen or is Cliewen's own source repository. Add `.clue/role.yaml` containing `role: adopter` — that is the answer for every repository that adopted Cliewen. The notice is non-blocking and nothing else waits on it: a repository without the marker is treated as an adopter, and no check fails for its absence. `clue init` writes the marker for a new repository and never overwrites an existing one.
+
+  **A marker that is present but unreadable is a new `clue validate` failure.** An unknown role, an empty role, or malformed YAML is reported rather than quietly treated as an adopter — the role is the only switch on the adopter-carrier check below, and a one-character typo silently disabling a validator rule is the drift the marker exists to end. Fix the file's contents, or delete it to go back to being an undeclared adopter. A *missing* marker still fails nothing. Migration deliberately does not write it for you, because it cannot tell the two kinds of repository apart, which is the ambiguity the marker exists to end.
 
 ### Added
 
