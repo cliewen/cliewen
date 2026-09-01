@@ -15,6 +15,6 @@ title: Tasks for the repository role marker and analysis expiry
 - [x] Add the analysis destination field and its validation (AC-155).
 - [x] Explain the destination field in the scaffolded analysis guidance and the corpus README's field list.
 - [x] Add the report-only expiry migration after MIG-011, emitting a notice per spent analysis and never a finding or a change (AC-156).
-- [ ] Separate this repository's local rules from the shared routing text, update the canonical skill sources for role and expiry, and regenerate the managed skills.
+- [x] Separate this repository's local rules from the shared routing text, update the canonical skill sources for role and expiry, and regenerate the managed skills.
 - [x] Update the architecture and design overviews and affected capability material, regenerate indexes, and add the adopter-facing release note.
 - [ ] Run focused and full verification, complete P-019's milestone digest, and prepare the reviewed pull-request handoff.
