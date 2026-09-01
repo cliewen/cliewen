@@ -1,17 +1,17 @@
 counters:
-    AC: "152"
-    ADR: "61"
+    AC: "156"
+    ADR: "62"
     AN: "23"
     ARCH: "3"
     C: "22"
     CAP: "8"
-    CH: "162"
-    G: "10"
+    CH: "163"
+    G: "11"
     IC: "2"
     IDR: "8"
     LOG: "1"
-    P: "18"
-    PDR: "51"
+    P: "19"
+    PDR: "52"
 entries:
     - id: AC-001
       kind: numeric
@@ -768,6 +768,26 @@ entries:
       state: live
       prefix: AC
       component: "152"
+    - id: AC-153
+      kind: numeric
+      state: live
+      prefix: AC
+      component: "153"
+    - id: AC-154
+      kind: numeric
+      state: live
+      prefix: AC
+      component: "154"
+    - id: AC-155
+      kind: numeric
+      state: live
+      prefix: AC
+      component: "155"
+    - id: AC-156
+      kind: numeric
+      state: live
+      prefix: AC
+      component: "156"
     - id: ADR-001
       kind: numeric
       state: live
@@ -1048,6 +1068,11 @@ entries:
       state: live
       prefix: ADR
       component: "61"
+    - id: ADR-062
+      kind: numeric
+      state: live
+      prefix: ADR
+      component: "62"
     - id: AN-001
       kind: numeric
       state: live
@@ -1797,6 +1822,17 @@ entries:
     - id: CH-162-tasks
       kind: opaque
       state: retired
+    - id: CH-163
+      kind: numeric
+      state: live
+      prefix: CH
+      component: "163"
+    - id: CH-163-tasks
+      kind: opaque
+      state: retired
+    - id: CH-163-open-questions
+      kind: opaque
+      state: retired
     - id: G-001
       kind: numeric
       state: live
@@ -1847,6 +1883,11 @@ entries:
       state: live
       prefix: G
       component: "10"
+    - id: G-011
+      kind: numeric
+      state: live
+      prefix: G
+      component: "11"
     - id: IC-001
       kind: numeric
       state: live
@@ -1992,6 +2033,11 @@ entries:
       state: live
       prefix: P
       component: "18"
+    - id: P-019
+      kind: numeric
+      state: live
+      prefix: P
+      component: "19"
     - id: PDR-001
       kind: numeric
       state: live
@@ -2247,3 +2293,8 @@ entries:
       state: live
       prefix: PDR
       component: "51"
+    - id: PDR-052
+      kind: numeric
+      state: live
+      prefix: PDR
+      component: "52"

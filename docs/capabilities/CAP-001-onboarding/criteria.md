@@ -213,4 +213,22 @@ Feature: Onboarding — install to first green validate
     Then the decisions folder explains ADR, PDR, and IDR routing by subject and contains no decision log
     And the regenerated index remains valid without inventing a legacy register
     But existing decision files are not overwritten by either command
+
+  @AC-153
+  Scenario: A repository declares its Cliewen role, and an undeclared one is an adopter
+    Test-type: Unit
+    Given an empty repository, a repository already declaring a role, and a repository carrying no role marker at all
+    When the user runs "clue init" or the tooling reads the repository's role
+    Then init materializes an adopter marker in the empty repository and leaves an existing declaration untouched
+    And a repository with no marker reads as an adopter without error and is blocked by nothing
+    But a marker naming an unknown role, an empty role, or malformed YAML is rejected rather than defaulted
+
+  @AC-156
+  Scenario: Migration reports a spent analysis and never acts on it
+    Test-type: Unit
+    Given an analysis whose plans are all completed and whose declared carriers resolve, beside one whose plan is still active and one declaring no carrier
+    When the user previews or applies "clue migrate"
+    Then the spent analysis is reported as a non-blocking notice naming its completed plans and the artifacts carrying its findings
+    And applying the migration writes nothing for it and removes no file
+    But the analysis with an active plan and the analysis declaring no carrier are not reported
 ```
