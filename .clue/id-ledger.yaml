@@ -1869,9 +1869,15 @@ entries:
       state: retired
     - id: CH-166
       kind: numeric
-      state: reserved
+      state: live
       prefix: CH
       component: "166"
+    - id: CH-166-open-questions
+      kind: opaque
+      state: retired
+    - id: CH-166-tasks
+      kind: opaque
+      state: retired
     - id: G-001
       kind: numeric
       state: live

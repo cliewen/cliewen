@@ -31,4 +31,4 @@ This does not reach [`clue validate`](../capabilities/CAP-002-validate/README.md
 
 ## Carrier
 
-The citation condition in `internal/corpus`, its criterion, this record, and the shipped analysis guidance in `internal/skills/source/skills/clue-analysis.md.tmpl` and `internal/scaffold/templates/docs/analysis/README.md` stating what keeps a spike from being reported.
+The citation condition in `internal/corpus`, its criterion, this record, and the shipped guidance stating what keeps a spike from being reported: `internal/skills/source/skills/clue-analysis.md.tmpl`, `internal/skills/source/skills/clue-upgrade.md.tmpl` describing what a reported spike is, and the corpus maps in `internal/scaffold/templates/docs/analysis/README.md` and `internal/scaffold/templates/docs/README.md`.
