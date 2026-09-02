@@ -1,11 +1,11 @@
 ---
 id: ADR-061
 type: decision
-status: inferred
+status: verified
 links: [ADR-040, PDR-039, G-001]
 title: Cliewen has no general external coordination interface
 author: agent
-accepted-by: []
+accepted-by: Flemming N. Larsen (2026-09-02)
 ---
 
 # ADR-061 — Cliewen has no general external coordination interface

@@ -1,11 +1,11 @@
 ---
 id: IDR-002
 type: decision
-status: inferred
+status: verified
 links: [ADR-013, ADR-022, ADR-043, ADR-046]
 title: The managed skill roster is guarded locally and reported to adopters
 author: agent
-accepted-by: []
+accepted-by: Flemming N. Larsen (2026-09-02)
 ---
 
 # IDR-002 — The managed skill roster is guarded locally and reported to adopters

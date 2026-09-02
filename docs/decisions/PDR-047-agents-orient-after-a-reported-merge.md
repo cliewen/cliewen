@@ -1,11 +1,11 @@
 ---
 id: PDR-047
 type: decision
-status: inferred
+status: verified
 links: [P-016, C-020]
 title: Agents orient after a human reports a merge
 author: agent
-accepted-by: []
+accepted-by: Flemming N. Larsen (2026-09-02)
 ---
 
 # PDR-047 — Agents orient after a human reports a merge

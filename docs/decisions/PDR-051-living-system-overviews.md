@@ -1,11 +1,11 @@
 ---
 id: PDR-051
 type: decision
-status: inferred
+status: verified
 links: [P-018, PDR-019, PDR-043, PDR-046, CAP-001, CAP-002, CAP-006]
 title: Every Cliewen corpus maintains concise system architecture and design overviews
 author: agent
-accepted-by: []
+accepted-by: Flemming N. Larsen (2026-09-02)
 ---
 
 # PDR-051 — Every Cliewen corpus maintains concise system architecture and design overviews

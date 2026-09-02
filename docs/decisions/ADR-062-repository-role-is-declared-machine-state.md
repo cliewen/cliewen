@@ -1,12 +1,12 @@
 ---
 id: ADR-062
 type: decision
-status: inferred
+status: verified
 links: [G-011, P-019, M-081, ADR-013, ADR-011, ADR-048, ADR-044, CAP-001, CAP-002]
 title: A repository declares its Cliewen role as machine state, and an adopter-binding rule names a shipped carrier
 binds: adopter
 author: agent
-accepted-by: []
+accepted-by: Flemming N. Larsen (2026-09-02)
 ---
 
 # ADR-062 — Repository role is declared machine state

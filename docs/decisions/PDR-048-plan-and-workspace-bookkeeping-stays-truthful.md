@@ -1,11 +1,11 @@
 ---
 id: PDR-048
 type: decision
-status: inferred
+status: verified
 links: [PDR-026, PDR-033, C-003, C-010]
 title: Plan and workspace bookkeeping stays truthful
 author: agent
-accepted-by: []
+accepted-by: Flemming N. Larsen (2026-09-02)
 ---
 
 # PDR-048 — Plan and workspace bookkeeping stays truthful

@@ -1,11 +1,11 @@
 ---
 id: ADR-055
 type: decision
-status: inferred
+status: verified
 links: [P-014, PDR-038, ADR-034, AN-022, PDR-034, PDR-029, PDR-026, ADR-019, PDR-007, PDR-016, PDR-031, ADR-046]
 title: A live superseded decision stays prose a second time; the annotation gets one settled shape
 author: agent
-accepted-by: []
+accepted-by: Flemming N. Larsen (2026-09-02)
 ---
 
 # ADR-055 — Surviving supersession stays prose

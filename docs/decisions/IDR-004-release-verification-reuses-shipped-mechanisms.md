@@ -1,11 +1,11 @@
 ---
 id: IDR-004
 type: decision
-status: inferred
+status: verified
 links: [ADR-011, ADR-012, ADR-013, CAP-004]
 title: Release verification reuses the shipped judge and reviewed notes
 author: agent
-accepted-by: []
+accepted-by: Flemming N. Larsen (2026-09-02)
 ---
 
 # IDR-004 — Release verification reuses the shipped judge and reviewed notes
