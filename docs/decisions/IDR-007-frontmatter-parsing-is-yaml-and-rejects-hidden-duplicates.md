@@ -5,7 +5,7 @@ status: verified
 links: [ADR-010, CAP-002, CAP-003]
 title: Frontmatter uses YAML and rejects hidden or duplicate blocks
 author: agent
-accepted-by: Flemming N. Larsen (2026-09-02)
+accepted-by: Flemming N. Larsen (2026-09-02, conversation)
 ---
 
 # IDR-007 — Frontmatter uses YAML and rejects hidden or duplicate blocks

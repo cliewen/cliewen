@@ -5,7 +5,7 @@ status: verified
 links: [ADR-046, C-018, C-019]
 title: Durable communication is readable and nonderived
 author: agent
-accepted-by: Flemming N. Larsen (2026-09-02)
+accepted-by: Flemming N. Larsen (2026-09-02, conversation)
 ---
 
 # PDR-049 — Durable communication is readable and nonderived

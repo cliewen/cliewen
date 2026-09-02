@@ -5,7 +5,7 @@ status: verified
 links: [CAP-004, ADR-039, ADR-043, ADR-060, PDR-042]
 title: An upgrade routes as simple work unless the release makes the adopter decide
 author: agent
-accepted-by: Flemming N. Larsen (2026-09-02)
+accepted-by: Flemming N. Larsen (2026-09-02, conversation)
 ---
 
 # PDR-043 — An upgrade routes as simple work unless the release makes the adopter decide

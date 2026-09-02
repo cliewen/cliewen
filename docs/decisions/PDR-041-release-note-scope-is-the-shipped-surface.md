@@ -5,7 +5,7 @@ status: verified
 links: [G-007, C-002, ADR-012, ADR-013, PDR-042]
 title: A change owes a release note when it changes what an adopter receives
 author: agent
-accepted-by: Flemming N. Larsen (2026-09-02)
+accepted-by: Flemming N. Larsen (2026-09-02, conversation)
 ---
 
 # PDR-041 — Release-note scope is the shipped surface

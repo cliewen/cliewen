@@ -5,7 +5,7 @@ status: verified
 links: [C-014, CAP-008]
 title: Go coverage is an aggregate tripwire
 author: agent
-accepted-by: Flemming N. Larsen (2026-09-02)
+accepted-by: Flemming N. Larsen (2026-09-02, conversation)
 ---
 
 # IDR-008 — Go coverage is an aggregate tripwire
