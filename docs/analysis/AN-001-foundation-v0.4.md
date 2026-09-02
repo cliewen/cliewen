@@ -3,6 +3,7 @@ id: AN-001
 type: analysis
 status: active
 links: [G-001]
+carried-by: [ARCH-001, ARCH-003, PDR-030, PDR-006]
 title: Cliewen Foundation Document (v0.4, 2026-07-11)
 ---
 

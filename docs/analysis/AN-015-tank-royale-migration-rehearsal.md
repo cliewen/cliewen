@@ -5,6 +5,7 @@ status: active
 provenance: verified
 reversal-cost: low
 links: [P-009, PDR-004, PDR-020, PDR-021, ADR-037, AN-013, AN-014, CAP-003]
+carried-by: [CAP-003, PDR-020, P-009]
 title: A retrospective rehearsal on Tank Royale proves report-only migration truth and leaves one CI conjunct open
 ---
 

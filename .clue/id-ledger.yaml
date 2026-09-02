@@ -1880,9 +1880,15 @@ entries:
       state: retired
     - id: CH-167
       kind: numeric
-      state: reserved
+      state: live
       prefix: CH
       component: "167"
+    - id: CH-167-open-questions
+      kind: opaque
+      state: retired
+    - id: CH-167-tasks
+      kind: opaque
+      state: retired
     - id: G-001
       kind: numeric
       state: live
