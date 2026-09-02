@@ -421,6 +421,11 @@ const (
 
 var indexLinkRe = regexp.MustCompile(`\]\(([^)#\s]+)\)`)
 
+// indexBadgeRe matches the badge a generated row carries directly after its
+// link: the separator, then the value in backticks. Only the value is
+// replaced, so a row's spacing and everything around it survive.
+var indexBadgeRe = regexp.MustCompile("(\\]\\([^)#\\s]+\\) · `)([^`]*)(`)")
+
 func regenIndexes(root string, rep *Report) error {
 	docs := filepath.Join(root, "docs")
 	entries, err := os.ReadDir(docs)
@@ -555,7 +560,7 @@ func regenIndex(root, rel string) (bool, error) {
 		for _, w := range covers {
 			covered[w] = true
 		}
-		lines = append(lines, line)
+		lines = append(lines, refreshBadge(root, dirOf(rel), line, covers))
 	}
 	var missing []string
 	for t := range wanted {
@@ -608,6 +613,44 @@ func regenIndex(root, rel string) (bool, error) {
 
 // indexTargets lists what a taxonomy README's index must reference:
 // sibling .md artifacts and subfolders that contain markdown.
+// dirOf is the folder a README's relative targets resolve against.
+func dirOf(rel string) string { return path.Dir(rel) }
+
+// refreshBadge brings a kept row's badge back in step with the artifact it
+// names (ADR-064).
+//
+// A row that already covers its target is otherwise kept byte for byte,
+// which is right for the description — ADR-046 makes that sentence the
+// author's, seeded and never rewritten — and wrong for the badge, which is
+// generated content no rule ever handed to the author. Left alone it keeps
+// whatever the artifact's status was when the row was first appended, and
+// running the regenerator changes nothing, which is what makes a stale row
+// convincing.
+//
+// Two boundaries keep this from trading a silent staleness for a silent
+// overwrite. A row carrying no badge gains none: its author removed it, and
+// a row that claims nothing is never wrong. A row covering more than one
+// artifact is left alone, because no single artifact owns its badge and the
+// generator does not guess. The value itself comes from RowIdentity, so a
+// constraint keeps showing its enforcement rather than its status
+// (IDR-001).
+func refreshBadge(root, dir, line string, covers []string) string {
+	if len(covers) != 1 || strings.HasSuffix(covers[0], "/README.md") {
+		return line
+	}
+	m := indexBadgeRe.FindStringSubmatchIndex(line)
+	if m == nil {
+		return line
+	}
+	id, ok := corpus.RowIdentity(filepath.Join(root, filepath.FromSlash(path.Join(dir, covers[0]))))
+	if !ok {
+		// An artifact whose frontmatter cannot be read keeps its row
+		// unchanged: the judge is what names a malformed artifact.
+		return line
+	}
+	return line[:m[4]] + id.Badge + line[m[5]:]
+}
+
 func indexTargets(root, dir string) (map[string]bool, error) {
 	wanted := map[string]bool{}
 	entries, err := os.ReadDir(filepath.Join(root, filepath.FromSlash(dir)))

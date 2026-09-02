@@ -74,12 +74,29 @@ Feature: Index generation — clue scaffold
     Then the appended row is exactly the row that states its record, with no trailing separator and no empty tail
     But an artifact whose frontmatter cannot be read degrades to the plain link, acquiring neither a status badge nor a description, even where its body holds a readable sentence
 
-  @AC-098
+  @AC-098 @retired
+  Scenario: A curated description outlives regeneration
+    # Retired 2026-09-02 (CH-168): ADR-064 makes the badge on a kept row
+    # generator-owned, so "the row is unchanged" is no longer true of a row
+    # whose artifact has changed status. The surviving half — the author's
+    # description outlives regeneration and nothing backfills a row that
+    # already exists — is carried by AC-160.
+
+  @AC-159
+  Scenario: A kept row's badge follows the artifact, and only where it is unambiguous
+    Test-type: Unit
+    Given a taxonomy README whose rows include one whose badge no longer matches its artifact's status, one an author left with no badge at all, and one curated line linking two artifacts
+    When the index block is regenerated
+    Then the stale badge is replaced with the artifact's current value and the rest of that row is untouched
+    And a constraint's row still shows its enforcement rather than its status
+    But the badgeless row gains none, the multi-target line is left alone, and a row whose artifact has unreadable frontmatter keeps what it had
+
+  @AC-160
   Scenario: A curated description outlives regeneration
     Test-type: Unit
     Given a taxonomy README whose row carries a description an author corrected by hand
     When the index block is regenerated
-    Then the row is unchanged, because the seed is a first draft and never an assertion
+    Then the description is unchanged, because the seed is a first draft and never an assertion
     And no command writes a description into a row that already exists
     But a curated row whose target no longer resolves is dropped like any other, so a description cannot keep a dangling entry alive
 ```
