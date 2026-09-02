@@ -4,7 +4,7 @@ type: analysis
 status: active
 provenance: verified
 reversal-cost: low
-links: [P-011, P-012, PDR-026, ADR-048, ADR-049, ADR-051, ADR-052, ADR-053, ADR-054, PDR-027, PDR-028, AN-016, CAP-003]
+links: [P-011, P-012, PDR-026, ADR-048, ADR-049, ADR-051, ADR-052, ADR-053, ADR-054, PDR-027, PDR-028, CAP-003]
 title: The brownfield migration assessment re-derived as an inspectable gate register
 ---
 
@@ -19,8 +19,8 @@ This is a sanitized record of the supplied brownfield migration assessment that 
 | Assessment gate | Present disposition | Basis |
 |---|---|---|
 | Historic identities must not be reused after source deletion. | Closed. | ADR-048's ledger, `clue validate`, and the M-056 numeric and opaque failure fixtures prove the mechanism and its failure paths. This repository now exercises MIG-008 to seed its own ledger. |
-| Source criteria and their proof locations must survive extraction. | Closed at the declared fixture scope. | ADR-049's manifests and `clue parity` reject missing criteria, orphaned tags, changed directions or locations, stale fingerprints, and unjustified dispositions; AN-016 records the composed failure paths. |
-| Active source work and operational carriers must survive deletion. | Closed at the declared fixture scope. | ADR-050 records durable imported work and ADR-051 reconciles carriers; AN-016 records their composed failure paths. |
+| Source criteria and their proof locations must survive extraction. | Closed at the declared fixture scope. | ADR-049's manifests and `clue parity` reject missing criteria, orphaned tags, changed directions or locations, stale fingerprints, and unjustified dispositions; [AC-123](../capabilities/CAP-003-extract/criteria.md) and the fixture evidence under `internal/migration` compose those failure paths. |
+| Active source work and operational carriers must survive deletion. | Closed at the declared fixture scope. | ADR-050 records durable imported work and ADR-051 reconciles carriers; [AC-123](../capabilities/CAP-003-extract/criteria.md) and the fixture evidence under `internal/migration` compose their failure paths. |
 | A migration must not hide corpus-wide debt behind repeated draft, Human, or retirement prose. | Closed at the declared fixture scope by M-058. | ADR-053 makes every deferred disposition name a readable source location and a distinct declared plan door, and `clue parity` reports the deferred population on every run; repeated prose no longer passes as a distinct deferral. |
 | A durable extraction report must not contradict its own manifest. | Closed at the declared fixture scope by M-059. | ADR-054 renders a report's counts and mapping table from the pinned source manifest `clue parity` compares, and `clue validate` re-renders the region, so a typed or stale figure fails the required check. |
 | A reviewer needs a committed per-criterion registry to read against a diff. | Declined with an accepted limit. | PDR-028 makes the refusal explicit: the derived report, pinned source manifest, and clean parity result replace the requested registry; an adopter gives up one diff-oriented document rendering every criterion and follows the manifest for individual mappings. |

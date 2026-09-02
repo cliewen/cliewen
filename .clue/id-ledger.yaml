@@ -5,7 +5,7 @@ counters:
     ARCH: "3"
     C: "22"
     CAP: "8"
-    CH: "166"
+    CH: "167"
     G: "11"
     IC: "2"
     IDR: "8"
@@ -1090,7 +1090,7 @@ entries:
       component: "63"
     - id: AN-001
       kind: numeric
-      state: live
+      state: retired
       prefix: AN
       component: "1"
     - id: AN-002
@@ -1160,12 +1160,12 @@ entries:
       component: "14"
     - id: AN-015
       kind: numeric
-      state: live
+      state: retired
       prefix: AN
       component: "15"
     - id: AN-016
       kind: numeric
-      state: live
+      state: retired
       prefix: AN
       component: "16"
     - id: AN-017
@@ -1876,6 +1876,17 @@ entries:
       kind: opaque
       state: retired
     - id: CH-166-tasks
+      kind: opaque
+      state: retired
+    - id: CH-167
+      kind: numeric
+      state: live
+      prefix: CH
+      component: "167"
+    - id: CH-167-open-questions
+      kind: opaque
+      state: retired
+    - id: CH-167-tasks
       kind: opaque
       state: retired
     - id: G-001

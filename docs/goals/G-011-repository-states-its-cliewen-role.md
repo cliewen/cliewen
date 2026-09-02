@@ -1,7 +1,7 @@
 ---
 id: G-011
 type: goal
-status: proposed
+status: accepted
 links: [G-003, G-007]
 title: A repository states whether it is Cliewen's source or an adopter
 ---
