@@ -40,15 +40,21 @@ Feature: Index generation — clue scaffold
     # enforcement class in this position rather than its generic lifecycle
     # status; AC-138 carries the type-aware row and report contract.
 
-  @AC-138
+  @AC-138 @retired
   Scenario: A constraint index badge states enforcement and a mismatch is visible
+    # Retired 2026-09-02 (CH-168): the scenario regenerated the block and then
+    # expected the mismatch to still be counted. ADR-064 makes regeneration
+    # repair that badge, so the two halves can no longer share one When. Both
+    # survive in AC-161, which separates them.
+
+  @AC-161
+  Scenario: A constraint index badge states enforcement, and a mismatch regeneration has not reached stays visible
     Test-type: Unit
     Given a taxonomy folder holding an unindexed constraint with a readable enforcement class
-    And an existing direct constraint index row whose badge differs from its target's enforcement class
-    When the index block is regenerated and the user runs "clue validate --index-rows"
+    When the index block is regenerated
     Then the appended constraint row states its id, title, and enforcement class in the badge position
     And an appended row for an artifact other than a constraint still states its status in that position
-    And the validation run exits zero, counts the mismatched constraint badge, and names the README and target a reader opens to
+    But a direct constraint row whose badge disagrees with its target, in a corpus regeneration has not reached, is counted by "clue validate --index-rows", which exits zero and names the README and target a reader opens to
     But a constraint missing readable enforcement falls back to the plain link rather than carrying an empty or status badge
     And a matching direct constraint row, a subfolder row, and a curated row covering several targets are not counted as mismatches
 
@@ -75,7 +81,7 @@ Feature: Index generation — clue scaffold
     But an artifact whose frontmatter cannot be read degrades to the plain link, acquiring neither a status badge nor a description, even where its body holds a readable sentence
 
   @AC-098 @retired
-  Scenario: A curated description outlives regeneration
+  Scenario: A curated row is unchanged by regeneration
     # Retired 2026-09-02 (CH-168): ADR-064 makes the badge on a kept row
     # generator-owned, so "the row is unchanged" is no longer true of a row
     # whose artifact has changed status. The surviving half — the author's

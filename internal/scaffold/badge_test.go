@@ -116,3 +116,29 @@ func TestAC159_UnitNegative_AnAmbiguousOrBadgelessRowIsLeftAlone(t *testing.T) {
 		}
 	})
 }
+
+// B1 regression: the badge is found by its position after the row's own
+// link. A description may itself contain a link, and a scan from the left
+// would treat whatever followed that link as the badge — overwriting the
+// author's prose in exactly the case the badgeless rule exists to protect.
+func TestAC159_UnitNegative_ADescriptionLinkIsNotMistakenForTheBadge(t *testing.T) {
+	root, _ := runInto(t)
+	writeGoal(t, root, "G-001", "accepted", "First goal")
+	row := "- [G-001 — First goal](G-001-slug.md) — see [the rule](../decisions/ADR-046-x.md) · `verified` for why."
+	readme := writeIndex(t, root, row)
+	if got := regenAndRead(t, root, readme); !strings.Contains(got, row) {
+		t.Fatalf("a link inside the description must never be read as the row's badge, got:\n%s", got)
+	}
+}
+
+// A row naming its own target twice describes one artifact, not two, so the
+// multi-artifact guard must not swallow it.
+func TestAC159_UnitPositive_ARowNamingOneTargetTwiceStillRefreshes(t *testing.T) {
+	root, _ := runInto(t)
+	writeGoal(t, root, "G-001", "accepted", "First goal")
+	readme := writeIndex(t, root, "- [G-001 — First goal](G-001-slug.md) · `proposed` — also at [here](G-001-slug.md).")
+	got := regenAndRead(t, root, readme)
+	if !strings.Contains(got, "· `accepted` — also at [here](G-001-slug.md).") {
+		t.Fatalf("one artifact named twice is still one artifact, got:\n%s", got)
+	}
+}

@@ -219,12 +219,12 @@ func TestAC027_NoDocsTreeIsAnErrorAndCreatesNothing(t *testing.T) {
 	}
 }
 
-// AC-138: an appended index row states the record it links — id, title, and
+// AC-161: an appended index row states the record it links — id, title, and
 // status for an ordinary artifact, enforcement for a constraint — rather than
 // restating the filename the link already carries. The title here is
 // YAML-quoted because its value contains a colon; the row must spell the
 // parsed value, never the quoting.
-func TestAC138_UnitPositive_AppendedRowsUseStatusOrConstraintEnforcement(t *testing.T) {
+func TestAC161_UnitPositive_AppendedRowsUseStatusOrConstraintEnforcement(t *testing.T) {
 	root, _ := runInto(t)
 	readme := filepath.Join(root, "docs", "goals", "README.md")
 	prose := "# Goals\n\n<!-- clue:index:start -->\n<!-- clue:index:end -->\n"
@@ -487,10 +487,10 @@ func TestAC160_UnitNegative_CuratedRowForAMissingTargetIsStillDropped(t *testing
 	}
 }
 
-// AC-138 negative: a target with no readable identity or no required
+// AC-161 negative: a target with no readable identity or no required
 // constraint enforcement falls back to the plain link instead of emitting a
 // half-formed row, and a subfolder row states a section rather than a record.
-func TestAC138_UnitNegative_UnreadableIdentityAndSubfolderRowsStayPlain(t *testing.T) {
+func TestAC161_UnitNegative_UnreadableIdentityAndSubfolderRowsStayPlain(t *testing.T) {
 	root, _ := runInto(t)
 	readme := filepath.Join(root, "docs", "goals", "README.md")
 	prose := "# Goals\n\n<!-- clue:index:start -->\n<!-- clue:index:end -->\n"

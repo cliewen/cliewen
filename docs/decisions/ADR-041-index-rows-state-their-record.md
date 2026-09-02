@@ -16,7 +16,7 @@ An index row that names only a filename opens the right file but does not tell a
 
 ## Decision outcome
 
-**An appended artifact row is `- [<id> — <title>](<file>) · \`<status>\``, using parsed frontmatter values.** A malformed artifact missing `id`, `title`, or `status` degrades to a plain link; folder rows remain plain because they name sections rather than records; and existing rows whose targets still exist are preserved.
+**An appended artifact row is `- [<id> — <title>](<file>) · \`<status>\``, using parsed frontmatter values.** A malformed artifact missing `id`, `title`, or `status` degrades to a plain link; folder rows remain plain because they name sections rather than records; and existing rows whose targets still exist are preserved. **Amended by [ADR-064](ADR-064-regeneration-owns-the-index-badge.md):** a kept row's badge is refreshed from its artifact on regeneration, because it is a copy of a frontmatter field rather than anything an author decided; the rest of the row is still preserved.
 
 `clue validate` counts rows whose label is only the target filename stem and `--index-rows` lists them, but the population is not an `Issue`. The count is a repair backlog rather than a gate because the generator emitted the old rows and the adopter may have curated their text.
 

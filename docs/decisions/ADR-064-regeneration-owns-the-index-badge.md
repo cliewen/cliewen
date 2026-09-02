@@ -19,7 +19,7 @@ That is right for the description and wrong for the badge. The description is a 
 
 ## Decision outcome
 
-**A kept row's badge is refreshed from the artifact it links; everything else on the row is left exactly as it stands.** The value is whatever the row would have been appended with, so a constraint keeps showing its enforcement rather than its status ([IDR-001](IDR-001-constraint-index-badges-show-enforcement.md)).
+**A kept row's badge is refreshed from the artifact it links; everything else on the row is left exactly as it stands.** This amends [ADR-041](ADR-041-index-rows-state-their-record.md)'s clause that every existing row is preserved and [ADR-046](ADR-046-index-rows-say-what-the-artifact-is-about.md)'s that regeneration rewrites nothing existing: both now cover the row apart from its badge, and both say so. The value is whatever the row would have been appended with, so a constraint keeps showing its enforcement rather than its status ([IDR-001](IDR-001-constraint-index-badges-use-enforcement.md)).
 
 Three boundaries keep this from trading a silent staleness for a silent overwrite:
 

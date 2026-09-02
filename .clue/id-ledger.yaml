@@ -1,5 +1,5 @@
 counters:
-    AC: "160"
+    AC: "161"
     ADR: "64"
     AN: "23"
     ARCH: "3"
@@ -695,7 +695,7 @@ entries:
       component: "137"
     - id: AC-138
       kind: numeric
-      state: live
+      state: retired
       prefix: AC
       component: "138"
     - id: AC-139
@@ -808,6 +808,11 @@ entries:
       state: live
       prefix: AC
       component: "160"
+    - id: AC-161
+      kind: numeric
+      state: live
+      prefix: AC
+      component: "161"
     - id: ADR-001
       kind: numeric
       state: live
