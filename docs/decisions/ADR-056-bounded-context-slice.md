@@ -1,11 +1,11 @@
 ---
 id: ADR-056
 type: decision
-status: inferred
+status: verified
 links: [CAP-007, PDR-034, ADR-007]
 title: A context slice is bounded by default, and states what the bound held back
 author: agent
-accepted-by: []
+accepted-by: Flemming N. Larsen (2026-09-02)
 ---
 
 # ADR-056 — Bounded context slice

@@ -1,12 +1,12 @@
 ---
 id: ADR-063
 type: decision
-status: inferred
+status: verified
 links: [P-020, M-083, ADR-034, C-008, ADR-044, CAP-002]
 title: A completed plan's links are a historical record, not live navigation
 binds: adopter
 author: agent
-accepted-by: []
+accepted-by: Flemming N. Larsen (2026-09-02)
 ---
 
 # ADR-063 — A completed plan's links are historical

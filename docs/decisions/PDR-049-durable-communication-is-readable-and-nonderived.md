@@ -1,11 +1,11 @@
 ---
 id: PDR-049
 type: decision
-status: inferred
+status: verified
 links: [ADR-046, C-018, C-019]
 title: Durable communication is readable and nonderived
 author: agent
-accepted-by: []
+accepted-by: Flemming N. Larsen (2026-09-02)
 ---
 
 # PDR-049 — Durable communication is readable and nonderived

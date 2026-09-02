@@ -1,11 +1,11 @@
 ---
 id: PDR-040
 type: decision
-status: inferred
+status: verified
 links: [G-001, PDR-007, PDR-012, PDR-016, PDR-033, PDR-042, C-004, C-012, CAP-006]
 title: Push is durability and the ready mark is the only readiness claim
 author: agent
-accepted-by: []
+accepted-by: Flemming N. Larsen (2026-09-02)
 ---
 
 # PDR-040 — Push is durability, ready is the explicit act

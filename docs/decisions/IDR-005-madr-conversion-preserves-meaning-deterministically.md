@@ -1,11 +1,11 @@
 ---
 id: IDR-005
 type: decision
-status: inferred
+status: verified
 links: [ADR-009, ADR-029, PDR-046, CAP-003]
 title: MADR conversion preserves meaning and resolves identities deterministically
 author: agent
-accepted-by: []
+accepted-by: Flemming N. Larsen (2026-09-02)
 ---
 
 # IDR-005 — MADR conversion preserves meaning and resolves identities deterministically

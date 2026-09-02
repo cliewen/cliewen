@@ -1,11 +1,11 @@
 ---
 id: IDR-006
 type: decision
-status: inferred
+status: verified
 links: [ADR-018, ADR-028, CAP-001]
 title: Init never writes through linked directories
 author: agent
-accepted-by: []
+accepted-by: Flemming N. Larsen (2026-09-02)
 ---
 
 # IDR-006 — Init never writes through linked directories

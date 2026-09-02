@@ -1,11 +1,11 @@
 ---
 id: IDR-001
 type: decision
-status: inferred
+status: verified
 links: [ADR-041, ADR-045, ADR-046, C-016, CAP-005]
 title: Constraint index badges show enforcement
 author: agent
-accepted-by: []
+accepted-by: Flemming N. Larsen (2026-09-02)
 ---
 
 # IDR-001 — Constraint index badges show enforcement

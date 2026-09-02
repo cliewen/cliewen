@@ -1,11 +1,11 @@
 ---
 id: PDR-041
 type: decision
-status: inferred
+status: verified
 links: [G-007, C-002, ADR-012, ADR-013, PDR-042]
 title: A change owes a release note when it changes what an adopter receives
 author: agent
-accepted-by: []
+accepted-by: Flemming N. Larsen (2026-09-02)
 ---
 
 # PDR-041 — Release-note scope is the shipped surface

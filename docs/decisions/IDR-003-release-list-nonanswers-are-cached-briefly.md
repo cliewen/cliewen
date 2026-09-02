@@ -1,11 +1,11 @@
 ---
 id: IDR-003
 type: decision
-status: inferred
+status: verified
 links: [ADR-042, CAP-004]
 title: Release-list nonanswers are cached briefly
 author: agent
-accepted-by: []
+accepted-by: Flemming N. Larsen (2026-09-02)
 ---
 
 # IDR-003 — Release-list nonanswers are cached briefly

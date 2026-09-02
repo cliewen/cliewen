@@ -1,12 +1,12 @@
 ---
 id: PDR-052
 type: decision
-status: inferred
+status: verified
 links: [G-011, P-019, M-082, ADR-034, ADR-044, ADR-062, PDR-046, CAP-001, CAP-002]
 title: An analysis declares where its findings landed, and a spent one is reported rather than retained
 binds: adopter
 author: agent
-accepted-by: []
+accepted-by: Flemming N. Larsen (2026-09-02)
 ---
 
 # PDR-052 — A spent analysis is reported, not retained
