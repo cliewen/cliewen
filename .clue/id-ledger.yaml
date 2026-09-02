@@ -5,7 +5,7 @@ counters:
     ARCH: "3"
     C: "22"
     CAP: "8"
-    CH: "166"
+    CH: "167"
     G: "11"
     IC: "2"
     IDR: "8"
@@ -1878,6 +1878,11 @@ entries:
     - id: CH-166-tasks
       kind: opaque
       state: retired
+    - id: CH-167
+      kind: numeric
+      state: reserved
+      prefix: CH
+      component: "167"
     - id: G-001
       kind: numeric
       state: live
