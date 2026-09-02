@@ -10,11 +10,13 @@ import "sort"
 // deletion (ADR-034), so the corpus has no status for "spent" to rest in —
 // what it needs instead is a way to say which spikes are ready to go.
 //
-// Two conditions are required, and the second is the one that cannot be
-// inferred. A completed plan says the campaign ended; it says nothing about
-// whether the spike's findings ever reached durable form. In a corpus whose
-// plans are all completed, the plan test alone would sweep up every
-// analysis at once. The carried-by field is the half a human declares.
+// Three conditions are required. A completed plan says the campaign ended;
+// it says nothing about whether the spike's findings ever reached durable
+// form, and in a corpus whose plans are all completed the plan test alone
+// would sweep up every analysis at once. The carried-by field is the half a
+// human declares. And a spike a live decision or constraint cites stays,
+// because a standing rule whose evidence is gone is readable but no longer
+// reviewable (PDR-053).
 //
 // Nothing here fails a corpus. An unexpired analysis is not invalid, and
 // the judge reads state rather than judgment (ADR-044): this derivation
@@ -67,8 +69,8 @@ func checkCarriedBy(c *Corpus) []Issue {
 }
 
 // SpentAnalyses derives the analyses ready for a reviewed retirement: every
-// plan they serve is completed, and they name a durable carrier that
-// resolves. No registry is written to disk.
+// plan they serve is completed, they name a durable carrier that resolves,
+// and no standing rule cites them. No registry is written to disk.
 func SpentAnalyses(c *Corpus) []SpentAnalysis {
 	plans := map[string]*Artifact{}
 	for _, a := range c.Artifacts {
@@ -76,6 +78,7 @@ func SpentAnalyses(c *Corpus) []SpentAnalysis {
 			plans[a.ID] = a
 		}
 	}
+	cited := citedByStandingRule(c)
 	live := map[string]bool{}
 	for id, as := range c.ByID {
 		if len(as) > 0 {
@@ -85,6 +88,11 @@ func SpentAnalyses(c *Corpus) []SpentAnalysis {
 	var out []SpentAnalysis
 	for _, a := range c.Artifacts {
 		if a.Type != "analysis" || a.Status != "active" || len(a.CarriedBy) == 0 {
+			continue
+		}
+		// A decision or constraint reading this spike as its evidence base
+		// keeps it (PDR-053).
+		if cited[a.ID] {
 			continue
 		}
 		// A carrier that does not resolve is reported by checkCarriedBy,
@@ -120,4 +128,30 @@ func SpentAnalyses(c *Corpus) []SpentAnalysis {
 	}
 	sort.Slice(out, func(i, j int) bool { return out[i].Path < out[j].Path })
 	return out
+}
+
+// citedByStandingRule collects the analyses a live decision or constraint
+// names in its links (PDR-053).
+//
+// Both artifact types are rules that outlive the campaign that produced
+// them, and both are read by someone deciding whether the rule still
+// holds — which cannot be done once the material behind it is gone. A plan
+// does not gate: an active one keeps the spike unspent through the
+// completion test already, and a completed one's links are history
+// (ADR-063). An analysis does not gate, because a spike is not a standing
+// rule.
+func citedByStandingRule(c *Corpus) map[string]bool {
+	cited := map[string]bool{}
+	for _, a := range c.Artifacts {
+		if a.Type != "decision" && a.Type != "constraint" {
+			continue
+		}
+		for _, l := range a.Links {
+			target, ok := c.ByID[l]
+			if ok && len(target) > 0 && target[0].Type == "analysis" {
+				cited[l] = true
+			}
+		}
+	}
+	return cited
 }

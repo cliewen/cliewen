@@ -115,3 +115,69 @@ func TestAC156_UnitNegative_OneConditionAloneIsNotSpent(t *testing.T) {
 		})
 	}
 }
+
+// citingCorpus is the spent baseline plus a decisions folder and a
+// constraints folder, so a citation can be pointed at AN-001 one artifact
+// type at a time.
+func citingCorpus(t *testing.T, extra map[string]string) *Corpus {
+	t.Helper()
+	files := with(validFiles, with(analysisFiles, map[string]string{
+		"docs/README.md":             "# Corpus\n\n<!-- clue:index:start -->\n- [goals/](goals/README.md)\n- [plans/](plans/README.md)\n- [analysis/](analysis/README.md)\n- [architecture/](architecture/README.md)\n- [design/](design/README.md)\n- [decisions/](decisions/README.md)\n- [constraints/](constraints/README.md)\n<!-- clue:index:end -->\n",
+		"docs/decisions/README.md":   "# Decisions\n\n<!-- clue:index:start -->\n- [ADR-001](ADR-001-a-rule.md)\n<!-- clue:index:end -->\n",
+		"docs/constraints/README.md": "# Constraints\n\n<!-- clue:index:start -->\n- [C-001](C-001-a-rule.md)\n<!-- clue:index:end -->\n",
+	}))
+	c, issues := Scan(writeCorpus(t, with(files, extra)))
+	if len(issues) != 0 {
+		t.Fatalf("scan issues: %v", issues)
+	}
+	return c
+}
+
+func adr(links string) string {
+	return "---\nid: ADR-001\ntype: decision\nstatus: inferred\nlinks: [" + links + "]\ntitle: A rule\nauthor: agent\naccepted-by: []\n---\n\n# ADR-001\n"
+}
+
+func constraint(links string) string {
+	return "---\nid: C-001\ntype: constraint\nstatus: active\nlinks: [" + links + "]\ntitle: A rule\nsource: G-001\nenforcement: agent\n---\n\n# C-001\n\nThe rule holds.\n"
+}
+
+// A decision or constraint citing a spike is neither invalid nor a bar to
+// anything else; it only keeps the spike out of the spent report.
+func TestAC158_UnitPositive_AnUncitedSpikeIsStillReported(t *testing.T) {
+	c := citingCorpus(t, map[string]string{
+		"docs/decisions/ADR-001-a-rule.md": adr("P-001"),
+		"docs/constraints/C-001-a-rule.md": constraint("P-001"),
+		"docs/analysis/README.md":          "# Analysis\n\n<!-- clue:index:start -->\n- [AN-001](AN-001-spike.md)\n- [AN-002](AN-002-other.md)\n<!-- clue:index:end -->\n",
+		"docs/analysis/AN-002-other.md":    "---\nid: AN-002\ntype: analysis\nstatus: active\nlinks: [P-001, AN-001]\ntitle: Other\n---\n\n# AN-002\n",
+	})
+	spent := SpentAnalyses(c)
+	if len(spent) != 1 || spent[0].ID != "AN-001" {
+		t.Fatalf("a spike named only by a completed plan and another analysis should be reported, got %+v", spent)
+	}
+	if issues := Validate(c, Options{}); len(issues) != 0 {
+		t.Fatalf("a cited spike is not an invalid corpus, got %v", issues)
+	}
+}
+
+// Both standing rule types gate. Each is read by someone deciding whether
+// the rule still holds, which cannot be done once its evidence is gone.
+func TestAC158_UnitNegative_ACitedSpikeIsWithheld(t *testing.T) {
+	cases := map[string]map[string]string{
+		"cited by a decision": {
+			"docs/decisions/ADR-001-a-rule.md": adr("P-001, AN-001"),
+			"docs/constraints/C-001-a-rule.md": constraint("P-001"),
+		},
+		"cited by a constraint": {
+			"docs/decisions/ADR-001-a-rule.md": adr("P-001"),
+			"docs/constraints/C-001-a-rule.md": constraint("P-001, AN-001"),
+		},
+	}
+	for name, extra := range cases {
+		t.Run(name, func(t *testing.T) {
+			c := citingCorpus(t, extra)
+			if spent := SpentAnalyses(c); len(spent) != 0 {
+				t.Fatalf("expected nothing spent, got %+v", spent)
+			}
+		})
+	}
+}

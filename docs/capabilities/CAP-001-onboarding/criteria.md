@@ -231,4 +231,13 @@ Feature: Onboarding — install to first green validate
     Then the spent analysis is reported as a non-blocking notice naming its completed plans and the artifacts carrying its findings
     And applying the migration writes nothing for it and removes no file
     But the analysis with an active plan and the analysis declaring no carrier are not reported
+
+  @AC-158
+  Scenario: A spike a standing rule cites is kept out of the spent report
+    Test-type: Unit
+    Given an otherwise spent analysis that a live decision names in its links, one that a live constraint names, and one named only by a completed plan and another analysis
+    When the spent-analysis derivation runs
+    Then the analysis only a completed plan and another analysis name is reported
+    And the corpus remains valid, because a cited spike is not an invalid corpus
+    But the analysis a decision cites and the analysis a constraint cites are both withheld from the report
 ```
