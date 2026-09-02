@@ -1090,7 +1090,7 @@ entries:
       component: "63"
     - id: AN-001
       kind: numeric
-      state: live
+      state: retired
       prefix: AN
       component: "1"
     - id: AN-002
@@ -1160,12 +1160,12 @@ entries:
       component: "14"
     - id: AN-015
       kind: numeric
-      state: live
+      state: retired
       prefix: AN
       component: "15"
     - id: AN-016
       kind: numeric
-      state: live
+      state: retired
       prefix: AN
       component: "16"
     - id: AN-017
@@ -1885,10 +1885,10 @@ entries:
       component: "167"
     - id: CH-167-open-questions
       kind: opaque
-      state: live
+      state: retired
     - id: CH-167-tasks
       kind: opaque
-      state: live
+      state: retired
     - id: G-001
       kind: numeric
       state: live

@@ -3,6 +3,7 @@ id: CAP-003
 type: capability
 status: active
 links: [G-001, ADR-008, ADR-009, ADR-010, ADR-037, ADR-049, ADR-050, ADR-051, ADR-053, PDR-028]
+supersedes: [AN-015, AN-016]
 title: Brownfield extraction — adopt an existing corpus without losing its thread
 goal: G-001
 ---
