@@ -5,7 +5,7 @@ status: verified
 links: [ADR-018, ADR-028, CAP-001]
 title: Init never writes through linked directories
 author: agent
-accepted-by: Flemming N. Larsen (2026-09-02)
+accepted-by: Flemming N. Larsen (2026-09-02, conversation)
 ---
 
 # IDR-006 — Init never writes through linked directories

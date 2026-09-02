@@ -5,7 +5,7 @@ status: verified
 links: [P-016, PDR-003, PDR-006, PDR-044, PDR-045, C-011, C-013]
 title: Future-shaping decisions route by subject into concise records
 author: agent
-accepted-by: Flemming N. Larsen (2026-09-02)
+accepted-by: Flemming N. Larsen (2026-09-02, conversation)
 supersedes: [LOG-001]
 ---
 

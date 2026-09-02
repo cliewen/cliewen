@@ -5,7 +5,7 @@ status: verified
 links: [P-016, C-020]
 title: Agents orient after a human reports a merge
 author: agent
-accepted-by: Flemming N. Larsen (2026-09-02)
+accepted-by: Flemming N. Larsen (2026-09-02, conversation)
 ---
 
 # PDR-047 — Agents orient after a human reports a merge

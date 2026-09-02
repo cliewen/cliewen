@@ -6,7 +6,7 @@ links: [P-020, M-085, PDR-052, ADR-034, PDR-030, ADR-044, CAP-001]
 title: A spike a standing record cites stays readable while the citation stands
 binds: adopter
 author: agent
-accepted-by: Flemming N. Larsen (2026-09-02)
+accepted-by: Flemming N. Larsen (2026-09-02, conversation)
 ---
 
 # PDR-053 — A cited spike stays readable

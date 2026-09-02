@@ -5,7 +5,7 @@ status: verified
 links: [P-015, CAP-004, ARCH-002, ADR-021, PDR-029]
 title: A generated skill is a standalone directory with a routing entry point
 author: agent
-accepted-by: Flemming N. Larsen (2026-09-02)
+accepted-by: Flemming N. Larsen (2026-09-02, conversation)
 ---
 
 # ADR-059 — Progressive standalone skill directories

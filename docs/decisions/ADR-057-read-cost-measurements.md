@@ -5,7 +5,7 @@ status: verified
 links: [P-015, CAP-002, CAP-007, PDR-029, ADR-056, C-022, ADR-058]
 title: Read cost is reported as a structural backlog, never scored by size
 author: agent
-accepted-by: Flemming N. Larsen (2026-09-02)
+accepted-by: Flemming N. Larsen (2026-09-02, conversation)
 ---
 
 # ADR-057 — Read-cost measurements

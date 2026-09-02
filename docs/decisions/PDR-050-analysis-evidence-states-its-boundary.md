@@ -5,7 +5,7 @@ status: verified
 links: [PDR-030, ADR-035, CAP-003]
 title: Analysis evidence states its environment and population boundary
 author: agent
-accepted-by: Flemming N. Larsen (2026-09-02)
+accepted-by: Flemming N. Larsen (2026-09-02, conversation)
 ---
 
 # PDR-050 — Analysis evidence states its environment and population boundary

@@ -5,7 +5,7 @@ status: verified
 links: [CAP-007, PDR-034, ADR-007]
 title: A context slice is bounded by default, and states what the bound held back
 author: agent
-accepted-by: Flemming N. Larsen (2026-09-02)
+accepted-by: Flemming N. Larsen (2026-09-02, conversation)
 ---
 
 # ADR-056 — Bounded context slice

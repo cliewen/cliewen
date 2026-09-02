@@ -5,7 +5,7 @@ status: verified
 links: [ADR-040, PDR-039, G-001]
 title: Cliewen has no general external coordination interface
 author: agent
-accepted-by: Flemming N. Larsen (2026-09-02)
+accepted-by: Flemming N. Larsen (2026-09-02, conversation)
 ---
 
 # ADR-061 — Cliewen has no general external coordination interface

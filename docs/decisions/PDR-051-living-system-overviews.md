@@ -5,7 +5,7 @@ status: verified
 links: [P-018, PDR-019, PDR-043, PDR-046, CAP-001, CAP-002, CAP-006]
 title: Every Cliewen corpus maintains concise system architecture and design overviews
 author: agent
-accepted-by: Flemming N. Larsen (2026-09-02)
+accepted-by: Flemming N. Larsen (2026-09-02, conversation)
 ---
 
 # PDR-051 — Every Cliewen corpus maintains concise system architecture and design overviews

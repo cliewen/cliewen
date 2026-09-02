@@ -5,7 +5,7 @@ status: verified
 links: [P-013, AN-013, PDR-007, PDR-017, C-012, C-013, CAP-006]
 title: An authorized dependent change records its base and what its merge would bind
 author: agent
-accepted-by: Flemming N. Larsen (2026-09-02)
+accepted-by: Flemming N. Larsen (2026-09-02, conversation)
 ---
 
 # PDR-039 — An authorized dependent change records its base and what its merge would bind
