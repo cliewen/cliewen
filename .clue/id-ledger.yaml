@@ -1885,10 +1885,10 @@ entries:
       component: "167"
     - id: CH-167-open-questions
       kind: opaque
-      state: retired
+      state: live
     - id: CH-167-tasks
       kind: opaque
-      state: retired
+      state: live
     - id: G-001
       kind: numeric
       state: live

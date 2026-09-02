@@ -1,3 +1,11 @@
+---
+id: CH-167-tasks
+type: tasks
+status: open
+links: [CH-167]
+title: Tasks for retiring the last three spikes
+---
+
 # CH-167 — tasks
 
 - [ ] Declare `carried-by:` on AN-001, AN-015, and AN-016, and commit that declaration on its own so the migrate evidence is re-derivable from committed state
