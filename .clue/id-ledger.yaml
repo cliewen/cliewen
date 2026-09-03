@@ -2000,10 +2000,10 @@ entries:
       component: "170"
     - id: CH-170-open-questions
       kind: opaque
-      state: live
+      state: retired
     - id: CH-170-tasks
       kind: opaque
-      state: live
+      state: retired
     - id: G-001
       kind: numeric
       state: live
