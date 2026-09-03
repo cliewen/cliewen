@@ -1,17 +1,19 @@
 counters:
     AC: "161"
-    ADR: "64"
+    ADR: "67"
     AN: "23"
     ARCH: "3"
-    C: "22"
-    CAP: "8"
-    CH: "169"
-    G: "11"
+    C: "23"
+    CAP: "9"
+    CH: "170"
+    G: "12"
     IC: "2"
     IDR: "8"
     LOG: "1"
-    P: "20"
-    PDR: "53"
+    P: "21"
+    PDR: "55"
+    UC: "1"
+    VIS: "1"
 entries:
     - id: AC-001
       kind: numeric
@@ -1108,6 +1110,21 @@ entries:
       state: live
       prefix: ADR
       component: "64"
+    - id: ADR-065
+      kind: numeric
+      state: reserved
+      prefix: ADR
+      component: "65"
+    - id: ADR-066
+      kind: numeric
+      state: reserved
+      prefix: ADR
+      component: "66"
+    - id: ADR-067
+      kind: numeric
+      state: reserved
+      prefix: ADR
+      component: "67"
     - id: AN-001
       kind: numeric
       state: retired
@@ -1348,6 +1365,11 @@ entries:
       state: live
       prefix: C
       component: "22"
+    - id: C-023
+      kind: numeric
+      state: reserved
+      prefix: C
+      component: "23"
     - id: CAP-001
       kind: numeric
       state: live
@@ -1436,6 +1458,11 @@ entries:
     - id: CAP-008-design
       kind: opaque
       state: live
+    - id: CAP-009
+      kind: numeric
+      state: reserved
+      prefix: CAP
+      component: "9"
     - id: CH-122
       kind: numeric
       state: retired
@@ -1925,6 +1952,11 @@ entries:
       state: reserved
       prefix: CH
       component: "169"
+    - id: CH-170
+      kind: numeric
+      state: reserved
+      prefix: CH
+      component: "170"
     - id: G-001
       kind: numeric
       state: live
@@ -1980,6 +2012,11 @@ entries:
       state: live
       prefix: G
       component: "11"
+    - id: G-012
+      kind: numeric
+      state: reserved
+      prefix: G
+      component: "12"
     - id: IC-001
       kind: numeric
       state: live
@@ -2135,6 +2172,11 @@ entries:
       state: live
       prefix: P
       component: "20"
+    - id: P-021
+      kind: numeric
+      state: reserved
+      prefix: P
+      component: "21"
     - id: PDR-001
       kind: numeric
       state: live
@@ -2400,3 +2442,23 @@ entries:
       state: live
       prefix: PDR
       component: "53"
+    - id: PDR-054
+      kind: numeric
+      state: reserved
+      prefix: PDR
+      component: "54"
+    - id: PDR-055
+      kind: numeric
+      state: reserved
+      prefix: PDR
+      component: "55"
+    - id: UC-001
+      kind: numeric
+      state: reserved
+      prefix: UC
+      component: "1"
+    - id: VIS-001
+      kind: numeric
+      state: reserved
+      prefix: VIS
+      component: "1"
