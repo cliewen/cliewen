@@ -142,3 +142,16 @@ func TestAC159_UnitPositive_ARowNamingOneTargetTwiceStillRefreshes(t *testing.T)
 		t.Fatalf("one artifact named twice is still one artifact, got:\n%s", got)
 	}
 }
+
+// A row may spell its own link any way that still resolves. Anchoring on the
+// literal text left a "./" row silently unrefreshed while every carrier said
+// there were exactly three shapes regeneration skips.
+func TestAC159_UnitPositive_ARelativeSpellingStillAnchors(t *testing.T) {
+	root, _ := runInto(t)
+	writeGoal(t, root, "G-001", "accepted", "First goal")
+	readme := writeIndex(t, root, "- [G-001 — First goal](./G-001-slug.md) · `proposed` — Written with a leading dot.")
+	got := regenAndRead(t, root, readme)
+	if !strings.Contains(got, "](./G-001-slug.md) · `accepted` — Written with a leading dot.") {
+		t.Fatalf("a row spelled ./x.md must anchor like any other, got:\n%s", got)
+	}
+}

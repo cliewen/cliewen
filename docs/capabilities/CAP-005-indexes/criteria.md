@@ -38,7 +38,8 @@ Feature: Index generation — clue scaffold
     And a row referencing a subfolder README carries no title or status, because it states a section rather than a record
     # Retired 2026-08-12 (CH-152): a constraint's register reader needs its
     # enforcement class in this position rather than its generic lifecycle
-    # status; AC-138 carries the type-aware row and report contract.
+    # status; AC-161 carries the type-aware row and report contract, by way
+    # of the retired AC-138.
 
   @AC-138 @retired
   Scenario: A constraint index badge states enforcement and a mismatch is visible

@@ -1267,6 +1267,24 @@ func TestAC161_UnitNegative_MatchingAndNonConstraintBadgesAreNotCounted(t *testi
 	}
 }
 
+// AC-161 negative: a curated line covering several targets is outside the
+// population too. Regeneration declines to touch its badge because no single
+// artifact owns it, so reporting it would name a row nothing can repair.
+func TestAC161_UnitNegative_AMultiTargetConstraintRowIsNotCounted(t *testing.T) {
+	root := validCorpus(t)
+	writeFile(t, root, "docs/README.md", "# Corpus\n\n<!-- clue:index:start -->\n- [goals/](goals/README.md)\n- [constraints/](constraints/README.md)\n<!-- clue:index:end -->\n")
+	writeFile(t, root, "docs/constraints/README.md", "# Constraints\n\n<!-- clue:index:start -->\n- [C-001 — Constraint](C-001-constraint.md) · `human` — read with [C-002](C-002-constraint.md)\n<!-- clue:index:end -->\n")
+	writeFile(t, root, "docs/constraints/C-001-constraint.md", "---\nid: C-001\ntype: constraint\nstatus: active\nlinks: [G-001]\ntitle: Constraint\nsource: G-001\nenforcement: machine\n---\n")
+	writeFile(t, root, "docs/constraints/C-002-constraint.md", "---\nid: C-002\ntype: constraint\nstatus: active\nlinks: [G-001]\ntitle: Second constraint\nsource: G-001\nenforcement: machine\n---\n")
+	code, out := runValidateCapturingStdout(t, []string{"--index-rows", root})
+	if code != 0 {
+		t.Fatalf("a multi-target row is never a failure, got code=%d output=%q", code, out)
+	}
+	if strings.Contains(out, "has index badge") {
+		t.Fatalf("a line covering several targets owns no single badge and must not be counted, output=%q", out)
+	}
+}
+
 // AC-074: the judge counts an index row whose label only restates its own
 // link, names it behind --index-rows, and still exits 0 — the row is the
 // tool's own former output in a file the adopter owns, so it is reported and
