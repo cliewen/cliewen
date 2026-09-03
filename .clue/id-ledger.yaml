@@ -1,5 +1,5 @@
 counters:
-    AC: "161"
+    AC: "168"
     ADR: "67"
     AN: "23"
     ARCH: "3"
@@ -815,6 +815,41 @@ entries:
       state: live
       prefix: AC
       component: "161"
+    - id: AC-162
+      kind: numeric
+      state: live
+      prefix: AC
+      component: "162"
+    - id: AC-163
+      kind: numeric
+      state: live
+      prefix: AC
+      component: "163"
+    - id: AC-164
+      kind: numeric
+      state: live
+      prefix: AC
+      component: "164"
+    - id: AC-165
+      kind: numeric
+      state: live
+      prefix: AC
+      component: "165"
+    - id: AC-166
+      kind: numeric
+      state: live
+      prefix: AC
+      component: "166"
+    - id: AC-167
+      kind: numeric
+      state: live
+      prefix: AC
+      component: "167"
+    - id: AC-168
+      kind: numeric
+      state: live
+      prefix: AC
+      component: "168"
     - id: ADR-001
       kind: numeric
       state: live
@@ -1112,17 +1147,17 @@ entries:
       component: "64"
     - id: ADR-065
       kind: numeric
-      state: reserved
+      state: live
       prefix: ADR
       component: "65"
     - id: ADR-066
       kind: numeric
-      state: reserved
+      state: live
       prefix: ADR
       component: "66"
     - id: ADR-067
       kind: numeric
-      state: reserved
+      state: live
       prefix: ADR
       component: "67"
     - id: AN-001
@@ -1367,7 +1402,7 @@ entries:
       component: "22"
     - id: C-023
       kind: numeric
-      state: reserved
+      state: live
       prefix: C
       component: "23"
     - id: CAP-001
@@ -1460,9 +1495,15 @@ entries:
       state: live
     - id: CAP-009
       kind: numeric
-      state: reserved
+      state: live
       prefix: CAP
       component: "9"
+    - id: CAP-009-criteria
+      kind: opaque
+      state: live
+    - id: CAP-009-design
+      kind: opaque
+      state: live
     - id: CH-122
       kind: numeric
       state: retired
@@ -1954,9 +1995,15 @@ entries:
       component: "169"
     - id: CH-170
       kind: numeric
-      state: reserved
+      state: live
       prefix: CH
       component: "170"
+    - id: CH-170-open-questions
+      kind: opaque
+      state: live
+    - id: CH-170-tasks
+      kind: opaque
+      state: live
     - id: G-001
       kind: numeric
       state: live
@@ -2014,7 +2061,7 @@ entries:
       component: "11"
     - id: G-012
       kind: numeric
-      state: reserved
+      state: live
       prefix: G
       component: "12"
     - id: IC-001
@@ -2174,7 +2221,7 @@ entries:
       component: "20"
     - id: P-021
       kind: numeric
-      state: reserved
+      state: live
       prefix: P
       component: "21"
     - id: PDR-001
@@ -2444,21 +2491,21 @@ entries:
       component: "53"
     - id: PDR-054
       kind: numeric
-      state: reserved
+      state: live
       prefix: PDR
       component: "54"
     - id: PDR-055
       kind: numeric
-      state: reserved
+      state: live
       prefix: PDR
       component: "55"
     - id: UC-001
       kind: numeric
-      state: reserved
+      state: live
       prefix: UC
       component: "1"
     - id: VIS-001
       kind: numeric
-      state: reserved
+      state: live
       prefix: VIS
       component: "1"

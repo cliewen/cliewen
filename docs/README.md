@@ -49,4 +49,6 @@ Types on the default: capability, criteria, design, constraint, architecture, an
 - [constraints/](constraints/README.md) — C-xxx: laws, licenses, policies, and verifiable quality bars you must not break
 - [analysis/](analysis/README.md) — spike findings, extraction reports
 - [imported-changes/](imported-changes/README.md) — IC-xxx: durable records of in-flight source work brownfield extraction preserves
+- [use-cases/](use-cases/README.md)
+- [VIS-001 — Cliewen — durable intent that a machine can check before a human accepts it](vision.md) · `draft` — **What this is.** A methodology and one small command-line judge that keep a repository's durable intent — what is wanted, what the system can do, what proves it — in the repository itself, wired…
 <!-- clue:index:end -->

@@ -36,13 +36,18 @@ func activatedValidateAt(t *testing.T, root string) []corpus.Issue {
 
 func activateOverviewBootstraps(t *testing.T, root string) {
 	t.Helper()
-	for _, rel := range []string{"docs/architecture/README.md", "docs/design/README.md"} {
+	markers := map[string]string{
+		"docs/architecture/README.md": OverviewBootstrapMarker,
+		"docs/design/README.md":       OverviewBootstrapMarker,
+		corpus.VisionPath:             corpus.VisionBootstrapMarker,
+	}
+	for rel, marker := range markers {
 		full := filepath.Join(root, filepath.FromSlash(rel))
 		content, err := os.ReadFile(full)
 		if err != nil {
 			t.Fatal(err)
 		}
-		updated := strings.Replace(string(content), OverviewBootstrapMarker, "Repository-specific overview.", 1)
+		updated := strings.Replace(string(content), marker, "Repository-specific truth.", 1)
 		if err := os.WriteFile(full, []byte(updated), 0o644); err != nil {
 			t.Fatal(err)
 		}
@@ -58,8 +63,8 @@ func TestAC150_UnitPositive_InitBootstrapsRequireActivation(t *testing.T) {
 		t.Fatal(scanIssues)
 	}
 	issues := corpus.Validate(c, corpus.Options{})
-	if len(issues) != 2 {
-		t.Fatalf("expected two bootstrap issues, got %v", issues)
+	if len(issues) != 3 {
+		t.Fatalf("expected three bootstrap issues, got %v", issues)
 	}
 	for _, issue := range issues {
 		if !strings.Contains(issue.Msg, "scaffold bootstrap") {
