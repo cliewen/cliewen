@@ -6,7 +6,9 @@ The `/docs` tree is Cliewen's permanent working memory. After classifying a task
 
 ```mermaid
 graph LR
-  D["docs/"] --> G["goals/ — why"]
+  D["docs/"] --> V["vision.md — what it is for"]
+  D --> G["goals/ — why"]
+  D --> U["use-cases/ — optional journeys"]
   D --> P["plans/ — what campaign"]
   D --> C["capabilities/ — what it does"]
   D --> S["the supporting record"]
@@ -20,7 +22,9 @@ graph LR
 
 | Folder | Artifact | Question it answers |
 |---|---|---|
+| `vision.md` | `VIS-001` | What is this product or system for, and what is outside it? |
 | `goals/` | `G-xxx` | Who needs an outcome, and why? |
+| `use-cases/` | `UC-xxx` | What does one actor do end to end, across capabilities? (optional) |
 | `plans/` | `P-xxx` with `M-xxx` milestones | What bounded campaign moves a goal forward? |
 | `capabilities/` | `CAP-xxx` with criteria and design | What can the system do, how is it verified, and how is it built? |
 | `architecture/` | `ARCH-xxx` | What describes the whole system or an expensive-to-change boundary? |
@@ -28,7 +32,7 @@ graph LR
 | `constraints/` | `C-xxx` | What rule must every relevant change obey — including a verifiable quality bar such as a coverage floor? |
 | `analysis/` | `AN-xxx` | What did a time-boxed investigation find? |
 
-Each folder has a README that explains its type and contains a generated index of the artifacts beside it.
+Each folder has a README that explains its type and contains a generated index of the artifacts beside it. The vision and the use cases are both optional: a corpus with neither is valid, and nothing counts them. [Vision and use cases](./intent) covers when each one is worth writing.
 
 ## Identity is not location
 

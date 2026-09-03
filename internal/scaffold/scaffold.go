@@ -126,6 +126,22 @@ func OverviewBootstrapFiles() (map[string][]byte, error) {
 	return files, nil
 }
 
+// UseCaseFolderBootstrapFiles returns the optional use-case folder's index
+// README.
+//
+// It is separate from the overview bootstraps because it is separate in kind:
+// this file is structure with nothing asserted in it, which is why a migration
+// may write it into an established repository while it may not write a vision
+// (ADR-067). Like the overviews, it is never replaced once an adopter owns it.
+func UseCaseFolderBootstrapFiles() (map[string][]byte, error) {
+	const rel = "docs/use-cases/README.md"
+	data, err := templates.ReadFile("templates/" + rel)
+	if err != nil {
+		return nil, err
+	}
+	return map[string][]byte{rel: append([]byte(nil), data...)}, nil
+}
+
 // workflowReference returns the immutable reference an emitted caller uses
 // for the upstream validation unit: the source commit that built this binary
 // when that commit can be named honestly, and the protected release tag

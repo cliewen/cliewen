@@ -50,4 +50,4 @@ Skills carry process knowledge, `clue` is the deterministic judge, protected CI 
 
 ## Next
 
-[See where the durable artifacts live in the corpus.](./corpus)
+[See how a corpus states what the product is for.](./intent)

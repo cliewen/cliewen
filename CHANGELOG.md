@@ -4,6 +4,32 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 
 ## [Unreleased]
 
+### Added
+
+- **A corpus can say what the product is for.** `docs/vision.md` (identity `VIS-001`) holds one concise statement per repository: what this is, whom it serves, what is in scope, what is deliberately out, what success would look like, and what is still uncertain. Goals link up to it. It is not a roadmap or a requirements list, needs no business case, and is edited when the direction changes rather than when a feature ships. `clue init` writes a marked bootstrap into a new repository, which `clue validate` rejects until you replace it, the same treatment the architecture and design overviews already get.
+
+  **Having one is optional.** A repository with no vision stays valid, no work is blocked for lacking one, and `clue migrate` will not write one for you: nothing in a repository proves why a product exists, so a tool that drafted one would be inventing the single artifact with no evidence base. What you get instead is a `MIG-014` notice that blocks nothing.
+
+- **Optional use cases, for the journey a capability cannot hold.** `docs/use-cases/UC-xxx-<slug>.md` describes one actor's path end to end across several capabilities: actors, trigger, main flow, outcome, plus preconditions, alternative flows, and open questions when they carry meaning. Write one when ordering or failure recovery carries meaning, when several actors collaborate, or when criteria that are each locally correct still do not add up to the outcome. Do not write one when a capability and its criteria already describe the behaviour, when there is no real actor interaction, or when it would restate a goal.
+
+  **Zero use cases is a normal number.** `clue validate` never requires a goal, capability, or criterion to have one, and no report prints a coverage figure over them: a percentage over an optional artifact reads as a target, and the only way to move it is to write journeys nobody needed.
+
+- **`clue validate --intent` reports what your corpus states.** The vision, its status, and whether an agent inferred its meaning or a human wrote it; then each use case with the capabilities it crosses. A missing vision is reported as a state and exits 0. No ratios.
+
+- **`clue context` names the use cases that reach an artifact.** Intent links point down the composition: a use case names the goal it serves and every capability it crosses, and nothing names it back, so no edge has to be kept in step in two files. For the direction the links do not run in, `clue context <id>` lists the use cases whose links name that artifact, by identity, title, and path. It follows nothing and adds no content, so your slice and its bound are unchanged.
+
+- **Agents elicit intent on a new repository and infer it on an existing one.** The generated `clue-plan`, `clue-delta`, and `clue-extract` skills now carry the intent model and its discovery workflows. On a greenfield repository the agent runs a short adaptive interview in your own vocabulary, asks only questions whose answers would change what it writes, and summarizes for your correction before treating anything as agreed. On a brownfield repository it reads documentation, code, tests, CLI help, configuration, deployment definitions, and existing decision records first, cites the sources behind material claims, separates what it observed from what it concluded, and records contradictions rather than resolving them. Strategic intent is never derived from implementation structure: code shows what a system does and cannot show why anyone wanted it. Drafted content stays `draft` with `provenance: inferred` until a human confirms it, and that stays true when you explicitly ask for a draft from very little.
+
+### Changed
+
+- **The acceptance brief names the vision a full change proceeds under.** The pull-request template gains one required line: the active vision this change serves, or a statement that the repository has none and the change proceeds without one. The shipped validation workflow already fails a non-draft pull request that leaves a `REQUIRED` placeholder, so the disclosure does not depend on anyone remembering it. Simple work has no brief and makes no such statement.
+
+- **`clue init` materializes `docs/vision.md` and an empty `docs/use-cases/`.** Both are added to the corpus index. The use-case folder is expected to stay empty in most repositories.
+
+### Migration
+
+- **`MIG-014` adds the optional use-case folder and reports a missing vision.** `clue migrate` creates `docs/use-cases/README.md` and its corpus-index row, which is structure with nothing asserted in it, and emits a non-blocking notice when the repository states no vision. It never writes vision content. A repository that already has either is left alone, and a repository that deliberately states no direction can simply keep not stating one; the acceptance-brief line above is where that choice becomes visible.
+
 ## [0.22.0] - 2026-09-03
 
 ### Migration

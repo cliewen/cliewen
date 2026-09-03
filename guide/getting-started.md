@@ -15,15 +15,16 @@ git init
 clue init
 ```
 
-`clue init` creates marked architecture and design overview bootstraps. An agent completes them from the repository's code and existing documentation; when a material boundary or intent is unclear, it asks you. That is why a newly initialized repository is deliberately not green yet.
+`clue init` creates three marked bootstraps: the architecture and design overviews, and the vision at `docs/vision.md`. An agent completes them from the repository's code and existing documentation, and asks you when a material boundary or intent is unclear. That is why a newly initialized repository is deliberately not green yet. It also creates an empty `docs/use-cases/` folder, which most repositories leave empty.
 
 On a fresh repository, the important final lines look like this:
 
 ```text
-next: replace the marked architecture and design overview bootstraps with repository truth, then run `clue validate`
+next: replace the marked vision, architecture, and design bootstraps with repository truth, then run `clue validate`
+(docs/use-cases/ is optional and may stay empty — a use case is written only when it explains something the capabilities do not)
 ```
 
-After the two short overviews are written, run `clue validate`. It then becomes the normal first green check. The created-file count can change between releases. The top-level tree is:
+After the three short bootstraps are replaced, run `clue validate`. It then becomes the normal first green check. The created-file count can change between releases. The top-level tree is:
 
 ```text
 cliewen-demo/
