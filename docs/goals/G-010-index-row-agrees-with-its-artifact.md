@@ -1,7 +1,7 @@
 ---
 id: G-010
 type: goal
-status: proposed
+status: accepted
 links: [G-005]
 title: A generated index row stops disagreeing with the artifact it names
 ---

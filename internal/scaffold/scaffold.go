@@ -421,6 +421,10 @@ const (
 
 var indexLinkRe = regexp.MustCompile(`\]\(([^)#\s]+)\)`)
 
+// badgeOpen is what separates a row's link from its badge. The badge runs
+// from here to the next backtick.
+const badgeOpen = " · `"
+
 func regenIndexes(root string, rep *Report) error {
 	docs := filepath.Join(root, "docs")
 	entries, err := os.ReadDir(docs)
@@ -555,7 +559,7 @@ func regenIndex(root, rel string) (bool, error) {
 		for _, w := range covers {
 			covered[w] = true
 		}
-		lines = append(lines, line)
+		lines = append(lines, refreshBadge(root, path.Dir(rel), line, distinct(covers)))
 	}
 	var missing []string
 	for t := range wanted {
@@ -604,6 +608,77 @@ func regenIndex(root, rel string) (bool, error) {
 		return false, nil
 	}
 	return true, os.WriteFile(full, []byte(next), 0o644)
+}
+
+// refreshBadge brings a kept row's badge back in step with the artifact it
+// names (ADR-064).
+//
+// A row that already covers its target is otherwise kept byte for byte,
+// which is right for the description — ADR-046 makes that sentence the
+// author's, seeded and never rewritten — and wrong for the badge, which is
+// generated content no rule ever handed to the author. Left alone it keeps
+// whatever the artifact's status was when the row was first appended, and
+// running the regenerator changes nothing, which is what makes a stale row
+// convincing.
+//
+// Three boundaries keep this from trading a silent staleness for a silent
+// overwrite. A row carrying no badge gains none: its author removed it, and
+// a row that claims nothing is never wrong. A row covering more than one
+// artifact is left alone, because no single artifact owns its badge and the
+// generator does not guess. A row whose artifact cannot be read keeps what
+// it had, because naming a malformed artifact is the judge's work.
+//
+// The badge is found after the row's own link, matched by the cleaned
+// target rather than by the first link on the line or by the link's exact
+// spelling. A description may itself contain a link, and a scan from the
+// left would treat whatever followed it as the badge — rewriting the
+// author's prose in exactly the case this is meant to leave alone. The
+// value comes from RowIdentity, so a constraint keeps showing its
+// enforcement rather than its status (IDR-001).
+func refreshBadge(root, dir, line string, covers []string) string {
+	if len(covers) != 1 || strings.HasSuffix(covers[0], "/README.md") {
+		return line
+	}
+	// The same cleaning the coverage test used, so a row written ./x.md
+	// anchors exactly like one written x.md.
+	end := -1
+	for _, m := range indexLinkRe.FindAllStringSubmatchIndex(line, -1) {
+		if path.Clean(line[m[2]:m[3]]) == covers[0] {
+			end = m[1]
+			break
+		}
+	}
+	if end < 0 {
+		return line
+	}
+	rest := line[end:]
+	if !strings.HasPrefix(rest, badgeOpen) {
+		return line
+	}
+	value := rest[len(badgeOpen):]
+	close := strings.Index(value, "`")
+	if close < 0 {
+		return line
+	}
+	id, ok := corpus.RowIdentity(filepath.Join(root, filepath.FromSlash(path.Join(dir, covers[0]))))
+	if !ok {
+		return line
+	}
+	return line[:end] + badgeOpen + id.Badge + value[close:]
+}
+
+// distinct collapses a row's covered targets, so a line naming one
+// artifact twice still counts as the single artifact it describes.
+func distinct(in []string) []string {
+	seen := map[string]bool{}
+	var out []string
+	for _, v := range in {
+		if !seen[v] {
+			seen[v] = true
+			out = append(out, v)
+		}
+	}
+	return out
 }
 
 // indexTargets lists what a taxonomy README's index must reference:

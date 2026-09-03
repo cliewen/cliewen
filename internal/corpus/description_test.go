@@ -9,7 +9,7 @@ import (
 )
 
 // The extractor's reading, exercised where it lives. The row-level contract is
-// held by AC-096, AC-097, and AC-098 in the scaffold package; these cases pin
+// held by AC-096, AC-097, and AC-160 in the scaffold package; these cases pin
 // the prose rules those criteria depend on, including the ones a corpus is
 // unlikely to produce on demand.
 func TestUnit_DescribeBodyReadsTheSeedSentence(t *testing.T) {

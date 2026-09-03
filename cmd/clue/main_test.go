@@ -1231,10 +1231,10 @@ func TestAC008_ForbidChangesFlagExitCodes(t *testing.T) {
 	}
 }
 
-// AC-138: a constraint badge is its enforcement class, so a row carrying the
+// AC-161: a constraint badge is its enforcement class, so a row carrying the
 // artifact lifecycle status is made visible but never turns an adopter's
 // existing curated index into a failing corpus.
-func TestAC138_UnitPositive_ConstraintBadgeMismatchIsCountedAndListed(t *testing.T) {
+func TestAC161_UnitPositive_ConstraintBadgeMismatchIsCountedAndListed(t *testing.T) {
 	root := validCorpus(t)
 	writeFile(t, root, "docs/README.md", "# Corpus\n\n<!-- clue:index:start -->\n- [goals/](goals/README.md)\n- [constraints/](constraints/README.md)\n<!-- clue:index:end -->\n")
 	writeFile(t, root, "docs/constraints/README.md", "# Constraints\n\n<!-- clue:index:start -->\n- [C-001 — Constraint](C-001-constraint.md) · `active`\n<!-- clue:index:end -->\n")
@@ -1251,9 +1251,9 @@ func TestAC138_UnitPositive_ConstraintBadgeMismatchIsCountedAndListed(t *testing
 	}
 }
 
-// AC-138 negative: matching constraint rows, and rows for other artifact
+// AC-161 negative: matching constraint rows, and rows for other artifact
 // types, are outside the constraint-badge population.
-func TestAC138_UnitNegative_MatchingAndNonConstraintBadgesAreNotCounted(t *testing.T) {
+func TestAC161_UnitNegative_MatchingAndNonConstraintBadgesAreNotCounted(t *testing.T) {
 	root := validCorpus(t)
 	writeFile(t, root, "docs/README.md", "# Corpus\n\n<!-- clue:index:start -->\n- [goals/](goals/README.md)\n- [constraints/](constraints/README.md)\n<!-- clue:index:end -->\n")
 	writeFile(t, root, "docs/constraints/README.md", "# Constraints\n\n<!-- clue:index:start -->\n- [C-001 — Constraint](C-001-constraint.md) · `machine`\n<!-- clue:index:end -->\n")
@@ -1264,6 +1264,24 @@ func TestAC138_UnitNegative_MatchingAndNonConstraintBadgesAreNotCounted(t *testi
 	}
 	if strings.Contains(out, "constraint index badge(s) not stating enforcement") || strings.Contains(out, "has index badge") {
 		t.Fatalf("expected no constraint-badge population, output=%q", out)
+	}
+}
+
+// AC-161 negative: a curated line covering several targets is outside the
+// population too. Regeneration declines to touch its badge because no single
+// artifact owns it, so reporting it would name a row nothing can repair.
+func TestAC161_UnitNegative_AMultiTargetConstraintRowIsNotCounted(t *testing.T) {
+	root := validCorpus(t)
+	writeFile(t, root, "docs/README.md", "# Corpus\n\n<!-- clue:index:start -->\n- [goals/](goals/README.md)\n- [constraints/](constraints/README.md)\n<!-- clue:index:end -->\n")
+	writeFile(t, root, "docs/constraints/README.md", "# Constraints\n\n<!-- clue:index:start -->\n- [C-001 — Constraint](C-001-constraint.md) · `human` — read with [C-002](C-002-constraint.md)\n<!-- clue:index:end -->\n")
+	writeFile(t, root, "docs/constraints/C-001-constraint.md", "---\nid: C-001\ntype: constraint\nstatus: active\nlinks: [G-001]\ntitle: Constraint\nsource: G-001\nenforcement: machine\n---\n")
+	writeFile(t, root, "docs/constraints/C-002-constraint.md", "---\nid: C-002\ntype: constraint\nstatus: active\nlinks: [G-001]\ntitle: Second constraint\nsource: G-001\nenforcement: machine\n---\n")
+	code, out := runValidateCapturingStdout(t, []string{"--index-rows", root})
+	if code != 0 {
+		t.Fatalf("a multi-target row is never a failure, got code=%d output=%q", code, out)
+	}
+	if strings.Contains(out, "has index badge") {
+		t.Fatalf("a line covering several targets owns no single badge and must not be counted, output=%q", out)
 	}
 }
 

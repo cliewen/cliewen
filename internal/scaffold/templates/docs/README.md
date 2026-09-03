@@ -47,6 +47,8 @@ Each folder below holds one kind of record. A full change (the `clue-delta` loop
 | change, tasks | `open` | transient workspace artifacts |
 | open-questions | `open` → `resolved` | transient workspace artifacts |
 
+Each taxonomy README carries a generated index between the `clue:index` markers. A row states its artifact's identity, a status badge, and a sentence saying what the artifact is about. **The sentence is yours** — it is seeded once from the artifact's body and regeneration never rewrites it. **The badge is the generator's**: `clue scaffold` refreshes it from the artifact on every run, so a row cannot go on claiming a status its artifact no longer has. A row you left without a badge gains none, a row linking several artifacts is left alone, and a constraint's badge shows its enforcement rather than its status.
+
 ## Folders
 
 <!-- clue:index:start -->

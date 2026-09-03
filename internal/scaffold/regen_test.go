@@ -219,12 +219,12 @@ func TestAC027_NoDocsTreeIsAnErrorAndCreatesNothing(t *testing.T) {
 	}
 }
 
-// AC-138: an appended index row states the record it links — id, title, and
+// AC-161: an appended index row states the record it links — id, title, and
 // status for an ordinary artifact, enforcement for a constraint — rather than
 // restating the filename the link already carries. The title here is
 // YAML-quoted because its value contains a colon; the row must spell the
 // parsed value, never the quoting.
-func TestAC138_UnitPositive_AppendedRowsUseStatusOrConstraintEnforcement(t *testing.T) {
+func TestAC161_UnitPositive_AppendedRowsUseStatusOrConstraintEnforcement(t *testing.T) {
 	root, _ := runInto(t)
 	readme := filepath.Join(root, "docs", "goals", "README.md")
 	prose := "# Goals\n\n<!-- clue:index:start -->\n<!-- clue:index:end -->\n"
@@ -422,10 +422,10 @@ func TestAC097_UnitPositive_NoReadableSentenceLeavesNoEmptyTail(t *testing.T) {
 	}
 }
 
-// AC-098: the seed is a first draft and never an assertion — a description an
+// AC-160: the seed is a first draft and never an assertion — a description an
 // author corrected by hand outlives regeneration, and nothing backfills a row
 // that already exists.
-func TestAC098_UnitPositive_CuratedDescriptionOutlivesRegeneration(t *testing.T) {
+func TestAC160_UnitPositive_CuratedDescriptionOutlivesRegeneration(t *testing.T) {
 	root, _ := runInto(t)
 	readme := filepath.Join(root, "docs", "goals", "README.md")
 	curated := "- [G-001 — First goal](G-001-first.md) · `proposed` — What an author decided this actually means."
@@ -457,11 +457,11 @@ func TestAC098_UnitPositive_CuratedDescriptionOutlivesRegeneration(t *testing.T)
 	}
 }
 
-// AC-098 negative: preservation is not unconditional. A curated description
+// AC-160 negative: preservation is not unconditional. A curated description
 // buys the row nothing once its target is gone — the row is dropped, exactly as
 // an uncurated one would be, so a deleted artifact cannot leave a dangling
 // entry behind on the strength of having been described.
-func TestAC098_UnitNegative_CuratedRowForAMissingTargetIsStillDropped(t *testing.T) {
+func TestAC160_UnitNegative_CuratedRowForAMissingTargetIsStillDropped(t *testing.T) {
 	root, _ := runInto(t)
 	readme := filepath.Join(root, "docs", "goals", "README.md")
 	curated := "- [G-404 — Deleted goal](G-404-deleted.md) · `accepted` — A description an author wrote before the file was removed."
@@ -487,10 +487,10 @@ func TestAC098_UnitNegative_CuratedRowForAMissingTargetIsStillDropped(t *testing
 	}
 }
 
-// AC-138 negative: a target with no readable identity or no required
+// AC-161 negative: a target with no readable identity or no required
 // constraint enforcement falls back to the plain link instead of emitting a
 // half-formed row, and a subfolder row states a section rather than a record.
-func TestAC138_UnitNegative_UnreadableIdentityAndSubfolderRowsStayPlain(t *testing.T) {
+func TestAC161_UnitNegative_UnreadableIdentityAndSubfolderRowsStayPlain(t *testing.T) {
 	root, _ := runInto(t)
 	readme := filepath.Join(root, "docs", "goals", "README.md")
 	prose := "# Goals\n\n<!-- clue:index:start -->\n<!-- clue:index:end -->\n"

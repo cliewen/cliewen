@@ -484,9 +484,15 @@ func IndexDescriptionBacklog(c *Corpus) []IndexRowUndescribed {
 
 // IndexRowConstraintBadgeMismatch is one constraint index row whose badge does
 // not state the enforcement class its target declares. It is a report, never an
-// Issue: regeneration preserves existing rows, including curated ones, so the
-// mismatch is visible without letting a newly tightened generator make an
-// adopter's existing corpus fail.
+// Issue, so a newly tightened generator cannot make an adopter's existing
+// corpus fail.
+//
+// Since ADR-064 regeneration repairs a kept row's badge, so what remains
+// visible here is a corpus nobody has regenerated and the badgeless row the
+// regenerator declines to repair. The two shapes it skips for ambiguity — a
+// line naming several artifacts, an artifact whose frontmatter cannot be
+// read — are outside this report too, because naming a row nothing can fix
+// is not a report anyone can act on.
 type IndexRowConstraintBadgeMismatch struct {
 	Readme      string // repo-relative taxonomy README carrying the row
 	Target      string // the row's link target, relative to that README
