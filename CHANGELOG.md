@@ -4,6 +4,8 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 
 ## [Unreleased]
 
+## [0.22.0] - 2026-09-03
+
 ### Migration
 
 - **Declare what kind of repository yours is.** `clue migrate` now reports `MIG-012` when a repository has never said whether it adopted Cliewen or is Cliewen's own source repository. Add `.clue/role.yaml` containing `role: adopter` — that is the answer for every repository that adopted Cliewen. The notice is non-blocking and nothing else waits on it: a repository without the marker is treated as an adopter, and no check fails for its absence. `clue init` writes the marker for a new repository and never overwrites an existing one.
@@ -35,6 +37,10 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 - **A completed plan may now keep a link to a retired artifact, which is what makes retirement possible at all.** Three rules contradicted each other the moment you tried to retire something a finished campaign linked: retirement is a deletion, `clue validate` rejected the surviving link and demanded a repoint, and a completed plan is frozen — the repair failed the freeze while skipping it failed the judge. Because a campaign's plan naturally links the spikes that fed it, every one of those spikes became permanently unretirable the moment that campaign closed.
 
   A finished campaign records what it referenced while it ran; its links are history, not navigation a reader follows, so a frozen document is no longer asked to keep a pointer current. The allowance is deliberately narrow: `completed` plans only, and only for an artifact some live record names in its `supersedes:` field. An **active** plan still repoints, and a link to an ID no artifact ever declared still fails everywhere, because that is a typo rather than history. Nothing about the freeze on completed plans changed. One cost is accepted and worth knowing: a frozen plan's *prose* may still contain a Markdown link to a deleted file, which no check covers and the freeze forbids repairing — the sentence stays true and Git history holds the target, but following the link will not work.
+
+### Install
+
+`curl -fsSL https://cliewen.dev/install.sh | sh` on macOS and Linux, `irm https://cliewen.dev/install.ps1 | iex` on Windows, or `go install github.com/cliewen/cliewen/cmd/clue@v0.22.0`. You can still download a prebuilt binary from the release assets and verify it against `SHA256SUMS` by hand; those asset names are unchanged. Update vendored Cliewen skills from this release's `.agents/skills/`; a 0.22.0 binary rejects older Cliewen skill versions as drift. Upgrading an existing repository: run `clue migrate` to preview the corpus and carrier upgrade, or run the `clue-upgrade` skill to be walked through the whole thing, and read the notices — this release adds one asking your repository to declare what kind of repository it is, and one that lists spikes whose findings have been carried elsewhere and may now leave. Nothing is deleted for you. Expect one larger-than-usual `clue scaffold` run afterwards, which is accumulated index-badge drift being repaired.
 
 ## [0.21.0] - 2026-08-30
 
