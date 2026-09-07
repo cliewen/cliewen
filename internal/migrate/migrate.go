@@ -558,9 +558,10 @@ func Plan(root string, opts Options) (MigrationPlan, error) {
 	}
 	// The corpus index is indexed once for every folder this whole plan
 	// creates. Planning it per migration would put two changes on the same
-	// path, and the second's recorded Before would no longer match the file
-	// the first had just rewritten, so Apply would refuse a plan it had
-	// itself produced.
+	// path, and Apply preflights every change against the file as it stands
+	// before it writes any of them: both would record the same Before, both
+	// would pass, and the second write would then discard the rows the first
+	// had just added. The loss would be silent, which is worse than a refusal.
 	if err := planIndexRows(root, append(overviewFolders, intentFolders...), &result); err != nil {
 		return MigrationPlan{}, err
 	}
@@ -747,9 +748,10 @@ func indexRowDescription(indexed []createdFolder, owners []string) string {
 //
 // Only rows for folders this plan creates are added — pre-existing index drift
 // belongs to clue scaffold, not to a migration. And there is exactly one
-// change for docs/README.md however many migrations contributed to it: two
-// changes on one path would make the second's recorded Before stale the moment
-// the first was written, and Apply would refuse the plan it had just produced.
+// change for docs/README.md however many migrations contributed to it: Apply
+// preflights every change against the file as it stands before it writes any
+// of them, so two changes on one path would both record the same Before, both
+// pass, and the second write would discard the rows the first had just added.
 //
 // That single change can be attributed to only one migration, so when several
 // contributed the description names the folders each of them created. The
