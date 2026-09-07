@@ -83,7 +83,7 @@ The body carries four required sections (`## Actors`, `## Trigger`, `## Main flo
 
 A developer running `clue id next CAP` in a coordinated repository gets the next capability number. That single command is already described by its capability and criteria, so a separate use case would add no journey.
 
-The team workflow is different. A maintainer establishes the allocator, several contributors claim or receive IDs, read-only contributors synchronize assigned reservations, and everyone needs a safe recovery path when the remote is unavailable. [UC-002](../docs/use-cases/UC-002-parallel-team-changes.md) keeps that multi-actor sequence in one place.
+The team workflow is different. A maintainer establishes the allocator, several contributors claim or receive IDs, read-only contributors synchronize assigned reservations, and everyone needs a safe recovery path when the remote is unavailable. The corpus use case `UC-002` keeps that multi-actor sequence in one place.
 
 The test is not complexity. It is whether removing the use case would lose something.
 
