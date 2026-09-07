@@ -576,4 +576,7 @@ events:
     - {id: AC-178, kind: numeric, state: reserved, prefix: AC, component: "178"}
     - {id: AC-178, kind: numeric, state: live, prefix: AC, component: "178"}
     - {id: AC-107, kind: numeric, state: retired, prefix: AC, component: "107"}
+    - {id: CH-171, kind: numeric, state: retired, prefix: CH, component: "171"}
+    - {id: CH-171-open-questions, kind: opaque, state: retired}
+    - {id: CH-171-tasks, kind: opaque, state: retired}
     - {id: AC-177, kind: numeric, state: live, prefix: AC, component: "177"}
