@@ -30,6 +30,8 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 
 - **`MIG-014` adds the optional use-case folder and reports a missing vision.** `clue migrate` creates `docs/use-cases/README.md` and its corpus-index row, which is structure with nothing asserted in it, and emits a non-blocking notice when the repository states no vision. It never writes vision content. A repository that already has either is left alone, and a repository that deliberately states no direction can simply keep not stating one; the acceptance-brief line above is where that choice becomes visible.
 
+- **The corpus-index line now names every migration that contributed a row.** `docs/README.md` is written once per plan, so when `MIG-011` and `MIG-014` both create folders in the same run — the usual case the first time an existing repository migrates — the single reported change used to be credited to `MIG-011` alone, and the folder `MIG-014` created appeared to be someone else's work. That line now spells out which folders came from which migration. A plan where only one migration creates folders reads exactly as it did before.
+
 ## [0.22.0] - 2026-09-03
 
 ### Migration

@@ -621,9 +621,6 @@ func planSpentAnalyses(root string, result *MigrationPlan) {
 // a direction is valid, and blocking a migration on it would strand every
 // repository onboarded before the artifact existed (ADR-067).
 func planProductIntent(root string, result *MigrationPlan) ([]createdFolder, error) {
-	if _, err := os.Stat(filepath.Join(root, "docs")); err != nil {
-		return nil, nil // not a corpus this migration has anything to say about
-	}
 	files, err := scaffold.UseCaseFolderBootstrapFiles()
 	if err != nil {
 		return nil, err
@@ -687,6 +684,62 @@ type createdFolder struct {
 	Migration string
 }
 
+// ownersInRegistryOrder returns the distinct migrations owning folders, in the
+// registry's own order. That order is stable and is the order a reader
+// following the plan from top to bottom meets those migrations in.
+//
+// An owner the registry does not list still appears, after the ones it does.
+// Callers index the first element to attribute a change, so dropping such an
+// owner would turn a mis-registered migration into a panic on a plan that is
+// otherwise correct — a worse failure than reporting the ID as it stands.
+func ownersInRegistryOrder(folders []createdFolder) []string {
+	var owners []string
+	seen := map[string]bool{}
+	for _, definition := range orderedMigrations {
+		for _, folder := range folders {
+			if folder.Migration == definition.ID {
+				owners = append(owners, definition.ID)
+				seen[definition.ID] = true
+				break
+			}
+		}
+	}
+	for _, folder := range folders {
+		if !seen[folder.Migration] {
+			owners = append(owners, folder.Migration)
+			seen[folder.Migration] = true
+		}
+	}
+	return owners
+}
+
+// indexRowDescription describes the one index change in terms of who caused it.
+//
+// A single contributing migration is already named by the change's own
+// Migration field, so the description stays exactly as it reads when that
+// migration is the only docs writer in the plan. More than one is the case the
+// field cannot express: the change carries every contributor's rows but can be
+// attributed to only one of them, so the folders are grouped under the
+// migration that created each. Without this, a reader is told that the
+// migration named on the line indexed folders another migration created.
+func indexRowDescription(indexed []createdFolder, owners []string) string {
+	const base = "index the folders this migration plan creates"
+	if len(owners) < 2 {
+		return base
+	}
+	groups := make([]string, 0, len(owners))
+	for _, owner := range owners {
+		var names []string
+		for _, folder := range indexed {
+			if folder.Migration == owner {
+				names = append(names, path.Base(path.Dir(folder.Readme))+"/")
+			}
+		}
+		groups = append(groups, strings.Join(names, ", ")+" ("+owner+")")
+	}
+	return base + ": " + strings.Join(groups, "; ")
+}
+
 // planIndexRows keeps the corpus index truthful about the folders this plan
 // creates. Most migrations write outside docs/ entirely; the ones that do not
 // would otherwise leave a created folder unreferenced, which validate reports
@@ -697,31 +750,23 @@ type createdFolder struct {
 // change for docs/README.md however many migrations contributed to it: two
 // changes on one path would make the second's recorded Before stale the moment
 // the first was written, and Apply would refuse the plan it had just produced.
+//
+// That single change can be attributed to only one migration, so when several
+// contributed the description names the folders each of them created. The
+// alternative — crediting the first contributor alone — tells the operator
+// that one migration indexed folders another one made.
 func planIndexRows(root string, created []createdFolder, result *MigrationPlan) error {
 	if len(created) == 0 {
 		return nil
 	}
 	sort.Slice(created, func(i, j int) bool { return created[i].Readme < created[j].Readme })
-	// The change is attributed to the first contributing migration in the
-	// registry's own order, which is stable and is the migration a reader
-	// following the plan top to bottom meets first.
-	migration := created[0].Migration
-	for _, definition := range orderedMigrations {
-		matched := false
-		for _, folder := range created {
-			if folder.Migration == definition.ID {
-				matched = true
-				break
-			}
-		}
-		if matched {
-			migration = definition.ID
-			break
-		}
-	}
+	// A blocked index blocks every folder in the plan, including the ones whose
+	// rows this function never reaches, so the report is attributed to the
+	// first contributor rather than to the narrower set that produced rows.
+	blocked := ownersInRegistryOrder(created)[0]
 	const rel = "docs/README.md"
 	if hasLinkBoundary(root, rel) {
-		result.Findings = append(result.Findings, Finding{Path: rel, Migration: migration, Message: "corpus index is behind a symlink; resolve the repository-owned path before migration"})
+		result.Findings = append(result.Findings, Finding{Path: rel, Migration: blocked, Message: "corpus index is behind a symlink; resolve the repository-owned path before migration"})
 		return nil
 	}
 	before, err := os.ReadFile(filepath.Join(root, filepath.FromSlash(rel)))
@@ -735,7 +780,7 @@ func planIndexRows(root string, created []createdFolder, result *MigrationPlan) 
 	start := strings.Index(text, scaffold.IndexStart)
 	end := strings.Index(text, scaffold.IndexEnd)
 	if start < 0 || end < 0 || end < start {
-		result.Notices = append(result.Notices, Notice{Path: rel, Migration: migration, Message: "corpus index block is missing or malformed, so the folders this migration plan creates were not indexed; repair the markers and run clue scaffold"})
+		result.Notices = append(result.Notices, Notice{Path: rel, Migration: blocked, Message: "corpus index block is missing or malformed, so the folders this migration plan creates were not indexed; repair the markers and run clue scaffold"})
 		return nil
 	}
 	eol := "\n"
@@ -744,28 +789,35 @@ func planIndexRows(root string, created []createdFolder, result *MigrationPlan) 
 	}
 	block := text[start+len(scaffold.IndexStart) : end]
 	var rows string
+	// Only the folders that actually produce a row are credited. A folder the
+	// index already covers contributed nothing to this change, so naming its
+	// migration would attribute an edit to a migration that made none.
+	var indexed []createdFolder
 	for _, folder := range created {
 		name := path.Base(path.Dir(folder.Readme)) // architecture, design, use-cases
 		target := name + "/README.md"
-		if strings.Contains(block, "("+target+")") || strings.Contains(block, "("+name+"/") {
+		if strings.Contains(block, "("+target+")") || strings.Contains(block, "("+name+"/") ||
+			strings.Contains(rows, "("+target+")") {
 			continue
 		}
 		// The same row shape scaffold appends for a subfolder, so a later
 		// regeneration recognizes this line as covering the entry and leaves
 		// any description the author adds to it alone.
 		rows += "- [" + name + "/](" + target + ")" + eol
+		indexed = append(indexed, folder)
 	}
 	if rows == "" {
 		return nil
 	}
+	owners := ownersInRegistryOrder(indexed)
 	if !strings.HasSuffix(block, eol) {
 		rows = eol + rows
 	}
 	after := text[:end] + rows + text[end:]
 	result.Changes = append(result.Changes, Change{
 		Path:        rel,
-		Migration:   migration,
-		Description: "index the folders this migration plan creates",
+		Migration:   owners[0],
+		Description: indexRowDescription(indexed, owners),
 		Existed:     true,
 		Before:      before,
 		After:       []byte(after),

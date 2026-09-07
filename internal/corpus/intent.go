@@ -52,6 +52,14 @@ func checkVision(c *Corpus) []Issue {
 	for _, a := range c.Artifacts {
 		if a.Type == "vision" {
 			visions = append(visions, a)
+			continue
+		}
+		// An artifact sitting at the vision's address that is not one is a
+		// different defect from a vision in the wrong place, and it is
+		// reported as itself: the repair is to move that artifact, not to
+		// move a vision.
+		if a.Path == VisionPath && a.Type != "" {
+			issues = append(issues, Issue{a.Path, "this address belongs to the corpus vision, and this artifact is a " + a.Type + " (ADR-065)"})
 		}
 	}
 	if len(visions) > 1 {
@@ -67,14 +75,6 @@ func checkVision(c *Corpus) []Issue {
 	for _, a := range visions {
 		if a.Path != VisionPath {
 			issues = append(issues, Issue{a.Path, "a vision lives at " + VisionPath + " (ADR-065)"})
-		}
-	}
-	// An artifact sitting at the vision's address that is not one is a
-	// different defect from a vision in the wrong place, and it is reported
-	// as itself: the repair is to move that artifact, not to move a vision.
-	for _, a := range c.Artifacts {
-		if a.Path == VisionPath && a.Type != "vision" && a.Type != "" {
-			issues = append(issues, Issue{a.Path, "this address belongs to the corpus vision, and this artifact is a " + a.Type + " (ADR-065)"})
 		}
 	}
 	// The bootstrap rule fires only on a file that exists. That is what lets

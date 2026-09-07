@@ -115,15 +115,7 @@ func ManagedCarrierFiles() (map[string][]byte, error) {
 // migration may add when their canonical paths are absent. Unlike managed
 // carriers, these files are never replaced once an adopter owns them.
 func OverviewBootstrapFiles() (map[string][]byte, error) {
-	files := map[string][]byte{}
-	for _, rel := range []string{"docs/architecture/README.md", "docs/design/README.md"} {
-		data, err := templates.ReadFile("templates/" + rel)
-		if err != nil {
-			return nil, err
-		}
-		files[rel] = append([]byte(nil), data...)
-	}
-	return files, nil
+	return bootstrapFiles("docs/architecture/README.md", "docs/design/README.md")
 }
 
 // UseCaseFolderBootstrapFiles returns the optional use-case folder's index
@@ -134,12 +126,21 @@ func OverviewBootstrapFiles() (map[string][]byte, error) {
 // may write it into an established repository while it may not write a vision
 // (ADR-067). Like the overviews, it is never replaced once an adopter owns it.
 func UseCaseFolderBootstrapFiles() (map[string][]byte, error) {
-	const rel = "docs/use-cases/README.md"
-	data, err := templates.ReadFile("templates/" + rel)
-	if err != nil {
-		return nil, err
+	return bootstrapFiles("docs/use-cases/README.md")
+}
+
+// bootstrapFiles reads one or more repository-owned template files, keyed by
+// their repository-relative path.
+func bootstrapFiles(rels ...string) (map[string][]byte, error) {
+	files := map[string][]byte{}
+	for _, rel := range rels {
+		data, err := templates.ReadFile("templates/" + rel)
+		if err != nil {
+			return nil, err
+		}
+		files[rel] = append([]byte(nil), data...)
 	}
-	return map[string][]byte{rel: append([]byte(nil), data...)}, nil
+	return files, nil
 }
 
 // workflowReference returns the immutable reference an emitted caller uses
