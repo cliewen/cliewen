@@ -1,18 +1,18 @@
 counters:
-    AC: "168"
-    ADR: "67"
+    AC: "176"
+    ADR: "68"
     AN: "23"
     ARCH: "3"
     C: "23"
-    CAP: "9"
-    CH: "170"
-    G: "12"
+    CAP: "10"
+    CH: "171"
+    G: "13"
     IC: "2"
     IDR: "8"
     LOG: "1"
     P: "21"
     PDR: "55"
-    UC: "1"
+    UC: "2"
     VIS: "1"
 entries:
     - id: AC-001
@@ -850,6 +850,46 @@ entries:
       state: live
       prefix: AC
       component: "168"
+    - id: AC-169
+      kind: numeric
+      state: reserved
+      prefix: AC
+      component: "169"
+    - id: AC-170
+      kind: numeric
+      state: reserved
+      prefix: AC
+      component: "170"
+    - id: AC-171
+      kind: numeric
+      state: reserved
+      prefix: AC
+      component: "171"
+    - id: AC-172
+      kind: numeric
+      state: reserved
+      prefix: AC
+      component: "172"
+    - id: AC-173
+      kind: numeric
+      state: reserved
+      prefix: AC
+      component: "173"
+    - id: AC-174
+      kind: numeric
+      state: reserved
+      prefix: AC
+      component: "174"
+    - id: AC-175
+      kind: numeric
+      state: reserved
+      prefix: AC
+      component: "175"
+    - id: AC-176
+      kind: numeric
+      state: reserved
+      prefix: AC
+      component: "176"
     - id: ADR-001
       kind: numeric
       state: live
@@ -1160,6 +1200,11 @@ entries:
       state: live
       prefix: ADR
       component: "67"
+    - id: ADR-068
+      kind: numeric
+      state: reserved
+      prefix: ADR
+      component: "68"
     - id: AN-001
       kind: numeric
       state: retired
@@ -1504,6 +1549,11 @@ entries:
     - id: CAP-009-design
       kind: opaque
       state: live
+    - id: CAP-010
+      kind: numeric
+      state: reserved
+      prefix: CAP
+      component: "10"
     - id: CH-122
       kind: numeric
       state: retired
@@ -2004,6 +2054,17 @@ entries:
     - id: CH-170-tasks
       kind: opaque
       state: retired
+    - id: CH-171
+      kind: numeric
+      state: live
+      prefix: CH
+      component: "171"
+    - id: CH-171-open-questions
+      kind: opaque
+      state: live
+    - id: CH-171-tasks
+      kind: opaque
+      state: live
     - id: G-001
       kind: numeric
       state: live
@@ -2064,6 +2125,11 @@ entries:
       state: live
       prefix: G
       component: "12"
+    - id: G-013
+      kind: numeric
+      state: reserved
+      prefix: G
+      component: "13"
     - id: IC-001
       kind: numeric
       state: live
@@ -2504,6 +2570,11 @@ entries:
       state: live
       prefix: UC
       component: "1"
+    - id: UC-002
+      kind: numeric
+      state: reserved
+      prefix: UC
+      component: "2"
     - id: VIS-001
       kind: numeric
       state: live
