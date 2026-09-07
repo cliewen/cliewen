@@ -1,0 +1,31 @@
+---
+id: CAP-010-design
+type: design
+status: active
+links: [CAP-010, ADR-068]
+title: Design for team-safe identity allocation
+---
+
+# Design — Team-safe identity allocation
+
+## Two records with different jobs
+
+`.clue/id-ledger.yaml` is the checked-in lifecycle truth. Version two is an append-only event set: commands add one flow-style YAML line per state transition, loading folds duplicate events idempotently, and state only advances `reserved → live → retired`. The `.gitattributes` union driver combines concurrent additions; contradictory identity metadata remains a validation error.
+
+`refs/heads/clue/id-allocator` is the remote allocation journal. Its orphan history contains numeric claims only, so a feature branch's speculative lifecycle cannot make accepted `main` claim that an unmerged artifact is live. The branch is permanent because an abandoned claim still prevents reuse.
+
+## Allocation transaction
+
+The Git transport uses plumbing commands and temporary refs rather than checking out the allocator branch or touching the contributor's index. It fetches and validates the current claim file, unions numeric identities already known by the local ledger, allocates after the prefix high-water mark, creates a child commit, and performs an ordinary push. A concurrent winner makes that push non-fast-forward; the loser fetches the new head and retries until the operation-wide timeout.
+
+No force option is used. A push error is retried only when a follow-up remote read proves the head changed; authentication and transport failures surface immediately. Local ledger bytes change only after the claim is remote-durable.
+
+## Initialization and recovery
+
+`clue id coordinate` is the only operation that may create the allocator branch. It seeds claims from every numeric ledger identity, wins or retries a concurrent initialization race, then records `mode: git` and the remote name locally. An established coordinated repository treats a missing ref as possible history loss and stops.
+
+`clue id sync` needs read access only. It imports missing claims as reservations and never downgrades a local live or retired state. This is also the recovery after a remote push succeeded but the local atomic replacement failed.
+
+## Boundary
+
+`clue validate` reads only repository bytes, as [ADR-044](../../decisions/ADR-044-judge-reads-state-not-transitions.md) requires. Network access belongs only to the explicit allocation, coordination, and synchronization commands. Remote branch protection remains a repository administration responsibility: the branch permits normal pushes and forbids force-push and deletion.

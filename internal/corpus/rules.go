@@ -448,6 +448,9 @@ func checkLedger(c *Corpus) []Issue {
 		return []Issue{{ledger.DefaultPath, "ledger: " + err.Error()}}
 	}
 	var issues []Issue
+	if l.Version() == 2 && l.Coordination().Mode == "git" && !ledger.HasUnionMerge(c.Root) {
+		issues = append(issues, Issue{ledger.DefaultPath, "Git-coordinated event ledger requires " + ledger.UnionAttribute + " in .gitattributes"})
+	}
 	for _, e := range l.Entries() {
 		switch e.State {
 		case ledger.StateReserved, ledger.StateLive, ledger.StateRetired:

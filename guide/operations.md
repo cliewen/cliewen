@@ -21,6 +21,16 @@ Cliewen does not run your tests, synchronize tickets or wikis, or validate evide
 
 A new or revised machine-proven criterion declares `Test-type: Unit`, `Integration`, `E2E`, or `Performance`, and the validator requires supported evidence classified with that type in positive and negative directions; `(single-direction)` is the explicit narrow exception. An unannotated legacy criterion retains its one-supported-reference rule. `Test-type: Human` uses the pull request acceptance brief rather than code evidence, and `@draft` exempts only the individual criterion that is not yet proven.
 
+## Coordinate identity allocation for a team
+
+The checked-in identity ledger starts in local mode. That is enough for one contributor, but `clue id next` warns because separate clones and worktrees can read the same state. Before a team allocates in parallel, a maintainer runs `clue id coordinate --remote=origin`, commits the ledger change, and merges it before contributors branch. The command creates the permanent `clue/id-allocator` branch on that remote and seeds it with every numeric identity already claimed by the ledger.
+
+Protect `clue/id-allocator` from deletion and force-push, while allowing the contributors who allocate IDs to make ordinary fast-forward pushes. Each allocation then uses Git's ref update as the serialization point. The checked-in ledger remains the source of lifecycle truth; the allocator branch holds permanent numeric reservations and is never merged into the working branch.
+
+Use `clue id next --count=10 CH` when one maintainer assigns a range. A contributor who can read but not push the allocator branch runs `clue id sync`, then uses an assigned reservation. Sync never allocates and never needs allocator write access.
+
+If a coordinated allocation cannot read or update the remote, it fails before changing the local ledger. Retry after restoring access. If the remote accepted a reservation but the local save failed, the error names the claimed IDs; run `clue id sync` to recover them. Do not reuse a number or edit either ledger by hand. A missing established allocator branch is treated as lost durable state and must be restored from the remote's history or backup rather than recreated from one checkout.
+
 ## Preserve the full-change archive
 
 For a full Cliewen change, configure the protected default branch to allow the hosting provider's **merge commit** mode and disable **squash and merge** and **rebase and merge**. A merge commit keeps the exact proposal, implementation, digest, and durable-corpus commits reachable from `main`. Squash and rebase-and-merge can produce the same final tree while discarding or rewriting the reviewed branch chain. A change branch is published from its first commit, so hosted history is never rebased or rewritten and human acceptance remains a merge commit.

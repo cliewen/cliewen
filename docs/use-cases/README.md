@@ -12,4 +12,5 @@ Each use case carries four sections — `## Actors`, `## Trigger`, `## Main flow
 
 <!-- clue:index:start -->
 - [UC-001 — A team adopts Cliewen in a repository that already has a specification corpus](UC-001-adopt-cliewen-in-an-existing-repository.md) · `active` — A brownfield adoption is the journey this method is most often judged by, and no single capability contains it.
+- [UC-002 — A team starts independent Cliewen changes in parallel](UC-002-parallel-team-changes.md) · `active` — The **contributors or coding agents** starting independent work, the **repository maintainer** who enables and protects coordination, and the **Git remote** that serializes claims without deciding…
 <!-- clue:index:end -->

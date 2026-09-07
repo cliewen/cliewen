@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/cliewen/cliewen/internal/corpus"
+	"github.com/cliewen/cliewen/internal/ledger"
 )
 
 func runInto(t *testing.T) (string, *Report) {
@@ -84,6 +85,17 @@ func TestAC150_UnitPositive_InitBootstrapsRequireActivation(t *testing.T) {
 	c, _ = corpus.Scan(root)
 	if issues := corpus.Validate(c, corpus.Options{Version: version}); len(issues) > 0 {
 		t.Fatalf("emitted skills drift from pair version %s: %v", version, issues)
+	}
+}
+
+func TestAC178_UnitPositive_InitInstallsLedgerUnionMergeRule(t *testing.T) {
+	root, _ := runInto(t)
+	content, err := os.ReadFile(filepath.Join(root, ".gitattributes"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if strings.TrimSpace(string(content)) != ledger.UnionAttribute {
+		t.Fatalf("scaffolded .gitattributes = %q, want %q", content, ledger.UnionAttribute)
 	}
 }
 

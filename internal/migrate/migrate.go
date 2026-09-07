@@ -96,6 +96,9 @@ const (
 	// asserts why a product exists — which a repository cannot prove and a
 	// migration must therefore never write (ADR-067).
 	MigrationProductIntent = "MIG-014"
+	// MigrationLedgerEvents converts the rewrite-oriented ledger to the
+	// append-only event representation and installs its union merge rule.
+	MigrationLedgerEvents = "MIG-015"
 )
 
 // Options controls planning. Preview is the default; applying a plan is a
@@ -127,6 +130,7 @@ var orderedMigrations = []MigrationDefinition{
 	{ID: MigrationRoleMarker, Description: "report a repository that has not declared its Cliewen role"},
 	{ID: MigrationSpentAnalysis, Description: "report an analysis whose findings a durable artifact now carries"},
 	{ID: MigrationProductIntent, Description: "add the optional use-case folder and report a corpus that states no vision"},
+	{ID: MigrationLedgerEvents, Description: "make the identity ledger append-only and merge-safe"},
 }
 
 // Registry returns the migration order without exposing mutable package state.
@@ -590,6 +594,7 @@ func Plan(root string, opts Options) (MigrationPlan, error) {
 	planHubReleaseCheck(root, &result)
 	planPromotedConstraints(root, &result)
 	planLedgerBackfill(root, &result)
+	planLedgerEvents(root, &result)
 	planCompetingWall(root, &result)
 	planLegacyDecisionLog(root, &result)
 	overviewFolders, err := planSystemOverviews(root, &result)
@@ -613,6 +618,52 @@ func Plan(root string, opts Options) (MigrationPlan, error) {
 	}
 	sortPlan(&result)
 	return result, nil
+}
+
+// planLedgerEvents converts an existing version-one ledger without changing
+// its effective identities and adds the built-in union merge driver required
+// by the one-event-per-line representation.
+func planLedgerEvents(root string, result *MigrationPlan) {
+	ledgerWillExist := ledger.Exists(root)
+	for _, change := range result.Changes {
+		if change.Path == ledger.DefaultPath {
+			ledgerWillExist = true
+		}
+	}
+	if !ledgerWillExist {
+		return
+	}
+	if ledger.Exists(root) {
+		l, err := ledger.Load(root)
+		if err == nil && l.Version() == 1 {
+			before, readErr := os.ReadFile(filepath.Join(root, filepath.FromSlash(ledger.DefaultPath)))
+			if readErr == nil {
+				l.ConvertV2()
+				after, bytesErr := l.Bytes()
+				if bytesErr == nil {
+					result.Changes = append(result.Changes, Change{Path: ledger.DefaultPath, Migration: MigrationLedgerEvents, Description: "convert the identity ledger to append-only events", Existed: true, Before: before, After: after})
+				}
+			}
+		}
+	}
+	attrPath := filepath.Join(root, ".gitattributes")
+	before, err := os.ReadFile(attrPath)
+	existed := err == nil
+	if err != nil && !os.IsNotExist(err) {
+		return
+	}
+	for _, line := range strings.Split(strings.ReplaceAll(string(before), "\r\n", "\n"), "\n") {
+		if strings.TrimSpace(line) == ledger.UnionAttribute {
+			return
+		}
+	}
+	after := append([]byte(nil), before...)
+	if len(after) > 0 && after[len(after)-1] != '\n' {
+		after = append(after, '\n')
+	}
+	after = append(after, ledger.UnionAttribute...)
+	after = append(after, '\n')
+	result.Changes = append(result.Changes, Change{Path: ".gitattributes", Migration: MigrationLedgerEvents, Description: "add the identity ledger union merge rule", Existed: existed, Before: before, After: after})
 }
 
 // planRoleMarker reports an undeclared repository and writes nothing.
@@ -1768,7 +1819,7 @@ func planPromotedConstraints(root string, result *MigrationPlan) {
 // planLedgerBackfill seeds .clue/id-ledger.yaml the first time a repository
 // sees it: one live entry per currently-live corpus ID, with counters
 // seeded at each prefix's current maximum, so existing IDs are never
-// renumbered (ADR-048, AC-107). It is idempotent by construction: once the
+// renumbered (ADR-048, AC-178). It is idempotent by construction: once the
 // file exists, Plan reports zero further changes for this migration.
 func planLedgerBackfill(root string, result *MigrationPlan) {
 	if ledger.Exists(root) {

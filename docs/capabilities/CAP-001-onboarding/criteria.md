@@ -186,15 +186,19 @@ Feature: Onboarding — install to first green validate
     And a current repository produces no such line, so the absence of one is informative
     But the evidence is what the session did, not what the hub says: an agent that skipped the instruction and learned it anyway from the notifier is this criterion passing, and neither channel reporting it is this criterion failing
 
-  @AC-107
+  @AC-107 @retired
   Scenario: migrate backfills the identity ledger from the current corpus scan without renumbering history
+    # Retired by AC-178 when the counter-map ledger was replaced by append-only claims.
+
+  @AC-178
+  Scenario: migrate installs the merge-safe identity ledger without renumbering history
     Test-type: Unit
     Given a corpus with no ".clue/id-ledger.yaml" file and existing live artifacts across several native ID prefixes
     When the user runs "clue migrate --apply"
-    Then it writes one "live" entry per currently-live ID, unchanged
-    And it seeds each prefix's counter at that prefix's current maximum numeric component
+    Then it writes one version-two "live" event per currently-live ID, unchanged
+    And it adds the root-ledger union merge attribute without replacing existing attributes
     And a second run reports zero changes
-    But a corpus that already carries a ".clue/id-ledger.yaml" file is left untouched by this step
+    But a corpus that already carries a version-two ledger is not rewritten by the backfill
 
   @AC-144
   Scenario: A legacy decision log requires reviewed classification before migration

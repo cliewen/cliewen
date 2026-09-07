@@ -11,6 +11,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"slices"
 	"strings"
 	"testing"
 
@@ -636,7 +637,7 @@ func TestAC064_CLI_MigratePreviewAndApply(t *testing.T) {
 	}
 }
 
-func TestAC101_UnitPositive_IDNextIncrementsThroughTheLedger(t *testing.T) {
+func TestAC174_UnitPositive_IDNextIncrementsThroughTheLedger(t *testing.T) {
 	root := t.TempDir()
 	l, err := ledger.Load(root)
 	if err != nil {
@@ -670,14 +671,14 @@ func TestAC101_UnitPositive_IDNextIncrementsThroughTheLedger(t *testing.T) {
 	}
 }
 
-func TestAC101_UnitNegative_IDNextRejectsMissingPrefix(t *testing.T) {
+func TestAC174_UnitNegative_IDNextRejectsMissingPrefix(t *testing.T) {
 	var out, errOut strings.Builder
 	if code := runID([]string{"next"}, &out, &errOut); code != 2 {
 		t.Fatalf("exit code = %d, want 2 for a missing prefix", code)
 	}
 }
 
-func TestAC101_UnitNegative_IDNextRequiresLedgerBackfill(t *testing.T) {
+func TestAC174_UnitNegative_IDNextRequiresLedgerBackfill(t *testing.T) {
 	root := t.TempDir()
 	writeFile(t, root, "docs/plans/PDR-001.md", "---\nid: PDR-001\ntype: plan\nstatus: active\nlinks: []\ntitle: Existing plan\n---\n")
 	var out, errOut strings.Builder
@@ -689,7 +690,7 @@ func TestAC101_UnitNegative_IDNextRequiresLedgerBackfill(t *testing.T) {
 	}
 }
 
-func TestAC101_UnitNegative_IDNextRejectsNonCanonicalPrefix(t *testing.T) {
+func TestAC174_UnitNegative_IDNextRejectsNonCanonicalPrefix(t *testing.T) {
 	root := t.TempDir()
 	l, err := ledger.Load(root)
 	if err != nil {
@@ -706,6 +707,37 @@ func TestAC101_UnitNegative_IDNextRejectsNonCanonicalPrefix(t *testing.T) {
 		if !strings.Contains(errOut.String(), "canonical numeric prefix") {
 			t.Fatalf("id next %q did not explain the invalid prefix: %q", prefix, errOut.String())
 		}
+	}
+}
+
+func TestAC174_UnitPositive_IDNextReservesABatchAndWarnsInLocalMode(t *testing.T) {
+	root := t.TempDir()
+	l, err := ledger.Load(root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := l.Save(); err != nil {
+		t.Fatal(err)
+	}
+	var out, errOut strings.Builder
+	if code := runID([]string{"next", "--count=3", "CH", root}, &out, &errOut); code != 0 {
+		t.Fatalf("exit code=%d stderr=%q", code, errOut.String())
+	}
+	if got := strings.Fields(out.String()); !slices.Equal(got, []string{"CH-001", "CH-002", "CH-003"}) {
+		t.Fatalf("batch = %v", got)
+	}
+	if !strings.Contains(errOut.String(), "not safe across concurrent clones or worktrees") {
+		t.Fatalf("missing local-mode warning: %q", errOut.String())
+	}
+}
+
+func TestAC174_UnitNegative_IDNextRejectsNonPositiveBatch(t *testing.T) {
+	var out, errOut strings.Builder
+	if code := runID([]string{"next", "--count=0", "CH"}, &out, &errOut); code != 2 {
+		t.Fatalf("exit code=%d, want 2", code)
+	}
+	if !strings.Contains(errOut.String(), "count must be positive") {
+		t.Fatalf("error = %q", errOut.String())
 	}
 }
 

@@ -4,6 +4,7 @@ import (
 	"math/big"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -18,7 +19,7 @@ func nextNumeric(t *testing.T, l *Ledger, prefix string) string {
 	return id
 }
 
-func TestAC101_UnitPositive_NextNumericIncrementsStoredCounter(t *testing.T) {
+func TestAC174_UnitPositive_NextNumericIncrementsStoredHighWater(t *testing.T) {
 	root := t.TempDir()
 	l, err := Load(root)
 	if err != nil {
@@ -46,7 +47,7 @@ func TestAC101_UnitPositive_NextNumericIncrementsStoredCounter(t *testing.T) {
 	}
 }
 
-func TestAC101_UnitNegative_PrefixAbsentFromLedgerStartsAtOne(t *testing.T) {
+func TestAC174_UnitNegative_PrefixAbsentFromLedgerStartsAtOne(t *testing.T) {
 	root := t.TempDir()
 	l, _ := Load(root)
 	id := nextNumeric(t, l, "ZZZ")
@@ -55,7 +56,7 @@ func TestAC101_UnitNegative_PrefixAbsentFromLedgerStartsAtOne(t *testing.T) {
 	}
 }
 
-func TestAC101_UnitNegative_NextNumericRejectsNonCanonicalPrefix(t *testing.T) {
+func TestAC174_UnitNegative_NextNumericRejectsNonCanonicalPrefix(t *testing.T) {
 	root := t.TempDir()
 	l, _ := Load(root)
 	for _, prefix := range []string{"snap-sqs", "SNAP--SQS", "SNAP_SQS"} {
@@ -291,5 +292,96 @@ func TestUnit_SaveThenLoadRoundTrips(t *testing.T) {
 	}
 	if !l2.IsUsed("PDR-001") {
 		t.Fatal("reloaded ledger lost its entry")
+	}
+}
+
+func TestAC169_UnitPositive_EventLedgerFoldsLifecycleMonotonically(t *testing.T) {
+	root := t.TempDir()
+	l, _ := Load(root)
+	id := nextNumeric(t, l, "CH")
+	if err := l.PromoteReserved(id); err != nil {
+		t.Fatal(err)
+	}
+	l.Retire(id)
+	if err := l.Save(); err != nil {
+		t.Fatal(err)
+	}
+	data, err := os.ReadFile(filepath.Join(root, DefaultPath))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(string(data), "version: 2") || strings.Count(string(data), "id: CH-001") != 3 {
+		t.Fatalf("ledger did not retain one event per transition:\n%s", data)
+	}
+	reloaded, err := Load(root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if e, ok := reloaded.Lookup(id); !ok || e.State != StateRetired {
+		t.Fatalf("effective entry = %+v, ok=%v", e, ok)
+	}
+}
+
+func TestAC169_UnitNegative_EventLedgerRejectsConflictingIdentityMetadata(t *testing.T) {
+	root := t.TempDir()
+	if err := os.MkdirAll(filepath.Join(root, ".clue"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	data := "version: 2\ncoordination:\n    mode: local\nevents:\n    - {id: CH-001, kind: numeric, state: reserved, prefix: CH, component: \"1\", source-revision: one}\n    - {id: CH-001, kind: numeric, state: live, prefix: CH, component: \"1\", source-revision: two}\n"
+	if err := os.WriteFile(filepath.Join(root, DefaultPath), []byte(data), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := Load(root); err == nil || !strings.Contains(err.Error(), "conflicting identity metadata") {
+		t.Fatalf("Load error = %v", err)
+	}
+}
+
+func TestAC169_UnitNegative_EventLedgerRejectsUnknownSchemaVersion(t *testing.T) {
+	root := t.TempDir()
+	if err := os.MkdirAll(filepath.Join(root, ".clue"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(root, DefaultPath), []byte("version: 3\ncoordination: {mode: local}\nevents: []\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := Load(root); err == nil || !strings.Contains(err.Error(), "unsupported ledger version 3") {
+		t.Fatalf("Load error = %v", err)
+	}
+}
+
+func TestAC170_UnitPositive_MergeClaimsIsIdempotentAndNeverDowngrades(t *testing.T) {
+	root := t.TempDir()
+	l, _ := Load(root)
+	id := nextNumeric(t, l, "CH")
+	if err := l.PromoteReserved(id); err != nil {
+		t.Fatal(err)
+	}
+	claim := Entry{ID: id, Kind: KindNumeric, State: StateReserved, Prefix: "CH", Component: decimal(1)}
+	if err := l.MergeClaims([]Entry{claim, claim}); err != nil {
+		t.Fatal(err)
+	}
+	if e, _ := l.Lookup(id); e.State != StateLive {
+		t.Fatalf("remote reservation downgraded local state to %s", e.State)
+	}
+	if err := l.Save(); err != nil {
+		t.Fatal(err)
+	}
+	data, _ := os.ReadFile(filepath.Join(root, DefaultPath))
+	if strings.Count(string(data), "id: CH-001") != 2 {
+		t.Fatalf("idempotent claim merge appended duplicates:\n%s", data)
+	}
+}
+
+func TestAC170_UnitNegative_MergeClaimsRejectsConflictingMetadata(t *testing.T) {
+	root := t.TempDir()
+	l, _ := Load(root)
+	first := Entry{ID: "CH-001", Kind: KindNumeric, State: StateReserved, Prefix: "CH", Component: decimal(1), SourceRevision: "one"}
+	second := cloneEntry(first)
+	second.SourceRevision = "two"
+	if err := l.MergeClaims([]Entry{first}); err != nil {
+		t.Fatal(err)
+	}
+	if err := l.MergeClaims([]Entry{second}); err == nil || !strings.Contains(err.Error(), "conflicting identity metadata") {
+		t.Fatalf("MergeClaims error = %v", err)
 	}
 }
