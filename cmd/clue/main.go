@@ -72,7 +72,7 @@ Usage:
   clue id live <id> [path]
   clue refs [--apply] [--timeout=<duration>] [path]
   clue carriers <inventory> [path]
-  clue validate [--forbid-changes] [--coverage] [--reality-gaps] [--index-rows] [--read-cost] [path]
+  clue validate [--forbid-changes] [--coverage] [--reality-gaps] [--index-rows] [--read-cost] [--intent] [path]
   clue latest [--quiet] [--timeout=<duration>]
   clue version
 
@@ -87,9 +87,11 @@ Commands:
              is left untouched: nothing is written through it, and it is
              reported as linked.
 
-             The architecture and design overview templates are marked
-             bootstrap placeholders. Replace them with concise,
-             repository-specific truth before clue validate can pass.
+             The architecture and design overview templates and the vision
+             are marked bootstrap placeholders. Replace them with concise,
+             repository-specific truth before clue validate can pass. The
+             use-case folder is materialized empty and may stay that way:
+             use cases are optional and absence is never a gap.
 
   scaffold   Regenerate the taxonomy README index blocks under path
              (default ".") from folder contents: entries whose targets
@@ -107,6 +109,11 @@ Commands:
              --depth=<n>       follow n link hops beyond the root (default 1);
                                --depth=all follows every edge to exhaustion.
              --stats           print the slice's artifact and byte counts.
+             Use cases whose links name the root are listed afterwards by
+             identity, title, and path alone. Nothing is followed and no
+             content is added, so the slice and its bound are unchanged;
+             this is how a capability reaches the journey that governs it
+             without the edge being written in two files.
 
   migrate    Preview a versioned corpus and managed-carrier migration; use
              --apply to write the complete safe plan and
@@ -186,6 +193,13 @@ Commands:
                                a constraint a badge other than enforcement.
              --read-cost       print multi-document artifacts and identities
                                whose default context slice exceeds the budget.
+             --intent          print the direction this corpus states, its
+                               provenance, and the use cases it has written
+                               down. A state report: a missing vision is a
+                               state and not an issue, and no coverage
+                               figure is computed, because use cases are
+                               optional and a ratio over an optional
+                               artifact reads as a target.
 
   latest     Report whether a newer clue release exists, and how to install
              it on the machine this is running on — the PowerShell script on
@@ -512,6 +526,7 @@ func runValidate(args []string, out io.Writer) int {
 	realityGaps := fs.Bool("reality-gaps", false, "print capabilities contradicted by incident analyses; never a committed registry")
 	indexRows := fs.Bool("index-rows", false, "print index rows that only restate their own link, say nothing about the artifact, or mismatch constraint enforcement; never a committed registry")
 	readCost := fs.Bool("read-cost", false, "print multi-document artifacts and bounded context slices over the read-cost budget; never a committed registry")
+	intent := fs.Bool("intent", false, "print the direction this corpus states and the use cases it has written down; a state report, never a coverage figure")
 	_ = fs.Parse(args)
 	root := "."
 	if fs.NArg() > 0 {
@@ -572,6 +587,32 @@ func runValidate(args []string, out io.Writer) int {
 		}
 		for _, row := range constraintBadges {
 			fmt.Fprintf(out, "%s: %s has index badge %q, not enforcement %q\n", row.Readme, row.Target, row.Badge, row.Enforcement)
+		}
+	}
+	// A state report, never a scorecard. It prints no ratio of goals or
+	// capabilities with use cases, because a percentage over an optional
+	// artifact reads as a target and the only way to move it is to write
+	// artifacts nobody needs (PDR-054).
+	if *intent {
+		state := corpus.Intent(c)
+		if state.Vision.Present {
+			meaning := "human-authored"
+			if state.Vision.Inferred {
+				meaning = "inferred — no human has confirmed it"
+			}
+			fmt.Fprintf(out, "vision: %s %s (%s, %s) at %s\n", state.Vision.ID, state.Vision.Title, state.Vision.Status, meaning, state.Vision.Path)
+		} else {
+			fmt.Fprintf(out, "vision: none — this corpus states no direction (%s is absent)\n", corpus.VisionPath)
+		}
+		for _, use := range state.UseCases {
+			crosses := "no capability"
+			if len(use.Capabilities) > 0 {
+				crosses = strings.Join(use.Capabilities, ", ")
+			}
+			fmt.Fprintf(out, "use case: %s %s (%s) crosses %s\n", use.ID, use.Title, use.Status, crosses)
+		}
+		if len(state.UseCases) == 0 {
+			fmt.Fprintln(out, "use cases: none — they are optional, and absence is not a gap")
 		}
 	}
 	if *readCost {

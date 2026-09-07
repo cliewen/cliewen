@@ -90,6 +90,12 @@ const (
 	// deletion in a reviewed change (ADR-034), and which spike is genuinely
 	// finished is a judgment migration never makes (PDR-052).
 	MigrationSpentAnalysis = "MIG-013"
+	// MigrationProductIntent adds the optional use-case folder's index README
+	// and reports a repository that states no vision. The split is the point:
+	// the folder is structure with nothing asserted in it, while a vision
+	// asserts why a product exists — which a repository cannot prove and a
+	// migration must therefore never write (ADR-067).
+	MigrationProductIntent = "MIG-014"
 )
 
 // Options controls planning. Preview is the default; applying a plan is a
@@ -120,6 +126,7 @@ var orderedMigrations = []MigrationDefinition{
 	{ID: MigrationSystemOverviews, Description: "add missing canonical architecture and design overview bootstraps"},
 	{ID: MigrationRoleMarker, Description: "report a repository that has not declared its Cliewen role"},
 	{ID: MigrationSpentAnalysis, Description: "report an analysis whose findings a durable artifact now carries"},
+	{ID: MigrationProductIntent, Description: "add the optional use-case folder and report a corpus that states no vision"},
 }
 
 // Registry returns the migration order without exposing mutable package state.
@@ -539,11 +546,25 @@ func Plan(root string, opts Options) (MigrationPlan, error) {
 	planLedgerBackfill(root, &result)
 	planCompetingWall(root, &result)
 	planLegacyDecisionLog(root, &result)
-	if err := planSystemOverviews(root, &result); err != nil {
+	overviewFolders, err := planSystemOverviews(root, &result)
+	if err != nil {
 		return MigrationPlan{}, err
 	}
 	planRoleMarker(root, &result)
 	planSpentAnalyses(root, &result)
+	intentFolders, err := planProductIntent(root, &result)
+	if err != nil {
+		return MigrationPlan{}, err
+	}
+	// The corpus index is indexed once for every folder this whole plan
+	// creates. Planning it per migration would put two changes on the same
+	// path, and Apply preflights every change against the file as it stands
+	// before it writes any of them: both would record the same Before, both
+	// would pass, and the second write would then discard the rows the first
+	// had just added. The loss would be silent, which is worse than a refusal.
+	if err := planIndexRows(root, append(overviewFolders, intentFolders...), &result); err != nil {
+		return MigrationPlan{}, err
+	}
 	sortPlan(&result)
 	return result, nil
 }
@@ -587,12 +608,55 @@ func planSpentAnalyses(root string, result *MigrationPlan) {
 	}
 }
 
-func planSystemOverviews(root string, result *MigrationPlan) error {
+// planProductIntent materializes the optional use-case folder and reports a
+// missing vision without writing one.
+//
+// The asymmetry is the whole decision. A repository proves what its system
+// does and cannot prove why anyone wanted it, so a migration that drafted a
+// vision would be inventing the one artifact in the corpus with no evidence
+// base — and, because an unreplaced bootstrap fails validation, it would turn
+// a green adopter corpus red in the run that was meant to move it forward. The
+// use-case folder asserts nothing, so it is written like any other structure.
+//
+// The report is a notice rather than a finding: a corpus that has never stated
+// a direction is valid, and blocking a migration on it would strand every
+// repository onboarded before the artifact existed (ADR-067).
+func planProductIntent(root string, result *MigrationPlan) ([]createdFolder, error) {
+	files, err := scaffold.UseCaseFolderBootstrapFiles()
+	if err != nil {
+		return nil, err
+	}
+	var created []createdFolder
+	for rel, content := range files {
+		if hasLinkBoundary(root, rel) {
+			result.Findings = append(result.Findings, Finding{Path: rel, Migration: MigrationProductIntent, Message: "optional use-case folder is behind a symlink; resolve the repository-owned path before migration"})
+			continue
+		}
+		if _, readErr := os.Stat(filepath.Join(root, filepath.FromSlash(rel))); os.IsNotExist(readErr) {
+			result.Changes = append(result.Changes, Change{Path: rel, Migration: MigrationProductIntent, Description: "add the optional use-case folder; it may stay empty, and nothing measures its absence", After: content})
+			created = append(created, createdFolder{Readme: rel, Migration: MigrationProductIntent})
+		} else if readErr != nil {
+			return nil, readErr
+		}
+	}
+	if _, err := os.Stat(filepath.Join(root, filepath.FromSlash(corpus.VisionPath))); os.IsNotExist(err) {
+		result.Notices = append(result.Notices, Notice{
+			Path:      corpus.VisionPath,
+			Migration: MigrationProductIntent,
+			Message:   "this corpus states no vision, and that is valid; migration cannot write one because nothing in a repository proves why a product exists — elicit or infer it in a reviewed change, or leave it absent deliberately",
+		})
+	} else if err != nil {
+		return nil, err
+	}
+	return created, nil
+}
+
+func planSystemOverviews(root string, result *MigrationPlan) ([]createdFolder, error) {
 	files, err := scaffold.OverviewBootstrapFiles()
 	if err != nil {
-		return err
+		return nil, err
 	}
-	var created []string
+	var created []createdFolder
 	for rel, content := range files {
 		if hasLinkBoundary(root, rel) {
 			result.Findings = append(result.Findings, Finding{Path: rel, Migration: MigrationSystemOverviews, Message: "canonical system overview is behind a symlink; resolve the repository-owned path before migration"})
@@ -603,31 +667,108 @@ func planSystemOverviews(root string, result *MigrationPlan) error {
 		switch {
 		case os.IsNotExist(readErr):
 			result.Changes = append(result.Changes, Change{Path: rel, Migration: MigrationSystemOverviews, Description: "create the canonical system overview bootstrap; draft repository-specific truth before validation", After: content})
-			created = append(created, rel)
+			created = append(created, createdFolder{Readme: rel, Migration: MigrationSystemOverviews})
 		case readErr != nil:
-			return readErr
+			return nil, readErr
 		case bytes.Contains(existing, []byte(scaffold.OverviewBootstrapMarker)):
 			result.Notices = append(result.Notices, Notice{Path: rel, Migration: MigrationSystemOverviews, Message: "canonical system overview is still a bootstrap; draft repository-specific truth before validation"})
 		}
 	}
-	sort.Strings(created)
-	return planOverviewIndexRows(root, created, result)
+	return created, nil
 }
 
-// planOverviewIndexRows keeps the corpus index truthful about the folders
-// this migration creates. Every other migration writes outside docs/, so
-// MIG-011 is the first that can leave the taxonomy index behind: a created
-// docs/architecture or docs/design would otherwise be an unreferenced
-// subfolder, which validate reports as drift the operator never caused.
-// Only rows for folders this plan creates are added — pre-existing index
-// drift belongs to clue scaffold, not to a migration.
-func planOverviewIndexRows(root string, created []string, result *MigrationPlan) error {
+// createdFolder is one docs/ folder a migration's plan brings into existence,
+// with the migration that owns it. The pair is what lets one index-row change
+// carry folders from more than one migration without misattributing them.
+type createdFolder struct {
+	Readme    string // repository-relative path of the folder's README
+	Migration string
+}
+
+// ownersInRegistryOrder returns the distinct migrations owning folders, in the
+// registry's own order. That order is stable and is the order a reader
+// following the plan from top to bottom meets those migrations in.
+//
+// An owner the registry does not list still appears, after the ones it does.
+// Callers index the first element to attribute a change, so dropping such an
+// owner would turn a mis-registered migration into a panic on a plan that is
+// otherwise correct — a worse failure than reporting the ID as it stands.
+func ownersInRegistryOrder(folders []createdFolder) []string {
+	var owners []string
+	seen := map[string]bool{}
+	for _, definition := range orderedMigrations {
+		for _, folder := range folders {
+			if folder.Migration == definition.ID {
+				owners = append(owners, definition.ID)
+				seen[definition.ID] = true
+				break
+			}
+		}
+	}
+	for _, folder := range folders {
+		if !seen[folder.Migration] {
+			owners = append(owners, folder.Migration)
+			seen[folder.Migration] = true
+		}
+	}
+	return owners
+}
+
+// indexRowDescription describes the one index change in terms of who caused it.
+//
+// A single contributing migration is already named by the change's own
+// Migration field, so the description stays exactly as it reads when that
+// migration is the only docs writer in the plan. More than one is the case the
+// field cannot express: the change carries every contributor's rows but can be
+// attributed to only one of them, so the folders are grouped under the
+// migration that created each. Without this, a reader is told that the
+// migration named on the line indexed folders another migration created.
+func indexRowDescription(indexed []createdFolder, owners []string) string {
+	const base = "index the folders this migration plan creates"
+	if len(owners) < 2 {
+		return base
+	}
+	groups := make([]string, 0, len(owners))
+	for _, owner := range owners {
+		var names []string
+		for _, folder := range indexed {
+			if folder.Migration == owner {
+				names = append(names, path.Base(path.Dir(folder.Readme))+"/")
+			}
+		}
+		groups = append(groups, strings.Join(names, ", ")+" ("+owner+")")
+	}
+	return base + ": " + strings.Join(groups, "; ")
+}
+
+// planIndexRows keeps the corpus index truthful about the folders this plan
+// creates. Most migrations write outside docs/ entirely; the ones that do not
+// would otherwise leave a created folder unreferenced, which validate reports
+// as drift the operator never caused.
+//
+// Only rows for folders this plan creates are added — pre-existing index drift
+// belongs to clue scaffold, not to a migration. And there is exactly one
+// change for docs/README.md however many migrations contributed to it: Apply
+// preflights every change against the file as it stands before it writes any
+// of them, so two changes on one path would both record the same Before, both
+// pass, and the second write would discard the rows the first had just added.
+//
+// That single change can be attributed to only one migration, so when several
+// contributed the description names the folders each of them created. The
+// alternative — crediting the first contributor alone — tells the operator
+// that one migration indexed folders another one made.
+func planIndexRows(root string, created []createdFolder, result *MigrationPlan) error {
 	if len(created) == 0 {
 		return nil
 	}
+	sort.Slice(created, func(i, j int) bool { return created[i].Readme < created[j].Readme })
+	// A blocked index blocks every folder in the plan, including the ones whose
+	// rows this function never reaches, so the report is attributed to the
+	// first contributor rather than to the narrower set that produced rows.
+	blocked := ownersInRegistryOrder(created)[0]
 	const rel = "docs/README.md"
 	if hasLinkBoundary(root, rel) {
-		result.Findings = append(result.Findings, Finding{Path: rel, Migration: MigrationSystemOverviews, Message: "corpus index is behind a symlink; resolve the repository-owned path before migration"})
+		result.Findings = append(result.Findings, Finding{Path: rel, Migration: blocked, Message: "corpus index is behind a symlink; resolve the repository-owned path before migration"})
 		return nil
 	}
 	before, err := os.ReadFile(filepath.Join(root, filepath.FromSlash(rel)))
@@ -641,7 +782,7 @@ func planOverviewIndexRows(root string, created []string, result *MigrationPlan)
 	start := strings.Index(text, scaffold.IndexStart)
 	end := strings.Index(text, scaffold.IndexEnd)
 	if start < 0 || end < 0 || end < start {
-		result.Notices = append(result.Notices, Notice{Path: rel, Migration: MigrationSystemOverviews, Message: "corpus index block is missing or malformed, so the new overview folders were not indexed; repair the markers and run clue scaffold"})
+		result.Notices = append(result.Notices, Notice{Path: rel, Migration: blocked, Message: "corpus index block is missing or malformed, so the folders this migration plan creates were not indexed; repair the markers and run clue scaffold"})
 		return nil
 	}
 	eol := "\n"
@@ -650,28 +791,35 @@ func planOverviewIndexRows(root string, created []string, result *MigrationPlan)
 	}
 	block := text[start+len(scaffold.IndexStart) : end]
 	var rows string
-	for _, overview := range created {
-		folder := path.Base(path.Dir(overview)) // architecture, design
-		target := folder + "/README.md"
-		if strings.Contains(block, "("+target+")") || strings.Contains(block, "("+folder+"/") {
+	// Only the folders that actually produce a row are credited. A folder the
+	// index already covers contributed nothing to this change, so naming its
+	// migration would attribute an edit to a migration that made none.
+	var indexed []createdFolder
+	for _, folder := range created {
+		name := path.Base(path.Dir(folder.Readme)) // architecture, design, use-cases
+		target := name + "/README.md"
+		if strings.Contains(block, "("+target+")") || strings.Contains(block, "("+name+"/") ||
+			strings.Contains(rows, "("+target+")") {
 			continue
 		}
 		// The same row shape scaffold appends for a subfolder, so a later
 		// regeneration recognizes this line as covering the entry and leaves
 		// any description the author adds to it alone.
-		rows += "- [" + folder + "/](" + target + ")" + eol
+		rows += "- [" + name + "/](" + target + ")" + eol
+		indexed = append(indexed, folder)
 	}
 	if rows == "" {
 		return nil
 	}
+	owners := ownersInRegistryOrder(indexed)
 	if !strings.HasSuffix(block, eol) {
 		rows = eol + rows
 	}
 	after := text[:end] + rows + text[end:]
 	result.Changes = append(result.Changes, Change{
 		Path:        rel,
-		Migration:   MigrationSystemOverviews,
-		Description: "index the system overview folders this migration creates",
+		Migration:   owners[0],
+		Description: indexRowDescription(indexed, owners),
 		Existed:     true,
 		Before:      before,
 		After:       []byte(after),

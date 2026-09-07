@@ -51,8 +51,12 @@ The rest of the taxonomy solves problems that appear as work grows:
 | A constraint | Law, policy, compatibility, licensing, another non-negotiable boundary, or a system quality (performance, reliability, usability) needs a concrete, checked threshold |
 | Architecture | Several capabilities depend on the same boundary or an expensive-to-change structure |
 | Analysis findings | Important unknowns need investigation before anyone can plan honestly |
+| A vision | Readers cannot tell what the product is for, or an agent keeps having to ask you what is in scope |
+| A use case | One actor's journey crosses several capabilities and the criteria alone do not explain the outcome |
 
 Leave unused categories empty. Cliewen is supposed to expose necessary reasoning, not reward document volume.
+
+If you have no vision yet, ask the agent for one. On a new repository it interviews you; on an existing one it reads the repository first and shows you a cited draft. Either way what it produces is marked as drafted until you confirm it. See [Vision and use cases](./intent).
 
 ## When Cliewen is a poor fit
 

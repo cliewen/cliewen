@@ -115,8 +115,25 @@ func ManagedCarrierFiles() (map[string][]byte, error) {
 // migration may add when their canonical paths are absent. Unlike managed
 // carriers, these files are never replaced once an adopter owns them.
 func OverviewBootstrapFiles() (map[string][]byte, error) {
+	return bootstrapFiles("docs/architecture/README.md", "docs/design/README.md")
+}
+
+// UseCaseFolderBootstrapFiles returns the optional use-case folder's index
+// README.
+//
+// It is separate from the overview bootstraps because it is separate in kind:
+// this file is structure with nothing asserted in it, which is why a migration
+// may write it into an established repository while it may not write a vision
+// (ADR-067). Like the overviews, it is never replaced once an adopter owns it.
+func UseCaseFolderBootstrapFiles() (map[string][]byte, error) {
+	return bootstrapFiles("docs/use-cases/README.md")
+}
+
+// bootstrapFiles reads one or more repository-owned template files, keyed by
+// their repository-relative path.
+func bootstrapFiles(rels ...string) (map[string][]byte, error) {
 	files := map[string][]byte{}
-	for _, rel := range []string{"docs/architecture/README.md", "docs/design/README.md"} {
+	for _, rel := range rels {
 		data, err := templates.ReadFile("templates/" + rel)
 		if err != nil {
 			return nil, err

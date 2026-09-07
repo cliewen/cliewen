@@ -51,7 +51,7 @@ Say what it will do:
 - It is safe to re-run: a second run refreshes the generated README index blocks and leaves prose alone.
 - It writes the six managed Cliewen skills into `.agents/skills/`, stamped with this binary's version. They are committed files, and `clue validate` fails if the binary and those skills ever disagree.
 
-If the user agrees, run `clue init`, then `clue validate`. A fresh scaffold is deliberately **not** green: `init` writes marked architecture and design overview bootstraps at `docs/architecture/README.md` and `docs/design/README.md`, and `validate` names both until they carry concise repository-specific truth. That is the expected first result, not a broken installation. Use the same explicit path from step 3 for both commands:
+If the user agrees, run `clue init`, then `clue validate`. A fresh scaffold is deliberately **not** green: `init` writes marked bootstraps at `docs/architecture/README.md`, `docs/design/README.md`, and `docs/vision.md`, and `validate` names each of them until it carries concise repository-specific truth. That is the expected first result, not a broken installation. Use the same explicit path from step 3 for both commands:
 
 - macOS or Linux script: `PATH="${CLUE_INSTALL:-$HOME/.local/bin}:$PATH" clue init`, then `PATH="${CLUE_INSTALL:-$HOME/.local/bin}:$PATH" clue validate`
 - Windows script: `& "$env:LOCALAPPDATA\Programs\clue\clue.exe" init`, then `& "$env:LOCALAPPDATA\Programs\clue\clue.exe" validate`

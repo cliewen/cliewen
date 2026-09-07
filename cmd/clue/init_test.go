@@ -11,13 +11,18 @@ import (
 
 func activateSystemOverviews(t *testing.T, root string) {
 	t.Helper()
-	for _, rel := range []string{"docs/architecture/README.md", "docs/design/README.md"} {
+	markers := map[string]string{
+		"docs/architecture/README.md": "<!-- clue:overview:bootstrap -->",
+		"docs/design/README.md":       "<!-- clue:overview:bootstrap -->",
+		"docs/vision.md":              "<!-- clue:vision:bootstrap -->",
+	}
+	for rel, marker := range markers {
 		path := filepath.Join(root, filepath.FromSlash(rel))
 		content, err := os.ReadFile(path)
 		if err != nil {
 			t.Fatal(err)
 		}
-		if err := os.WriteFile(path, []byte(strings.Replace(string(content), "<!-- clue:overview:bootstrap -->", "Repository-specific overview.", 1)), 0o644); err != nil {
+		if err := os.WriteFile(path, []byte(strings.Replace(string(content), marker, "Repository-specific truth.", 1)), 0o644); err != nil {
 			t.Fatal(err)
 		}
 	}

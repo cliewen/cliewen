@@ -6,13 +6,21 @@ This directory is the **system-of-record**: the permanent, durable truth about t
 
 Every artifact carries YAML frontmatter with a common core — `id`, `type`, `status`, `links`, `title` — plus small type-specific extensions. **Identity is the ID, the path is only the current address**: tooling discovers artifacts by scanning frontmatter, and external systems reference IDs, never paths. Status lives in frontmatter, never in folder names; status views are generated.
 
-The red thread the linter walks:
+Two threads run through the corpus and meet only at the goal. The **intent thread** says what the product means, and its first two steps are optional to hold:
 
 ```
-G-xxx (goal) → P-xxx/M-xxx (plan/milestone) → CH-xxx (change)
-  → CAP-xxx (capability) → AC-xxx (acceptance criterion) → acceptance evidence
+VIS-001 (vision) → G-xxx (goal) → UC-xxx (use case, optional) → CAP-xxx (capability)
+  → AC-xxx (acceptance criterion) → acceptance evidence
     → classified Go/JVM/Cucumber test reference, or Human acceptance brief
 ```
+
+The **delivery thread** says how that meaning gets built, and never joins the semantic hierarchy:
+
+```
+G-xxx (goal) → P-xxx/M-xxx (plan/milestone) → CH-xxx (change) → accepted merge commit
+```
+
+A corpus with no vision and no use cases is valid, and nothing counts either (consumers `checkIntent` and `corpus.Intent`; [ADR-065](decisions/ADR-065-the-vision-is-a-singleton-at-a-fixed-address.md), [ADR-067](decisions/ADR-067-a-corpus-without-a-vision-stays-valid.md), [PDR-054](decisions/PDR-054-use-cases-are-optional-and-no-requirement-artifact.md)). Intent links point down the composition — a use case names its goal and the capabilities it crosses, and nothing names it back — so `clue context` names the use cases reaching an artifact rather than following them ([ADR-066](decisions/ADR-066-intent-links-point-down-and-context-names-what-points-back.md)).
 
 Cross-cutting, checked against every proposal: C-xxx (constraints, including verifiable quality bars — see [ADR-027](decisions/ADR-027-quality-scenarios-are-constraints.md)).
 
@@ -35,11 +43,12 @@ Small consumed extensions keep the graph explicit. `ac-prefix` on a criteria.md 
 | open-questions | `open` → `resolved` | transient workspace artifacts |
 | imported-change | `in-progress` → `complete` | durable, never `retired` — the record survives its extracted source (ADR-050) |
 
-Types on the default: capability, criteria, design, constraint, architecture, analysis, and any type an adopter adds.
+Types on the default: capability, criteria, design, constraint, architecture, analysis, vision, use-case, and any type an adopter adds.
 
 ## Folders
 
 <!-- clue:index:start -->
+- [VIS-001 — Cliewen — durable intent that a machine can check before a human accepts it](vision.md) · `draft` — The one statement of what Cliewen is for, whom it serves, and what is deliberately outside it; every goal links up to it.
 - [goals/](goals/README.md) — G-xxx: who wants it, why (the inbox lives here as `status: proposed`)
 - [plans/](plans/README.md) — P-xxx: campaign layer; flat, status in frontmatter
 - [capabilities/](capabilities/README.md) — CAP-xxx: one folder per capability (README / criteria / design)
@@ -49,4 +58,5 @@ Types on the default: capability, criteria, design, constraint, architecture, an
 - [constraints/](constraints/README.md) — C-xxx: laws, licenses, policies, and verifiable quality bars you must not break
 - [analysis/](analysis/README.md) — spike findings, extraction reports
 - [imported-changes/](imported-changes/README.md) — IC-xxx: durable records of in-flight source work brownfield extraction preserves
+- [use-cases/](use-cases/README.md) — UC-xxx: optional actor journeys across capabilities; zero is a normal number
 <!-- clue:index:end -->

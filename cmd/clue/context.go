@@ -82,6 +82,7 @@ func runContext(args []string, out, errOut io.Writer) int {
 	}
 
 	printFrontier(out, frontier, opts.Depth)
+	printUseCases(out, corpus.UseCasesNaming(c, artifacts[0].ID))
 	if *stats {
 		// The figure is artifact content, which is what a slice costs a reader
 		// to load; the boundary lines and this report are not counted.
@@ -115,4 +116,23 @@ func printFrontier(out io.Writer, frontier []corpus.Frontier, depth int) {
 		fmt.Fprintf(out, "... and %d further artifact(s) more than %d hop(s) out\n", beyond, depth+1)
 	}
 	fmt.Fprintf(out, "widen with --depth=%d, or --depth=all\n", depth+1)
+}
+
+// printUseCases names the journeys that reach this artifact. Intent links run
+// downward — a use case names its goal and its capabilities, and neither names
+// it back — so this is the one direction a slice cannot walk (ADR-066).
+//
+// Names only: no edge is followed and no content is emitted, so the slice, its
+// byte count, and its frontier are exactly what they would have been without
+// it. The scan is restricted to use cases rather than generalized into a
+// reverse-link mode, because reading every inbound edge returns almost nothing
+// for a leaf and most of the corpus for a goal or a vision.
+func printUseCases(out io.Writer, useCases []*corpus.Artifact) {
+	if len(useCases) == 0 {
+		return
+	}
+	fmt.Fprintf(out, "\n----- %d use case(s) naming this artifact; not followed -----\n", len(useCases))
+	for _, useCase := range useCases {
+		fmt.Fprintf(out, "%s | %s | %s\n", useCase.ID, useCase.Title, useCase.Path)
+	}
 }

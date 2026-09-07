@@ -560,7 +560,7 @@ func TestAC064_UnitNegative_MigrationRejectsChangedSourceAfterPreview(t *testing
 
 func TestAC064_UnitPositive_MigrationRegistryIsOrdered(t *testing.T) {
 	registry := Registry()
-	want := []string{MigrationReversalCost, MigrationStatusLifecycle, MigrationManagedCarriers, MigrationQualifiedReferences, MigrationClaudeEntryPoint, MigrationHubReleaseCheck, MigrationPromotedConstraints, MigrationLedgerBackfill, MigrationCompetingWall, MigrationLegacyDecisionLog, MigrationSystemOverviews, MigrationRoleMarker, MigrationSpentAnalysis}
+	want := []string{MigrationReversalCost, MigrationStatusLifecycle, MigrationManagedCarriers, MigrationQualifiedReferences, MigrationClaudeEntryPoint, MigrationHubReleaseCheck, MigrationPromotedConstraints, MigrationLedgerBackfill, MigrationCompetingWall, MigrationLegacyDecisionLog, MigrationSystemOverviews, MigrationRoleMarker, MigrationSpentAnalysis, MigrationProductIntent}
 	if len(registry) != len(want) {
 		t.Fatalf("registry has %d entries, want %d", len(registry), len(want))
 	}
@@ -634,6 +634,15 @@ func TestAC150_UnitPositive_MigrationIndexesTheOverviewFoldersItCreates(t *testi
 			t.Fatalf("planned index is missing %q:\n%s", want, indexed.After)
 		}
 	}
+	// This fixture has no use-case folder either, so MIG-014 contributes a row
+	// to the same change. Only one migration can be named in the Migration
+	// field, so the description has to carry the rest: an operator reading the
+	// line must not be told MIG-011 indexed the folder MIG-014 created.
+	for _, want := range []string{"architecture/, design/ (" + MigrationSystemOverviews + ")", "use-cases/ (" + MigrationProductIntent + ")"} {
+		if !strings.Contains(indexed.Description, want) {
+			t.Fatalf("shared corpus index change does not attribute %q: %q", want, indexed.Description)
+		}
+	}
 	if err := Apply(root, plan); err != nil {
 		t.Fatal(err)
 	}
@@ -656,6 +665,43 @@ func TestAC150_UnitPositive_MigrationIndexesTheOverviewFoldersItCreates(t *testi
 		if change.Migration == MigrationSystemOverviews {
 			t.Fatalf("overview migration is not idempotent: %+v", change)
 		}
+	}
+}
+
+// The per-folder attribution above exists for the shared case and must not
+// leak into the ordinary one. A plan where a single migration creates every
+// indexed folder has nothing to disambiguate — its Migration field already
+// names the only contributor — so the description stays as it reads for the
+// repositories that have been receiving it since MIG-011 shipped alone.
+func TestAC150_UnitNegative_ASoleContributorIsNotSpelledOutInTheIndexDescription(t *testing.T) {
+	root := migrationFixture(t, "")
+	// With the use-case folder already present, MIG-014 plans no row and
+	// MIG-011 is the only migration contributing to the corpus index.
+	full := filepath.Join(root, filepath.FromSlash("docs/use-cases/README.md"))
+	if err := os.MkdirAll(filepath.Dir(full), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(full, []byte("# Use cases\n\n<!-- clue:index:start -->\n<!-- clue:index:end -->\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	plan, err := Plan(root, Options{ReversalCost: "low"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	var indexed *Change
+	for i := range plan.Changes {
+		if plan.Changes[i].Path == "docs/README.md" {
+			indexed = &plan.Changes[i]
+		}
+	}
+	if indexed == nil {
+		t.Fatalf("migration did not plan the corpus index rows: %+v", plan.Changes)
+	}
+	if indexed.Migration != MigrationSystemOverviews {
+		t.Fatalf("sole contributor is not the migration named on the change: %+v", *indexed)
+	}
+	if indexed.Description != "index the folders this migration plan creates" {
+		t.Fatalf("a sole contributor was spelled out in the index description: %q", indexed.Description)
 	}
 }
 

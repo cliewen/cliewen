@@ -10,13 +10,21 @@ An extracted non-decision carries `provenance: inferred` and `reversal-cost: low
 
 Your repository declares whether it is an adopter of Cliewen or Cliewen's own source repository in `.clue/role.yaml` — `role: adopter` for every repository that adopted it. `clue init` writes the marker, and a repository without one is treated as an adopter. It records the role and nothing else: your Cliewen version is already carried by the managed skills' `version:` stamp and your CI caller's `clue-version` input.
 
-The red thread `clue validate` walks:
+There are two threads, and they meet only at the goal. The **intent thread** says what the product means:
 
 ```
-G-xxx (goal) → P-xxx/M-xxx (plan/milestone) → CH-xxx (change)
-  → CAP-xxx (capability) → AC-xxx (acceptance criterion) → acceptance evidence
+VIS-001 (vision) → G-xxx (goal) → UC-xxx (use case, optional) → CAP-xxx (capability)
+  → AC-xxx (acceptance criterion) → acceptance evidence
     → classified Go/JVM/Cucumber test reference, or Human acceptance brief
 ```
+
+The use case is optional and links may skip it entirely; a goal reaching a capability directly is the ordinary case. The **delivery thread** says how that intent gets built, and never joins the semantic hierarchy:
+
+```
+G-xxx (goal) → P-xxx/M-xxx (plan/milestone) → CH-xxx (change) → accepted merge commit
+```
+
+Keeping them apart is why a change never edits the vision merely because it edited code.
 
 Cross-cutting, checked against every proposal: C-xxx (constraints, including verifiable quality bars).
 
@@ -26,7 +34,9 @@ When a released `clue` adds or narrows a corpus obligation, preview `clue migrat
 
 Each folder below holds one kind of record. A full change (the `clue-delta` loop) updates every record its work touches in the same integration; simple work remains responsible for any durable record it touches even though it uses no workspace or digest:
 
+- **Vision** (`vision.md`) — one file, `VIS-001`, stating what this product or system is for. Optional to have, and edited only when the direction itself changes. A repository that has never stated one is valid; an unreplaced bootstrap is not.
 - **Goals** (`goals/`) — who wants the system and why. A new wish enters here as `status: proposed`; a change rarely touches goals.
+- **Use cases** (`use-cases/`) — optional: one actor's end-to-end path across capabilities, when the capabilities alone do not explain the outcome. Zero is a normal number, and nothing measures their absence.
 - **Plans** (`plans/`) — campaigns with verifiable milestones. Every full change names the plan item it serves (or declares itself plan-less); the digest updates plan bookkeeping, including closing a plan whose last milestone the change completes.
 - **Capabilities** (`capabilities/`) — one folder per capability: `README.md` (what and why), `criteria.md` (acceptance criteria as Gherkin, each tied to its declared acceptance evidence), `design.md` (how it works). **Design is documented per capability** — a change that alters a capability's behavior updates its criteria and design in the same PR.
 - **Architecture** (`architecture/`) — the required system structure overview: boundaries, actors, and durable technology choices. Updated when a change alters the system's structure or public surface, not for local detail.
@@ -52,8 +62,10 @@ Each taxonomy README carries a generated index between the `clue:index` markers.
 ## Folders
 
 <!-- clue:index:start -->
+- [VIS-001 — Replace this with what this product or system is](vision.md) · `draft` — The one statement of what this product or system is for; goals link to it.
 - [goals/](goals/README.md) — G-xxx: who wants it, why
 - [plans/](plans/README.md) — P-xxx: campaigns and milestones
+- [use-cases/](use-cases/README.md) — UC-xxx: optional actor journeys across capabilities
 - [capabilities/](capabilities/README.md) — CAP-xxx: one folder per capability (README / criteria / design)
 - [architecture/](architecture/README.md) — the whole, the expensive-to-change
 - [design/](design/README.md) — cross-cutting behaviour, flows, and patterns

@@ -1,17 +1,19 @@
 counters:
-    AC: "161"
-    ADR: "64"
+    AC: "168"
+    ADR: "67"
     AN: "23"
     ARCH: "3"
-    C: "22"
-    CAP: "8"
-    CH: "169"
-    G: "11"
+    C: "23"
+    CAP: "9"
+    CH: "170"
+    G: "12"
     IC: "2"
     IDR: "8"
     LOG: "1"
-    P: "20"
-    PDR: "53"
+    P: "21"
+    PDR: "55"
+    UC: "1"
+    VIS: "1"
 entries:
     - id: AC-001
       kind: numeric
@@ -813,6 +815,41 @@ entries:
       state: live
       prefix: AC
       component: "161"
+    - id: AC-162
+      kind: numeric
+      state: live
+      prefix: AC
+      component: "162"
+    - id: AC-163
+      kind: numeric
+      state: live
+      prefix: AC
+      component: "163"
+    - id: AC-164
+      kind: numeric
+      state: live
+      prefix: AC
+      component: "164"
+    - id: AC-165
+      kind: numeric
+      state: live
+      prefix: AC
+      component: "165"
+    - id: AC-166
+      kind: numeric
+      state: live
+      prefix: AC
+      component: "166"
+    - id: AC-167
+      kind: numeric
+      state: live
+      prefix: AC
+      component: "167"
+    - id: AC-168
+      kind: numeric
+      state: live
+      prefix: AC
+      component: "168"
     - id: ADR-001
       kind: numeric
       state: live
@@ -1108,6 +1145,21 @@ entries:
       state: live
       prefix: ADR
       component: "64"
+    - id: ADR-065
+      kind: numeric
+      state: live
+      prefix: ADR
+      component: "65"
+    - id: ADR-066
+      kind: numeric
+      state: live
+      prefix: ADR
+      component: "66"
+    - id: ADR-067
+      kind: numeric
+      state: live
+      prefix: ADR
+      component: "67"
     - id: AN-001
       kind: numeric
       state: retired
@@ -1348,6 +1400,11 @@ entries:
       state: live
       prefix: C
       component: "22"
+    - id: C-023
+      kind: numeric
+      state: live
+      prefix: C
+      component: "23"
     - id: CAP-001
       kind: numeric
       state: live
@@ -1434,6 +1491,17 @@ entries:
       kind: opaque
       state: live
     - id: CAP-008-design
+      kind: opaque
+      state: live
+    - id: CAP-009
+      kind: numeric
+      state: live
+      prefix: CAP
+      component: "9"
+    - id: CAP-009-criteria
+      kind: opaque
+      state: live
+    - id: CAP-009-design
       kind: opaque
       state: live
     - id: CH-122
@@ -1925,6 +1993,17 @@ entries:
       state: reserved
       prefix: CH
       component: "169"
+    - id: CH-170
+      kind: numeric
+      state: live
+      prefix: CH
+      component: "170"
+    - id: CH-170-open-questions
+      kind: opaque
+      state: retired
+    - id: CH-170-tasks
+      kind: opaque
+      state: retired
     - id: G-001
       kind: numeric
       state: live
@@ -1980,6 +2059,11 @@ entries:
       state: live
       prefix: G
       component: "11"
+    - id: G-012
+      kind: numeric
+      state: live
+      prefix: G
+      component: "12"
     - id: IC-001
       kind: numeric
       state: live
@@ -2135,6 +2219,11 @@ entries:
       state: live
       prefix: P
       component: "20"
+    - id: P-021
+      kind: numeric
+      state: live
+      prefix: P
+      component: "21"
     - id: PDR-001
       kind: numeric
       state: live
@@ -2400,3 +2489,23 @@ entries:
       state: live
       prefix: PDR
       component: "53"
+    - id: PDR-054
+      kind: numeric
+      state: live
+      prefix: PDR
+      component: "54"
+    - id: PDR-055
+      kind: numeric
+      state: live
+      prefix: PDR
+      component: "55"
+    - id: UC-001
+      kind: numeric
+      state: live
+      prefix: UC
+      component: "1"
+    - id: VIS-001
+      kind: numeric
+      state: live
+      prefix: VIS
+      component: "1"

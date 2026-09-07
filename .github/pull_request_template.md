@@ -5,6 +5,7 @@
 <!-- REQUIRED: Replace this comment with a concise, human-facing brief before requesting merge. -->
 
 - Plan item and whether it remains wanted: <!-- REQUIRED -->
+- The vision this change proceeds under, or that the repository states none: <!-- REQUIRED, or none stated -->
 - Added or changed criteria, verbatim scenarios, and advisory scenario-resolution verdicts (`verifies`, `verifies-something-adjacent`, or `undetermined`); a criterion newly or materially declaring `Test-type: Human` is named here — this line is that criterion's proof, not a separate confirmation: <!-- REQUIRED, or none -->
 - What becomes binding on merge (inferred decisions, invalidated or superseded records, and any authorized unaccepted base with the meaning it binds): <!-- REQUIRED, or none -->
 
