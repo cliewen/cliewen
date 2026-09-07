@@ -4,6 +4,8 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 
 ## [Unreleased]
 
+## [0.23.0] - 2026-09-07
+
 ### Added
 
 - **A corpus can say what the product is for.** `docs/vision.md` (identity `VIS-001`) holds one concise statement per repository: what this is, whom it serves, what is in scope, what is deliberately out, what success would look like, and what is still uncertain. Goals link up to it. It is not a roadmap or a requirements list, needs no business case, and is edited when the direction changes rather than when a feature ships. `clue init` writes a marked bootstrap into a new repository, which `clue validate` rejects until you replace it, the same treatment the architecture and design overviews already get.
@@ -31,6 +33,10 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 - **`MIG-014` adds the optional use-case folder and reports a missing vision.** `clue migrate` creates `docs/use-cases/README.md` and its corpus-index row, which is structure with nothing asserted in it, and emits a non-blocking notice when the repository states no vision. It never writes vision content. A repository that already has either is left alone, and a repository that deliberately states no direction can simply keep not stating one; the acceptance-brief line above is where that choice becomes visible.
 
 - **The corpus-index line now names every migration that contributed a row.** `docs/README.md` is written once per plan, so when `MIG-011` and `MIG-014` both create folders in the same run — the usual case the first time an existing repository migrates — the single reported change used to be credited to `MIG-011` alone, and the folder `MIG-014` created appeared to be someone else's work. That line now spells out which folders came from which migration. A plan where only one migration creates folders reads exactly as it did before.
+
+### Install
+
+`curl -fsSL https://cliewen.dev/install.sh | sh` on macOS and Linux, `irm https://cliewen.dev/install.ps1 | iex` on Windows, or `go install github.com/cliewen/cliewen/cmd/clue@v0.23.0`. You can still download a prebuilt binary from the release assets and verify it against `SHA256SUMS` by hand; those asset names are unchanged. Update vendored Cliewen skills from this release's `.agents/skills/`; a 0.23.0 binary rejects older Cliewen skill versions as drift. Upgrading an existing repository: run `clue migrate` to preview the corpus changes and the new `MIG-014` notice, then apply the offered structural updates. Migration creates the optional use-case folder but never invents a repository vision; a missing vision remains valid and non-blocking. Nothing is deleted for you.
 
 ## [0.22.0] - 2026-09-03
 
