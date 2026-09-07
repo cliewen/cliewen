@@ -94,7 +94,7 @@ func TestAC171_IntegrationPositive_ConcurrentClonesReceiveUniqueSequentialIDs(t 
 	sort.Strings(got)
 	want := []string{"CH-171", "CH-172", "CH-173", "CH-174", "CH-175", "CH-176", "CH-177", "CH-178", "CH-179", "CH-180"}
 	if strings.Join(got, ",") != strings.Join(want, ",") {
-		t.Fatalf("allocated IDs = %v, want %v", got, want)
+		t.Fatalf("allocated IDs = %v, want %v\nremote claims:\n%s\nremote history:\n%s", got, want, git(t, remote, "show", Ref+":id-allocations.yaml"), git(t, remote, "log", "--oneline", "--decorate", Ref))
 	}
 }
 

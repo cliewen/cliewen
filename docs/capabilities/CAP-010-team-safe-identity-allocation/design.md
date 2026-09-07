@@ -16,7 +16,7 @@ title: Design for team-safe identity allocation
 
 ## Allocation transaction
 
-The Git transport uses plumbing commands and temporary refs rather than checking out the allocator branch or touching the contributor's index. It fetches and validates the current claim file, unions numeric identities already known by the local ledger, allocates after the prefix high-water mark, creates a child commit, and performs an ordinary push. A concurrent winner makes that push non-fast-forward; the loser fetches the new head and retries until the operation-wide timeout.
+The Git transport uses plumbing commands and temporary refs rather than checking out the allocator branch or touching the contributor's index. It fetches and validates the current claim file, unions numeric identities already known by the local ledger, allocates after the prefix high-water mark, creates a child commit with a random transaction identity, and performs an ordinary push. The transaction identity prevents two same-second contenders from creating the same commit object. A concurrent winner therefore makes the other push non-fast-forward; the loser fetches the new head and retries until the operation-wide timeout.
 
 No force option is used. A push error is retried only when a follow-up remote read proves the head changed; authentication and transport failures surface immediately. Local ledger bytes change only after the claim is remote-durable.
 

@@ -140,12 +140,12 @@ func runGit(ctx context.Context, root string, input []byte, env []string, args .
 	return stdout.Bytes(), nil
 }
 
-func token() string {
+func token() (string, error) {
 	b := make([]byte, 8)
 	if _, err := rand.Read(b); err != nil {
-		return fmt.Sprintf("%d", time.Now().UnixNano())
+		return "", fmt.Errorf("create allocator transaction identity: %w", err)
 	}
-	return hex.EncodeToString(b)
+	return hex.EncodeToString(b), nil
 }
 
 func remoteOID(ctx context.Context, root, remote string) (string, error) {
@@ -164,7 +164,11 @@ func remoteOID(ctx context.Context, root, remote string) (string, error) {
 }
 
 func fetch(ctx context.Context, root, remote string) (string, *state, error) {
-	tmpRef := "refs/clue/tmp/id-allocator-" + token()
+	nonce, err := token()
+	if err != nil {
+		return "", nil, err
+	}
+	tmpRef := "refs/clue/tmp/id-allocator-" + nonce
 	defer func() { _, _ = runGit(context.Background(), root, nil, nil, "update-ref", "-d", tmpRef) }()
 	if _, err := runGit(ctx, root, nil, nil, "fetch", "--quiet", "--no-tags", remote, "+"+Ref+":"+tmpRef); err != nil {
 		return "", nil, err
@@ -186,6 +190,10 @@ func fetch(ctx context.Context, root, remote string) (string, *state, error) {
 }
 
 func commit(ctx context.Context, root, parent, message string, s *state) (string, error) {
+	nonce, err := token()
+	if err != nil {
+		return "", err
+	}
 	data, err := marshalState(s)
 	if err != nil {
 		return "", err
@@ -209,7 +217,7 @@ func commit(ctx context.Context, root, parent, message string, s *state) (string
 		"GIT_COMMITTER_NAME=Cliewen identity allocator",
 		"GIT_COMMITTER_EMAIL=allocator@cliewen.local",
 	}
-	oid, err := runGit(ctx, root, []byte(message+"\n"), env, args...)
+	oid, err := runGit(ctx, root, []byte(message+"\n\ntransaction: "+nonce+"\n"), env, args...)
 	if err != nil {
 		return "", err
 	}
