@@ -652,17 +652,10 @@ func planLedgerEvents(root string, result *MigrationPlan) {
 	if err != nil && !os.IsNotExist(err) {
 		return
 	}
-	for _, line := range strings.Split(strings.ReplaceAll(string(before), "\r\n", "\n"), "\n") {
-		if strings.TrimSpace(line) == ledger.UnionAttribute {
-			return
-		}
+	after, added := ledger.WithUnionAttribute(before)
+	if !added {
+		return
 	}
-	after := append([]byte(nil), before...)
-	if len(after) > 0 && after[len(after)-1] != '\n' {
-		after = append(after, '\n')
-	}
-	after = append(after, ledger.UnionAttribute...)
-	after = append(after, '\n')
 	result.Changes = append(result.Changes, Change{Path: ".gitattributes", Migration: MigrationLedgerEvents, Description: "add the identity ledger union merge rule", Existed: existed, Before: before, After: after})
 }
 
@@ -1833,7 +1826,19 @@ func planLedgerBackfill(root string, result *MigrationPlan) {
 	if err != nil {
 		return
 	}
+	// Sorted, because a v2 ledger records events in append order and the
+	// backfill's bytes are what an adopter reviews before --apply. Map
+	// iteration order would make the same corpus produce a differently
+	// ordered file on every run: a preview that does not match the write,
+	// a full-file diff on re-run, and — where two branches backfill in
+	// parallel — a whole-file conflict that `merge=union` resolves by
+	// concatenating both copies into a ledger that no longer parses.
+	ids := make([]string, 0, len(c.ByID))
 	for id := range c.ByID {
+		ids = append(ids, id)
+	}
+	sort.Strings(ids)
+	for _, id := range ids {
 		l.MarkLive(id)
 	}
 	for _, criterion := range corpus.LedgerCriterionIdentities(c) {

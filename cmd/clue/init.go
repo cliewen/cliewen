@@ -10,8 +10,9 @@ import (
 
 // runInit materializes the Cliewen convention into a repository
 // (CAP-001): docs taxonomy, AGENTS.md, skills, CI workflow template.
-// Idempotent: existing files are reported and skipped, only README
-// index blocks are regenerated. A symlinked directory below the root is
+// Idempotent: existing files are reported and skipped, README index
+// blocks are regenerated, and an existing .gitattributes has the ledger's
+// union-merge rule appended if it lacks it. A symlinked directory below the root is
 // a tree shared across checkouts: init writes nothing through it and
 // reports it as linked.
 func runInit(args []string, out, errOut io.Writer) int {
@@ -32,6 +33,9 @@ func runInit(args []string, out, errOut io.Writer) int {
 	for _, p := range rep.Skipped {
 		fmt.Fprintf(out, "exists   %s (skipped — never overwritten)\n", p)
 	}
+	for _, p := range rep.Amended {
+		fmt.Fprintf(out, "amended  %s (appended the one missing line — nothing else changed)\n", p)
+	}
 	for _, p := range rep.Linked {
 		fmt.Fprintf(out, "linked   %s (symlink — mirror skipped, nothing written through it)\n", p)
 	}
@@ -41,7 +45,7 @@ func runInit(args []string, out, errOut io.Writer) int {
 	for _, p := range rep.MissingReadmes {
 		fmt.Fprintf(out, "missing  %s (folder has no README — `clue validate` requires one; init does not invent it)\n", p)
 	}
-	fmt.Fprintf(out, "clue init: %d created, %d skipped, %d linked, %d index block(s) regenerated\n", len(rep.Created), len(rep.Skipped), len(rep.Linked), len(rep.Indexed))
+	fmt.Fprintf(out, "clue init: %d created, %d skipped, %d amended, %d linked, %d index block(s) regenerated\n", len(rep.Created), len(rep.Skipped), len(rep.Amended), len(rep.Linked), len(rep.Indexed))
 	if len(rep.Created) > 0 {
 		fmt.Fprintln(out, "next: replace the marked vision, architecture, and design bootstraps with repository truth, then run `clue validate`")
 		fmt.Fprintln(out, "(docs/use-cases/ is optional and may stay empty — a use case is written only when it explains something the capabilities do not)")

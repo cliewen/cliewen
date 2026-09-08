@@ -6,7 +6,7 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 
 ### Added
 
-- **Teams can allocate Cliewen identities safely from concurrent clones and worktrees.** A maintainer enables a repository once with `clue id coordinate`; after that, `clue id next` serializes single or batch reservations through a permanent Git remote branch, and `clue id sync` imports assigned reservations without write access. The checked-in ledger is now an append-only event log with Git's built-in union merge rule, so lifecycle updates from separate branches combine without a custom merge driver. Local-only allocation remains available but warns that it is not safe for parallel contributors. Migration converts existing ledgers without changing their effective identities and installs the merge rule for adopters; new repositories receive it during initialization.
+- **Teams can allocate Cliewen identities safely from concurrent clones and worktrees.** A maintainer enables a repository once with `clue id coordinate`; after that, `clue id next` serializes single or batch reservations through a permanent Git remote branch, and `clue id sync` imports assigned reservations without write access. The checked-in ledger is now an append-only event log with Git's built-in union merge rule, so lifecycle updates from separate branches combine without a custom merge driver. Local-only allocation remains available but warns that it is not safe for parallel contributors. Migration converts existing ledgers without changing their effective identities and installs the merge rule for adopters; `clue init` installs it too, appending it to an existing `.gitattributes` rather than leaving a repository that already has one without a merge driver.
 
 ## [0.23.0] - 2026-09-07
 

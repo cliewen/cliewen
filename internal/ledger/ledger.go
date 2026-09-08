@@ -261,6 +261,30 @@ func HasUnionMerge(root string) bool {
 	if err != nil {
 		return false
 	}
+	return declaresUnionMerge(data)
+}
+
+// WithUnionAttribute returns .gitattributes content carrying the union rule,
+// and reports whether it had to append it. The append is strictly additive —
+// nothing already in the file is read for meaning, reordered, or rewritten —
+// because both callers are installing one missing line into a file the
+// repository owns: `clue migrate` for a repository that already has a ledger,
+// and `clue init` for one scaffolded over an existing `* text=auto`. They
+// share this so the two paths cannot drift into different files.
+func WithUnionAttribute(data []byte) ([]byte, bool) {
+	if declaresUnionMerge(data) {
+		return data, false
+	}
+	out := append([]byte(nil), data...)
+	if len(out) > 0 && out[len(out)-1] != '\n' {
+		out = append(out, '\n')
+	}
+	out = append(out, UnionAttribute...)
+	out = append(out, '\n')
+	return out, true
+}
+
+func declaresUnionMerge(data []byte) bool {
 	for _, line := range strings.Split(strings.ReplaceAll(string(data), "\r\n", "\n"), "\n") {
 		if strings.TrimSpace(line) == UnionAttribute {
 			return true

@@ -1454,3 +1454,46 @@ func gitShow(t *testing.T, root, spec string) ([]byte, error) {
 	}
 	return out.Bytes(), nil
 }
+
+// The backfill's bytes are what an adopter reviews before `clue migrate
+// --apply` writes them, so the same corpus must render the same file every
+// time. A v2 ledger records events in append order, and seeding from a Go
+// map's iteration order made that order random per run: the preview would
+// not match the write, a re-run would diff the whole file, and two branches
+// backfilling in parallel would conflict on all of it — a conflict the
+// file-scoped union driver resolves by concatenating both copies into a
+// ledger that no longer parses.
+func TestAC178_UnitPositive_LedgerBackfillBytesAreDeterministic(t *testing.T) {
+	root := migrationFixture(t, "")
+	for _, id := range []string{"AC-201", "AC-202", "AC-203", "AC-204", "AC-205", "AC-206", "AC-207", "AC-208"} {
+		path := filepath.Join(root, "docs", "analysis", id+".md")
+		data := "---\nid: " + id + "\ntype: analysis\nstatus: active\nlinks: []\ntitle: Identity " + id + "\n---\n"
+		if err := os.WriteFile(path, []byte(data), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	var first []byte
+	for run := 0; run < 10; run++ {
+		plan, err := Plan(root, Options{ReversalCost: "low"})
+		if err != nil {
+			t.Fatal(err)
+		}
+		var got []byte
+		for _, change := range plan.Changes {
+			if change.Migration == MigrationLedgerBackfill {
+				got = change.After
+			}
+		}
+		if got == nil {
+			t.Fatalf("run %d planned no %s change", run, MigrationLedgerBackfill)
+		}
+		if first == nil {
+			first = got
+			continue
+		}
+		if !bytes.Equal(first, got) {
+			t.Fatalf("backfill bytes differ between runs\nfirst:\n%s\nrun %d:\n%s", first, run, got)
+		}
+	}
+}
