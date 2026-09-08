@@ -68,18 +68,20 @@ type eventFile struct {
 	Version      int          `yaml:"version"`
 	Coordination Coordination `yaml:"coordination"`
 	Events       []Entry      `yaml:"events"`
+	HighWater    []Entry      `yaml:"high-water,omitempty"`
 }
 
 // Ledger is the in-memory allocator and identity register: byID answers
 // "is this ID used" and counters records the greatest permanent claim for
 // each prefix, both in O(1) after one Load.
 type Ledger struct {
-	path     string
-	version  int
-	coord    Coordination
-	events   []Entry
-	counters map[string]*big.Int
-	byID     map[string]*Entry
+	path      string
+	version   int
+	coord     Coordination
+	events    []Entry
+	highWater []Entry
+	counters  map[string]*big.Int
+	byID      map[string]*Entry
 }
 
 // DefaultPath is the ledger file's fixed location relative to a repository
@@ -134,6 +136,15 @@ func Load(root string) (*Ledger, error) {
 		}
 		l.version = 2
 		l.coord = f.Coordination
+		for _, e := range f.HighWater {
+			if e.Kind != KindNumeric || e.State != StateReserved || !ValidNumericEntry(e) {
+				return nil, fmt.Errorf("%s: invalid high-water claim %s", l.path, e.ID)
+			}
+			if current, ok := l.counters[e.Prefix]; !ok || e.Component.Cmp(current) > 0 {
+				l.counters[e.Prefix] = new(big.Int).Set(e.Component)
+			}
+			l.highWater = append(l.highWater, cloneEntry(e))
+		}
 		for _, e := range f.Events {
 			if err := l.foldEvent(e); err != nil {
 				return nil, fmt.Errorf("%s: %w", l.path, err)
@@ -221,12 +232,6 @@ func (l *Ledger) foldEvent(e Entry) error {
 		}
 	} else if e.Kind != KindOpaque || e.Component != nil || e.Prefix != "" {
 		return fmt.Errorf("entry %s has invalid opaque identity fields", e.ID)
-	} else if m := numericIDRe.FindStringSubmatch(e.ID); m != nil {
-		if component, err := parseComponent(m[2]); err == nil {
-			if current, ok := l.counters[m[1]]; !ok || component.Cmp(current) > 0 {
-				l.counters[m[1]] = component
-			}
-		}
 	}
 	if current, ok := l.byID[e.ID]; ok {
 		if !sameIdentity(*current, e) {
@@ -269,7 +274,7 @@ func HasUnionMerge(root string) bool {
 // plan needs to compare a proposed write against what is already there.
 func (l *Ledger) Bytes() ([]byte, error) {
 	if l.version == 2 {
-		f := eventFile{Version: 2, Coordination: l.coord, Events: l.events}
+		f := eventFile{Version: 2, Coordination: l.coord, Events: l.events, HighWater: l.highWater}
 		var node yaml.Node
 		if err := node.Encode(f); err != nil {
 			return nil, err
@@ -304,7 +309,7 @@ func setEventFlowStyle(node *yaml.Node) {
 		return
 	}
 	for i := 0; i+1 < len(node.Content); i += 2 {
-		if node.Content[i].Value != "events" {
+		if node.Content[i].Value != "events" && node.Content[i].Value != "high-water" {
 			continue
 		}
 		for _, event := range node.Content[i+1].Content {
@@ -361,11 +366,19 @@ func (l *Ledger) ConvertV2() {
 	l.version = 2
 	l.coord = Coordination{Mode: "local"}
 	l.events = nil
+	l.highWater = nil
 	l.counters = map[string]*big.Int{}
 	l.byID = map[string]*Entry{}
 	for _, e := range entries {
 		_ = l.foldEvent(e)
 		l.events = append(l.events, cloneEntry(e))
+	}
+	// The legacy counter is the numeric allocator's high-water mark. Opaque
+	// identities are permanent claims, but their spelling must not change the
+	// next numeric result merely because it resembles a numeric ID.
+	l.counters = map[string]*big.Int{}
+	for prefix, component := range highWater {
+		l.counters[prefix] = new(big.Int).Set(component)
 	}
 	prefixes := make([]string, 0, len(highWater))
 	for prefix := range highWater {
@@ -377,12 +390,8 @@ func (l *Ledger) ConvertV2() {
 		if component.Sign() == 0 || !ValidNumericPrefix(prefix) {
 			continue
 		}
-		if current, ok := l.counters[prefix]; ok && current.Cmp(component) >= 0 {
-			continue
-		}
 		e := Entry{ID: fmt.Sprintf("%s-%03d", prefix, component), Kind: KindNumeric, State: StateReserved, Prefix: prefix, Component: new(big.Int).Set(component)}
-		_ = l.foldEvent(e)
-		l.events = append(l.events, cloneEntry(e))
+		l.highWater = append(l.highWater, cloneEntry(e))
 	}
 }
 
