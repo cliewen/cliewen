@@ -138,6 +138,14 @@ func Load(root string) (*Ledger, error) {
 	data, err := os.ReadFile(l.path)
 	if err != nil {
 		if os.IsNotExist(err) {
+			// Settings are read even with no ledger yet. Skipping them here
+			// resolved a repository that holds settings to local allocation
+			// without ever looking at what it holds.
+			coord, coordErr := resolveCoordination(root, l.coord)
+			if coordErr != nil {
+				return nil, coordErr
+			}
+			l.coord = coord
 			return l, nil
 		}
 		return nil, err

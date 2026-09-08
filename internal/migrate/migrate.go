@@ -635,6 +635,16 @@ func planLedgerEvents(root string, result *MigrationPlan) {
 	}
 	if ledger.Exists(root) {
 		l, err := ledger.Load(root)
+		if err != nil {
+			// Silence here reads as health: without this the command reports
+			// "no changes needed" for a repository whose ledger it could not
+			// read, and any repair it would have offered disappears with it.
+			result.Notices = append(result.Notices, Notice{
+				Path:      ledger.DefaultPath,
+				Migration: MigrationLedgerEvents,
+				Message:   "could not be read, so no ledger migration was planned for it: " + err.Error(),
+			})
+		}
 		if err == nil {
 			before, readErr := os.ReadFile(filepath.Join(root, filepath.FromSlash(ledger.DefaultPath)))
 			description := ""

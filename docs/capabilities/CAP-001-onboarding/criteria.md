@@ -13,7 +13,7 @@ Feature: Onboarding — install to first green validate
   Scenario: A new user reaches green validate in under 30 minutes
     # Retired 2026-07-17 (CH-020): the 30-minute clock spans a human
     # journey (reading, installing) no focused test pair can verify.
-    # The mechanical path is covered by AC-150/AC-024/AC-025; the
+    # The mechanical path is covered by AC-150/AC-024/AC-182; the
     # 30-minute end-to-end promise is C-015, owned by the quickstart.
 
   @AC-002 @retired

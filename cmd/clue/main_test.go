@@ -1600,3 +1600,28 @@ func TestAC179_UnitNegative_IDRepairRequiresALedger(t *testing.T) {
 		t.Fatalf("stderr = %q, want migration guidance", errOut.String())
 	}
 }
+
+// Command-level evidence that the loader's refusal actually reaches a user:
+// the criterion promises a command stops, not merely that a package returns an
+// error.
+func TestAC183_IntegrationNegative_CommandsStopOnSettingsNamingNoMode(t *testing.T) {
+	root := t.TempDir()
+	if err := os.MkdirAll(filepath.Join(root, ".clue"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(root, ledger.DefaultPath), []byte("version: 2\nevents:\n    - {id: CH-001, kind: numeric, state: live, prefix: CH, component: \"1\"}\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(root, filepath.FromSlash(ledger.CoordinationPath)), []byte("remote: origin\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	for _, args := range [][]string{{"repair", root}, {"next", "CH", root}, {"live", "CH-001", root}} {
+		var out, errOut strings.Builder
+		if code := runID(append([]string{}, args...), &out, &errOut); code != 2 {
+			t.Fatalf("clue id %v exit = %d, want 2; stdout=%q stderr=%q", args, code, out.String(), errOut.String())
+		}
+		if !strings.Contains(errOut.String(), "names no allocation mode") {
+			t.Fatalf("clue id %v stderr = %q, want the mode-less settings failure", args, errOut.String())
+		}
+	}
+}
