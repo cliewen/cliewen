@@ -1602,8 +1602,9 @@ func TestAC179_UnitNegative_IDRepairRequiresALedger(t *testing.T) {
 }
 
 // Command-level evidence that the loader's refusal actually reaches a user:
-// the criterion promises a command stops, not merely that a package returns an
-// error.
+// the criterion promises every command that loads the ledger stops, not
+// merely that a package returns an error, so this exercises all five `clue
+// id` subcommands plus `clue validate` rather than a sample of them.
 func TestAC183_IntegrationNegative_CommandsStopOnSettingsNamingNoMode(t *testing.T) {
 	root := t.TempDir()
 	if err := os.MkdirAll(filepath.Join(root, ".clue"), 0o755); err != nil {
@@ -1615,7 +1616,7 @@ func TestAC183_IntegrationNegative_CommandsStopOnSettingsNamingNoMode(t *testing
 	if err := os.WriteFile(filepath.Join(root, filepath.FromSlash(ledger.CoordinationPath)), []byte("remote: origin\n"), 0o644); err != nil {
 		t.Fatal(err)
 	}
-	for _, args := range [][]string{{"repair", root}, {"next", "CH", root}, {"live", "CH-001", root}} {
+	for _, args := range [][]string{{"repair", root}, {"next", "CH", root}, {"live", "CH-001", root}, {"coordinate", root}, {"sync", root}} {
 		var out, errOut strings.Builder
 		if code := runID(append([]string{}, args...), &out, &errOut); code != 2 {
 			t.Fatalf("clue id %v exit = %d, want 2; stdout=%q stderr=%q", args, code, out.String(), errOut.String())
@@ -1623,5 +1624,13 @@ func TestAC183_IntegrationNegative_CommandsStopOnSettingsNamingNoMode(t *testing
 		if !strings.Contains(errOut.String(), "names no allocation mode") {
 			t.Fatalf("clue id %v stderr = %q, want the mode-less settings failure", args, errOut.String())
 		}
+	}
+
+	var validateOut strings.Builder
+	if code := runValidate([]string{root}, &validateOut); code != 1 {
+		t.Fatalf("clue validate exit = %d, want 1; stdout=%q", code, validateOut.String())
+	}
+	if !strings.Contains(validateOut.String(), "names no allocation mode") {
+		t.Fatalf("clue validate stdout = %q, want the mode-less settings failure", validateOut.String())
 	}
 }
