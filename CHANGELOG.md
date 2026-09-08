@@ -4,9 +4,15 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 
 ## [Unreleased]
 
+## [0.24.0] - 2026-09-08
+
 ### Added
 
 - **Teams can allocate Cliewen identities safely from concurrent clones and worktrees.** A maintainer enables a repository once with `clue id coordinate`; after that, `clue id next` serializes single or batch reservations through a permanent Git remote branch, and `clue id sync` imports assigned reservations without write access. The checked-in ledger is now an append-only event log with Git's built-in union merge rule, so lifecycle updates from separate branches combine without a custom merge driver. Local-only allocation remains available but warns that it is not safe for parallel contributors. Migration converts existing ledgers without changing their effective identities and installs the merge rule for adopters; `clue init` installs it too, appending it to an existing `.gitattributes` rather than leaving a repository that already has one without a merge driver, and the rule is recognized however a repository writes it rather than as one exact line. Which remote a repository allocates through is now recorded in `.clue/id-coordination.yaml` beside the ledger rather than inside it, so commit both after `clue id coordinate`. The ledger is merged with Git's union driver, which keeps both sides of every difference — right for a list of events, wrong for a setting. Kept apart, two branches that each enabled coordination against a different remote produce an ordinary merge conflict that Git raises for you to resolve, instead of a repository that reaches the integration branch claiming two remotes and stops every command until someone edits it by hand. Pointing an already-coordinated repository at a different remote is likewise refused unless you pass `--force`, because it abandons the claims recorded on the remote you leave. Ledgers already carrying the setting inline keep working and move it out when next saved. A settings file that exists but names no mode is a new failure: wherever a ledger exists to read it, every command that loads it stops and says so, rather than reading it as local allocation and quietly handing out numbers a coordinated team has already taken. `clue migrate` is the one exception and does not stop — it prints a notice naming the ledger it could not read, and carries on with the rest of its work. No command repairs that file: delete it to allocate locally, or give it a `mode`. If the ledger itself ever comes back doubled, nothing is lost: every identity survives, `clue id repair` writes it back clean, `clue migrate` offers the same repair, and any command that saves the ledger repairs it in passing.
+
+### Migration
+
+- **`MIG-015` converts existing identity ledgers to the append-only, union-merge format without changing their effective identities.** Run `clue migrate` to preview the complete plan before applying it; the migration also installs the union merge rule in `.gitattributes`. Repositories using Git coordination keep their remote setting in `.clue/id-coordination.yaml`, which should be committed alongside the converted ledger.
 
 ## [0.23.0] - 2026-09-07
 
@@ -40,7 +46,7 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 
 ### Install
 
-`curl -fsSL https://cliewen.dev/install.sh | sh` on macOS and Linux, `irm https://cliewen.dev/install.ps1 | iex` on Windows, or `go install github.com/cliewen/cliewen/cmd/clue@v0.23.0`. You can still download a prebuilt binary from the release assets and verify it against `SHA256SUMS` by hand; those asset names are unchanged. Update vendored Cliewen skills from this release's `.agents/skills/`; a 0.23.0 binary rejects older Cliewen skill versions as drift. Upgrading an existing repository: run `clue migrate` to preview the corpus changes and the new `MIG-014` notice, then apply the offered structural updates. Migration creates the optional use-case folder but never invents a repository vision; a missing vision remains valid and non-blocking. Nothing is deleted for you.
+`curl -fsSL https://cliewen.dev/install.sh | sh` on macOS and Linux, `irm https://cliewen.dev/install.ps1 | iex` on Windows, or `go install github.com/cliewen/cliewen/cmd/clue@v0.24.0`. You can still download a prebuilt binary from the release assets and verify it against `SHA256SUMS` by hand; those asset names are unchanged. Update vendored Cliewen skills from this release's `.agents/skills/`; a 0.24.0 binary rejects older Cliewen skill versions as drift. Upgrading an existing repository: run `clue migrate` to preview the corpus changes and the new `MIG-014` notice, then apply the offered structural updates. Migration creates the optional use-case folder but never invents a repository vision; a missing vision remains valid and non-blocking. Nothing is deleted for you.
 
 ## [0.22.0] - 2026-09-03
 
