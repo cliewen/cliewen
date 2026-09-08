@@ -448,6 +448,15 @@ func checkLedger(c *Corpus) []Issue {
 		return []Issue{{ledger.DefaultPath, "ledger: " + err.Error()}}
 	}
 	var issues []Issue
+	// A combined ledger is red because the file in the repository is malformed
+	// and must not stay, but the message names the cause and the repair rather
+	// than quoting a YAML parser at someone who never wrote the duplicate.
+	if damage := l.Damage(); damage != "" {
+		issues = append(issues, Issue{ledger.DefaultPath, damage + "; run `clue id repair` to rewrite it"})
+	}
+	if l.Version() == 2 && l.Coordination().Mode == "git" && !ledger.HasUnionMerge(c.Root) {
+		issues = append(issues, Issue{ledger.DefaultPath, "Git-coordinated event ledger requires " + ledger.UnionAttribute + " in .gitattributes"})
+	}
 	for _, e := range l.Entries() {
 		switch e.State {
 		case ledger.StateReserved, ledger.StateLive, ledger.StateRetired:

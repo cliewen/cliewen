@@ -11,6 +11,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"slices"
 	"strings"
 	"testing"
 
@@ -636,7 +637,7 @@ func TestAC064_CLI_MigratePreviewAndApply(t *testing.T) {
 	}
 }
 
-func TestAC101_UnitPositive_IDNextIncrementsThroughTheLedger(t *testing.T) {
+func TestAC174_UnitPositive_IDNextIncrementsThroughTheLedger(t *testing.T) {
 	root := t.TempDir()
 	l, err := ledger.Load(root)
 	if err != nil {
@@ -670,14 +671,14 @@ func TestAC101_UnitPositive_IDNextIncrementsThroughTheLedger(t *testing.T) {
 	}
 }
 
-func TestAC101_UnitNegative_IDNextRejectsMissingPrefix(t *testing.T) {
+func TestAC174_UnitNegative_IDNextRejectsMissingPrefix(t *testing.T) {
 	var out, errOut strings.Builder
 	if code := runID([]string{"next"}, &out, &errOut); code != 2 {
 		t.Fatalf("exit code = %d, want 2 for a missing prefix", code)
 	}
 }
 
-func TestAC101_UnitNegative_IDNextRequiresLedgerBackfill(t *testing.T) {
+func TestAC174_UnitNegative_IDNextRequiresLedgerBackfill(t *testing.T) {
 	root := t.TempDir()
 	writeFile(t, root, "docs/plans/PDR-001.md", "---\nid: PDR-001\ntype: plan\nstatus: active\nlinks: []\ntitle: Existing plan\n---\n")
 	var out, errOut strings.Builder
@@ -689,7 +690,7 @@ func TestAC101_UnitNegative_IDNextRequiresLedgerBackfill(t *testing.T) {
 	}
 }
 
-func TestAC101_UnitNegative_IDNextRejectsNonCanonicalPrefix(t *testing.T) {
+func TestAC174_UnitNegative_IDNextRejectsNonCanonicalPrefix(t *testing.T) {
 	root := t.TempDir()
 	l, err := ledger.Load(root)
 	if err != nil {
@@ -705,6 +706,39 @@ func TestAC101_UnitNegative_IDNextRejectsNonCanonicalPrefix(t *testing.T) {
 		}
 		if !strings.Contains(errOut.String(), "canonical numeric prefix") {
 			t.Fatalf("id next %q did not explain the invalid prefix: %q", prefix, errOut.String())
+		}
+	}
+}
+
+func TestAC174_UnitPositive_IDNextReservesABatchAndWarnsInLocalMode(t *testing.T) {
+	root := t.TempDir()
+	l, err := ledger.Load(root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := l.Save(); err != nil {
+		t.Fatal(err)
+	}
+	var out, errOut strings.Builder
+	if code := runID([]string{"next", "--count=3", "CH", root}, &out, &errOut); code != 0 {
+		t.Fatalf("exit code=%d stderr=%q", code, errOut.String())
+	}
+	if got := strings.Fields(out.String()); !slices.Equal(got, []string{"CH-001", "CH-002", "CH-003"}) {
+		t.Fatalf("batch = %v", got)
+	}
+	if !strings.Contains(errOut.String(), "not safe across concurrent clones or worktrees") {
+		t.Fatalf("missing local-mode warning: %q", errOut.String())
+	}
+}
+
+func TestAC174_UnitNegative_IDNextRejectsNonPositiveBatch(t *testing.T) {
+	for _, count := range []string{"0", "-1"} {
+		var out, errOut strings.Builder
+		if code := runID([]string{"next", "--count=" + count, "CH"}, &out, &errOut); code != 2 {
+			t.Fatalf("count=%s exit code=%d, want 2", count, code)
+		}
+		if !strings.Contains(errOut.String(), "count must be positive") {
+			t.Fatalf("count=%s error = %q", count, errOut.String())
 		}
 	}
 }
@@ -1439,5 +1473,164 @@ func TestAC135_UnitNegative_ReadCostFlagOmitsExamplesAndSlicesAtBudget(t *testin
 	}
 	if strings.Contains(out, "rendered document(s)") || strings.Contains(out, "over the 8-artifact budget") {
 		t.Fatalf("read-cost report counted an example or at-budget slice: %q", out)
+	}
+}
+
+// unionMergedLedger writes the shape Git's union merge leaves behind when two
+// branches both change the top of the ledger: the whole file, twice.
+func unionMergedLedger(t *testing.T, root string) {
+	t.Helper()
+	half := "version: 2\ncoordination:\n    mode: local\nevents:\n    - {id: CH-001, kind: numeric, state: live, prefix: CH, component: \"1\"}\n"
+	other := "version: 2\ncoordination:\n    mode: local\nevents:\n    - {id: CH-002, kind: numeric, state: reserved, prefix: CH, component: \"2\"}\n"
+	if err := os.MkdirAll(filepath.Join(root, ".clue"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(root, ledger.DefaultPath), []byte(half+other), 0o644); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestAC179_UnitPositive_IDRepairRewritesAUnionMergedLedger(t *testing.T) {
+	root := t.TempDir()
+	unionMergedLedger(t, root)
+
+	var out, errOut strings.Builder
+	if code := runID([]string{"repair", root}, &out, &errOut); code != 0 {
+		t.Fatalf("exit code = %d, stderr=%q", code, errOut.String())
+	}
+	if !strings.Contains(out.String(), "repaired") || !strings.Contains(out.String(), "2 identities kept") {
+		t.Fatalf("repair output = %q", out.String())
+	}
+	data, err := os.ReadFile(filepath.Join(root, ledger.DefaultPath))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := strings.Count(string(data), "version: 2"); got != 1 {
+		t.Fatalf("repaired ledger declares version %d times:\n%s", got, data)
+	}
+	// Both halves' identities survive, and the next number is past both.
+	out.Reset()
+	if code := runID([]string{"next", "CH", root}, &out, &errOut); code != 0 {
+		t.Fatalf("exit code = %d, stderr=%q", code, errOut.String())
+	}
+	if got := strings.TrimSpace(out.String()); got != "CH-003" {
+		t.Fatalf("next id after repair = %q, want CH-003", got)
+	}
+}
+
+// A damaged ledger must not stop the allocator: the entries are intact, so the
+// command carries on, says what it found, and the save rewrites the file.
+func TestAC179_UnitPositive_IDNextReportsAndHealsAUnionMergedLedger(t *testing.T) {
+	root := t.TempDir()
+	unionMergedLedger(t, root)
+
+	var out, errOut strings.Builder
+	if code := runID([]string{"next", "CH", root}, &out, &errOut); code != 0 {
+		t.Fatalf("exit code = %d, stderr=%q", code, errOut.String())
+	}
+	if !strings.Contains(errOut.String(), "union merge") {
+		t.Fatalf("stderr = %q, want it to name the cause", errOut.String())
+	}
+	if got := strings.TrimSpace(out.String()); got != "CH-003" {
+		t.Fatalf("id = %q, want CH-003", got)
+	}
+	data, err := os.ReadFile(filepath.Join(root, ledger.DefaultPath))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := strings.Count(string(data), "version: 2"); got != 1 {
+		t.Fatalf("allocation left the ledger doubled:\n%s", data)
+	}
+}
+
+func TestAC179_UnitNegative_IDRepairLeavesAWellFormedLedgerAlone(t *testing.T) {
+	root := t.TempDir()
+	l, err := ledger.Load(root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	l.MarkLive("CH-001")
+	if err := l.Save(); err != nil {
+		t.Fatal(err)
+	}
+	before, err := os.ReadFile(filepath.Join(root, ledger.DefaultPath))
+	if err != nil {
+		t.Fatal(err)
+	}
+	var out, errOut strings.Builder
+	if code := runID([]string{"repair", root}, &out, &errOut); code != 0 {
+		t.Fatalf("exit code = %d, stderr=%q", code, errOut.String())
+	}
+	if !strings.Contains(out.String(), "nothing to repair") {
+		t.Fatalf("repair output = %q", out.String())
+	}
+	after, err := os.ReadFile(filepath.Join(root, ledger.DefaultPath))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if string(before) != string(after) {
+		t.Fatalf("repair rewrote a well-formed ledger:\n%s", after)
+	}
+}
+
+func TestAC179_UnitNegative_IDRepairRefusesAnUndecidableLedger(t *testing.T) {
+	root := t.TempDir()
+	if err := os.MkdirAll(filepath.Join(root, ".clue"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	both := "version: 2\ncoordination:\n    mode: local\nevents: []\nversion: 2\ncoordination:\n    mode: git\n    remote: origin\nevents: []\n"
+	if err := os.WriteFile(filepath.Join(root, ledger.DefaultPath), []byte(both), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	var out, errOut strings.Builder
+	if code := runID([]string{"repair", root}, &out, &errOut); code != 2 {
+		t.Fatalf("exit code = %d, want 2 for two disagreeing coordination settings", code)
+	}
+	if !strings.Contains(errOut.String(), "only a person can decide") {
+		t.Fatalf("stderr = %q, want it to name the decision", errOut.String())
+	}
+}
+
+func TestAC179_UnitNegative_IDRepairRequiresALedger(t *testing.T) {
+	var out, errOut strings.Builder
+	if code := runID([]string{"repair", t.TempDir()}, &out, &errOut); code != 2 {
+		t.Fatalf("exit code = %d, want 2 without a ledger", code)
+	}
+	if !strings.Contains(errOut.String(), "clue migrate --apply") {
+		t.Fatalf("stderr = %q, want migration guidance", errOut.String())
+	}
+}
+
+// Command-level evidence that the loader's refusal actually reaches a user:
+// the criterion promises every command that loads the ledger stops, not
+// merely that a package returns an error, so this exercises all five `clue
+// id` subcommands plus `clue validate` rather than a sample of them.
+func TestAC183_IntegrationNegative_CommandsStopOnSettingsNamingNoMode(t *testing.T) {
+	root := t.TempDir()
+	if err := os.MkdirAll(filepath.Join(root, ".clue"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(root, ledger.DefaultPath), []byte("version: 2\nevents:\n    - {id: CH-001, kind: numeric, state: live, prefix: CH, component: \"1\"}\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(root, filepath.FromSlash(ledger.CoordinationPath)), []byte("remote: origin\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	for _, args := range [][]string{{"repair", root}, {"next", "CH", root}, {"live", "CH-001", root}, {"coordinate", root}, {"sync", root}} {
+		var out, errOut strings.Builder
+		if code := runID(append([]string{}, args...), &out, &errOut); code != 2 {
+			t.Fatalf("clue id %v exit = %d, want 2; stdout=%q stderr=%q", args, code, out.String(), errOut.String())
+		}
+		if !strings.Contains(errOut.String(), "names no allocation mode") {
+			t.Fatalf("clue id %v stderr = %q, want the mode-less settings failure", args, errOut.String())
+		}
+	}
+
+	var validateOut strings.Builder
+	if code := runValidate([]string{root}, &validateOut); code != 1 {
+		t.Fatalf("clue validate exit = %d, want 1; stdout=%q", code, validateOut.String())
+	}
+	if !strings.Contains(validateOut.String(), "names no allocation mode") {
+		t.Fatalf("clue validate stdout = %q, want the mode-less settings failure", validateOut.String())
 	}
 }

@@ -349,14 +349,15 @@ Feature: clue validate — deterministic corpus judgment
     But a table that declares no Status column is not a milestone table, and a header row, a separator row, and an empty cell are never values
     And a table is read by its delimiter row, with or without outer pipes, with cells divided only by pipes that are unescaped and outside a code span
 
-  @AC-101
+  @AC-101 @retired
   Scenario: clue id next allocates the next numeric ID through the ledger
-    Test-type: Unit
     Given a repository whose identity ledger has been backfilled and whose counters map holds the last-issued numeric component for a prefix
     When the user runs "clue id next <prefix>"
     Then it prints the next sequential ID for that prefix as an increment of the stored counter, never a corpus scan
     And it persists the new entry as "reserved" and advances the counter
     But a canonical prefix absent from the ledger starts its counter at zero and issues the prefix's first ID; a malformed, lowercase, or improperly segmented prefix is rejected, and a repository with no ledger is told to run `clue migrate --apply` first
+    # Retired by AC-174: the version-two event ledger derives its high-water
+    # mark from permanent claims rather than persisting a mutable counters map.
 
   @AC-108
   Scenario: clue id live promotes an allocated ID after its artifact is created

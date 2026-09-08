@@ -4,6 +4,7 @@ import (
 	"math/big"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -18,7 +19,7 @@ func nextNumeric(t *testing.T, l *Ledger, prefix string) string {
 	return id
 }
 
-func TestAC101_UnitPositive_NextNumericIncrementsStoredCounter(t *testing.T) {
+func TestAC174_UnitPositive_NextNumericIncrementsStoredHighWater(t *testing.T) {
 	root := t.TempDir()
 	l, err := Load(root)
 	if err != nil {
@@ -46,7 +47,7 @@ func TestAC101_UnitPositive_NextNumericIncrementsStoredCounter(t *testing.T) {
 	}
 }
 
-func TestAC101_UnitNegative_PrefixAbsentFromLedgerStartsAtOne(t *testing.T) {
+func TestAC174_UnitNegative_PrefixAbsentFromLedgerStartsAtOne(t *testing.T) {
 	root := t.TempDir()
 	l, _ := Load(root)
 	id := nextNumeric(t, l, "ZZZ")
@@ -55,7 +56,7 @@ func TestAC101_UnitNegative_PrefixAbsentFromLedgerStartsAtOne(t *testing.T) {
 	}
 }
 
-func TestAC101_UnitNegative_NextNumericRejectsNonCanonicalPrefix(t *testing.T) {
+func TestAC174_UnitNegative_NextNumericRejectsNonCanonicalPrefix(t *testing.T) {
 	root := t.TempDir()
 	l, _ := Load(root)
 	for _, prefix := range []string{"snap-sqs", "SNAP--SQS", "SNAP_SQS"} {
@@ -291,5 +292,512 @@ func TestUnit_SaveThenLoadRoundTrips(t *testing.T) {
 	}
 	if !l2.IsUsed("PDR-001") {
 		t.Fatal("reloaded ledger lost its entry")
+	}
+}
+
+func TestAC169_UnitPositive_EventLedgerFoldsLifecycleMonotonically(t *testing.T) {
+	root := t.TempDir()
+	l, _ := Load(root)
+	id := nextNumeric(t, l, "CH")
+	if err := l.PromoteReserved(id); err != nil {
+		t.Fatal(err)
+	}
+	l.Retire(id)
+	if err := l.Save(); err != nil {
+		t.Fatal(err)
+	}
+	data, err := os.ReadFile(filepath.Join(root, DefaultPath))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(string(data), "version: 2") || strings.Count(string(data), "id: CH-001") != 3 {
+		t.Fatalf("ledger did not retain one event per transition:\n%s", data)
+	}
+	reloaded, err := Load(root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if e, ok := reloaded.Lookup(id); !ok || e.State != StateRetired {
+		t.Fatalf("effective entry = %+v, ok=%v", e, ok)
+	}
+}
+
+func TestAC169_UnitNegative_EventLedgerRejectsConflictingIdentityMetadata(t *testing.T) {
+	root := t.TempDir()
+	if err := os.MkdirAll(filepath.Join(root, ".clue"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	data := "version: 2\ncoordination:\n    mode: local\nevents:\n    - {id: CH-001, kind: numeric, state: reserved, prefix: CH, component: \"1\", source-revision: one}\n    - {id: CH-001, kind: numeric, state: live, prefix: CH, component: \"1\", source-revision: two}\n"
+	if err := os.WriteFile(filepath.Join(root, DefaultPath), []byte(data), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := Load(root); err == nil || !strings.Contains(err.Error(), "conflicting identity metadata") {
+		t.Fatalf("Load error = %v", err)
+	}
+}
+
+func TestAC169_UnitNegative_EventLedgerRejectsUnknownSchemaVersion(t *testing.T) {
+	root := t.TempDir()
+	if err := os.MkdirAll(filepath.Join(root, ".clue"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(root, DefaultPath), []byte("version: 3\ncoordination: {mode: local}\nevents: []\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := Load(root); err == nil || !strings.Contains(err.Error(), "unsupported ledger version 3") {
+		t.Fatalf("Load error = %v", err)
+	}
+}
+
+func TestAC170_UnitPositive_MergeClaimsIsIdempotentAndNeverDowngrades(t *testing.T) {
+	root := t.TempDir()
+	l, _ := Load(root)
+	id := nextNumeric(t, l, "CH")
+	if err := l.PromoteReserved(id); err != nil {
+		t.Fatal(err)
+	}
+	claim := Entry{ID: id, Kind: KindNumeric, State: StateReserved, Prefix: "CH", Component: decimal(1)}
+	if err := l.MergeClaims([]Entry{claim, claim}); err != nil {
+		t.Fatal(err)
+	}
+	if e, _ := l.Lookup(id); e.State != StateLive {
+		t.Fatalf("remote reservation downgraded local state to %s", e.State)
+	}
+	if err := l.Save(); err != nil {
+		t.Fatal(err)
+	}
+	data, _ := os.ReadFile(filepath.Join(root, DefaultPath))
+	if strings.Count(string(data), "id: CH-001") != 2 {
+		t.Fatalf("idempotent claim merge appended duplicates:\n%s", data)
+	}
+}
+
+func TestAC170_UnitNegative_MergeClaimsRejectsConflictingMetadata(t *testing.T) {
+	root := t.TempDir()
+	l, _ := Load(root)
+	first := Entry{ID: "CH-001", Kind: KindNumeric, State: StateReserved, Prefix: "CH", Component: decimal(1), SourceRevision: "one"}
+	second := cloneEntry(first)
+	second.SourceRevision = "two"
+	if err := l.MergeClaims([]Entry{first}); err != nil {
+		t.Fatal(err)
+	}
+	if err := l.MergeClaims([]Entry{second}); err == nil || !strings.Contains(err.Error(), "conflicting identity metadata") {
+		t.Fatalf("MergeClaims error = %v", err)
+	}
+}
+
+// writeLedger puts raw ledger bytes at root, for the shapes a merge produces
+// that no API of ours would ever write.
+func writeLedger(t *testing.T, root, data string) {
+	t.Helper()
+	if err := os.MkdirAll(filepath.Join(root, ".clue"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(root, DefaultPath), []byte(data), 0o644); err != nil {
+		t.Fatal(err)
+	}
+}
+
+const halfA = "version: 2\ncoordination:\n    mode: local\nevents:\n    - {id: CH-001, kind: numeric, state: reserved, prefix: CH, component: \"1\"}\n    - {id: CH-001, kind: numeric, state: live, prefix: CH, component: \"1\"}\n"
+
+const halfB = "version: 2\ncoordination:\n    mode: local\nevents:\n    - {id: CH-002, kind: numeric, state: reserved, prefix: CH, component: \"2\"}\n"
+
+func TestAC179_UnitPositive_UnionMergedLedgerLoadsAndFoldsBothHalves(t *testing.T) {
+	root := t.TempDir()
+	writeLedger(t, root, halfA+halfB)
+
+	l, err := Load(root)
+	if err != nil {
+		t.Fatalf("Load of a union-merged ledger failed: %v", err)
+	}
+	if l.Damage() == "" {
+		t.Fatal("Damage() is empty; the repeated header was not reported")
+	}
+	for _, want := range []string{"version", "coordination", "events"} {
+		if !strings.Contains(l.Damage(), want) {
+			t.Fatalf("Damage() = %q, want it to name %q", l.Damage(), want)
+		}
+	}
+	// Both branches' identities survive, at their furthest-along state.
+	if e, ok := l.Lookup("CH-001"); !ok || e.State != StateLive {
+		t.Fatalf("CH-001 = %+v, ok=%v; want live", e, ok)
+	}
+	if e, ok := l.Lookup("CH-002"); !ok || e.State != StateReserved {
+		t.Fatalf("CH-002 = %+v, ok=%v; want reserved", e, ok)
+	}
+	// The counter reflects the higher half, so nothing is reissued.
+	if id := nextNumeric(t, l, "CH"); id != "CH-003" {
+		t.Fatalf("next after recovery = %s, want CH-003", id)
+	}
+}
+
+func TestAC179_UnitPositive_SavingARecoveredLedgerRewritesItClean(t *testing.T) {
+	root := t.TempDir()
+	writeLedger(t, root, halfA+halfB)
+
+	l, err := Load(root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := l.Save(); err != nil {
+		t.Fatal(err)
+	}
+	data, err := os.ReadFile(filepath.Join(root, DefaultPath))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := strings.Count(string(data), "version: 2"); got != 1 {
+		t.Fatalf("repaired ledger declares version %d times:\n%s", got, data)
+	}
+	if strings.Contains(string(data), "coordination:") {
+		t.Fatalf("the ledger must not carry coordination settings; the union driver is why they live apart:\n%s", data)
+	}
+	reloaded, err := Load(root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if reloaded.Damage() != "" {
+		t.Fatalf("reloaded Damage() = %q, want empty", reloaded.Damage())
+	}
+	if len(reloaded.Entries()) != 2 {
+		t.Fatalf("repaired ledger kept %d identities, want 2", len(reloaded.Entries()))
+	}
+}
+
+// The one case recovery must refuse: two halves that chose different
+// allocation modes. Picking either would silently move a team off the mode it
+// agreed, so the ledger fails closed and says what the choice is.
+func TestAC179_UnitNegative_DisagreeingCoordinationFailsClosed(t *testing.T) {
+	root := t.TempDir()
+	writeLedger(t, root, halfA+"version: 2\ncoordination:\n    mode: git\n    remote: origin\nevents: []\n")
+
+	_, err := Load(root)
+	if err == nil {
+		t.Fatal("Load accepted two disagreeing coordination settings")
+	}
+	for _, want := range []string{"two different coordination settings", "local", "git through origin"} {
+		if !strings.Contains(err.Error(), want) {
+			t.Fatalf("Load error = %q, want it to mention %q", err, want)
+		}
+	}
+}
+
+func TestAC179_UnitNegative_UndamagedLedgerReportsNoDamage(t *testing.T) {
+	root := t.TempDir()
+	writeLedger(t, root, halfA)
+
+	l, err := Load(root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if l.Damage() != "" {
+		t.Fatalf("Damage() = %q for a well-formed ledger, want empty", l.Damage())
+	}
+}
+
+// Backfilling an identity that was retired before the ledger existed must not
+// invent a live event it never had.
+func TestUnit_MarkRetiredRecordsOneEventForAnIdentityNeverLive(t *testing.T) {
+	root := t.TempDir()
+	l, _ := Load(root)
+	l.MarkRetired("AC-042")
+	l.MarkRetired("AC-042")
+	if err := l.Save(); err != nil {
+		t.Fatal(err)
+	}
+	data, err := os.ReadFile(filepath.Join(root, DefaultPath))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := strings.Count(string(data), "id: AC-042"); got != 1 {
+		t.Fatalf("retiring an unseen ID wrote %d events, want 1:\n%s", got, data)
+	}
+	if strings.Contains(string(data), "state: live") {
+		t.Fatalf("retirement invented a live transition:\n%s", data)
+	}
+	if e, ok := l.Lookup("AC-042"); !ok || e.State != StateRetired {
+		t.Fatalf("AC-042 = %+v, ok=%v; want retired", e, ok)
+	}
+}
+
+func TestUnit_RetireIsIdempotentAndNeverDowngrades(t *testing.T) {
+	root := t.TempDir()
+	l, _ := Load(root)
+	id := nextNumeric(t, l, "CH")
+	if err := l.PromoteReserved(id); err != nil {
+		t.Fatal(err)
+	}
+	l.Retire(id)
+	l.Retire(id)
+	l.MarkLive(id)
+	if err := l.Save(); err != nil {
+		t.Fatal(err)
+	}
+	data, err := os.ReadFile(filepath.Join(root, DefaultPath))
+	if err != nil {
+		t.Fatal(err)
+	}
+	// reserved, live, retired — and nothing after it.
+	if got := strings.Count(string(data), "id: "+id); got != 3 {
+		t.Fatalf("repeated retirement wrote %d events, want 3:\n%s", got, data)
+	}
+	if e, _ := l.Lookup(id); e.State != StateRetired {
+		t.Fatalf("%s = %s, want retired", id, e.State)
+	}
+}
+
+func TestUnit_UnionMergeRuleIsRecognizedHoweverItIsWritten(t *testing.T) {
+	for name, line := range map[string]string{
+		"canonical":         UnionAttribute,
+		"no leading slash":  ".clue/id-ledger.yaml merge=union",
+		"extra attributes":  "/.clue/id-ledger.yaml merge=union -text",
+		"among other rules": "* text=auto\n# the ledger\n.clue/id-ledger.yaml merge=union\n",
+	} {
+		if !declaresUnionMerge([]byte(line)) {
+			t.Errorf("%s: %q not recognized as declaring the union rule", name, line)
+		}
+	}
+}
+
+func TestUnit_UnrelatedAttributeLinesDoNotDeclareTheUnionRule(t *testing.T) {
+	for name, line := range map[string]string{
+		"another file":   "/.clue/role.yaml merge=union",
+		"another driver": "/.clue/id-ledger.yaml merge=ours",
+		"commented out":  "#/.clue/id-ledger.yaml merge=union",
+		"pattern only":   "/.clue/id-ledger.yaml",
+		"nothing at all": "* text=auto",
+	} {
+		if declaresUnionMerge([]byte(line)) {
+			t.Errorf("%s: %q wrongly recognized as declaring the union rule", name, line)
+		}
+	}
+}
+
+// The damage a real union merge produces. Two branches each coordinating to
+// their own remote leave `version` and `mode` untouched — identical lines merge
+// as context — and duplicate only `remote`, inside the coordination block. A
+// struct decode rejected that with a parser message about a line nobody wrote.
+func TestAC179_UnitNegative_DuplicateRemoteInsideCoordinationFailsClosed(t *testing.T) {
+	root := t.TempDir()
+	writeLedger(t, root, "version: 2\ncoordination:\n    mode: git\n    remote: origin\n    remote: other\nevents:\n    - {id: CH-001, kind: numeric, state: live, prefix: CH, component: \"1\"}\n")
+
+	_, err := Load(root)
+	if err == nil {
+		t.Fatal("Load accepted a ledger naming two allocator remotes")
+	}
+	for _, want := range []string{"two different allocator remotes", "origin", "other", "only a person can decide"} {
+		if !strings.Contains(err.Error(), want) {
+			t.Fatalf("Load error = %q, want it to mention %q", err, want)
+		}
+	}
+	if strings.Contains(err.Error(), "already defined") {
+		t.Fatalf("Load error = %q, want a decidable message rather than a parser one", err)
+	}
+}
+
+// A key repeated with the same value is not a disagreement, so it reconciles
+// rather than stopping the repository.
+func TestAC179_UnitPositive_DuplicateCoordinationKeyWithOneValueReconciles(t *testing.T) {
+	root := t.TempDir()
+	writeLedger(t, root, "version: 2\ncoordination:\n    mode: git\n    remote: origin\n    remote: origin\nevents:\n    - {id: CH-001, kind: numeric, state: live, prefix: CH, component: \"1\"}\n")
+
+	l, err := Load(root)
+	if err != nil {
+		t.Fatalf("Load: %v", err)
+	}
+	if c := l.Coordination(); c.Mode != "git" || c.Remote != "origin" {
+		t.Fatalf("coordination = %+v, want git through origin", c)
+	}
+}
+
+// Coordination lives beside the ledger, not in it, so the union driver that
+// combines events can never combine two teams' allocation settings.
+func TestAC181_IntegrationPositive_CoordinationIsStoredOutsideTheMergedLedger(t *testing.T) {
+	root := t.TempDir()
+	l, err := Load(root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := l.SetGitCoordination("origin"); err != nil {
+		t.Fatal(err)
+	}
+	l.MarkLive("CH-001")
+	if err := l.Save(); err != nil {
+		t.Fatal(err)
+	}
+
+	ledgerBytes, err := os.ReadFile(filepath.Join(root, DefaultPath))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if strings.Contains(string(ledgerBytes), "coordination") || strings.Contains(string(ledgerBytes), "origin") {
+		t.Fatalf("the union-merged ledger must carry no allocation settings:\n%s", ledgerBytes)
+	}
+	coordBytes, err := os.ReadFile(filepath.Join(root, filepath.FromSlash(CoordinationPath)))
+	if err != nil {
+		t.Fatalf("coordination file not written: %v", err)
+	}
+	if !strings.Contains(string(coordBytes), "remote: origin") {
+		t.Fatalf("coordination file = %q", coordBytes)
+	}
+
+	reloaded, err := Load(root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if c := reloaded.Coordination(); c.Mode != "git" || c.Remote != "origin" {
+		t.Fatalf("reloaded coordination = %+v", c)
+	}
+}
+
+// A ledger written before the split still carries its settings inline, and
+// must keep working; saving it moves them out.
+func TestAC181_IntegrationPositive_InlineCoordinationStillLoadsAndMovesOutOnSave(t *testing.T) {
+	root := t.TempDir()
+	writeLedger(t, root, "version: 2\ncoordination:\n    mode: git\n    remote: upstream\nevents:\n    - {id: CH-001, kind: numeric, state: live, prefix: CH, component: \"1\"}\n")
+
+	l, err := Load(root)
+	if err != nil {
+		t.Fatalf("a ledger with inline coordination must still load: %v", err)
+	}
+	if c := l.Coordination(); c.Mode != "git" || c.Remote != "upstream" {
+		t.Fatalf("inline coordination = %+v", c)
+	}
+	if err := l.Save(); err != nil {
+		t.Fatal(err)
+	}
+	ledgerBytes, err := os.ReadFile(filepath.Join(root, DefaultPath))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if strings.Contains(string(ledgerBytes), "coordination") {
+		t.Fatalf("saving did not move the settings out of the ledger:\n%s", ledgerBytes)
+	}
+	reloaded, err := Load(root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if c := reloaded.Coordination(); c.Mode != "git" || c.Remote != "upstream" {
+		t.Fatalf("coordination lost in the move: %+v", c)
+	}
+}
+
+// Local allocation is the absence of the file, so a repository that stops
+// coordinating does not keep a stale setting saying it still does.
+func TestAC183_IntegrationPositive_LocalModeKeepsNoCoordinationFile(t *testing.T) {
+	root := t.TempDir()
+	l, err := Load(root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	l.MarkLive("CH-001")
+	if err := l.Save(); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := os.Stat(filepath.Join(root, filepath.FromSlash(CoordinationPath))); !os.IsNotExist(err) {
+		t.Fatalf("a local-mode repository wrote a coordination file (%v)", err)
+	}
+	reloaded, err := Load(root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if c := reloaded.Coordination(); c.Mode != "local" {
+		t.Fatalf("coordination = %+v, want local", c)
+	}
+}
+
+// A settings file that exists but names no mode is not evidence of local
+// allocation. Defaulting it would be how a coordinated repository silently
+// returns to allocating locally, which is the collision coordinating prevents.
+func TestAC183_IntegrationNegative_PartialCoordinationFileFailsClosed(t *testing.T) {
+	for name, body := range map[string]string{
+		"remote without a mode": "remote: origin\n",
+		"empty file":            "",
+	} {
+		root := t.TempDir()
+		writeLedger(t, root, "version: 2\nevents:\n    - {id: CH-001, kind: numeric, state: live, prefix: CH, component: \"1\"}\n")
+		if err := os.WriteFile(filepath.Join(root, filepath.FromSlash(CoordinationPath)), []byte(body), 0o644); err != nil {
+			t.Fatal(err)
+		}
+		l, err := Load(root)
+		if err == nil {
+			t.Fatalf("%s: accepted, resolving to %+v", name, l.Coordination())
+		}
+		if !strings.Contains(err.Error(), "names no allocation mode") {
+			t.Fatalf("%s: error = %q", name, err)
+		}
+	}
+}
+
+// Saving a version-one ledger must not delete settings that loader never read.
+func TestAC183_IntegrationNegative_LegacyLedgerSaveKeepsCoordinationFile(t *testing.T) {
+	root := t.TempDir()
+	writeLedger(t, root, "counters:\n    CH: \"1\"\nentries:\n    - {id: CH-001, kind: numeric, state: live, prefix: CH, component: \"1\"}\n")
+	coordPath := filepath.Join(root, filepath.FromSlash(CoordinationPath))
+	if err := os.WriteFile(coordPath, []byte("mode: git\nremote: origin\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	l, err := Load(root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if l.Version() != 1 {
+		t.Fatalf("version = %d, want 1", l.Version())
+	}
+	if err := l.Save(); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := os.Stat(coordPath); err != nil {
+		t.Fatalf("saving a version-one ledger deleted the coordination file: %v", err)
+	}
+}
+
+// The case the version guard missed: a fresh load reports version two and
+// local mode without having read the settings file, so keying deletion on the
+// version let Save remove settings this ledger never looked at.
+func TestAC183_IntegrationNegative_FreshLedgerSaveKeepsCoordinationFile(t *testing.T) {
+	root := t.TempDir()
+	coordPath := filepath.Join(root, filepath.FromSlash(CoordinationPath))
+	if err := os.MkdirAll(filepath.Dir(coordPath), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(coordPath, []byte("mode: git\nremote: origin\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	l, err := Load(root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	l.MarkLive("CH-001")
+	if err := l.Save(); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := os.Stat(coordPath); err != nil {
+		t.Fatalf("saving a ledger that never read the settings deleted them: %v", err)
+	}
+}
+
+// The other side of the guard: a load that did read the settings may replace
+// or remove them, so a repository whose settings say local keeps no file
+// claiming otherwise.
+func TestAC183_IntegrationPositive_ASettingsFileSayingLocalIsRemovedOnSave(t *testing.T) {
+	root := t.TempDir()
+	writeLedger(t, root, "version: 2\nevents:\n    - {id: CH-001, kind: numeric, state: live, prefix: CH, component: \"1\"}\n")
+	coordPath := filepath.Join(root, filepath.FromSlash(CoordinationPath))
+	if err := os.WriteFile(coordPath, []byte("mode: local\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	l, err := Load(root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if c := l.Coordination(); c.Mode != "local" {
+		t.Fatalf("coordination = %+v, want local", c)
+	}
+	if err := l.Save(); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := os.Stat(coordPath); !os.IsNotExist(err) {
+		t.Fatalf("a settings file the loader read and found local survived the save (%v)", err)
 	}
 }

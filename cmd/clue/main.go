@@ -13,9 +13,11 @@ import (
 	"runtime"
 	"runtime/debug"
 	"strings"
+	"time"
 
 	"github.com/cliewen/cliewen/internal/carriers"
 	"github.com/cliewen/cliewen/internal/corpus"
+	"github.com/cliewen/cliewen/internal/idalloc"
 	"github.com/cliewen/cliewen/internal/ledger"
 	"github.com/cliewen/cliewen/internal/migrate"
 	"github.com/cliewen/cliewen/internal/parity"
@@ -68,8 +70,11 @@ Usage:
   clue init [path]
   clue scaffold [path]
   clue context [--depth=<n>|all] [--stats] <id> [path]
-  clue id next <prefix> [path]
+  clue id coordinate [--remote=<name>] [--force] [--timeout=<duration>] [path]
+  clue id next [--count=<n>] [--remote=<name>] [--timeout=<duration>] <prefix> [path]
+  clue id sync [--remote=<name>] [--timeout=<duration>] [path]
   clue id live <id> [path]
+  clue id repair [path]
   clue refs [--apply] [--timeout=<duration>] [path]
   clue carriers <inventory> [path]
   clue validate [--forbid-changes] [--coverage] [--reality-gaps] [--index-rows] [--read-cost] [--intent] [path]
@@ -121,10 +126,21 @@ Commands:
              Existing prose and locally modified generated files are never
              overwritten. Path defaults to ".".
 
-  id next    Allocate the next numeric ID for a prefix through the
-             persisted identity ledger (.clue/id-ledger.yaml): an O(1)
-             counter increment, never a corpus scan. Prints the new
-             ID and reserves it in the ledger. Path defaults to ".".
+  id coordinate
+             Initialize the permanent clue/id-allocator branch on a Git
+             remote, then enable fail-closed coordinated allocation in the
+             checked-in ledger. The remote must allow ordinary fast-forward
+             pushes and forbid force-push and deletion. Path defaults to ".".
+
+  id next    Allocate one or --count consecutive numeric IDs. A coordinated
+             ledger serializes claims with fast-forward-only Git pushes and
+             retries races until --timeout; local mode preserves the earlier
+             checkout-local behavior and warns that parallel use is unsafe.
+             Every successful claim is reserved in the ledger.
+
+  id sync    Import the coordinated remote's permanent reservations without
+             pushing, for assigned IDs, fork contributors, recovery after a
+             local write failure, and planned offline work.
 
   id live    Mark a previously reserved ID as live after its artifact
              has been created. Refuses an ID that is not reserved.
@@ -420,18 +436,137 @@ func runMigrate(args []string, out, errOut io.Writer) int {
 // top-level command (ADR-048).
 func runID(args []string, out, errOut io.Writer) int {
 	if len(args) == 0 {
-		fmt.Fprintln(errOut, "clue id: expected a subcommand (next or live)")
+		fmt.Fprintln(errOut, "clue id: expected a subcommand (coordinate, next, sync, live, or repair)")
 		return 2
 	}
 	switch args[0] {
+	case "coordinate":
+		return runIDCoordinate(args[1:], out, errOut)
 	case "next":
 		return runIDNext(args[1:], out, errOut)
+	case "sync":
+		return runIDSync(args[1:], out, errOut)
 	case "live":
 		return runIDLive(args[1:], out, errOut)
+	case "repair":
+		return runIDRepair(args[1:], out, errOut)
 	default:
 		fmt.Fprintf(errOut, "clue id: unknown subcommand %q\n", args[0])
 		return 2
 	}
+}
+
+// noteLedgerDamage reports a ledger that Git's union merge combined, so a user
+// learns why their file looks doubled before the command that found it carries
+// on. It is a notice, not a failure: the entries are intact and any command
+// that saves the ledger writes it back whole.
+func noteLedgerDamage(root, command string, errOut io.Writer) {
+	l, err := ledger.Load(root)
+	if err != nil || l.Damage() == "" {
+		return
+	}
+	fmt.Fprintf(errOut, "clue id %s: %s. Any command that saves the ledger rewrites it clean, and `clue id repair` does so on its own\n", command, l.Damage())
+}
+
+// runIDRepair rewrites the ledger from what it means rather than from how it
+// is written. Git's union merge can leave the file with its header repeated,
+// and until this command no other could put that right: every command loads
+// the ledger, so the damage disabled its own recovery — including the sync the
+// documentation points at. Repair is the read-and-write pair on its own, so a
+// repository whose allocation is wedged has one command that unwedges it and
+// nobody has to hand-edit an append-only log.
+func runIDRepair(args []string, out, errOut io.Writer) int {
+	fs := flag.NewFlagSet("id repair", flag.ContinueOnError)
+	fs.SetOutput(errOut)
+	if err := fs.Parse(args); err != nil {
+		return 2
+	}
+	root := "."
+	if fs.NArg() > 0 {
+		root = fs.Arg(0)
+	}
+	if fs.NArg() > 1 {
+		fmt.Fprintln(errOut, "clue id repair: expected at most one repository path")
+		return 2
+	}
+	if !ledger.Exists(root) {
+		fmt.Fprintln(errOut, "clue id repair: identity ledger is missing; run `clue migrate --apply` first")
+		return 2
+	}
+	l, err := ledger.Load(root)
+	if err != nil {
+		fmt.Fprintf(errOut, "clue id repair: %v\n", err)
+		return 2
+	}
+	damage := l.Damage()
+	if damage == "" {
+		fmt.Fprintln(out, "identity ledger is well formed; nothing to repair")
+		return 0
+	}
+	if err := l.Save(); err != nil {
+		fmt.Fprintf(errOut, "clue id repair: %v\n", err)
+		return 2
+	}
+	fmt.Fprintf(out, "identity ledger repaired: %s\n", damage)
+	fmt.Fprintf(out, "%d identities kept, none reissued\n", len(l.Entries()))
+	return 0
+}
+
+func runIDCoordinate(args []string, out, errOut io.Writer) int {
+	fs := flag.NewFlagSet("id coordinate", flag.ContinueOnError)
+	fs.SetOutput(errOut)
+	remote := fs.String("remote", "origin", "Git remote holding the allocator branch")
+	timeout := fs.Duration("timeout", 30*time.Second, "overall coordination timeout")
+	force := fs.Bool("force", false, "re-point an already-coordinated repository at a different remote")
+	if err := fs.Parse(args); err != nil {
+		return 2
+	}
+	root := "."
+	if fs.NArg() > 0 {
+		root = fs.Arg(0)
+	}
+	if fs.NArg() > 1 {
+		fmt.Fprintln(errOut, "clue id coordinate: expected at most one repository path")
+		return 2
+	}
+	if !ledger.Exists(root) {
+		fmt.Fprintln(errOut, "clue id coordinate: identity ledger is missing; run `clue migrate --apply` first")
+		return 2
+	}
+	noteLedgerDamage(root, "coordinate", errOut)
+	if err := idalloc.Coordinate(root, *remote, *force, *timeout); err != nil {
+		fmt.Fprintf(errOut, "clue id coordinate: %v\n", err)
+		return 2
+	}
+	fmt.Fprintf(out, "identity allocation coordinated through %s:%s\n", *remote, idalloc.Ref)
+	fmt.Fprintf(out, "commit %s and %s together, then merge them before contributors branch\n", ledger.DefaultPath, ledger.CoordinationPath)
+	fmt.Fprintln(out, "protect the allocator branch from force-push and deletion while allowing ordinary fast-forward pushes")
+	return 0
+}
+
+func runIDSync(args []string, out, errOut io.Writer) int {
+	fs := flag.NewFlagSet("id sync", flag.ContinueOnError)
+	fs.SetOutput(errOut)
+	remote := fs.String("remote", "", "override the configured Git remote")
+	timeout := fs.Duration("timeout", 30*time.Second, "overall synchronization timeout")
+	if err := fs.Parse(args); err != nil {
+		return 2
+	}
+	root := "."
+	if fs.NArg() > 0 {
+		root = fs.Arg(0)
+	}
+	if fs.NArg() > 1 {
+		fmt.Fprintln(errOut, "clue id sync: expected at most one repository path")
+		return 2
+	}
+	noteLedgerDamage(root, "sync", errOut)
+	if err := idalloc.Sync(root, *remote, *timeout); err != nil {
+		fmt.Fprintf(errOut, "clue id sync: %v\n", err)
+		return 2
+	}
+	fmt.Fprintln(out, "identity reservations synchronized")
+	return 0
 }
 
 // runIDLive promotes an allocator-reserved ID once its artifact has been
@@ -456,6 +591,7 @@ func runIDLive(args []string, out, errOut io.Writer) int {
 		return 2
 	}
 
+	noteLedgerDamage(root, "live", errOut)
 	l, err := ledger.Load(root)
 	if err != nil {
 		fmt.Fprintf(errOut, "clue id live: %v\n", err)
@@ -473,10 +609,13 @@ func runIDLive(args []string, out, errOut io.Writer) int {
 }
 
 // runIDNext allocates the next numeric ID for a prefix through the ledger:
-// an O(1) counter increment, never a corpus scan (ADR-048, AC-101).
+// a permanent ledger claim, never a corpus scan (ADR-048, AC-174).
 func runIDNext(args []string, out, errOut io.Writer) int {
 	fs := flag.NewFlagSet("id next", flag.ContinueOnError)
 	fs.SetOutput(errOut)
+	count := fs.Int("count", 1, "number of consecutive IDs to reserve")
+	remote := fs.String("remote", "", "override the configured Git remote")
+	timeout := fs.Duration("timeout", 30*time.Second, "overall allocation timeout")
 	if err := fs.Parse(args); err != nil {
 		return 2
 	}
@@ -493,26 +632,50 @@ func runIDNext(args []string, out, errOut io.Writer) int {
 		fmt.Fprintln(errOut, "clue id next: expected a prefix and at most one repository path")
 		return 2
 	}
+	if *count < 1 {
+		fmt.Fprintln(errOut, "clue id next: count must be positive")
+		return 2
+	}
 
+	// Existence before load: a missing ledger reads as an empty one, so
+	// loading first let a parse failure pre-empt the message that actually
+	// tells a new repository what to do about it.
+	if !ledger.Exists(root) {
+		fmt.Fprintln(errOut, "clue id next: identity ledger is missing; run `clue migrate --apply` first")
+		return 2
+	}
+	noteLedgerDamage(root, "next", errOut)
 	l, err := ledger.Load(root)
 	if err != nil {
 		fmt.Fprintf(errOut, "clue id next: %v\n", err)
 		return 2
 	}
-	if !ledger.Exists(root) {
-		fmt.Fprintln(errOut, "clue id next: identity ledger is missing; run `clue migrate --apply` first")
-		return 2
+	var ids []string
+	if l.Coordination().Mode == "git" {
+		ids, err = idalloc.Allocate(root, prefix, *remote, *count, *timeout)
+		if err != nil {
+			if len(ids) > 0 {
+				fmt.Fprintf(errOut, "clue id next: %v; remotely reserved %s — run `clue id sync` to recover them locally\n", err, strings.Join(ids, ", "))
+			} else {
+				fmt.Fprintf(errOut, "clue id next: %v\n", err)
+			}
+			return 2
+		}
+	} else {
+		ids, err = l.NextNumericN(prefix, *count)
+		if err != nil {
+			fmt.Fprintf(errOut, "clue id next: %v\n", err)
+			return 2
+		}
+		if err := l.Save(); err != nil {
+			fmt.Fprintf(errOut, "clue id next: %v\n", err)
+			return 2
+		}
+		fmt.Fprintln(errOut, "clue id next: local allocation is not safe across concurrent clones or worktrees; use `clue id coordinate`")
 	}
-	id, err := l.NextNumeric(prefix)
-	if err != nil {
-		fmt.Fprintf(errOut, "clue id next: %v\n", err)
-		return 2
+	for _, id := range ids {
+		fmt.Fprintln(out, id)
 	}
-	if err := l.Save(); err != nil {
-		fmt.Fprintf(errOut, "clue id next: %v\n", err)
-		return 2
-	}
-	fmt.Fprintln(out, id)
 	return 0
 }
 

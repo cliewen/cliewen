@@ -13,6 +13,7 @@ import (
 	"testing"
 
 	"github.com/cliewen/cliewen/internal/corpus"
+	"github.com/cliewen/cliewen/internal/ledger"
 	"github.com/cliewen/cliewen/internal/scaffold"
 )
 
@@ -560,7 +561,7 @@ func TestAC064_UnitNegative_MigrationRejectsChangedSourceAfterPreview(t *testing
 
 func TestAC064_UnitPositive_MigrationRegistryIsOrdered(t *testing.T) {
 	registry := Registry()
-	want := []string{MigrationReversalCost, MigrationStatusLifecycle, MigrationManagedCarriers, MigrationQualifiedReferences, MigrationClaudeEntryPoint, MigrationHubReleaseCheck, MigrationPromotedConstraints, MigrationLedgerBackfill, MigrationCompetingWall, MigrationLegacyDecisionLog, MigrationSystemOverviews, MigrationRoleMarker, MigrationSpentAnalysis, MigrationProductIntent}
+	want := []string{MigrationReversalCost, MigrationStatusLifecycle, MigrationManagedCarriers, MigrationQualifiedReferences, MigrationClaudeEntryPoint, MigrationHubReleaseCheck, MigrationPromotedConstraints, MigrationLedgerBackfill, MigrationCompetingWall, MigrationLegacyDecisionLog, MigrationSystemOverviews, MigrationRoleMarker, MigrationSpentAnalysis, MigrationProductIntent, MigrationLedgerEvents}
 	if len(registry) != len(want) {
 		t.Fatalf("registry has %d entries, want %d", len(registry), len(want))
 	}
@@ -1218,8 +1219,11 @@ func tagExists(t *testing.T, root, tag string) bool {
 	return cmd.Run() == nil
 }
 
-func TestAC107_UnitPositive_MigrateBackfillsLedgerFromCurrentScan(t *testing.T) {
+func TestAC178_UnitPositive_MigrateBackfillsLedgerFromCurrentScan(t *testing.T) {
 	root := migrationFixture(t, "")
+	if err := os.WriteFile(filepath.Join(root, ".gitattributes"), []byte("*.png binary\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
 
 	plan, err := Plan(root, Options{ReversalCost: "low"})
 	if err != nil {
@@ -1248,10 +1252,20 @@ func TestAC107_UnitPositive_MigrateBackfillsLedgerFromCurrentScan(t *testing.T) 
 	if _, err := os.Stat(ledgerPath); err != nil {
 		t.Fatalf("ledger file not written: %v", err)
 	}
+	attributes, err := os.ReadFile(filepath.Join(root, ".gitattributes"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(string(attributes), "*.png binary\n") || !strings.Contains(string(attributes), ledger.UnionAttribute+"\n") {
+		t.Fatalf("migration did not preserve existing attributes and add the ledger rule:\n%s", attributes)
+	}
 
 	second, err := Plan(root, Options{ReversalCost: "low"})
 	if err != nil {
 		t.Fatal(err)
+	}
+	if len(second.Changes) != 0 {
+		t.Fatalf("second migration planned changes: %+v", second.Changes)
 	}
 	for _, c := range second.Changes {
 		if c.Migration == MigrationLedgerBackfill {
@@ -1260,7 +1274,7 @@ func TestAC107_UnitPositive_MigrateBackfillsLedgerFromCurrentScan(t *testing.T) 
 	}
 }
 
-func TestAC107_UnitPositive_MigrateBackfillsLiveAndRetiredCriteria(t *testing.T) {
+func TestAC178_UnitPositive_MigrateBackfillsLiveAndRetiredCriteria(t *testing.T) {
 	root := migrationFixture(t, "")
 	criteria := "---\nid: CAP-001-criteria\ntype: criteria\nstatus: active\nlinks: []\ntitle: Criterion identities\n---\n\n```gherkin\n\n  @AC-101\n  Scenario: live\n    Test-type: Human\n\n  @AC-102 @retired\n  Scenario: retired\n```\n"
 	criteriaPath := filepath.Join(root, "docs", "analysis", "criteria.md")
@@ -1281,7 +1295,7 @@ func TestAC107_UnitPositive_MigrateBackfillsLiveAndRetiredCriteria(t *testing.T)
 			continue
 		}
 		ledger := string(change.After)
-		if strings.Contains(ledger, "id: AC-101\n      kind: numeric\n      state: live") && strings.Contains(ledger, "id: AC-102\n      kind: numeric\n      state: retired") && strings.Contains(ledger, "id: AC-103\n      kind: numeric\n      state: retired") {
+		if strings.Contains(ledger, "{id: AC-101, kind: numeric, state: live") && strings.Contains(ledger, "{id: AC-102, kind: numeric, state: retired") && strings.Contains(ledger, "{id: AC-103, kind: numeric, state: retired") {
 			return
 		}
 		t.Fatalf("criteria were not backfilled with their lifecycle states:\n%s", ledger)
@@ -1289,7 +1303,7 @@ func TestAC107_UnitPositive_MigrateBackfillsLiveAndRetiredCriteria(t *testing.T)
 	t.Fatalf("no %s change planned", MigrationLedgerBackfill)
 }
 
-func TestAC107_UnitPositive_MigrateBackfillsSegmentedNumericPrefix(t *testing.T) {
+func TestAC178_UnitPositive_MigrateBackfillsSegmentedNumericPrefix(t *testing.T) {
 	root := migrationFixture(t, "")
 	path := filepath.Join(root, "docs", "analysis", "SNAP-SQS-001.md")
 	data := "---\nid: SNAP-SQS-001\ntype: analysis\nstatus: active\nlinks: []\ntitle: Segmented identity\n---\n"
@@ -1316,7 +1330,7 @@ func TestAC107_UnitPositive_MigrateBackfillsSegmentedNumericPrefix(t *testing.T)
 			continue
 		}
 		ledger := string(change.After)
-		if strings.Contains(ledger, "id: SNAP-SQS-001\n      kind: numeric\n") && strings.Contains(ledger, "SNAP-SQS: \"1\"") && strings.Contains(ledger, "id: AC-000\n      kind: numeric\n") && strings.Contains(ledger, "id: AC-999999999999999999999999\n      kind: numeric\n") && strings.Contains(ledger, "AC: \"999999999999999999999999\"") {
+		if strings.Contains(ledger, "{id: SNAP-SQS-001, kind: numeric") && strings.Contains(ledger, "component: \"1\"") && strings.Contains(ledger, "{id: AC-000, kind: numeric") && strings.Contains(ledger, "{id: AC-999999999999999999999999, kind: numeric") && strings.Contains(ledger, "component: \"999999999999999999999999\"") {
 			return
 		}
 		t.Fatalf("segmented numeric ID was not backfilled with its counter:\n%s", ledger)
@@ -1324,13 +1338,13 @@ func TestAC107_UnitPositive_MigrateBackfillsSegmentedNumericPrefix(t *testing.T)
 	t.Fatalf("no %s change planned", MigrationLedgerBackfill)
 }
 
-func TestAC107_UnitNegative_ExistingLedgerFileIsUntouched(t *testing.T) {
+func TestAC178_UnitNegative_ExistingLedgerFileIsUntouched(t *testing.T) {
 	root := migrationFixture(t, "")
 	ledgerDir := filepath.Join(root, ".clue")
 	if err := os.MkdirAll(ledgerDir, 0o755); err != nil {
 		t.Fatal(err)
 	}
-	const existing = "counters: {}\nentries: []\n"
+	const existing = "version: 2\ncoordination:\n    mode: local\nevents: []\n"
 	if err := os.WriteFile(filepath.Join(ledgerDir, "id-ledger.yaml"), []byte(existing), 0o644); err != nil {
 		t.Fatal(err)
 	}
@@ -1340,8 +1354,86 @@ func TestAC107_UnitNegative_ExistingLedgerFileIsUntouched(t *testing.T) {
 		t.Fatal(err)
 	}
 	for _, c := range plan.Changes {
-		if c.Migration == MigrationLedgerBackfill {
-			t.Fatalf("an existing ledger file must not be planned for backfill: %+v", c)
+		if c.Path == ledger.DefaultPath {
+			t.Fatalf("an existing version-two ledger must not be rewritten: %+v", c)
+		}
+	}
+}
+
+func TestAC176_UnitPositive_MigratePreservesVersionOneLedgerMeaning(t *testing.T) {
+	root := migrationFixture(t, "")
+	if err := os.MkdirAll(filepath.Join(root, ".clue"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	legacy := "counters:\n    CH: \"9\"\n    AC: \"999999999999999999999999\"\nentries:\n    - id: CH-007\n      kind: numeric\n      state: retired\n      prefix: CH\n      component: \"7\"\n    - id: CH-009\n      kind: opaque\n      state: retired\n      source-revision: opaque-revision\n      source-location: opaque.md\n    - id: CH-999\n      kind: opaque\n      state: reserved\n      source-revision: distant-revision\n      source-location: distant.md\n    - id: imported-token\n      kind: opaque\n      state: live\n      source-revision: abc\n      source-location: old/spec.md\n"
+	if err := os.WriteFile(filepath.Join(root, ledger.DefaultPath), []byte(legacy), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	legacyLedger, err := ledger.Load(root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if id, err := legacyLedger.NextNumeric("CH"); err != nil || id != "CH-010" {
+		t.Fatalf("next CH before migration = %q, %v", id, err)
+	}
+	plan, err := Plan(root, Options{ReversalCost: "low"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	var converted, attributes bool
+	for _, change := range plan.Changes {
+		switch {
+		case change.Migration == MigrationLedgerEvents && change.Path == ledger.DefaultPath:
+			converted = strings.Contains(string(change.After), "version: 2") && strings.Contains(string(change.After), "source-revision: abc") && strings.Contains(string(change.After), "state: retired")
+		case change.Migration == MigrationLedgerEvents && change.Path == ".gitattributes":
+			attributes = strings.Contains(string(change.After), ledger.UnionAttribute)
+		}
+	}
+	if !converted || !attributes {
+		t.Fatalf("MIG-015 conversion=%v attributes=%v changes=%+v", converted, attributes, plan.Changes)
+	}
+	if err := Apply(root, plan); err != nil {
+		t.Fatal(err)
+	}
+	convertedLedger, err := ledger.Load(root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if retired, ok := convertedLedger.Lookup("CH-007"); !ok || retired.State != ledger.StateRetired {
+		t.Fatalf("retired identity after migration = %+v, ok=%v", retired, ok)
+	}
+	if imported, ok := convertedLedger.Lookup("imported-token"); !ok || imported.State != ledger.StateLive || imported.SourceRevision != "abc" || imported.SourceLocation != "old/spec.md" {
+		t.Fatalf("imported identity after migration = %+v, ok=%v", imported, ok)
+	}
+	if opaque, ok := convertedLedger.Lookup("CH-009"); !ok || opaque.Kind != ledger.KindOpaque || opaque.State != ledger.StateRetired || opaque.SourceRevision != "opaque-revision" {
+		t.Fatalf("numeric-shaped opaque identity after migration = %+v, ok=%v", opaque, ok)
+	}
+	if distant, ok := convertedLedger.Lookup("CH-999"); !ok || distant.Kind != ledger.KindOpaque || distant.SourceRevision != "distant-revision" {
+		t.Fatalf("distant opaque identity after migration = %+v, ok=%v", distant, ok)
+	}
+	if id, err := convertedLedger.NextNumeric("CH"); err != nil || id != "CH-010" {
+		t.Fatalf("next CH after high-water migration = %q, %v", id, err)
+	}
+	if id, err := convertedLedger.NextNumeric("AC"); err != nil || id != "AC-1000000000000000000000000" {
+		t.Fatalf("next large AC after migration = %q, %v", id, err)
+	}
+}
+
+func TestAC176_UnitNegative_MigrationDoesNotEnableGitCoordination(t *testing.T) {
+	root := migrationFixture(t, "")
+	if err := os.MkdirAll(filepath.Join(root, ".clue"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(root, ledger.DefaultPath), []byte("counters: {CH: 1}\nentries:\n  - {id: CH-001, kind: numeric, state: live, prefix: CH, component: 1}\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	plan, err := Plan(root, Options{ReversalCost: "low"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, change := range plan.Changes {
+		if change.Migration == MigrationLedgerEvents && change.Path == ledger.DefaultPath && strings.Contains(string(change.After), "mode: git") {
+			t.Fatal("ledger migration silently enabled remote coordination")
 		}
 	}
 }
@@ -1361,4 +1453,199 @@ func gitShow(t *testing.T, root, spec string) ([]byte, error) {
 		return nil, err
 	}
 	return out.Bytes(), nil
+}
+
+// The backfill's bytes are what an adopter reviews before `clue migrate
+// --apply` writes them, so the same corpus must render the same file every
+// time. A v2 ledger records events in append order, and seeding from a Go
+// map's iteration order made that order random per run: the preview would
+// not match the write, a re-run would diff the whole file, and two branches
+// backfilling in parallel would conflict on all of it — a conflict the
+// file-scoped union driver resolves by concatenating both copies into a
+// ledger that no longer parses.
+func TestAC178_UnitPositive_LedgerBackfillBytesAreDeterministic(t *testing.T) {
+	root := migrationFixture(t, "")
+	for _, id := range []string{"AC-201", "AC-202", "AC-203", "AC-204", "AC-205", "AC-206", "AC-207", "AC-208"} {
+		path := filepath.Join(root, "docs", "analysis", id+".md")
+		data := "---\nid: " + id + "\ntype: analysis\nstatus: active\nlinks: []\ntitle: Identity " + id + "\n---\n"
+		if err := os.WriteFile(path, []byte(data), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	var first []byte
+	for run := 0; run < 10; run++ {
+		plan, err := Plan(root, Options{ReversalCost: "low"})
+		if err != nil {
+			t.Fatal(err)
+		}
+		var got []byte
+		for _, change := range plan.Changes {
+			if change.Migration == MigrationLedgerBackfill {
+				got = change.After
+			}
+		}
+		if got == nil {
+			t.Fatalf("run %d planned no %s change", run, MigrationLedgerBackfill)
+		}
+		if first == nil {
+			first = got
+			continue
+		}
+		if !bytes.Equal(first, got) {
+			t.Fatalf("backfill bytes differ between runs\nfirst:\n%s\nrun %d:\n%s", first, run, got)
+		}
+	}
+}
+
+// Migration is the command an adopter already runs to bring a repository up to
+// date, and it used to skip a ledger it could not load — which is why a ledger
+// Git's union merge combined had no repair at all.
+func TestAC179_UnitPositive_MigratePlansTheRepairOfAUnionMergedLedger(t *testing.T) {
+	root := migrationFixture(t, "")
+	if err := os.MkdirAll(filepath.Join(root, ".clue"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	half := "version: 2\ncoordination:\n    mode: local\nevents:\n    - {id: CH-001, kind: numeric, state: live, prefix: CH, component: \"1\"}\n"
+	if err := os.WriteFile(filepath.Join(root, ledger.DefaultPath), []byte(half+half), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	plan, err := Plan(root, Options{ReversalCost: "low"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, change := range plan.Changes {
+		if change.Path != ledger.DefaultPath {
+			continue
+		}
+		if !strings.Contains(change.Description, "union merge") {
+			t.Fatalf("ledger change description = %q, want it to name the union merge", change.Description)
+		}
+		if got := strings.Count(string(change.After), "version: 2"); got != 1 {
+			t.Fatalf("planned ledger is still doubled:\n%s", change.After)
+		}
+		if !strings.Contains(string(change.After), "id: CH-001") {
+			t.Fatalf("planned repair dropped an identity:\n%s", change.After)
+		}
+		return
+	}
+	t.Fatalf("no repair planned for a union-merged ledger; changes: %v", plan.Changes)
+}
+
+// Migration plans a change per path rather than saving a Ledger, so a rewritten
+// ledger drops the settings it used to carry inline unless the same plan writes
+// them out. Without this, migrating a coordinated repository silently returned
+// it to local allocation — the collision the coordination existed to prevent.
+func TestAC181_IntegrationPositive_MigrationCarriesCoordinationOutOfTheLedger(t *testing.T) {
+	root := migrationFixture(t, "")
+	if err := os.MkdirAll(filepath.Join(root, ".clue"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	half := "version: 2\ncoordination:\n    mode: git\n    remote: origin\nevents:\n    - {id: CH-001, kind: numeric, state: live, prefix: CH, component: \"1\"}\n"
+	if err := os.WriteFile(filepath.Join(root, ledger.DefaultPath), []byte(half+half), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	plan, err := Plan(root, Options{ReversalCost: "low"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	var coordination *Change
+	for i := range plan.Changes {
+		if plan.Changes[i].Path == ledger.CoordinationPath {
+			coordination = &plan.Changes[i]
+		}
+	}
+	if coordination == nil {
+		t.Fatalf("no coordination change planned; migrating would drop it:\n%v", plan.Changes)
+	}
+	if !strings.Contains(string(coordination.After), "remote: origin") {
+		t.Fatalf("planned coordination = %q", coordination.After)
+	}
+	if coordination.Existed {
+		t.Fatal("coordination file reported as pre-existing")
+	}
+}
+
+// A repository allocating locally needs no settings file: the absence of one is
+// what local means, so migration must not invent it.
+func TestAC181_IntegrationNegative_LocalMigrationPlansNoCoordinationFile(t *testing.T) {
+	root := migrationFixture(t, "")
+	if err := os.MkdirAll(filepath.Join(root, ".clue"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	half := "version: 2\ncoordination:\n    mode: local\nevents:\n    - {id: CH-001, kind: numeric, state: live, prefix: CH, component: \"1\"}\n"
+	if err := os.WriteFile(filepath.Join(root, ledger.DefaultPath), []byte(half+half), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	plan, err := Plan(root, Options{ReversalCost: "low"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, change := range plan.Changes {
+		if change.Path == ledger.CoordinationPath {
+			t.Fatalf("local-mode migration planned a coordination file: %q", change.After)
+		}
+	}
+}
+
+// A ledger migration cannot plan against a ledger it could not read, and the
+// silence around that was the defect: the command reported "no changes needed"
+// for a repository whose ledger was damaged, so the repair it exists to offer
+// disappeared without a word.
+func TestUnit_MigrateNoticesALedgerItCannotRead(t *testing.T) {
+	root := migrationFixture(t, "")
+	if err := os.MkdirAll(filepath.Join(root, ".clue"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	half := "version: 2\nevents:\n    - {id: CH-001, kind: numeric, state: live, prefix: CH, component: \"1\"}\n"
+	if err := os.WriteFile(filepath.Join(root, ledger.DefaultPath), []byte(half+half), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(root, filepath.FromSlash(ledger.CoordinationPath)), []byte("remote: origin\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	plan, err := Plan(root, Options{ReversalCost: "low"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	found := ""
+	for _, notice := range plan.Notices {
+		if notice.Path == ledger.DefaultPath && notice.Migration == MigrationLedgerEvents {
+			found = notice.Message
+		}
+	}
+	if found == "" {
+		t.Fatalf("an unreadable ledger was passed over in silence; notices: %v", plan.Notices)
+	}
+	if !strings.Contains(found, "names no allocation mode") {
+		t.Fatalf("notice = %q, want it to name why the ledger could not be read", found)
+	}
+	for _, change := range plan.Changes {
+		if change.Path == ledger.DefaultPath {
+			t.Fatalf("a ledger that could not be read was nevertheless planned: %q", change.Description)
+		}
+	}
+}
+
+// The seeding path must still seed. Reading settings there once made this
+// migration fail, so a corpus with damaged settings and no ledger silently
+// never received one.
+func TestUnit_MigrateStillSeedsALedgerWhenSettingsAreDamaged(t *testing.T) {
+	root := migrationFixture(t, "")
+	if err := os.MkdirAll(filepath.Join(root, ".clue"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(root, filepath.FromSlash(ledger.CoordinationPath)), []byte("remote: origin\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	plan, err := Plan(root, Options{ReversalCost: "low"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, change := range plan.Changes {
+		if change.Migration == MigrationLedgerBackfill {
+			return
+		}
+	}
+	t.Fatalf("no ledger was seeded for a corpus with damaged settings; changes: %v", plan.Changes)
 }

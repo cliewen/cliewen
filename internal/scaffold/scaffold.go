@@ -31,6 +31,7 @@ import (
 	"strings"
 
 	"github.com/cliewen/cliewen/internal/corpus"
+	"github.com/cliewen/cliewen/internal/ledger"
 	"github.com/cliewen/cliewen/internal/role"
 )
 
@@ -56,6 +57,7 @@ const OverviewBootstrapMarker = "<!-- clue:overview:bootstrap -->"
 type Report struct {
 	Created        []string
 	Skipped        []string // existed already — never overwritten
+	Amended        []string // existed already, and one missing line was appended
 	Linked         []string // symlinked directories: nothing was written through them
 	Indexed        []string // README index blocks regenerated on this run
 	MissingReadmes []string // pre-existing docs folders without the README validate requires
@@ -261,7 +263,9 @@ func isCliewenCheckout(root string) bool {
 
 // Run emits the convention into root. Existing files are never touched
 // except taxonomy README index blocks, which are regenerated between
-// their clue:index markers (prose outside the markers is preserved).
+// their clue:index markers (prose outside the markers is preserved), and
+// .gitattributes, which has the ledger's union-merge rule appended when it
+// is missing (see ensureUnionAttribute).
 func Run(root string) (*Report, error) {
 	version, err := PairVersion()
 	if err != nil {
@@ -281,6 +285,9 @@ func Run(root string) (*Report, error) {
 		}
 		data = []byte(strings.ReplaceAll(string(data), versionPlaceholder, version))
 		data = []byte(strings.ReplaceAll(string(data), workflowRefPlaceholder, workflowRef))
+		if rel == ".gitattributes" {
+			return ensureUnionAttribute(root, data, rep, links)
+		}
 		for _, target := range targetsFor(rel) {
 			if werr := writeIfAbsent(root, target, data, rep, links); werr != nil {
 				return werr
@@ -307,6 +314,7 @@ func Run(root string) (*Report, error) {
 	}
 	sort.Strings(rep.Created)
 	sort.Strings(rep.Skipped)
+	sort.Strings(rep.Amended)
 	sort.Strings(rep.Linked)
 	sort.Strings(rep.Indexed)
 	sort.Strings(rep.MissingReadmes)
@@ -384,6 +392,39 @@ func linkedAncestor(root, target string, links map[string]string) (string, error
 	}
 	links[dir] = ""
 	return "", nil
+}
+
+// ensureUnionAttribute installs the ledger's union-merge rule, and is the
+// one place init edits a file it did not write. A repository with no
+// .gitattributes is materialized as usual; one that already has one — a
+// `* text=auto` line is close to universal — has the single missing rule
+// appended, because skipping it would leave the append-only ledger with no
+// merge driver and every pair of parallel branches conflicting on it, which
+// is the conflict the rule exists to remove (ADR-048). The edit is strictly
+// additive: nothing already in the file is reordered or rewritten, and a
+// repository that declares the rule already is skipped untouched.
+func ensureUnionAttribute(root string, data []byte, rep *Report, links map[string]string) error {
+	full := filepath.Join(root, ".gitattributes")
+	if _, err := os.Stat(full); err != nil {
+		if !os.IsNotExist(err) {
+			return err
+		}
+		return writeIfAbsent(root, ".gitattributes", data, rep, links)
+	}
+	existing, err := os.ReadFile(full)
+	if err != nil {
+		return err
+	}
+	amended, added := ledger.WithUnionAttribute(existing)
+	if !added {
+		rep.Skipped = append(rep.Skipped, ".gitattributes")
+		return nil
+	}
+	if err := os.WriteFile(full, amended, 0o644); err != nil {
+		return err
+	}
+	rep.Amended = append(rep.Amended, ".gitattributes")
+	return nil
 }
 
 func writeIfAbsent(root, target string, data []byte, rep *Report, links map[string]string) error {

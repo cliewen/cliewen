@@ -96,6 +96,9 @@ const (
 	// asserts why a product exists — which a repository cannot prove and a
 	// migration must therefore never write (ADR-067).
 	MigrationProductIntent = "MIG-014"
+	// MigrationLedgerEvents converts the rewrite-oriented ledger to the
+	// append-only event representation and installs its union merge rule.
+	MigrationLedgerEvents = "MIG-015"
 )
 
 // Options controls planning. Preview is the default; applying a plan is a
@@ -127,6 +130,7 @@ var orderedMigrations = []MigrationDefinition{
 	{ID: MigrationRoleMarker, Description: "report a repository that has not declared its Cliewen role"},
 	{ID: MigrationSpentAnalysis, Description: "report an analysis whose findings a durable artifact now carries"},
 	{ID: MigrationProductIntent, Description: "add the optional use-case folder and report a corpus that states no vision"},
+	{ID: MigrationLedgerEvents, Description: "make the identity ledger append-only and merge-safe"},
 }
 
 // Registry returns the migration order without exposing mutable package state.
@@ -590,6 +594,7 @@ func Plan(root string, opts Options) (MigrationPlan, error) {
 	planHubReleaseCheck(root, &result)
 	planPromotedConstraints(root, &result)
 	planLedgerBackfill(root, &result)
+	planLedgerEvents(root, &result)
 	planCompetingWall(root, &result)
 	planLegacyDecisionLog(root, &result)
 	overviewFolders, err := planSystemOverviews(root, &result)
@@ -613,6 +618,99 @@ func Plan(root string, opts Options) (MigrationPlan, error) {
 	}
 	sortPlan(&result)
 	return result, nil
+}
+
+// planLedgerEvents converts an existing version-one ledger without changing
+// its effective identities and adds the built-in union merge driver required
+// by the one-event-per-line representation.
+func planLedgerEvents(root string, result *MigrationPlan) {
+	ledgerWillExist := ledger.Exists(root)
+	for _, change := range result.Changes {
+		if change.Path == ledger.DefaultPath {
+			ledgerWillExist = true
+		}
+	}
+	if !ledgerWillExist {
+		return
+	}
+	if ledger.Exists(root) {
+		l, err := ledger.Load(root)
+		if err != nil {
+			// Silence here reads as health: without this the command reports
+			// "no changes needed" for a repository whose ledger it could not
+			// read, and any repair it would have offered disappears with it.
+			result.Notices = append(result.Notices, Notice{
+				Path:      ledger.DefaultPath,
+				Migration: MigrationLedgerEvents,
+				Message:   "could not be read, so no ledger migration was planned for it: " + err.Error(),
+			})
+		}
+		if err == nil {
+			before, readErr := os.ReadFile(filepath.Join(root, filepath.FromSlash(ledger.DefaultPath)))
+			description := ""
+			switch {
+			case l.Version() == 1:
+				l.ConvertV2()
+				description = "convert the identity ledger to append-only events"
+			case l.Damage() != "":
+				// A ledger Git's union merge combined reads correctly but is
+				// written twice over, and migration is the command an adopter
+				// already runs to bring a repository up to date. Leaving it
+				// out was why a damaged ledger had no repair at all.
+				description = "repair the identity ledger combined by Git's union merge"
+			}
+			if readErr == nil && description != "" {
+				after, bytesErr := l.Bytes()
+				if bytesErr == nil {
+					result.Changes = append(result.Changes, Change{Path: ledger.DefaultPath, Migration: MigrationLedgerEvents, Description: description, Existed: true, Before: before, After: after})
+					// The rewritten ledger no longer carries allocation
+					// settings, so a repository whose settings were still
+					// inline has to receive them in their own file by the same
+					// plan. Without this the migration silently returns a
+					// coordinated team to local allocation, which is the
+					// collision the coordination existed to prevent.
+					planCoordinationSplit(root, l, result)
+				}
+			}
+		}
+	}
+	attrPath := filepath.Join(root, ".gitattributes")
+	before, err := os.ReadFile(attrPath)
+	existed := err == nil
+	if err != nil && !os.IsNotExist(err) {
+		return
+	}
+	after, added := ledger.WithUnionAttribute(before)
+	if !added {
+		return
+	}
+	result.Changes = append(result.Changes, Change{Path: ".gitattributes", Migration: MigrationLedgerEvents, Description: "add the identity ledger union merge rule", Existed: existed, Before: before, After: after})
+}
+
+// planCoordinationSplit writes the allocation settings beside a ledger that is
+// being rewritten, when the repository is coordinated and has no settings file
+// yet. A local-mode repository needs none: the absence of the file is what
+// local means.
+func planCoordinationSplit(root string, l *ledger.Ledger, result *MigrationPlan) {
+	coord := l.Coordination()
+	if coord.Mode != "git" {
+		return
+	}
+	path := filepath.Join(root, filepath.FromSlash(ledger.CoordinationPath))
+	if _, err := os.Stat(path); err == nil {
+		return
+	}
+	after, err := ledger.CoordinationBytes(coord)
+	if err != nil {
+		return
+	}
+	result.Changes = append(result.Changes, Change{
+		Path:        ledger.CoordinationPath,
+		Migration:   MigrationLedgerEvents,
+		Description: "record identity coordination beside the ledger, where a merge cannot combine two teams' settings",
+		Existed:     false,
+		After:       after,
+	})
 }
 
 // planRoleMarker reports an undeclared repository and writes nothing.
@@ -1768,7 +1866,7 @@ func planPromotedConstraints(root string, result *MigrationPlan) {
 // planLedgerBackfill seeds .clue/id-ledger.yaml the first time a repository
 // sees it: one live entry per currently-live corpus ID, with counters
 // seeded at each prefix's current maximum, so existing IDs are never
-// renumbered (ADR-048, AC-107). It is idempotent by construction: once the
+// renumbered (ADR-048, AC-178). It is idempotent by construction: once the
 // file exists, Plan reports zero further changes for this migration.
 func planLedgerBackfill(root string, result *MigrationPlan) {
 	if ledger.Exists(root) {
@@ -1780,9 +1878,26 @@ func planLedgerBackfill(root string, result *MigrationPlan) {
 	}
 	l, err := ledger.Load(root)
 	if err != nil {
+		result.Notices = append(result.Notices, Notice{
+			Path:      ledger.DefaultPath,
+			Migration: MigrationLedgerBackfill,
+			Message:   "could not be read, so no ledger was seeded for this corpus: " + err.Error(),
+		})
 		return
 	}
+	// Sorted, because a v2 ledger records events in append order and the
+	// backfill's bytes are what an adopter reviews before --apply. Map
+	// iteration order would make the same corpus produce a differently
+	// ordered file on every run: a preview that does not match the write,
+	// a full-file diff on re-run, and — where two branches backfill in
+	// parallel — a whole-file conflict that `merge=union` resolves by
+	// concatenating both copies into a ledger that no longer parses.
+	ids := make([]string, 0, len(c.ByID))
 	for id := range c.ByID {
+		ids = append(ids, id)
+	}
+	sort.Strings(ids)
+	for _, id := range ids {
 		l.MarkLive(id)
 	}
 	for _, criterion := range corpus.LedgerCriterionIdentities(c) {

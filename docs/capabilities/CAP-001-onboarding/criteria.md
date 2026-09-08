@@ -13,7 +13,7 @@ Feature: Onboarding — install to first green validate
   Scenario: A new user reaches green validate in under 30 minutes
     # Retired 2026-07-17 (CH-020): the 30-minute clock spans a human
     # journey (reading, installing) no focused test pair can verify.
-    # The mechanical path is covered by AC-150/AC-024/AC-025; the
+    # The mechanical path is covered by AC-150/AC-024/AC-182; the
     # 30-minute end-to-end promise is C-015, owned by the quickstart.
 
   @AC-002 @retired
@@ -49,13 +49,20 @@ Feature: Onboarding — install to first green validate
     And a pre-existing taxonomy README without markers gains an appended index block, its prose intact
     And a re-run with nothing new to index changes no file
 
-  @AC-025
+  @AC-025 @retired
   Scenario: init never replaces an existing file
+    # Retired by AC-182 when clue init gained one additive exception: it
+    # appends the identity ledger's union merge rule to a .gitattributes
+    # that lacks it (AC-180), so the promise is no longer universal.
+
+  @AC-182
+  Scenario: init never replaces the content of an existing file
+    Test-type: Unit
     Given a repository that already contains one of the files init emits
     When the user runs "clue init"
-    Then the existing file is not replaced and its prose outside clue:index markers is unchanged
-    And the report names it as skipped
+    Then no existing content is replaced or reordered, prose outside clue:index markers is unchanged, and the report names the file as skipped
     And every file the existing one did not shadow is still created
+    But .gitattributes is the one file init adds to rather than skips, appending only the identity ledger's union merge rule when it is absent, as AC-180 governs
 
   @AC-036
   Scenario: The public guide gives an operator one supported next step
@@ -186,15 +193,19 @@ Feature: Onboarding — install to first green validate
     And a current repository produces no such line, so the absence of one is informative
     But the evidence is what the session did, not what the hub says: an agent that skipped the instruction and learned it anyway from the notifier is this criterion passing, and neither channel reporting it is this criterion failing
 
-  @AC-107
+  @AC-107 @retired
   Scenario: migrate backfills the identity ledger from the current corpus scan without renumbering history
+    # Retired by AC-178 when the counter-map ledger was replaced by append-only claims.
+
+  @AC-178
+  Scenario: migrate installs the merge-safe identity ledger without renumbering history
     Test-type: Unit
     Given a corpus with no ".clue/id-ledger.yaml" file and existing live artifacts across several native ID prefixes
     When the user runs "clue migrate --apply"
-    Then it writes one "live" entry per currently-live ID, unchanged
-    And it seeds each prefix's counter at that prefix's current maximum numeric component
+    Then it writes one version-two "live" event per currently-live ID, unchanged
+    And it adds the root-ledger union merge attribute without replacing existing attributes
     And a second run reports zero changes
-    But a corpus that already carries a ".clue/id-ledger.yaml" file is left untouched by this step
+    But a corpus that already carries a version-two ledger is not rewritten by the backfill
 
   @AC-144
   Scenario: A legacy decision log requires reviewed classification before migration
@@ -240,4 +251,12 @@ Feature: Onboarding — install to first green validate
     Then the analysis only a completed plan and another analysis name is reported
     And the corpus remains valid, because a cited spike is not an invalid corpus
     But the analysis a decision cites and the analysis a constraint cites are both withheld from the report
+
+  @AC-180
+  Scenario: init installs the ledger merge rule into an attributes file the repository already has
+    Test-type: Unit
+    Given a repository carrying a ".gitattributes" that does not declare the identity ledger's union merge rule
+    When the user runs "clue init"
+    Then the rule is appended, every attribute already in the file is unchanged, and the run reports the file as amended rather than skipped
+    But a repository already declaring the rule is left byte-for-byte alone, whether or not it wrote the pattern with a leading slash
 ```

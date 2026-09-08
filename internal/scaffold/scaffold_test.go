@@ -5,10 +5,12 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"slices"
 	"strings"
 	"testing"
 
 	"github.com/cliewen/cliewen/internal/corpus"
+	"github.com/cliewen/cliewen/internal/ledger"
 )
 
 func runInto(t *testing.T) (string, *Report) {
@@ -84,6 +86,17 @@ func TestAC150_UnitPositive_InitBootstrapsRequireActivation(t *testing.T) {
 	c, _ = corpus.Scan(root)
 	if issues := corpus.Validate(c, corpus.Options{Version: version}); len(issues) > 0 {
 		t.Fatalf("emitted skills drift from pair version %s: %v", version, issues)
+	}
+}
+
+func TestAC180_UnitPositive_InitInstallsLedgerUnionMergeRule(t *testing.T) {
+	root, _ := runInto(t)
+	content, err := os.ReadFile(filepath.Join(root, ".gitattributes"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if strings.TrimSpace(string(content)) != ledger.UnionAttribute {
+		t.Fatalf("scaffolded .gitattributes = %q, want %q", content, ledger.UnionAttribute)
 	}
 }
 
@@ -330,9 +343,9 @@ func TestAC024_RerunOnUnchangedTreeIsANoOp(t *testing.T) {
 	}
 }
 
-// AC-025: an existing file is never overwritten — it is skipped and the
+// AC-182: an existing file is never overwritten — it is skipped and the
 // report says so.
-func TestAC025_ExistingFileIsSkippedAndReported(t *testing.T) {
+func TestAC182_UnitPositive_ExistingFileIsSkippedAndReported(t *testing.T) {
 	root := t.TempDir()
 	own := "# My own routing hub\n"
 	if err := os.WriteFile(filepath.Join(root, "AGENTS.md"), []byte(own), 0o644); err != nil {
@@ -360,9 +373,9 @@ func TestAC025_ExistingFileIsSkippedAndReported(t *testing.T) {
 	}
 }
 
-// AC-025 negative: skipping is per file, not per run — everything the
+// AC-182 negative: skipping is per file, not per run — everything the
 // existing file did not shadow is still created.
-func TestAC025_SkipIsPerFileNotPerRun(t *testing.T) {
+func TestAC182_UnitNegative_SkipIsPerFileNotPerRun(t *testing.T) {
 	root := t.TempDir()
 	if err := os.WriteFile(filepath.Join(root, "AGENTS.md"), []byte("mine"), 0o644); err != nil {
 		t.Fatal(err)
@@ -795,4 +808,66 @@ func snapshot(t *testing.T, root string) map[string]string {
 		t.Fatal(err)
 	}
 	return files
+}
+
+// A repository that already carries a .gitattributes — `* text=auto` alone
+// is close to universal — must still receive the ledger's union rule.
+// Skipping the file the way init skips every other pre-existing one would
+// leave the append-only ledger with no merge driver, which is exactly the
+// parallel-branch conflict the rule exists to remove.
+func TestAC180_UnitPositive_InitAppendsUnionRuleToExistingGitattributes(t *testing.T) {
+	root := t.TempDir()
+	existing := "* text=auto"
+	if err := os.WriteFile(filepath.Join(root, ".gitattributes"), []byte(existing), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	rep, err := Run(root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	content, err := os.ReadFile(filepath.Join(root, ".gitattributes"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := existing + "\n" + ledger.UnionAttribute + "\n"
+	if string(content) != want {
+		t.Fatalf(".gitattributes = %q, want %q", content, want)
+	}
+	if !ledger.HasUnionMerge(root) {
+		t.Fatal("union merge rule not detected after init")
+	}
+	if !slices.Contains(rep.Amended, ".gitattributes") {
+		t.Fatalf("amended = %v, want it to name .gitattributes", rep.Amended)
+	}
+	if slices.Contains(rep.Skipped, ".gitattributes") {
+		t.Fatalf("skipped = %v, want .gitattributes absent", rep.Skipped)
+	}
+}
+
+// The append is one line, once: a repository that already declares the rule
+// is left byte-for-byte alone and reported as skipped, so re-running init
+// never grows the file.
+func TestAC180_UnitNegative_InitDoesNotDuplicateAnExistingUnionRule(t *testing.T) {
+	root := t.TempDir()
+	existing := "* text=auto\n" + ledger.UnionAttribute + "\n"
+	if err := os.WriteFile(filepath.Join(root, ".gitattributes"), []byte(existing), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	rep, err := Run(root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	content, err := os.ReadFile(filepath.Join(root, ".gitattributes"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if string(content) != existing {
+		t.Fatalf(".gitattributes = %q, want it untouched (%q)", content, existing)
+	}
+	if len(rep.Amended) != 0 {
+		t.Fatalf("amended = %v, want nothing amended", rep.Amended)
+	}
+	if !slices.Contains(rep.Skipped, ".gitattributes") {
+		t.Fatalf("skipped = %v, want it to name .gitattributes", rep.Skipped)
+	}
 }

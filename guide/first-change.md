@@ -62,6 +62,17 @@ clue migrate: applied 1 file(s)
 
 The identity comes from the ledger, not Git history. An identifier once used by a deleted artifact is never minted again. The branch takes the same name: `ch-001-greet-by-name`.
 
+In a team repository, a maintainer enables coordinated allocation once, commits both files the command writes, and merges them before contributors branch:
+
+```text
+$ clue id coordinate --remote=origin
+identity allocation coordinated through origin:refs/heads/clue/id-allocator
+commit .clue/id-ledger.yaml and .clue/id-coordination.yaml together, then merge them before contributors branch
+protect the allocator branch from force-push and deletion while allowing ordinary fast-forward pushes
+```
+
+After that, `clue id next CH` claims its number through the remote allocator branch. Clones and worktrees can allocate at the same time without receiving the same number. Until coordination is enabled, the command warns that allocation is local; teams must serialize it on their integration branch.
+
 ## 4. It writes the proposal before it writes any code
 
 ```text
