@@ -53,10 +53,10 @@ func coordinatedRepository(t *testing.T) (string, string) {
 	git(t, root, "remote", "add", "origin", remote)
 	git(t, root, "push", "-u", "origin", "main")
 	git(t, remote, "symbolic-ref", "HEAD", "refs/heads/main")
-	if err := Coordinate(root, "origin", 30*time.Second); err != nil {
+	if err := Coordinate(root, "origin", false, 30*time.Second); err != nil {
 		t.Fatalf("Coordinate: %v", err)
 	}
-	git(t, root, "add", ".clue/id-ledger.yaml")
+	git(t, root, "add", ".clue")
 	git(t, root, "commit", "-m", "coordinate")
 	git(t, root, "push", "origin", "main")
 	return root, remote
@@ -71,7 +71,7 @@ func TestSanity_CoordinateRequiresLedgerUnionMergeRule(t *testing.T) {
 	if err := l.Save(); err != nil {
 		t.Fatal(err)
 	}
-	if err := Coordinate(root, "origin", time.Second); err == nil || !strings.Contains(err.Error(), "merge=union") {
+	if err := Coordinate(root, "origin", false, time.Second); err == nil || !strings.Contains(err.Error(), "merge=union") {
 		t.Fatalf("Coordinate error = %v", err)
 	}
 }
@@ -278,10 +278,10 @@ func TestAC176_IntegrationPositive_MigratedHighWaterSurvivesCoordination(t *test
 	git(t, root, "add", ledger.DefaultPath)
 	git(t, root, "commit", "-m", "migrate ledger")
 	git(t, root, "push", "origin", "main")
-	if err := Coordinate(root, "origin", 30*time.Second); err != nil {
+	if err := Coordinate(root, "origin", false, 30*time.Second); err != nil {
 		t.Fatal(err)
 	}
-	git(t, root, "add", ledger.DefaultPath)
+	git(t, root, "add", ".clue")
 	git(t, root, "commit", "-m", "coordinate")
 	git(t, root, "push", "origin", "main")
 	ids, err := Allocate(root, "CH", "", 1, 30*time.Second)
@@ -462,7 +462,7 @@ func TestAC170_IntegrationPositive_AllocateImportsRemoteHighWater(t *testing.T) 
 	if err := l.Save(); err != nil {
 		t.Fatal(err)
 	}
-	if err := Coordinate(root, "origin", 30*time.Second); err != nil {
+	if err := Coordinate(root, "origin", false, 30*time.Second); err != nil {
 		t.Fatal(err)
 	}
 
@@ -645,10 +645,10 @@ func unionRepository(t *testing.T, remotes ...string) string {
 func coordinateOnBranch(t *testing.T, root, branch, remote string) {
 	t.Helper()
 	git(t, root, "checkout", "-q", "-b", branch, "main")
-	if err := Coordinate(root, remote, 30*time.Second); err != nil {
+	if err := Coordinate(root, remote, false, 30*time.Second); err != nil {
 		t.Fatalf("Coordinate(%s): %v", remote, err)
 	}
-	git(t, root, "add", ledger.DefaultPath)
+	git(t, root, "add", ".clue")
 	git(t, root, "commit", "-m", "coordinate through "+remote)
 }
 
@@ -674,43 +674,58 @@ func TestSanity_IdenticalCoordinationOnTwoBranchesMergesCleanly(t *testing.T) {
 	}
 }
 
-// The damage a real merge actually produces. Union merge combines line by line,
-// so `version` and `mode` are identical on both sides and merge as context: the
-// result is not a repeated header but a repeated `remote` inside coordination.
+// gitAllowFail runs git without failing the test, for the one case where a
+// non-zero exit is the point.
+func gitAllowFail(t *testing.T, dir string, args ...string) (string, error) {
+	t.Helper()
+	cmd := exec.Command("git", append([]string{"-C", dir}, args...)...)
+	out, err := cmd.CombinedOutput()
+	return string(out), err
+}
+
 // Two branches each coordinating to their own remote is a disagreement no
-// reading can settle, so the ledger fails closed and names the choice.
-func TestSanity_DisagreeingRemotesMergeIntoADecidableFailure(t *testing.T) {
+// reading can settle. Because the coordination file is not union-merged, Git
+// raises it as an ordinary conflict at merge time and stops, so the person
+// merging resolves it before anything is committed. The ledger beside it still
+// merges cleanly, which is the whole reason the two live in separate files.
+func TestAC181_IntegrationPositive_DisagreeingRemotesConflictAtMergeTime(t *testing.T) {
 	root := unionRepository(t, "origin", "other")
 	coordinateOnBranch(t, root, "one", "origin")
 	coordinateOnBranch(t, root, "two", "other")
 	git(t, root, "checkout", "-q", "main")
 	git(t, root, "merge", "--no-edit", "one")
-	git(t, root, "merge", "--no-edit", "two")
 
-	data, err := os.ReadFile(filepath.Join(root, ledger.DefaultPath))
-	if err != nil {
-		t.Fatal(err)
-	}
-	// The shape this asserts is Git's, not ours: if a future Git combines the
-	// file differently, this is the test that says so.
-	if got := strings.Count(string(data), "remote:"); got != 2 {
-		t.Fatalf("union merge produced %d remote lines, want 2:\n%s", got, data)
-	}
-	if got := strings.Count(string(data), "version: 2"); got != 1 {
-		t.Fatalf("union merge repeated the header %d times; the damage shape has changed:\n%s", got, data)
-	}
-
-	_, err = ledger.Load(root)
+	out, err := gitAllowFail(t, root, "merge", "--no-edit", "two")
 	if err == nil {
-		t.Fatal("a ledger naming two different allocator remotes was accepted")
+		t.Fatalf("merging two different allocator remotes succeeded; it must stop for a person:\n%s", out)
 	}
-	for _, want := range []string{"two different allocator remotes", "origin", "other", "only a person can decide"} {
-		if !strings.Contains(err.Error(), want) {
-			t.Fatalf("error = %q, want it to mention %q", err, want)
-		}
+	if !strings.Contains(out, ledger.CoordinationPath) || !strings.Contains(out, "CONFLICT") {
+		t.Fatalf("merge output did not raise a conflict on %s:\n%s", ledger.CoordinationPath, out)
 	}
-	if strings.Contains(err.Error(), "unmarshal errors") || strings.Contains(err.Error(), "already defined") {
-		t.Fatalf("error = %q, want a decidable message rather than a parser one", err)
+	ledgerBytes, readErr := os.ReadFile(filepath.Join(root, ledger.DefaultPath))
+	if readErr != nil {
+		t.Fatal(readErr)
+	}
+	if strings.Contains(string(ledgerBytes), "<<<<<<<") {
+		t.Fatalf("the ledger itself must merge cleanly:\n%s", ledgerBytes)
+	}
+
+	// An unresolved conflict left in the file is reported as one rather than
+	// as a parse error, for the same reason.
+	if _, loadErr := ledger.Load(root); loadErr == nil || !strings.Contains(loadErr.Error(), "unresolved merge conflict") {
+		t.Fatalf("Load error = %v, want it to name the unresolved conflict", loadErr)
+	}
+
+	// Resolving the way a person would leaves a working repository.
+	if writeErr := os.WriteFile(filepath.Join(root, filepath.FromSlash(ledger.CoordinationPath)), []byte("mode: git\nremote: origin\n"), 0o644); writeErr != nil {
+		t.Fatal(writeErr)
+	}
+	l, loadErr := ledger.Load(root)
+	if loadErr != nil {
+		t.Fatalf("after resolving: %v", loadErr)
+	}
+	if c := l.Coordination(); c.Mode != "git" || c.Remote != "origin" {
+		t.Fatalf("resolved coordination = %+v, want git through origin", c)
 	}
 }
 
@@ -728,7 +743,7 @@ func TestSanity_WholeFileConversionMergesWithAConcurrentAppend(t *testing.T) {
 	}
 
 	git(t, root, "checkout", "-q", "-b", "converted", "main")
-	converted := strings.Replace(string(base), "mode: local", "mode: local\n    # rewritten in place", 1)
+	converted := strings.Replace(string(base), "version: 2", "# rewritten in place\nversion: 2", 1)
 	if err := os.WriteFile(ledgerPath, []byte(converted), 0o644); err != nil {
 		t.Fatal(err)
 	}
@@ -756,5 +771,48 @@ func TestSanity_WholeFileConversionMergesWithAConcurrentAppend(t *testing.T) {
 		if _, ok := l.Lookup(id); !ok {
 			t.Fatalf("merge lost %s", id)
 		}
+	}
+}
+
+// Pointing an established repository at a different remote abandons every
+// claim recorded on the one it leaves, so the allocator would begin reissuing
+// numbers that remote had already handed out. It is refused unless the caller
+// says explicitly that they mean it; coordinating again to the same remote
+// stays the idempotent no-op it always was.
+func TestAC181_IntegrationNegative_CoordinateRefusesToRepointAnEstablishedRemote(t *testing.T) {
+	root := unionRepository(t, "origin", "other")
+	if err := Coordinate(root, "origin", false, 30*time.Second); err != nil {
+		t.Fatal(err)
+	}
+
+	err := Coordinate(root, "other", false, 30*time.Second)
+	if err == nil {
+		t.Fatal("re-pointing an established repository was accepted")
+	}
+	for _, want := range []string{"already coordinates", "origin", "other", "--force"} {
+		if !strings.Contains(err.Error(), want) {
+			t.Fatalf("error = %q, want it to mention %q", err, want)
+		}
+	}
+	l, loadErr := ledger.Load(root)
+	if loadErr != nil {
+		t.Fatal(loadErr)
+	}
+	if c := l.Coordination(); c.Remote != "origin" {
+		t.Fatalf("refused re-pointing still changed the remote to %q", c.Remote)
+	}
+
+	if err := Coordinate(root, "origin", false, 30*time.Second); err != nil {
+		t.Fatalf("coordinating again to the same remote must stay a no-op: %v", err)
+	}
+	if err := Coordinate(root, "other", true, 30*time.Second); err != nil {
+		t.Fatalf("forced re-pointing: %v", err)
+	}
+	forced, loadErr := ledger.Load(root)
+	if loadErr != nil {
+		t.Fatal(loadErr)
+	}
+	if c := forced.Coordination(); c.Remote != "other" {
+		t.Fatalf("forced re-pointing left the remote at %q", c.Remote)
 	}
 }

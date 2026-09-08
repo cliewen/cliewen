@@ -1,6 +1,4 @@
 version: 2
-coordination:
-    mode: local
 events:
     - {id: AC-001, kind: numeric, state: retired, prefix: AC, component: "1"}
     - {id: AC-002, kind: numeric, state: retired, prefix: AC, component: "2"}
@@ -586,3 +584,5 @@ events:
     - {id: AC-179, kind: numeric, state: live, prefix: AC, component: "179"}
     - {id: AC-180, kind: numeric, state: live, prefix: AC, component: "180"}
     - {id: ADR-069, kind: numeric, state: live, prefix: ADR, component: "69"}
+    - {id: AC-181, kind: numeric, state: reserved, prefix: AC, component: "181"}
+    - {id: AC-181, kind: numeric, state: live, prefix: AC, component: "181"}

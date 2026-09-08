@@ -317,7 +317,7 @@ func withTimeout(timeout time.Duration, fn func(context.Context) error) error {
 
 // Coordinate initializes the remote journal and enables Git coordination in
 // the checked-in ledger only after the remote claim is durable.
-func Coordinate(root, remote string, timeout time.Duration) error {
+func Coordinate(root, remote string, force bool, timeout time.Duration) error {
 	return withTimeout(timeout, func(ctx context.Context) error {
 		l, err := ledger.Load(root)
 		if err != nil {
@@ -325,6 +325,13 @@ func Coordinate(root, remote string, timeout time.Duration) error {
 		}
 		if l.Version() != 2 {
 			return fmt.Errorf("identity ledger must be migrated to version 2 before coordination")
+		}
+		// Re-pointing an established repository abandons every claim recorded
+		// on the remote it leaves, so the allocator would start handing out
+		// numbers the old journal already issued. Coordinating again to the
+		// same remote stays the idempotent no-op it was.
+		if current := l.Coordination(); current.Mode == "git" && current.Remote != remote && !force {
+			return fmt.Errorf("this repository already coordinates identity allocation through %q; pointing it at %q abandons the claims recorded on %q and numbers already issued there could be handed out again — pass --force if that is what you mean", current.Remote, remote, current.Remote)
 		}
 		if !ledger.HasUnionMerge(root) {
 			return fmt.Errorf("identity ledger is missing %q; run clue migrate --apply before coordination", ledger.UnionAttribute)

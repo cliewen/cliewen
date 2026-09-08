@@ -65,6 +65,9 @@ type Coordination struct {
 	Remote string `yaml:"remote,omitempty"`
 }
 
+// eventFile is the read shape. It still understands an inline coordination
+// block so a ledger written before the split loads unchanged; ledgerFile is
+// what Save writes, and never emits one.
 type eventFile struct {
 	Version      int          `yaml:"version"`
 	Coordination Coordination `yaml:"coordination"`
@@ -72,10 +75,17 @@ type eventFile struct {
 	HighWater    []Entry      `yaml:"high-water,omitempty"`
 }
 
+type ledgerFile struct {
+	Version   int     `yaml:"version"`
+	Events    []Entry `yaml:"events"`
+	HighWater []Entry `yaml:"high-water,omitempty"`
+}
+
 // Ledger is the in-memory allocator and identity register: byID answers
 // "is this ID used" and counters records the greatest permanent claim for
 // each prefix, both in O(1) after one Load.
 type Ledger struct {
+	root      string
 	path      string
 	version   int
 	coord     Coordination
@@ -93,6 +103,18 @@ const DefaultPath = ".clue/id-ledger.yaml"
 
 const UnionAttribute = "/.clue/id-ledger.yaml merge=union"
 
+// CoordinationPath holds how this repository allocates — checkout-local, or
+// serialized through a named Git remote. It is deliberately not the ledger.
+// The ledger is merged with Git's union driver so parallel branches can each
+// append events without a conflict, and that driver keeps both sides of every
+// difference: two branches that each enabled coordination against their own
+// remote would silently produce a ledger claiming both, which no reading can
+// settle and which reaches main already broken. Kept in its own file, the same
+// disagreement is an ordinary merge conflict that Git raises at merge time,
+// for the person doing the merge to resolve before anything is committed
+// (ADR-069).
+const CoordinationPath = ".clue/id-coordination.yaml"
+
 // numericIDRe matches the canonical numeric-ID grammar used by native
 // namespaces and criteria: uppercase alphanumeric prefix segments, a decimal
 // component, and an optional lowercase suffix (ADR-037).
@@ -106,6 +128,7 @@ var (
 // yet is unaffected until the first allocation or backfill.
 func Load(root string) (*Ledger, error) {
 	l := &Ledger{
+		root:     root,
 		path:     filepath.Join(root, DefaultPath),
 		version:  2,
 		coord:    Coordination{Mode: "local"},
@@ -124,14 +147,12 @@ func Load(root string) (*Ledger, error) {
 		return nil, fmt.Errorf("%s: %w", l.path, err)
 	}
 	if f.Version == 2 {
-		if f.Coordination.Mode != "local" && f.Coordination.Mode != "git" {
-			return nil, fmt.Errorf("%s: coordination mode must be local or git", l.path)
-		}
-		if f.Coordination.Mode == "git" && f.Coordination.Remote == "" {
-			return nil, fmt.Errorf("%s: git coordination requires a remote", l.path)
+		coord, coordErr := resolveCoordination(root, f.Coordination)
+		if coordErr != nil {
+			return nil, coordErr
 		}
 		l.version = 2
-		l.coord = f.Coordination
+		l.coord = coord
 		l.damage = damage
 		for _, e := range f.HighWater {
 			if e.Kind != KindNumeric || e.State != StateReserved || !ValidNumericEntry(e) {
@@ -344,6 +365,59 @@ func describeRepetition(repeated map[string]bool) string {
 	return "the identity ledger repeats " + what + ", which is what Git's union merge leaves behind when two branches both change the top of the file; its entries are intact"
 }
 
+// resolveCoordination prefers the standalone file and falls back to a
+// coordination block still written inline in the ledger, which is how every
+// version-two ledger recorded it before the split. A ledger that carries
+// neither allocates locally, so a file written by Save — which never emits the
+// inline block — reads back correctly.
+func resolveCoordination(root string, inline Coordination) (Coordination, error) {
+	coord := inline
+	path := filepath.Join(root, filepath.FromSlash(CoordinationPath))
+	data, err := os.ReadFile(path)
+	switch {
+	case err == nil:
+		if bytes.Contains(data, []byte("<<<<<<<")) {
+			return Coordination{}, fmt.Errorf("%s: unresolved merge conflict — two branches chose different allocation settings, and Git is asking which the team meant; keep one and remove the markers", path)
+		}
+		var fromFile Coordination
+		if unmarshalErr := yaml.Unmarshal(data, &fromFile); unmarshalErr != nil {
+			return Coordination{}, fmt.Errorf("%s: %w", path, unmarshalErr)
+		}
+		coord = fromFile
+	case !os.IsNotExist(err):
+		return Coordination{}, err
+	}
+	if coord.Mode == "" {
+		coord.Mode = "local"
+	}
+	if coord.Mode != "local" && coord.Mode != "git" {
+		return Coordination{}, fmt.Errorf("%s: coordination mode must be local or git", path)
+	}
+	if coord.Mode == "git" && coord.Remote == "" {
+		return Coordination{}, fmt.Errorf("%s: git coordination requires a remote", path)
+	}
+	return coord, nil
+}
+
+// saveCoordination writes the file only for a coordinated repository. Local
+// allocation is the absence of the file rather than a file saying so, which
+// keeps a repository that never coordinates free of a setting it does not
+// have, and removes the file when a repository stops coordinating.
+func (l *Ledger) saveCoordination() error {
+	path := filepath.Join(l.root, filepath.FromSlash(CoordinationPath))
+	if l.coord.Mode != "git" {
+		if err := os.Remove(path); err != nil && !os.IsNotExist(err) {
+			return err
+		}
+		return nil
+	}
+	data, err := yaml.Marshal(l.coord)
+	if err != nil {
+		return err
+	}
+	return writeFileAtomically(path, data)
+}
+
 func cloneEntry(e Entry) Entry {
 	if e.Component != nil {
 		e.Component = new(big.Int).Set(e.Component)
@@ -466,7 +540,7 @@ func declaresUnionMerge(data []byte) bool {
 // plan needs to compare a proposed write against what is already there.
 func (l *Ledger) Bytes() ([]byte, error) {
 	if l.version == 2 {
-		f := eventFile{Version: 2, Coordination: l.coord, Events: l.events, HighWater: l.highWater}
+		f := ledgerFile{Version: 2, Events: l.events, HighWater: l.highWater}
 		var node yaml.Node
 		if err := node.Encode(f); err != nil {
 			return nil, err
@@ -512,14 +586,23 @@ func setEventFlowStyle(node *yaml.Node) {
 
 // Save persists the ledger atomically, creating .clue/ if needed.
 func (l *Ledger) Save() error {
-	if err := os.MkdirAll(filepath.Dir(l.path), 0o755); err != nil {
-		return err
-	}
 	data, err := l.Bytes()
 	if err != nil {
 		return err
 	}
-	tmp, err := os.CreateTemp(filepath.Dir(l.path), ".id-ledger-*.tmp")
+	if err := writeFileAtomically(l.path, data); err != nil {
+		return err
+	}
+	return l.saveCoordination()
+}
+
+// writeFileAtomically replaces path through a temporary file in the same
+// directory, so a reader never observes a half-written registry.
+func writeFileAtomically(path string, data []byte) error {
+	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+		return err
+	}
+	tmp, err := os.CreateTemp(filepath.Dir(path), "."+filepath.Base(path)+"-*.tmp")
 	if err != nil {
 		return err
 	}
@@ -536,7 +619,7 @@ func (l *Ledger) Save() error {
 	if err := tmp.Close(); err != nil {
 		return err
 	}
-	return os.Rename(tmpName, l.path)
+	return os.Rename(tmpName, path)
 }
 
 // Damage describes any repetition Load had to reconcile in the file it read,

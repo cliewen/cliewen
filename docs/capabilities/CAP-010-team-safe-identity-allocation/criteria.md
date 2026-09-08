@@ -82,10 +82,19 @@ Feature: Team-safe identity allocation
   @AC-179
   Scenario: A ledger combined by Git's union merge recovers without losing an identity
     Test-type: Unit
-    Given Git's union merge combined two branches that each changed the identity ledger's coordination settings, duplicating the lines that differ
+    Given Git's union merge combined two branches that both changed the identity ledger, duplicating the lines that differ
     When a command reads the ledger
     Then every identity survives at its furthest-along state and the next allocation is past all of them
     And the command names what combined the file and how to rewrite it instead of reporting a parse failure
     And saving the ledger writes it back whole, so a command that allocates also repairs
-    But a duplicated setting whose two values disagree is refused for a person to decide, naming both values
+    But a duplicated setting whose two values disagree, in a ledger still carrying its settings inline, is refused for a person to decide, naming both values
+
+  @AC-181
+  Scenario: Allocation settings live where a disagreement is an ordinary merge conflict
+    Test-type: Integration
+    Given two branches each enabled coordination against a different Git remote
+    When the branches are merged
+    Then Git raises a conflict on the coordination file for the person merging to resolve, and the union-merged ledger beside it still combines cleanly
+    And an unresolved conflict left in that file is reported as one rather than as a parse failure
+    But pointing an already-coordinated repository at a different remote is refused unless forced, because it abandons the claims recorded on the remote it leaves
 ```

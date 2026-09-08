@@ -449,8 +449,8 @@ func TestAC179_UnitPositive_SavingARecoveredLedgerRewritesItClean(t *testing.T) 
 	if got := strings.Count(string(data), "version: 2"); got != 1 {
 		t.Fatalf("repaired ledger declares version %d times:\n%s", got, data)
 	}
-	if got := strings.Count(string(data), "coordination:"); got != 1 {
-		t.Fatalf("repaired ledger declares coordination %d times:\n%s", got, data)
+	if strings.Contains(string(data), "coordination:") {
+		t.Fatalf("the ledger must not carry coordination settings; the union driver is why they live apart:\n%s", data)
 	}
 	reloaded, err := Load(root)
 	if err != nil {
@@ -607,5 +607,101 @@ func TestAC179_UnitPositive_DuplicateCoordinationKeyWithOneValueReconciles(t *te
 	}
 	if c := l.Coordination(); c.Mode != "git" || c.Remote != "origin" {
 		t.Fatalf("coordination = %+v, want git through origin", c)
+	}
+}
+
+// Coordination lives beside the ledger, not in it, so the union driver that
+// combines events can never combine two teams' allocation settings.
+func TestAC181_IntegrationPositive_CoordinationIsStoredOutsideTheMergedLedger(t *testing.T) {
+	root := t.TempDir()
+	l, err := Load(root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := l.SetGitCoordination("origin"); err != nil {
+		t.Fatal(err)
+	}
+	l.MarkLive("CH-001")
+	if err := l.Save(); err != nil {
+		t.Fatal(err)
+	}
+
+	ledgerBytes, err := os.ReadFile(filepath.Join(root, DefaultPath))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if strings.Contains(string(ledgerBytes), "coordination") || strings.Contains(string(ledgerBytes), "origin") {
+		t.Fatalf("the union-merged ledger must carry no allocation settings:\n%s", ledgerBytes)
+	}
+	coordBytes, err := os.ReadFile(filepath.Join(root, filepath.FromSlash(CoordinationPath)))
+	if err != nil {
+		t.Fatalf("coordination file not written: %v", err)
+	}
+	if !strings.Contains(string(coordBytes), "remote: origin") {
+		t.Fatalf("coordination file = %q", coordBytes)
+	}
+
+	reloaded, err := Load(root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if c := reloaded.Coordination(); c.Mode != "git" || c.Remote != "origin" {
+		t.Fatalf("reloaded coordination = %+v", c)
+	}
+}
+
+// A ledger written before the split still carries its settings inline, and
+// must keep working; saving it moves them out.
+func TestAC181_IntegrationPositive_InlineCoordinationStillLoadsAndMovesOutOnSave(t *testing.T) {
+	root := t.TempDir()
+	writeLedger(t, root, "version: 2\ncoordination:\n    mode: git\n    remote: upstream\nevents:\n    - {id: CH-001, kind: numeric, state: live, prefix: CH, component: \"1\"}\n")
+
+	l, err := Load(root)
+	if err != nil {
+		t.Fatalf("a ledger with inline coordination must still load: %v", err)
+	}
+	if c := l.Coordination(); c.Mode != "git" || c.Remote != "upstream" {
+		t.Fatalf("inline coordination = %+v", c)
+	}
+	if err := l.Save(); err != nil {
+		t.Fatal(err)
+	}
+	ledgerBytes, err := os.ReadFile(filepath.Join(root, DefaultPath))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if strings.Contains(string(ledgerBytes), "coordination") {
+		t.Fatalf("saving did not move the settings out of the ledger:\n%s", ledgerBytes)
+	}
+	reloaded, err := Load(root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if c := reloaded.Coordination(); c.Mode != "git" || c.Remote != "upstream" {
+		t.Fatalf("coordination lost in the move: %+v", c)
+	}
+}
+
+// Local allocation is the absence of the file, so a repository that stops
+// coordinating does not keep a stale setting saying it still does.
+func TestAC181_IntegrationNegative_LocalModeKeepsNoCoordinationFile(t *testing.T) {
+	root := t.TempDir()
+	l, err := Load(root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	l.MarkLive("CH-001")
+	if err := l.Save(); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := os.Stat(filepath.Join(root, filepath.FromSlash(CoordinationPath))); !os.IsNotExist(err) {
+		t.Fatalf("a local-mode repository wrote a coordination file (%v)", err)
+	}
+	reloaded, err := Load(root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if c := reloaded.Coordination(); c.Mode != "local" {
+		t.Fatalf("coordination = %+v, want local", c)
 	}
 }

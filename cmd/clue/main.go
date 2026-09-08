@@ -70,7 +70,7 @@ Usage:
   clue init [path]
   clue scaffold [path]
   clue context [--depth=<n>|all] [--stats] <id> [path]
-  clue id coordinate [--remote=<name>] [--timeout=<duration>] [path]
+  clue id coordinate [--remote=<name>] [--force] [--timeout=<duration>] [path]
   clue id next [--count=<n>] [--remote=<name>] [--timeout=<duration>] <prefix> [path]
   clue id sync [--remote=<name>] [--timeout=<duration>] [path]
   clue id live <id> [path]
@@ -517,6 +517,7 @@ func runIDCoordinate(args []string, out, errOut io.Writer) int {
 	fs.SetOutput(errOut)
 	remote := fs.String("remote", "origin", "Git remote holding the allocator branch")
 	timeout := fs.Duration("timeout", 30*time.Second, "overall coordination timeout")
+	force := fs.Bool("force", false, "re-point an already-coordinated repository at a different remote")
 	if err := fs.Parse(args); err != nil {
 		return 2
 	}
@@ -533,11 +534,12 @@ func runIDCoordinate(args []string, out, errOut io.Writer) int {
 		return 2
 	}
 	noteLedgerDamage(root, "coordinate", errOut)
-	if err := idalloc.Coordinate(root, *remote, *timeout); err != nil {
+	if err := idalloc.Coordinate(root, *remote, *force, *timeout); err != nil {
 		fmt.Fprintf(errOut, "clue id coordinate: %v\n", err)
 		return 2
 	}
 	fmt.Fprintf(out, "identity allocation coordinated through %s:%s\n", *remote, idalloc.Ref)
+	fmt.Fprintf(out, "commit %s and %s together, then merge them before contributors branch\n", ledger.DefaultPath, ledger.CoordinationPath)
 	fmt.Fprintln(out, "protect the allocator branch from force-push and deletion while allowing ordinary fast-forward pushes")
 	return 0
 }
