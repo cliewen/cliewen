@@ -421,6 +421,36 @@ func (l *Ledger) Claims() []Entry {
 	return out
 }
 
+// HighWater returns migrated numeric allocator high-water claims that have no
+// corresponding lifecycle identity event, such as a legacy counter whose
+// earlier artifact was removed. They are allocator metadata, not artifacts.
+func (l *Ledger) HighWater() []Entry {
+	out := make([]Entry, len(l.highWater))
+	for i, e := range l.highWater {
+		out[i] = cloneEntry(e)
+	}
+	return out
+}
+
+// MergeHighWater imports allocator metadata without creating lifecycle
+// identities. It advances the local numeric boundary monotonically and keeps
+// an event only when that boundary was previously absent locally.
+func (l *Ledger) MergeHighWater(highWater []Entry) error {
+	for _, e := range highWater {
+		if e.Kind != KindNumeric || e.State != StateReserved || !ValidNumericEntry(e) {
+			return fmt.Errorf("high-water claim %s is not a valid numeric identity", e.ID)
+		}
+		if current, ok := l.counters[e.Prefix]; ok && current.Cmp(e.Component) >= 0 {
+			continue
+		}
+		l.counters[e.Prefix] = new(big.Int).Set(e.Component)
+		if l.version == 2 {
+			l.highWater = append(l.highWater, cloneEntry(e))
+		}
+	}
+	return nil
+}
+
 // MergeClaims adds previously unseen remote numeric claims as reservations.
 // Existing lifecycle state is never downgraded.
 func (l *Ledger) MergeClaims(claims []Entry) error {

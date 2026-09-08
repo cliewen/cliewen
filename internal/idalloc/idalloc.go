@@ -24,15 +24,19 @@ import (
 const Ref = "refs/heads/clue/id-allocator"
 
 type claimFile struct {
-	Version int            `yaml:"version"`
-	Claims  []ledger.Entry `yaml:"claims"`
+	Version   int            `yaml:"version"`
+	Claims    []ledger.Entry `yaml:"claims"`
+	HighWater []ledger.Entry `yaml:"high-water,omitempty"`
 }
 
 type state struct {
-	byID map[string]ledger.Entry
+	byID      map[string]ledger.Entry
+	highWater map[string]*big.Int
 }
 
-func newState() *state { return &state{byID: map[string]ledger.Entry{}} }
+func newState() *state {
+	return &state{byID: map[string]ledger.Entry{}, highWater: map[string]*big.Int{}}
+}
 
 func (s *state) merge(claims []ledger.Entry) error {
 	for _, e := range claims {
@@ -47,6 +51,21 @@ func (s *state) merge(claims []ledger.Entry) error {
 			continue
 		}
 		s.byID[e.ID] = e
+		if current, ok := s.highWater[e.Prefix]; !ok || e.Component.Cmp(current) > 0 {
+			s.highWater[e.Prefix] = new(big.Int).Set(e.Component)
+		}
+	}
+	return nil
+}
+
+func (s *state) mergeHighWater(highWater []ledger.Entry) error {
+	for _, e := range highWater {
+		if e.Kind != ledger.KindNumeric || e.State != ledger.StateReserved || !ledger.ValidNumericEntry(e) {
+			return fmt.Errorf("allocator high-water claim %s is not a valid numeric identity", e.ID)
+		}
+		if current, ok := s.highWater[e.Prefix]; !ok || e.Component.Cmp(current) > 0 {
+			s.highWater[e.Prefix] = new(big.Int).Set(e.Component)
+		}
 	}
 	return nil
 }
@@ -72,6 +91,9 @@ func (s *state) next(prefix string, count int) ([]string, error) {
 		return nil, fmt.Errorf("count must be positive")
 	}
 	n := new(big.Int)
+	if highWater, ok := s.highWater[prefix]; ok {
+		n.Set(highWater)
+	}
 	for _, e := range s.byID {
 		if e.Prefix == prefix && e.Component.Cmp(n) > 0 {
 			n.Set(e.Component)
@@ -92,7 +114,42 @@ func (s *state) next(prefix string, count int) ([]string, error) {
 }
 
 func marshalState(s *state) ([]byte, error) {
-	return yaml.Marshal(claimFile{Version: 1, Claims: s.claims()})
+	return yaml.Marshal(claimFile{Version: 1, Claims: s.claims(), HighWater: s.highWaterClaims()})
+}
+
+func (s *state) highWaterClaims() []ledger.Entry {
+	prefixes := make([]string, 0, len(s.highWater))
+	for prefix := range s.highWater {
+		prefixes = append(prefixes, prefix)
+	}
+	sort.Strings(prefixes)
+	out := make([]ledger.Entry, 0, len(prefixes))
+	for _, prefix := range prefixes {
+		component := s.highWater[prefix]
+		out = append(out, ledger.Entry{ID: fmt.Sprintf("%s-%03d", prefix, component), Kind: ledger.KindNumeric, State: ledger.StateReserved, Prefix: prefix, Component: new(big.Int).Set(component)})
+	}
+	return out
+}
+
+func sameHighWater(before map[string]*big.Int, after map[string]*big.Int) bool {
+	if len(before) != len(after) {
+		return false
+	}
+	for prefix, component := range before {
+		current, ok := after[prefix]
+		if !ok || current.Cmp(component) != 0 {
+			return false
+		}
+	}
+	return true
+}
+
+func copyHighWater(values map[string]*big.Int) map[string]*big.Int {
+	out := make(map[string]*big.Int, len(values))
+	for prefix, component := range values {
+		out[prefix] = new(big.Int).Set(component)
+	}
+	return out
 }
 
 func parseState(data []byte) (*state, error) {
@@ -104,6 +161,9 @@ func parseState(data []byte) (*state, error) {
 		return nil, fmt.Errorf("allocator protocol version must be 1, not %d", f.Version)
 	}
 	s := newState()
+	if err := s.mergeHighWater(f.HighWater); err != nil {
+		return nil, err
+	}
 	if err := s.merge(f.Claims); err != nil {
 		return nil, err
 	}
@@ -284,10 +344,14 @@ func Coordinate(root, remote string, timeout time.Duration) error {
 				oid = fetched
 			}
 			before := len(s.byID)
+			beforeHighWater := copyHighWater(s.highWater)
 			if err := s.merge(l.Claims()); err != nil {
 				return err
 			}
-			if oid == "" || len(s.byID) != before {
+			if err := s.mergeHighWater(l.HighWater()); err != nil {
+				return err
+			}
+			if oid == "" || len(s.byID) != before || !sameHighWater(beforeHighWater, s.highWater) {
 				newOID, err := commit(ctx, root, oid, "clue: initialize identity allocator", s)
 				if err != nil {
 					return err
@@ -299,6 +363,9 @@ func Coordinate(root, remote string, timeout time.Duration) error {
 					}
 					return err
 				}
+			}
+			if err := l.MergeHighWater(s.highWaterClaims()); err != nil {
+				return err
 			}
 			if err := l.MergeClaims(s.claims()); err != nil {
 				return err
@@ -341,6 +408,9 @@ func Sync(root, remoteOverride string, timeout time.Duration) error {
 		if err := l.MergeClaims(s.claims()); err != nil {
 			return err
 		}
+		if err := l.MergeHighWater(s.highWaterClaims()); err != nil {
+			return err
+		}
 		return l.Save()
 	})
 }
@@ -380,6 +450,9 @@ func allocate(root, prefix, remoteOverride string, count int, timeout time.Durat
 			}
 			oid = fetched
 			if remoteErr = s.merge(l.Claims()); remoteErr != nil {
+				return remoteErr
+			}
+			if remoteErr = s.mergeHighWater(l.HighWater()); remoteErr != nil {
 				return remoteErr
 			}
 			candidateIDs, remoteErr := s.next(prefix, count)

@@ -241,6 +241,55 @@ func TestAC173_IntegrationPositive_BatchAndReadOnlySync(t *testing.T) {
 	}
 }
 
+func TestAC176_IntegrationPositive_MigratedHighWaterSurvivesCoordination(t *testing.T) {
+	base := t.TempDir()
+	remote := filepath.Join(base, "remote.git")
+	root := filepath.Join(base, "repo")
+	if err := os.MkdirAll(root, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	git(t, base, "init", "--bare", remote)
+	git(t, root, "init", "-b", "main")
+	git(t, root, "config", "user.name", "Test User")
+	git(t, root, "config", "user.email", "test@example.com")
+	if err := os.MkdirAll(filepath.Join(root, ".clue"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	legacy := "counters:\n    CH: \"9\"\nentries:\n    - {id: CH-007, kind: numeric, state: retired, prefix: CH, component: \"7\"}\n"
+	if err := os.WriteFile(filepath.Join(root, ledger.DefaultPath), []byte(legacy), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(root, ".gitattributes"), []byte(ledger.UnionAttribute+"\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	git(t, root, "add", ".")
+	git(t, root, "commit", "-m", "legacy ledger")
+	git(t, root, "remote", "add", "origin", remote)
+	git(t, root, "push", "-u", "origin", "main")
+	git(t, remote, "symbolic-ref", "HEAD", "refs/heads/main")
+	l, err := ledger.Load(root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	l.ConvertV2()
+	if err := l.Save(); err != nil {
+		t.Fatal(err)
+	}
+	git(t, root, "add", ledger.DefaultPath)
+	git(t, root, "commit", "-m", "migrate ledger")
+	git(t, root, "push", "origin", "main")
+	if err := Coordinate(root, "origin", 30*time.Second); err != nil {
+		t.Fatal(err)
+	}
+	git(t, root, "add", ledger.DefaultPath)
+	git(t, root, "commit", "-m", "coordinate")
+	git(t, root, "push", "origin", "main")
+	ids, err := Allocate(root, "CH", "", 1, 30*time.Second)
+	if err != nil || strings.Join(ids, ",") != "CH-010" {
+		t.Fatalf("coordinated allocation after migration = %v, %v", ids, err)
+	}
+}
+
 func TestAC173_IntegrationNegative_SyncRefusesAnUncoordinatedLedger(t *testing.T) {
 	root := t.TempDir()
 	l, err := ledger.Load(root)
