@@ -221,6 +221,12 @@ func (l *Ledger) foldEvent(e Entry) error {
 		}
 	} else if e.Kind != KindOpaque || e.Component != nil || e.Prefix != "" {
 		return fmt.Errorf("entry %s has invalid opaque identity fields", e.ID)
+	} else if m := numericIDRe.FindStringSubmatch(e.ID); m != nil {
+		if component, err := parseComponent(m[2]); err == nil {
+			if current, ok := l.counters[m[1]]; !ok || component.Cmp(current) > 0 {
+				l.counters[m[1]] = component
+			}
+		}
 	}
 	if current, ok := l.byID[e.ID]; ok {
 		if !sameIdentity(*current, e) {
