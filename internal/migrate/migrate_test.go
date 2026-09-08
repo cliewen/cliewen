@@ -1365,9 +1365,16 @@ func TestAC176_UnitPositive_MigratePreservesVersionOneLedgerMeaning(t *testing.T
 	if err := os.MkdirAll(filepath.Join(root, ".clue"), 0o755); err != nil {
 		t.Fatal(err)
 	}
-	legacy := "counters:\n    CH: \"9\"\n    AC: \"999999999999999999999999\"\nentries:\n    - id: CH-007\n      kind: numeric\n      state: retired\n      prefix: CH\n      component: \"7\"\n    - id: CH-009\n      kind: opaque\n      state: retired\n      source-revision: opaque-revision\n      source-location: opaque.md\n    - id: imported-token\n      kind: opaque\n      state: live\n      source-revision: abc\n      source-location: old/spec.md\n"
+	legacy := "counters:\n    CH: \"9\"\n    AC: \"999999999999999999999999\"\nentries:\n    - id: CH-007\n      kind: numeric\n      state: retired\n      prefix: CH\n      component: \"7\"\n    - id: CH-009\n      kind: opaque\n      state: retired\n      source-revision: opaque-revision\n      source-location: opaque.md\n    - id: CH-999\n      kind: opaque\n      state: reserved\n      source-revision: distant-revision\n      source-location: distant.md\n    - id: imported-token\n      kind: opaque\n      state: live\n      source-revision: abc\n      source-location: old/spec.md\n"
 	if err := os.WriteFile(filepath.Join(root, ledger.DefaultPath), []byte(legacy), 0o644); err != nil {
 		t.Fatal(err)
+	}
+	legacyLedger, err := ledger.Load(root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if id, err := legacyLedger.NextNumeric("CH"); err != nil || id != "CH-010" {
+		t.Fatalf("next CH before migration = %q, %v", id, err)
 	}
 	plan, err := Plan(root, Options{ReversalCost: "low"})
 	if err != nil {
@@ -1400,6 +1407,9 @@ func TestAC176_UnitPositive_MigratePreservesVersionOneLedgerMeaning(t *testing.T
 	}
 	if opaque, ok := convertedLedger.Lookup("CH-009"); !ok || opaque.Kind != ledger.KindOpaque || opaque.State != ledger.StateRetired || opaque.SourceRevision != "opaque-revision" {
 		t.Fatalf("numeric-shaped opaque identity after migration = %+v, ok=%v", opaque, ok)
+	}
+	if distant, ok := convertedLedger.Lookup("CH-999"); !ok || distant.Kind != ledger.KindOpaque || distant.SourceRevision != "distant-revision" {
+		t.Fatalf("distant opaque identity after migration = %+v, ok=%v", distant, ok)
 	}
 	if id, err := convertedLedger.NextNumeric("CH"); err != nil || id != "CH-010" {
 		t.Fatalf("next CH after high-water migration = %q, %v", id, err)
