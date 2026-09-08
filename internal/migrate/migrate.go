@@ -653,6 +653,13 @@ func planLedgerEvents(root string, result *MigrationPlan) {
 				after, bytesErr := l.Bytes()
 				if bytesErr == nil {
 					result.Changes = append(result.Changes, Change{Path: ledger.DefaultPath, Migration: MigrationLedgerEvents, Description: description, Existed: true, Before: before, After: after})
+					// The rewritten ledger no longer carries allocation
+					// settings, so a repository whose settings were still
+					// inline has to receive them in their own file by the same
+					// plan. Without this the migration silently returns a
+					// coordinated team to local allocation, which is the
+					// collision the coordination existed to prevent.
+					planCoordinationSplit(root, l, result)
 				}
 			}
 		}
@@ -668,6 +675,32 @@ func planLedgerEvents(root string, result *MigrationPlan) {
 		return
 	}
 	result.Changes = append(result.Changes, Change{Path: ".gitattributes", Migration: MigrationLedgerEvents, Description: "add the identity ledger union merge rule", Existed: existed, Before: before, After: after})
+}
+
+// planCoordinationSplit writes the allocation settings beside a ledger that is
+// being rewritten, when the repository is coordinated and has no settings file
+// yet. A local-mode repository needs none: the absence of the file is what
+// local means.
+func planCoordinationSplit(root string, l *ledger.Ledger, result *MigrationPlan) {
+	coord := l.Coordination()
+	if coord.Mode != "git" {
+		return
+	}
+	path := filepath.Join(root, filepath.FromSlash(ledger.CoordinationPath))
+	if _, err := os.Stat(path); err == nil {
+		return
+	}
+	after, err := ledger.CoordinationBytes(coord)
+	if err != nil {
+		return
+	}
+	result.Changes = append(result.Changes, Change{
+		Path:        ledger.CoordinationPath,
+		Migration:   MigrationLedgerEvents,
+		Description: "record identity coordination beside the ledger, where a merge cannot combine two teams' settings",
+		Existed:     false,
+		After:       after,
+	})
 }
 
 // planRoleMarker reports an undeclared repository and writes nothing.

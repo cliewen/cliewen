@@ -399,6 +399,11 @@ func resolveCoordination(root string, inline Coordination) (Coordination, error)
 	return coord, nil
 }
 
+// CoordinationBytes renders allocation settings as the file's exact contents,
+// so a caller that writes the ledger itself — migration plans a change per
+// path rather than saving a Ledger — can carry the settings across with it.
+func CoordinationBytes(c Coordination) ([]byte, error) { return yaml.Marshal(c) }
+
 // saveCoordination writes the file only for a coordinated repository. Local
 // allocation is the absence of the file rather than a file saying so, which
 // keeps a repository that never coordinates free of a setting it does not
@@ -411,7 +416,7 @@ func (l *Ledger) saveCoordination() error {
 		}
 		return nil
 	}
-	data, err := yaml.Marshal(l.coord)
+	data, err := CoordinationBytes(l.coord)
 	if err != nil {
 		return err
 	}

@@ -1531,3 +1531,59 @@ func TestAC179_UnitPositive_MigratePlansTheRepairOfAUnionMergedLedger(t *testing
 	}
 	t.Fatalf("no repair planned for a union-merged ledger; changes: %v", plan.Changes)
 }
+
+// Migration plans a change per path rather than saving a Ledger, so a rewritten
+// ledger drops the settings it used to carry inline unless the same plan writes
+// them out. Without this, migrating a coordinated repository silently returned
+// it to local allocation — the collision the coordination existed to prevent.
+func TestAC181_IntegrationPositive_MigrationCarriesCoordinationOutOfTheLedger(t *testing.T) {
+	root := migrationFixture(t, "")
+	if err := os.MkdirAll(filepath.Join(root, ".clue"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	half := "version: 2\ncoordination:\n    mode: git\n    remote: origin\nevents:\n    - {id: CH-001, kind: numeric, state: live, prefix: CH, component: \"1\"}\n"
+	if err := os.WriteFile(filepath.Join(root, ledger.DefaultPath), []byte(half+half), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	plan, err := Plan(root, Options{ReversalCost: "low"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	var coordination *Change
+	for i := range plan.Changes {
+		if plan.Changes[i].Path == ledger.CoordinationPath {
+			coordination = &plan.Changes[i]
+		}
+	}
+	if coordination == nil {
+		t.Fatalf("no coordination change planned; migrating would drop it:\n%v", plan.Changes)
+	}
+	if !strings.Contains(string(coordination.After), "remote: origin") {
+		t.Fatalf("planned coordination = %q", coordination.After)
+	}
+	if coordination.Existed {
+		t.Fatal("coordination file reported as pre-existing")
+	}
+}
+
+// A repository allocating locally needs no settings file: the absence of one is
+// what local means, so migration must not invent it.
+func TestAC181_IntegrationNegative_LocalMigrationPlansNoCoordinationFile(t *testing.T) {
+	root := migrationFixture(t, "")
+	if err := os.MkdirAll(filepath.Join(root, ".clue"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	half := "version: 2\ncoordination:\n    mode: local\nevents:\n    - {id: CH-001, kind: numeric, state: live, prefix: CH, component: \"1\"}\n"
+	if err := os.WriteFile(filepath.Join(root, ledger.DefaultPath), []byte(half+half), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	plan, err := Plan(root, Options{ReversalCost: "low"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, change := range plan.Changes {
+		if change.Path == ledger.CoordinationPath {
+			t.Fatalf("local-mode migration planned a coordination file: %q", change.After)
+		}
+	}
+}
