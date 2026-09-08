@@ -347,10 +347,35 @@ func (l *Ledger) ConvertV2() {
 	if l.version == 2 {
 		return
 	}
+	entries := l.Entries()
+	highWater := make(map[string]*big.Int, len(l.counters))
+	for prefix, component := range l.counters {
+		highWater[prefix] = new(big.Int).Set(component)
+	}
 	l.version = 2
 	l.coord = Coordination{Mode: "local"}
 	l.events = nil
-	for _, e := range l.Entries() {
+	l.counters = map[string]*big.Int{}
+	l.byID = map[string]*Entry{}
+	for _, e := range entries {
+		_ = l.foldEvent(e)
+		l.events = append(l.events, cloneEntry(e))
+	}
+	prefixes := make([]string, 0, len(highWater))
+	for prefix := range highWater {
+		prefixes = append(prefixes, prefix)
+	}
+	sort.Strings(prefixes)
+	for _, prefix := range prefixes {
+		component := highWater[prefix]
+		if component.Sign() == 0 || !ValidNumericPrefix(prefix) {
+			continue
+		}
+		if current, ok := l.counters[prefix]; ok && current.Cmp(component) >= 0 {
+			continue
+		}
+		e := Entry{ID: fmt.Sprintf("%s-%03d", prefix, component), Kind: KindNumeric, State: StateReserved, Prefix: prefix, Component: new(big.Int).Set(component)}
+		_ = l.foldEvent(e)
 		l.events = append(l.events, cloneEntry(e))
 	}
 }

@@ -732,12 +732,14 @@ func TestAC174_UnitPositive_IDNextReservesABatchAndWarnsInLocalMode(t *testing.T
 }
 
 func TestAC174_UnitNegative_IDNextRejectsNonPositiveBatch(t *testing.T) {
-	var out, errOut strings.Builder
-	if code := runID([]string{"next", "--count=0", "CH"}, &out, &errOut); code != 2 {
-		t.Fatalf("exit code=%d, want 2", code)
-	}
-	if !strings.Contains(errOut.String(), "count must be positive") {
-		t.Fatalf("error = %q", errOut.String())
+	for _, count := range []string{"0", "-1"} {
+		var out, errOut strings.Builder
+		if code := runID([]string{"next", "--count=" + count, "CH"}, &out, &errOut); code != 2 {
+			t.Fatalf("count=%s exit code=%d, want 2", count, code)
+		}
+		if !strings.Contains(errOut.String(), "count must be positive") {
+			t.Fatalf("count=%s error = %q", count, errOut.String())
+		}
 	}
 }
 

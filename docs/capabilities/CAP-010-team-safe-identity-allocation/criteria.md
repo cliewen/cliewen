@@ -72,10 +72,10 @@ Feature: Team-safe identity allocation
     But migration leaves coordination local until the team explicitly enables Git coordination
 
   @AC-177
-  Scenario: A remote claim remains recoverable after a local save failure
+  Scenario: A remote claim remains singular and recoverable after local uncertainty
     Test-type: Integration (single-direction)
     Given the allocator remote accepts a new identity claim
-    When the checkout cannot save that claim to its local ledger
+    When the client loses the push response or cannot save the claim to its local ledger
     Then the command reports the remotely reserved identity
     And clue id sync recovers the reservation without allocating another number
 ```

@@ -1,6 +1,7 @@
 package idalloc
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"os/exec"
@@ -44,6 +45,9 @@ func coordinatedRepository(t *testing.T) (string, string) {
 	if err := l.Save(); err != nil {
 		t.Fatal(err)
 	}
+	if err := os.WriteFile(filepath.Join(root, ".gitattributes"), []byte(ledger.UnionAttribute+"\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
 	git(t, root, "add", ".")
 	git(t, root, "commit", "-m", "seed")
 	git(t, root, "remote", "add", "origin", remote)
@@ -56,6 +60,20 @@ func coordinatedRepository(t *testing.T) (string, string) {
 	git(t, root, "commit", "-m", "coordinate")
 	git(t, root, "push", "origin", "main")
 	return root, remote
+}
+
+func TestSanity_CoordinateRequiresLedgerUnionMergeRule(t *testing.T) {
+	root := t.TempDir()
+	l, err := ledger.Load(root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := l.Save(); err != nil {
+		t.Fatal(err)
+	}
+	if err := Coordinate(root, "origin", time.Second); err == nil || !strings.Contains(err.Error(), "merge=union") {
+		t.Fatalf("Coordinate error = %v", err)
+	}
 }
 
 func TestAC171_IntegrationPositive_ConcurrentClonesReceiveUniqueSequentialIDs(t *testing.T) {
@@ -103,6 +121,9 @@ func TestAC172_IntegrationPositive_ConcurrentWorktreesShareTheRemoteCAS(t *testi
 	worktrees := []string{filepath.Join(t.TempDir(), "one"), filepath.Join(t.TempDir(), "two")}
 	for i, worktree := range worktrees {
 		git(t, root, "worktree", "add", "--quiet", "-b", fmt.Sprintf("worktree-%d", i), worktree, "main")
+		if err := os.WriteFile(filepath.Join(worktree, "worktree-marker"), []byte(fmt.Sprintf("marker-%d", i)), 0o644); err != nil {
+			t.Fatal(err)
+		}
 	}
 	var wg sync.WaitGroup
 	results := make(chan string, len(worktrees))
@@ -132,6 +153,12 @@ func TestAC172_IntegrationPositive_ConcurrentWorktreesShareTheRemoteCAS(t *testi
 	sort.Strings(got)
 	if strings.Join(got, ",") != "CH-171,CH-172" {
 		t.Fatalf("worktree allocations = %v", got)
+	}
+	for i, worktree := range worktrees {
+		marker, err := os.ReadFile(filepath.Join(worktree, "worktree-marker"))
+		if err != nil || string(marker) != fmt.Sprintf("marker-%d", i) {
+			t.Fatalf("worktree %d marker changed: %q, %v", i, marker, err)
+		}
 	}
 }
 
@@ -196,8 +223,12 @@ func TestAC173_IntegrationPositive_BatchAndReadOnlySync(t *testing.T) {
 	}
 	reader := filepath.Join(t.TempDir(), "reader")
 	git(t, filepath.Dir(reader), "clone", "--quiet", remote, reader)
+	remoteBefore := git(t, remote, "rev-parse", Ref)
 	if err := Sync(reader, "", 30*time.Second); err != nil {
 		t.Fatal(err)
+	}
+	if remoteAfter := git(t, remote, "rev-parse", Ref); remoteAfter != remoteBefore {
+		t.Fatalf("sync changed allocator head from %s to %s", remoteBefore, remoteAfter)
 	}
 	l, err := ledger.Load(reader)
 	if err != nil {
@@ -272,7 +303,7 @@ func TestAC177_IntegrationPositive_SyncRecoversClaimAfterLocalSaveFailure(t *tes
 	root, _ := coordinatedRepository(t)
 	ids, err := allocate(root, "CH", "", 1, 30*time.Second, func(*ledger.Ledger) error {
 		return fmt.Errorf("injected local save failure")
-	})
+	}, push)
 	if err == nil || strings.Join(ids, ",") != "CH-171" {
 		t.Fatalf("Allocate ids=%v error=%v", ids, err)
 	}
@@ -292,6 +323,29 @@ func TestAC177_IntegrationPositive_SyncRecoversClaimAfterLocalSaveFailure(t *tes
 	}
 	if e, ok := after.Lookup("CH-171"); !ok || e.State != ledger.StateReserved {
 		t.Fatalf("recovered claim = %+v, ok=%v", e, ok)
+	}
+}
+
+func TestAC177_IntegrationPositive_AmbiguousPushSuccessDoesNotAllocateAgain(t *testing.T) {
+	root, remote := coordinatedRepository(t)
+	pushes := 0
+	lostResponse := func(ctx context.Context, root, remote, oid string) error {
+		pushes++
+		if err := push(ctx, root, remote, oid); err != nil {
+			return err
+		}
+		return fmt.Errorf("injected lost push response")
+	}
+	ids, err := allocate(root, "CH", "", 1, 30*time.Second, func(l *ledger.Ledger) error { return l.Save() }, lostResponse)
+	if err != nil || strings.Join(ids, ",") != "CH-171" {
+		t.Fatalf("Allocate ids=%v error=%v", ids, err)
+	}
+	if pushes != 1 {
+		t.Fatalf("push attempts = %d, want 1", pushes)
+	}
+	claims := git(t, remote, "show", Ref+":id-allocations.yaml")
+	if strings.Count(claims, "id: CH-171") != 1 || strings.Contains(claims, "id: CH-172") {
+		t.Fatalf("ambiguous success created another claim:\n%s", claims)
 	}
 }
 

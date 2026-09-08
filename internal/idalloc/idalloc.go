@@ -8,6 +8,7 @@ import (
 	"context"
 	"crypto/rand"
 	"encoding/hex"
+	"errors"
 	"fmt"
 	"math/big"
 	"os"
@@ -229,6 +230,19 @@ func push(ctx context.Context, root, remote, oid string) error {
 	return err
 }
 
+func isAncestor(ctx context.Context, root, ancestor, descendant string) (bool, error) {
+	_, err := runGit(ctx, root, nil, nil, "merge-base", "--is-ancestor", ancestor, descendant)
+	if err == nil {
+		return true, nil
+	}
+	var gitErr *gitError
+	var exitErr *exec.ExitError
+	if errors.As(err, &gitErr) && errors.As(gitErr.err, &exitErr) && exitErr.ExitCode() == 1 {
+		return false, nil
+	}
+	return false, err
+}
+
 func withTimeout(timeout time.Duration, fn func(context.Context) error) error {
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
@@ -251,6 +265,9 @@ func Coordinate(root, remote string, timeout time.Duration) error {
 		}
 		if l.Version() != 2 {
 			return fmt.Errorf("identity ledger must be migrated to version 2 before coordination")
+		}
+		if !ledger.HasUnionMerge(root) {
+			return fmt.Errorf("identity ledger is missing %q; run clue migrate --apply before coordination", ledger.UnionAttribute)
 		}
 		for {
 			oid, err := remoteOID(ctx, root, remote)
@@ -332,10 +349,10 @@ func Sync(root, remoteOverride string, timeout time.Duration) error {
 // returns the remotely durable IDs even when the subsequent local save fails,
 // allowing the caller to report the recovery boundary precisely.
 func Allocate(root, prefix, remoteOverride string, count int, timeout time.Duration) (ids []string, err error) {
-	return allocate(root, prefix, remoteOverride, count, timeout, func(l *ledger.Ledger) error { return l.Save() })
+	return allocate(root, prefix, remoteOverride, count, timeout, func(l *ledger.Ledger) error { return l.Save() }, push)
 }
 
-func allocate(root, prefix, remoteOverride string, count int, timeout time.Duration, save func(*ledger.Ledger) error) (ids []string, err error) {
+func allocate(root, prefix, remoteOverride string, count int, timeout time.Duration, save func(*ledger.Ledger) error, pushClaim func(context.Context, string, string, string) error) (ids []string, err error) {
 	err = withTimeout(timeout, func(ctx context.Context) error {
 		l, loadErr := ledger.Load(root)
 		if loadErr != nil {
@@ -365,23 +382,34 @@ func allocate(root, prefix, remoteOverride string, count int, timeout time.Durat
 			if remoteErr = s.merge(l.Claims()); remoteErr != nil {
 				return remoteErr
 			}
-			ids, remoteErr = s.next(prefix, count)
+			candidateIDs, remoteErr := s.next(prefix, count)
 			if remoteErr != nil {
 				return remoteErr
 			}
-			message := "clue: reserve " + strings.Join(ids, ", ")
+			message := "clue: reserve " + strings.Join(candidateIDs, ", ")
 			newOID, remoteErr := commit(ctx, root, oid, message, s)
 			if remoteErr != nil {
 				return remoteErr
 			}
-			if remoteErr = push(ctx, root, remote, newOID); remoteErr != nil {
-				now, probeErr := remoteOID(ctx, root, remote)
-				if probeErr == nil && now != oid {
+			if pushErr := pushClaim(ctx, root, remote, newOID); pushErr != nil {
+				now, remoteState, probeErr := fetch(ctx, root, remote)
+				if probeErr != nil {
+					return pushErr
+				}
+				accepted, ancestorErr := isAncestor(ctx, root, newOID, now)
+				if ancestorErr != nil {
+					return fmt.Errorf("push failed and its durable outcome could not be verified: %w", pushErr)
+				}
+				if !accepted && now != oid {
 					ids = nil
 					continue
 				}
-				return remoteErr
+				if !accepted {
+					return pushErr
+				}
+				s = remoteState
 			}
+			ids = candidateIDs
 			if remoteErr = l.MergeClaims(s.claims()); remoteErr != nil {
 				return remoteErr
 			}

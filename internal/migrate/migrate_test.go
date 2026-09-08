@@ -1264,6 +1264,9 @@ func TestAC178_UnitPositive_MigrateBackfillsLedgerFromCurrentScan(t *testing.T) 
 	if err != nil {
 		t.Fatal(err)
 	}
+	if len(second.Changes) != 0 {
+		t.Fatalf("second migration planned changes: %+v", second.Changes)
+	}
 	for _, c := range second.Changes {
 		if c.Migration == MigrationLedgerBackfill {
 			t.Fatalf("second run planned another ledger backfill change: %+v", c)
@@ -1341,7 +1344,7 @@ func TestAC178_UnitNegative_ExistingLedgerFileIsUntouched(t *testing.T) {
 	if err := os.MkdirAll(ledgerDir, 0o755); err != nil {
 		t.Fatal(err)
 	}
-	const existing = "counters: {}\nentries: []\n"
+	const existing = "version: 2\ncoordination:\n    mode: local\nevents: []\n"
 	if err := os.WriteFile(filepath.Join(ledgerDir, "id-ledger.yaml"), []byte(existing), 0o644); err != nil {
 		t.Fatal(err)
 	}
@@ -1351,8 +1354,8 @@ func TestAC178_UnitNegative_ExistingLedgerFileIsUntouched(t *testing.T) {
 		t.Fatal(err)
 	}
 	for _, c := range plan.Changes {
-		if c.Migration == MigrationLedgerBackfill {
-			t.Fatalf("an existing ledger file must not be planned for backfill: %+v", c)
+		if c.Path == ledger.DefaultPath {
+			t.Fatalf("an existing version-two ledger must not be rewritten: %+v", c)
 		}
 	}
 }
@@ -1362,7 +1365,7 @@ func TestAC176_UnitPositive_MigratePreservesVersionOneLedgerMeaning(t *testing.T
 	if err := os.MkdirAll(filepath.Join(root, ".clue"), 0o755); err != nil {
 		t.Fatal(err)
 	}
-	legacy := "counters:\n    CH: \"9\"\nentries:\n    - id: CH-007\n      kind: numeric\n      state: retired\n      prefix: CH\n      component: \"7\"\n    - id: imported-token\n      kind: opaque\n      state: live\n      source-revision: abc\n      source-location: old/spec.md\n"
+	legacy := "counters:\n    CH: \"9\"\n    AC: \"999999999999999999999999\"\nentries:\n    - id: CH-007\n      kind: numeric\n      state: retired\n      prefix: CH\n      component: \"7\"\n    - id: imported-token\n      kind: opaque\n      state: live\n      source-revision: abc\n      source-location: old/spec.md\n"
 	if err := os.WriteFile(filepath.Join(root, ledger.DefaultPath), []byte(legacy), 0o644); err != nil {
 		t.Fatal(err)
 	}
@@ -1381,6 +1384,25 @@ func TestAC176_UnitPositive_MigratePreservesVersionOneLedgerMeaning(t *testing.T
 	}
 	if !converted || !attributes {
 		t.Fatalf("MIG-015 conversion=%v attributes=%v changes=%+v", converted, attributes, plan.Changes)
+	}
+	if err := Apply(root, plan); err != nil {
+		t.Fatal(err)
+	}
+	convertedLedger, err := ledger.Load(root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if retired, ok := convertedLedger.Lookup("CH-007"); !ok || retired.State != ledger.StateRetired {
+		t.Fatalf("retired identity after migration = %+v, ok=%v", retired, ok)
+	}
+	if imported, ok := convertedLedger.Lookup("imported-token"); !ok || imported.State != ledger.StateLive || imported.SourceRevision != "abc" || imported.SourceLocation != "old/spec.md" {
+		t.Fatalf("imported identity after migration = %+v, ok=%v", imported, ok)
+	}
+	if id, err := convertedLedger.NextNumeric("CH"); err != nil || id != "CH-010" {
+		t.Fatalf("next CH after high-water migration = %q, %v", id, err)
+	}
+	if id, err := convertedLedger.NextNumeric("AC"); err != nil || id != "AC-1000000000000000000000000" {
+		t.Fatalf("next large AC after migration = %q, %v", id, err)
 	}
 }
 
