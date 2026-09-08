@@ -572,3 +572,40 @@ func TestUnit_UnrelatedAttributeLinesDoNotDeclareTheUnionRule(t *testing.T) {
 		}
 	}
 }
+
+// The damage a real union merge produces. Two branches each coordinating to
+// their own remote leave `version` and `mode` untouched — identical lines merge
+// as context — and duplicate only `remote`, inside the coordination block. A
+// struct decode rejected that with a parser message about a line nobody wrote.
+func TestAC179_UnitNegative_DuplicateRemoteInsideCoordinationFailsClosed(t *testing.T) {
+	root := t.TempDir()
+	writeLedger(t, root, "version: 2\ncoordination:\n    mode: git\n    remote: origin\n    remote: other\nevents:\n    - {id: CH-001, kind: numeric, state: live, prefix: CH, component: \"1\"}\n")
+
+	_, err := Load(root)
+	if err == nil {
+		t.Fatal("Load accepted a ledger naming two allocator remotes")
+	}
+	for _, want := range []string{"two different allocator remotes", "origin", "other", "only a person can decide"} {
+		if !strings.Contains(err.Error(), want) {
+			t.Fatalf("Load error = %q, want it to mention %q", err, want)
+		}
+	}
+	if strings.Contains(err.Error(), "already defined") {
+		t.Fatalf("Load error = %q, want a decidable message rather than a parser one", err)
+	}
+}
+
+// A key repeated with the same value is not a disagreement, so it reconciles
+// rather than stopping the repository.
+func TestAC179_UnitPositive_DuplicateCoordinationKeyWithOneValueReconciles(t *testing.T) {
+	root := t.TempDir()
+	writeLedger(t, root, "version: 2\ncoordination:\n    mode: git\n    remote: origin\n    remote: origin\nevents:\n    - {id: CH-001, kind: numeric, state: live, prefix: CH, component: \"1\"}\n")
+
+	l, err := Load(root)
+	if err != nil {
+		t.Fatalf("Load: %v", err)
+	}
+	if c := l.Coordination(); c.Mode != "git" || c.Remote != "origin" {
+		t.Fatalf("coordination = %+v, want git through origin", c)
+	}
+}

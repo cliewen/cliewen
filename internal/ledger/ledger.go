@@ -240,8 +240,8 @@ func readEventFile(data []byte) (eventFile, string, error) {
 			}
 			f.Version, versionSet = v, true
 		case "coordination":
-			var c Coordination
-			if err := value.Decode(&c); err != nil {
+			c, err := decodeCoordination(value)
+			if err != nil {
 				return eventFile{}, "", err
 			}
 			if coordSet && c != f.Coordination {
@@ -263,6 +263,54 @@ func readEventFile(data []byte) (eventFile, string, error) {
 		}
 	}
 	return f, describeRepetition(repeated), nil
+}
+
+// decodeCoordination reads the coordination block through the node API for the
+// same reason the file itself is read that way, one level down. Union merge
+// duplicates only the lines that genuinely differ, so two branches that each
+// enabled coordination against their own remote do not leave a repeated header
+// at all — `version` and `mode` are identical on both sides and merge as
+// context, while `remote` appears twice inside this block. That is the damage
+// a real merge produces, and a struct decode rejected it with a parser message
+// about a line nobody wrote.
+//
+// A nested duplicate is always a disagreement, because identical lines never
+// duplicate, so it is always the case only a person can settle.
+func decodeCoordination(value *yaml.Node) (Coordination, error) {
+	var c Coordination
+	if value.Kind != yaml.MappingNode {
+		return c, value.Decode(&c)
+	}
+	seen := map[string]string{}
+	for i := 0; i+1 < len(value.Content); i += 2 {
+		key := value.Content[i].Value
+		text := value.Content[i+1].Value
+		if previous, ok := seen[key]; ok {
+			if previous == text {
+				continue
+			}
+			return Coordination{}, fmt.Errorf("the ledger names two different %ss (%s and %s); two branches each coordinated to their own, and only a person can decide which the team meant — keep one and remove the other", coordinationNoun(key), previous, text)
+		}
+		seen[key] = text
+		switch key {
+		case "mode":
+			c.Mode = text
+		case "remote":
+			c.Remote = text
+		}
+	}
+	return c, nil
+}
+
+func coordinationNoun(key string) string {
+	switch key {
+	case "remote":
+		return "allocator remote"
+	case "mode":
+		return "coordination mode"
+	default:
+		return key + " setting"
+	}
 }
 
 func describeCoordination(c Coordination) string {

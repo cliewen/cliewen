@@ -488,3 +488,273 @@ func TestAC170_IntegrationPositive_AllocateImportsRemoteHighWater(t *testing.T) 
 		t.Fatalf("local allocation after coordinated allocation = %s, want AC-051; the remote high-water boundary was not imported", next)
 	}
 }
+
+// Allocation across worktrees is proven elsewhere; what was never proven is
+// that the two branches then merge. Each worktree commits its own ledger and
+// both land on main through a real three-way merge with the union driver in
+// effect, which is the whole point of the checked-in event log.
+func TestAC172_IntegrationPositive_ParallelWorktreeAllocationsMergeCleanly(t *testing.T) {
+	root, _ := coordinatedRepository(t)
+	base := t.TempDir()
+	var allocated []string
+	for i, name := range []string{"one", "two"} {
+		worktree := filepath.Join(base, name)
+		git(t, root, "worktree", "add", "--quiet", "-b", "branch-"+name, worktree, "main")
+		ids, err := Allocate(worktree, "CH", "", 1, 30*time.Second)
+		if err != nil {
+			t.Fatalf("worktree %d: %v", i, err)
+		}
+		allocated = append(allocated, ids[0])
+		git(t, worktree, "add", ledger.DefaultPath)
+		git(t, worktree, "commit", "-m", "allocate in "+name)
+	}
+	sort.Strings(allocated)
+	if strings.Join(allocated, ",") != "CH-171,CH-172" {
+		t.Fatalf("worktree allocations = %v", allocated)
+	}
+
+	git(t, root, "merge", "--no-edit", "branch-one")
+	git(t, root, "merge", "--no-edit", "branch-two")
+
+	merged, err := ledger.Load(root)
+	if err != nil {
+		t.Fatalf("merged ledger: %v", err)
+	}
+	if merged.Damage() != "" {
+		t.Fatalf("merging two parallel allocations damaged the ledger: %s", merged.Damage())
+	}
+	for _, id := range allocated {
+		if e, ok := merged.Lookup(id); !ok || e.State != ledger.StateReserved {
+			t.Fatalf("%s = %+v, ok=%v after merge", id, e, ok)
+		}
+	}
+	next, err := merged.NextNumeric("CH")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if next != "CH-173" {
+		t.Fatalf("next after merging both allocations = %s, want CH-173", next)
+	}
+	for _, name := range []string{"one", "two"} {
+		git(t, root, "worktree", "remove", "--force", filepath.Join(base, name))
+	}
+}
+
+// The hazard `clue id next` warns about, demonstrated rather than assumed: in
+// local mode two worktrees allocate the same number. The ledger itself
+// survives — the identical events fold to one entry — so the collision has to
+// surface as two artifacts holding one ID, which is the corpus rule's job.
+func TestSanity_LocalModeWorktreesCollideYetTheLedgerStillMerges(t *testing.T) {
+	root := t.TempDir()
+	git(t, root, "init", "-b", "main")
+	git(t, root, "config", "user.name", "Test User")
+	git(t, root, "config", "user.email", "test@example.com")
+	if err := os.WriteFile(filepath.Join(root, ".gitattributes"), []byte(ledger.UnionAttribute+"\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	l, err := ledger.Load(root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	l.MarkLive("CH-001")
+	if err := l.Save(); err != nil {
+		t.Fatal(err)
+	}
+	git(t, root, "add", ".")
+	git(t, root, "commit", "-m", "base")
+
+	base := t.TempDir()
+	var allocated []string
+	for _, name := range []string{"one", "two"} {
+		worktree := filepath.Join(base, name)
+		git(t, root, "worktree", "add", "--quiet", "-b", "branch-"+name, worktree, "main")
+		wl, loadErr := ledger.Load(worktree)
+		if loadErr != nil {
+			t.Fatal(loadErr)
+		}
+		id, nextErr := wl.NextNumeric("CH")
+		if nextErr != nil {
+			t.Fatal(nextErr)
+		}
+		if saveErr := wl.Save(); saveErr != nil {
+			t.Fatal(saveErr)
+		}
+		allocated = append(allocated, id)
+		git(t, worktree, "add", ledger.DefaultPath)
+		git(t, worktree, "commit", "-m", "allocate in "+name)
+	}
+	if allocated[0] != allocated[1] {
+		t.Fatalf("local-mode worktrees allocated %v; the collision this warns about did not happen", allocated)
+	}
+
+	git(t, root, "merge", "--no-edit", "branch-one")
+	git(t, root, "merge", "--no-edit", "branch-two")
+	merged, err := ledger.Load(root)
+	if err != nil {
+		t.Fatalf("the ledger itself must survive a local-mode collision: %v", err)
+	}
+	if _, ok := merged.Lookup(allocated[0]); !ok {
+		t.Fatalf("merged ledger lost %s", allocated[0])
+	}
+	for _, name := range []string{"one", "two"} {
+		git(t, root, "worktree", "remove", "--force", filepath.Join(base, name))
+	}
+}
+
+// unionRepository is a repository with the union rule installed, a version-two
+// ledger, and however many bare remotes the caller asks for.
+func unionRepository(t *testing.T, remotes ...string) string {
+	t.Helper()
+	base := t.TempDir()
+	root := filepath.Join(base, "repo")
+	if err := os.MkdirAll(root, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	git(t, root, "init", "-b", "main")
+	git(t, root, "config", "user.name", "Test User")
+	git(t, root, "config", "user.email", "test@example.com")
+	if err := os.WriteFile(filepath.Join(root, ".gitattributes"), []byte(ledger.UnionAttribute+"\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	l, err := ledger.Load(root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	l.MarkLive("CH-001")
+	if err := l.Save(); err != nil {
+		t.Fatal(err)
+	}
+	git(t, root, "add", ".")
+	git(t, root, "commit", "-m", "base")
+	for i, name := range remotes {
+		bare := filepath.Join(base, name+".git")
+		git(t, base, "init", "--bare", bare)
+		git(t, root, "remote", "add", name, bare)
+		if i == 0 {
+			git(t, root, "push", "-u", name, "main")
+		} else {
+			git(t, root, "push", name, "main")
+		}
+		git(t, bare, "symbolic-ref", "HEAD", "refs/heads/main")
+	}
+	return root
+}
+
+// coordinateOnBranch enables coordination against remote on a new branch cut
+// from main, and commits the ledger change.
+func coordinateOnBranch(t *testing.T, root, branch, remote string) {
+	t.Helper()
+	git(t, root, "checkout", "-q", "-b", branch, "main")
+	if err := Coordinate(root, remote, 30*time.Second); err != nil {
+		t.Fatalf("Coordinate(%s): %v", remote, err)
+	}
+	git(t, root, "add", ledger.DefaultPath)
+	git(t, root, "commit", "-m", "coordinate through "+remote)
+}
+
+// Two branches enabling coordination against the same remote write the same
+// lines, so there is nothing for the union driver to combine.
+func TestSanity_IdenticalCoordinationOnTwoBranchesMergesCleanly(t *testing.T) {
+	root := unionRepository(t, "origin")
+	coordinateOnBranch(t, root, "one", "origin")
+	coordinateOnBranch(t, root, "two", "origin")
+	git(t, root, "checkout", "-q", "main")
+	git(t, root, "merge", "--no-edit", "one")
+	git(t, root, "merge", "--no-edit", "two")
+
+	l, err := ledger.Load(root)
+	if err != nil {
+		t.Fatalf("merged ledger: %v", err)
+	}
+	if l.Damage() != "" {
+		t.Fatalf("identical coordination reported damage: %s", l.Damage())
+	}
+	if c := l.Coordination(); c.Mode != "git" || c.Remote != "origin" {
+		t.Fatalf("coordination = %+v, want git through origin", c)
+	}
+}
+
+// The damage a real merge actually produces. Union merge combines line by line,
+// so `version` and `mode` are identical on both sides and merge as context: the
+// result is not a repeated header but a repeated `remote` inside coordination.
+// Two branches each coordinating to their own remote is a disagreement no
+// reading can settle, so the ledger fails closed and names the choice.
+func TestSanity_DisagreeingRemotesMergeIntoADecidableFailure(t *testing.T) {
+	root := unionRepository(t, "origin", "other")
+	coordinateOnBranch(t, root, "one", "origin")
+	coordinateOnBranch(t, root, "two", "other")
+	git(t, root, "checkout", "-q", "main")
+	git(t, root, "merge", "--no-edit", "one")
+	git(t, root, "merge", "--no-edit", "two")
+
+	data, err := os.ReadFile(filepath.Join(root, ledger.DefaultPath))
+	if err != nil {
+		t.Fatal(err)
+	}
+	// The shape this asserts is Git's, not ours: if a future Git combines the
+	// file differently, this is the test that says so.
+	if got := strings.Count(string(data), "remote:"); got != 2 {
+		t.Fatalf("union merge produced %d remote lines, want 2:\n%s", got, data)
+	}
+	if got := strings.Count(string(data), "version: 2"); got != 1 {
+		t.Fatalf("union merge repeated the header %d times; the damage shape has changed:\n%s", got, data)
+	}
+
+	_, err = ledger.Load(root)
+	if err == nil {
+		t.Fatal("a ledger naming two different allocator remotes was accepted")
+	}
+	for _, want := range []string{"two different allocator remotes", "origin", "other", "only a person can decide"} {
+		if !strings.Contains(err.Error(), want) {
+			t.Fatalf("error = %q, want it to mention %q", err, want)
+		}
+	}
+	if strings.Contains(err.Error(), "unmarshal errors") || strings.Contains(err.Error(), "already defined") {
+		t.Fatalf("error = %q, want a decidable message rather than a parser one", err)
+	}
+}
+
+// A whole-file conversion on one branch against an append on another still
+// merges cleanly, because Git matches the lines both sides share. This is the
+// case the deterministic backfill ordering protects: were the converted file
+// written in a different order each run, the whole file would become one
+// conflicting hunk and the union driver would concatenate both copies.
+func TestSanity_WholeFileConversionMergesWithAConcurrentAppend(t *testing.T) {
+	root := unionRepository(t)
+	ledgerPath := filepath.Join(root, ledger.DefaultPath)
+	base, err := os.ReadFile(ledgerPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	git(t, root, "checkout", "-q", "-b", "converted", "main")
+	converted := strings.Replace(string(base), "mode: local", "mode: local\n    # rewritten in place", 1)
+	if err := os.WriteFile(ledgerPath, []byte(converted), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	git(t, root, "commit", "-am", "rewrite the ledger")
+
+	git(t, root, "checkout", "-q", "-b", "appended", "main")
+	appended := string(base) + "    - {id: CH-002, kind: numeric, state: reserved, prefix: CH, component: \"2\"}\n"
+	if err := os.WriteFile(ledgerPath, []byte(appended), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	git(t, root, "commit", "-am", "append an event")
+
+	git(t, root, "checkout", "-q", "main")
+	git(t, root, "merge", "--no-edit", "converted")
+	git(t, root, "merge", "--no-edit", "appended")
+
+	l, err := ledger.Load(root)
+	if err != nil {
+		t.Fatalf("merged ledger: %v", err)
+	}
+	if l.Damage() != "" {
+		t.Fatalf("a rewrite against an append damaged the ledger: %s", l.Damage())
+	}
+	for _, id := range []string{"CH-001", "CH-002"} {
+		if _, ok := l.Lookup(id); !ok {
+			t.Fatalf("merge lost %s", id)
+		}
+	}
+}

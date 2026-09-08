@@ -82,10 +82,10 @@ Feature: Team-safe identity allocation
   @AC-179
   Scenario: A ledger combined by Git's union merge recovers without losing an identity
     Test-type: Unit
-    Given two branches each changed the top of the identity ledger and Git's union merge left the file with its header repeated
+    Given Git's union merge combined two branches that each changed the identity ledger's coordination settings, duplicating the lines that differ
     When a command reads the ledger
-    Then every identity from both halves survives at its furthest-along state and the next allocation is past all of them
+    Then every identity survives at its furthest-along state and the next allocation is past all of them
     And the command names what combined the file and how to rewrite it instead of reporting a parse failure
     And saving the ledger writes it back whole, so a command that allocates also repairs
-    But a file whose repeated halves declare different coordination modes is refused for a person to decide
+    But a duplicated setting whose two values disagree is refused for a person to decide, naming both values
 ```
