@@ -589,3 +589,5 @@ events:
     - {id: AC-182, kind: numeric, state: reserved, prefix: AC, component: "182"}
     - {id: AC-182, kind: numeric, state: live, prefix: AC, component: "182"}
     - {id: AC-025, kind: numeric, state: retired, prefix: AC, component: "25"}
+    - {id: AC-183, kind: numeric, state: reserved, prefix: AC, component: "183"}
+    - {id: AC-183, kind: numeric, state: live, prefix: AC, component: "183"}

@@ -35,6 +35,8 @@ If a coordinated allocation cannot read or update the remote, it fails before ch
 
 For the same reason, pointing an already-coordinated repository at a different remote is refused unless you pass `--force`. The claims live on the remote you would be leaving, so the allocator could start handing out numbers that were already taken. Running `clue id coordinate` again with the same remote is harmless.
 
+If `.clue/id-coordination.yaml` is ever damaged so that it names no `mode`, every command stops rather than guessing — a settings file that cannot be read as local or git is not evidence of either. No command repairs it, because `clue id coordinate` stops on the same error before it can write: delete the file to go back to local allocation, or restore its `mode` line by hand and commit that.
+
 If the ledger itself ever does come back doubled — from a hand-edit, or a merge tool that combines differently — nothing is lost. Run `clue id repair` to write it back clean, or just carry on, because any command that saves the ledger repairs it. Do not edit the ledger by hand.
 
 ## Preserve the full-change archive

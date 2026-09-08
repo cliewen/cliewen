@@ -97,4 +97,13 @@ Feature: Team-safe identity allocation
     Then Git raises a conflict on the coordination file for the person merging to resolve, and the union-merged ledger beside it still combines cleanly
     And an unresolved conflict left in that file is reported as one rather than as a parse failure
     But pointing an already-coordinated repository at a different remote is refused unless forced, because it abandons the claims recorded on the remote it leaves
+
+  @AC-183
+  Scenario: Allocation settings are never silently reinterpreted
+    Test-type: Integration
+    Given a repository whose coordination settings are absent, incomplete, or belong to a ledger version this loader does not read
+    When a command loads the ledger
+    Then a settings file that names no allocation mode stops the command instead of being taken to mean local allocation
+    And a ledger whose loader never read the settings file never deletes it
+    But the absence of a settings file means local allocation, and no file is written to say so
 ```

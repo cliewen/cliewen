@@ -343,7 +343,7 @@ func TestAC024_RerunOnUnchangedTreeIsANoOp(t *testing.T) {
 	}
 }
 
-// AC-025: an existing file is never overwritten — it is skipped and the
+// AC-182: an existing file is never overwritten — it is skipped and the
 // report says so.
 func TestAC182_UnitPositive_ExistingFileIsSkippedAndReported(t *testing.T) {
 	root := t.TempDir()
@@ -373,7 +373,7 @@ func TestAC182_UnitPositive_ExistingFileIsSkippedAndReported(t *testing.T) {
 	}
 }
 
-// AC-025 negative: skipping is per file, not per run — everything the
+// AC-182 negative: skipping is per file, not per run — everything the
 // existing file did not shadow is still created.
 func TestAC182_UnitNegative_SkipIsPerFileNotPerRun(t *testing.T) {
 	root := t.TempDir()

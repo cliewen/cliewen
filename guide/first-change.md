@@ -57,7 +57,7 @@ clue id next: identity ledger is missing; run `clue migrate --apply` first
 $ clue migrate --apply
 clue migrate: apply for target pair 0.18.0
 MIG-008 .clue/id-ledger.yaml: seed the identity ledger with 2 live id(s) from the current corpus scan
-MIG-015 .gitattributes: add the identity ledger union merge rule
+clue migrate: applied 1 file(s)
 ```
 
 The identity comes from the ledger, not Git history. An identifier once used by a deleted artifact is never minted again. The branch takes the same name: `ch-001-greet-by-name`.

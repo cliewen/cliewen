@@ -64,7 +64,7 @@ func TestAC003_ValidateExitsNonZeroOnBrokenScaffold(t *testing.T) {
 	}
 }
 
-// AC-025: the report tells the user what was skipped and what to do next.
+// AC-182: the report tells the user what was skipped and what to do next.
 func TestAC182_UnitPositive_InitReportsSkipsAndNextStep(t *testing.T) {
 	root := t.TempDir()
 	if err := os.WriteFile(filepath.Join(root, "AGENTS.md"), []byte("mine"), 0o644); err != nil {

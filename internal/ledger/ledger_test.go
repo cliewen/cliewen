@@ -684,7 +684,7 @@ func TestAC181_IntegrationPositive_InlineCoordinationStillLoadsAndMovesOutOnSave
 
 // Local allocation is the absence of the file, so a repository that stops
 // coordinating does not keep a stale setting saying it still does.
-func TestAC181_IntegrationNegative_LocalModeKeepsNoCoordinationFile(t *testing.T) {
+func TestAC183_IntegrationPositive_LocalModeKeepsNoCoordinationFile(t *testing.T) {
 	root := t.TempDir()
 	l, err := Load(root)
 	if err != nil {
@@ -709,7 +709,7 @@ func TestAC181_IntegrationNegative_LocalModeKeepsNoCoordinationFile(t *testing.T
 // A settings file that exists but names no mode is not evidence of local
 // allocation. Defaulting it would be how a coordinated repository silently
 // returns to allocating locally, which is the collision coordinating prevents.
-func TestAC181_IntegrationNegative_PartialCoordinationFileFailsClosed(t *testing.T) {
+func TestAC183_IntegrationNegative_PartialCoordinationFileFailsClosed(t *testing.T) {
 	for name, body := range map[string]string{
 		"remote without a mode": "remote: origin\n",
 		"empty file":            "",
@@ -730,7 +730,7 @@ func TestAC181_IntegrationNegative_PartialCoordinationFileFailsClosed(t *testing
 }
 
 // Saving a version-one ledger must not delete settings that loader never read.
-func TestAC181_IntegrationNegative_LegacyLedgerSaveKeepsCoordinationFile(t *testing.T) {
+func TestAC183_IntegrationNegative_LegacyLedgerSaveKeepsCoordinationFile(t *testing.T) {
 	root := t.TempDir()
 	writeLedger(t, root, "counters:\n    CH: \"1\"\nentries:\n    - {id: CH-001, kind: numeric, state: live, prefix: CH, component: \"1\"}\n")
 	coordPath := filepath.Join(root, filepath.FromSlash(CoordinationPath))
