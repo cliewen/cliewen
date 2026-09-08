@@ -751,3 +751,53 @@ func TestAC183_IntegrationNegative_LegacyLedgerSaveKeepsCoordinationFile(t *test
 		t.Fatalf("saving a version-one ledger deleted the coordination file: %v", err)
 	}
 }
+
+// The case the version guard missed: a fresh load reports version two and
+// local mode without having read the settings file, so keying deletion on the
+// version let Save remove settings this ledger never looked at.
+func TestAC183_IntegrationNegative_FreshLedgerSaveKeepsCoordinationFile(t *testing.T) {
+	root := t.TempDir()
+	coordPath := filepath.Join(root, filepath.FromSlash(CoordinationPath))
+	if err := os.MkdirAll(filepath.Dir(coordPath), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(coordPath, []byte("mode: git\nremote: origin\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	l, err := Load(root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	l.MarkLive("CH-001")
+	if err := l.Save(); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := os.Stat(coordPath); err != nil {
+		t.Fatalf("saving a ledger that never read the settings deleted them: %v", err)
+	}
+}
+
+// The other side of the guard: a load that did read the settings may replace
+// or remove them, so a repository whose settings say local keeps no file
+// claiming otherwise.
+func TestAC183_IntegrationPositive_ASettingsFileSayingLocalIsRemovedOnSave(t *testing.T) {
+	root := t.TempDir()
+	writeLedger(t, root, "version: 2\nevents:\n    - {id: CH-001, kind: numeric, state: live, prefix: CH, component: \"1\"}\n")
+	coordPath := filepath.Join(root, filepath.FromSlash(CoordinationPath))
+	if err := os.WriteFile(coordPath, []byte("mode: local\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	l, err := Load(root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if c := l.Coordination(); c.Mode != "local" {
+		t.Fatalf("coordination = %+v, want local", c)
+	}
+	if err := l.Save(); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := os.Stat(coordPath); !os.IsNotExist(err) {
+		t.Fatalf("a settings file the loader read and found local survived the save (%v)", err)
+	}
+}

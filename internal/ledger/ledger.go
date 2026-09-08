@@ -94,6 +94,10 @@ type Ledger struct {
 	counters  map[string]*big.Int
 	byID      map[string]*Entry
 	damage    string
+	// settingsRead records that this load resolved the coordination file, so
+	// Save may replace or remove it. A load that never read it — no ledger
+	// yet, or a version-one ledger — leaves it alone.
+	settingsRead bool
 }
 
 // DefaultPath is the ledger file's fixed location relative to a repository
@@ -158,6 +162,7 @@ func Load(root string) (*Ledger, error) {
 		l.version = 2
 		l.coord = coord
 		l.damage = damage
+		l.settingsRead = true
 		for _, e := range f.HighWater {
 			if e.Kind != KindNumeric || e.State != StateReserved || !ValidNumericEntry(e) {
 				return nil, fmt.Errorf("%s: invalid high-water claim %s", l.path, e.ID)
@@ -418,7 +423,7 @@ func CoordinationBytes(c Coordination) ([]byte, error) { return yaml.Marshal(c) 
 func (l *Ledger) saveCoordination() error {
 	path := filepath.Join(l.root, filepath.FromSlash(CoordinationPath))
 	if l.coord.Mode != "git" {
-		if l.version != 2 {
+		if !l.settingsRead {
 			return nil // settings this ledger never read are not ours to delete
 		}
 		if err := os.Remove(path); err != nil && !os.IsNotExist(err) {

@@ -1610,7 +1610,7 @@ func TestUnit_MigrateNoticesALedgerItCannotRead(t *testing.T) {
 	}
 	found := ""
 	for _, notice := range plan.Notices {
-		if notice.Path == ledger.DefaultPath {
+		if notice.Path == ledger.DefaultPath && notice.Migration == MigrationLedgerEvents {
 			found = notice.Message
 		}
 	}
