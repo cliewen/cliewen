@@ -751,30 +751,3 @@ func TestAC183_IntegrationNegative_LegacyLedgerSaveKeepsCoordinationFile(t *test
 		t.Fatalf("saving a version-one ledger deleted the coordination file: %v", err)
 	}
 }
-
-// Settings are read before a ledger exists. Reading them only alongside a
-// version-two ledger meant a repository holding settings resolved to local
-// allocation without anything ever looking at what it held.
-func TestAC183_IntegrationPositive_SettingsAreReadBeforeALedgerExists(t *testing.T) {
-	root := t.TempDir()
-	if err := os.MkdirAll(filepath.Join(root, ".clue"), 0o755); err != nil {
-		t.Fatal(err)
-	}
-	if err := os.WriteFile(filepath.Join(root, filepath.FromSlash(CoordinationPath)), []byte("mode: git\nremote: origin\n"), 0o644); err != nil {
-		t.Fatal(err)
-	}
-	l, err := Load(root)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if c := l.Coordination(); c.Mode != "git" || c.Remote != "origin" {
-		t.Fatalf("coordination = %+v with no ledger yet, want git through origin", c)
-	}
-	// And the unreadable case stops rather than resolving to local.
-	if err := os.WriteFile(filepath.Join(root, filepath.FromSlash(CoordinationPath)), []byte("remote: origin\n"), 0o644); err != nil {
-		t.Fatal(err)
-	}
-	if _, err := Load(root); err == nil || !strings.Contains(err.Error(), "names no allocation mode") {
-		t.Fatalf("Load error with no ledger = %v, want the mode-less settings failure", err)
-	}
-}

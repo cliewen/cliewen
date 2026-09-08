@@ -138,14 +138,10 @@ func Load(root string) (*Ledger, error) {
 	data, err := os.ReadFile(l.path)
 	if err != nil {
 		if os.IsNotExist(err) {
-			// Settings are read even with no ledger yet. Skipping them here
-			// resolved a repository that holds settings to local allocation
-			// without ever looking at what it holds.
-			coord, coordErr := resolveCoordination(root, l.coord)
-			if coordErr != nil {
-				return nil, coordErr
-			}
-			l.coord = coord
+			// Settings are deliberately not read here. Nothing allocates
+			// before a ledger exists, so there is no reinterpretation to
+			// prevent, and failing on this path would stop the migration that
+			// seeds the ledger in the first place.
 			return l, nil
 		}
 		return nil, err

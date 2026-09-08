@@ -104,7 +104,6 @@ Feature: Team-safe identity allocation
     Given a repository whose coordination settings are absent, incomplete, or belong to a ledger version this loader does not read
     When a command loads the ledger
     Then a settings file naming no allocation mode stops the load, and with it every command that loads the ledger, rather than being taken to mean local allocation
-    And settings are read even before a ledger exists, rather than assumed
     And a ledger whose loader never read the settings file never deletes it
     But the absence of a settings file means local allocation, and no file is written to say so
 ```

@@ -1587,3 +1587,65 @@ func TestAC181_IntegrationNegative_LocalMigrationPlansNoCoordinationFile(t *test
 		}
 	}
 }
+
+// A ledger migration cannot plan against a ledger it could not read, and the
+// silence around that was the defect: the command reported "no changes needed"
+// for a repository whose ledger was damaged, so the repair it exists to offer
+// disappeared without a word.
+func TestUnit_MigrateNoticesALedgerItCannotRead(t *testing.T) {
+	root := migrationFixture(t, "")
+	if err := os.MkdirAll(filepath.Join(root, ".clue"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	half := "version: 2\nevents:\n    - {id: CH-001, kind: numeric, state: live, prefix: CH, component: \"1\"}\n"
+	if err := os.WriteFile(filepath.Join(root, ledger.DefaultPath), []byte(half+half), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(root, filepath.FromSlash(ledger.CoordinationPath)), []byte("remote: origin\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	plan, err := Plan(root, Options{ReversalCost: "low"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	found := ""
+	for _, notice := range plan.Notices {
+		if notice.Path == ledger.DefaultPath {
+			found = notice.Message
+		}
+	}
+	if found == "" {
+		t.Fatalf("an unreadable ledger was passed over in silence; notices: %v", plan.Notices)
+	}
+	if !strings.Contains(found, "names no allocation mode") {
+		t.Fatalf("notice = %q, want it to name why the ledger could not be read", found)
+	}
+	for _, change := range plan.Changes {
+		if change.Path == ledger.DefaultPath {
+			t.Fatalf("a ledger that could not be read was nevertheless planned: %q", change.Description)
+		}
+	}
+}
+
+// The seeding path must still seed. Reading settings there once made this
+// migration fail, so a corpus with damaged settings and no ledger silently
+// never received one.
+func TestUnit_MigrateStillSeedsALedgerWhenSettingsAreDamaged(t *testing.T) {
+	root := migrationFixture(t, "")
+	if err := os.MkdirAll(filepath.Join(root, ".clue"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(root, filepath.FromSlash(ledger.CoordinationPath)), []byte("remote: origin\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	plan, err := Plan(root, Options{ReversalCost: "low"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, change := range plan.Changes {
+		if change.Migration == MigrationLedgerBackfill {
+			return
+		}
+	}
+	t.Fatalf("no ledger was seeded for a corpus with damaged settings; changes: %v", plan.Changes)
+}

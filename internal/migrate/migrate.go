@@ -1878,6 +1878,11 @@ func planLedgerBackfill(root string, result *MigrationPlan) {
 	}
 	l, err := ledger.Load(root)
 	if err != nil {
+		result.Notices = append(result.Notices, Notice{
+			Path:      ledger.DefaultPath,
+			Migration: MigrationLedgerBackfill,
+			Message:   "could not be read, so no ledger was seeded for this corpus: " + err.Error(),
+		})
 		return
 	}
 	// Sorted, because a v2 ledger records events in append order and the
