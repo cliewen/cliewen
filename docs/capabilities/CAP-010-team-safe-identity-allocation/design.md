@@ -26,6 +26,8 @@ No force option is used. A push error is retried only when a follow-up remote re
 
 `clue id sync` needs read access only. It imports missing claims as reservations and never downgrades a local live or retired state. This is also the recovery after a remote push succeeded but the local atomic replacement failed.
 
+A second kind of damage comes from the merge driver itself. Union merge takes both sides of a conflicting hunk, and a hunk covering the top of the file leaves the ledger with its header written twice. The entries are all still there, so the file is read rather than refused: repeated sequences concatenate, because events fold idempotently and advance state monotonically, and repeated scalars must agree. Saving rewrites the file whole, so a command that allocates also repairs; `clue id repair` does it on its own, and `clue migrate` plans the same repair for a repository being brought up to date. Two halves declaring different coordination modes stop instead, with the choice stated, because only a person can decide which mode the team meant ([ADR-069](../../decisions/ADR-069-a-combined-ledger-is-recoverable.md)).
+
 ## Boundary
 
 `clue validate` reads only repository bytes, as [ADR-044](../../decisions/ADR-044-judge-reads-state-not-transitions.md) requires. Network access belongs only to the explicit allocation, coordination, and synchronization commands. Remote branch protection remains a repository administration responsibility: the branch permits normal pushes and forbids force-push and deletion.

@@ -385,3 +385,190 @@ func TestAC170_UnitNegative_MergeClaimsRejectsConflictingMetadata(t *testing.T) 
 		t.Fatalf("MergeClaims error = %v", err)
 	}
 }
+
+// writeLedger puts raw ledger bytes at root, for the shapes a merge produces
+// that no API of ours would ever write.
+func writeLedger(t *testing.T, root, data string) {
+	t.Helper()
+	if err := os.MkdirAll(filepath.Join(root, ".clue"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(root, DefaultPath), []byte(data), 0o644); err != nil {
+		t.Fatal(err)
+	}
+}
+
+const halfA = "version: 2\ncoordination:\n    mode: local\nevents:\n    - {id: CH-001, kind: numeric, state: reserved, prefix: CH, component: \"1\"}\n    - {id: CH-001, kind: numeric, state: live, prefix: CH, component: \"1\"}\n"
+
+const halfB = "version: 2\ncoordination:\n    mode: local\nevents:\n    - {id: CH-002, kind: numeric, state: reserved, prefix: CH, component: \"2\"}\n"
+
+func TestAC179_UnitPositive_UnionMergedLedgerLoadsAndFoldsBothHalves(t *testing.T) {
+	root := t.TempDir()
+	writeLedger(t, root, halfA+halfB)
+
+	l, err := Load(root)
+	if err != nil {
+		t.Fatalf("Load of a union-merged ledger failed: %v", err)
+	}
+	if l.Damage() == "" {
+		t.Fatal("Damage() is empty; the repeated header was not reported")
+	}
+	for _, want := range []string{"version", "coordination", "events"} {
+		if !strings.Contains(l.Damage(), want) {
+			t.Fatalf("Damage() = %q, want it to name %q", l.Damage(), want)
+		}
+	}
+	// Both branches' identities survive, at their furthest-along state.
+	if e, ok := l.Lookup("CH-001"); !ok || e.State != StateLive {
+		t.Fatalf("CH-001 = %+v, ok=%v; want live", e, ok)
+	}
+	if e, ok := l.Lookup("CH-002"); !ok || e.State != StateReserved {
+		t.Fatalf("CH-002 = %+v, ok=%v; want reserved", e, ok)
+	}
+	// The counter reflects the higher half, so nothing is reissued.
+	if id := nextNumeric(t, l, "CH"); id != "CH-003" {
+		t.Fatalf("next after recovery = %s, want CH-003", id)
+	}
+}
+
+func TestAC179_UnitPositive_SavingARecoveredLedgerRewritesItClean(t *testing.T) {
+	root := t.TempDir()
+	writeLedger(t, root, halfA+halfB)
+
+	l, err := Load(root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := l.Save(); err != nil {
+		t.Fatal(err)
+	}
+	data, err := os.ReadFile(filepath.Join(root, DefaultPath))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := strings.Count(string(data), "version: 2"); got != 1 {
+		t.Fatalf("repaired ledger declares version %d times:\n%s", got, data)
+	}
+	if got := strings.Count(string(data), "coordination:"); got != 1 {
+		t.Fatalf("repaired ledger declares coordination %d times:\n%s", got, data)
+	}
+	reloaded, err := Load(root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if reloaded.Damage() != "" {
+		t.Fatalf("reloaded Damage() = %q, want empty", reloaded.Damage())
+	}
+	if len(reloaded.Entries()) != 2 {
+		t.Fatalf("repaired ledger kept %d identities, want 2", len(reloaded.Entries()))
+	}
+}
+
+// The one case recovery must refuse: two halves that chose different
+// allocation modes. Picking either would silently move a team off the mode it
+// agreed, so the ledger fails closed and says what the choice is.
+func TestAC179_UnitNegative_DisagreeingCoordinationFailsClosed(t *testing.T) {
+	root := t.TempDir()
+	writeLedger(t, root, halfA+"version: 2\ncoordination:\n    mode: git\n    remote: origin\nevents: []\n")
+
+	_, err := Load(root)
+	if err == nil {
+		t.Fatal("Load accepted two disagreeing coordination settings")
+	}
+	for _, want := range []string{"two different coordination settings", "local", "git through origin"} {
+		if !strings.Contains(err.Error(), want) {
+			t.Fatalf("Load error = %q, want it to mention %q", err, want)
+		}
+	}
+}
+
+func TestAC179_UnitNegative_UndamagedLedgerReportsNoDamage(t *testing.T) {
+	root := t.TempDir()
+	writeLedger(t, root, halfA)
+
+	l, err := Load(root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if l.Damage() != "" {
+		t.Fatalf("Damage() = %q for a well-formed ledger, want empty", l.Damage())
+	}
+}
+
+// Backfilling an identity that was retired before the ledger existed must not
+// invent a live event it never had.
+func TestUnit_MarkRetiredRecordsOneEventForAnIdentityNeverLive(t *testing.T) {
+	root := t.TempDir()
+	l, _ := Load(root)
+	l.MarkRetired("AC-042")
+	l.MarkRetired("AC-042")
+	if err := l.Save(); err != nil {
+		t.Fatal(err)
+	}
+	data, err := os.ReadFile(filepath.Join(root, DefaultPath))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := strings.Count(string(data), "id: AC-042"); got != 1 {
+		t.Fatalf("retiring an unseen ID wrote %d events, want 1:\n%s", got, data)
+	}
+	if strings.Contains(string(data), "state: live") {
+		t.Fatalf("retirement invented a live transition:\n%s", data)
+	}
+	if e, ok := l.Lookup("AC-042"); !ok || e.State != StateRetired {
+		t.Fatalf("AC-042 = %+v, ok=%v; want retired", e, ok)
+	}
+}
+
+func TestUnit_RetireIsIdempotentAndNeverDowngrades(t *testing.T) {
+	root := t.TempDir()
+	l, _ := Load(root)
+	id := nextNumeric(t, l, "CH")
+	if err := l.PromoteReserved(id); err != nil {
+		t.Fatal(err)
+	}
+	l.Retire(id)
+	l.Retire(id)
+	l.MarkLive(id)
+	if err := l.Save(); err != nil {
+		t.Fatal(err)
+	}
+	data, err := os.ReadFile(filepath.Join(root, DefaultPath))
+	if err != nil {
+		t.Fatal(err)
+	}
+	// reserved, live, retired — and nothing after it.
+	if got := strings.Count(string(data), "id: "+id); got != 3 {
+		t.Fatalf("repeated retirement wrote %d events, want 3:\n%s", got, data)
+	}
+	if e, _ := l.Lookup(id); e.State != StateRetired {
+		t.Fatalf("%s = %s, want retired", id, e.State)
+	}
+}
+
+func TestUnit_UnionMergeRuleIsRecognizedHoweverItIsWritten(t *testing.T) {
+	for name, line := range map[string]string{
+		"canonical":         UnionAttribute,
+		"no leading slash":  ".clue/id-ledger.yaml merge=union",
+		"extra attributes":  "/.clue/id-ledger.yaml merge=union -text",
+		"among other rules": "* text=auto\n# the ledger\n.clue/id-ledger.yaml merge=union\n",
+	} {
+		if !declaresUnionMerge([]byte(line)) {
+			t.Errorf("%s: %q not recognized as declaring the union rule", name, line)
+		}
+	}
+}
+
+func TestUnit_UnrelatedAttributeLinesDoNotDeclareTheUnionRule(t *testing.T) {
+	for name, line := range map[string]string{
+		"another file":   "/.clue/role.yaml merge=union",
+		"another driver": "/.clue/id-ledger.yaml merge=ours",
+		"commented out":  "#/.clue/id-ledger.yaml merge=union",
+		"pattern only":   "/.clue/id-ledger.yaml",
+		"nothing at all": "* text=auto",
+	} {
+		if declaresUnionMerge([]byte(line)) {
+			t.Errorf("%s: %q wrongly recognized as declaring the union rule", name, line)
+		}
+	}
+}

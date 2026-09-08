@@ -89,7 +89,7 @@ func TestAC150_UnitPositive_InitBootstrapsRequireActivation(t *testing.T) {
 	}
 }
 
-func TestAC178_UnitPositive_InitInstallsLedgerUnionMergeRule(t *testing.T) {
+func TestAC180_UnitPositive_InitInstallsLedgerUnionMergeRule(t *testing.T) {
 	root, _ := runInto(t)
 	content, err := os.ReadFile(filepath.Join(root, ".gitattributes"))
 	if err != nil {
@@ -815,7 +815,7 @@ func snapshot(t *testing.T, root string) map[string]string {
 // Skipping the file the way init skips every other pre-existing one would
 // leave the append-only ledger with no merge driver, which is exactly the
 // parallel-branch conflict the rule exists to remove.
-func TestAC178_UnitPositive_InitAppendsUnionRuleToExistingGitattributes(t *testing.T) {
+func TestAC180_UnitPositive_InitAppendsUnionRuleToExistingGitattributes(t *testing.T) {
 	root := t.TempDir()
 	existing := "* text=auto"
 	if err := os.WriteFile(filepath.Join(root, ".gitattributes"), []byte(existing), 0o644); err != nil {
@@ -847,7 +847,7 @@ func TestAC178_UnitPositive_InitAppendsUnionRuleToExistingGitattributes(t *testi
 // The append is one line, once: a repository that already declares the rule
 // is left byte-for-byte alone and reported as skipped, so re-running init
 // never grows the file.
-func TestAC178_UnitNegative_InitDoesNotDuplicateAnExistingUnionRule(t *testing.T) {
+func TestAC180_UnitNegative_InitDoesNotDuplicateAnExistingUnionRule(t *testing.T) {
 	root := t.TempDir()
 	existing := "* text=auto\n" + ledger.UnionAttribute + "\n"
 	if err := os.WriteFile(filepath.Join(root, ".gitattributes"), []byte(existing), 0o644); err != nil {

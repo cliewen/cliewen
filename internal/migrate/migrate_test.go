@@ -1497,3 +1497,37 @@ func TestAC178_UnitPositive_LedgerBackfillBytesAreDeterministic(t *testing.T) {
 		}
 	}
 }
+
+// Migration is the command an adopter already runs to bring a repository up to
+// date, and it used to skip a ledger it could not load — which is why a ledger
+// Git's union merge combined had no repair at all.
+func TestAC179_UnitPositive_MigratePlansTheRepairOfAUnionMergedLedger(t *testing.T) {
+	root := migrationFixture(t, "")
+	if err := os.MkdirAll(filepath.Join(root, ".clue"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	half := "version: 2\ncoordination:\n    mode: local\nevents:\n    - {id: CH-001, kind: numeric, state: live, prefix: CH, component: \"1\"}\n"
+	if err := os.WriteFile(filepath.Join(root, ledger.DefaultPath), []byte(half+half), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	plan, err := Plan(root, Options{ReversalCost: "low"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, change := range plan.Changes {
+		if change.Path != ledger.DefaultPath {
+			continue
+		}
+		if !strings.Contains(change.Description, "union merge") {
+			t.Fatalf("ledger change description = %q, want it to name the union merge", change.Description)
+		}
+		if got := strings.Count(string(change.After), "version: 2"); got != 1 {
+			t.Fatalf("planned ledger is still doubled:\n%s", change.After)
+		}
+		if !strings.Contains(string(change.After), "id: CH-001") {
+			t.Fatalf("planned repair dropped an identity:\n%s", change.After)
+		}
+		return
+	}
+	t.Fatalf("no repair planned for a union-merged ledger; changes: %v", plan.Changes)
+}

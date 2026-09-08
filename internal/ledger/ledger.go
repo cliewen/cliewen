@@ -11,6 +11,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"slices"
 	"sort"
 	"strings"
 
@@ -82,6 +83,7 @@ type Ledger struct {
 	highWater []Entry
 	counters  map[string]*big.Int
 	byID      map[string]*Entry
+	damage    string
 }
 
 // DefaultPath is the ledger file's fixed location relative to a repository
@@ -117,17 +119,11 @@ func Load(root string) (*Ledger, error) {
 		}
 		return nil, err
 	}
-	var header struct {
-		Version int `yaml:"version"`
-	}
-	if err := yaml.Unmarshal(data, &header); err != nil {
+	f, damage, err := readEventFile(data)
+	if err != nil {
 		return nil, fmt.Errorf("%s: %w", l.path, err)
 	}
-	if header.Version == 2 {
-		var f eventFile
-		if err := yaml.Unmarshal(data, &f); err != nil {
-			return nil, fmt.Errorf("%s: %w", l.path, err)
-		}
+	if f.Version == 2 {
 		if f.Coordination.Mode != "local" && f.Coordination.Mode != "git" {
 			return nil, fmt.Errorf("%s: coordination mode must be local or git", l.path)
 		}
@@ -136,6 +132,7 @@ func Load(root string) (*Ledger, error) {
 		}
 		l.version = 2
 		l.coord = f.Coordination
+		l.damage = damage
 		for _, e := range f.HighWater {
 			if e.Kind != KindNumeric || e.State != StateReserved || !ValidNumericEntry(e) {
 				return nil, fmt.Errorf("%s: invalid high-water claim %s", l.path, e.ID)
@@ -153,22 +150,22 @@ func Load(root string) (*Ledger, error) {
 		}
 		return l, nil
 	}
-	if header.Version != 0 {
-		return nil, fmt.Errorf("%s: unsupported ledger version %d", l.path, header.Version)
+	if f.Version != 0 {
+		return nil, fmt.Errorf("%s: unsupported ledger version %d", l.path, f.Version)
 	}
-	var f legacyFile
-	if err := yaml.Unmarshal(data, &f); err != nil {
+	var legacy legacyFile
+	if err := yaml.Unmarshal(data, &legacy); err != nil {
 		return nil, fmt.Errorf("%s: %w", l.path, err)
 	}
 	l.version = 1
-	for k, v := range f.Counters {
+	for k, v := range legacy.Counters {
 		if v == nil || v.Sign() < 0 {
 			return nil, fmt.Errorf("%s: counter %s is not a non-negative decimal", l.path, k)
 		}
 		l.counters[k] = v
 	}
-	for i := range f.Entries {
-		e := f.Entries[i]
+	for i := range legacy.Entries {
+		e := legacy.Entries[i]
 		if _, exists := l.byID[e.ID]; exists {
 			return nil, fmt.Errorf("%s: duplicate entry for id %s", l.path, e.ID)
 		}
@@ -187,6 +184,116 @@ func Load(root string) (*Ledger, error) {
 		}
 	}
 	return l, nil
+}
+
+// readEventFile decodes the on-disk ledger through the YAML node API rather
+// than straight into eventFile, because Git's union merge can leave the file
+// with its header repeated. The driver combines both branches' copies of a
+// conflicting hunk, and while that is exactly right for the entry list, a
+// hunk covering the top of the file yields two `version` and `coordination`
+// keys, which a struct decode rejects outright — wedging every command,
+// including the sync that documentation offers as the recovery.
+//
+// Node decoding keeps every key and value in order, so a combined file can be
+// folded back into the one ledger both branches meant. Repeated sequences
+// concatenate, which is sound because events fold idempotently and advance
+// state monotonically: their union is the same answer whatever the order.
+// Repeated scalars must agree, because a genuine disagreement — one branch
+// coordinating through Git while the other stays local — is a decision only a
+// human can make, and guessing either way would silently move a repository
+// off the allocation mode its team chose.
+//
+// It returns the file, a description of any repetition it had to reconcile
+// (empty when the file was clean), and an error only for content no reading
+// can rescue.
+func readEventFile(data []byte) (eventFile, string, error) {
+	var doc yaml.Node
+	if err := yaml.Unmarshal(data, &doc); err != nil {
+		return eventFile{}, "", err
+	}
+	if doc.Kind != yaml.DocumentNode || len(doc.Content) == 0 {
+		return eventFile{}, "", nil // an empty file is an empty legacy ledger
+	}
+	root := doc.Content[0]
+	if root.Kind != yaml.MappingNode {
+		return eventFile{}, "", fmt.Errorf("ledger must be a mapping")
+	}
+	var f eventFile
+	var versionSet, coordSet bool
+	repeated := map[string]bool{}
+	seen := map[string]bool{}
+	for i := 0; i+1 < len(root.Content); i += 2 {
+		key := root.Content[i].Value
+		value := root.Content[i+1]
+		if seen[key] {
+			repeated[key] = true
+		}
+		seen[key] = true
+		switch key {
+		case "version":
+			var v int
+			if err := value.Decode(&v); err != nil {
+				return eventFile{}, "", err
+			}
+			if versionSet && v != f.Version {
+				return eventFile{}, "", fmt.Errorf("the ledger declares two different versions (%d and %d); it was combined from incompatible copies and must be repaired by hand", f.Version, v)
+			}
+			f.Version, versionSet = v, true
+		case "coordination":
+			var c Coordination
+			if err := value.Decode(&c); err != nil {
+				return eventFile{}, "", err
+			}
+			if coordSet && c != f.Coordination {
+				return eventFile{}, "", fmt.Errorf("the ledger carries two different coordination settings (%s and %s); Git's union merge combined two branches that each chose one, and only a person can decide which the team meant — set the surviving one and remove the other", describeCoordination(f.Coordination), describeCoordination(c))
+			}
+			f.Coordination, coordSet = c, true
+		case "events":
+			var events []Entry
+			if err := value.Decode(&events); err != nil {
+				return eventFile{}, "", err
+			}
+			f.Events = append(f.Events, events...)
+		case "high-water":
+			var highWater []Entry
+			if err := value.Decode(&highWater); err != nil {
+				return eventFile{}, "", err
+			}
+			f.HighWater = append(f.HighWater, highWater...)
+		}
+	}
+	return f, describeRepetition(repeated), nil
+}
+
+func describeCoordination(c Coordination) string {
+	if c.Remote == "" {
+		return c.Mode
+	}
+	return c.Mode + " through " + c.Remote
+}
+
+// describeRepetition names what the file repeated, in the file's own order, so
+// the message a user sees points at the lines they can go and look at.
+func describeRepetition(repeated map[string]bool) string {
+	if len(repeated) == 0 {
+		return ""
+	}
+	var keys []string
+	for _, key := range []string{"version", "coordination", "events", "high-water"} {
+		if repeated[key] {
+			keys = append(keys, key)
+		}
+	}
+	var what string
+	switch len(keys) {
+	case 1:
+		what = keys[0]
+	case 2:
+		what = keys[0] + " and " + keys[1]
+	default:
+		what = strings.Join(keys[:len(keys)-1], ", ") + ", and " + keys[len(keys)-1]
+	}
+	return "the identity ledger repeats " + what + ", which is what Git's union merge leaves behind when two branches both change the top of the file; its entries are intact"
 }
 
 func cloneEntry(e Entry) Entry {
@@ -284,9 +391,22 @@ func WithUnionAttribute(data []byte) ([]byte, bool) {
 	return out, true
 }
 
+// ledgerAttributePatterns are the .gitattributes patterns that name the ledger
+// file. Git resolves far more than these, but validate reads only repository
+// bytes, so this recognizes the spellings a repository actually writes rather
+// than reimplementing pattern matching or asking Git. Matching one exact line
+// used to report a repository that wrote the rule without the leading slash as
+// non-compliant and refuse to enable coordination for it, when the rule it had
+// was working.
+var ledgerAttributePatterns = []string{"/" + DefaultPath, DefaultPath}
+
 func declaresUnionMerge(data []byte) bool {
 	for _, line := range strings.Split(strings.ReplaceAll(string(data), "\r\n", "\n"), "\n") {
-		if strings.TrimSpace(line) == UnionAttribute {
+		fields := strings.Fields(line)
+		if len(fields) < 2 || strings.HasPrefix(fields[0], "#") {
+			continue
+		}
+		if slices.Contains(ledgerAttributePatterns, fields[0]) && slices.Contains(fields[1:], "merge=union") {
 			return true
 		}
 	}
@@ -370,6 +490,12 @@ func (l *Ledger) Save() error {
 	}
 	return os.Rename(tmpName, l.path)
 }
+
+// Damage describes any repetition Load had to reconcile in the file it read,
+// and is empty for a clean ledger. Saving the ledger rewrites it whole, so any
+// command that writes repairs the file as a side effect of succeeding; a
+// command that only reads reports this instead.
+func (l *Ledger) Damage() string { return l.damage }
 
 // Version reports the persisted ledger schema version.
 func (l *Ledger) Version() int { return l.version }
@@ -620,22 +746,30 @@ func (l *Ledger) ReserveOpaque(id, sourceRevision, sourceLocation string) error 
 // MarkLive records id as backed by a live artifact. An ID with no existing
 // entry gets one classified by shape — used by backfill, which seeds one
 // live entry per currently-live corpus ID.
-func (l *Ledger) MarkLive(id string) {
+func (l *Ledger) MarkLive(id string) { l.mark(id, StateLive) }
+
+// mark records id at state, classifying an unseen ID by shape. It is the
+// shared body of MarkLive and MarkRetired: exactly one event, at the state
+// asked for, and none at all when the entry already stands there or beyond.
+// Recording an identity that was retired before this ledger existed must not
+// invent a live event first — the log is read by people, and a transition
+// that never happened is noise the union merge then has to reconcile.
+func (l *Ledger) mark(id string, state State) {
 	if e, ok := l.byID[id]; ok {
+		if stateRank(e.State) >= stateRank(state) {
+			return
+		}
 		if l.version == 2 {
-			if stateRank(e.State) >= stateRank(StateLive) {
-				return
-			}
 			next := cloneEntry(*e)
-			next.State = StateLive
+			next.State = state
 			_ = l.foldEvent(next)
 			l.events = append(l.events, next)
 		} else {
-			e.State = StateLive
+			e.State = state
 		}
 		return
 	}
-	e := &Entry{ID: id, State: StateLive, Kind: KindOpaque}
+	e := &Entry{ID: id, State: state, Kind: KindOpaque}
 	if m := numericIDRe.FindStringSubmatch(id); m != nil {
 		if n, err := parseComponent(m[2]); err == nil {
 			e.Kind = KindNumeric
@@ -657,17 +791,7 @@ func (l *Ledger) MarkLive(id string) {
 // MarkRetired records id as a tombstoned or deleted identity. Like MarkLive,
 // it classifies a previously unseen ID by shape so migration backfill retains
 // a criterion tombstone without ever making that ID allocatable again.
-func (l *Ledger) MarkRetired(id string) {
-	l.MarkLive(id)
-	if l.version == 2 {
-		e := cloneEntry(*l.byID[id])
-		e.State = StateRetired
-		_ = l.foldEvent(e)
-		l.events = append(l.events, e)
-	} else {
-		l.byID[id].State = StateRetired
-	}
-}
+func (l *Ledger) MarkRetired(id string) { l.mark(id, StateRetired) }
 
 // PromoteReserved marks a previously allocated ID as live once its artifact
 // has been created. It deliberately refuses unreserved IDs so this transition
@@ -696,15 +820,8 @@ func (l *Ledger) PromoteReserved(id string) error {
 // Retire transitions an entry to Retired. A retired entry is never removed
 // and never reissued (ADR-048).
 func (l *Ledger) Retire(id string) {
-	if e, ok := l.byID[id]; ok {
-		if l.version == 2 {
-			next := cloneEntry(*e)
-			next.State = StateRetired
-			_ = l.foldEvent(next)
-			l.events = append(l.events, next)
-		} else {
-			e.State = StateRetired
-		}
+	if _, ok := l.byID[id]; ok {
+		l.mark(id, StateRetired)
 	}
 }
 

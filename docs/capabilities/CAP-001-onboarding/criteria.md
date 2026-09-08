@@ -244,4 +244,12 @@ Feature: Onboarding — install to first green validate
     Then the analysis only a completed plan and another analysis name is reported
     And the corpus remains valid, because a cited spike is not an invalid corpus
     But the analysis a decision cites and the analysis a constraint cites are both withheld from the report
+
+  @AC-180
+  Scenario: init installs the ledger merge rule into an attributes file the repository already has
+    Test-type: Unit
+    Given a repository carrying a ".gitattributes" that does not declare the identity ledger's union merge rule
+    When the user runs "clue init"
+    Then the rule is appended, every attribute already in the file is unchanged, and the run reports the file as amended rather than skipped
+    But a repository already declaring the rule is left byte-for-byte alone, whether or not it wrote the pattern with a leading slash
 ```

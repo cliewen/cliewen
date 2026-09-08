@@ -74,6 +74,7 @@ Usage:
   clue id next [--count=<n>] [--remote=<name>] [--timeout=<duration>] <prefix> [path]
   clue id sync [--remote=<name>] [--timeout=<duration>] [path]
   clue id live <id> [path]
+  clue id repair [path]
   clue refs [--apply] [--timeout=<duration>] [path]
   clue carriers <inventory> [path]
   clue validate [--forbid-changes] [--coverage] [--reality-gaps] [--index-rows] [--read-cost] [--intent] [path]
@@ -435,7 +436,7 @@ func runMigrate(args []string, out, errOut io.Writer) int {
 // top-level command (ADR-048).
 func runID(args []string, out, errOut io.Writer) int {
 	if len(args) == 0 {
-		fmt.Fprintln(errOut, "clue id: expected a subcommand (coordinate, next, sync, or live)")
+		fmt.Fprintln(errOut, "clue id: expected a subcommand (coordinate, next, sync, live, or repair)")
 		return 2
 	}
 	switch args[0] {
@@ -447,10 +448,68 @@ func runID(args []string, out, errOut io.Writer) int {
 		return runIDSync(args[1:], out, errOut)
 	case "live":
 		return runIDLive(args[1:], out, errOut)
+	case "repair":
+		return runIDRepair(args[1:], out, errOut)
 	default:
 		fmt.Fprintf(errOut, "clue id: unknown subcommand %q\n", args[0])
 		return 2
 	}
+}
+
+// noteLedgerDamage reports a ledger that Git's union merge combined, so a user
+// learns why their file looks doubled before the command that found it carries
+// on. It is a notice, not a failure: the entries are intact and any command
+// that saves the ledger writes it back whole.
+func noteLedgerDamage(root, command string, errOut io.Writer) {
+	l, err := ledger.Load(root)
+	if err != nil || l.Damage() == "" {
+		return
+	}
+	fmt.Fprintf(errOut, "clue id %s: %s. Any command that saves the ledger rewrites it clean, and `clue id repair` does so on its own\n", command, l.Damage())
+}
+
+// runIDRepair rewrites the ledger from what it means rather than from how it
+// is written. Git's union merge can leave the file with its header repeated,
+// and until this command no other could put that right: every command loads
+// the ledger, so the damage disabled its own recovery — including the sync the
+// documentation points at. Repair is the read-and-write pair on its own, so a
+// repository whose allocation is wedged has one command that unwedges it and
+// nobody has to hand-edit an append-only log.
+func runIDRepair(args []string, out, errOut io.Writer) int {
+	fs := flag.NewFlagSet("id repair", flag.ContinueOnError)
+	fs.SetOutput(errOut)
+	if err := fs.Parse(args); err != nil {
+		return 2
+	}
+	root := "."
+	if fs.NArg() > 0 {
+		root = fs.Arg(0)
+	}
+	if fs.NArg() > 1 {
+		fmt.Fprintln(errOut, "clue id repair: expected at most one repository path")
+		return 2
+	}
+	if !ledger.Exists(root) {
+		fmt.Fprintln(errOut, "clue id repair: identity ledger is missing; run `clue migrate --apply` first")
+		return 2
+	}
+	l, err := ledger.Load(root)
+	if err != nil {
+		fmt.Fprintf(errOut, "clue id repair: %v\n", err)
+		return 2
+	}
+	damage := l.Damage()
+	if damage == "" {
+		fmt.Fprintln(out, "identity ledger is well formed; nothing to repair")
+		return 0
+	}
+	if err := l.Save(); err != nil {
+		fmt.Fprintf(errOut, "clue id repair: %v\n", err)
+		return 2
+	}
+	fmt.Fprintf(out, "identity ledger repaired: %s\n", damage)
+	fmt.Fprintf(out, "%d identities kept, none reissued\n", len(l.Entries()))
+	return 0
 }
 
 func runIDCoordinate(args []string, out, errOut io.Writer) int {
@@ -473,6 +532,7 @@ func runIDCoordinate(args []string, out, errOut io.Writer) int {
 		fmt.Fprintln(errOut, "clue id coordinate: identity ledger is missing; run `clue migrate --apply` first")
 		return 2
 	}
+	noteLedgerDamage(root, "coordinate", errOut)
 	if err := idalloc.Coordinate(root, *remote, *timeout); err != nil {
 		fmt.Fprintf(errOut, "clue id coordinate: %v\n", err)
 		return 2
@@ -498,6 +558,7 @@ func runIDSync(args []string, out, errOut io.Writer) int {
 		fmt.Fprintln(errOut, "clue id sync: expected at most one repository path")
 		return 2
 	}
+	noteLedgerDamage(root, "sync", errOut)
 	if err := idalloc.Sync(root, *remote, *timeout); err != nil {
 		fmt.Fprintf(errOut, "clue id sync: %v\n", err)
 		return 2
@@ -528,6 +589,7 @@ func runIDLive(args []string, out, errOut io.Writer) int {
 		return 2
 	}
 
+	noteLedgerDamage(root, "live", errOut)
 	l, err := ledger.Load(root)
 	if err != nil {
 		fmt.Fprintf(errOut, "clue id live: %v\n", err)
@@ -573,13 +635,17 @@ func runIDNext(args []string, out, errOut io.Writer) int {
 		return 2
 	}
 
+	// Existence before load: a missing ledger reads as an empty one, so
+	// loading first let a parse failure pre-empt the message that actually
+	// tells a new repository what to do about it.
+	if !ledger.Exists(root) {
+		fmt.Fprintln(errOut, "clue id next: identity ledger is missing; run `clue migrate --apply` first")
+		return 2
+	}
+	noteLedgerDamage(root, "next", errOut)
 	l, err := ledger.Load(root)
 	if err != nil {
 		fmt.Fprintf(errOut, "clue id next: %v\n", err)
-		return 2
-	}
-	if !ledger.Exists(root) {
-		fmt.Fprintln(errOut, "clue id next: identity ledger is missing; run `clue migrate --apply` first")
 		return 2
 	}
 	var ids []string

@@ -235,3 +235,45 @@ func TestAC106_UnitNegative_FreshDistinctOpaqueIDPasses(t *testing.T) {
 		}
 	}
 }
+
+// A ledger Git's union merge combined is red — the file in the repository is
+// malformed and must not stay — but the message names the cause and the repair
+// instead of quoting a YAML parser at someone who never wrote the duplicate.
+func TestAC179_UnitPositive_ValidateNamesAUnionMergedLedgerAndItsRepair(t *testing.T) {
+	root := writeCorpus(t, validFiles)
+	half := "version: 2\ncoordination:\n    mode: local\nevents:\n    - {id: CH-001, kind: numeric, state: live, prefix: CH, component: \"1\"}\n"
+	writeLedger(t, root, half+half)
+	c, scanIssues := Scan(root)
+	if len(scanIssues) != 0 {
+		t.Fatalf("scan issues: %v", scanIssues)
+	}
+	found := ""
+	for _, is := range Validate(c, Options{}) {
+		if strings.Contains(is.Msg, "union merge") {
+			found = is.Msg
+		}
+	}
+	if found == "" {
+		t.Fatalf("no issue named the union merge; got: %v", Validate(c, Options{}))
+	}
+	if !strings.Contains(found, "clue id repair") {
+		t.Fatalf("issue = %q, want it to name the repair command", found)
+	}
+	if strings.Contains(found, "yaml:") || strings.Contains(found, "already defined") {
+		t.Fatalf("issue = %q, want a cause a user can act on, not a parser message", found)
+	}
+}
+
+func TestAC179_UnitNegative_ValidateSaysNothingAboutAWellFormedLedger(t *testing.T) {
+	root := writeCorpus(t, validFiles)
+	writeLedger(t, root, "version: 2\ncoordination:\n    mode: local\nevents:\n    - {id: CH-001, kind: numeric, state: live, prefix: CH, component: \"1\"}\n")
+	c, scanIssues := Scan(root)
+	if len(scanIssues) != 0 {
+		t.Fatalf("scan issues: %v", scanIssues)
+	}
+	for _, is := range Validate(c, Options{}) {
+		if strings.Contains(is.Msg, "union merge") || strings.Contains(is.Msg, "clue id repair") {
+			t.Fatalf("well-formed ledger reported as damaged: %q", is.Msg)
+		}
+	}
+}

@@ -421,3 +421,70 @@ func assertAllocationFailsWithoutLocalWriteAt(t *testing.T, root, remote, want s
 		t.Fatal("failed coordinated allocation changed the local ledger")
 	}
 }
+
+// The allocate path imported remote claims but not the remote high-water mark,
+// so a boundary carried by no claim — a migrated legacy counter whose artifact
+// was deleted in another clone — never reached the checked-in ledger. Nothing
+// visibly broke while allocation stayed coordinated, because the remote is
+// re-read every time; the damage showed only when something fell back to local
+// allocation and reissued a number the allocator had already burned.
+func TestAC170_IntegrationPositive_AllocateImportsRemoteHighWater(t *testing.T) {
+	base := t.TempDir()
+	remote := filepath.Join(base, "remote.git")
+	root := filepath.Join(base, "repo")
+	if err := os.MkdirAll(filepath.Join(root, ".clue"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	git(t, base, "init", "--bare", remote)
+	git(t, root, "init", "-b", "main")
+	git(t, root, "config", "user.name", "Test User")
+	git(t, root, "config", "user.email", "test@example.com")
+
+	// A legacy counter for AC stands at 50 with no surviving AC artifact, so
+	// only the high-water record carries that boundary.
+	legacy := "counters:\n    AC: \"50\"\n    CH: \"170\"\nentries:\n    - {id: CH-170, kind: numeric, state: live, prefix: CH, component: \"170\"}\n"
+	if err := os.WriteFile(filepath.Join(root, ledger.DefaultPath), []byte(legacy), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(root, ".gitattributes"), []byte(ledger.UnionAttribute+"\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	git(t, root, "add", ".")
+	git(t, root, "commit", "-m", "legacy ledger")
+	git(t, root, "remote", "add", "origin", remote)
+	git(t, root, "push", "-u", "origin", "main")
+	git(t, remote, "symbolic-ref", "HEAD", "refs/heads/main")
+	l, err := ledger.Load(root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	l.ConvertV2()
+	if err := l.Save(); err != nil {
+		t.Fatal(err)
+	}
+	if err := Coordinate(root, "origin", 30*time.Second); err != nil {
+		t.Fatal(err)
+	}
+
+	// Another contributor's checked-in ledger never carried the AC boundary.
+	withoutHighWater := "version: 2\ncoordination:\n    mode: git\n    remote: origin\nevents:\n    - {id: CH-170, kind: numeric, state: live, prefix: CH, component: \"170\"}\n"
+	if err := os.WriteFile(filepath.Join(root, ledger.DefaultPath), []byte(withoutHighWater), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	ids, err := Allocate(root, "CH", "", 1, 30*time.Second)
+	if err != nil || strings.Join(ids, ",") != "CH-171" {
+		t.Fatalf("Allocate = %v, %v; want CH-171", ids, err)
+	}
+	reloaded, err := ledger.Load(root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	next, err := reloaded.NextNumeric("AC")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if next != "AC-051" {
+		t.Fatalf("local allocation after coordinated allocation = %s, want AC-051; the remote high-water boundary was not imported", next)
+	}
+}

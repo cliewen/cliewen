@@ -580,3 +580,9 @@ events:
     - {id: CH-171-open-questions, kind: opaque, state: retired}
     - {id: CH-171-tasks, kind: opaque, state: retired}
     - {id: AC-177, kind: numeric, state: live, prefix: AC, component: "177"}
+    - {id: ADR-069, kind: numeric, state: reserved, prefix: ADR, component: "69"}
+    - {id: AC-179, kind: numeric, state: reserved, prefix: AC, component: "179"}
+    - {id: AC-180, kind: numeric, state: reserved, prefix: AC, component: "180"}
+    - {id: AC-179, kind: numeric, state: live, prefix: AC, component: "179"}
+    - {id: AC-180, kind: numeric, state: live, prefix: AC, component: "180"}
+    - {id: ADR-069, kind: numeric, state: live, prefix: ADR, component: "69"}

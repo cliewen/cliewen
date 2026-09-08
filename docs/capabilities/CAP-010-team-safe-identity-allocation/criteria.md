@@ -78,4 +78,14 @@ Feature: Team-safe identity allocation
     When the client loses the push response or cannot save the claim to its local ledger
     Then the command reports the remotely reserved identity
     And clue id sync recovers the reservation without allocating another number
+
+  @AC-179
+  Scenario: A ledger combined by Git's union merge recovers without losing an identity
+    Test-type: Unit
+    Given two branches each changed the top of the identity ledger and Git's union merge left the file with its header repeated
+    When a command reads the ledger
+    Then every identity from both halves survives at its furthest-along state and the next allocation is past all of them
+    And the command names what combined the file and how to rewrite it instead of reporting a parse failure
+    And saving the ledger writes it back whole, so a command that allocates also repairs
+    But a file whose repeated halves declare different coordination modes is refused for a person to decide
 ```

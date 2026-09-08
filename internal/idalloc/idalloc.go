@@ -483,6 +483,15 @@ func allocate(root, prefix, remoteOverride string, count int, timeout time.Durat
 				s = remoteState
 			}
 			ids = candidateIDs
+			// High-water first, in Coordinate's order. A migrated legacy
+			// counter whose artifact was deleted in another clone has no
+			// claim to carry it, so importing claims alone leaves the
+			// checked-in ledger's counters below the boundary the allocator
+			// has really reached — and any fall back to local allocation
+			// then hands out a number that was already burned.
+			if remoteErr = l.MergeHighWater(s.highWaterClaims()); remoteErr != nil {
+				return remoteErr
+			}
 			if remoteErr = l.MergeClaims(s.claims()); remoteErr != nil {
 				return remoteErr
 			}

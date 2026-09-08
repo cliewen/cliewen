@@ -635,13 +635,24 @@ func planLedgerEvents(root string, result *MigrationPlan) {
 	}
 	if ledger.Exists(root) {
 		l, err := ledger.Load(root)
-		if err == nil && l.Version() == 1 {
+		if err == nil {
 			before, readErr := os.ReadFile(filepath.Join(root, filepath.FromSlash(ledger.DefaultPath)))
-			if readErr == nil {
+			description := ""
+			switch {
+			case l.Version() == 1:
 				l.ConvertV2()
+				description = "convert the identity ledger to append-only events"
+			case l.Damage() != "":
+				// A ledger Git's union merge combined reads correctly but is
+				// written twice over, and migration is the command an adopter
+				// already runs to bring a repository up to date. Leaving it
+				// out was why a damaged ledger had no repair at all.
+				description = "repair the identity ledger combined by Git's union merge"
+			}
+			if readErr == nil && description != "" {
 				after, bytesErr := l.Bytes()
 				if bytesErr == nil {
-					result.Changes = append(result.Changes, Change{Path: ledger.DefaultPath, Migration: MigrationLedgerEvents, Description: "convert the identity ledger to append-only events", Existed: true, Before: before, After: after})
+					result.Changes = append(result.Changes, Change{Path: ledger.DefaultPath, Migration: MigrationLedgerEvents, Description: description, Existed: true, Before: before, After: after})
 				}
 			}
 		}
