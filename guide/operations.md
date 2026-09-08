@@ -23,7 +23,7 @@ A new or revised machine-proven criterion declares `Test-type: Unit`, `Integrati
 
 ## Coordinate identity allocation for a team
 
-The checked-in identity ledger starts in local mode. That is enough for one contributor, but `clue id next` warns because separate clones and worktrees can read the same state. Before a team allocates in parallel, a maintainer runs `clue id coordinate --remote=origin`, commits the ledger change, and merges it before contributors branch. The command creates the permanent `clue/id-allocator` branch on that remote and seeds it with every numeric identity already claimed by the ledger.
+The checked-in identity ledger starts in local mode. That is enough for one contributor, but `clue id next` warns because separate clones and worktrees can read the same state. Before a team allocates in parallel, a maintainer runs `clue id coordinate --remote=origin`, commits both files it writes — the ledger and `.clue/id-coordination.yaml` — and merges them before contributors branch. Committing only the ledger leaves every other clone reading no settings at all, which means local allocation, which is the collision coordinating was meant to prevent. The command creates the permanent `clue/id-allocator` branch on that remote and seeds it with every numeric identity already claimed by the ledger.
 
 Protect `clue/id-allocator` from deletion and force-push, while allowing the contributors who allocate IDs to make ordinary fast-forward pushes. Each allocation then uses Git's ref update as the serialization point. The checked-in ledger remains the source of lifecycle truth; the allocator branch holds permanent numeric reservations and is never merged into the working branch.
 

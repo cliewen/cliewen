@@ -705,3 +705,49 @@ func TestAC181_IntegrationNegative_LocalModeKeepsNoCoordinationFile(t *testing.T
 		t.Fatalf("coordination = %+v, want local", c)
 	}
 }
+
+// A settings file that exists but names no mode is not evidence of local
+// allocation. Defaulting it would be how a coordinated repository silently
+// returns to allocating locally, which is the collision coordinating prevents.
+func TestAC181_IntegrationNegative_PartialCoordinationFileFailsClosed(t *testing.T) {
+	for name, body := range map[string]string{
+		"remote without a mode": "remote: origin\n",
+		"empty file":            "",
+	} {
+		root := t.TempDir()
+		writeLedger(t, root, "version: 2\nevents:\n    - {id: CH-001, kind: numeric, state: live, prefix: CH, component: \"1\"}\n")
+		if err := os.WriteFile(filepath.Join(root, filepath.FromSlash(CoordinationPath)), []byte(body), 0o644); err != nil {
+			t.Fatal(err)
+		}
+		l, err := Load(root)
+		if err == nil {
+			t.Fatalf("%s: accepted, resolving to %+v", name, l.Coordination())
+		}
+		if !strings.Contains(err.Error(), "names no allocation mode") {
+			t.Fatalf("%s: error = %q", name, err)
+		}
+	}
+}
+
+// Saving a version-one ledger must not delete settings that loader never read.
+func TestAC181_IntegrationNegative_LegacyLedgerSaveKeepsCoordinationFile(t *testing.T) {
+	root := t.TempDir()
+	writeLedger(t, root, "counters:\n    CH: \"1\"\nentries:\n    - {id: CH-001, kind: numeric, state: live, prefix: CH, component: \"1\"}\n")
+	coordPath := filepath.Join(root, filepath.FromSlash(CoordinationPath))
+	if err := os.WriteFile(coordPath, []byte("mode: git\nremote: origin\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	l, err := Load(root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if l.Version() != 1 {
+		t.Fatalf("version = %d, want 1", l.Version())
+	}
+	if err := l.Save(); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := os.Stat(coordPath); err != nil {
+		t.Fatalf("saving a version-one ledger deleted the coordination file: %v", err)
+	}
+}

@@ -383,6 +383,9 @@ func resolveCoordination(root string, inline Coordination) (Coordination, error)
 		if unmarshalErr := yaml.Unmarshal(data, &fromFile); unmarshalErr != nil {
 			return Coordination{}, fmt.Errorf("%s: %w", path, unmarshalErr)
 		}
+		if fromFile.Mode == "" {
+			return Coordination{}, fmt.Errorf("%s: exists but names no allocation mode; a settings file that cannot be read as local or git is not evidence of either, and guessing would move the repository off the mode its team chose", path)
+		}
 		coord = fromFile
 	case !os.IsNotExist(err):
 		return Coordination{}, err
@@ -411,6 +414,9 @@ func CoordinationBytes(c Coordination) ([]byte, error) { return yaml.Marshal(c) 
 func (l *Ledger) saveCoordination() error {
 	path := filepath.Join(l.root, filepath.FromSlash(CoordinationPath))
 	if l.coord.Mode != "git" {
+		if l.version != 2 {
+			return nil // settings this ledger never read are not ours to delete
+		}
 		if err := os.Remove(path); err != nil && !os.IsNotExist(err) {
 			return err
 		}

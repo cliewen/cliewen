@@ -49,13 +49,23 @@ Feature: Onboarding — install to first green validate
     And a pre-existing taxonomy README without markers gains an appended index block, its prose intact
     And a re-run with nothing new to index changes no file
 
-  @AC-025
+  # Retired by AC-182 when clue init gained one additive exception: it appends the
+  # identity ledger's union merge rule to a .gitattributes that lacks it (AC-180).
+  @AC-025 @retired
   Scenario: init never replaces an existing file
     Given a repository that already contains one of the files init emits
     When the user runs "clue init"
     Then the existing file is not replaced and its prose outside clue:index markers is unchanged
     And the report names it as skipped
     And every file the existing one did not shadow is still created
+
+  @AC-182
+  Scenario: init never replaces the content of an existing file
+    Given a repository that already contains one of the files init emits
+    When the user runs "clue init"
+    Then no existing content is replaced or reordered, prose outside clue:index markers is unchanged, and the report names the file as skipped
+    And every file the existing one did not shadow is still created
+    But .gitattributes is the one file init adds to rather than skips, appending only the identity ledger's union merge rule when it is absent, as AC-180 governs
 
   @AC-036
   Scenario: The public guide gives an operator one supported next step

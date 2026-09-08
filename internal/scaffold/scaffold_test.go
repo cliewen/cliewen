@@ -345,7 +345,7 @@ func TestAC024_RerunOnUnchangedTreeIsANoOp(t *testing.T) {
 
 // AC-025: an existing file is never overwritten — it is skipped and the
 // report says so.
-func TestAC025_ExistingFileIsSkippedAndReported(t *testing.T) {
+func TestAC182_UnitPositive_ExistingFileIsSkippedAndReported(t *testing.T) {
 	root := t.TempDir()
 	own := "# My own routing hub\n"
 	if err := os.WriteFile(filepath.Join(root, "AGENTS.md"), []byte(own), 0o644); err != nil {
@@ -375,7 +375,7 @@ func TestAC025_ExistingFileIsSkippedAndReported(t *testing.T) {
 
 // AC-025 negative: skipping is per file, not per run — everything the
 // existing file did not shadow is still created.
-func TestAC025_SkipIsPerFileNotPerRun(t *testing.T) {
+func TestAC182_UnitNegative_SkipIsPerFileNotPerRun(t *testing.T) {
 	root := t.TempDir()
 	if err := os.WriteFile(filepath.Join(root, "AGENTS.md"), []byte("mine"), 0o644); err != nil {
 		t.Fatal(err)

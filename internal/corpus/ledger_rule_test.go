@@ -5,6 +5,8 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+
+	"github.com/cliewen/cliewen/internal/ledger"
 )
 
 func writeLedger(t *testing.T, root, yamlBody string) {
@@ -274,6 +276,44 @@ func TestAC179_UnitNegative_ValidateSaysNothingAboutAWellFormedLedger(t *testing
 	for _, is := range Validate(c, Options{}) {
 		if strings.Contains(is.Msg, "union merge") || strings.Contains(is.Msg, "clue id repair") {
 			t.Fatalf("well-formed ledger reported as damaged: %q", is.Msg)
+		}
+	}
+}
+
+// The union merge rule is what lets parallel branches append to the ledger
+// without conflicting, so a repository that coordinates allocation without it
+// is told, by the judge, before its contributors collide.
+func TestUnit_ValidateRequiresTheUnionRuleForACoordinatedLedger(t *testing.T) {
+	root := writeCorpus(t, validFiles)
+	writeLedger(t, root, "version: 2\ncoordination:\n    mode: git\n    remote: origin\nevents:\n    - {id: CH-001, kind: numeric, state: live, prefix: CH, component: \"1\"}\n")
+	c, scanIssues := Scan(root)
+	if len(scanIssues) != 0 {
+		t.Fatalf("scan issues: %v", scanIssues)
+	}
+	found := false
+	for _, is := range Validate(c, Options{}) {
+		if strings.Contains(is.Msg, "merge=union") {
+			found = true
+		}
+	}
+	if !found {
+		t.Fatalf("a coordinated ledger without the union rule passed: %v", Validate(c, Options{}))
+	}
+}
+
+func TestUnit_ValidateAcceptsACoordinatedLedgerThatDeclaresTheUnionRule(t *testing.T) {
+	root := writeCorpus(t, validFiles)
+	writeLedger(t, root, "version: 2\ncoordination:\n    mode: git\n    remote: origin\nevents:\n    - {id: CH-001, kind: numeric, state: live, prefix: CH, component: \"1\"}\n")
+	if err := os.WriteFile(filepath.Join(root, ".gitattributes"), []byte(ledger.UnionAttribute+"\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	c, scanIssues := Scan(root)
+	if len(scanIssues) != 0 {
+		t.Fatalf("scan issues: %v", scanIssues)
+	}
+	for _, is := range Validate(c, Options{}) {
+		if strings.Contains(is.Msg, "merge=union") {
+			t.Fatalf("a repository declaring the rule was still reported: %q", is.Msg)
 		}
 	}
 }
