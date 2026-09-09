@@ -4,9 +4,15 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 
 ## [Unreleased]
 
+## [0.24.1] - 2026-09-09
+
 ### Changed
 
 - **Installed Cliewen skills are more direct to use without relaxing workflow safeguards.** The upgrade workflow groups release and migration-preview outcomes in a quick decision table, and the agentic-review workflow separates reviewer responsibilities into scannable bullets while retaining its protected severity and hosted-review boundaries. The standalone skill directories also remove a duplicated pull-request rule and an historical MADR case study that an adopter does not need to perform a conversion.
+
+### Migration
+
+- **No repository migration is required for this patch release.** `clue migrate` recognizes this release's generated skill files as a managed baseline; there is nothing else to apply.
 
 ## [0.24.0] - 2026-09-08
 

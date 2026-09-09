@@ -576,6 +576,21 @@ var legacyDigests = []releaseManifest{
 		"clue-upgrade/skill.md":                "5d1ffe0388f5a1cfd68a4116fb8b986de7be199d2d0c20093f8e13fed1c12365",
 		"clue-verify/skill.md":                 "dcfea127ed5c3d1540a407bdfd89f8d441779c97225b62ddd818707b62ab175f",
 	}},
+	{Version: "0.24.1", Files: map[string]string{
+		"clue-analysis/skill.md":                        "eb1a8f0891a7dc239631e8795927683a31edc014cf02066d0b27b867c81ff3ea",
+		"clue-delta/references/review-boundary.md":      "6ceaadf2ccf7a780a9f1ff498bc00847ff65cbaac890693ccc771100ae9d4661",
+		"clue-delta/skill.md":                           "fa73317f1438eb677d1199aa1b8be1202352732987782de1cb9b8f00f926f0d0",
+		"clue-extract/mappings/madr.md":                 "b43829b6ae8b396ae9ebabef8ab2b0e80a9ca2c6dd7b52b011904cd414bc8c94",
+		"clue-extract/references/review-boundary.md":    "6ceaadf2ccf7a780a9f1ff498bc00847ff65cbaac890693ccc771100ae9d4661",
+		"clue-extract/skill.md":                         "adae478a6147be8399d590d471d356fdd31bc6b5f83616e76055a1c37c89f4bc",
+		"clue-plan/skill.md":                            "ea959c887d4f8a174fab2d7965064a383d99bbfde49ba4a73708f269ae4627fe",
+		"clue-upgrade/references/review-boundary.md":    "6ceaadf2ccf7a780a9f1ff498bc00847ff65cbaac890693ccc771100ae9d4661",
+		"clue-upgrade/references/upgrade-workflow.md":   "451531308496df921d60c437f3cad56d6195a3505668dca382a7eec44ad83d5c",
+		"clue-upgrade/skill.md":                         "ef1456a45ad3ed7dabfc5674ecbd0f9113cb5c8cad94d58c22c0798de0672c2f",
+		"clue-verify/references/agentic-review-loop.md": "b8c2f0aa4c73b1d7df0b61d2ae7f2fa0dfa854fde7f0f7f31e77859027f2b045",
+		"clue-verify/references/review-boundary.md":     "6ceaadf2ccf7a780a9f1ff498bc00847ff65cbaac890693ccc771100ae9d4661",
+		"clue-verify/skill.md":                          "65ed5645ab7af9f950bd52823bcd32f7b7648aa65e6935a82960542c37300e36",
+	}},
 }
 
 // Plan scans the target and returns the complete deterministic migration.
