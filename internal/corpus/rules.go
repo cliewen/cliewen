@@ -239,6 +239,9 @@ func checkProvenance(c *Corpus) []Issue {
 		if s == "inferred" && !hasCost {
 			issues = append(issues, Issue{a.Path, "provenance inferred requires reversal-cost low or high (ADR-035)"})
 		}
+		if s == "verified" && hasCost {
+			issues = append(issues, Issue{a.Path, "reversal-cost applies only to inferred meaning; remove it after verification (ADR-035)"})
+		}
 	}
 	for _, b := range ProvenanceBacklog(c).Blockers {
 		issues = append(issues, Issue{b.Artifact.Path, "high-cost inferred artifact " + b.Artifact.ID + " blocks active capability " + b.Capability.ID + " — verify it or classify it low only when reversal is cheap (ADR-035)"})

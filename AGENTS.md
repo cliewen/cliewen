@@ -21,7 +21,7 @@ A route does not authorize a push. Push directly to an integration branch only w
 
 ## Work from durable context
 
-For a full change with a known identity, run `clue context <id>` and read its bounded slice. Otherwise read [`docs/README.md`](docs/README.md), choose the closest artifact, then run `clue context`; `/docs` is the system of record and working memory.
+When the user asks what is next, run `clue next --all`, report the first actionable milestone and the alternatives, then read the selected plan with `clue context` before asking whether to start. For a full change with a known identity, run `clue context <id>` and read its bounded slice. Otherwise read [`docs/README.md`](docs/README.md), choose the closest artifact, then run `clue context`; `/docs` is the system of record and working memory.
 
 Assess documentation impact before closing every change. Keep `docs/architecture/README.md` current for system structure, `docs/design/README.md` current for cross-cutting behavior, and capability `design.md` for local detail; add or update only information that answers a reader question without duplicating existing material. Draft missing overviews from evidence, ask the user when a material boundary or intent is unclear, use Mermaid when it improves review, retain SVG when it does not, and state in the change or pull-request handoff what durable documentation changed or why none was needed.
 

@@ -172,6 +172,37 @@ func TestAC184_UnitNegative_PlanHealthGuidanceDoesNotTurnPassingChecksOrAllRepla
 	}
 }
 
+func TestAC186_UnitPositive_GeneratedGuidanceExplainsNextAndReversalCostLifecycle(t *testing.T) {
+	durable := mustRenderFile(t, "clue-delta/references/durable-work-state.md")
+	for _, want := range []string{
+		"run `clue next` before proposing work",
+		"active plan",
+		"draft plans as proposed rather than actionable",
+		"check that the plan still holds",
+	} {
+		if !strings.Contains(durable, want) {
+			t.Errorf("durable-work guidance is missing %q", want)
+		}
+	}
+	intent := mustRenderFile(t, "clue-delta/references/intent-model.md")
+	for _, want := range []string{
+		"Agent-drafted intent is `status: draft` with `provenance: inferred`",
+		"low explicitly permits deferral",
+		"Once a human verifies the meaning, remove `reversal-cost`",
+	} {
+		if !strings.Contains(intent, want) {
+			t.Errorf("intent-model guidance is missing %q", want)
+		}
+	}
+}
+
+func TestAC186_UnitNegative_GeneratedGuidanceDoesNotTreatDraftPlansAsActionable(t *testing.T) {
+	durable := mustRenderFile(t, "clue-delta/references/durable-work-state.md")
+	if strings.Contains(durable, "start the first milestone in a draft plan") {
+		t.Error("durable-work guidance treats draft plans as actionable")
+	}
+}
+
 func TestAC146_UnitPositive_ExtractionClassifiesDecisionsAndInventoriesLegacyRows(t *testing.T) {
 	target := mustRenderFile(t, "clue-extract/references/target-contract.md")
 	mapping := mustRenderFile(t, "clue-extract/mappings/madr.md")

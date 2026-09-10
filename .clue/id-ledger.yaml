@@ -604,3 +604,13 @@ events:
     - {id: CH-172, kind: numeric, state: retired, prefix: CH, component: "172"}
     - {id: CH-173, kind: numeric, state: retired, prefix: CH, component: "173"}
     - {id: AC-185, kind: numeric, state: retired, prefix: AC, component: "185"}
+    - {id: CH-174, kind: numeric, state: reserved, prefix: CH, component: "174"}
+    - {id: PDR-057, kind: numeric, state: reserved, prefix: PDR, component: "57"}
+    - {id: AC-186, kind: numeric, state: reserved, prefix: AC, component: "186"}
+    - {id: CH-175, kind: numeric, state: reserved, prefix: CH, component: "175"}
+    - {id: CH-174, kind: numeric, state: live, prefix: CH, component: "174"}
+    - {id: PDR-057, kind: numeric, state: live, prefix: PDR, component: "57"}
+    - {id: AC-186, kind: numeric, state: live, prefix: AC, component: "186"}
+    - {id: CH-175, kind: numeric, state: live, prefix: CH, component: "175"}
+    - {id: CH-176, kind: numeric, state: reserved, prefix: CH, component: "176"}
+    - {id: CH-176, kind: numeric, state: live, prefix: CH, component: "176"}

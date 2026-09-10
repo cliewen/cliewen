@@ -70,6 +70,7 @@ Usage:
   clue init [path]
   clue scaffold [path]
   clue context [--depth=<n>|all] [--stats] <id> [path]
+  clue next [--all] [path]
   clue id coordinate [--remote=<name>] [--force] [--timeout=<duration>] [path]
   clue id next [--count=<n>] [--remote=<name>] [--timeout=<duration>] <prefix> [path]
   clue id sync [--remote=<name>] [--timeout=<duration>] [path]
@@ -119,6 +120,11 @@ Commands:
              content is added, so the slice and its bound are unchanged;
              this is how a capability reaches the journey that governs it
              without the edge being written in two files.
+
+  next       Report unfinished milestones in active plans without changing
+             the corpus. A doing milestone precedes todo; --all lists every
+             active candidate. Unfinished milestones in draft plans are
+             reported as proposed, not actionable.
 
   migrate    Preview a versioned corpus and managed-carrier migration; use
              --apply to write the complete safe plan and
@@ -235,7 +241,7 @@ Commands:
 
   version    Print the release version this clue was built from.
 
-Release notice: init, scaffold, context, migrate, id, refs, and report print one line to
+Release notice: init, scaffold, context, next, migrate, id, refs, and report print one line to
 standard error when a newer release exists. Standard output and the exit code
 are identical with it and without it, and the answer is cached for a day. Never
 from validate or version, never when CI carries a value, and never when
@@ -272,6 +278,8 @@ func run(command string, args []string) int {
 		return runScaffold(args, os.Stdout, os.Stderr)
 	case "context":
 		return runContext(args, os.Stdout, os.Stderr)
+	case "next":
+		return runNext(args, os.Stdout, os.Stderr)
 	case "migrate":
 		return runMigrate(args, os.Stdout, os.Stderr)
 	case "id":
@@ -313,6 +321,7 @@ var notifierCommands = map[string]bool{
 	"init":     true,
 	"scaffold": true,
 	"context":  true,
+	"next":     true,
 	"migrate":  true,
 	"id":       true,
 	"refs":     true,

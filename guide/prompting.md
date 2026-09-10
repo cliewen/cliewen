@@ -52,17 +52,17 @@ This is the prompt to use after a week away, and it is deliberately short:
 What is next?
 ```
 
-There is no `clue next` command. This prompt works because the plan is a file the agent can read:
+The `clue next` command gives the agent a deterministic first pass, while the plan remains the source of truth:
 
 1. It reads `AGENTS.md`, the routing hub every agent starts from.
-2. It opens the active plan under `docs/plans/` — a plan is a flat `P-xxx-slug.md` file whose milestone table has one row per milestone, with an exit criterion, a status, and an evidence cell.
-3. It reports the first milestone whose exit criterion is not yet satisfied by evidence, quoting that row rather than paraphrasing it.
-4. It recommends a route for that work and waits, because choosing what to do next is your decision, not its own.
+2. It runs `clue next`, which reads active plans and prioritizes `doing` before `todo`; draft-plan rows are reported as proposed rather than actionable.
+3. It opens the selected plan under `docs/plans/` — a plan is a flat `P-xxx-slug.md` file whose milestone table has one row per milestone, with an exit criterion, a status, and an evidence cell.
+4. It reports the selected row and any alternatives, recommends a route, and waits, because choosing what to do next is your decision, not its own.
 
 When several plans are open, or the repository may disagree with your memory, ask the agent to make its reasoning explicit:
 
 ```text
-What is next? Read the active plan, name the first milestone that has no evidence yet, quote its exit criterion, and recommend a route. Do not change anything yet.
+What is next? Run `clue next --all`, read the selected plan context, name the first actionable milestone and its alternatives, and recommend a route. Do not change anything yet.
 ```
 
 `clue context <id>` is how the agent bounds what it reads: given a plan, capability, or criterion identity it prints that artifact's outgoing-link slice, so the answer comes from a few relevant files rather than from the whole corpus. `clue refs` and `clue report` answer narrower questions about references and extraction state. All of them read; none of them decide.
