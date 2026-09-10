@@ -1950,6 +1950,13 @@ func planLedgerBackfill(root string, result *MigrationPlan) {
 			l.MarkLive(criterion.ID)
 		}
 	}
+	for _, milestone := range corpus.LedgerMilestoneIdentities(c) {
+		if milestone.Status == "done" || milestone.Status == "dropped" {
+			l.MarkRetired(milestone.ID)
+			continue
+		}
+		l.MarkLive(milestone.ID)
+	}
 	data, err := l.Bytes()
 	if err != nil {
 		return
