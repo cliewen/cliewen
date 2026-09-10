@@ -11,8 +11,10 @@ import (
 	"runtime"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/cliewen/cliewen/internal/corpus"
+	"github.com/cliewen/cliewen/internal/idalloc"
 	"github.com/cliewen/cliewen/internal/ledger"
 	"github.com/cliewen/cliewen/internal/scaffold"
 )
@@ -561,7 +563,7 @@ func TestAC064_UnitNegative_MigrationRejectsChangedSourceAfterPreview(t *testing
 
 func TestAC064_UnitPositive_MigrationRegistryIsOrdered(t *testing.T) {
 	registry := Registry()
-	want := []string{MigrationReversalCost, MigrationStatusLifecycle, MigrationManagedCarriers, MigrationQualifiedReferences, MigrationClaudeEntryPoint, MigrationHubReleaseCheck, MigrationPromotedConstraints, MigrationLedgerBackfill, MigrationCompetingWall, MigrationLegacyDecisionLog, MigrationSystemOverviews, MigrationRoleMarker, MigrationSpentAnalysis, MigrationProductIntent, MigrationLedgerEvents}
+	want := []string{MigrationReversalCost, MigrationStatusLifecycle, MigrationManagedCarriers, MigrationQualifiedReferences, MigrationClaudeEntryPoint, MigrationHubReleaseCheck, MigrationPromotedConstraints, MigrationLedgerBackfill, MigrationCompetingWall, MigrationLegacyDecisionLog, MigrationSystemOverviews, MigrationRoleMarker, MigrationSpentAnalysis, MigrationProductIntent, MigrationLedgerEvents, MigrationMilestoneLedgerBackfill}
 	if len(registry) != len(want) {
 		t.Fatalf("registry has %d entries, want %d", len(registry), len(want))
 	}
@@ -1407,6 +1409,122 @@ func TestAC187_UnitNegative_NoPlansBackfillsNoMilestoneIdentity(t *testing.T) {
 	t.Fatalf("no %s change planned", MigrationLedgerBackfill)
 }
 
+func TestUnit_ExistingLedgerBackfillsMilestonesItNeverCovered(t *testing.T) {
+	root := migrationFixture(t, "")
+	docsReadme := "# Docs\n\n<!-- clue:index:start -->\n- [analysis/](analysis/README.md)\n- [plans/](plans/README.md)\n<!-- clue:index:end -->\n"
+	if err := os.WriteFile(filepath.Join(root, "docs", "README.md"), []byte(docsReadme), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.MkdirAll(filepath.Join(root, "docs", "plans"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	plansReadme := "# Plans\n\n<!-- clue:index:start -->\n- [P-001](P-001-fixture.md)\n<!-- clue:index:end -->\n"
+	if err := os.WriteFile(filepath.Join(root, "docs", "plans", "README.md"), []byte(plansReadme), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	plan := "---\nid: P-001\ntype: plan\nstatus: active\nlinks: []\ntitle: Fixture plan\n---\n\n# P-001 — Fixture plan\n\n## Milestones\n\n| ID | Milestone | Status | Evidence |\n|---|---|---|---|\n| M-001 | done milestone | done | |\n| M-043 | withdrawn milestone | dropped | |\n| M-090 | live milestone | todo | |\n"
+	if err := os.WriteFile(filepath.Join(root, "docs", "plans", "P-001-fixture.md"), []byte(plan), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	// A ledger that already exists, seeded before milestones were tracked:
+	// it carries an unrelated identity but nothing for M, exactly the shape
+	// planLedgerBackfill's early return leaves behind for a pre-existing
+	// repository (P-022/M-092).
+	l, err := ledger.Load(root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	l.MarkLive("AN-001")
+	if err := l.Save(); err != nil {
+		t.Fatal(err)
+	}
+
+	migrationPlan, err := Plan(root, Options{ReversalCost: "low"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	var backfill *Change
+	for i := range migrationPlan.Changes {
+		if migrationPlan.Changes[i].Migration == MigrationMilestoneLedgerBackfill {
+			backfill = &migrationPlan.Changes[i]
+		}
+	}
+	if backfill == nil {
+		t.Fatalf("no %s change planned; changes: %+v", MigrationMilestoneLedgerBackfill, migrationPlan.Changes)
+	}
+	if !backfill.Existed {
+		t.Fatal("milestone backfill must rewrite an existing ledger, not claim it is new")
+	}
+	got := string(backfill.After)
+	if !strings.Contains(got, "{id: M-001, kind: numeric, state: retired") || !strings.Contains(got, "{id: M-043, kind: numeric, state: retired") || !strings.Contains(got, "{id: M-090, kind: numeric, state: live") {
+		t.Fatalf("milestones were not backfilled with their lifecycle states:\n%s", got)
+	}
+	if !strings.Contains(got, "id: AN-001") {
+		t.Fatalf("backfill must not drop the ledger's existing identity:\n%s", got)
+	}
+
+	if err := Apply(root, migrationPlan); err != nil {
+		t.Fatalf("apply: %v", err)
+	}
+	applied, err := ledger.Load(root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if next, err := applied.NextNumeric("M"); err != nil || next != "M-091" {
+		t.Fatalf("next M after backfill = %q, %v; want M-091", next, err)
+	}
+	if !applied.IsUsed("AN-001") {
+		t.Fatal("backfill must not renumber or drop the pre-existing identity")
+	}
+
+	second, err := Plan(root, Options{ReversalCost: "low"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, c := range second.Changes {
+		if c.Migration == MigrationMilestoneLedgerBackfill {
+			t.Fatalf("second run planned another milestone backfill: %+v", c)
+		}
+	}
+}
+
+func TestUnit_LedgerAlreadyCoveringEveryMilestonePlansNoChange(t *testing.T) {
+	root := migrationFixture(t, "")
+	docsReadme := "# Docs\n\n<!-- clue:index:start -->\n- [analysis/](analysis/README.md)\n- [plans/](plans/README.md)\n<!-- clue:index:end -->\n"
+	if err := os.WriteFile(filepath.Join(root, "docs", "README.md"), []byte(docsReadme), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.MkdirAll(filepath.Join(root, "docs", "plans"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	plansReadme := "# Plans\n\n<!-- clue:index:start -->\n- [P-001](P-001-fixture.md)\n<!-- clue:index:end -->\n"
+	if err := os.WriteFile(filepath.Join(root, "docs", "plans", "README.md"), []byte(plansReadme), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	plan := "---\nid: P-001\ntype: plan\nstatus: active\nlinks: []\ntitle: Fixture plan\n---\n\n# P-001 — Fixture plan\n\n## Milestones\n\n| ID | Milestone | Status | Evidence |\n|---|---|---|---|\n| M-001 | live milestone | todo | |\n"
+	if err := os.WriteFile(filepath.Join(root, "docs", "plans", "P-001-fixture.md"), []byte(plan), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	l, err := ledger.Load(root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	l.MarkLive("M-001")
+	if err := l.Save(); err != nil {
+		t.Fatal(err)
+	}
+
+	migrationPlan, err := Plan(root, Options{ReversalCost: "low"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, c := range migrationPlan.Changes {
+		if c.Migration == MigrationMilestoneLedgerBackfill {
+			t.Fatalf("a ledger already covering every declared milestone must plan no change: %+v", c)
+		}
+	}
+}
+
 func TestAC178_UnitNegative_ExistingLedgerFileIsUntouched(t *testing.T) {
 	root := migrationFixture(t, "")
 	ledgerDir := filepath.Join(root, ".clue")
@@ -1717,4 +1835,106 @@ func TestUnit_MigrateStillSeedsALedgerWhenSettingsAreDamaged(t *testing.T) {
 		}
 	}
 	t.Fatalf("no ledger was seeded for a corpus with damaged settings; changes: %v", plan.Changes)
+}
+
+func testGit(t *testing.T, dir string, args ...string) string {
+	t.Helper()
+	cmd := exec.Command("git", append([]string{"-C", dir}, args...)...)
+	out, err := cmd.CombinedOutput()
+	if err != nil {
+		t.Fatalf("git %s: %v\n%s", strings.Join(args, " "), err, out)
+	}
+	return strings.TrimSpace(string(out))
+}
+
+// TestAC188_IntegrationPositive_ExistingLedgerBackfillsMilestonesAndAllocatesSafelyUnderCoordination
+// exercises the migration path end to end (P-022/M-092): a repository whose
+// ledger already exists and is coordinated through a disposable Git remote —
+// the shape this repository is in today — never had a read path for its
+// milestone identities. Running clue migrate backfills them into the
+// existing ledger, and clue id next M then allocates safely above every
+// declared milestone under the same Git coordination CH-171 made safe for
+// every other prefix.
+func TestAC188_IntegrationPositive_ExistingLedgerBackfillsMilestonesAndAllocatesSafelyUnderCoordination(t *testing.T) {
+	root := migrationFixture(t, "")
+	docsReadme := "# Docs\n\n<!-- clue:index:start -->\n- [analysis/](analysis/README.md)\n- [plans/](plans/README.md)\n<!-- clue:index:end -->\n"
+	if err := os.WriteFile(filepath.Join(root, "docs", "README.md"), []byte(docsReadme), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.MkdirAll(filepath.Join(root, "docs", "plans"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	plansReadme := "# Plans\n\n<!-- clue:index:start -->\n- [P-001](P-001-fixture.md)\n<!-- clue:index:end -->\n"
+	if err := os.WriteFile(filepath.Join(root, "docs", "plans", "README.md"), []byte(plansReadme), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	planDoc := "---\nid: P-001\ntype: plan\nstatus: active\nlinks: []\ntitle: Fixture plan\n---\n\n# P-001 — Fixture plan\n\n## Milestones\n\n| ID | Milestone | Status | Evidence |\n|---|---|---|---|\n| M-001 | done milestone | done | |\n| M-043 | withdrawn milestone | dropped | |\n| M-090 | live milestone | todo | |\n"
+	if err := os.WriteFile(filepath.Join(root, "docs", "plans", "P-001-fixture.md"), []byte(planDoc), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	// A ledger that already exists and is already coordinated, carrying an
+	// unrelated identity but no milestone entries — the shape this
+	// repository's own ledger is in before this change.
+	l, err := ledger.Load(root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	l.MarkLive("AN-001")
+	if err := l.Save(); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(root, ".gitattributes"), []byte(ledger.UnionAttribute+"\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	base := t.TempDir()
+	remote := filepath.Join(base, "remote.git")
+	testGit(t, base, "init", "--bare", remote)
+	testGit(t, root, "init", "-b", "main")
+	testGit(t, root, "config", "user.name", "Test User")
+	testGit(t, root, "config", "user.email", "test@example.com")
+	testGit(t, root, "add", ".")
+	testGit(t, root, "commit", "-m", "seed")
+	testGit(t, root, "remote", "add", "origin", remote)
+	testGit(t, root, "push", "-u", "origin", "main")
+	testGit(t, remote, "symbolic-ref", "HEAD", "refs/heads/main")
+	if err := idalloc.Coordinate(root, "origin", false, 30*time.Second); err != nil {
+		t.Fatalf("Coordinate: %v", err)
+	}
+	testGit(t, root, "add", ".clue")
+	testGit(t, root, "commit", "-m", "coordinate")
+	testGit(t, root, "push", "origin", "main")
+
+	migrationPlan, err := Plan(root, Options{ReversalCost: "low"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	var backfill *Change
+	for i := range migrationPlan.Changes {
+		if migrationPlan.Changes[i].Migration == MigrationMilestoneLedgerBackfill {
+			backfill = &migrationPlan.Changes[i]
+		}
+	}
+	if backfill == nil {
+		t.Fatalf("no %s change planned; changes: %+v", MigrationMilestoneLedgerBackfill, migrationPlan.Changes)
+	}
+	got := string(backfill.After)
+	if !strings.Contains(got, "{id: M-001, kind: numeric, state: retired") || !strings.Contains(got, "{id: M-043, kind: numeric, state: retired") || !strings.Contains(got, "{id: M-090, kind: numeric, state: live") {
+		t.Fatalf("milestones were not backfilled with their lifecycle states:\n%s", got)
+	}
+	if err := Apply(root, migrationPlan); err != nil {
+		t.Fatalf("apply: %v", err)
+	}
+	testGit(t, root, "add", ".clue")
+	testGit(t, root, "commit", "-m", "backfill milestones")
+	testGit(t, root, "push", "origin", "main")
+
+	ids, err := idalloc.Allocate(root, "M", "", 1, 30*time.Second)
+	if err != nil {
+		t.Fatalf("Allocate: %v", err)
+	}
+	if len(ids) != 1 || ids[0] != "M-091" {
+		t.Fatalf("allocated %v, want [M-091]", ids)
+	}
 }
