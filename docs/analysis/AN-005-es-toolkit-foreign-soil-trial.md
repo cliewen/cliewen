@@ -3,7 +3,6 @@ id: AN-005
 type: analysis
 status: active
 provenance: verified
-reversal-cost: low
 links: [P-002, M-007, PDR-005, AN-004]
 title: Foreign-soil trial — es-toolkit
 ---

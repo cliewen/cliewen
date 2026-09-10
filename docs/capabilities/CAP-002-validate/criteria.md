@@ -454,4 +454,15 @@ Feature: clue validate — deterministic corpus judgment
     When the user runs "clue validate"
     Then an analysis naming durable artifacts that resolve passes, and an analysis declaring nothing passes unchanged
     But the field on a non-analysis artifact, an empty list, an unresolvable ID, a self-reference, and an ID naming another analysis each fail and name the offending artifact
+
+  @AC-186
+  Scenario: Next work and inferred-meaning cost are machine-readable
+    Test-type: Unit
+    Given a corpus with active plans containing `doing` and `todo` milestones, and a draft plan containing unfinished milestones
+    When the user runs `clue next`
+    Then it recommends the first active `doing` milestone in stable plan and table order, exposes other active unfinished milestones as alternatives, and reports draft milestones as proposed rather than actionable
+    And `clue next --all` lists every unfinished active milestone without changing the corpus
+    Given an inferred non-decision artifact
+    Then `reversal-cost: low` explicitly permits deferral, `reversal-cost: high` blocks an active capability that directly depends on it, and an inferred artifact without either value fails validation
+    But a verified non-decision artifact carrying `reversal-cost` fails validation, and a migration removes that obsolete field while preserving the artifact's other content
 ```

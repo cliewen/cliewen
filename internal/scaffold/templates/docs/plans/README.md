@@ -8,5 +8,7 @@ Closing the plan is that same bookkeeping: the change completing the last milest
 
 Every full change proposal names the plan item it serves, or explicitly declares itself plan-less — silence is not an option.
 
+Plans in `draft` are proposed and do not supply actionable work; `active` plans supply the next work, while `completed` plans are history. `clue next [--all]` reads active milestone tables, prioritizes `doing` before `todo`, and reports draft milestones separately for human review.
+
 <!-- clue:index:start -->
 <!-- clue:index:end -->

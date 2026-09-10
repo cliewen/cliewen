@@ -1142,6 +1142,15 @@ func migrateArtifact(rel string, before []byte, reversalCost string) ([]byte, []
 			}
 		}
 	}
+	if fields.Provenance == "verified" && fields.Type != "decision" && fields.HasReversalCost {
+		updated, removed := removeField(front, "reversal-cost")
+		if !removed {
+			findings = append(findings, Finding{Path: rel, Migration: MigrationReversalCost, Message: "reversal-cost is not a safe top-level field; remove it by hand after verification before resuming"})
+		} else {
+			front = updated
+			changes = append(changes, "remove reversal-cost after verification")
+		}
+	}
 	if fields.Status == "verified" && fields.Type != "decision" {
 		if fields.Type == "architecture" || fields.Type == "analysis" {
 			if !fields.StatusSimple {
@@ -1319,6 +1328,14 @@ func replaceField(front, key, value string) (string, bool) {
 	suffix := trailingComment(front[match[8]:match[9]])
 	eol := front[match[10]:match[11]]
 	return front[:lineStart] + prefix + value + suffix + eol + front[lineEnd:], true
+}
+
+func removeField(front, key string) (string, bool) {
+	match, ok := topLevelField(front, key)
+	if !ok {
+		return front, false
+	}
+	return front[:match[0]] + front[match[1]:], true
 }
 
 func migrationForArtifact(changes []string) string {

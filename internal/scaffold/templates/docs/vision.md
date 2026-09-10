@@ -24,4 +24,4 @@ Keep it to roughly one screen. It is read while orienting, so length is a cost p
 
 This is not a roadmap, a backlog, an architecture document, a set of requirements, or a marketing statement. It does not need a business case, and it works the same for a commercial product, an internal system, a library, a platform, or an open-source project. Goals link here (`links: [VIS-001]`); this file does not list them, and a change edits it only when the direction itself changes.
 
-If an agent drafted this from repository evidence rather than from your answers, it stays `status: draft` with `provenance: inferred` and a `reversal-cost` until you confirm it. That is the corpus's ordinary way of saying no human has agreed to this yet.
+If an agent drafted this from repository evidence rather than from your answers, it stays `status: draft` with `provenance: inferred` and `reversal-cost: low|high` until you confirm it. Remove `reversal-cost` when you promote it: the field classifies deferred inference, not verified meaning. That is the corpus's ordinary way of saying no human has agreed to this yet.

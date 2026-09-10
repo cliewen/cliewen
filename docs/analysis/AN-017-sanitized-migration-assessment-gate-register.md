@@ -3,7 +3,6 @@ id: AN-017
 type: analysis
 status: active
 provenance: verified
-reversal-cost: low
 links: [P-011, P-012, PDR-026, ADR-048, ADR-049, ADR-051, ADR-052, ADR-053, ADR-054, PDR-027, PDR-028, CAP-003]
 title: The brownfield migration assessment re-derived as an inspectable gate register
 ---

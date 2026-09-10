@@ -32,7 +32,7 @@ graph TD
 
 The last arrow matters most. These records are not paperwork; they are the next turn's context.
 
-*What is next?* works as a prompt because the plan is a file with a milestone table, not because anything remembered your last session. `clue context <id>` gives an agent a small, relevant slice to read because the links between artifacts were written down while the reasoning was fresh. A decision made three months ago does not have to be re-derived, re-argued, or guessed at from a diff, because it is a record with its rejected alternatives still attached.
+*What is next?* works as a prompt because `clue next` reads the plan's milestone table, not because anything remembered your last session. `clue context <id>` gives an agent a small, relevant slice to read because the links between artifacts were written down while the reasoning was fresh. A decision made three months ago does not have to be re-derived, re-argued, or guessed at from a diff, because it is a record with its rejected alternatives still attached.
 
 This is where the method pays off. In a typical agent workflow, each session starts close to zero because the reasoning was in a chat that is no longer available. Under Cliewen, each turn leaves a better brief for the next agent, teammate, or new hire. The overhead is front-loaded and visible: you pay it on the first change and benefit from it later. [The design of Cliewen](./design) explains that trade, including when it is not worth making.
 
