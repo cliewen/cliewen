@@ -115,4 +115,12 @@ Feature: Team-safe identity allocation
     Then it writes one live or retired event per declared M-xxx identity, using each milestone's own status to choose the state
     And the M counter is seeded above every declared milestone ID, not at an implicit zero
     But a corpus with no plans backfills no milestone identity
+
+  @AC-188
+  Scenario: An already-existing ledger backfills the milestone identities it never covered
+    Test-type: Integration (single-direction)
+    Given a repository already carries a version-two ledger with no milestone entries and plans declaring milestone tables, coordinated through a disposable Git remote
+    When the user runs "clue migrate --apply" and then allocates through "clue id next M"
+    Then every declared M-xxx identity is added to the ledger at its own live or retired state without renumbering or duplicating any existing entry
+    And the allocation returns a milestone ID above every one declared in the corpus
 ```

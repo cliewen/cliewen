@@ -99,6 +99,14 @@ const (
 	// MigrationLedgerEvents converts the rewrite-oriented ledger to the
 	// append-only event representation and installs its union merge rule.
 	MigrationLedgerEvents = "MIG-015"
+	// MigrationMilestoneLedgerBackfill seeds milestone identities into a
+	// ledger that already existed before milestones were covered (P-022/
+	// M-092): MigrationLedgerBackfill only runs the first time a repository
+	// gets a ledger at all, so a repository that adopted the ledger before
+	// milestones were tracked never had a read path for them and its M
+	// counter was never seeded. This closes that gap for an already-existing
+	// ledger without renumbering or touching any other identity.
+	MigrationMilestoneLedgerBackfill = "MIG-016"
 )
 
 // Options controls planning. Preview is the default; applying a plan is a
@@ -131,6 +139,7 @@ var orderedMigrations = []MigrationDefinition{
 	{ID: MigrationSpentAnalysis, Description: "report an analysis whose findings a durable artifact now carries"},
 	{ID: MigrationProductIntent, Description: "add the optional use-case folder and report a corpus that states no vision"},
 	{ID: MigrationLedgerEvents, Description: "make the identity ledger append-only and merge-safe"},
+	{ID: MigrationMilestoneLedgerBackfill, Description: "seed milestone identities missing from an already-existing ledger"},
 }
 
 // Registry returns the migration order without exposing mutable package state.
@@ -619,6 +628,7 @@ func Plan(root string, opts Options) (MigrationPlan, error) {
 	planPromotedConstraints(root, &result)
 	planLedgerBackfill(root, &result)
 	planLedgerEvents(root, &result)
+	planMilestoneLedgerBackfill(root, &result)
 	planCompetingWall(root, &result)
 	planLegacyDecisionLog(root, &result)
 	overviewFolders, err := planSystemOverviews(root, &result)
@@ -1967,6 +1977,78 @@ func planLedgerBackfill(root string, result *MigrationPlan) {
 		Description: fmt.Sprintf("seed the identity ledger with %d live id(s) from the current corpus scan", len(c.ByID)),
 		Existed:     false,
 		After:       data,
+	})
+}
+
+// planMilestoneLedgerBackfill seeds a milestone identity into a ledger that
+// already existed before milestones were covered (ADR-048, P-022/M-092):
+// planLedgerBackfill only runs the first time a repository gets a ledger, so
+// a repository that adopted the ledger earlier never had every M-xxx table
+// row marked and its M counter was never seeded. It reports one entry per
+// milestone the ledger does not already carry under any state, leaving
+// every other identity untouched, and nothing when the ledger already
+// carries every declared milestone.
+//
+// It skips a ledger this same plan is about to create or rewrite: that path
+// (a fresh ledger, or planLedgerEvents converting or repairing one) already
+// computes its own complete After bytes for ledger.DefaultPath, and a second
+// change to the same path would have Apply preflight both against the same
+// on-disk Before and let whichever writes last silently discard the other's
+// work. A repository in that rarer combination — still on a version-one
+// ledger and missing milestones — backfills its milestones on the migration
+// run after the conversion, once the path is no longer also being rewritten.
+func planMilestoneLedgerBackfill(root string, result *MigrationPlan) {
+	if !ledger.Exists(root) {
+		return // a brand-new ledger already covers milestones via planLedgerBackfill
+	}
+	for _, change := range result.Changes {
+		if change.Path == ledger.DefaultPath {
+			return
+		}
+	}
+	c, issues := corpus.Scan(root)
+	if len(issues) > 0 {
+		return // parse-level problems are corpus.Validate's judgment, not migration's
+	}
+	l, err := ledger.Load(root)
+	if err != nil {
+		result.Notices = append(result.Notices, Notice{
+			Path:      ledger.DefaultPath,
+			Migration: MigrationMilestoneLedgerBackfill,
+			Message:   "could not be read, so no milestone identities were backfilled: " + err.Error(),
+		})
+		return
+	}
+	before, err := os.ReadFile(filepath.Join(root, filepath.FromSlash(ledger.DefaultPath)))
+	if err != nil {
+		return
+	}
+	seeded := 0
+	for _, milestone := range corpus.LedgerMilestoneIdentities(c) {
+		if l.IsUsed(milestone.ID) {
+			continue
+		}
+		seeded++
+		if milestone.Status == "done" || milestone.Status == "dropped" {
+			l.MarkRetired(milestone.ID)
+			continue
+		}
+		l.MarkLive(milestone.ID)
+	}
+	if seeded == 0 {
+		return
+	}
+	after, err := l.Bytes()
+	if err != nil {
+		return
+	}
+	result.Changes = append(result.Changes, Change{
+		Path:        ledger.DefaultPath,
+		Migration:   MigrationMilestoneLedgerBackfill,
+		Description: fmt.Sprintf("seed %d milestone id(s) missing from the identity ledger", seeded),
+		Existed:     true,
+		Before:      before,
+		After:       after,
 	})
 }
 
