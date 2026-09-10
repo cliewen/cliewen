@@ -2,8 +2,7 @@
 id: PDR-056
 type: decision
 status: verified
-links: [PDR-033, PDR-046, CAP-006, C-011]
-supersedes: [PDR-008]
+links: [PDR-008, PDR-033, PDR-046, CAP-006, C-011]
 title: Plan-health checks pause invalid work; replanning is not automatically a decision
 author: agent
 accepted-by: Flemming N. Larsen (2026-09-10, conversation)
