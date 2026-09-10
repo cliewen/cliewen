@@ -74,6 +74,7 @@ Usage:
   clue id next [--count=<n>] [--remote=<name>] [--timeout=<duration>] <prefix> [path]
   clue id sync [--remote=<name>] [--timeout=<duration>] [path]
   clue id live <id> [path]
+  clue id retire <id> [path]
   clue id repair [path]
   clue refs [--apply] [--timeout=<duration>] [path]
   clue carriers <inventory> [path]
@@ -144,6 +145,10 @@ Commands:
 
   id live    Mark a previously reserved ID as live after its artifact
              has been created. Refuses an ID that is not reserved.
+             Path defaults to ".".
+
+  id retire  Mark an existing reserved or live ID as retired after its
+             artifact has been deleted. Refuses an unknown ID.
              Path defaults to ".".
 
   refs       Resolve the external addresses docs/ and changes/ point at,
@@ -436,7 +441,7 @@ func runMigrate(args []string, out, errOut io.Writer) int {
 // top-level command (ADR-048).
 func runID(args []string, out, errOut io.Writer) int {
 	if len(args) == 0 {
-		fmt.Fprintln(errOut, "clue id: expected a subcommand (coordinate, next, sync, live, or repair)")
+		fmt.Fprintln(errOut, "clue id: expected a subcommand (coordinate, next, sync, live, retire, or repair)")
 		return 2
 	}
 	switch args[0] {
@@ -448,6 +453,8 @@ func runID(args []string, out, errOut io.Writer) int {
 		return runIDSync(args[1:], out, errOut)
 	case "live":
 		return runIDLive(args[1:], out, errOut)
+	case "retire":
+		return runIDRetire(args[1:], out, errOut)
 	case "repair":
 		return runIDRepair(args[1:], out, errOut)
 	default:
@@ -603,6 +610,46 @@ func runIDLive(args []string, out, errOut io.Writer) int {
 	}
 	if err := l.Save(); err != nil {
 		fmt.Fprintf(errOut, "clue id live: %v\n", err)
+		return 2
+	}
+	return 0
+}
+
+// runIDRetire records the terminal lifecycle transition after an artifact
+// leaves the corpus or a transient workspace is digested.
+func runIDRetire(args []string, out, errOut io.Writer) int {
+	fs := flag.NewFlagSet("id retire", flag.ContinueOnError)
+	fs.SetOutput(errOut)
+	if err := fs.Parse(args); err != nil {
+		return 2
+	}
+	if fs.NArg() < 1 {
+		fmt.Fprintln(errOut, "clue id retire: expected an ID")
+		return 2
+	}
+	id := fs.Arg(0)
+	root := "."
+	if fs.NArg() > 1 {
+		root = fs.Arg(1)
+	}
+	if fs.NArg() > 2 {
+		fmt.Fprintln(errOut, "clue id retire: expected an ID and at most one repository path")
+		return 2
+	}
+
+	noteLedgerDamage(root, "retire", errOut)
+	l, err := ledger.Load(root)
+	if err != nil {
+		fmt.Fprintf(errOut, "clue id retire: %v\n", err)
+		return 2
+	}
+	if _, ok := l.Lookup(id); !ok {
+		fmt.Fprintf(errOut, "clue id retire: id %s is not in the ledger\n", id)
+		return 2
+	}
+	l.Retire(id)
+	if err := l.Save(); err != nil {
+		fmt.Fprintf(errOut, "clue id retire: %v\n", err)
 		return 2
 	}
 	return 0

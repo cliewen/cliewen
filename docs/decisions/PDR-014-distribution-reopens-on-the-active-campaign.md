@@ -2,7 +2,7 @@
 id: PDR-014
 type: decision
 status: verified
-links: [P-007, CAP-001, C-015, ADR-030, PDR-008]
+links: [P-007, CAP-001, C-015, ADR-030, PDR-056]
 title: Installation distribution reopens on the active campaign, not a successor plan
 author: agent
 accepted-by: Flemming N. Larsen (2026-08-02, conversation)
@@ -16,6 +16,6 @@ Installation distribution had been parked until its onboarding evidence and scop
 
 ## Decision outcome
 
-**Installation distribution joins the active P-007 campaign as M-030 and M-031 rather than waiting for a successor plan.** M-030 creates the install commands and M-031 builds the marketplace bootstrap from them, so the milestones remain ordered. CAP-001, C-015, CAP-004, the guide, and P-007 carry the revision under PDR-008.
+**Installation distribution joins the active P-007 campaign as M-030 and M-031 rather than waiting for a successor plan.** M-030 creates the install commands and M-031 builds the marketplace bootstrap from them, so the milestones remain ordered. CAP-001, C-015, CAP-004, the guide, and P-007 carry the revision under the plan-revision policy now stated by PDR-056.
 
 A successor plan, a duplicate goal, or a log row alone would either delay work whose shape and evidence are already known or fail to carry the deliberate plan-revision boundary and rejected alternatives.

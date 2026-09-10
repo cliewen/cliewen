@@ -106,4 +106,12 @@ Feature: Team-safe identity allocation
     Then wherever a ledger exists to read it alongside, a settings file naming no allocation mode stops the load, and with it every command that loads the ledger except `clue migrate`, rather than being taken to mean local allocation
     And a ledger whose loader never read the settings file never deletes it
     But the absence of a settings file means local allocation, and no file is written to say so
+
+  @AC-185
+  Scenario: A contributor can retire an allocated identity without editing the ledger
+    Test-type: Unit
+    Given a reserved or live identity whose artifact has been deleted
+    When clue id retire names that identity
+    Then the ledger records its retired state and never reissues its number
+    But an unknown identity is rejected
 ```

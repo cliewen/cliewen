@@ -12,6 +12,8 @@ title: Design for team-safe identity allocation
 
 `.clue/id-ledger.yaml` is the checked-in lifecycle truth. Version two is an append-only event set: commands add one flow-style YAML line per state transition, loading folds duplicate events idempotently, and state only advances `reserved → live → retired`. The `.gitattributes` union driver combines concurrent additions; contradictory identity metadata remains a validation error.
 
+`clue id retire <id>` appends the terminal transition after a contributor deletes an artifact or digests a workspace. It refuses an unknown identity, but validation remains the guard against retiring an artifact that still exists.
+
 `refs/heads/clue/id-allocator` is the remote allocation journal. Its orphan history contains numeric claims only, so a feature branch's speculative lifecycle cannot make accepted `main` claim that an unmerged artifact is live. The branch is permanent because an abandoned claim still prevents reuse.
 
 ## Allocation transaction

@@ -42,7 +42,7 @@ flowchart TD
 
 1. **Permanent** — `/docs`. Lives forever; every change assesses its documentation impact and updates the affected truth.
 2. **Transient** — `/changes/<CH-xxx>/` on a branch only. Dies at merge, digested into permanent docs. CI gate: `main` never contains `/changes/`.
-3. **Campaign** — `/docs/plans`. Live on `main`, mutate continuously (bookkeeping in digests, semantic changes via ADR-backed revisions), frozen immutable at `status: completed` — never deleted.
+3. **Campaign** — `/docs/plans`. Live on `main`, mutate continuously (bookkeeping in digests; human-directed revisions after a failed plan-health check), frozen immutable at `status: completed` — never deleted.
 
 Git is the engine: for a chosen full loop the branch is the proposal, the PR is the review gate, the supported merge commit is acceptance, and reachable history is the provenance archive. Simple work stays outside that graph and follows explicit user authority and repository policy; a declined full recommendation is retained in vendor-neutral Git trailers ([PDR-042](../decisions/PDR-042-routing-recommends-contract-aware-effort.md)). Repo-native, never forge-native.
 

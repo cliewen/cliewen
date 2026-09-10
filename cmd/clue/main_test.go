@@ -792,6 +792,49 @@ func TestAC108_UnitNegative_IDLiveRejectsNonReservedID(t *testing.T) {
 	}
 }
 
+func TestAC185_UnitPositive_IDRetireRecordsTheTerminalLifecycleTransition(t *testing.T) {
+	root := t.TempDir()
+	l, err := ledger.Load(root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := l.Save(); err != nil {
+		t.Fatal(err)
+	}
+	var out, errOut strings.Builder
+	if code := runID([]string{"next", "CH", root}, &out, &errOut); code != 0 {
+		t.Fatalf("id next exit code = %d, stderr=%q", code, errOut.String())
+	}
+	if code := runID([]string{"retire", "CH-001", root}, &out, &errOut); code != 0 {
+		t.Fatalf("id retire exit code = %d, stderr=%q", code, errOut.String())
+	}
+	l, err = ledger.Load(root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if e, ok := l.Lookup("CH-001"); !ok || e.State != ledger.StateRetired {
+		t.Fatalf("CH-001 entry = %+v, ok=%v, want retired", e, ok)
+	}
+}
+
+func TestAC185_UnitNegative_IDRetireRejectsUnknownID(t *testing.T) {
+	root := t.TempDir()
+	l, err := ledger.Load(root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := l.Save(); err != nil {
+		t.Fatal(err)
+	}
+	var out, errOut strings.Builder
+	if code := runID([]string{"retire", "CH-001", root}, &out, &errOut); code != 2 {
+		t.Fatalf("id retire exit code = %d, want 2", code)
+	}
+	if !strings.Contains(errOut.String(), "is not in the ledger") {
+		t.Fatalf("id retire error = %q", errOut.String())
+	}
+}
+
 // Sanity: the release runs the shipped drift rule stamped as its own tag
 // (ADR-011), before anything is built or published. A tag that disagrees
 // with the skills' frontmatter stamp must fail there; the alternative is an
