@@ -129,6 +129,49 @@ func TestAC147_UnitNegative_GeneratedSkillsOmitLegacyDecisionRouting(t *testing.
 	}
 }
 
+func TestAC184_UnitPositive_PlanHealthChecksPauseInvalidWorkAndReserveDecisionRecords(t *testing.T) {
+	planning := mustRenderFile(t, "clue-plan/references/planning-workflow.md")
+	for _, want := range []string{
+		"requires a declared revision and human direction",
+		"not automatically a decision record",
+		"only when the selected course is a future-shaping choice",
+	} {
+		if !strings.Contains(planning, want) {
+			t.Errorf("clue-plan planning workflow is missing %q", want)
+		}
+	}
+
+	delta := mustRenderFile(t, "clue-delta/references/change-loop.md")
+	for _, want := range []string{
+		"Before starting or resuming work for a milestone",
+		"Repeat the assessment when new evidence challenges the campaign",
+		"A passing assessment needs no record",
+		"pause affected work for human direction",
+		"record it only when the selected course is future-shaping",
+	} {
+		if !strings.Contains(delta, want) {
+			t.Errorf("clue-delta change loop is missing %q", want)
+		}
+	}
+}
+
+func TestAC184_UnitNegative_PlanHealthGuidanceDoesNotTurnPassingChecksOrAllReplansIntoRecords(t *testing.T) {
+	planning := mustRenderFile(t, "clue-plan/references/planning-workflow.md")
+	for _, retired := range []string{
+		"requires human acceptance and a decision record",
+		"a correctly typed decision record backs it",
+	} {
+		if strings.Contains(planning, retired) {
+			t.Errorf("clue-plan planning workflow retains %q", retired)
+		}
+	}
+
+	delta := mustRenderFile(t, "clue-delta/references/change-loop.md")
+	if strings.Contains(delta, "the human answer becomes a decision record") {
+		t.Error("clue-delta turns every human answer into a decision record")
+	}
+}
+
 func TestAC146_UnitPositive_ExtractionClassifiesDecisionsAndInventoriesLegacyRows(t *testing.T) {
 	target := mustRenderFile(t, "clue-extract/references/target-contract.md")
 	mapping := mustRenderFile(t, "clue-extract/mappings/madr.md")

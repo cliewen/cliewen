@@ -4,6 +4,10 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 
 ## [Unreleased]
 
+### Changed
+
+- **Cliewen now checks whether a milestone plan still holds before work resumes.** The generated planning and change-loop skills ask an agent to reassess a plan when it starts or resumes milestone work, and when new evidence challenges the campaign. A passing check adds no paperwork. If the plan no longer holds, affected work pauses for human direction and the selected revision is declared before work continues. Routine replanning no longer needs a decision record; a record is reserved for the selected course when it will constrain future work.
+
 ## [0.24.1] - 2026-09-09
 
 ### Changed

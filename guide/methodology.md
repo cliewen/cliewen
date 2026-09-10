@@ -20,7 +20,7 @@ A goal states who wants an outcome and why. Proposed goals form the inbox; accep
 
 ## Plan
 
-A plan is a finite campaign serving a goal. Its milestones have explicit exit criteria and evidence. Completed plans are frozen rather than rewritten, so the plan index also records what the project has achieved.
+A plan is a finite campaign serving a goal. Its milestones have explicit exit criteria and evidence. Before an agent starts or resumes milestone work, it checks that the plan still holds and repeats that check when new evidence challenges the campaign. A passing check leaves no record. A failed check pauses affected work for human direction; the selected revision is declared in the plan before work resumes, and it needs a decision record only when it makes a future-shaping choice. Completed plans are frozen rather than rewritten, so the plan index also records what the project has achieved.
 
 ## Change
 

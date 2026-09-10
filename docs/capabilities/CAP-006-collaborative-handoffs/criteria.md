@@ -112,4 +112,14 @@ Feature: Collaborative pull-request handoffs
     Then the guidance assigns architecture, design, and capability detail to one clear home and requires a documentation-impact disposition
     And it drafts missing overviews from evidence, asks about material unknowns, and asks consent before relocating an existing overview
     But it does not require a second change-history document, duplicate source prose, or a decorative diagram
+
+  @AC-184
+  Scenario: A failed plan-health check pauses work without making every replan a decision record
+    Test-type: Unit
+    Given an agent starts or resumes work for a milestone
+    When it checks whether the plan still serves its goal, the milestone remains wanted and achievable, and remaining dependencies and order still hold
+    Then a passing check creates no routine record
+    And a failed check records the mismatch and options and pauses affected work for human direction
+    And the selected plan revision is declared before affected work resumes
+    But the revision creates a typed decision record only when its selected course is future-shaping
 ```
