@@ -591,3 +591,7 @@ events:
     - {id: AC-025, kind: numeric, state: retired, prefix: AC, component: "25"}
     - {id: AC-183, kind: numeric, state: reserved, prefix: AC, component: "183"}
     - {id: AC-183, kind: numeric, state: live, prefix: AC, component: "183"}
+    - {id: CH-172, kind: numeric, state: reserved, prefix: CH, component: "172"}
+    - {id: PDR-056, kind: numeric, state: reserved, prefix: PDR, component: "56"}
+    - {id: AC-184, kind: numeric, state: reserved, prefix: AC, component: "184"}
+    - {id: CH-172, kind: numeric, state: live, prefix: CH, component: "172"}
