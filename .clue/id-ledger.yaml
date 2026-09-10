@@ -614,3 +614,5 @@ events:
     - {id: CH-175, kind: numeric, state: live, prefix: CH, component: "175"}
     - {id: CH-176, kind: numeric, state: reserved, prefix: CH, component: "176"}
     - {id: CH-176, kind: numeric, state: live, prefix: CH, component: "176"}
+    - {id: CH-177, kind: numeric, state: reserved, prefix: CH, component: "177"}
+    - {id: P-022, kind: numeric, state: reserved, prefix: P, component: "22"}
