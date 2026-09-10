@@ -30,9 +30,21 @@ func PlanMilestones(plan *Artifact) []Milestone {
 	idCol, statusCol := -1, -1
 	nameCol, criterionCol, evidenceCol := -1, -1, -1
 	blocks := blockScanner{verbatimOnly: true}
+	inHTML := false
 	var header []string
 	for row, line := range strings.Split(plan.Body, "\n") {
 		if blocks.next(line) {
+			idCol, statusCol, nameCol, criterionCol, evidenceCol, header = -1, -1, -1, -1, -1, nil
+			continue
+		}
+		if inHTML {
+			if strings.TrimSpace(line) == "" {
+				inHTML = false
+			}
+			continue
+		}
+		if m := htmlOpenRe.FindStringSubmatch(line); m != nil && htmlBlockTags[strings.ToLower(m[1])] {
+			inHTML = true
 			idCol, statusCol, nameCol, criterionCol, evidenceCol, header = -1, -1, -1, -1, -1, nil
 			continue
 		}

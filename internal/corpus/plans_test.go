@@ -35,6 +35,12 @@ func TestAC186_UnitNegative_PlanMilestonesIgnoreExamplesAndFinishedRows(t *testi
     | ID | Milestone | Status |
     |---|---|---|
     | M-004 | Example | todo |
+
+<details>
+| ID | Milestone | Status |
+|---|---|---|
+| M-005 | HTML example | todo |
+</details>
 `)}
 	got := PlanMilestones(plan)
 	if len(got) != 3 || got[0].ID != "M-001" || got[2].ID != "M-003" {
