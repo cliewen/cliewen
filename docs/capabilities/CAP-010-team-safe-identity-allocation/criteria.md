@@ -106,4 +106,13 @@ Feature: Team-safe identity allocation
     Then wherever a ledger exists to read it alongside, a settings file naming no allocation mode stops the load, and with it every command that loads the ledger except `clue migrate`, rather than being taken to mean local allocation
     And a ledger whose loader never read the settings file never deletes it
     But the absence of a settings file means local allocation, and no file is written to say so
+
+  @AC-187
+  Scenario: The ledger backfill seeds the milestone counter from every plan's milestone table
+    Test-type: Unit
+    Given a corpus with no ".clue/id-ledger.yaml" file and plans declaring milestone tables with non-contiguous and completed IDs
+    When the user runs "clue migrate --apply"
+    Then it writes one live or retired event per declared M-xxx identity, using each milestone's own status to choose the state
+    And the M counter is seeded above every declared milestone ID, not at an implicit zero
+    But a corpus with no plans backfills no milestone identity
 ```

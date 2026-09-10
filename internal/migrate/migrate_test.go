@@ -1343,6 +1343,70 @@ func TestAC178_UnitPositive_MigrateBackfillsSegmentedNumericPrefix(t *testing.T)
 	t.Fatalf("no %s change planned", MigrationLedgerBackfill)
 }
 
+func TestAC187_UnitPositive_MigrateBackfillsMilestoneIdentitiesFromPlanTables(t *testing.T) {
+	root := migrationFixture(t, "")
+	docsReadme := "# Docs\n\n<!-- clue:index:start -->\n- [analysis/](analysis/README.md)\n- [plans/](plans/README.md)\n<!-- clue:index:end -->\n"
+	if err := os.WriteFile(filepath.Join(root, "docs", "README.md"), []byte(docsReadme), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.MkdirAll(filepath.Join(root, "docs", "plans"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	plansReadme := "# Plans\n\n<!-- clue:index:start -->\n- [P-001](P-001-fixture.md)\n<!-- clue:index:end -->\n"
+	if err := os.WriteFile(filepath.Join(root, "docs", "plans", "README.md"), []byte(plansReadme), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	plan := "---\nid: P-001\ntype: plan\nstatus: active\nlinks: []\ntitle: Fixture plan\n---\n\n# P-001 — Fixture plan\n\n## Milestones\n\n| ID | Milestone | Status | Evidence |\n|---|---|---|---|\n| M-001 | done milestone | done | |\n| M-043 | withdrawn milestone | dropped | |\n| M-090 | live milestone | todo | |\n"
+	if err := os.WriteFile(filepath.Join(root, "docs", "plans", "P-001-fixture.md"), []byte(plan), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	migrationPlan, err := Plan(root, Options{ReversalCost: "low"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, change := range migrationPlan.Changes {
+		if change.Migration != MigrationLedgerBackfill {
+			continue
+		}
+		got := string(change.After)
+		if strings.Contains(got, "{id: M-001, kind: numeric, state: retired") && strings.Contains(got, "{id: M-043, kind: numeric, state: retired") && strings.Contains(got, "{id: M-090, kind: numeric, state: live") {
+			if err := Apply(root, migrationPlan); err != nil {
+				t.Fatalf("apply: %v", err)
+			}
+			l, err := ledger.Load(root)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if next, err := l.NextNumeric("M"); err != nil || next != "M-091" {
+				t.Fatalf("next M after backfill = %q, %v; want M-091", next, err)
+			}
+			return
+		}
+		t.Fatalf("milestones were not backfilled with their lifecycle states:\n%s", got)
+	}
+	t.Fatalf("no %s change planned", MigrationLedgerBackfill)
+}
+
+func TestAC187_UnitNegative_NoPlansBackfillsNoMilestoneIdentity(t *testing.T) {
+	root := migrationFixture(t, "")
+
+	migrationPlan, err := Plan(root, Options{ReversalCost: "low"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, change := range migrationPlan.Changes {
+		if change.Migration != MigrationLedgerBackfill {
+			continue
+		}
+		if strings.Contains(string(change.After), "kind: numeric, prefix: M") {
+			t.Fatalf("a corpus with no plans must not backfill a milestone identity:\n%s", change.After)
+		}
+		return
+	}
+	t.Fatalf("no %s change planned", MigrationLedgerBackfill)
+}
+
 func TestAC178_UnitNegative_ExistingLedgerFileIsUntouched(t *testing.T) {
 	root := migrationFixture(t, "")
 	ledgerDir := filepath.Join(root, ".clue")

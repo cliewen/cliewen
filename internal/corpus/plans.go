@@ -100,6 +100,25 @@ func PlanMilestones(plan *Artifact) []Milestone {
 	return out
 }
 
+// LedgerMilestoneIdentities returns every milestone ID declared across all
+// plans regardless of plan status, classified live or retired by the
+// milestone's own status, so the identity ledger's M counter can be seeded
+// the same way it already is for the criteria namespace (ADR-048).
+func LedgerMilestoneIdentities(c *Corpus) []Milestone {
+	if c == nil {
+		return nil
+	}
+	var out []Milestone
+	for _, artifact := range c.Artifacts {
+		if artifact.Type != "plan" {
+			continue
+		}
+		out = append(out, PlanMilestones(artifact)...)
+	}
+	sort.Slice(out, func(i, j int) bool { return out[i].ID < out[j].ID })
+	return out
+}
+
 // UnfinishedMilestones returns actionable candidates from active plans. A
 // doing milestone is preferred to todo, then stable path and source row order
 // make the result repeatable across clean contexts.

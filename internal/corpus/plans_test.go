@@ -50,3 +50,21 @@ func TestAC186_UnitNegative_PlanMilestonesIgnoreExamplesAndFinishedRows(t *testi
 		t.Fatalf("dropped status = %q", got[1].Status)
 	}
 }
+
+func TestAC187_UnitPositive_LedgerMilestoneIdentitiesSpanEveryPlanStatusInIDOrder(t *testing.T) {
+	c := &Corpus{Artifacts: []*Artifact{
+		{Type: "plan", Status: "active", Path: "docs/plans/P-002.md", Body: "| ID | Milestone | Status | Evidence |\n|---|---|---|---|\n| M-090 | Live | todo | |\n"},
+		{Type: "plan", Status: "completed", Path: "docs/plans/P-001.md", Body: "| ID | Milestone | Status | Evidence |\n|---|---|---|---|\n| M-001 | Done | done | |\n| M-043 | Withdrawn | dropped | |\n"},
+	}}
+	got := LedgerMilestoneIdentities(c)
+	if len(got) != 3 || got[0].ID != "M-001" || got[1].ID != "M-043" || got[2].ID != "M-090" {
+		t.Fatalf("ledger milestone identities = %#v", got)
+	}
+}
+
+func TestAC187_UnitNegative_LedgerMilestoneIdentitiesEmptyWithoutPlans(t *testing.T) {
+	c := &Corpus{Artifacts: []*Artifact{{Type: "analysis", Path: "docs/analysis/AN-001.md"}}}
+	if got := LedgerMilestoneIdentities(c); len(got) != 0 {
+		t.Fatalf("ledger milestone identities = %#v, want none", got)
+	}
+}

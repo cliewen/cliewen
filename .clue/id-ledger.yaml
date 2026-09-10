@@ -623,3 +623,6 @@ events:
     - {id: CH-177, kind: numeric, state: retired, prefix: CH, component: "177"}
     - {id: CH-177-tasks, kind: opaque, state: retired}
     - {id: CH-177-open-questions, kind: opaque, state: retired}
+    - {id: CH-178, kind: numeric, state: reserved, prefix: CH, component: "178"}
+    - {id: AC-187, kind: numeric, state: reserved, prefix: AC, component: "187"}
+    - {id: AC-187, kind: numeric, state: live, prefix: AC, component: "187"}
