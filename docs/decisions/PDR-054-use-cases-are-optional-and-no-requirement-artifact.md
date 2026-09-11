@@ -1,12 +1,12 @@
 ---
 id: PDR-054
 type: decision
-status: inferred
+status: verified
 links: [G-012, P-021, M-087, UC-001, CAP-009, ARCH-003, PDR-037]
 title: Use cases stay optional, and Cliewen introduces no generic requirement artifact
 binds: adopter
 author: agent
-accepted-by: []
+accepted-by: Flemming N. Larsen (2026-09-11)
 ---
 
 # PDR-054 — Use cases stay optional, and there is no requirement artifact

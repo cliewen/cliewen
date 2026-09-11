@@ -1,12 +1,12 @@
 ---
 id: ADR-068
 type: decision
-status: inferred
+status: verified
 links: [G-013, CAP-010, ADR-048, ADR-044, C-013]
 title: A Git remote ref serializes identity claims and the ledger is append-only
 binds: adopter
 author: agent
-accepted-by: []
+accepted-by: Flemming N. Larsen (2026-09-11)
 ---
 
 # ADR-068 — Git serializes identity claims

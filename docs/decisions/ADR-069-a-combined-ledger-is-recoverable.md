@@ -1,12 +1,12 @@
 ---
 id: ADR-069
 type: decision
-status: inferred
+status: verified
 links: [G-013, CAP-010, ADR-068, ADR-048, ADR-044, C-013]
 title: Allocation settings live outside the union-merged ledger, and a combined ledger is recoverable
 binds: adopter
 author: agent
-accepted-by: []
+accepted-by: Flemming N. Larsen (2026-09-11)
 ---
 
 # ADR-069 — Settings live outside the merged ledger

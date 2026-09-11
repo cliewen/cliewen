@@ -1,12 +1,12 @@
 ---
 id: ADR-067
 type: decision
-status: inferred
+status: verified
 links: [G-012, P-021, M-090, CAP-001, CAP-002, CAP-009, C-023, ADR-044, PDR-011]
 title: A corpus without a vision stays valid, and no migration writes one
 binds: adopter
 author: agent
-accepted-by: []
+accepted-by: Flemming N. Larsen (2026-09-11)
 ---
 
 # ADR-067 — A corpus without a vision stays valid

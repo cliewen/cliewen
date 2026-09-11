@@ -1,12 +1,12 @@
 ---
 id: ADR-064
 type: decision
-status: inferred
+status: verified
 links: [G-010, ADR-041, ADR-046, IDR-001, CAP-005, CAP-002]
 title: Regeneration owns an index row's badge; the author owns its description
 binds: adopter
 author: agent
-accepted-by: []
+accepted-by: Flemming N. Larsen (2026-09-11)
 ---
 
 # ADR-064 — Regeneration owns the badge

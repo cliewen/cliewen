@@ -1,11 +1,11 @@
 ---
 id: PDR-057
 type: decision
-status: inferred
+status: verified
 links: [AC-186, CAP-002, ADR-035, PDR-056]
 title: Next work is derived from active plans and reversal cost ends at verification
 author: agent
-accepted-by: []
+accepted-by: Flemming N. Larsen (2026-09-11)
 ---
 
 # PDR-057 — Next work is derived from active plans and reversal cost ends at verification

@@ -1,12 +1,12 @@
 ---
 id: PDR-055
 type: decision
-status: inferred
+status: verified
 links: [G-012, P-021, M-089, CAP-003, CAP-009, ADR-044, ADR-010, ADR-035, PDR-020]
 title: The agent interviews and infers, the CLI detects state, and the human accepts meaning
 binds: adopter
 author: agent
-accepted-by: []
+accepted-by: Flemming N. Larsen (2026-09-11)
 ---
 
 # PDR-055 — Who interviews, who detects, and who accepts

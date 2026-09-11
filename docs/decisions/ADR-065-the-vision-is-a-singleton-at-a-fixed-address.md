@@ -1,12 +1,12 @@
 ---
 id: ADR-065
 type: decision
-status: inferred
+status: verified
 links: [G-012, P-021, M-087, VIS-001, CAP-009, CAP-002, ADR-010, ADR-035, ADR-025, ADR-048]
 title: A corpus has one vision, at a fixed address, and its lifecycle is the one the corpus already has
 binds: adopter
 author: agent
-accepted-by: []
+accepted-by: Flemming N. Larsen (2026-09-11)
 ---
 
 # ADR-065 — One vision, at a fixed address

@@ -1,12 +1,12 @@
 ---
 id: ADR-066
 type: decision
-status: inferred
+status: verified
 links: [G-012, P-021, M-088, UC-001, CAP-007, CAP-009, PDR-034, ADR-056]
 title: Intent links point down the composition, and context names what points back without following it
 binds: adopter
 author: agent
-accepted-by: []
+accepted-by: Flemming N. Larsen (2026-09-11)
 ---
 
 # ADR-066 — Intent links point down, and context names what points back
