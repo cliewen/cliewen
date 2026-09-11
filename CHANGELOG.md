@@ -4,6 +4,8 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 
 ## [Unreleased]
 
+## [0.25.0] - 2026-09-11
+
 ### Changed
 
 - **Cliewen now checks whether a milestone plan still holds before work resumes.** The generated planning and change-loop skills ask an agent to reassess a plan when it starts or resumes milestone work, and when new evidence challenges the campaign. A passing check adds no paperwork. If the plan no longer holds, affected work pauses for human direction and the selected revision is declared before work continues. Routine replanning no longer needs a decision record; a record is reserved for the selected course when it will constrain future work.
@@ -11,6 +13,10 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 - **`clue migrate`'s one-time ledger backfill now seeds the milestone `M` counter, too.** A milestone is a table row inside a plan, not a frontmatter-bearing artifact, so the backfill previously left `M` unseeded and `clue id next M` would allocate a colliding `M-001` in a repository whose plans already declare `M-xxx` identities. The backfill now marks every declared milestone live or retired by its own status, the same way it already does for acceptance criteria, so the counter starts above every milestone any plan declares.
 - **A repository whose ledger already existed before milestone identities were covered now gets them, too.** The one-time backfill above never runs again once a repository has a ledger, so a repository that adopted the ledger earlier than that change kept an unseeded `M` counter forever. `clue migrate` now also seeds any milestone identity missing from an already-existing ledger, live or retired by its own status, leaving every other identity untouched — so `clue id next M` allocates safely above every declared milestone there too, including under Git-coordinated allocation.
 - **`clue validate` now catches a colliding milestone ID, the same way it already catches a colliding native-prefix ID.** The same `M-xxx` declared in a milestone table row in two different plans fails loudly and names both plans, and once a repository has a ledger, an `M-xxx` whose ledger state disagrees with its declaring row's own status (a live milestone the ledger marks retired, or the reverse) fails and names the mismatch. A milestone with no such conflict, and a repository without a ledger yet, are unaffected.
+
+### Migration
+
+- **`MIG-016` seeds milestone identities missing from an existing identity ledger.** Run `clue migrate` to preview the complete plan before applying it; live and retired milestones are recorded without renumbering existing identities. Repositories upgrading from the previous release may also have verified non-decision artifacts cleaned of obsolete `reversal-cost` metadata by the same migration preview.
 
 ## [0.24.1] - 2026-09-09
 
