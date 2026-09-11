@@ -721,3 +721,8 @@ events:
     - {id: M-091, kind: numeric, state: retired, prefix: M, component: "91"}
     - {id: M-092, kind: numeric, state: retired, prefix: M, component: "92"}
     - {id: M-093, kind: numeric, state: live, prefix: M, component: "93"}
+    - {id: CH-180, kind: numeric, state: reserved, prefix: CH, component: "180"}
+    - {id: AC-189, kind: numeric, state: reserved, prefix: AC, component: "189"}
+    - {id: AC-189, kind: numeric, state: live, prefix: AC, component: "189"}
+    - {id: ADR-070, kind: numeric, state: reserved, prefix: ADR, component: "70"}
+    - {id: M-093, kind: numeric, state: retired, prefix: M, component: "93"}

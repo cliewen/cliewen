@@ -301,6 +301,115 @@ func TestUnit_ValidateRequiresTheUnionRuleForACoordinatedLedger(t *testing.T) {
 	}
 }
 
+func milestoneTablePlan(id, status string) string {
+	return "---\nid: " + id + "\ntype: plan\nstatus: active\nlinks: []\ntitle: Fixture plan " + id + "\n---\n\n# " + id + "\n\n## Milestones\n\n| ID | Milestone | Status | Evidence |\n|---|---|---|---|\n| M-001 | shared milestone | " + status + " | |\n"
+}
+
+func TestAC189_UnitPositive_DuplicateMilestoneIDAcrossPlansRejected(t *testing.T) {
+	files := with(validFiles, map[string]string{
+		"docs/plans/P-001-baseline.md": milestoneTablePlan("P-001", "todo"),
+		"docs/plans/P-002-second.md":   milestoneTablePlan("P-002", "todo"),
+		"docs/plans/README.md":         "# Plans\n\n<!-- clue:index:start -->\n- [P-001](P-001-baseline.md)\n- [P-002](P-002-second.md)\n<!-- clue:index:end -->\n",
+	})
+	root := writeCorpus(t, files)
+	c, scanIssues := Scan(root)
+	if len(scanIssues) != 0 {
+		t.Fatalf("scan issues: %v", scanIssues)
+	}
+	issues := Validate(c, Options{})
+	found := false
+	for _, is := range issues {
+		if strings.Contains(is.Msg, "duplicate milestone id M-001") && strings.Contains(is.Msg, "P-001-baseline.md") {
+			found = true
+		}
+	}
+	if !found {
+		t.Fatalf("expected a duplicate milestone id issue, got: %v", issues)
+	}
+}
+
+func TestAC189_UnitNegative_DistinctMilestoneIDsAcrossPlansPass(t *testing.T) {
+	second := "---\nid: P-002\ntype: plan\nstatus: active\nlinks: []\ntitle: Fixture plan P-002\n---\n\n# P-002\n\n## Milestones\n\n| ID | Milestone | Status | Evidence |\n|---|---|---|---|\n| M-002 | distinct milestone | todo | |\n"
+	files := with(validFiles, map[string]string{
+		"docs/plans/P-001-baseline.md": milestoneTablePlan("P-001", "todo"),
+		"docs/plans/P-002-second.md":   second,
+		"docs/plans/README.md":         "# Plans\n\n<!-- clue:index:start -->\n- [P-001](P-001-baseline.md)\n- [P-002](P-002-second.md)\n<!-- clue:index:end -->\n",
+	})
+	root := writeCorpus(t, files)
+	c, scanIssues := Scan(root)
+	if len(scanIssues) != 0 {
+		t.Fatalf("scan issues: %v", scanIssues)
+	}
+	issues := Validate(c, Options{})
+	for _, is := range issues {
+		if strings.Contains(is.Msg, "duplicate milestone id") {
+			t.Fatalf("unexpected duplicate milestone issue for distinct ids: %v", issues)
+		}
+	}
+}
+
+func TestAC189_UnitPositive_MilestoneLedgerStateMismatchRejected(t *testing.T) {
+	files := with(validFiles, map[string]string{
+		"docs/plans/P-001-baseline.md": milestoneTablePlan("P-001", "todo"),
+	})
+	root := writeCorpus(t, files)
+	writeLedger(t, root, "counters: {G: 1, M: 1}\nentries:\n  - id: G-001\n    kind: numeric\n    state: live\n    prefix: G\n    component: 1\n  - id: M-001\n    kind: numeric\n    state: retired\n    prefix: M\n    component: 1\n")
+	c, scanIssues := Scan(root)
+	if len(scanIssues) != 0 {
+		t.Fatalf("scan issues: %v", scanIssues)
+	}
+	issues := Validate(c, Options{})
+	found := false
+	for _, is := range issues {
+		if is.Msg == "milestone M-001 is marked retired in .clue/id-ledger.yaml but its declaration is live" {
+			found = true
+		}
+	}
+	if !found {
+		t.Fatalf("expected a milestone ledger-state mismatch issue, got: %v", issues)
+	}
+}
+
+func TestAC189_UnitPositive_DoneMilestoneStillMarkedLiveInLedgerRejected(t *testing.T) {
+	files := with(validFiles, map[string]string{
+		"docs/plans/P-001-baseline.md": milestoneTablePlan("P-001", "done"),
+	})
+	root := writeCorpus(t, files)
+	writeLedger(t, root, "counters: {G: 1, M: 1}\nentries:\n  - id: G-001\n    kind: numeric\n    state: live\n    prefix: G\n    component: 1\n  - id: M-001\n    kind: numeric\n    state: live\n    prefix: M\n    component: 1\n")
+	c, scanIssues := Scan(root)
+	if len(scanIssues) != 0 {
+		t.Fatalf("scan issues: %v", scanIssues)
+	}
+	issues := Validate(c, Options{})
+	found := false
+	for _, is := range issues {
+		if is.Msg == "milestone M-001 is marked live in .clue/id-ledger.yaml but its declaration is retired" {
+			found = true
+		}
+	}
+	if !found {
+		t.Fatalf("expected a milestone ledger-state mismatch issue for a done milestone left live, got: %v", issues)
+	}
+}
+
+func TestAC189_UnitNegative_MilestoneLedgerStateAgreementPasses(t *testing.T) {
+	files := with(validFiles, map[string]string{
+		"docs/plans/P-001-baseline.md": milestoneTablePlan("P-001", "todo"),
+	})
+	root := writeCorpus(t, files)
+	writeLedger(t, root, "counters: {G: 1, M: 1}\nentries:\n  - id: G-001\n    kind: numeric\n    state: live\n    prefix: G\n    component: 1\n  - id: M-001\n    kind: numeric\n    state: live\n    prefix: M\n    component: 1\n")
+	c, scanIssues := Scan(root)
+	if len(scanIssues) != 0 {
+		t.Fatalf("scan issues: %v", scanIssues)
+	}
+	issues := Validate(c, Options{})
+	for _, is := range issues {
+		if strings.Contains(is.Msg, "milestone M-001 is marked") {
+			t.Fatalf("unexpected milestone ledger issue for agreeing state: %v", issues)
+		}
+	}
+}
+
 func TestUnit_ValidateAcceptsACoordinatedLedgerThatDeclaresTheUnionRule(t *testing.T) {
 	root := writeCorpus(t, validFiles)
 	writeLedger(t, root, "version: 2\ncoordination:\n    mode: git\n    remote: origin\nevents:\n    - {id: CH-001, kind: numeric, state: live, prefix: CH, component: \"1\"}\n")
