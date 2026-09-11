@@ -72,6 +72,7 @@ func Validate(c *Corpus, opts Options) []Issue {
 	var issues []Issue
 	issues = append(issues, checkCoreFields(c)...)
 	issues = append(issues, checkDuplicateIDs(c)...)
+	issues = append(issues, checkMilestoneCollisions(c)...)
 	issues = append(issues, checkStatusVocab(c)...)
 	issues = append(issues, checkFrontmatterHygiene(c)...)
 	issues = append(issues, checkLinks(c)...)
@@ -430,6 +431,50 @@ func checkDuplicateIDs(c *Corpus) []Issue {
 			}
 			sort.Strings(paths)
 			issues = append(issues, Issue{paths[0], "duplicate id " + id + " (also in " + strings.Join(paths[1:], ", ") + ")"})
+		}
+	}
+	return issues
+}
+
+// checkMilestoneCollisions reports the two ways an M-xxx identity can go
+// wrong even though it carries no frontmatter and never reaches c.ByID
+// (P-022/M-093): the same ID declared in more than one milestone-table row
+// anywhere in the corpus, and an ID whose declared liveness disagrees with a
+// ledger claim already recorded for it. The second check mirrors checkLedger's
+// per-identity reconciliation for native prefixes — a milestone judged the
+// same way a frontmatter ID already is — and is silent on any repository that
+// has not yet run the ledger backfill.
+func checkMilestoneCollisions(c *Corpus) []Issue {
+	var issues []Issue
+	seen := map[string]Milestone{}
+	var ids []string
+	for _, m := range LedgerMilestoneIdentities(c) {
+		if prev, dup := seen[m.ID]; dup {
+			issues = append(issues, Issue{m.Plan.Path, "duplicate milestone id " + m.ID + " (also declared in " + prev.Plan.Path + ")"})
+			continue
+		}
+		seen[m.ID] = m
+		ids = append(ids, m.ID)
+	}
+	if !ledger.Exists(c.Root) {
+		return issues
+	}
+	l, err := ledger.Load(c.Root)
+	if err != nil {
+		return issues // checkLedger already reports the load failure
+	}
+	for _, id := range ids {
+		m := seen[id]
+		entry, ok := l.Lookup(id)
+		if !ok {
+			continue
+		}
+		want := ledger.StateLive
+		if m.Status == "done" || m.Status == "dropped" {
+			want = ledger.StateRetired
+		}
+		if entry.State != want {
+			issues = append(issues, Issue{m.Plan.Path, "milestone " + id + " is marked " + string(entry.State) + " in " + ledger.DefaultPath + " but its declaration is " + string(want)})
 		}
 	}
 	return issues

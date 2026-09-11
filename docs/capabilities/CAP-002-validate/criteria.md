@@ -465,4 +465,14 @@ Feature: clue validate — deterministic corpus judgment
     Given an inferred non-decision artifact
     Then `reversal-cost: low` explicitly permits deferral, `reversal-cost: high` blocks an active capability that directly depends on it, and an inferred artifact without either value fails validation
     But a verified non-decision artifact carrying `reversal-cost` fails validation, and a migration removes that obsolete field while preserving the artifact's other content
+
+  @AC-189
+  Scenario: A milestone ID collision fails loudly, the same way a native-prefix collision does
+    Test-type: Unit
+    Given the same M-xxx ID declared in a milestone table row in two different plans
+    When the user runs "clue validate"
+    Then it exits with a non-zero code and names both plan paths and the reused ID
+    Given a ".clue/id-ledger.yaml" whose entry for a declared M-xxx ID is "retired" while the milestone's own status is "todo" or "doing", or "live" while its status is "done" or "dropped"
+    Then it exits with a non-zero code and names the plan path, the ledger's state, and the declaration's expected state
+    But distinct milestone IDs across plans pass, a milestone whose ledger state agrees with its declared status passes, and a corpus with no ".clue/id-ledger.yaml" file is unaffected by this rule
 ```
