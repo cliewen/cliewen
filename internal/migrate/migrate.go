@@ -600,6 +600,24 @@ var legacyDigests = []releaseManifest{
 		"clue-verify/references/review-boundary.md":     "6ceaadf2ccf7a780a9f1ff498bc00847ff65cbaac890693ccc771100ae9d4661",
 		"clue-verify/skill.md":                          "65ed5645ab7af9f950bd52823bcd32f7b7648aa65e6935a82960542c37300e36",
 	}},
+	{Version: "0.25.0", Files: map[string]string{
+		"clue-analysis/skill.md":                        "f0b892a7ed8efbbbced7dfbfe124a2c4b3b533f39474865e5b8b2a5504ec6c1a",
+		"clue-delta/references/change-loop.md":          "963b90c62b1a01432b1f6d6d2a3674416135ae79ce9e7ae65daf947cb1f40d21",
+		"clue-delta/references/durable-work-state.md":   "5de2b3aec581b22e3a0afdb9acaa6572c63b410e9599aa0b99a84adaa1d5ebd6",
+		"clue-delta/references/intent-model.md":        "64135a25a14c18194297dca13558eca5fecfdf61dd2985f1ee7adf4608357597",
+		"clue-delta/skill.md":                           "0ca2b413c9c27ec0ffed0c788fbd43fa8c8533f2699beaed7c31f3d0f716651a",
+		"clue-extract/references/durable-work-state.md": "5de2b3aec581b22e3a0afdb9acaa6572c63b410e9599aa0b99a84adaa1d5ebd6",
+		"clue-extract/references/intent-model.md":       "64135a25a14c18194297dca13558eca5fecfdf61dd2985f1ee7adf4608357597",
+		"clue-extract/references/target-contract.md":    "adf50d5d3d8782741989b476cde0b701be73eb74f640c53260dabde8b8504f5c",
+		"clue-extract/skill.md":                         "42661607e19498962388a8cf41548fd51150d8b44a687df73292dd60427c770f",
+		"clue-plan/references/intent-model.md":          "64135a25a14c18194297dca13558eca5fecfdf61dd2985f1ee7adf4608357597",
+		"clue-plan/references/planning-workflow.md":     "e2d43db0f52f7f1a375d8984862142920bdb989631c85d231a1033105cb9acd5",
+		"clue-plan/skill.md":                            "50eae60e64f5111560be20612b0b167863e31502b1f74261f72a464160f110df",
+		"clue-upgrade/references/durable-work-state.md": "5de2b3aec581b22e3a0afdb9acaa6572c63b410e9599aa0b99a84adaa1d5ebd6",
+		"clue-upgrade/skill.md":                         "738642ce31efd3a04aea0495cf733b2bc2b0ec0338ad2ea6427b0539735b75ef",
+		"clue-verify/references/durable-work-state.md":  "5de2b3aec581b22e3a0afdb9acaa6572c63b410e9599aa0b99a84adaa1d5ebd6",
+		"clue-verify/skill.md":                          "d8be8c05ee6232b172dd5d9d86a1e140c81834e8763eb2b7c5cd800eabb0ab5e",
+	}},
 }
 
 // Plan scans the target and returns the complete deterministic migration.
