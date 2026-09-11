@@ -370,6 +370,28 @@ func TestAC189_UnitPositive_MilestoneLedgerStateMismatchRejected(t *testing.T) {
 	}
 }
 
+func TestAC189_UnitPositive_DoneMilestoneStillMarkedLiveInLedgerRejected(t *testing.T) {
+	files := with(validFiles, map[string]string{
+		"docs/plans/P-001-baseline.md": milestoneTablePlan("P-001", "done"),
+	})
+	root := writeCorpus(t, files)
+	writeLedger(t, root, "counters: {G: 1, M: 1}\nentries:\n  - id: G-001\n    kind: numeric\n    state: live\n    prefix: G\n    component: 1\n  - id: M-001\n    kind: numeric\n    state: live\n    prefix: M\n    component: 1\n")
+	c, scanIssues := Scan(root)
+	if len(scanIssues) != 0 {
+		t.Fatalf("scan issues: %v", scanIssues)
+	}
+	issues := Validate(c, Options{})
+	found := false
+	for _, is := range issues {
+		if is.Msg == "milestone M-001 is marked live in .clue/id-ledger.yaml but its declaration is retired" {
+			found = true
+		}
+	}
+	if !found {
+		t.Fatalf("expected a milestone ledger-state mismatch issue for a done milestone left live, got: %v", issues)
+	}
+}
+
 func TestAC189_UnitNegative_MilestoneLedgerStateAgreementPasses(t *testing.T) {
 	files := with(validFiles, map[string]string{
 		"docs/plans/P-001-baseline.md": milestoneTablePlan("P-001", "todo"),
