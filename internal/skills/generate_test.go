@@ -920,6 +920,137 @@ func TestAC152_UnitNegative_LifecycleSkillsDoNotRequireDocumentationHistory(t *t
 	}
 }
 
+// boundaryCarriers are the skills whose routing includes the shared review
+// boundary, so each one must carry the enforcement rules below unchanged.
+var boundaryCarriers = []string{"clue-delta", "clue-extract", "clue-upgrade", "clue-verify"}
+
+func TestAC194_UnitPositive_BoundaryGuidanceChecksTheHostBeforeClaimingACandidate(t *testing.T) {
+	for _, name := range boundaryCarriers {
+		content := mustRenderFile(t, name+"/references/review-boundary.md")
+		for _, want := range []string{
+			"before marking a pull request ready for the first time in a repository",
+			"find out whether the branch being relied on enforces anything",
+			"report what was actually observed",
+		} {
+			if !strings.Contains(content, want) {
+				t.Errorf("%s review boundary is missing %q", name, want)
+			}
+		}
+	}
+}
+
+func TestAC194_UnitNegative_BoundaryGuidanceNeverInfersEnforcementFromTheRepository(t *testing.T) {
+	for _, name := range boundaryCarriers {
+		content := mustRenderFile(t, name+"/references/review-boundary.md")
+		if !strings.Contains(content, "no check that reads files can see it") {
+			t.Errorf("%s does not say a file-reading check cannot observe enforcement", name)
+		}
+		for _, wrong := range []string{
+			"`clue validate` reports whether the branch is protected",
+			"assume the branch is protected",
+		} {
+			if strings.Contains(content, wrong) {
+				t.Errorf("%s review boundary claims %q", name, wrong)
+			}
+		}
+	}
+}
+
+func TestAC195_UnitPositive_MissingEnforcementStopsTheAgentAndOffersTheCommands(t *testing.T) {
+	for _, name := range boundaryCarriers {
+		content := mustRenderFile(t, name+"/references/review-boundary.md")
+		for _, want := range []string{
+			"stop and tell the human plainly what is absent",
+			"force-push and deletion blocked, the validation check required, pull requests required, an empty bypass list",
+			"Propose the exact commands",
+		} {
+			if !strings.Contains(content, want) {
+				t.Errorf("%s review boundary is missing %q", name, want)
+			}
+		}
+	}
+}
+
+func TestAC195_UnitNegative_TheAgentNeverReconfiguresTheRepositoryUnasked(t *testing.T) {
+	for _, name := range boundaryCarriers {
+		content := mustRenderFile(t, name+"/references/review-boundary.md")
+		if !strings.Contains(content, "apply them only on explicit authorization in that exchange") {
+			t.Errorf("%s does not gate configuration on explicit authorization", name)
+		}
+		for _, wrong := range []string{
+			"configure the branch protection itself",
+			"apply the recommended protection automatically",
+		} {
+			if strings.Contains(content, wrong) {
+				t.Errorf("%s review boundary permits %q", name, wrong)
+			}
+		}
+	}
+}
+
+func TestAC196_UnitPositive_ADeclinedBoundaryStillReachesReadyWithItsReason(t *testing.T) {
+	for _, name := range boundaryCarriers {
+		content := mustRenderFile(t, name+"/references/review-boundary.md")
+		for _, want := range []string{
+			"declines or defers has answered",
+			"mark the pull request ready as usual",
+			"state in the readiness handoff that the boundary is unenforced, with the reason given",
+		} {
+			if !strings.Contains(content, want) {
+				t.Errorf("%s review boundary is missing %q", name, want)
+			}
+		}
+	}
+}
+
+func TestAC196_UnitNegative_AnUnenforcedBoundaryDoesNotWithholdTheCandidate(t *testing.T) {
+	for _, name := range boundaryCarriers {
+		content := mustRenderFile(t, name+"/references/review-boundary.md")
+		for _, wrong := range []string{
+			"never mark the pull request ready while the boundary is unenforced",
+			"refuse to claim the candidate until protection is configured",
+		} {
+			if strings.Contains(content, wrong) {
+				t.Errorf("%s review boundary withholds the candidate: %q", name, wrong)
+			}
+		}
+		if !strings.Contains(content, "not because it is a failure") {
+			t.Errorf("%s does not frame a decline as evidence rather than failure", name)
+		}
+	}
+}
+
+func TestAC193_UnitPositive_AnUnaskableHostIsReportedAsUnknown(t *testing.T) {
+	for _, name := range boundaryCarriers {
+		content := mustRenderFile(t, name+"/references/review-boundary.md")
+		for _, want := range []string{
+			"Where there is no way to ask, say that the state is unknown",
+			"silence is not a pass",
+		} {
+			if !strings.Contains(content, want) {
+				t.Errorf("%s review boundary is missing %q", name, want)
+			}
+		}
+	}
+}
+
+func TestAC193_UnitNegative_AnUnobservedBoundaryIsNeverReportedAsVerified(t *testing.T) {
+	for _, name := range boundaryCarriers {
+		content := mustRenderFile(t, name+"/references/review-boundary.md")
+		if !strings.Contains(content, "reported as verified without being observed is worse") {
+			t.Errorf("%s does not forbid an unobserved verified claim", name)
+		}
+		for _, wrong := range []string{
+			"treat an unreachable host as protected",
+			"assume enforcement when the host cannot be queried",
+		} {
+			if strings.Contains(content, wrong) {
+				t.Errorf("%s review boundary permits %q", name, wrong)
+			}
+		}
+	}
+}
+
 func mustRenderSkill(t *testing.T, relativePath string) string {
 	t.Helper()
 	directory := strings.TrimSuffix(relativePath, "/skill.md") + "/"

@@ -122,4 +122,40 @@ Feature: Collaborative pull-request handoffs
     And a failed check records the mismatch and options and pauses affected work for human direction
     And the selected plan revision is declared before affected work resumes
     But the revision creates a typed decision record only when its selected course is future-shaping
+
+  @AC-194
+  Scenario: An adequately protected branch lets the candidate through without interruption
+    Test-type: Unit
+    Given an agent is about to mark a pull request ready in a repository whose default branch enforces the merge boundary
+    When it checks what the Git host reports about that branch before claiming the candidate
+    Then the guidance has it mark the pull request ready without stopping to ask
+    And the readiness handoff makes no claim that the boundary is unenforced
+    But the check is described as reading what the host reports, never as inferring enforcement from repository files
+
+  @AC-195
+  Scenario: A missing or inadequate boundary stops the agent, and changes nothing on its own
+    Test-type: Unit
+    Given an agent is about to mark a pull request ready in a repository whose default branch enforces nothing
+    When the host reports that force-push, deletion, the required check, the pull-request requirement, or the empty bypass list is absent
+    Then the guidance has it stop and name in plain terms what is missing
+    And it offers the exact commands the host accepts
+    But it applies no configuration change without explicit authorization given in that exchange
+
+  @AC-196
+  Scenario: A declined boundary still reaches a ready pull request, with the reason recorded
+    Test-type: Unit
+    Given an agent has told the human that the merge boundary is unenforced
+    When the human declines or defers configuring it
+    Then the guidance has it mark the pull request ready as usual rather than withholding the candidate
+    And the readiness handoff states that the boundary is unenforced together with the reason the human gave
+    But the decline is framed as evidence about the method rather than as a failure of the change
+
+  @AC-193
+  Scenario: A host that cannot be asked is reported as unknown, never as verified
+    Test-type: Unit
+    Given an agent is about to mark a pull request ready on a Git host Cliewen has no way to query
+    When it cannot observe whether the branch enforces anything
+    Then the guidance has it report the enforcement state as unknown and stop to ask on that basis
+    And it states that silence is not a pass
+    But it never records the boundary as verified, observed, or enforced when nothing was observed
 ```
