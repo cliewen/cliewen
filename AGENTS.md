@@ -1,6 +1,6 @@
 # Agent routing hub
 
-This repository dogfoods Cliewen and declares `role: source` in `.clue/role.yaml`. The shared methodology below also binds adopters; source-repository conventions apply only here. Before applying a rule that differs by repository kind, read the role marker rather than infer it from the checkout. An adopter-binding rule belongs on a shipped carrier under `internal/skills/source/` or `internal/scaffold/templates/`; `clue validate` enforces that boundary ([ADR-062](docs/decisions/ADR-062-repository-role-is-declared-machine-state.md)).
+This repository dogfoods Cliewen and declares `role: source` in `.clue/role.yaml`. The shared methodology below also binds adopters unless a section states otherwise; source-repository conventions apply only here. Before applying a rule that differs by repository kind, read the role marker rather than infer it from the checkout. An adopter-binding rule belongs on a shipped carrier under `internal/skills/source/` or `internal/scaffold/templates/`; `clue validate` enforces that boundary ([ADR-062](docs/decisions/ADR-062-repository-role-is-declared-machine-state.md)).
 
 ## Always first
 
@@ -21,7 +21,7 @@ A route does not authorize a push. Push directly to an integration branch only w
 
 ## Work from durable context
 
-When the user asks what is next, run `clue next --all`, report the first actionable milestone and the alternatives, then read the selected plan with `clue context` before asking whether to start. For a full change with a known identity, run `clue context <id>` and read its bounded slice. Otherwise read [`docs/README.md`](docs/README.md), choose the closest artifact, then run `clue context`; `/docs` is the system of record and working memory.
+When the user asks what is next, run `clue next --all`, report the first actionable milestone and the alternatives, then read the selected plan with `clue context` and apply **Before a consequential commitment** below before asking whether to start. For a full change with a known identity, run `clue context <id>` and read its bounded slice. Otherwise read [`docs/README.md`](docs/README.md), choose the closest artifact, then run `clue context`; `/docs` is the system of record and working memory.
 
 Assess documentation impact before closing every change. Keep `docs/architecture/README.md` current for system structure, `docs/design/README.md` current for cross-cutting behavior, and capability `design.md` for local detail; add or update only information that answers a reader question without duplicating existing material. Draft missing overviews from evidence, ask the user when a material boundary or intent is unclear, use Mermaid when it improves review, retain SVG when it does not, and state in the change or pull-request handoff what durable documentation changed or why none was needed.
 
@@ -30,6 +30,14 @@ For intent work, use [`clue-plan`](.agents/skills/clue-plan/skill.md) or [`clue-
 Markdown prose is never hard-wrapped: one line per paragraph and list item; line breaks are structural only ([C-001](docs/constraints/C-001-no-hard-wrapped-markdown.md)).
 
 The core is behind a red line: the verifiable thread (goal → plan → change → capability → criterion → acceptance evidence, including classified executable references and genuine Human proof in the acceptance brief), the full-loop human acceptance boundary, and `clue validate` as deterministic judge ([ARCH-003](docs/architecture/core.md)). Changing what any core element means changes the accepted contract: recommend full and record an explicit decision; the user may choose simple with the route-override trailers above ([C-013](docs/constraints/C-013-core-changes-need-decision.md)). Periphery never constrains the core.
+
+## Before a consequential commitment: challenge the riskiest assumption
+
+Before a consequential commitment, challenge it where the reviewer will read it: in the plan's prose for a plan, in `proposal.md` for a change. Name the assumption most likely to undermine the work, a credible alternative, the cheapest useful test of that assumption, and the result that would stop or revise the work; then ask what an implementation could look like that met every criterion and still failed the person the work is for. A milestone may deliver decision-changing evidence instead of a feature, and repository experience is evidence to reassess, not standing authority.
+
+A commitment is consequential when being wrong would cost more than finding out first: adopting or revising a plan's promise, starting a milestone whose approach is unsettled, choosing between credible courses in a decision, or a change to what adopters receive. Route first: simple work is never consequential, even when it touches a shipped surface. Work carrying out a course already challenged and understood, and work that can be undone within the same change at no more cost than the challenge, also proceed without a challenge and without a note explaining its absence. No prototype is universally required. This limit is part of the rule: a challenge demanded of everything is written by habit and challenges nothing ([PDR-061](docs/decisions/PDR-061-challenge-consequential-commitments-proportionally.md)).
+
+This rule binds this repository only while [P-023](docs/plans/P-023-challenge-plans-and-retain-what-work-teaches.md) trials it; it is not yet on a shipped carrier.
 
 ## Read the matching skill
 
