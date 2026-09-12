@@ -194,7 +194,8 @@ jobs:
       # reports: the configuration is the maintainer's, so the step never
       # changes the job's result (PDR-060). The rules endpoint is readable with
       # `contents: read`; classic branch protection and ruleset bypass lists are
-      # not, so the report names them as unseen rather than implying an answer.
+      # not, so the notice names the unseen bypass list and the warning names
+      # unseen classic protection rather than implying an answer for either.
       # Regex matching stays inside bash, because GitHub runs this with
       # pipefail and `grep -q` closing a pipe early would fail the step.
       - name: Report whether the merge boundary is enforced

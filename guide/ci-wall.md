@@ -10,7 +10,7 @@ You need to do three things:
 
 CI without branch protection is a dashboard. Branch protection without the validator cannot see a broken Cliewen thread. You need both.
 
-`clue init` also writes a short checklist of sections 4 and 5 to `.github/cliewen-wall.md`, so the requirements sit in your repository even if nobody on the team reads this page. Every run of the `validate` job asks GitHub which rules apply to the branch it protects and adds an annotation to the run. You get a notice when everything section 4 asks for is in place, and a warning naming each missing rule when something is not. The job's result doesn't change either way, because the configuration is your decision. The workflow's token can't read classic branch protection or a ruleset's bypass list, so the annotation says it could not see them and leaves those two for you to check.
+`clue init` also writes a short checklist of sections 4 and 5 to `.github/cliewen-wall.md`, so the requirements sit in your repository even if nobody on the team reads this page. Every run of the `validate` job asks GitHub which rules apply to the branch it protects and adds an annotation to the run. You get a notice when everything section 4 asks for is in place, and a warning naming each missing rule when something is not. The job's result doesn't change either way, because the configuration is your decision. The workflow's token can't read classic branch protection or a ruleset's bypass list. The notice says it could not see the bypass list, the warning says it could not see classic branch protection, and both are left for you to check.
 
 ## 1. Choose the caller inputs
 
