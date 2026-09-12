@@ -4,6 +4,8 @@
 # The reference is replaced with the binary's source commit when build VCS
 # metadata is available; a released module build falls back to its protected
 # release tag.
+# The check blocks nothing until the host requires it: see
+# .github/cliewen-wall.md (written by clue init) or https://cliewen.dev/ci-wall.
 name: clue
 
 on:
