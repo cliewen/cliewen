@@ -1945,6 +1945,11 @@ claims:
       state: reserved
       prefix: CH
       component: "186"
+    - id: CH-187
+      kind: numeric
+      state: reserved
+      prefix: CH
+      component: "187"
     - id: G-001
       kind: numeric
       state: reserved
@@ -3031,11 +3036,11 @@ claims:
       prefix: VIS
       component: "1"
 high-water:
-    - id: AC-198
+    - id: AC-199
       kind: numeric
       state: reserved
       prefix: AC
-      component: "198"
+      component: "199"
     - id: ADR-070
       kind: numeric
       state: reserved
