@@ -2,7 +2,7 @@
 id: CAP-006
 type: capability
 status: active
-links: [G-001, G-008, PDR-016, PDR-039, PDR-040, PDR-042, C-012]
+links: [G-001, G-008, PDR-016, PDR-039, PDR-040, PDR-042, PDR-059, C-012]
 title: Agent routing and full-loop handoffs remain visible, authorized, and exact
 goal: G-001
 ---

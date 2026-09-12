@@ -4,6 +4,10 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 
 ## [Unreleased]
 
+### Added
+
+- **The agent now finds out whether your merge boundary is actually enforced, and tells you when it is not.** Branch protection is a setting at your Git host, so nothing in your repository records it and `clue validate` can never see it — a repository could run Cliewen for years with a green validate and no enforcement at all. Before an agent marks a pull request ready for the first time, the generated skills now have it ask the host what the branch enforces. When force-push and deletion are not blocked, the validation check is not required, pull requests are not required, or the bypass list is not empty, it stops, says plainly what is missing, and offers the exact commands your host accepts. It applies nothing without your explicit go-ahead, and on a host it cannot query it reports the state as unknown rather than assuming you are covered. If you decline, the pull request still goes ready and the handoff records that the boundary is unenforced along with your reason.
+
 ## [0.25.0] - 2026-09-11
 
 ### Changed
