@@ -20,7 +20,7 @@ Two rulesets now exist, each blocking deletion and force-push: `protect-main-his
 
 [PDR-021](../decisions/PDR-021-supported-merge-commit-history.md) is `status: verified`, accepted by the maintainer on 2026-08-02. It says the protected default branch "must allow merge commits and disable squash and rebase-and-merge, while retaining required validation, pull requests, resolved conversations, no-bypass, deletion, and force-push protections." None of that was configured. The decision described a repository that did not exist.
 
-The same rule reaches every adopter. `internal/skills/source/shared/review-boundary.md.tmpl` generates the review-boundary reference in four shipped skills, and it ends: "A forge that cannot enforce the merge-commit boundary is outside the supported full-change adoption path." Cliewen tells adopters this requirement is an eligibility test for using the method at all.
+The same rule reaches every adopter. `internal/skills/source/shared/review-boundary.md.tmpl` generates the review-boundary reference in four shipped skills, and it ends: "A forge that cannot enforce the merge-commit boundary is outside the supported full-change adoption path." A "forge" is the Git host: GitHub, GitLab, Bitbucket, or whatever the team uses. So Cliewen tells adopters that what their host can enforce decides whether they may use the method at all.
 
 So the strictest claim Cliewen makes about integration was, in the repository that makes it, unmet and unnoticed for the project's entire history.
 
@@ -36,9 +36,11 @@ The severity of the rule, the reachability of the instructions, and the enforcem
 
 The adopter receives the obligation and the workflow, and not the instructions. The most useful page is the least reachable one.
 
-Nothing checks. `clue validate` runs sixteen checks in `internal/corpus/rules.go` and none of them touches forge configuration, because [ADR-044](../decisions/ADR-044-judge-reads-state-not-transitions.md) confines the judge to repository bytes and forbids it the network. That decision is right and this analysis does not propose changing it: a judge that phoned a forge would be non-deterministic, credential-dependent, and unable to run offline.
+Nothing checks. `clue validate` runs sixteen checks in `internal/corpus/rules.go`, and every one of them reads files in the repository. None looks at the Git host's settings, because [ADR-044](../decisions/ADR-044-judge-reads-state-not-transitions.md) deliberately keeps `clue validate` offline. That decision is right and this analysis does not propose changing it: a validator that called out to a host would give different answers depending on who was logged in, and would stop working on a plane.
 
-But the consequence has never been stated. Branch protection is not a file. It is server-side configuration, so no file-reading check can ever observe it, and Cliewen currently has no other observer. An adopter can run `clue init`, get a green `clue validate`, open pull requests, and have no enforcement whatsoever — bypassable rules, no required check, or nothing at all — with nothing anywhere telling them. The pull request displays CI; only branch protection makes it a precondition. That distinction is stated in `guide/change-loop.md`, which the adopter does not receive.
+But the consequence has never been stated. **Branch protection is not part of the repository.** It is a setting you make where the repository is hosted — in GitHub's, GitLab's, or Bitbucket's own settings screens — and it stays there. Cloning the repository does not bring it along, it appears in no file, and `git log` never shows it changing. So a tool that only reads the repository cannot see it, however hard it looks, and Cliewen has nothing else looking.
+
+An adopter can therefore run `clue init`, get a green `clue validate`, open pull requests, and have nothing enforced at all — rules anyone can bypass, no required check, or no protection whatsoever — with nothing anywhere telling them. Opening a pull request only *shows* whether the checks passed; it is branch protection, at the host, that stops a red one from being merged. `guide/change-loop.md` makes that distinction, and the adopter does not receive it.
 
 The closest thing to a check is `cmd/clue/main_test.go:1085`, which asserts that the words "branch protection" appear in four documents. It verifies that Cliewen says the thing, not that anything is true.
 
@@ -46,9 +48,11 @@ The closest thing to a check is `cmd/clue/main_test.go:1085`, which asserts that
 
 Only one candidate is real.
 
-**The scaffolded workflow can ask.** `clue.yml` already runs on the forge with a token. It can query whether the branch it is defending is protected and warn when it is not. This costs the judge nothing, keeps ADR-044 intact, and puts the observation where the fact lives. It is forge-specific, which is the honest objection — the answer for a forge Cliewen has no probe for is silence, not a false pass.
+**The CI workflow can ask the host.** The workflow `clue init` installs (`clue.yml`) already runs *at* the host, with credentials. It is in a position to ask "is this branch actually protected?" and to say so plainly when the answer is no. This changes nothing about `clue validate`, keeps ADR-044 intact, and puts the question where the answer lives.
 
-**`clue validate` cannot.** Considered and rejected: it would only ever report that a setting which never lives in the repository is not in the repository. That is noise, not evidence.
+The honest objection is that each host answers differently: GitHub, GitLab, and Bitbucket all express protection their own way, so a check written for one does not work on another. That is a real limit, not a reason to skip it. Where Cliewen has no way to ask, it should say it does not know — never report a pass it did not verify.
+
+**`clue validate` cannot do this.** Considered and rejected. It would only ever be able to report that a setting which never lives in the repository is not in the repository, which tells the reader nothing.
 
 **A one-time adoption checklist** is weaker than it sounds. The failure here was not that someone skipped a step at setup; it is that nothing re-checked for the entire life of the project, and settings drift.
 
@@ -58,7 +62,7 @@ This analysis records an unmet obligation and the gap that hid it. It does not d
 
 1. **No-bypass and a required check.** Well justified, and more so now than when the convention was written for humans alone: an agent holds the maintainer's credentials, so a rule the maintainer can bypass is one the agent bypasses silently.
 2. **Merge-commit-only, squash unsupported.** Doubtful. `docs/README.md` states that `/docs` is the system of record and Git history is the archive; if the digest has landed, the reviewed chain remaining reachable from `main` is provenance convenience rather than the acceptance boundary. Squash is a widespread convention, and asking a team to change it repository-wide needs a stronger reason than this one.
-3. **"Outside the supported full-change adoption path."** Costly. It turns a configuration preference into an eligibility test and excludes teams whose forge or plan cannot enforce it.
+3. **"Outside the supported full-change adoption path."** Costly. It turns a configuration preference into an eligibility test, and rules out teams whose Git host — or their pricing tier on it — cannot enforce the setting.
 
 Neither PDR-021 nor [C-012](../constraints/C-012-agents-never-merge-own-changes.md) carries a `binds:` field, yet the rule reaches adopters through a shipped carrier. [ADR-062](../decisions/ADR-062-repository-role-is-declared-machine-state.md) exists so that an adopter-binding record declares itself and names its carrier. This one binds adopters without saying so, which is why the boundary check never caught the mismatch.
 
