@@ -4,6 +4,10 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 
 ## [Unreleased]
 
+### Changed
+
+- **A fresh agent can say where repository work stands before the user has to ask.** The scaffolded routing hub now asks for one read-only `clue next --all` check after the release check, but reports it only when the opening request leaves direction open or existing work matters. `clue next` now finds open change workspaces and proposed goals as well as active and draft milestones, so the answer remains useful between campaigns. Proposed work stays explicitly non-actionable, and Cliewen stores no personal focus or assistant state.
+
 ## [0.25.0] - 2026-09-11
 
 ### Changed

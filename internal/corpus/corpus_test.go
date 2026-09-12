@@ -295,7 +295,7 @@ func TestAC051_UnitPositive_HighCostInferredMeaningBlocksActiveCapability(t *tes
 	}
 }
 
-func TestAC186_UnitNegative_VerifiedMeaningCannotCarryReversalCost(t *testing.T) {
+func TestAC192_UnitNegative_VerifiedMeaningCannotCarryReversalCost(t *testing.T) {
 	files := with(validFiles, map[string]string{
 		"docs/goals/G-001-first.md": "---\nid: G-001\ntype: goal\nstatus: active\nlinks: []\ntitle: First goal\nprovenance: verified\nreversal-cost: low\n---\n",
 	})

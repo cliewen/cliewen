@@ -6,6 +6,8 @@ This repository dogfoods Cliewen and declares `role: source` in `.clue/role.yaml
 
 Before your first tool call, including for a question or review, run `clue latest --quiet`. Route a non-empty result, or an unknown `latest` command, to [`clue-upgrade`](.agents/skills/clue-upgrade/skill.md); the human alone decides whether to upgrade. Run this network check unprompted only for that purpose, never as a validation verdict or required check. Ordinary `clue` workflow commands also report an available update.
 
+After that check, once per fresh agent context, run `clue next --all` before substantive work. If the opening request leaves direction open, briefly state the repository position, read the leading candidate with `clue context`, and recommend an option without starting it. If existing work materially affects a concrete request, mention it; otherwise do not add a routine status preamble. Draft milestones and proposed goals are choices for human review, never authorization to begin.
+
 ## Before editing: route the work
 
 Inspect the smallest relevant context and tell the user `Recommended route: simple` or `Recommended route: full`, why, and what discovery would change that recommendation.
@@ -21,7 +23,7 @@ A route does not authorize a push. Push directly to an integration branch only w
 
 ## Work from durable context
 
-When the user asks what is next, run `clue next --all`, report the first actionable milestone and the alternatives, then read the selected plan with `clue context` before asking whether to start. For a full change with a known identity, run `clue context <id>` and read its bounded slice. Otherwise read [`docs/README.md`](docs/README.md), choose the closest artifact, then run `clue context`; `/docs` is the system of record and working memory.
+`clue next --all` reports open changes to resume, active milestones, draft milestones, and proposed goals in decreasing order of authority. For a full change with a known identity, run `clue context <id>` and read its bounded slice. Otherwise read [`docs/README.md`](docs/README.md), choose the closest artifact, then run `clue context`; `/docs` is the system of record and working memory.
 
 Assess documentation impact before closing every change. Keep `docs/architecture/README.md` current for system structure, `docs/design/README.md` current for cross-cutting behavior, and capability `design.md` for local detail; add or update only information that answers a reader question without duplicating existing material. Draft missing overviews from evidence, ask the user when a material boundary or intent is unclear, use Mermaid when it improves review, retain SVG when it does not, and state in the change or pull-request handoff what durable documentation changed or why none was needed.
 

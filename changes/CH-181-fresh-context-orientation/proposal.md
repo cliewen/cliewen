@@ -2,7 +2,7 @@
 id: CH-181
 type: change
 status: open
-links: [G-012, CAP-002, AC-186]
+links: [G-012, CAP-002, CAP-011, AC-190, AC-191, AC-192]
 title: Fresh contexts receive useful repository orientation
 ---
 

@@ -13,4 +13,5 @@ One folder per capability — the middle anchor of the red thread. Every capabil
 - [CAP-008 — Local verification](CAP-008-local-verification/README.md) · `active` — Contributors can run the repository-local verification block verbatim on supported environments.
 - [CAP-009-product-intent/](CAP-009-product-intent/README.md)
 - [CAP-010-team-safe-identity-allocation/](CAP-010-team-safe-identity-allocation/README.md)
+- [CAP-011 — Repository orientation](CAP-011-orientation/README.md) · `active` — Gives a fresh agent a derived account of current work and recorded options without storing private session state.
 <!-- clue:index:end -->
