@@ -1,12 +1,12 @@
 ---
 id: PDR-060
 type: decision
-status: inferred
+status: verified
 links: [P-023, M-102, AN-025, CAP-006, CAP-001, PDR-059, PDR-021, ADR-038, ADR-044, G-017]
 title: The validation workflow reports what the host enforces on every run, and never fails because of it
 binds: adopter
 author: agent
-accepted-by: pending human verification (proposed 2026-09-12)
+accepted-by: Flemming N. Larsen (2026-09-12, conversation)
 ---
 
 # PDR-060 — The validation workflow reports the merge boundary on every run

@@ -1,11 +1,11 @@
 ---
 id: PDR-061
 type: decision
-status: inferred
+status: verified
 links: [G-014, P-023, M-094, AN-024, PDR-056, PDR-042, ADR-062, C-013]
 title: A consequential commitment is challenged before it is made, and the challenge scales with consequence rather than applying to everything
 author: agent
-accepted-by: pending human verification (proposed 2026-09-12)
+accepted-by: Flemming N. Larsen (2026-09-12, conversation)
 ---
 
 # PDR-061 — Challenge a consequential commitment proportionally
