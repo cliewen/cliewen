@@ -737,6 +737,9 @@ events:
     - {id: CAP-011-criteria, kind: opaque, state: live}
     - {id: CAP-011-design, kind: opaque, state: live}
     - {id: AC-186, kind: numeric, state: retired, prefix: AC, component: "186"}
+    - {id: CH-181, kind: numeric, state: retired, prefix: CH, component: "181"}
+    - {id: CH-181-tasks, kind: opaque, state: retired}
+    - {id: CH-181-open-questions, kind: opaque, state: retired}
     - {id: CH-181, kind: numeric, state: live, prefix: CH, component: "181"}
     - {id: CAP-011, kind: numeric, state: live, prefix: CAP, component: "11"}
     - {id: PDR-058, kind: numeric, state: live, prefix: PDR, component: "58"}
