@@ -1935,6 +1935,26 @@ claims:
       state: reserved
       prefix: G
       component: "13"
+    - id: G-014
+      kind: numeric
+      state: reserved
+      prefix: G
+      component: "14"
+    - id: G-015
+      kind: numeric
+      state: reserved
+      prefix: G
+      component: "15"
+    - id: G-016
+      kind: numeric
+      state: reserved
+      prefix: G
+      component: "16"
+    - id: G-017
+      kind: numeric
+      state: reserved
+      prefix: G
+      component: "17"
     - id: IC-001
       kind: numeric
       state: reserved
@@ -2891,11 +2911,11 @@ high-water:
       state: reserved
       prefix: CAP
       component: "10"
-    - id: CH-181
+    - id: CH-182
       kind: numeric
       state: reserved
       prefix: CH
-      component: "181"
+      component: "182"
     - id: G-013
       kind: numeric
       state: reserved
