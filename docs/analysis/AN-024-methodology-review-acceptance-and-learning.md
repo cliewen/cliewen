@@ -3,7 +3,7 @@ id: AN-024
 type: analysis
 status: active
 links: [VIS-001, AN-008]
-carried-by: [G-014, G-015, G-016, G-017, P-023]
+carried-by: [G-014, G-015, P-023]
 title: Methodology review — strengthen acceptance judgment and learning from use
 ---
 
