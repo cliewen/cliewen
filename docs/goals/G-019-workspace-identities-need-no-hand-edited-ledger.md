@@ -18,9 +18,12 @@ That practice is the problem, not the inconvenience. The ledger is an append-onl
 
 There is a second question underneath, worth settling rather than inheriting. These two artifacts are transient — the digest deletes them — yet their entries persist, and the repository is inconsistent about what state they should end in: several changes left them `live` after the workspace was gone, two retired them. Whatever the answer, a command should apply it rather than each change deciding afresh.
 
+The same gap reaches one step further than the workspace. When a digest marks a milestone `done`, `clue validate` requires the milestone's ledger entry to be `retired`, and no command writes that event either: the only code that retires a milestone is the migration that seeds a ledger which does not yet exist. CH-186 and CH-187 both appended the line by hand. It is the same fault in a second place — a state transition the full loop requires, which only an editor can make.
+
 **Success looks like:**
 
 - Opening a change workspace records its artifacts' identities through a command, and a contributor never opens the ledger in an editor to complete the loop.
 - The digest leaves those entries in one defined state, the same way every time, without a human choosing.
+- Marking a milestone `done` or `dropped` in a digest records its ledger retirement through a command.
 - An adopter following the shipped skills never needs to know the ledger's file format.
 - The fix does not require the transient artifacts to carry numeric identities, and does not make the workspace heavier to open.
