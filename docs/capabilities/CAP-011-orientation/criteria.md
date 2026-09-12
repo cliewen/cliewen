@@ -20,13 +20,13 @@ Feature: Repository orientation
     But when no recorded work offers a candidate, the command says to capture a proposed goal instead of inventing work
 
   @AC-191
-  Scenario: A fresh agent context receives orientation only when useful
+  Scenario: The routing hub gives a fresh agent conditional orientation instructions
     Test-type: Unit
-    Given an agent starts a fresh context from the repository routing hub
-    When it has completed the mandatory clue latest --quiet check
-    Then it runs clue next --all once before substantive work
-    And it briefly reports repository position when the request leaves direction open or existing work materially affects the request
-    And it reads the selected candidate with clue context before recommending it
-    But a concrete request with no relevant existing work receives no routine status preamble
-    And the agent never treats proposed work as authorization to begin
+    Given clue init materializes the cross-agent repository routing hub
+    When a fresh agent reads that hub
+    Then the hub tells it to run clue next --all once after the mandatory clue latest --quiet check and before substantive work
+    And the hub tells it to report repository position when the request leaves direction open or existing work materially affects the request
+    And the hub tells it to read the selected candidate with clue context before recommending it
+    But the hub rejects a routine status preamble for a concrete request with no relevant existing work
+    And it says proposed work is never authorization to begin
 ```

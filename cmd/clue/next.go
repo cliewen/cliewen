@@ -14,7 +14,7 @@ import (
 func runNext(args []string, out, errOut io.Writer) int {
 	fs := flag.NewFlagSet("next", flag.ContinueOnError)
 	fs.SetOutput(errOut)
-	all := fs.Bool("all", false, "list every unfinished milestone in active plans")
+	all := fs.Bool("all", false, "list every open change, unfinished milestone, and proposed goal")
 	if err := fs.Parse(args); err != nil {
 		return 2
 	}
@@ -40,21 +40,13 @@ func runNext(args []string, out, errOut io.Writer) int {
 	draft := corpus.DraftUnfinishedMilestones(c)
 	proposedGoals := corpus.ProposedGoals(c)
 
-	if len(openChanges) > 0 {
-		fmt.Fprintln(out, "Open change workspaces (resume before selecting new work):")
-		limit := len(openChanges)
-		if !*all {
-			limit = 1
-		}
-		for _, change := range openChanges[:limit] {
-			printArtifactCandidate(out, change)
-		}
-		if !*all && len(openChanges) > 1 {
-			fmt.Fprintf(out, "Other open changes: %d (use --all to list them)\n", len(openChanges)-1)
-		}
-	}
-
 	if *all {
+		if len(openChanges) > 0 {
+			fmt.Fprintln(out, "Open change workspaces (resume before selecting new work):")
+			for _, change := range openChanges {
+				printArtifactCandidate(out, change)
+			}
+		}
 		if len(actionable) == 0 {
 			fmt.Fprintln(out, "No unfinished milestone in active plans.")
 		} else {
@@ -63,40 +55,41 @@ func runNext(args []string, out, errOut io.Writer) int {
 				printMilestone(out, milestone)
 			}
 		}
-	} else if len(openChanges) > 0 {
-		if len(actionable) > 0 {
-			fmt.Fprintf(out, "Active milestone alternatives: %d (use --all to list them)\n", len(actionable))
+		if len(draft) > 0 {
+			fmt.Fprintln(out, "Proposed unfinished milestones in draft plans (not actionable):")
+			for _, milestone := range draft {
+				printMilestone(out, milestone)
+			}
 		}
-	} else if len(actionable) == 0 {
-		fmt.Fprintln(out, "No actionable milestone in active plans.")
+		if len(proposedGoals) > 0 {
+			fmt.Fprintln(out, "Proposed goals in the repository inbox (not actionable):")
+			for _, goal := range proposedGoals {
+				printArtifactCandidate(out, goal)
+			}
+		}
 	} else {
-		fmt.Fprintln(out, "Next unfinished milestone (human selection required):")
-		printMilestone(out, actionable[0])
-		if len(actionable) > 1 {
-			fmt.Fprintf(out, "Other active alternatives: %d (use --all to list them)\n", len(actionable)-1)
+		total := len(openChanges) + len(actionable) + len(draft) + len(proposedGoals)
+		switch {
+		case len(openChanges) > 0:
+			fmt.Fprintln(out, "Open change workspace to resume before selecting new work:")
+			printArtifactCandidate(out, openChanges[0])
+		case len(actionable) > 0:
+			fmt.Fprintln(out, "Next unfinished milestone (human selection required):")
+			printMilestone(out, actionable[0])
+		case len(draft) > 0:
+			fmt.Fprintln(out, "Proposed unfinished milestone in a draft plan (not actionable):")
+			printMilestone(out, draft[0])
+		case len(proposedGoals) > 0:
+			fmt.Fprintln(out, "Proposed goal in the repository inbox (not actionable):")
+			printArtifactCandidate(out, proposedGoals[0])
+		default:
+			fmt.Fprintln(out, "No recorded work offers a next step. Capture a proposed goal before selecting new product work.")
+		}
+		if total > 1 {
+			fmt.Fprintf(out, "Other recorded options: %d (use --all to list them)\n", total-1)
 		}
 	}
-
-	if len(draft) > 0 && (*all || len(openChanges) == 0) {
-		fmt.Fprintln(out, "Proposed unfinished milestones in draft plans (not actionable):")
-		for _, milestone := range draft {
-			printMilestone(out, milestone)
-		}
-	}
-	if len(proposedGoals) > 0 && (*all || len(openChanges)+len(actionable)+len(draft) == 0) {
-		fmt.Fprintln(out, "Proposed goals in the repository inbox (not actionable):")
-		limit := len(proposedGoals)
-		if !*all {
-			limit = 1
-		}
-		for _, goal := range proposedGoals[:limit] {
-			printArtifactCandidate(out, goal)
-		}
-		if !*all && len(proposedGoals) > 1 {
-			fmt.Fprintf(out, "Other proposed goals: %d (use --all to list them)\n", len(proposedGoals)-1)
-		}
-	}
-	if len(openChanges)+len(actionable)+len(draft)+len(proposedGoals) == 0 {
+	if *all && len(openChanges)+len(actionable)+len(draft)+len(proposedGoals) == 0 {
 		fmt.Fprintln(out, "No recorded work offers a next step. Capture a proposed goal before selecting new product work.")
 	}
 	return 0

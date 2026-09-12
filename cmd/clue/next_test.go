@@ -21,7 +21,7 @@ func TestAC190_UnitPositive_NextCommandReportsTheOrientationLadder(t *testing.T)
 		t.Fatalf("next exit = %d, stderr = %s", code, errOut.String())
 	}
 	got := out.String()
-	if !strings.Contains(got, "CH-001 | Resume this change") || !strings.Contains(got, "Active milestone alternatives: 2") {
+	if !strings.Contains(got, "CH-001 | Resume this change") || !strings.Contains(got, "Other recorded options: 4") {
 		t.Fatalf("open-change recommendation or alternatives missing: %s", got)
 	}
 	if strings.Contains(got, "P-003/M-003") || strings.Contains(got, "G-001 |") {
@@ -47,6 +47,19 @@ func TestAC190_UnitPositive_NextCommandReportsTheOrientationLadder(t *testing.T)
 	if !strings.Contains(got, "G-001 | Inbox choice") || !strings.Contains(got, "repository inbox (not actionable)") {
 		t.Fatalf("proposed goal fallback missing: %s", got)
 	}
+
+	activeRoot := t.TempDir()
+	writeNextFile(t, activeRoot, "docs/plans/P-001.md", "---\nid: P-001\ntype: plan\nstatus: active\nlinks: []\ntitle: Active\n---\n\n| ID | Milestone | Status |\n|---|---|---|\n| M-001 | Resume | doing |\n| M-002 | Later | todo |\n")
+	writeNextFile(t, activeRoot, "docs/plans/P-002.md", "---\nid: P-002\ntype: plan\nstatus: draft\nlinks: []\ntitle: Draft\n---\n\n| ID | Milestone | Status |\n|---|---|---|\n| M-003 | Proposed | todo |\n")
+	out.Reset()
+	errOut.Reset()
+	if code := runNext([]string{activeRoot}, &out, &errOut); code != 0 {
+		t.Fatalf("active next exit = %d, stderr = %s", code, errOut.String())
+	}
+	got = out.String()
+	if !strings.Contains(got, "M-001") || strings.Contains(got, "M-002") || strings.Contains(got, "M-003") {
+		t.Fatalf("default output did not stay at the strongest first choice: %s", got)
+	}
 }
 
 func TestAC190_UnitNegative_NextCommandDoesNotMutateAndHandlesNoRecordedWork(t *testing.T) {
@@ -61,7 +74,7 @@ func TestAC190_UnitNegative_NextCommandDoesNotMutateAndHandlesNoRecordedWork(t *
 	if code := runNext([]string{root}, &out, &errOut); code != 0 {
 		t.Fatalf("next exit = %d, stderr = %s", code, errOut.String())
 	}
-	if !strings.Contains(out.String(), "No actionable milestone in active plans.") || !strings.Contains(out.String(), "P-001/M-001") {
+	if !strings.Contains(out.String(), "Proposed unfinished milestone in a draft plan (not actionable)") || !strings.Contains(out.String(), "P-001/M-001") {
 		t.Fatalf("no-active report missing: %s", out.String())
 	}
 	after, err := os.ReadFile(path)
@@ -80,6 +93,15 @@ func TestAC190_UnitNegative_NextCommandDoesNotMutateAndHandlesNoRecordedWork(t *
 	}
 	if !strings.Contains(out.String(), "Capture a proposed goal") {
 		t.Fatalf("empty orientation did not name the remaining path: %s", out.String())
+	}
+
+	out.Reset()
+	errOut.Reset()
+	if code := runNext([]string{"--help"}, &out, &errOut); code != 2 {
+		t.Fatalf("next --help exit = %d", code)
+	}
+	if !strings.Contains(errOut.String(), "every open change, unfinished milestone, and proposed goal") {
+		t.Fatalf("next --help retained the old milestone-only scope: %s", errOut.String())
 	}
 }
 
