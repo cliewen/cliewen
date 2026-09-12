@@ -728,3 +728,17 @@ events:
     - {id: M-093, kind: numeric, state: retired, prefix: M, component: "93"}
     - {id: AN-024, kind: numeric, state: reserved, prefix: AN, component: "24"}
     - {id: AN-024, kind: numeric, state: live, prefix: AN, component: "24"}
+    - {id: CH-181, kind: numeric, state: reserved, prefix: CH, component: "181"}
+    - {id: CH-182, kind: numeric, state: reserved, prefix: CH, component: "182"}
+    - {id: G-014, kind: numeric, state: reserved, prefix: G, component: "14"}
+    - {id: G-015, kind: numeric, state: reserved, prefix: G, component: "15"}
+    - {id: G-016, kind: numeric, state: reserved, prefix: G, component: "16"}
+    - {id: G-017, kind: numeric, state: reserved, prefix: G, component: "17"}
+    - {id: M-094, kind: numeric, state: reserved, prefix: M, component: "94"}
+    - {id: M-095, kind: numeric, state: reserved, prefix: M, component: "95"}
+    - {id: M-096, kind: numeric, state: reserved, prefix: M, component: "96"}
+    - {id: M-097, kind: numeric, state: reserved, prefix: M, component: "97"}
+    - {id: M-098, kind: numeric, state: reserved, prefix: M, component: "98"}
+    - {id: M-099, kind: numeric, state: reserved, prefix: M, component: "99"}
+    - {id: M-100, kind: numeric, state: reserved, prefix: M, component: "100"}
+    - {id: M-101, kind: numeric, state: reserved, prefix: M, component: "101"}
