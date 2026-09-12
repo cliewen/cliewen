@@ -21,7 +21,7 @@ Nothing could. Branch protection is a setting at the host — GitHub, GitLab, Bi
 
 ## Decision
 
-**Before marking a pull request ready, the agent finds out whether the branch it is about to rely on actually enforces anything, and stops to ask the human when it does not.** The agent is at the host, with credentials, at the moment the gate starts to matter. It can answer the question no file-reading tool can.
+**Before marking a pull request ready for the first time in a repository, the agent finds out whether the branch it is about to rely on actually enforces anything, and stops to ask the human when it does not.** The agent is at the host, with credentials, at the moment the gate starts to matter. It can answer the question no file-reading tool can.
 
 Three limits are part of the decision, not caveats on it.
 

@@ -931,6 +931,8 @@ func TestAC194_UnitPositive_BoundaryGuidanceChecksTheHostBeforeClaimingACandidat
 			"before marking a pull request ready for the first time in a repository",
 			"find out whether the branch being relied on enforces anything",
 			"report what was actually observed",
+			"mark the pull request ready without interrupting the human",
+			"asked once in a repository, not turned into a ritual at every candidate",
 		} {
 			if !strings.Contains(content, want) {
 				t.Errorf("%s review boundary is missing %q", name, want)
@@ -944,6 +946,9 @@ func TestAC194_UnitNegative_BoundaryGuidanceNeverInfersEnforcementFromTheReposit
 		content := mustRenderFile(t, name+"/references/review-boundary.md")
 		if !strings.Contains(content, "no check that reads files can see it") {
 			t.Errorf("%s does not say a file-reading check cannot observe enforcement", name)
+		}
+		if strings.Contains(content, "ask the host before every ready mark") {
+			t.Errorf("%s turns the one-off check into a per-candidate ritual", name)
 		}
 		for _, wrong := range []string{
 			"`clue validate` reports whether the branch is protected",
