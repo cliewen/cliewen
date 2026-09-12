@@ -1,8 +1,9 @@
 ---
 id: AN-024
 type: analysis
-status: draft
+status: active
 links: [VIS-001, AN-008]
+carried-by: [G-014, G-015, P-023]
 title: Methodology review — strengthen acceptance judgment and learning from use
 ---
 
