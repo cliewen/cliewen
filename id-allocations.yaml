@@ -2470,6 +2470,46 @@ claims:
       state: reserved
       prefix: M
       component: "93"
+    - id: M-094
+      kind: numeric
+      state: reserved
+      prefix: M
+      component: "94"
+    - id: M-095
+      kind: numeric
+      state: reserved
+      prefix: M
+      component: "95"
+    - id: M-096
+      kind: numeric
+      state: reserved
+      prefix: M
+      component: "96"
+    - id: M-097
+      kind: numeric
+      state: reserved
+      prefix: M
+      component: "97"
+    - id: M-098
+      kind: numeric
+      state: reserved
+      prefix: M
+      component: "98"
+    - id: M-099
+      kind: numeric
+      state: reserved
+      prefix: M
+      component: "99"
+    - id: M-100
+      kind: numeric
+      state: reserved
+      prefix: M
+      component: "100"
+    - id: M-101
+      kind: numeric
+      state: reserved
+      prefix: M
+      component: "101"
     - id: P-001
       kind: numeric
       state: reserved
@@ -2916,11 +2956,11 @@ high-water:
       state: reserved
       prefix: CH
       component: "182"
-    - id: G-013
+    - id: G-017
       kind: numeric
       state: reserved
       prefix: G
-      component: "13"
+      component: "17"
     - id: IC-002
       kind: numeric
       state: reserved
