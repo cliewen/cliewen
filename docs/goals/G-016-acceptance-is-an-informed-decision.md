@@ -1,7 +1,7 @@
 ---
 id: G-016
 type: goal
-status: proposed
+status: accepted
 links: [G-001, VIS-001]
 title: Human acceptance is an informed decision about usable behaviour
 ---

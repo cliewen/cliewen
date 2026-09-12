@@ -1,7 +1,7 @@
 ---
 id: G-009
 type: goal
-status: proposed
+status: accepted
 links: [G-001]
 title: A change workspace's identities have a command, not a hand-edited ledger
 ---

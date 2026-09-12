@@ -1,7 +1,7 @@
 ---
 id: G-006
 type: goal
-status: proposed
+status: accepted
 links: [G-001, ADR-048]
 title: Milestone IDs are covered by the corpus-wide identity ledger
 ---

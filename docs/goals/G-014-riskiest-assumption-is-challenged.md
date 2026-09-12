@@ -1,7 +1,7 @@
 ---
 id: G-014
 type: goal
-status: proposed
+status: accepted
 links: [G-001, VIS-001]
 title: A plan's riskiest assumption is challenged before commitment
 ---
