@@ -22,6 +22,8 @@ Evidence links below resolve to the current checkout for navigation; the pinned 
 
 The follow-up discussion on 2026-09-12 added the maintainer's proposal for repository-specific guides and automatic preservation of practical learning, together with an expressed interest in pushback on new plans and ideas. The section below attributes that proposal separately from the original review. Its candidate workflow is the reviewer's elaboration, not an accepted requirement or an observed improvement in agent behavior.
 
+The maintainer subsequently named RUP as an inspiration and requested a comparison, then authorized including that comparison in this record. The review consulted the supplied Wikipedia overview and the IBM/Rational sources cited below on 2026-09-12, and compared them with the existing planning and analysis workflows. This is a selective reading of published practices, not a comprehensive RUP conformance assessment or evidence that adopting them improves Cliewen. The proposed adaptations remain reviewer recommendations.
+
 ## What already works well
 
 The [design rationale](../../guide/design.md) places preservation of current intent inside the completion of a change. Digesting transient proposals into durable documentation, keeping criterion identities meaning-immutable, and stating the limits of structural validation form a coherent foundation. These are strengths of the documented design, not measured effectiveness claims.
@@ -122,6 +124,56 @@ Consider a small trial of this proposed obligation: when work reveals reusable k
 
 Before implementation, decide which discoveries qualify, how tasks find applicable guides, when an observation is sufficiently supported for procedural guidance, how obsolete knowledge is removed, and whether existing artifact conventions suffice. The choice between human-readable guidance and executable automation should follow the task and evidence rather than require one new workflow mechanism for every discovery.
 
+## RUP comparison: candidate improvements
+
+### Sources and comparison boundary
+
+The maintainer's starting point was the [Rational Unified Process overview](https://en.wikipedia.org/w/index.php?title=Rational_unified_process&oldid=1368248900). The substantive comparisons use [Rational's small-project guidance](https://public.dhe.ibm.com/software/rational/web/whitepapers/2003/tp183.pdf), [IBM's RUP description for System z, chapter 2](https://www.redbooks.ibm.com/redbooks/pdfs/sg247362.pdf), [Rational's process-maturity paper](https://public.dhe.ibm.com/software/rational/web/whitepapers/2003/rup_tp178.pdf), and [IBM's description of scenarios and tool mentors](https://www.ibm.com/docs/en/rational-soft-arch/9.7.0?topic=overview-learning-resources-design-management). These historical sources establish the practices being considered, not their effectiveness in contemporary agent-assisted development. The System z publication supplies a general RUP account within a platform-specific book; no platform or tooling choice is proposed for Cliewen.
+
+### 1. Let risk reduction shape the plan
+
+**RUP practice:** Risk mitigation drives iterative work, and the appropriate amount of process depends on the project's risks. [Rational's small-project guidance](https://public.dhe.ibm.com/software/rational/web/whitepapers/2003/tp183.pdf)
+
+**Already in Cliewen:** The [analysis workflow](../../.agents/skills/clue-analysis/references/analysis-workflow.md) opens with retiring the biggest risk first. The [planning skill](../../internal/skills/source/skills/clue-plan.md.tmpl) defines milestones with verifiable exits and controls changes to plan promises; the change loop reassesses plan health.
+
+**Candidate improvement:** Make the challenge to a proposed approach explicit: which assumption would most seriously undermine it, what is the cheapest credible test, and which result would cause a stop, simplification, or different approach? A first milestone can retire uncertainty even when it produces no feature. For the guides proposal, first testing whether another agent can discover and reuse one guide would challenge the central assumption before building a broader mechanism. This strengthens the existing risk-first practice rather than asserting it is absent.
+
+### 2. Exercise architecture through a difficult scenario
+
+**RUP practice:** Elaboration uses architectural prototypes and significant scenarios to assess whether the proposed architecture can support the system before most construction. [IBM's RUP description, chapter 2](https://www.redbooks.ibm.com/redbooks/pdfs/sg247362.pdf)
+
+**Already in Cliewen:** Architecture and design overviews, decisions, constraints, and analysis findings provide homes for architectural reasoning and evidence. Their existence alone does not demonstrate a proposed architecture under realistic conditions.
+
+**Candidate improvement:** When architectural uncertainty is material, demonstrate a small executable path across the consequential boundaries, selected for the uncertainty it exposes. An integration example might exercise one real request, dependency unavailability, and recovery before implementing the surrounding features. Use the existing analysis and milestone evidence mechanisms; do not require a prototype for every change. This is a proposed application of the current structures, not a finding that adopters never exercise architecture.
+
+### 3. Assess learning at meaningful milestones
+
+**RUP practice:** Iterations span engineering disciplines and typically yield an executable but incomplete system, creating repeated assessment opportunities. [Rational's process-maturity paper](https://public.dhe.ibm.com/software/rational/web/whitepapers/2003/rup_tp178.pdf)
+
+**Already in Cliewen:** Plan-health checks respond when work resumes or evidence challenges the campaign, while the digest preserves durable meaning.
+
+**Candidate improvement:** At a meaningful milestone, ask what was expected, what was observed, and what should change because of the difference. Preserve only useful learning, in the existing home appropriate to it. A result may revise a plan, correct a guide, or support removing an obligation; when there is no useful new information, no new record is needed. This adds a deliberate opportunity to notice learning to the maintainer's proposed capture-and-reuse loop. It is the reviewer's adaptation, not a claim that RUP prescribes automatic repository updates.
+
+### 4. Assess readiness for actual use where the goal requires it
+
+**RUP practice:** Transition includes deployment, user and maintainer preparation, feedback, and adjustments needed for successful use. [IBM's RUP description, Transition phase](https://www.redbooks.ibm.com/redbooks/pdfs/sg247362.pdf)
+
+**Already in Cliewen:** Human merge accepts a repository change; release is adopter-owned. This is a deliberate scope boundary. Relevant capabilities and plan milestones can already state outcomes beyond producing code.
+
+**Candidate improvement:** For a goal that depends on adoption or operation, consider a readiness criterion such as an unfamiliar maintainer performing an upgrade and recovering from its documented failure case. A guide then supports an observable outcome rather than satisfying readiness merely by existing. Preserve the distinction between change acceptance and readiness for use. Any general obligation would require a deliberate methodology decision; this suggestion does not prescribe an adopter release process or reopen the production-feedback boundary.
+
+### 5. Connect practical guidance to the task that needs it
+
+**RUP-related precedent:** Tool mentors provide guidance for applying practices with particular tools, and IBM describes scenarios combining tasks toward a larger outcome. [IBM's scenarios and tool-mentor guidance](https://www.ibm.com/docs/en/rational-soft-arch/9.7.0?topic=overview-learning-resources-design-management)
+
+**Already in Cliewen:** Skills carry process instructions and the corpus supplies bounded task context. The maintainer's guides proposal would add repository-specific practical knowledge, as described above.
+
+**Candidate improvement:** Trial guidance with a task trigger, prerequisites, procedure, expected result, and relevant recovery steps. Connect it to where the task starts and correct it on reuse. This precedent supports task-oriented guidance; automatic preservation and correction through agent work are the proposed Cliewen adaptation. The discovery mechanism and evidentiary boundaries remain the open choices already recorded in the guides section.
+
+### What this comparison does not recommend importing
+
+The reviewer recommends selective adoption of practices that address demonstrated needs. RUP's own [small-project guidance](https://public.dhe.ibm.com/software/rational/web/whitepapers/2003/tp183.pdf) supports tailoring process to risk. Mandatory phase names, a larger role taxonomy, document inventories, and mandatory use cases are not proposed here. Cliewen's optional use cases, proportional routes, and existing artifact homes should be considered before adding structure. These are recommendations for the prioritization discussion, not formal rejection of future alternatives.
+
 ## Alternatives considered and limits
 
 The review considered whether the immediate need was another artifact type, broader tooling, or additional universal gates. It did not recommend those as the first investment because the documented method already provides homes for the relevant reasoning, and added obligations would themselves require evidence of value. These are deferred possibilities, not consequential alternatives formally rejected on the project's behalf.
@@ -130,4 +182,10 @@ A claim that the human boundary is empty, minimal adoption is absent, or reality
 
 ## Suggested next discussion
 
-The original reviewer's preferred next investment is a worked example of rejecting a convincing green change, paired with a sustained adopter trial that examines acceptance effort and missed assumptions. The maintainer's follow-up adds practical learning and evidence-based pushback during planning as candidates for that discussion. Compare them before selecting work; a small guide-discovery-and-reuse trial could test the learning proposal without establishing a broad new documentation burden. No plan, decision, criterion, or shipped skill is changed by preserving this analysis, and no `carried-by` destination is asserted before a finding is actually incorporated into durable product meaning.
+The original review emphasizes acceptance judgment and evidence from sustained use. The maintainer's proposal adds reusable practical learning, and the RUP comparison suggests strengthening risk-driven planning and milestone learning assessments. Together they suggest a candidate sequence for discussion:
+
+1. Challenge a proposed plan by identifying its consequential assumption, a credible test, and a result that would change the approach. Include a worked example where a convincing proposal or green candidate is redirected.
+2. Trial one guide's discovery and reuse, then assess what the attempt taught before expanding the mechanism. Preserve useful corrections through the ordinary change workflow.
+3. Follow subsequent work, preferably with willing adopters, to assess acceptance effort, missed assumptions, and whether preserved knowledge is actually used. Apply executable architecture demonstrations and readiness-for-use criteria where the trial or project exposes those specific risks.
+
+This sequence is a reviewer recommendation for human prioritization, not an accepted plan or authorization to run the trials. No plan, decision, criterion, or shipped skill is changed by preserving this analysis, and no `carried-by` destination is asserted before a finding is actually incorporated into durable product meaning.
