@@ -1,12 +1,12 @@
 ---
 id: PDR-059
 type: decision
-status: inferred
+status: verified
 links: [P-023, M-102, AN-025, CAP-006, G-017, PDR-021, PDR-007, ADR-044, ADR-062, C-012]
 title: The agent finds out whether the merge boundary is enforced and asks the human, rather than enforcing or assuming
 binds: adopter
 author: agent
-accepted-by: pending human verification (proposed 2026-09-12)
+accepted-by: Flemming N. Larsen (2026-09-12, conversation)
 ---
 
 # PDR-059 — The agent asks whether the merge boundary is enforced
