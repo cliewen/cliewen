@@ -1,7 +1,7 @@
 ---
 id: G-017
 type: goal
-status: proposed
+status: accepted
 links: [G-001, VIS-001]
 title: The method's value is evidenced, and the method is simplified against that evidence
 ---

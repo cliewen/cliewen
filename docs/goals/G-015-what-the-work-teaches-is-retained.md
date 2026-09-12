@@ -1,7 +1,7 @@
 ---
 id: G-015
 type: goal
-status: proposed
+status: accepted
 links: [G-001, VIS-001]
 title: What the work teaches is preserved and found again
 ---
