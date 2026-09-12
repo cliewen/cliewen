@@ -2620,6 +2620,11 @@ claims:
       state: reserved
       prefix: P
       component: "22"
+    - id: P-023
+      kind: numeric
+      state: reserved
+      prefix: P
+      component: "23"
     - id: PDR-001
       kind: numeric
       state: reserved
@@ -2976,11 +2981,11 @@ high-water:
       state: reserved
       prefix: LOG
       component: "1"
-    - id: M-093
+    - id: M-101
       kind: numeric
       state: reserved
       prefix: M
-      component: "93"
+      component: "101"
     - id: P-022
       kind: numeric
       state: reserved
