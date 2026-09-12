@@ -1860,6 +1860,11 @@ claims:
       state: reserved
       prefix: CH
       component: "180"
+    - id: CH-181
+      kind: numeric
+      state: reserved
+      prefix: CH
+      component: "181"
     - id: G-001
       kind: numeric
       state: reserved
