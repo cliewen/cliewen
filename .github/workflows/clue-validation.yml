@@ -188,3 +188,50 @@ jobs:
         run: |
           printf '%s' "$PR_BODY" | grep -Fq '## Acceptance brief' || { echo 'FAIL: full-loop PRs need an acceptance brief'; exit 1; }
           ! printf '%s' "$PR_BODY" | grep -Fq '<!-- REQUIRED' || { echo 'FAIL: replace every acceptance-brief REQUIRED placeholder'; exit 1; }
+
+      # Branch protection is a host setting no file records, so `clue validate`
+      # cannot see it (ADR-044). This step asks GitHub instead and only ever
+      # reports: the configuration is the maintainer's, so the step never
+      # changes the job's result (PDR-060). The rules endpoint is readable with
+      # `contents: read`; classic branch protection and ruleset bypass lists are
+      # not, so the report names them as unseen rather than implying an answer.
+      # Regex matching stays inside bash, because GitHub runs this with
+      # pipefail and `grep -q` closing a pipe early would fail the step.
+      - name: Report whether the merge boundary is enforced
+        if: ${{ !cancelled() }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          branch="${GITHUB_BASE_REF:-$GITHUB_REF_NAME}"
+          checklist="See .github/cliewen-wall.md or https://cliewen.dev/ci-wall for how to configure it."
+          error_file="$RUNNER_TEMP/merge-boundary-error"
+          if ! rules="$(curl --proto '=https' --tlsv1.2 --fail --silent --show-error \
+              --header "Authorization: Bearer $GH_TOKEN" \
+              --header 'Accept: application/vnd.github+json' \
+              "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/rules/branches/$branch" 2>"$error_file")"; then
+            reason="$(tr '\r\n' '  ' < "$error_file")"
+            echo "::warning title=Merge boundary unknown::Could not ask GitHub what $branch enforces ($reason). Nothing was observed, so this is not a pass. $checklist"
+            exit 0
+          fi
+          flat="${rules//[[:space:]]/}"
+          if [ "${flat:0:1}" != "[" ]; then
+            echo "::warning title=Merge boundary unknown::GitHub did not return a rule list for $branch, so nothing was observed and this is not a pass. $checklist"
+            exit 0
+          fi
+          missing=""
+          require() {
+            if ! [[ $flat =~ $1 ]]; then
+              missing="${missing:+$missing; }$2"
+            fi
+          }
+          require '"type":"deletion"' 'branch deletion blocked'
+          require '"type":"non_fast_forward"' 'force pushes blocked'
+          require '"type":"pull_request"' 'pull requests required'
+          require '"allowed_merge_methods":\["merge"\]' 'merge commits as the only merge method'
+          require '"required_review_thread_resolution":true' 'review conversations resolved before merge'
+          require '"context":"validate(/validate)?"' 'the validate check required'
+          if [ -z "$missing" ]; then
+            echo "::notice title=Merge boundary observed::GitHub reports that $branch blocks deletion and force pushes, requires pull requests merged only by merge commit with conversations resolved, and requires the validate check. The bypass list is not visible to this workflow's token, so confirm it is empty."
+          else
+            echo "::warning title=Merge boundary not enforced::GitHub reports no active rule on $branch for: $missing. Until these are in place, nothing at the host stops a change reaching $branch without them. Classic branch protection is not visible to this workflow's token; if you use it instead of rulesets, confirm it covers the same. $checklist"
+          fi

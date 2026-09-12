@@ -158,4 +158,22 @@ Feature: Collaborative pull-request handoffs
     Then the guidance has it report the enforcement state as unknown and stop to ask on that basis
     And it states that silence is not a pass
     But it never records the boundary as verified, observed, or enforced when nothing was observed
+
+  @AC-197
+  Scenario: The validation workflow reports an enforced boundary as observed, and names what it could not see
+    Test-type: Unit
+    Given the reusable validation workflow runs for a pull request or a push
+    When GitHub reports that the branch it defends blocks deletion and force pushes, requires pull requests merged only by merge commit with conversations resolved, and requires the validate check
+    Then the run records a notice that this boundary was observed on that branch
+    And the notice says the bypass list was not visible to the workflow's token
+    But a branch missing any one of those rules gets no such notice, and the missing rule is named instead
+
+  @AC-198
+  Scenario: The validation workflow warns about an unenforced or unobservable boundary without failing
+    Test-type: Unit
+    Given the reusable validation workflow runs for a pull request or a push
+    When GitHub reports rules missing from that boundary, or cannot be asked
+    Then the run records a warning naming each missing rule in plain terms and where the setup checklist and guide are, or a warning that the state is unknown and not a pass
+    And the step succeeds, so the job's result is decided by validation alone
+    But an unanswered request is never reported as an observed boundary or as a list of missing rules
 ```

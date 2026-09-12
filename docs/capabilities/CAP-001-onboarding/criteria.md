@@ -259,4 +259,13 @@ Feature: Onboarding — install to first green validate
     When the user runs "clue init"
     Then the rule is appended, every attribute already in the file is unchanged, and the run reports the file as amended rather than skipped
     But a repository already declaring the rule is left byte-for-byte alone, whether or not it wrote the pattern with a leading slash
+
+  @AC-199
+  Scenario: init ships the merge-boundary checklist beside the CI caller
+    Test-type: Unit
+    Given a repository without Cliewen
+    When the user runs "clue init"
+    Then ".github/cliewen-wall.md" lists, in host-neutral terms, deletion and force-push blocking, required pull requests, merge commits as the only merge method, resolved conversations, the required validate check, and an empty bypass list, and links the full guide
+    And the generated caller points to that checklist
+    But the checklist is not a managed carrier, so an existing adopter's migration never demands it
 ```
