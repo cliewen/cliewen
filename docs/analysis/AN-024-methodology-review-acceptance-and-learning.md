@@ -20,6 +20,8 @@ The review read the guide's explanation of the method, design rationale, change 
 
 Evidence links below resolve to the current checkout for navigation; the pinned commit above identifies the text assessed. Findings distinguish documented mechanisms from inferred risks. The recommendations have not been demonstrated to improve outcomes and require human selection before implementation.
 
+The follow-up discussion on 2026-09-12 added the maintainer's proposal for repository-specific guides and automatic preservation of practical learning, together with an expressed interest in pushback on new plans and ideas. The section below attributes that proposal separately from the original review. Its candidate workflow is the reviewer's elaboration, not an accepted requirement or an observed improvement in agent behavior.
+
 ## What already works well
 
 The [design rationale](../../guide/design.md) places preservation of current intent inside the completion of a change. Digesting transient proposals into durable documentation, keeping criterion identities meaning-immutable, and stating the limits of structural validation form a coherent foundation. These are strengths of the documented design, not measured effectiveness claims.
@@ -76,6 +78,50 @@ The method already includes a concise acceptance brief, scenario-to-test review,
 
 **Recommendation:** Reconcile the explanations with the accepted core before editing carriers. This is a conceptual clarification candidate; this analysis does not decide whether its eventual correction is editorial or changes accepted meaning.
 
+## Maintainer proposal: preserve practical learning in repository guides
+
+**Origin and intent:** In the follow-up conversation, the maintainer proposed `/docs/guides` for non-obvious, repository-specific procedures so humans and agents need not guess how to perform them. The broader intent is for an agent that discovers a smarter way to work to preserve that learning automatically in `/docs`. The maintainer also highlighted the value of pushback on new plans and ideas. This is evidence of interest in a direction, not approval of the particular design below.
+
+**Existing basis:** [ADR-026](../decisions/ADR-026-adopter-types-default-lifecycle.md) permits adopter-defined artifact types and explicitly mentions runbooks. The [cross-cutting design overview](../design/README.md) already describes updating the durable document a reader will need during a change. Neither establishes the proposed practical-learning workflow. This proposal concerns knowledge gained while doing repository work; the post-delivery product-outcome feedback in finding 3 remains a separate question.
+
+### Candidate homes for what is learned
+
+A guide would explain how to accomplish a recurring task whose successful execution is not obvious from the existing documentation or tooling. Possible examples include reproducing a difficult failure, preparing a realistic test environment, adding an integration, and recovering from a failed migration. These are illustrative uses, not instructions to populate a new directory.
+
+| Home | Question it answers |
+|---|---|
+| Analysis | What did we discover, and how certain are we? |
+| Guide | How do I accomplish this task in this repository? |
+| Design | How does the system work? |
+| Decision | Why did we choose this approach? |
+| Script or executable workflow | Can the repeatable procedure be executed reliably? |
+
+The reviewer recommends updating an existing home before creating another. If a clearer error message, fewer setup steps, or a script removes the need to remember a procedure, consider that improvement before adding a guide. A new guide earns its place when useful knowledge remains that a future task will consume. Whether guides need a dedicated artifact type, identity convention, or template remains open.
+
+### Candidate learning loop
+
+1. Notice reusable learning during ordinary work: an unexpected prerequisite, repeated failed approach, human correction, or demonstrably better procedure.
+2. Establish its scope and evidence. A procedure that worked once in one prepared environment supports a narrower claim than a generally supported procedure. Preserve prerequisites, applicability, and uncertainty instead of promoting a workaround into a universal rule.
+3. Update the appropriate existing document, or propose a guide when a recurring task lacks a suitable explanation. Automate stable mechanical steps when that improves reliability and fits the authorized work.
+4. Include the documentation update in the current change without requiring a separate request to document the discovery. State in the handoff what reusable knowledge was preserved; apply the existing route and acceptance rules to its actual meaning.
+5. Retrieve that guidance on the next relevant task, compare it with current conditions, and correct or retire it when experience shows it is wrong, incomplete, obsolete, or unnecessarily difficult.
+
+This is learning through shared, versioned repository knowledge, not a claim about model training or private agent memory. Automatic preparation of updates can fit the current change workflow; automatic acceptance of new policy does not follow from the proposal. A discovery that changes a promise or standing obligation still requires the appropriate route and decision. Recording the proposal here changes none of those boundaries.
+
+### Discovery, correction, and evidence-based pushback
+
+Saving information alone does not establish a useful learning loop. A guide needs an explicit task trigger and links from the capability, contributor instructions, or other place where the relevant work begins. Agents should discover applicable guidance without reading every guide for every task. The mechanism for doing so is a design question to resolve before adopting a general documentation obligation.
+
+Prior learning could also make plan review more useful. An agent could identify an assumption in a proposed plan, cite a previous investigation or applicable guide that challenges it, explain the consequence, and offer an alternative. For example: a plan assumes local tests reproduce production conditions, while an earlier investigation established a specific mismatch. That evidence warrants revisiting the assumption; it does not justify reflexively rejecting the plan or treating old guidance as permanently authoritative.
+
+The main inferred risks are accumulation of low-value documents, a one-time workaround becoming policy, duplicated instructions drifting apart, and obsolete guidance reinforcing a past mistake. Scope-qualified evidence, one appropriate home, task-based discovery, and correction on reuse are proposed mitigations whose usefulness needs a trial.
+
+### Candidate first trial and open choices
+
+Consider a small trial of this proposed obligation: when work reveals reusable knowledge that would materially change how a later task is performed, preserve it in the appropriate durable home and make it discoverable. Observe whether a subsequent human or agent finds it, can follow it under its stated prerequisites, and corrects it when conditions differ. Assess saved rediscovery effort and misleading or unused guidance rather than counting documents as progress. No trial is authorized or scheduled by this analysis.
+
+Before implementation, decide which discoveries qualify, how tasks find applicable guides, when an observation is sufficiently supported for procedural guidance, how obsolete knowledge is removed, and whether existing artifact conventions suffice. The choice between human-readable guidance and executable automation should follow the task and evidence rather than require one new workflow mechanism for every discovery.
+
 ## Alternatives considered and limits
 
 The review considered whether the immediate need was another artifact type, broader tooling, or additional universal gates. It did not recommend those as the first investment because the documented method already provides homes for the relevant reasoning, and added obligations would themselves require evidence of value. These are deferred possibilities, not consequential alternatives formally rejected on the project's behalf.
@@ -84,4 +130,4 @@ A claim that the human boundary is empty, minimal adoption is absent, or reality
 
 ## Suggested next discussion
 
-The reviewer's preferred next investment is a worked example of rejecting a convincing green change, paired with a sustained adopter trial that examines acceptance effort and missed assumptions. Compare that suggestion with the maintainer's ideas before selecting work. No plan, decision, criterion, or shipped skill is changed by preserving this analysis, and no `carried-by` destination is asserted before a finding is actually incorporated into durable product meaning.
+The original reviewer's preferred next investment is a worked example of rejecting a convincing green change, paired with a sustained adopter trial that examines acceptance effort and missed assumptions. The maintainer's follow-up adds practical learning and evidence-based pushback during planning as candidates for that discussion. Compare them before selecting work; a small guide-discovery-and-reuse trial could test the learning proposal without establishing a broad new documentation burden. No plan, decision, criterion, or shipped skill is changed by preserving this analysis, and no `carried-by` destination is asserted before a finding is actually incorporated into durable product meaning.
