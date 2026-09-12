@@ -8,22 +8,24 @@ import (
 	"testing"
 )
 
-func TestAC186_UnitPositive_NextCommandReportsRecommendationAlternativesAndDrafts(t *testing.T) {
+func TestAC190_UnitPositive_NextCommandReportsTheOrientationLadder(t *testing.T) {
 	root := t.TempDir()
 	writeNextFile(t, root, "docs/plans/P-001.md", "---\nid: P-001\ntype: plan\nstatus: active\nlinks: []\ntitle: First plan\n---\n\n| ID | Milestone | Exit criterion | Status | Evidence |\n|---|---|---|---|---|\n| M-001 | First | Do first | todo | |\n")
 	writeNextFile(t, root, "docs/plans/P-002.md", "---\nid: P-002\ntype: plan\nstatus: active\nlinks: []\ntitle: Second plan\n---\n\n| ID | Milestone | Status | Evidence |\n|---|---|---|---|\n| M-002 | Resume | doing | |\n")
 	writeNextFile(t, root, "docs/plans/P-003.md", "---\nid: P-003\ntype: plan\nstatus: draft\nlinks: []\ntitle: Proposed plan\n---\n\n| ID | Milestone | Status | Evidence |\n|---|---|---|---|\n| M-003 | Proposed | todo | |\n")
+	writeNextFile(t, root, "docs/goals/G-001.md", "---\nid: G-001\ntype: goal\nstatus: proposed\nlinks: []\ntitle: Inbox choice\n---\n")
+	writeNextFile(t, root, "changes/CH-001-x/proposal.md", "---\nid: CH-001\ntype: change\nstatus: open\nlinks: [P-001]\ntitle: Resume this change\n---\n")
 
 	var out, errOut bytes.Buffer
 	if code := runNext([]string{root}, &out, &errOut); code != 0 {
 		t.Fatalf("next exit = %d, stderr = %s", code, errOut.String())
 	}
 	got := out.String()
-	if !strings.Contains(got, "P-002/M-002 | doing | Resume") || !strings.Contains(got, "Other active alternatives: 1") {
-		t.Fatalf("recommendation or alternatives missing: %s", got)
+	if !strings.Contains(got, "CH-001 | Resume this change") || !strings.Contains(got, "Other recorded options: 4") {
+		t.Fatalf("open-change recommendation or alternatives missing: %s", got)
 	}
-	if !strings.Contains(got, "P-003/M-003 | todo | Proposed") || !strings.Contains(got, "not actionable") {
-		t.Fatalf("draft milestone was not explained: %s", got)
+	if strings.Contains(got, "P-003/M-003") || strings.Contains(got, "G-001 |") {
+		t.Fatalf("default output included lower-priority choices while a change is open: %s", got)
 	}
 
 	out.Reset()
@@ -35,13 +37,32 @@ func TestAC186_UnitPositive_NextCommandReportsRecommendationAlternativesAndDraft
 	if strings.Index(got, "P-002/M-002") > strings.Index(got, "P-001/M-001") {
 		t.Fatalf("doing milestone did not precede todo: %s", got)
 	}
+	if strings.Index(got, "CH-001 |") > strings.Index(got, "P-002/M-002") {
+		t.Fatalf("open change did not precede active milestones: %s", got)
+	}
 	activeSection := strings.SplitN(got, "Proposed unfinished milestones", 2)[0]
 	if strings.Contains(activeSection, "P-003/M-003 |") {
 		t.Fatalf("draft milestone leaked into active --all list: %s", got)
 	}
+	if !strings.Contains(got, "G-001 | Inbox choice") || !strings.Contains(got, "repository inbox (not actionable)") {
+		t.Fatalf("proposed goal fallback missing: %s", got)
+	}
+
+	activeRoot := t.TempDir()
+	writeNextFile(t, activeRoot, "docs/plans/P-001.md", "---\nid: P-001\ntype: plan\nstatus: active\nlinks: []\ntitle: Active\n---\n\n| ID | Milestone | Status |\n|---|---|---|\n| M-001 | Resume | doing |\n| M-002 | Later | todo |\n")
+	writeNextFile(t, activeRoot, "docs/plans/P-002.md", "---\nid: P-002\ntype: plan\nstatus: draft\nlinks: []\ntitle: Draft\n---\n\n| ID | Milestone | Status |\n|---|---|---|\n| M-003 | Proposed | todo |\n")
+	out.Reset()
+	errOut.Reset()
+	if code := runNext([]string{activeRoot}, &out, &errOut); code != 0 {
+		t.Fatalf("active next exit = %d, stderr = %s", code, errOut.String())
+	}
+	got = out.String()
+	if !strings.Contains(got, "M-001") || strings.Contains(got, "M-002") || strings.Contains(got, "M-003") {
+		t.Fatalf("default output did not stay at the strongest first choice: %s", got)
+	}
 }
 
-func TestAC186_UnitNegative_NextCommandDoesNotMutateAndHandlesNoActiveWork(t *testing.T) {
+func TestAC190_UnitNegative_NextCommandDoesNotMutateAndHandlesNoRecordedWork(t *testing.T) {
 	root := t.TempDir()
 	path := filepath.Join(root, "docs", "plans", "P-001.md")
 	writeNextFile(t, root, "docs/plans/P-001.md", "---\nid: P-001\ntype: plan\nstatus: draft\nlinks: []\ntitle: Proposed\n---\n\n| ID | Milestone | Status |\n|---|---|---|\n| M-001 | Proposed | todo |\n")
@@ -53,7 +74,7 @@ func TestAC186_UnitNegative_NextCommandDoesNotMutateAndHandlesNoActiveWork(t *te
 	if code := runNext([]string{root}, &out, &errOut); code != 0 {
 		t.Fatalf("next exit = %d, stderr = %s", code, errOut.String())
 	}
-	if !strings.Contains(out.String(), "No actionable milestone in active plans.") || !strings.Contains(out.String(), "P-001/M-001") {
+	if !strings.Contains(out.String(), "Proposed unfinished milestone in a draft plan (not actionable)") || !strings.Contains(out.String(), "P-001/M-001") {
 		t.Fatalf("no-active report missing: %s", out.String())
 	}
 	after, err := os.ReadFile(path)
@@ -62,6 +83,25 @@ func TestAC186_UnitNegative_NextCommandDoesNotMutateAndHandlesNoActiveWork(t *te
 	}
 	if !bytes.Equal(before, after) {
 		t.Fatalf("next mutated the plan")
+	}
+
+	empty := t.TempDir()
+	out.Reset()
+	errOut.Reset()
+	if code := runNext([]string{empty}, &out, &errOut); code != 0 {
+		t.Fatalf("empty next exit = %d, stderr = %s", code, errOut.String())
+	}
+	if !strings.Contains(out.String(), "Capture a proposed goal") {
+		t.Fatalf("empty orientation did not name the remaining path: %s", out.String())
+	}
+
+	out.Reset()
+	errOut.Reset()
+	if code := runNext([]string{"--help"}, &out, &errOut); code != 2 {
+		t.Fatalf("next --help exit = %d", code)
+	}
+	if !strings.Contains(errOut.String(), "every open change, unfinished milestone, and proposed goal") {
+		t.Fatalf("next --help retained the old milestone-only scope: %s", errOut.String())
 	}
 }
 

@@ -295,11 +295,20 @@ func TestAC051_UnitPositive_HighCostInferredMeaningBlocksActiveCapability(t *tes
 	}
 }
 
-func TestAC186_UnitNegative_VerifiedMeaningCannotCarryReversalCost(t *testing.T) {
+func TestAC192_UnitNegative_VerifiedMeaningCannotCarryReversalCost(t *testing.T) {
 	files := with(validFiles, map[string]string{
 		"docs/goals/G-001-first.md": "---\nid: G-001\ntype: goal\nstatus: active\nlinks: []\ntitle: First goal\nprovenance: verified\nreversal-cost: low\n---\n",
 	})
 	assertIssue(t, run(t, files, false), "reversal-cost applies only to inferred meaning")
+}
+
+func TestAC192_UnitPositive_VerifiedMeaningWithoutReversalCostPasses(t *testing.T) {
+	files := with(validFiles, map[string]string{
+		"docs/goals/G-001-first.md": "---\nid: G-001\ntype: goal\nstatus: accepted\nlinks: []\ntitle: First goal\nprovenance: verified\n---\n",
+	})
+	if issues := run(t, files, false); len(issues) != 0 {
+		t.Fatalf("verified meaning without reversal-cost should pass; got %v", issues)
+	}
 }
 
 func TestAC051_InferredDecisionsAreVisibleButDoNotBlock(t *testing.T) {

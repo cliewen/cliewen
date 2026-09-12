@@ -1855,6 +1855,19 @@ func testGit(t *testing.T, dir string, args ...string) string {
 // existing ledger, and clue id next M then allocates safely above every
 // declared milestone under the same Git coordination CH-171 made safe for
 // every other prefix.
+func TestAC192_UnitPositive_MigrationRemovesVerifiedReversalCostWithoutChangingBody(t *testing.T) {
+	for _, cost := range []string{"low", "high"} {
+		before := []byte("---\nid: AN-001\ntype: analysis\nstatus: active\nlinks: []\ntitle: A\nprovenance: verified\nreversal-cost: " + cost + "\n---\n\nbody stays here\n")
+		after, changes, findings := migrateArtifact("verified-cost.md", before, "low")
+		if len(findings) != 0 || len(changes) != 1 {
+			t.Fatalf("%s migration result: changes=%v findings=%v", cost, changes, findings)
+		}
+		if bytes.Contains(after, []byte("reversal-cost:")) || !bytes.Contains(after, []byte("\nbody stays here\n")) {
+			t.Fatalf("verified %s reversal-cost was not removed safely: %q", cost, after)
+		}
+	}
+}
+
 func TestAC188_IntegrationPositive_ExistingLedgerBackfillsMilestonesAndAllocatesSafelyUnderCoordination(t *testing.T) {
 	root := migrationFixture(t, "")
 	docsReadme := "# Docs\n\n<!-- clue:index:start -->\n- [analysis/](analysis/README.md)\n- [plans/](plans/README.md)\n<!-- clue:index:end -->\n"

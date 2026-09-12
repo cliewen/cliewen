@@ -78,3 +78,39 @@ func TestAC083_UnitNegative_InitEmitsNoVendorConfiguration(t *testing.T) {
 		t.Fatal(err)
 	}
 }
+
+func TestAC191_UnitPositive_InitEmitsConditionalFreshContextOrientation(t *testing.T) {
+	root, _ := runInto(t)
+	hub, err := os.ReadFile(filepath.Join(root, "AGENTS.md"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	content := string(hub)
+	latest := strings.Index(content, "clue latest --quiet")
+	next := strings.Index(content, "run `clue next --all` before substantive work")
+	if latest < 0 || next < 0 || latest >= next {
+		t.Fatalf("fresh-context orientation does not follow the mandatory release check:\n%s", content)
+	}
+	for _, want := range []string{"opening request leaves direction open", "read the leading candidate with `clue context`", "never authorization to begin"} {
+		if !strings.Contains(content, want) {
+			t.Errorf("fresh-context orientation is missing %q", want)
+		}
+	}
+}
+
+func TestAC191_UnitNegative_InitDoesNotRequireAStatusPreambleForEveryRequest(t *testing.T) {
+	root, _ := runInto(t)
+	hub, err := os.ReadFile(filepath.Join(root, "AGENTS.md"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	content := string(hub)
+	if !strings.Contains(content, "otherwise do not add a routine status preamble") {
+		t.Fatalf("routing hub does not keep concrete requests free of unrelated status:\n%s", content)
+	}
+	for _, forbidden := range []string{"always report repository status", "start the first milestone in a draft plan"} {
+		if strings.Contains(content, forbidden) {
+			t.Errorf("routing hub contains unsafe instruction %q", forbidden)
+		}
+	}
+}

@@ -15,8 +15,6 @@ goal: G-001
 
 After `clue migrate --apply` has backfilled that ledger, `clue id next <prefix>` allocates the next numeric ID for a prefix through it and `clue id live <id>` promotes the reservation after its artifact is created, so a retired ID is never silently reissued ([ADR-048](../../decisions/ADR-048-corpus-wide-id-ledger.md)). [CAP-010](../CAP-010-team-safe-identity-allocation/README.md) owns coordination across clones and worktrees; validation still reads only the checked-in effective state.
 
-Use `clue next [--all] [path]` to inspect unfinished work without mutating the corpus. It reads only active plans as actionable; draft-plan milestones are reported as proposed. `doing` precedes `todo`, and stable plan/table order makes the recommendation repeatable.
-
 ## Why
 
 The judge actor of [G-001](../../goals/G-001-verifiable-thread.md): machines enforce form so humans only have to verify meaning. The same binary runs locally and in CI — a green local run means a green PR.

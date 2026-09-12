@@ -121,10 +121,10 @@ Commands:
              this is how a capability reaches the journey that governs it
              without the edge being written in two files.
 
-  next       Report unfinished milestones in active plans without changing
-             the corpus. A doing milestone precedes todo; --all lists every
-             active candidate. Unfinished milestones in draft plans are
-             reported as proposed, not actionable.
+  next       Report repository orientation without changing the corpus. Open
+             changes precede active doing and todo milestones; draft milestones
+             and proposed goals are reported as proposed, not actionable.
+             --all lists every recorded category.
 
   migrate    Preview a versioned corpus and managed-carrier migration; use
              --apply to write the complete safe plan and

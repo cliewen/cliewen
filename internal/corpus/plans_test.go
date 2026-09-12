@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func TestAC186_UnitPositive_UnfinishedMilestonesPrioritizeDoingAndDraftIsSeparate(t *testing.T) {
+func TestAC190_UnitPositive_UnfinishedMilestonesPrioritizeDoingAndDraftIsSeparate(t *testing.T) {
 	c := &Corpus{Artifacts: []*Artifact{
 		{Type: "plan", Status: "active", Path: "docs/plans/P-002.md", Body: "| ID | Milestone | Status | Evidence |\n|---|---|---|---|\n| M-002 | Later | todo | |\n"},
 		{Type: "plan", Status: "active", Path: "docs/plans/P-001.md", Body: "| ID | Milestone | Exit criterion | Status | Evidence |\n|---|---|---|---|---|\n| M-001 | First | Do first | doing | |\n"},
@@ -24,7 +24,7 @@ func TestAC186_UnitPositive_UnfinishedMilestonesPrioritizeDoingAndDraftIsSeparat
 	}
 }
 
-func TestAC186_UnitNegative_PlanMilestonesIgnoreExamplesAndFinishedRows(t *testing.T) {
+func TestAC190_UnitNegative_PlanMilestonesIgnoreExamplesAndFinishedRows(t *testing.T) {
 	plan := &Artifact{Type: "plan", Body: strings.TrimSpace(`
 | ID | Milestone | Status |
 |---|---|---|

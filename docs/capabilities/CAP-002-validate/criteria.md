@@ -455,7 +455,7 @@ Feature: clue validate — deterministic corpus judgment
     Then an analysis naming durable artifacts that resolve passes, and an analysis declaring nothing passes unchanged
     But the field on a non-analysis artifact, an empty list, an unresolvable ID, a self-reference, and an ID naming another analysis each fail and name the offending artifact
 
-  @AC-186
+  @AC-186 @retired
   Scenario: Next work and inferred-meaning cost are machine-readable
     Test-type: Unit
     Given a corpus with active plans containing `doing` and `todo` milestones, and a draft plan containing unfinished milestones
@@ -465,6 +465,16 @@ Feature: clue validate — deterministic corpus judgment
     Given an inferred non-decision artifact
     Then `reversal-cost: low` explicitly permits deferral, `reversal-cost: high` blocks an active capability that directly depends on it, and an inferred artifact without either value fails validation
     But a verified non-decision artifact carrying `reversal-cost` fails validation, and a migration removes that obsolete field while preserving the artifact's other content
+    # Retired by PDR-058: the compound scenario joined orientation and provenance behavior owned by different capabilities. AC-190 and AC-192 preserve those meanings separately.
+
+  @AC-192
+  Scenario: Reversal cost ends when inferred meaning is verified
+    Test-type: Unit
+    Given a non-decision artifact whose inferred provenance carries reversal-cost low or high
+    When a human verifies that meaning
+    Then the verified artifact omits reversal-cost and passes validation
+    But a verified artifact that retains reversal-cost fails validation
+    And migration removes the obsolete field without changing the artifact body
 
   @AC-189
   Scenario: A milestone ID collision fails loudly, the same way a native-prefix collision does
