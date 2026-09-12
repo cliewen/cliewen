@@ -2010,6 +2010,16 @@ claims:
       state: reserved
       prefix: G
       component: "17"
+    - id: G-018
+      kind: numeric
+      state: reserved
+      prefix: G
+      component: "18"
+    - id: G-019
+      kind: numeric
+      state: reserved
+      prefix: G
+      component: "19"
     - id: IC-001
       kind: numeric
       state: reserved
@@ -2996,11 +3006,11 @@ claims:
       prefix: VIS
       component: "1"
 high-water:
-    - id: AC-193
+    - id: AC-196
       kind: numeric
       state: reserved
       prefix: AC
-      component: "193"
+      component: "196"
     - id: ADR-070
       kind: numeric
       state: reserved
