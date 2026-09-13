@@ -71,8 +71,8 @@ var skillDefinitions = map[string]skillDefinition{
 			{heading: "Planning workflow", file: "planning-workflow.md", condition: "Before creating or revising a plan"},
 			{heading: "Intent model", file: "intent-model.md", condition: "Before deciding which goals a plan serves, and whether any journey needs a use case"},
 			{heading: "Intent discovery", file: "intent-discovery.md", condition: "When the repository states no usable vision"},
-			{heading: "Decision records", file: "decision-records.md", condition: "When plan meaning or another consequential choice is recorded"},
 			{heading: "Challenge a consequential commitment", file: "challenge-commitments.md", condition: "Before adopting or revising a plan's promise"},
+			{heading: "Decision records", file: "decision-records.md", condition: "When plan meaning or another consequential choice is recorded"},
 		},
 	},
 	"clue-delta": {
@@ -81,11 +81,11 @@ var skillDefinitions = map[string]skillDefinition{
 			{heading: "Change routing", file: "change-scope-and-tiers.md", condition: "Before recommending a route or starting a full change"},
 			{heading: "Review boundary", file: "review-boundary.md", condition: "Before branching, publishing, updating a hosted PR, or handing work to a human"},
 			{heading: "Change loop", file: "change-loop.md", condition: "After the user chooses the recommended full loop"},
+			{heading: "Challenge a consequential commitment", file: "challenge-commitments.md", condition: "Before writing the proposal for a consequential change"},
 			{heading: "Intent model", file: "intent-model.md", condition: "When the change touches what the product means, or the acceptance brief must state the vision it proceeds under"},
 			{heading: "Decision records", file: "decision-records.md", condition: "When the change makes, rejects, or carries a decision"},
 			{heading: "Repository-local conventions", file: "repository-local-conventions.md", condition: "Before applying repository-specific implementation or digest rules"},
 			{heading: "Durable work state", file: "durable-work-state.md", condition: "When a change starts or resumes, a suggestion arrives, or a merge is reported"},
-			{heading: "Challenge a consequential commitment", file: "challenge-commitments.md", condition: "Before writing the proposal for a consequential change"},
 		},
 	},
 	"clue-extract": {
