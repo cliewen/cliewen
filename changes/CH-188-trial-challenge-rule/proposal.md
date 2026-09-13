@@ -1,5 +1,9 @@
 ---
+id: CH-188
+type: change
+status: open
 links: [P-023, G-014]
+title: Trial the challenge rule on real work, in both directions
 ---
 
 # CH-188 — Trial the challenge rule on real work, in both directions

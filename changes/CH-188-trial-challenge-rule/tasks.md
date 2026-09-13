@@ -1,3 +1,11 @@
+---
+id: CH-188-tasks
+type: tasks
+status: open
+links: [CH-188]
+title: Tasks — trial the challenge rule on real work
+---
+
 # Tasks
 
 - [ ] Write `docs/analysis/AN-026-trialling-the-challenge-rule.md` recording both trials: what the rule caught, what each cost, and what neither trial exercised.
