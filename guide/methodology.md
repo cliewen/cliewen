@@ -1,17 +1,18 @@
 # The verifiable thread
 
-Cliewen organizes system knowledge as a graph with one red thread from motivation to acceptance evidence.
+Cliewen organizes system knowledge as a graph with one verifiable thread from motivation to acceptance evidence, and a separate delivery thread that acts on capability content without leaving a durable link once the work lands.
 
 ```mermaid
 flowchart TD
     G[Goal<br/>who needs what and why] --> P[Plan<br/>a bounded campaign]
     P --> CH[Change<br/>the transient proposal]
-    CH --> CAP[Capability<br/>what the system can do]
+    G --> CAP[Capability<br/>what the system can do]
     CAP --> AC[Acceptance criterion<br/>one verifiable behavior]
     AC --> E{Acceptance evidence}
     E --> T[Test reference<br/>type + direction]
     E --> H[Human acceptance brief]
     C[Constraints<br/>including verifiable quality bars] -. laws checked throughout full changes .-> CH
+    CH -. edits capability content; no durable link .-> CAP
 ```
 
 ## Goal
