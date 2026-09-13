@@ -33,11 +33,7 @@ The core is behind a red line: the verifiable thread (goal → plan → change �
 
 ## Before a consequential commitment: challenge the riskiest assumption
 
-Before a consequential commitment, challenge it where the reviewer will read it: in the plan's prose for a plan, in `proposal.md` for a change. Name the assumption most likely to undermine the work, a credible alternative, the cheapest useful test of that assumption, and the result that would stop or revise the work; then ask what an implementation could look like that met every criterion and still failed the person the work is for. A milestone may deliver decision-changing evidence instead of a feature, and repository experience is evidence to reassess, not standing authority.
-
-A commitment is consequential when being wrong would cost more than finding out first: adopting or revising a plan's promise, starting a milestone whose approach is unsettled, choosing between credible courses in a decision, or a change to what adopters receive. Route first: simple work is never consequential, even when it touches a shipped surface. Work carrying out a course already challenged and understood, and work that can be undone within the same change at no more cost than the challenge, also proceed without a challenge and without a note explaining its absence. No prototype is universally required. This limit is part of the rule: a challenge demanded of everything is written by habit and challenges nothing ([PDR-061](docs/decisions/PDR-061-challenge-consequential-commitments-proportionally.md)).
-
-This rule binds this repository only while [P-023](docs/plans/P-023-challenge-plans-and-retain-what-work-teaches.md) trials it; it is not yet on a shipped carrier.
+Before a consequential commitment, challenge it where the reviewer will read it: in the plan's prose for a plan, in `proposal.md` for a change — the shared rule stated in `clue-plan` and `clue-delta`'s "Challenge a consequential commitment" reference, which this repository follows like any adopter ([PDR-061](docs/decisions/PDR-061-challenge-consequential-commitments-proportionally.md)). [P-023](docs/plans/P-023-challenge-plans-and-retain-what-work-teaches.md) trialled it here first, repository-only, before M-100 moved it onto that shared carrier.
 
 ## Read the matching skill
 

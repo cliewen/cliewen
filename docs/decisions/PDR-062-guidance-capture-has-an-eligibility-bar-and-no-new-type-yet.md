@@ -3,8 +3,9 @@ id: PDR-062
 type: decision
 status: inferred
 author: agent
-links: [P-023, M-096, G-015, AN-024, ADR-026]
+links: [P-023, M-096, M-097, M-098, M-100, G-015, AN-024, ADR-026, ADR-062]
 title: A reusable discovery earns capture only past an eligibility bar, and files into an existing home rather than a new corpus type
+binds: adopter
 accepted-by: []
 ---
 
@@ -30,11 +31,15 @@ accepted-by: []
 
 ## Scope
 
-This decision binds this repository only, ahead of [P-023](../plans/P-023-challenge-plans-and-retain-what-work-teaches.md)/M-100's trial-before-ship ordering; it carries no `binds: adopter`.
+M-097 filed this repository's first real discovery into `CONTRIBUTING.md`, the home this decision names for tooling not tied to one capability, and M-098's fresh-agent trial found it from the entry point this decision relies on, used it, and — because nothing about it was stale under the conditions actually hit — correctly filed no correction. Neither home was found too narrow. M-100 promotes the decision to bind adopters on that evidence, generalizing the two named homes to a capability's own `design.md` and the repository's own contributor or operational guidance (`CONTRIBUTING.md` is this repository's instance, not the adopter-facing name).
+
+## Carrier
+
+`internal/skills/source/shared/durable-work.md.tmpl`, included by `clue-delta.md.tmpl`, `clue-extract.md.tmpl`, `clue-upgrade.md.tmpl`, and `clue-verify.md.tmpl`, regenerated into each skill's `.agents/skills/*/references/durable-work-state.md` and the matching `internal/scaffold/templates/skills/` copies.
 
 ## Reopening
 
-M-097's first real discovery and M-098's fresh-agent trial are the test of the home choice above. If the discovery fits neither a capability's `design.md` nor `CONTRIBUTING.md` without distorting it, or belongs to no single capability and is not about this repository's own tooling, that is the case a dedicated corpus type exists to solve, and this decision is revised rather than left beside a contradicting answer.
+If a future discovery fits neither a capability's `design.md` nor the repository's own contributor or operational guidance without distorting it, or belongs to no single capability and is not about the repository's own tooling, that is the case a dedicated corpus type exists to solve, and this decision is revised rather than left beside a contradicting answer.
 
 ## Rejected: a new `runbook` (or similar) corpus type now
 

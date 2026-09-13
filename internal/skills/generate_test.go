@@ -203,6 +203,70 @@ func TestAC186_UnitNegative_GeneratedGuidanceDoesNotTreatDraftPlansAsActionable(
 	}
 }
 
+func TestAC200_UnitPositive_ChallengeRuleReachesPlanningAndProposal(t *testing.T) {
+	for _, path := range []string{
+		"clue-plan/references/challenge-commitments.md",
+		"clue-delta/references/challenge-commitments.md",
+	} {
+		content := mustRenderFile(t, path)
+		for _, want := range []string{
+			"the assumption most likely to undermine the work",
+			"a credible alternative course",
+			"the cheapest useful test",
+			"the result that would stop or revise the work",
+			"met every criterion and still failed the person the work is for",
+			"proceed without a challenge and without a note explaining its absence",
+		} {
+			if !strings.Contains(content, want) {
+				t.Errorf("%s is missing %q", path, want)
+			}
+		}
+	}
+}
+
+func TestAC200_UnitNegative_ChallengeRuleStaysProportional(t *testing.T) {
+	content := mustRenderFile(t, "clue-plan/references/challenge-commitments.md")
+	if strings.Contains(content, "a prototype is required") {
+		t.Error("challenge-commitments guidance drops its proportionality limit")
+	}
+	if !strings.Contains(content, "No prototype is ever universally required") {
+		t.Error("challenge-commitments guidance is missing its proportionality limit")
+	}
+}
+
+func TestAC201_UnitPositive_GuidanceCaptureHasAnEligibilityBarAndAnExistingHome(t *testing.T) {
+	for _, path := range []string{
+		"clue-delta/references/durable-work-state.md",
+		"clue-extract/references/durable-work-state.md",
+		"clue-upgrade/references/durable-work-state.md",
+		"clue-verify/references/durable-work-state.md",
+	} {
+		content := mustRenderFile(t, path)
+		for _, want := range []string{
+			"earns capture only past an eligibility bar",
+			"plausibly recurring",
+			"capability-specific discovery goes into that capability's own `design.md`",
+			"the repository's own contributor or operational guidance",
+			"trigger, prerequisites, procedure, expected result, and recovery",
+			"scoped to what was actually seen",
+		} {
+			if !strings.Contains(content, want) {
+				t.Errorf("%s guidance-capture text is missing %q", path, want)
+			}
+		}
+	}
+}
+
+func TestAC201_UnitNegative_GuidanceCaptureDoesNotSkipTheEligibilityBar(t *testing.T) {
+	content := mustRenderFile(t, "clue-delta/references/durable-work-state.md")
+	if strings.Contains(content, "any discovery worth writing down") {
+		t.Error("guidance-capture text drops its eligibility bar")
+	}
+	if !strings.Contains(content, "is not eligible") {
+		t.Error("guidance-capture text is missing its eligibility exclusion")
+	}
+}
+
 func TestAC146_UnitPositive_ExtractionClassifiesDecisionsAndInventoriesLegacyRows(t *testing.T) {
 	target := mustRenderFile(t, "clue-extract/references/target-contract.md")
 	mapping := mustRenderFile(t, "clue-extract/mappings/madr.md")

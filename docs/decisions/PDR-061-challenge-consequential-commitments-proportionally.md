@@ -2,8 +2,9 @@
 id: PDR-061
 type: decision
 status: verified
-links: [G-014, P-023, M-094, AN-024, PDR-056, PDR-042, ADR-062, C-013]
+links: [G-014, P-023, M-094, M-100, AN-024, AN-026, PDR-056, PDR-042, ADR-062, C-013]
 title: A consequential commitment is challenged before it is made, and the challenge scales with consequence rather than applying to everything
+binds: adopter
 author: agent
 accepted-by: Flemming N. Larsen (2026-09-12, conversation)
 ---
@@ -28,7 +29,11 @@ Cliewen's thread proves that what was built matches what was stated; it cannot p
 
 ## Scope
 
-The rule binds this repository only, stated in [`AGENTS.md`](../../AGENTS.md). [P-023](../plans/P-023-challenge-plans-and-retain-what-work-teaches.md) tries it on real work in both directions before any of it reaches the shipped carriers, so this record carries no `binds: adopter` and the carrier check of [ADR-062](ADR-062-repository-role-is-declared-machine-state.md) does not apply to it. Moving it to adopters, or recording why it should not move, is a later decision.
+[P-023](../plans/P-023-challenge-plans-and-retain-what-work-teaches.md) trialled the rule on real work in both directions, repository-only, before letting it reach an adopter. [AN-026](../analysis/AN-026-trialling-the-challenge-rule.md) records both directions succeeding: one proposal redirected by evidence the rule surfaced, one proceeding without extra investigation because the rule said it did not need any. M-100 promotes it to bind adopters on that evidence.
+
+## Carrier
+
+`internal/skills/source/shared/challenge-commitments.md.tmpl`, included by `clue-plan.md.tmpl` (before adopting or revising a plan's promise) and `clue-delta.md.tmpl` (before writing a consequential change's proposal), regenerated into `.agents/skills/{clue-plan,clue-delta}/references/challenge-commitments.md` and the matching `internal/scaffold/templates/skills/` copies. [`AGENTS.md`](../../AGENTS.md) points to the shipped rule rather than restating it, so this repository's own copy is the shared template.
 
 ## Rejected: a mandatory challenge section in every proposal
 
