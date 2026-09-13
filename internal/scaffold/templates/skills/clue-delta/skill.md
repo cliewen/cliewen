@@ -20,3 +20,4 @@ Read each reference when its condition is reached, before taking action governed
 - When the change makes, rejects, or carries a decision, read [Decision records](references/decision-records.md).
 - Before applying repository-specific implementation or digest rules, read [Repository-local conventions](references/repository-local-conventions.md).
 - When a change starts or resumes, a suggestion arrives, or a merge is reported, read [Durable work state](references/durable-work-state.md).
+- Before writing the proposal for a consequential change, read [Challenge a consequential commitment](references/challenge-commitments.md).
