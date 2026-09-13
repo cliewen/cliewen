@@ -820,5 +820,6 @@ events:
     - {id: CH-190-open-questions, kind: opaque, state: live}
     - {id: M-097, kind: numeric, state: retired, prefix: M, component: "97"}
     - {id: CH-191, kind: numeric, state: reserved, prefix: CH, component: "191"}
+    - {id: M-101, kind: numeric, state: retired, prefix: M, component: "101"}
 high-water:
     - {id: CH-183, kind: numeric, state: reserved, prefix: CH, component: "183"}
