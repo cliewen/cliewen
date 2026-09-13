@@ -70,7 +70,7 @@ Total Go statement coverage must remain at least 80%. `clue-verify` then automat
 
 **Recovery:** If a body or message was already published, edit it with the file-based form above (`gh pr edit --body-file <path>`, or `git commit --amend -F <path>` for an unpushed commit) and verify by re-reading the rendered result.
 
-**Why:** PowerShell's escape character is backtick, not backslash. A backtick followed by `n` — as inside backtick-quoted inline code — collapses to a real newline and drops the `n`; backtick followed by `f` becomes a form-feed. Meanwhile a literal `\n` typed with intent to mean "newline" is not an escape in a PowerShell double-quoted string, so it survives as literal text instead of becoming a line break. This combination corrupted this repository's PR #49 description: headers ran together, `npm` became `\npm`, and a backtick-quoted commit hash turned into a form-feed character. Observed on Windows PowerShell with `gh`; not yet confirmed under other shells or hosts.
+**Why:** PowerShell's escape character is backtick, not backslash. A backtick followed by `n` — as inside backtick-quoted inline code — collapses to a real newline and drops the `n`; backtick followed by `f` becomes a form-feed. Meanwhile a literal `\n` typed with intent to mean "newline" is not an escape in a PowerShell double-quoted string, so it survives as literal text instead of becoming a line break. This combination corrupted this repository's [PR #49](https://github.com/cliewen/cliewen/pull/49) description: headers ran together, `npm` became `\npm`, and a backtick-quoted commit hash turned into a form-feed character. Observed on Windows PowerShell with `gh`; not yet confirmed under other shells or hosts.
 
 ## Mark the Pull Request Ready
 
