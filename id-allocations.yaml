@@ -1955,6 +1955,11 @@ claims:
       state: reserved
       prefix: CH
       component: "187"
+    - id: CH-188
+      kind: numeric
+      state: reserved
+      prefix: CH
+      component: "188"
     - id: G-001
       kind: numeric
       state: reserved
@@ -3056,11 +3061,11 @@ high-water:
       state: reserved
       prefix: ADR
       component: "70"
-    - id: AN-025
+    - id: AN-026
       kind: numeric
       state: reserved
       prefix: AN
-      component: "25"
+      component: "26"
     - id: ARCH-003
       kind: numeric
       state: reserved
