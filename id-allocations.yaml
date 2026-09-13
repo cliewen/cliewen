@@ -1965,6 +1965,11 @@ claims:
       state: reserved
       prefix: CH
       component: "189"
+    - id: CH-190
+      kind: numeric
+      state: reserved
+      prefix: CH
+      component: "190"
     - id: G-001
       kind: numeric
       state: reserved
@@ -3126,11 +3131,11 @@ high-water:
       state: reserved
       prefix: P
       component: "23"
-    - id: PDR-061
+    - id: PDR-062
       kind: numeric
       state: reserved
       prefix: PDR
-      component: "61"
+      component: "62"
     - id: UC-002
       kind: numeric
       state: reserved
