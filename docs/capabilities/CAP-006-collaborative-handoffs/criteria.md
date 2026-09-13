@@ -2,7 +2,7 @@
 id: CAP-006-criteria
 type: criteria
 status: active
-links: [CAP-006]
+links: [CAP-006, PDR-061, PDR-062]
 title: Acceptance criteria for CAP-006
 ---
 
@@ -176,4 +176,22 @@ Feature: Collaborative pull-request handoffs
     Then the run records a warning naming each missing rule in plain terms and where the setup checklist and guide are, or a warning that the state is unknown and not a pass
     And the step succeeds, so the job's result is decided by validation alone
     But an unanswered request is never reported as an observed boundary or as a list of missing rules
+
+  @AC-200
+  Scenario: A consequential commitment is challenged proportionally to its cost of being wrong
+    Test-type: Unit
+    Given an agent is about to adopt or revise a plan's promise, or write the proposal for a change to what adopters receive
+    When the commitment is consequential because being wrong would cost more than finding out first
+    Then the guidance has it name the assumption most likely to undermine the work, a credible alternative course, the cheapest useful test, and the result that would stop or revise the work
+    And it asks what an implementation could look like that met every criterion and still failed the person the work is for
+    But work that is simple, already carries out a course already challenged and understood, or can be undone within the same change at no more cost than the challenge proceeds without a challenge and without a note explaining its absence
+
+  @AC-201
+  Scenario: A reusable discovery is captured only past an eligibility bar, into an existing home
+    Test-type: Unit
+    Given an agent notices something mid-change that cost effort to find
+    When it is plausibly recurring, so a fresh agent doing the same class of task would hit it again
+    Then the guidance has it file the discovery into that capability's own design document, or the repository's own contributor or operational guidance when the discovery is not tied to one capability
+    And it states the discovery's trigger, prerequisites, procedure, expected result, and recovery, scoped to what was actually observed
+    But something already documented, or observed once with no reason to expect recurrence, is not eligible, and a workaround is documented only after asking whether the confusing step can instead be removed or automated
 ```

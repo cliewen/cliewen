@@ -72,6 +72,7 @@ var skillDefinitions = map[string]skillDefinition{
 			{heading: "Intent model", file: "intent-model.md", condition: "Before deciding which goals a plan serves, and whether any journey needs a use case"},
 			{heading: "Intent discovery", file: "intent-discovery.md", condition: "When the repository states no usable vision"},
 			{heading: "Decision records", file: "decision-records.md", condition: "When plan meaning or another consequential choice is recorded"},
+			{heading: "Challenge a consequential commitment", file: "challenge-commitments.md", condition: "Before adopting or revising a plan's promise"},
 		},
 	},
 	"clue-delta": {
@@ -84,6 +85,7 @@ var skillDefinitions = map[string]skillDefinition{
 			{heading: "Decision records", file: "decision-records.md", condition: "When the change makes, rejects, or carries a decision"},
 			{heading: "Repository-local conventions", file: "repository-local-conventions.md", condition: "Before applying repository-specific implementation or digest rules"},
 			{heading: "Durable work state", file: "durable-work-state.md", condition: "When a change starts or resumes, a suggestion arrives, or a merge is reported"},
+			{heading: "Challenge a consequential commitment", file: "challenge-commitments.md", condition: "Before writing the proposal for a consequential change"},
 		},
 	},
 	"clue-extract": {
