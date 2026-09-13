@@ -25,11 +25,9 @@ A plan is a finite campaign serving a goal. Its milestones have explicit exit cr
 
 ## Change
 
-Cliewen recommends **simple** when the accepted contract remains unchanged and **full** when it changes. Simple covers observational analysis, unchanged-criterion bug fixes and regression evidence, in-contract configuration, refactoring, maintenance, and editorial work; it has no CH identity or loop bookkeeping. Full covers acceptance-criterion, capability, decision, policy, plan-promise, methodology, and uncovered-behavior meaning changes. It uses a transient workspace under `/changes/CH-xxx-*`; the digest folds its meaning into `/docs` and deletes the workspace before merge.
+A change is how work reaches the corpus, and it is the one part of the thread that does not stay. Cliewen recommends **simple** when the work keeps every promise the repository has made, and **full** when it changes one. Simple work, such as a bug fix against an unchanged criterion or a refactoring, has no change ID and no extra bookkeeping. Full work, such as a new acceptance criterion or a changed decision, gets a temporary workspace under `/changes/CH-xxx-*`. Before merge, the *digest* folds what the change means into `/docs` and deletes the workspace.
 
-The agent states its recommendation before editing, names what would change it, reassesses on semantic discovery and before integration, and treats paths or diff size only as warnings. If the user rejects a full recommendation, simple work proceeds with the override and risk recorded in Git trailers. Route selection never authorizes a push: users and repository permissions control integration. Release is not a Cliewen route; adopters own their release process.
-
-Once classified, `clue context <id>` resolves an artifact, criterion, or milestone identity and prints the bounded outgoing-link slice that governs it, naming what the bound held back. This keeps reading proportional without reverse-expanding through shared goals into the whole corpus.
+The agent states its recommendation before editing and looks again when it learns more. If you overrule a full recommendation, the work goes ahead as simple and the commit message records the risk. Choosing a route never gives the agent permission to push; you and your repository's permissions control integration. [The change loop](./change-loop) has the details.
 
 ## System overviews
 
@@ -51,4 +49,4 @@ Skills carry process knowledge, `clue` is the deterministic judge, protected CI 
 
 ## Next
 
-[See how a corpus states what the product is for.](./intent)
+[Read why Cliewen is designed the way it is.](./design)

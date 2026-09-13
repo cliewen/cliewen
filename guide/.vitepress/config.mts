@@ -79,20 +79,25 @@ export default defineConfig({
         ],
       },
       {
-        text: "Working with Cliewen",
+        text: "Working with the skills",
         items: [
-          { text: "The change loop", link: "/change-loop" },
           { text: "The skills", link: "/skills" },
+          { text: "The change loop", link: "/change-loop" },
           { text: "Enforce CI", link: "/ci-wall" },
           { text: "Operate safely", link: "/operations" },
         ],
       },
       {
-        text: "How the method works",
+        text: "Your documentation corpus",
         items: [
-          { text: "The verifiable thread", link: "/methodology" },
-          { text: "Vision and use cases", link: "/intent" },
           { text: "The corpus", link: "/corpus" },
+          { text: "Vision and use cases", link: "/intent" },
+          { text: "The verifiable thread", link: "/methodology" },
+        ],
+      },
+      {
+        text: "Background",
+        items: [
           { text: "The design of Cliewen", link: "/design" },
         ],
       },

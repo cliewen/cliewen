@@ -12,35 +12,47 @@ hero:
     - theme: brand
       text: Start reading
       link: /what-is-cliewen
+    - theme: alt
+      text: The skills
+      link: /skills
+    - theme: alt
+      text: The corpus
+      link: /corpus
 
 features:
-  - title: For agent-driven pull requests
-    details: Built for repositories where coding agents make real product changes through Git branches and pull requests.
+  - title: Your agent follows the skills
+    details: clue init installs six skills and an AGENTS.md routing hub. Any coding agent that reads them knows how to plan, make a change, verify it, and upgrade, so your prompts can stay in ordinary words.
+    link: /skills
+  - title: Your docs/ folder is the memory
+    details: The corpus under docs/ says what the product is for, what it can do, and what proves it. Agents update it with the code, so the next session starts from a record instead of a lost chat.
+    link: /corpus
   - title: One thread the repository can check
-    details: Goals lead to capabilities, acceptance criteria, and declared evidence—classified test references or genuine Human proof. The clue CLI reports broken links and missing evidence locally and in CI without executing tests.
-  - title: Methodology, judge, and memory
-    details: Cliewen is the methodology, clue is its command-line judge, and the corpus under docs is the permanent system record that agents maintain with the code.
-  - title: Deliberately visible overhead
-    details: Agents prepare the corpus and verified proposal; humans keep control of intent and merge. Small work that changes no meaning stays outside the full loop.
+    details: A vision and goals lead to capabilities, acceptance criteria, and declared evidence, either classified test references or genuine Human proof. The clue CLI reports broken links and missing evidence locally and in CI without executing tests.
+    link: /methodology
+  - title: You decide what merges
+    details: Agents prepare the change, the corpus, and the evidence. Humans keep control of intent and of the merge. Small work that changes no promise stays outside the full loop.
+    link: /change-loop
 ---
 
 ## The thread
 
 ```mermaid
 graph LR
-  G["Goal"] --> C["Capability"]
+  V["Vision"] --> G["Goal"]
+  G --> C["Capability"]
   C --> A["Acceptance criterion"]
   A --> E["Acceptance evidence"]
   E -. "why do we have this?" .-> G
 ```
 
-Pick up any artifact and follow it back to why it exists, or forward to what proves it. `clue` checks that no arrow is missing. It does not run your tests, it cannot tell you that a test proves the right thing, and it cannot tell you the goal was worth having—that judgment stays yours, at the merge.
+Pick up any artifact and follow it back to why it exists, or forward to what proves it. `clue` checks that no arrow is missing. It does not run your tests, it cannot tell you that a test proves the right thing, and it cannot tell you the goal was worth having. That judgment stays yours, at the merge.
 
-## Three names, three things
+## What you work with
 
-- **Cliewen** — the methodology.
-- **`clue`** — the deterministic command-line judge.
-- **The corpus under `docs/`** — the durable record of the system as it exists.
+- **The skills** in `.agents/skills/`: the process your coding agent follows.
+- **The corpus** under `docs/`: the lasting record of the system as it exists.
+- **`clue`**: the command-line judge that checks the corpus and its evidence.
+- **Cliewen**: the name of the method that ties them together.
 
 ## Three moves
 

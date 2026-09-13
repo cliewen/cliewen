@@ -197,4 +197,4 @@ Then it stops. The last act is yours: a human-controlled merge commit accepts th
 
 ## Next
 
-[See the same loop written out as a procedure.](./change-loop)
+[Learn what each skill does and when your agent uses it.](./skills)
