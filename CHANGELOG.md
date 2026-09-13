@@ -4,6 +4,8 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 
 ## [Unreleased]
 
+## [0.26.0] - 2026-09-13
+
 ### Added
 
 - **The agent now finds out whether your merge boundary is actually enforced, and tells you when it is not.** Branch protection is a setting at your Git host, so nothing in your repository records it and `clue validate` can never see it — a repository could run Cliewen for years with a green validate and no enforcement at all. Before an agent marks a pull request ready for the first time, the generated skills now have it ask the host what the branch enforces. When force-push and deletion are not blocked, the validation check is not required, pull requests are not required, or the bypass list is not empty, it stops, says plainly what is missing, and offers the exact commands your host accepts. It applies nothing without your explicit go-ahead, and on a host it cannot query it reports the state as unknown rather than assuming you are covered. If you decline, the pull request still goes ready and the handoff records that the boundary is unenforced along with your reason.
@@ -11,6 +13,10 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 - **`clue init` writes `.github/cliewen-wall.md`, a short checklist of the branch settings that make the `validate` check block merges**, and the generated `.github/workflows/clue.yml` points to it. The checklist is yours to edit; `clue migrate` does not add it to existing repositories, where the workflow's warning links to the same guidance.
 - **The generated `clue-plan` and `clue-delta` skills now ask you to challenge a consequential commitment before it is made.** Before adopting or revising a plan's promise, or writing the proposal for a change to what adopters receive, the guidance names the assumption most likely to undermine the work, a credible alternative, the cheapest useful test, and the result that would stop or revise it — proportional to consequence, so simple or already-understood work proceeds without ceremony.
 - **The generated `clue-delta`, `clue-extract`, `clue-upgrade`, and `clue-verify` skills now tell you where a reusable mid-change discovery belongs.** Past an eligibility bar — it cost something to find, and a fresh agent doing the same task would plausibly hit it again — the guidance files it into a capability's own `design.md`, or your repository's own contributor or operational guidance when it is not tied to one capability, scoped to what was actually observed.
+
+### Migration
+
+- **No repository migration is required for this release.** `clue migrate` recognizes this release's generated carriers as a managed baseline; there is nothing else to apply.
 
 ## [0.25.0] - 2026-09-11
 
