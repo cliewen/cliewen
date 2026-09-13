@@ -174,4 +174,4 @@ The distinction between *not yet established* and *quietly forgotten* is handled
 
 ## Next
 
-[See where the durable artifacts live in the corpus.](./corpus)
+[See the verifiable thread the method is built on.](./methodology)

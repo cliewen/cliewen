@@ -1,10 +1,18 @@
 # The change loop
 
-Before editing, the agent recommends **simple** or **full**, says why, and names what discovery would change the recommendation. Simple work leaves the accepted contract unchanged: observational analysis with a named consumer, a defect correction restoring an unchanged criterion, regression evidence, in-contract configuration, refactoring, maintenance, and editorial work. It uses no CH identity, workspace, digest, acceptance brief, or mandatory agentic review and runs checks relevant to its surfaces. Full work changes acceptance-criterion, capability, decision, policy, plan-promise, methodology, or uncovered-behavior meaning; uncertainty makes full the honest recommendation.
+Before editing, the agent recommends a route, **simple** or **full**. It says why and names what it might still discover that would change the recommendation.
 
-Paths and diff size may warn but do not decide meaning. The agent reassesses when semantic scope grows and against the complete diff before integration. If it recommends full and the user explicitly chooses simple, the work proceeds without making the repository untruthful and the final authored commit records `Cliewen-Route: simple`, `Cliewen-Recommendation: full`, and a concise `Cliewen-Override` risk. The user and repository retain integration authority: a route never authorizes an agent push, and an agent pushes directly only with explicit user authorization and repository permission. Release is not a Cliewen route; each adopter defines or omits its own release process.
+| | Simple | Full |
+|---|---|---|
+| Use when | The work keeps every promise the repository has already made | The work changes a promise, or nobody is sure |
+| Examples | A bug fix that restores behavior an unchanged criterion already promises, regression tests, refactoring, maintenance, configuration within what was agreed, prose edits, an investigation someone will use | A new, changed, or retired acceptance criterion; a capability, decision, policy, or methodology change; a change to what a plan promises; behavior no criterion covers |
+| What it involves | The change and the checks that apply to it | A change ID, a proposal in `/changes/CH-xxx-*`, a digest into `docs/`, an acceptance brief, and an agent review before you merge |
 
-After classification, start with the smallest durable context that governs the task. `clue context <id>` prints the named artifact and its linked artifacts to a stated number of hops. An acceptance-criterion or milestone ID resolves to the artifact that declares it. The slice defaults to one hop and says what it left out, so use `--depth` when the task needs more context. If the request gives no usable ID, start at `docs/README.md`, choose the closest artifact, and run the command there. Shared goals have many reverse dependents, so `context` follows declared outgoing dependencies rather than recreating a full-corpus read.
+The number of files or the folders touched can prompt a second look, but they never decide the route. What decides it is whether a promise changes. The agent looks again when it learns more, and once more against the complete diff before integration. If simple work turns out to change a promise, it pauses and recommends full.
+
+You can overrule a full recommendation. The work then goes ahead as simple, the repository is still kept truthful, and the final commit records your choice in three trailer lines: `Cliewen-Route: simple`, `Cliewen-Recommendation: full`, and a short `Cliewen-Override` stating the risk. A route never gives an agent permission to push. An agent pushes directly to an integration branch only when you explicitly allow it and the repository permits it. Releasing is not part of either route; your repository decides how, or whether, it releases.
+
+Once the route is set, the agent reads only the part of the corpus that governs the task. `clue context <id>` prints the named artifact and the artifacts it links to, one hop by default, and says what it left out; `--depth` follows more hops. An acceptance-criterion or milestone ID resolves to the file that declares it. When the request names no usable ID, the agent starts at `docs/README.md`, picks the closest artifact, and runs the command there. It follows links outward only, because following them backward from a shared goal would pull in most of the corpus.
 
 The full loop has six stages, and only the last one is yours:
 
@@ -87,4 +95,4 @@ Review fixes are committed and pushed with the turn that made them, then locally
 
 ## Next
 
-[Learn which Cliewen skill applies to your next change.](./skills)
+[Make the checks blocking in CI.](./ci-wall)
