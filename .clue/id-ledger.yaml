@@ -807,5 +807,8 @@ events:
     - {id: CH-188-tasks, kind: opaque, state: live}
     - {id: CH-188-open-questions, kind: opaque, state: live}
     - {id: M-095, kind: numeric, state: retired, prefix: M, component: "95"}
+    - {id: CH-189, kind: numeric, state: reserved, prefix: CH, component: "189"}
+    - {id: PDR-062, kind: numeric, state: reserved, prefix: PDR, component: "62"}
+    - {id: CH-189, kind: numeric, state: live, prefix: CH, component: "189"}
 high-water:
     - {id: CH-183, kind: numeric, state: reserved, prefix: CH, component: "183"}
