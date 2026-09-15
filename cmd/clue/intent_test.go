@@ -74,6 +74,49 @@ func TestAC164_UnitNegative_IntentReportComputesNoCoverageFigure(t *testing.T) {
 	}
 }
 
+// AC-202: the intent report names each goal's serving capabilities and
+// delivering plans, both with their own status, and "none" for either that
+// is empty — never a count.
+func TestAC202_UnitPositive_IntentReportNamesGoalCapabilitiesAndPlans(t *testing.T) {
+	root := intentCorpus(t, "")
+	writeFile(t, root, "docs/README.md", "# Corpus\n\n<!-- clue:index:start -->\n- [goals/](goals/README.md)\n- [plans/](plans/README.md)\n- [use-cases/](use-cases/README.md)\n- [capabilities/](capabilities/README.md)\n<!-- clue:index:end -->\n")
+	writeFile(t, root, "docs/goals/README.md", "# Goals\n\n<!-- clue:index:start -->\n- [G-001](G-001-first.md)\n- [G-002](G-002-second.md)\n<!-- clue:index:end -->\n")
+	writeFile(t, root, "docs/goals/G-002-second.md", "---\nid: G-002\ntype: goal\nstatus: accepted\nlinks: []\ntitle: Second goal\n---\n\n# G-002\n")
+	writeFile(t, root, "docs/plans/README.md", "# Plans\n\n<!-- clue:index:start -->\n- [P-002](P-002-delivered.md)\n<!-- clue:index:end -->\n")
+	writeFile(t, root, "docs/plans/P-002-delivered.md", "---\nid: P-002\ntype: plan\nstatus: completed\nlinks: [G-002]\ntitle: Delivered\n---\n\n| M-002 | did it | done |\n")
+	var out bytes.Buffer
+	if code := runValidate([]string{"--intent", root}, &out); code != 0 {
+		t.Fatalf("expected exit 0, got %d\n%s", code, out.String())
+	}
+	printed := out.String()
+	for _, want := range []string{
+		"goal: G-001 First goal (accepted) capabilities: CAP-001 (active), CAP-002 (active), plans: none",
+		"goal: G-002 Second goal (accepted) capabilities: none, plans: P-002 (completed)",
+	} {
+		if !strings.Contains(printed, want) {
+			t.Fatalf("intent report does not state %q:\n%s", want, printed)
+		}
+	}
+}
+
+// AC-202: no percentage, ratio, or count is printed for goals either.
+func TestAC202_UnitNegative_IntentReportComputesNoGoalCoverageFigure(t *testing.T) {
+	root := intentCorpus(t, "")
+	var out bytes.Buffer
+	if code := runValidate([]string{"--intent", root}, &out); code != 0 {
+		t.Fatalf("expected exit 0, got %d\n%s", code, out.String())
+	}
+	printed := out.String()
+	if !strings.Contains(printed, "goal: G-001 First goal (accepted) capabilities:") {
+		t.Fatalf("intent report does not name the goal:\n%s", printed)
+	}
+	for _, forbidden := range []string{"%", "coverage", "0 of ", "1 of ", "2 of "} {
+		if strings.Contains(strings.ToLower(printed), forbidden) {
+			t.Fatalf("intent report computed a figure (%q):\n%s", forbidden, printed)
+		}
+	}
+}
+
 // AC-165: a capability's slice names the journeys that reach it.
 func TestAC165_UnitPositive_ContextNamesTheUseCasesReachingTheRoot(t *testing.T) {
 	root := intentCorpus(t, "")

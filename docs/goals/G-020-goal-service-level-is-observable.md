@@ -1,7 +1,7 @@
 ---
 id: G-020
 type: goal
-status: proposed
+status: accepted
 links: []
 title: A goal's current service level is observable, not just its acceptance
 ---

@@ -764,7 +764,11 @@ func runValidate(args []string, out io.Writer) int {
 	// A state report, never a scorecard. It prints no ratio of goals or
 	// capabilities with use cases, because a percentage over an optional
 	// artifact reads as a target and the only way to move it is to write
-	// artifacts nobody needs (PDR-054).
+	// artifacts nobody needs (PDR-054). A goal's own line names both the
+	// intent thread's ongoing capacity (capabilities whose goal: field names
+	// it) and the delivery thread's one-time achievement (plans whose links
+	// name it) — a goal like "Cliewen is public" is served by a completed
+	// plan and no standing capability (PDR-063).
 	if *intent {
 		state := corpus.Intent(c)
 		if state.Vision.Present {
@@ -785,6 +789,10 @@ func runValidate(args []string, out io.Writer) int {
 		}
 		if len(state.UseCases) == 0 {
 			fmt.Fprintln(out, "use cases: none — they are optional, and absence is not a gap")
+		}
+		for _, goal := range state.Goals {
+			fmt.Fprintf(out, "goal: %s %s (%s) capabilities: %s, plans: %s\n",
+				goal.ID, goal.Title, goal.Status, goalRefList(goal.Capabilities), goalRefList(goal.Plans))
 		}
 	}
 	if *readCost {
@@ -822,6 +830,21 @@ func runValidate(args []string, out io.Writer) int {
 	}
 	fmt.Fprintf(out, "clue validate: OK (%d artifacts%s)\n", len(c.Artifacts), notes)
 	return 0
+}
+
+// goalRefList renders a goal's serving or delivering artifacts as an
+// identity-and-status list, or "none" — never a count, so the intent
+// report's no-ratio rule (AC-164, AC-202) holds for goals the same way it
+// already does for use cases.
+func goalRefList(refs []corpus.GoalRef) string {
+	if len(refs) == 0 {
+		return "none"
+	}
+	var names []string
+	for _, ref := range refs {
+		names = append(names, fmt.Sprintf("%s (%s)", ref.ID, ref.Status))
+	}
+	return strings.Join(names, ", ")
 }
 
 // runParity compares a pinned source manifest against the target manifest
