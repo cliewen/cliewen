@@ -1995,6 +1995,11 @@ claims:
       state: reserved
       prefix: CH
       component: "192"
+    - id: CH-193
+      kind: numeric
+      state: reserved
+      prefix: CH
+      component: "193"
     - id: G-001
       kind: numeric
       state: reserved
@@ -3131,11 +3136,11 @@ high-water:
       state: reserved
       prefix: CH
       component: "192"
-    - id: G-019
+    - id: G-020
       kind: numeric
       state: reserved
       prefix: G
-      component: "19"
+      component: "20"
     - id: IC-002
       kind: numeric
       state: reserved
