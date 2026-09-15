@@ -1098,8 +1098,8 @@ func TestSanity_PRBoundaryExplainsAuthorizationAndCIEnforcement(t *testing.T) {
 			"branch protection",
 		},
 		"guide/what-is-cliewen.md": {
-			"pull request is the authorization boundary",
-			"does not require repeating a code review",
+			"pull request is where authorization happens",
+			"does not have to repeat a code review",
 			"required check and branch protection",
 		},
 		"docs/constraints/README.md": {
@@ -1131,7 +1131,7 @@ func TestSanity_AgenticFindingsRequireOperativeViolations(t *testing.T) {
 		"guide/change-loop.md": {
 			"Blocking findings are repaired, rechecked, and reviewed again",
 			"not a demand for duplicate human code review",
-			"Release is not a Cliewen route",
+			"Releasing is not part of either route",
 		},
 	} {
 		data, err := os.ReadFile(filepath.Join(root, filepath.FromSlash(rel)))
