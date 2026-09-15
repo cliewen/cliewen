@@ -4,6 +4,10 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 
 ## [Unreleased]
 
+### Added
+
+- **`clue validate --intent` now states which capabilities and plans currently serve each goal.** Every goal's line names the capabilities whose `goal:` field names it and the plans whose `links` name it, each with its own status, so a goal like "the product is public" — served by a completed plan and no standing capability — is no longer indistinguishable from a goal nothing has touched yet. No new goal status and no coverage ratio: a goal named by neither prints "none" for that list, and the report computes no percentage or count, matching the existing rule for use cases.
+
 ## [0.26.0] - 2026-09-13
 
 ### Added

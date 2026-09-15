@@ -22,7 +22,9 @@ The scaffold bootstrap rule fires only when the file exists, which is what lets 
 
 `clue validate --intent` derives `corpus.IntentState` and prints it. It is a state report, not a scorecard: the vision line names the identity, status, and whether `provenance` marks the meaning inferred; each use-case line names the identity, status, and the capability identities it crosses, in declaration order. A corpus with no vision prints one line saying so and exits with whatever the validation verdict was — the absence is state, never an issue.
 
-There is no figure. The report computes no ratio of goals or capabilities with use cases, because a percentage over an optional artifact reads as a target and the only way to move it is to write artifacts nobody needs.
+Each goal line names its status, the capabilities whose required `goal:` field names it, and the plans whose `links` name it — every capability and plan shown with its own status, path-ordered. `Intent` builds both reverse lookups once per scan, over the corpus's existing artifacts: `servedBy` from every capability's `goal:` field (an intent-thread edge, required and singular), `deliveredBy` from every plan's `links` (a delivery-thread edge, conventional and possibly plural). Neither traversal follows a second hop — a plan's own capabilities, or a capability's own criteria, are not read — which is what keeps the report bounded the same way CAP-007's directional design keeps `clue context` bounded. A goal named by neither prints `none` for that list (PDR-063).
+
+There is no figure anywhere in the report. It computes no ratio of goals or capabilities with use cases, and no ratio of a goal's own served-or-delivered state, because a percentage over an optional or a durable-want artifact reads as a target and the only way to move it is to write artifacts nobody needs.
 
 ## Reaching a use case from a capability
 

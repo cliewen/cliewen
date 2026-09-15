@@ -1,7 +1,7 @@
 ---
 id: G-018
 type: goal
-status: proposed
+status: accepted
 links: [G-013, VIS-001]
 title: Enabling identity coordination accounts for the identities already claimed on open branches
 ---

@@ -837,5 +837,18 @@ events:
     - {id: CH-192-tasks, kind: opaque, state: live}
     - {id: CH-192-open-questions, kind: opaque, state: live}
     - {id: M-100, kind: numeric, state: retired, prefix: M, component: "100"}
+    - {id: G-020, kind: numeric, state: reserved, prefix: G, component: "20"}
+    - {id: G-020, kind: numeric, state: live, prefix: G, component: "20"}
+    - {id: CH-193, kind: numeric, state: reserved, prefix: CH, component: "193"}
+    - {id: PDR-063, kind: numeric, state: reserved, prefix: PDR, component: "63"}
+    - {id: CAP-011, kind: numeric, state: reserved, prefix: CAP, component: "11"}
+    - {id: AC-202, kind: numeric, state: reserved, prefix: AC, component: "202"}
+    - {id: CH-193, kind: numeric, state: live, prefix: CH, component: "193"}
+    - {id: CH-193-tasks, kind: opaque, state: live}
+    - {id: CH-193-open-questions, kind: opaque, state: live}
+    - {id: PDR-063, kind: numeric, state: live, prefix: PDR, component: "63"}
+    - {id: AC-202, kind: numeric, state: live, prefix: AC, component: "202"}
+    - {id: G-021, kind: numeric, state: reserved, prefix: G, component: "21"}
+    - {id: G-021, kind: numeric, state: live, prefix: G, component: "21"}
 high-water:
     - {id: CH-183, kind: numeric, state: reserved, prefix: CH, component: "183"}

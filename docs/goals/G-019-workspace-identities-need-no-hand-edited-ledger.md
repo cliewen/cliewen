@@ -1,7 +1,7 @@
 ---
 id: G-019
 type: goal
-status: proposed
+status: accepted
 links: [G-009, G-013, VIS-001]
 title: A change workspace's own identities are recorded by a command, not written into the ledger by hand
 ---

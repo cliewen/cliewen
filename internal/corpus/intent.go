@@ -143,6 +143,32 @@ type UseCaseState struct {
 	Capabilities []string
 }
 
+// GoalRef is one artifact naming a goal, with that artifact's own status —
+// a bare identity list cannot distinguish a goal served by active work from
+// one served only by something still draft (G-020).
+type GoalRef struct {
+	ID     string
+	Status string
+}
+
+// GoalState is one goal, its acceptance status, the capabilities whose
+// required `goal:` field names it (the intent thread's ongoing capacity),
+// and the plans whose links name it (the delivery thread's one-time
+// achievement — a plan reaching `completed` is Cliewen's existing signal
+// that delivery finished, and a goal like "Cliewen is public" is served
+// this way rather than by any standing capability). It carries no ratio: a
+// goal served by neither is stated as such, never counted against a total
+// (PDR-054's rule for use cases applies here for the same reason — a
+// percentage reads as a target).
+type GoalState struct {
+	ID           string
+	Title        string
+	Status       string
+	Path         string
+	Capabilities []GoalRef
+	Plans        []GoalRef
+}
+
 // IntentState is the derived answer to "what direction does this corpus
 // state, and what journeys has it written down".
 //
@@ -153,11 +179,34 @@ type UseCaseState struct {
 type IntentState struct {
 	Vision   VisionState
 	UseCases []UseCaseState
+	Goals    []GoalState
 }
 
 // Intent derives the intent state from a scanned corpus.
 func Intent(c *Corpus) IntentState {
 	var state IntentState
+	servedBy := map[string][]GoalRef{}   // goal ID -> capabilities naming it
+	deliveredBy := map[string][]GoalRef{} // goal ID -> plans naming it
+	for _, a := range c.Artifacts {
+		switch a.Type {
+		case "capability":
+			if goal, ok := a.Fields["goal"].(string); ok && goal != "" {
+				servedBy[goal] = append(servedBy[goal], GoalRef{ID: a.ID, Status: a.Status})
+			}
+		case "plan":
+			for _, l := range a.Links {
+				if strings.HasPrefix(l, "G-") {
+					deliveredBy[l] = append(deliveredBy[l], GoalRef{ID: a.ID, Status: a.Status})
+				}
+			}
+		}
+	}
+	for _, refs := range servedBy {
+		sort.Slice(refs, func(i, j int) bool { return refs[i].ID < refs[j].ID })
+	}
+	for _, refs := range deliveredBy {
+		sort.Slice(refs, func(i, j int) bool { return refs[i].ID < refs[j].ID })
+	}
 	for _, a := range c.Artifacts {
 		switch a.Type {
 		case "vision":
@@ -174,9 +223,12 @@ func Intent(c *Corpus) IntentState {
 				}
 			}
 			state.UseCases = append(state.UseCases, use)
+		case "goal":
+			state.Goals = append(state.Goals, GoalState{ID: a.ID, Title: a.Title, Status: a.Status, Path: a.Path, Capabilities: servedBy[a.ID], Plans: deliveredBy[a.ID]})
 		}
 	}
 	sort.Slice(state.UseCases, func(i, j int) bool { return state.UseCases[i].Path < state.UseCases[j].Path })
+	sort.Slice(state.Goals, func(i, j int) bool { return state.Goals[i].Path < state.Goals[j].Path })
 	return state
 }
 
