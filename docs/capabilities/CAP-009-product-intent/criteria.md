@@ -71,15 +71,6 @@ Feature: Product intent — one vision per corpus and optional use cases
     And applying the plan writes no file under "docs/vision.md"
     But a repository that already carries a vision produces no such notice
 
-  @AC-202
-  Scenario: The intent report also states which capabilities and plans serve each goal
-    Test-type: Unit
-    Given a corpus whose goals, capabilities, and plans are known, where every capability names exactly one goal through its required "goal:" field and a plan may name a goal through its own links
-    When the user runs "clue validate --intent"
-    Then it prints each goal with its status, the capabilities whose "goal:" field names it, and the plans whose links name it, every capability and plan shown with its own status
-    And a goal named by neither prints "none" for that list rather than nothing
-    But no percentage, ratio, or count of goals, capabilities, or plans is printed anywhere in that listing
-
   @AC-168
   Scenario: Intent discovery is proportionate and never presents inference as confirmed
     Test-type: Human
@@ -88,4 +79,13 @@ Feature: Product intent — one vision per corpus and optional use cases
     Then a greenfield interview asks only questions that would change the vision, the initial goals, the boundary, or a candidate use case, adapts to the answers, and stops when another question would change nothing
     And a brownfield draft reads the repository first, cites the sources behind its material claims, separates observation from interpretation, and records contradictions rather than resolving them
     And drafted content is marked draft and inferred with its assumptions and open questions visible, and no statement of why the product exists is derived from implementation structure alone
+
+  @AC-202
+  Scenario: The intent report also states which capabilities and plans serve each goal
+    Test-type: Unit
+    Given a corpus whose goals, capabilities, and plans are known, where every capability names exactly one goal through its required "goal:" field and a plan may name a goal through its own links
+    When the user runs "clue validate --intent"
+    Then it prints each goal with its status, the capabilities whose "goal:" field names it, and the plans whose links name it, every capability and plan shown with its own status
+    And a goal named by neither prints "none" for that list rather than nothing
+    But no percentage, ratio, or count of goals, capabilities, or plans is printed anywhere in that listing
 ```
