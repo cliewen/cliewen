@@ -343,7 +343,7 @@ producers:
       - path: docs/decisions/ADR-069-a-combined-ledger-is-recoverable.md
         sha256: 6c979a825612c188abd1317451beec45aa66b80fcc864a7989afe38fba512a32
       - path: docs/decisions/ADR-071-framework-neutral-evidence-export.md
-        sha256: 3e411e77ca4c763747796d62796976bab1cb9157a71a8a96aad5d82c31e8d723
+        sha256: 4c8271d03f076b850faba66c87b616304d2cc533ee2a91135fb280f58669791b
       - path: docs/decisions/IDR-001-constraint-index-badges-use-enforcement.md
         sha256: 6164d71ec80e892d0d641c7a0e7d509e38d43cdcb5ecc20e944b69a0b39a241b
       - path: docs/decisions/IDR-002-managed-skill-roster-is-reported-not-imposed.md
@@ -485,7 +485,7 @@ producers:
       - path: docs/decisions/PDR-063-goal-service-is-reported-by-presence-and-status-not-a-ratio.md
         sha256: 311d63cbce442873ec2f1cc45f8e2b5416a2670c2fe294a905ef420fcc96c270
       - path: docs/decisions/README.md
-        sha256: 55cdf24ead06434657440a820c5c3b017e76bfb2a235b37fd6614ea5a2edd8a6
+        sha256: 10ffcfbd4b65326c6da852a31eef5e91281d69782cb9e038be8085b6651bdb1a
       - path: docs/design/README.md
         sha256: 5b442d58a7be5ecb0e7a88987de2aff838101f55e26c9e70a146a9603cbbd10f
       - path: docs/goals/G-001-verifiable-thread.md
