@@ -124,7 +124,15 @@ func TestAC204_UnitPositive_ShippedAggregateProducesJudgeReadableDeterministicBy
 	if err := os.WriteFile(filepath.Join(root, "test_example.py"), []byte("@cliewen(ac='PDO-115',type='Unit',direction='positive')\ndef test_example(): pass\n"), 0644); err != nil {
 		t.Fatal(err)
 	}
-	config := map[string]any{"producers": []any{map[string]any{"id": "python", "include": []string{"test_*.py", "tools/*.py"}, "command": []string{python(t), "tools/python_producer.py"}}}}
+	if err := os.MkdirAll(filepath.Join(root, "tests"), 0755); err != nil {
+		t.Fatal(err)
+	}
+	for _, name := range []string{"a_test.py", "b_test.py"} {
+		if err := os.WriteFile(filepath.Join(root, "tests", name), []byte("def test_helper(): pass\n"), 0644); err != nil {
+			t.Fatal(err)
+		}
+	}
+	config := map[string]any{"producers": []any{map[string]any{"id": "python", "include": []string{"test_*.py", "tools/*.py", "tests/[^a]*.py"}, "command": []string{python(t), "tools/python_producer.py"}}}}
 	data, _ := json.Marshal(config)
 	if err := os.WriteFile(filepath.Join(root, "producers.json"), data, 0644); err != nil {
 		t.Fatal(err)
@@ -153,6 +161,64 @@ func TestAC204_UnitPositive_ShippedAggregateProducesJudgeReadableDeterministicBy
 	}
 	if _, err := evidence.Load(root); err == nil {
 		t.Fatal("missed added source")
+	}
+}
+
+func TestAC204_UnitPositive_ShippedGlobMatchesJudge(t *testing.T) {
+	patterns := []string{"tests/[^a]*.py", "tests/[!a]*.py", "tests/[a-c]?.py", "tests/[z-a]*.py", "**/[α-ω]*.py", "tests/[a-b]*.py", "tests/]*.py"}
+	names := []string{"tests/a_test.py", "tests/b_test.py", "tests/!_test.py", "tests/b1.py", "tests/-test.py", "tests/]test.py", "other/β_test.py"}
+	input, _ := json.Marshal(map[string]any{"patterns": patterns, "names": names})
+	code := `import importlib.util,json,sys
+spec=importlib.util.spec_from_file_location('aggregate',sys.argv[1])
+module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+request=json.load(sys.stdin)
+print(json.dumps([[module.match(p,n) for n in request['names']] for p in request['patterns']]))`
+	cmd := exec.Command(python(t), "-B", "-c", code, example(t, "aggregate.py"))
+	cmd.Stdin = strings.NewReader(string(input))
+	out, err := cmd.CombinedOutput()
+	if err != nil {
+		t.Fatalf("glob example: %v %s", err, out)
+	}
+	var actual [][]bool
+	if err := json.Unmarshal(out, &actual); err != nil {
+		t.Fatal(err)
+	}
+	for i, pattern := range patterns {
+		for j, name := range names {
+			if actual[i][j] != evidence.Match(pattern, name) {
+				t.Errorf("exporter and judge disagree: %s, %s", pattern, name)
+			}
+		}
+	}
+}
+
+func TestAC204_UnitNegative_ShippedGlobRejectsMalformedScopes(t *testing.T) {
+	patterns := []string{"[", "[]", "[a-]", "[-a]", "[a--b]"}
+	input, _ := json.Marshal(patterns)
+	code := `import importlib.util,json,sys
+spec=importlib.util.spec_from_file_location('aggregate',sys.argv[1])
+module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+results=[]
+for pattern in json.load(sys.stdin):
+ try:
+  module.segment_tokens(pattern);results.append(False)
+ except ValueError:
+  results.append(True)
+print(json.dumps(results))`
+	cmd := exec.Command(python(t), "-B", "-c", code, example(t, "aggregate.py"))
+	cmd.Stdin = strings.NewReader(string(input))
+	out, err := cmd.CombinedOutput()
+	if err != nil {
+		t.Fatalf("glob example: %v %s", err, out)
+	}
+	var rejected []bool
+	if err := json.Unmarshal(out, &rejected); err != nil {
+		t.Fatal(err)
+	}
+	for i, pattern := range patterns {
+		if !rejected[i] || evidence.CheckShape(evidence.Manifest{Version: 1, Producers: []evidence.Producer{{ID: "suite", Include: []string{pattern}}}}) == nil {
+			t.Errorf("exporter and judge must reject malformed scope %q", pattern)
+		}
 	}
 }
 

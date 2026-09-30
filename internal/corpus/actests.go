@@ -342,7 +342,7 @@ func checkACRef(path, subject, ac string, declared map[string]acDecl, tested map
 		return []Issue{{path, subject + " references " + ac + " which no criteria.md declares"}}
 	}
 	if d.retired {
-		return []Issue{{path, subject + " references retired " + ac + " â€” remove the test or re-tag it (ADR-007)"}}
+		return []Issue{{path, subject + " references retired " + ac + " — remove the test or re-tag it (ADR-007)"}}
 	}
 	return nil
 }

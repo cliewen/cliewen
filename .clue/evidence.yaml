@@ -643,7 +643,7 @@ producers:
       - path: internal/evidence/evidence_test.go
         sha256: 0e2ebaee0f330d20d77d0a93714f12119815e568e7d49803c45fe325305bd0be
       - path: internal/evidenceexport/examples_test.go
-        sha256: b26f86bf6c8ecbab2dd4b10839871961d9609cd44fdb9c779506abe2ccc1c2c2
+        sha256: c8080681c8524606c3d35ab0e8fe072cf6597958eabc6caac409e21500002d3f
       - path: internal/evidenceexport/jvmevidence.go
         sha256: 88a08e3a41790a19c6a84589c0a582845cd62061da9fab5e296ace779f8f0500
       - path: internal/evidenceexport/legacy.go
@@ -2235,7 +2235,17 @@ producers:
         direction: negative
       - id: AC-204
         path: internal/evidenceexport/examples_test.go
+        subject: test TestAC204_UnitNegative_ShippedGlobRejectsMalformedScopes
+        type: Unit
+        direction: negative
+      - id: AC-204
+        path: internal/evidenceexport/examples_test.go
         subject: test TestAC204_UnitPositive_ShippedAggregateProducesJudgeReadableDeterministicBytes
+        type: Unit
+        direction: positive
+      - id: AC-204
+        path: internal/evidenceexport/examples_test.go
+        subject: test TestAC204_UnitPositive_ShippedGlobMatchesJudge
         type: Unit
         direction: positive
       - id: AC-207

@@ -4,7 +4,7 @@ Run: python .clue/evidence/aggregate.py .clue/evidence/producers.json
 Each command reads {root, files} on stdin and emits {references, diagnostics}.
 This program runs producers explicitly. clue validate never invokes it.
 """
-import fnmatch
+from functools import lru_cache
 import hashlib
 import json
 import os
@@ -23,15 +23,70 @@ def safe_path(name):
             and ".." not in PurePosixPath(name).parts)
 
 
+def segment_tokens(pattern):
+    """The escape-free subset of Go path.Match used by repository-safe globs."""
+    tokens, i = [], 0
+    while i < len(pattern):
+        char = pattern[i]
+        i += 1
+        if char != "[":
+            tokens.append((char if char in "*?" else "literal", char))
+            continue
+        negate = i < len(pattern) and pattern[i] == "^"
+        if negate:
+            i += 1
+        ranges = []
+        while i < len(pattern) and pattern[i] != "]":
+            low = high = pattern[i]
+            if low == "-":
+                raise ValueError(f"invalid character class: {pattern}")
+            i += 1
+            if i < len(pattern) and pattern[i] == "-":
+                i += 1
+                if i == len(pattern) or pattern[i] in "-]":
+                    raise ValueError(f"invalid character class: {pattern}")
+                high = pattern[i]
+                i += 1
+            ranges.append((low, high))
+        if not ranges or i == len(pattern):
+            raise ValueError(f"invalid character class: {pattern}")
+        i += 1
+        tokens.append(("class", (negate, ranges)))
+    return tokens
+
+
+def segment_match(pattern, name):
+    tokens = segment_tokens(pattern)
+
+    @lru_cache(None)
+    def walk(i, j):
+        if i == len(tokens):
+            return j == len(name)
+        kind, value = tokens[i]
+        if kind == "*":
+            return walk(i + 1, j) or (j < len(name) and walk(i, j + 1))
+        if j == len(name):
+            return False
+        if kind == "class":
+            negate, ranges = value
+            accepted = any(low <= name[j] <= high for low, high in ranges) != negate
+        else:
+            accepted = kind == "?" or value == name[j]
+        return accepted and walk(i + 1, j + 1)
+
+    return walk(0, 0)
+
+
 def match(pattern, name):
     p, n = pattern.split("/"), name.split("/")
 
+    @lru_cache(None)
     def walk(i, j):
         if i == len(p):
             return j == len(n)
         if p[i] == "**":
             return walk(i + 1, j) or (j < len(n) and walk(i, j + 1))
-        return j < len(n) and fnmatch.fnmatchcase(n[j], p[i]) and walk(i + 1, j + 1)
+        return j < len(n) and segment_match(p[i], n[j]) and walk(i + 1, j + 1)
 
     return walk(0, 0)
 
@@ -54,6 +109,9 @@ def snapshot(root, producer):
     for pattern in includes + excludes:
         if not safe_path(pattern) or any("**" in p and p != "**" for p in pattern.split("/")):
             raise ValueError(f"unsafe pattern: {pattern}")
+        for segment in pattern.split("/"):
+            if segment != "**":
+                segment_tokens(segment)
 
     def excluded(name):
         parts = name.split("/")
