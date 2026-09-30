@@ -18,7 +18,7 @@ Cliewen produces the code and its durable record together. A change that leaves 
 
 "Code" is the wrong word for what a change is made of, and this repository is the example, because Cliewen runs on itself. The same loop produced the `clue` binary in Go, this guide in Markdown, the six generated agent skills under `.agents/skills/`, the reusable CI workflow other repositories call, the release-gate script, and the `AGENTS.md` routing hub that tells an agent where to start. Cliewen does not care which of those a change touches. It cares that the change leaves the documentation true and its acceptance criteria evidenced.
 
-One boundary matters here: the supported evidence harvesters read Go, JVM, and Cucumber test names and tags. A criterion proven by a shell script, operational procedure, or human judgement declares `Test-type: Human`. Its proof is a line in the pull request acceptance brief, not an executable reference. That is supported, but "any artifact" describes what a change can include, not what Cliewen can machine-prove. [Operate safely](./operations) gives the full support boundary.
+Executable evidence from any framework uses the common `.clue/evidence.yaml` contract. The agent establishes a repeatable exporter for the repository's actual frameworks; the judge checks references and freshness. A genuinely human proof uses `Test-type: Human` and its acceptance-brief line. A shell test remains executable evidence when the repository exports it with its AC identity and classification. [Operate safely](./operations) explains the boundary.
 
 ## The loop that pays you back
 

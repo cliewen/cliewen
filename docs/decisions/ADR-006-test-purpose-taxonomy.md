@@ -16,6 +16,9 @@ The AC↔test contract does not classify legitimate non-AC tests such as coverag
 
 ## Decision outcome
 
+> **Current carrier boundary:** [ADR-071](ADR-071-framework-neutral-evidence-export.md) moves framework-specific extraction to repository-owned exporters. The judge receives canonical references through the common manifest; the compatibility exporter preserves the documented aliases and purpose rules.
+
+
 **Every test declares exactly one machine-checked purpose.** The vocabulary is extended only by decision when a new class earns it:
 
 | Purpose | Meaning |

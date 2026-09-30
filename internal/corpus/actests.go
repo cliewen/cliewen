@@ -1,7 +1,7 @@
 package corpus
 
 import (
-	"io/fs"
+	"github.com/cliewen/cliewen/internal/evidence"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -9,29 +9,15 @@ import (
 	"strings"
 )
 
-// The AC↔acceptance-evidence contract and test-purpose taxonomy:
-// every unannotated legacy AC in active criteria has one supported reference;
-// a machine proof type additionally requires references classified by that
-// type and positive/negative direction, unless it declares single-direction;
-// Human needs no code reference because the acceptance brief is its proof;
-// and @draft exempts only that not-yet-proven criterion. Every code reference
-// names a live AC and every test declares exactly one purpose (ADR-005,
-// ADR-006, ADR-032, ADR-033, ADR-036, ADR-037). AC IDs are namespaced by criteria file
-// via optional `ac-prefix`, default `AC` (ADR-009, ADR-037). Go carries purpose, proof type,
-// and direction in the function name; JVM evidence is attributed to one
-// executable by JUnit method tags or a stable method-name fallback (ADR-036);
-// Cucumber feature tags are harvested at scenario level.
-// The judge validates those references but does not execute any test runner.
+// Criteria declarations retain the classified/legacy/Human/draft contract.
+// All executable references come from the common repository-owned export
+// (ADR-071). The judge checks form and complete input freshness, never
+// framework syntax, producer execution or the meaning of assertions.
 var (
 	acPrefixRe       = regexp.MustCompile(`^[A-Z][A-Z0-9]*(-[A-Z][A-Z0-9]*)*$`)
 	acIDRe           = regexp.MustCompile(`^([A-Z][A-Z0-9]*(-[A-Z][A-Z0-9]*)*)-([0-9]+)([a-z]*)$`)
 	acCandidateTagRe = regexp.MustCompile(`@([A-Za-z][A-Za-z0-9_-]*[-_][A-Za-z0-9_-]*[0-9][A-Za-z0-9_-]*)`)
-	testFuncRe       = regexp.MustCompile(`(?m)^func (Test\w*)\s*\(`)
-	fixedPurposeRe   = regexp.MustCompile(`^Test(Unit|Sanity|Arch)(_\w*)?$`)
-	classifiedGoRe   = regexp.MustCompile(`^Test(.+?)_(Unit|Integration|E2E|Performance)(Positive|Negative)(_\w*)?$`)
 	testTypeRe       = regexp.MustCompile(`^\s*Test-type:\s*(Unit|Integration|E2E|Performance|Human)(\s+\(single-direction\))?\s*$`)
-	featureTagRe     = regexp.MustCompile(`@([A-Za-z][A-Za-z0-9_-]*)`)
-	goOrdinalRe      = regexp.MustCompile(`^[0-9]+[a-z]*$`)
 )
 
 type acDecl struct {
@@ -68,10 +54,10 @@ type Declaration struct {
 	Single   bool
 }
 
-// EvidenceRef is one evidence occurrence bound to a criterion ID: a Go test,
-// a JVM executable, or a Cucumber scenario tag, carrying its declared proof
-// type and direction when the carrier classifies them.
+// EvidenceRef is one source-qualified executable occurrence from a producer.
+// Classification belongs to that executable, independent of its framework.
 type EvidenceRef struct {
+	Producer  string
 	Path      string
 	Subject   string
 	Type      string
@@ -80,16 +66,16 @@ type EvidenceRef struct {
 
 // AcceptanceEvidence returns every declared criterion's classification
 // alongside each recorded evidence occurrence, in declaration and then
-// evidence order. It shares harvestACs' single tree walk with checkACTests
+// evidence order. It shares harvestACs' checked manifest import with checkACTests
 // and Coverage so migration parity's target manifest reads the same
 // declarations and evidence the validator already enforces.
-func AcceptanceEvidence(c *Corpus) (map[string]Declaration, map[string][]EvidenceRef) {
-	declared, _, _, _, locations := harvestACs(c)
+func AcceptanceEvidence(c *Corpus) (map[string]Declaration, map[string][]EvidenceRef, []Issue) {
+	declared, _, _, issues, locations := harvestACs(c)
 	decls := make(map[string]Declaration, len(declared))
 	for id, d := range declared {
 		decls[id] = Declaration{ID: id, Path: d.path, Status: d.status, Retired: d.retired, Draft: d.draft, TestType: d.testType, Single: d.single}
 	}
-	return decls, locations
+	return decls, locations, issues
 }
 
 // LedgerCriterionIdentities returns each live canonical declaration and every
@@ -114,10 +100,9 @@ func LedgerCriterionIdentities(c *Corpus) []CriterionIdentity {
 	return out
 }
 
-// harvestACs parses every criteria.md tag-line declaration and walks the
-// tree for classified Go, JVM, and Cucumber evidence, shared by
+// harvestACs parses criterion declarations and imports validated evidence, shared by
 // checkACTests (which enforces it) and Coverage (which derives a report
-// from the same declarations without repeating the walk).
+// from the same declarations without a second evidence reader).
 func harvestACs(c *Corpus) (declared map[string]acDecl, classified map[string]map[string]map[string]bool, tested map[string]bool, issues []Issue, locations map[string][]EvidenceRef) {
 	declared = map[string]acDecl{}
 	// The default namespace is always known, so an undeclared AC-xxx
@@ -195,130 +180,26 @@ func harvestACs(c *Corpus) (declared map[string]acDecl, classified map[string]ma
 		}
 		classified[ac][typ][direction] = true
 	}
-	_ = filepath.WalkDir(c.Root, func(p string, d fs.DirEntry, err error) error {
+	needed := false
+	for _, d := range declared {
+		if d.status == "active" && !d.retired && !d.draft && d.testType != "Human" && !d.humanSingle {
+			needed = true
+		}
+	}
+	if _, err := os.Lstat(filepath.Join(c.Root, filepath.FromSlash(evidence.DefaultPath))); err == nil || needed {
+		m, err := evidence.Load(c.Root)
 		if err != nil {
-			return nil
-		}
-		if d.IsDir() {
-			// Tests live in the code tree: skip the corpus, the transient
-			// workspace and hidden directories.
-			if rel, _ := filepath.Rel(c.Root, p); rel != "." &&
-				(strings.HasPrefix(d.Name(), ".") || d.Name() == "docs" || d.Name() == "changes") {
-				return fs.SkipDir
-			}
-			return nil
-		}
-		isGo := strings.HasSuffix(d.Name(), "_test.go")
-		isJVM := strings.HasSuffix(d.Name(), "Test.kt") || strings.HasSuffix(d.Name(), "Test.java") ||
-			strings.HasSuffix(d.Name(), "Tests.kt") || strings.HasSuffix(d.Name(), "Tests.java")
-		isFeature := strings.HasSuffix(d.Name(), ".feature")
-		if !isGo && !isJVM && !isFeature {
-			return nil
-		}
-		data, rerr := os.ReadFile(p)
-		if rerr != nil {
-			return nil
-		}
-		text := string(data)
-		rel, _ := filepath.Rel(c.Root, p)
-		relSlash := filepath.ToSlash(rel)
-
-		if isGo {
-			for _, m := range testFuncRe.FindAllStringSubmatch(text, -1) {
-				name := m[1]
-				if name == "TestMain" {
-					continue // the harness hook, not a test
-				}
-				if fixedPurposeRe.MatchString(name) {
-					continue // Unit/Sanity/Arch need no AC
-				}
-				if ac, typ, direction, ambiguous, matched := parseGoClassifiedName(name, prefixes); matched {
-					record(relSlash, "test "+name, ac, typ, direction)
-					continue
-				} else if ambiguous {
-					issues = append(issues, Issue{relSlash, "test " + name + " has an ambiguous normalized criterion prefix (ADR-037)"})
-					continue
-				}
-				if ac, ambiguous, matched := parseGoReference(name, prefixes); matched {
-					record(relSlash, "test "+name, ac, "", "")
-					continue
-				} else if ambiguous {
-					issues = append(issues, Issue{relSlash, "test " + name + " has an ambiguous normalized criterion prefix (ADR-037)"})
-					continue
-				} else {
-					issues = append(issues, Issue{relSlash, "test " + name + " declares no purpose (ADR-006: normalized criterion prefix plus digits, Unit, Sanity or Arch)"})
+			issues = append(issues, Issue{evidence.DefaultPath, err.Error()})
+		} else {
+			for _, producer := range m.Producers {
+				for _, ref := range producer.References {
+					record(ref.Path, ref.Subject, ref.ID, ref.Type, ref.Direction)
+					refs := locations[ref.ID]
+					refs[len(refs)-1].Producer = producer.ID
 				}
 			}
-			return nil
 		}
-
-		if isFeature {
-			featureLines := strings.Split(text, "\n")
-			for i := 0; i < len(featureLines); {
-				if !strings.HasPrefix(strings.TrimSpace(featureLines[i]), "@") {
-					i++
-					continue
-				}
-				var tags [][]string
-				for i < len(featureLines) && strings.HasPrefix(strings.TrimSpace(featureLines[i]), "@") {
-					tags = append(tags, featureTagRe.FindAllStringSubmatch(featureLines[i], -1)...)
-					i++
-				}
-				if i == len(featureLines) || !isScenarioHeader(strings.TrimSpace(featureLines[i])) {
-					continue
-				}
-				types, directions := map[string]bool{}, map[string]bool{}
-				for _, tag := range tags {
-					switch strings.ToLower(tag[1]) {
-					case "unit":
-						types["Unit"] = true
-					case "integration":
-						types["Integration"] = true
-					case "e2e":
-						types["E2E"] = true
-					case "performance":
-						types["Performance"] = true
-					case "positive", "negative":
-						directions[strings.ToLower(tag[1])] = true
-					}
-				}
-				for _, tag := range tags {
-					ac, ok := normalizeCarrierACID(tag[1])
-					if !ok {
-						if inAnyDeclaredNamespace(tag[1], prefixes) {
-							issues = append(issues, Issue{relSlash, "Cucumber tag " + tag[0] + " is not a supported canonical acceptance-criterion ID (ADR-037)"})
-						}
-						continue
-					}
-					acPrefix, _, _, valid := parseACID(ac)
-					if !valid || !prefixes[acPrefix] {
-						continue
-					}
-					if len(types) > 1 || len(directions) > 1 {
-						issues = append(issues, Issue{relSlash, "Cucumber tag block for " + tag[1] + " must declare at most one test type and direction (ADR-032)"})
-						record(relSlash, "tag "+tag[0], ac, "", "")
-						continue
-					}
-					for typ := range types {
-						for direction := range directions {
-							record(relSlash, "tag "+tag[0], ac, typ, direction)
-						}
-					}
-					if len(types) == 0 || len(directions) == 0 {
-						record(relSlash, "tag "+tag[0], ac, "", "")
-					}
-				}
-			}
-			return nil
-		}
-
-		jvmEvidence, jvmIssues := harvestJVMEvidence(text, relSlash, prefixes)
-		issues = append(issues, jvmIssues...)
-		for _, evidence := range jvmEvidence {
-			record(relSlash, evidence.subject, evidence.ac, evidence.testType, evidence.direction)
-		}
-		return nil
-	})
+	}
 
 	return declared, classified, tested, issues, locations
 }
@@ -356,14 +237,6 @@ func normalizeACPrefix(prefix string) string {
 	return strings.ReplaceAll(prefix, "-", "")
 }
 
-func normalizeCarrierACID(raw string) (string, bool) {
-	normalized := strings.ReplaceAll(raw, "_", "-")
-	if _, _, _, ok := parseACID(normalized); !ok {
-		return "", false
-	}
-	return normalized, true
-}
-
 func canonicalACIDsInLine(line string) []string {
 	var ids []string
 	for _, match := range acCandidateTagRe.FindAllStringSubmatch(line, -1) {
@@ -372,58 +245,6 @@ func canonicalACIDsInLine(line string) []string {
 		}
 	}
 	return ids
-}
-
-func parseGoClassifiedName(name string, prefixes map[string]bool) (ac, testType, direction string, ambiguous, matched bool) {
-	match := classifiedGoRe.FindStringSubmatch(name)
-	if match == nil {
-		return "", "", "", false, false
-	}
-	ac, ambiguous, matched = parseNormalizedACPart(match[1], prefixes)
-	if matched {
-		return ac, match[2], strings.ToLower(match[3]), false, true
-	}
-	return "", "", "", ambiguous, false
-}
-
-func parseGoReference(name string, prefixes map[string]bool) (ac string, ambiguous, matched bool) {
-	if !strings.HasPrefix(name, "Test") {
-		return "", false, false
-	}
-	part := strings.TrimPrefix(name, "Test")
-	if separator := strings.IndexByte(part, '_'); separator >= 0 {
-		part = part[:separator]
-	}
-	return parseNormalizedACPart(part, prefixes)
-}
-
-func parseNormalizedACPart(part string, prefixes map[string]bool) (ac string, ambiguous, matched bool) {
-	if part == "" {
-		return "", false, false
-	}
-	var candidates []string
-	for prefix := range prefixes {
-		normalizedPrefix := normalizeACPrefix(prefix)
-		if !strings.HasPrefix(part, normalizedPrefix) {
-			continue
-		}
-		ordinal := part[len(normalizedPrefix):]
-		if !goOrdinalRe.MatchString(ordinal) {
-			continue
-		}
-		candidate := prefix + "-" + ordinal
-		if _, _, _, ok := parseACID(candidate); ok {
-			candidates = append(candidates, candidate)
-		}
-	}
-	sort.Strings(candidates)
-	if len(candidates) == 1 {
-		return candidates[0], false, true
-	}
-	if len(candidates) > 1 {
-		return "", true, false
-	}
-	return "", false, false
 }
 
 func checkACTests(c *Corpus) []Issue {
@@ -439,7 +260,7 @@ func checkACTests(c *Corpus) []Issue {
 			issues = append(issues, Issue{d.path, ac + " declares Test-type: Human (single-direction), which the Human class does not use (ADR-033)"})
 		}
 		if live && !exempt && !tested[ac] {
-			issues = append(issues, Issue{d.path, ac + " has no test (ADR-005/ADR-036: use a supported Go name, Cucumber scenario tag, or one JVM executable carrying \"" + strings.ReplaceAll(ac, "-", "_") + "\" in literal method tags or its stable test name)"})
+			issues = append(issues, Issue{d.path, ac + " has no test (ADR-071: export an executable reference in .clue/evidence.yaml)"})
 		}
 		if d.status != "active" || d.retired || exempt || d.testType == "" {
 			if live && !exempt && d.invalidType {

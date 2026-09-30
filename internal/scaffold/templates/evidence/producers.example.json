@@ -1,0 +1,15 @@
+{
+  "producers": [
+    {
+      "id": "python-unit",
+      "framework": "unittest",
+      "language": "Python",
+      "include": [
+        "scripts/test_*.py",
+        ".clue/evidence/aggregate.py",
+        ".clue/evidence/python_producer.py"
+      ],
+      "command": ["python", ".clue/evidence/python_producer.py"]
+    }
+  ]
+}

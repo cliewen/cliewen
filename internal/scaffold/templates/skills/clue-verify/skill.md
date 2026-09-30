@@ -13,6 +13,7 @@ Verify a chosen full Cliewen change and run its bounded adversarial review befor
 
 Read each reference when its condition is reached, before taking action governed by it. The references are required instructions, not optional background.
 
+- Before writing, migrating, exporting or verifying executable acceptance evidence, read [Evidence workflow](references/evidence-workflow.md).
 - Before confirming that full-loop verification applies, read [Change routing](references/change-scope-and-tiers.md).
 - Before inspecting or updating hosted pull-request state and before the readiness handoff, read [Review boundary](references/review-boundary.md).
 - Before running readiness verification, read [Verification checklist](references/verification-checklist.md).

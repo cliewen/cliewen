@@ -150,7 +150,10 @@ func DeriveTargetManifest(root string) (TargetManifest, error) {
 	if len(issues) > 0 {
 		return TargetManifest{}, fmt.Errorf("corpus scan issues: %v", issues)
 	}
-	declared, locations := corpus.AcceptanceEvidence(c)
+	declared, locations, evidenceIssues := corpus.AcceptanceEvidence(c)
+	if len(evidenceIssues) > 0 {
+		return TargetManifest{}, fmt.Errorf("acceptance evidence issues: %v", evidenceIssues)
+	}
 
 	var led *ledger.Ledger
 	if ledger.Exists(root) {

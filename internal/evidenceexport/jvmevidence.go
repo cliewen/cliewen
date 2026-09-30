@@ -1,4 +1,4 @@
-package corpus
+package evidenceexport
 
 import (
 	"regexp"
@@ -14,7 +14,7 @@ var (
 	jvmClassRe          = regexp.MustCompile(`\b(?:class|interface|enum|object|record)\s+[A-Za-z_$][A-Za-z0-9_$]*`)
 	jvmKotlinFunRe      = regexp.MustCompile(`\bfun\s+(?:` + "`([^`]+)`" + `|([A-Za-z_$][A-Za-z0-9_$]*))\s*\(`)
 	jvmJavaMethodRe     = regexp.MustCompile(`(?:^|\s)(?:(?:public|protected|private|static|final|synchronized|abstract|native|strictfp|default)\s+)*(?:<[^>{};]+>\s+)?(void|[A-Za-z_$][A-Za-z0-9_$]*(?:\.[A-Za-z_$][A-Za-z0-9_$]*)*)(?:\s*<[^;{}()]+>)?(?:\s*\[\])?\s+([A-Za-z_$][A-Za-z0-9_$]*)\s*\([^;{}]*\)\s*(?:throws\s+[^{=]+)?\s*(?:\{|=)`)
-	jvmNamedRe          = regexp.MustCompile(`^test([A-Za-z0-9$]+)_(Unit|Integration|E2E|Performance)(Positive|Negative)(?:_[A-Za-z0-9_$]+)+$`)
+	jvmNamedRe          = regexp.MustCompile(`^test([A-Za-z0-9$_]+)_(Unit|Integration|E2E|Performance)(Positive|Negative)(?:_[A-Za-z0-9_$]+)+$`)
 )
 
 type jvmEvidence struct {

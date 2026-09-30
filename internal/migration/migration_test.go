@@ -12,6 +12,7 @@ import (
 
 	"github.com/cliewen/cliewen/internal/carriers"
 	"github.com/cliewen/cliewen/internal/corpus"
+	"github.com/cliewen/cliewen/internal/evidenceexport"
 	"github.com/cliewen/cliewen/internal/importedchange"
 	"github.com/cliewen/cliewen/internal/ledger"
 	"github.com/cliewen/cliewen/internal/parity"
@@ -147,6 +148,9 @@ func writeFixtureFiles(t *testing.T, root string, files map[string]string) {
 		if err := os.WriteFile(path, []byte(content), 0o644); err != nil {
 			t.Fatal(err)
 		}
+	}
+	if err := evidenceexport.Fixture(root); err != nil {
+		t.Fatal(err)
 	}
 }
 
@@ -554,6 +558,9 @@ func TestAC128_UnitNegative_assessmentScaleFixtureRejectsEveryFailureClass(t *te
 	if err := os.WriteFile(criteriaPath, []byte(strings.Replace(string(criteria), "@SCL-001", "@SCL-001 @draft", 1)), 0o644); err != nil {
 		t.Fatal(err)
 	}
+	if err := evidenceexport.Fixture(targetRoot); err != nil {
+		t.Fatal(err)
+	}
 	mustFailFixtureClue(t, parity.ClassUnjustifiedDisposition, "parity", manifest, targetRoot)
 	// A deferral is unaccountable when the target corpus declares no plan
 	// door at all, which is this fixture's shape (ADR-053). The criterion
@@ -682,7 +689,7 @@ func TestAC129_UnitPositive_orderedPinnedReleasePathHoldsAtAssessmentScale(t *te
 	if len(scanIssues) > 0 {
 		t.Fatalf("target scan issues: %v", scanIssues)
 	}
-	declared, _ := corpus.AcceptanceEvidence(c)
+	declared, _, _ := corpus.AcceptanceEvidence(c)
 	for i := 1; i <= assessmentScaleInFlight; i++ {
 		id := fmt.Sprintf("IC-%03d", assessmentScaleInFlightBase+i)
 		records := c.ByID[id]
@@ -716,6 +723,9 @@ func TestAC129_UnitPositive_orderedPinnedReleasePathHoldsAtAssessmentScale(t *te
 		t.Fatal(err)
 	}
 	if err := os.WriteFile(completePath, []byte(strings.Replace(string(record), "status: in-progress", "status: complete", 1)), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if err := evidenceexport.Fixture(targetRoot); err != nil {
 		t.Fatal(err)
 	}
 	if out, err := runPinnedClue(t, "validate", targetRoot); err != nil {
@@ -906,6 +916,9 @@ func TestAC123_UnitNegative_disposableFixturesRejectRequiredFailurePaths(t *test
 		t.Fatal(err)
 	}
 	if err := os.WriteFile(criteriaPath, []byte(strings.Replace(string(criteria), "@ARC-002", "@ARC-002 @draft", 1)), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if err := evidenceexport.Fixture(root); err != nil {
 		t.Fatal(err)
 	}
 	mustFailFixtureClue(t, parity.ClassUnjustifiedDisposition, "parity", manifest, root)

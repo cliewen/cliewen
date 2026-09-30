@@ -11,7 +11,7 @@ Two threads run through the corpus and meet only at the goal. The **intent threa
 ```
 VIS-001 (vision) → G-xxx (goal) → UC-xxx (use case, optional) → CAP-xxx (capability)
   → AC-xxx (acceptance criterion) → acceptance evidence
-    → classified Go/JVM/Cucumber test reference, or Human acceptance brief
+    → classified exported executable reference, or Human acceptance brief
 ```
 
 The **delivery thread** says how that meaning gets built, and never joins the semantic hierarchy:

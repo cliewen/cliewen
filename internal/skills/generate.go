@@ -78,6 +78,7 @@ var skillDefinitions = map[string]skillDefinition{
 	"clue-delta": {
 		description: "Run a chosen full Cliewen change from proposal through implementation, digest, verification, and human-controlled merge.",
 		routes: []skillRoute{
+			{heading: "Evidence workflow", file: "evidence-workflow.md", condition: "Before writing, migrating, exporting or verifying executable acceptance evidence"},
 			{heading: "Change routing", file: "change-scope-and-tiers.md", condition: "Before recommending a route or starting a full change"},
 			{heading: "Review boundary", file: "review-boundary.md", condition: "Before branching, publishing, updating a hosted PR, or handing work to a human"},
 			{heading: "Change loop", file: "change-loop.md", condition: "After the user chooses the recommended full loop"},
@@ -91,6 +92,7 @@ var skillDefinitions = map[string]skillDefinition{
 	"clue-extract": {
 		description: "Transform one brownfield specification corpus into Cliewen through a report-only rehearsal and a human-authorized mutation.",
 		routes: []skillRoute{
+			{heading: "Evidence workflow", file: "evidence-workflow.md", condition: "Before writing, migrating, exporting or verifying executable acceptance evidence"},
 			{heading: "Review boundary", file: "review-boundary.md", condition: "Before branching, publishing, updating a hosted PR, or handing work to a human"},
 			{heading: "Boundaries", file: "boundaries.md", condition: "Before beginning an extraction"},
 			{heading: "Rehearsal before mutation", file: "rehearsal-before-mutation.md", condition: "After proposal and before changing the target corpus, tests, routing, or hosted state"},
@@ -117,6 +119,7 @@ var skillDefinitions = map[string]skillDefinition{
 	"clue-verify": {
 		description: "Verify a chosen full Cliewen change and run its bounded adversarial review before claiming the hosted pull request is ready.",
 		routes: []skillRoute{
+			{heading: "Evidence workflow", file: "evidence-workflow.md", condition: "Before writing, migrating, exporting or verifying executable acceptance evidence"},
 			{heading: "Change routing", file: "change-scope-and-tiers.md", condition: "Before confirming that full-loop verification applies"},
 			{heading: "Review boundary", file: "review-boundary.md", condition: "Before inspecting or updating hosted pull-request state and before the readiness handoff"},
 			{heading: "Verification checklist", file: "verification-checklist.md", condition: "Before running readiness verification"},

@@ -248,6 +248,9 @@ from validate or version, never when CI carries a value, and never when
 CLUE_NO_UPDATE_NOTIFIER is set at all, the empty string included.
 
 Exit codes: 0 corpus valid · 1 issues found · 2 usage error
+
+Executable evidence: commit .clue/evidence.yaml from repository-owned exporters;
+validate reads references and input fingerprints without running frameworks.
 `
 
 func main() {

@@ -13,6 +13,7 @@ Run a chosen full Cliewen change from proposal through implementation, digest, v
 
 Read each reference when its condition is reached, before taking action governed by it. The references are required instructions, not optional background.
 
+- Before writing, migrating, exporting or verifying executable acceptance evidence, read [Evidence workflow](references/evidence-workflow.md).
 - Before recommending a route or starting a full change, read [Change routing](references/change-scope-and-tiers.md).
 - Before branching, publishing, updating a hosted PR, or handing work to a human, read [Review boundary](references/review-boundary.md).
 - After the user chooses the recommended full loop, read [Change loop](references/change-loop.md).

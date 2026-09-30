@@ -592,7 +592,7 @@ func checkImportedChanges(c *Corpus) []Issue {
 			continue
 		}
 		if declared == nil {
-			declared, _ = AcceptanceEvidence(c)
+			declared, _, _ = AcceptanceEvidence(c)
 		}
 		provable := make(map[string]bool, len(declared))
 		for id, d := range declared {

@@ -46,7 +46,7 @@ func TestAC083_UnitPositive_InitEmitsAHubThatAsksWhetherWeAreBehind(t *testing.T
 func TestAC083_UnitNegative_InitEmitsNoVendorConfiguration(t *testing.T) {
 	root, rep := runInto(t)
 	for _, rel := range rep.Created {
-		if strings.HasSuffix(rel, ".json") {
+		if strings.HasSuffix(rel, ".json") && filepath.ToSlash(rel) != ".clue/evidence/producers.example.json" {
 			t.Errorf("init emitted %s; no assistant's configuration file may ship with the scaffold", rel)
 		}
 	}
@@ -60,7 +60,7 @@ func TestAC083_UnitNegative_InitEmitsNoVendorConfiguration(t *testing.T) {
 		if rerr != nil {
 			return rerr
 		}
-		if strings.HasSuffix(rel, ".json") {
+		if strings.HasSuffix(rel, ".json") && filepath.ToSlash(rel) != ".clue/evidence/producers.example.json" {
 			t.Errorf("init materialized %s; the scaffold emits no vendor configuration", filepath.ToSlash(rel))
 		}
 		data, rerr := os.ReadFile(p)

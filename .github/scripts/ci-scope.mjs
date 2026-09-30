@@ -43,7 +43,7 @@ export function classifyChange(files, historyFiles = [], headMessage = "") {
     full ||
     release ||
     files.some((file) =>
-      /^(?:cmd\/|internal\/|\.github\/|go\.mod$|go\.sum$)/.test(file),
+      /^(?:cmd\/|internal\/|tools\/|\.github\/|go\.mod$|go\.sum$)/.test(file),
     );
 
   return { full, go, corpus, guide, release, override };

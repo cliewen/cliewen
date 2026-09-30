@@ -1,6 +1,7 @@
 package corpus
 
 import (
+	"github.com/cliewen/cliewen/internal/evidenceexport"
 	"os"
 	"path/filepath"
 	"strings"
@@ -25,6 +26,11 @@ func writeCorpus(t *testing.T, files map[string]string) string {
 			t.Fatal(err)
 		}
 		if err := os.WriteFile(full, []byte(content), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+	if _, explicit := files[".clue/evidence.yaml"]; !explicit {
+		if err := evidenceexport.Fixture(root); err != nil {
 			t.Fatal(err)
 		}
 	}

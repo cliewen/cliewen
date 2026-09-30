@@ -12,13 +12,13 @@ var nextAction = regexp.MustCompile(`(?s)## Next\n\n\[[^\]]+\]\([^\)]+\)\n\z`)
 
 func TestAC036_UnitPositive_OperationsGuideStatesSupportedBoundary(t *testing.T) {
 	requiredByPage := map[string][]string{
-		"adoption.md":        {"classifies and counts the pair", "Cucumber", "Test-type: Human", "@draft", "cannot check that the acceptance brief supplies Human proof", "does not run the tests"},
-		"getting-started.md": {"classified positive and negative evidence", "Cucumber", "Test-type: Human", "@draft", "cannot check that the brief supplies the proof", "does not run tests"},
-		"operations.md":      {"Go test names", "Java and Kotlin executables whose own JUnit", "same executable", "Cucumber scenario tags", "(single-direction)", "Test-type: Human", "@draft", "does not run your tests", "does not update installed files in the background", "Keep the binary, generated skills, and CI caller on the same release", "Recover without bypassing the evidence", "`clue init` reports a skipped file", "`clue validate` fails", "CI rejects a transient workspace", "Do not delete a rule", "foreign-soil trials, not adoptions"},
-		"what-is-cliewen.md": {"classified positive and negative evidence", "Cucumber", "Test-type: Human", "@draft", "does not execute tests"},
-		"design.md":          {"acceptance criterion → acceptance evidence", "Cucumber", "Human-class", "@draft", "does not execute tests or inspect the pull request acceptance brief"},
-		"methodology.md":     {"Acceptance evidence", "Cucumber", "Test-type: Human", "@draft", "does not execute tests"},
-		"change-loop.md":     {"classified by that type and positive/negative direction", "Cucumber", "Test-type: Human", "@draft", "one supported reference"},
+		"adoption.md":        {"classifies and counts the pair", ".clue/evidence.yaml", "Test-type: Human", "@draft", "cannot check that the acceptance brief supplies Human proof", "does not run the tests"},
+		"getting-started.md": {"classified positive and negative executable references", ".clue/evidence.yaml", "Test-type: Human", "@draft", "cannot check that the brief supplies the proof", "does not run tests"},
+		"operations.md":      {"native executable metadata", "complete", ".clue/evidence.yaml", "Ordinary comments", "(single-direction)", "Test-type: Human", "@draft", "never invokes an exporter or test runner", "Keep the binary, generated skills, and CI caller on the same release", "Recover without bypassing the evidence", "`clue init` reports a skipped file", "`clue validate` fails", "CI rejects a transient workspace", "Do not delete a rule", "foreign-soil trials, not adoptions"},
+		"what-is-cliewen.md": {"classified positive and negative executable references", ".clue/evidence.yaml", "Test-type: Human", "@draft", "without running exporters or tests"},
+		"design.md":          {"acceptance criterion → acceptance evidence", ".clue/evidence.yaml", "Human-class", "@draft", "inspect whether the acceptance brief supplies Human proof", "Ordinary proximity comments and container AC metadata provide no credit"},
+		"methodology.md":     {"Acceptance evidence", ".clue/evidence.yaml", "Test-type: Human", "@draft", "without running exporters or tests"},
+		"change-loop.md":     {"classified positive and negative executable references", ".clue/evidence.yaml", "Test-type: Human", "@draft", "an unannotated legacy criterion retains one reference"},
 	}
 	for page, required := range requiredByPage {
 		content, err := os.ReadFile(page)
@@ -35,13 +35,13 @@ func TestAC036_UnitPositive_OperationsGuideStatesSupportedBoundary(t *testing.T)
 
 func TestAC058_UnitPositive_GuideStatesPerExecutableJVMCarrier(t *testing.T) {
 	requiredByPage := map[string][]string{
-		"adoption.md":        {"per-executable JVM JUnit method tags", "class tags and unrelated methods cannot supply missing parts"},
-		"getting-started.md": {"same Java or Kotlin executable"},
-		"operations.md":      {"stable JVM named-executable form", "metadata split across methods do not count"},
-		"what-is-cliewen.md": {"per-executable Java/Kotlin JUnit method tags", "metadata split across methods"},
-		"design.md":          {"stable JVM named-executable fallback", "diagnoses ambiguous, class-level, or unsupported evidence syntax"},
-		"methodology.md":     {"all three parts on one supported Java or Kotlin executable"},
-		"change-loop.md":     {"same supported Java or Kotlin executable"},
+		"adoption.md":        {"Each executable carries one canonical AC identity, type and direction"},
+		"getting-started.md": {"Each executable carries one canonical AC identity, type and direction"},
+		"operations.md":      {"native executable metadata", "containing suite/class/assembly provide no proof"},
+		"what-is-cliewen.md": {"Each executable carries one canonical AC identity, type and direction"},
+		"design.md":          {"exporter tests and human review establish discovery and attribution", "container AC metadata provide no credit"},
+		"methodology.md":     {"Each executable carries one canonical AC identity, type and direction"},
+		"change-loop.md":     {"Each executable carries one canonical AC identity, type and direction"},
 	}
 	for page, required := range requiredByPage {
 		content, err := os.ReadFile(page)

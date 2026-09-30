@@ -475,4 +475,56 @@ Feature: clue validate — deterministic corpus judgment
     Given a ".clue/id-ledger.yaml" whose entry for a declared M-xxx ID is "retired" while the milestone's own status is "todo" or "doing", or "live" while its status is "done" or "dropped"
     Then it exits with a non-zero code and names the plan path, the ledger's state, and the declaration's expected state
     But distinct milestone IDs across plans pass, a milestone whose ledger state agrees with its declared status passes, and a corpus with no ".clue/id-ledger.yaml" file is unaffected by this rule
+
+  @AC-203
+  Scenario: Framework-neutral references use one evidence contract
+    Test-type: Unit
+    Given a version-one evidence manifest with classified references to repository-local executable sources
+    When the user validates the corpus or derives coverage and parity
+    Then live references satisfy the same proof and direction rules regardless of framework
+    But unknown identities, conflicting executable references, malformed classification, and exporter diagnostics fail and receive no evidence credit
+
+  @AC-204
+  Scenario: Multiple producers aggregate without losing identities
+    Test-type: Unit
+    Given backend, frontend, and performance producers with executable identities that may share a test name
+    When their exports are aggregated
+    Then source-qualified executable identities remain distinct and their references combine by criterion
+    And repeated aggregation produces identical bytes
+    But a duplicate producer, conflicting reference, or failed producer prevents replacement of the complete manifest
+
+  @AC-205
+  Scenario: Evidence is current across complete declared input scopes
+    Test-type: Unit
+    Given evidence fingerprinting all matching inputs including the exporter and its relevant configuration
+    When the judge reads the current checkout
+    Then unchanged inputs and equivalent LF and CRLF text preserve the evidence
+    But changed, added, deleted, unreadable, or repository-external inputs make the evidence invalid
+
+  @AC-206
+  Scenario: The judge rejects invalid exports without invoking a producer
+    Test-type: Unit
+    Given a missing, malformed, unsupported-version, diagnostic-bearing, or stale evidence manifest
+    When validation, coverage, or parity consumes executable proof
+    Then the invalid export gives no proof credit and validation and parity explain the finding
+    And no exporter, framework, compiler, or test runner is invoked by the judge
+    But a valid export works from a clean checkout without a framework installed
+
+  @AC-207
+  Scenario: Export examples bind metadata to executable tests
+    Test-type: Unit
+    Given framework examples with native metadata, executable-bound custom metadata, and stable naming fallbacks
+    When a repository-owned exporter reads those tests
+    Then it emits one canonical identity, proof type, and direction for each AC-proving executable
+    And other tests remain outside acceptance evidence
+    But proximity comments, container AC metadata, ambiguous metadata, and unregistered Gatling scenarios supply no evidence
+
+  @AC-208
+  Scenario: Migration exposes the framework-neutral export obligation
+    Test-type: Unit
+    Given a repository with machine-proven criteria and no shared evidence export
+    When the user previews a migration
+    Then the preview names the missing export and the agent workflow that establishes repository-owned producers
+    And it never fabricates evidence or silently rewrites tests
+    But an existing valid export needs no evidence-establishment notice
 ```

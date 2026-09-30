@@ -128,7 +128,7 @@ clue validate: OK (5 artifacts)
 Now change only `status: draft` to `status: active` in `criteria.md` and run `clue validate` again. The command exits with status 1 and names the broken edge:
 
 ```text
-docs/capabilities/CAP-001-greeting/criteria.md: AC-001 has no test (convention per ADR-005/ADR-009: a Go test named TestAC001_… or a framework tag "AC_001"; segmented IDs use the normalized Go/JVM name or underscore tag form)
+docs/capabilities/CAP-001-greeting/criteria.md: AC-001 has no test (ADR-071: export an executable reference in .clue/evidence.yaml)
 clue validate: 1 issue(s)
 ```
 
@@ -136,7 +136,9 @@ That is the product's job: an active machine-proven promise cannot silently lose
 
 ::: details Evidence rules for production criteria
 
-A new or revised machine-proven criterion declares `Test-type: Unit`, `Integration`, `E2E`, or `Performance` and adds classified positive and negative evidence through supported Go, JVM, or Cucumber carriers. On the JVM, the AC identity, type, and direction belong to the same Java or Kotlin executable. Use `(single-direction)` only when one direction is honest. If only one criterion is not ready, put `@draft` on its tag line instead of drafting proven siblings or the capability.
+Before validation, have the agent establish the repository-owned export command using the examples in `.clue/evidence/`. Run it, commit `.clue/evidence.yaml`, and regenerate after changing tests, exporter code or discovery configuration. The same file can combine several frameworks and suites.
+
+A new or revised machine-proven criterion declares `Test-type: Unit`, `Integration`, `E2E`, or `Performance` and requires classified positive and negative executable references in `.clue/evidence.yaml`, unless it explicitly records `(single-direction)`. Each executable carries one canonical AC identity, type and direction in native metadata, executable-bound custom metadata, or a stable naming fallback. Repository-owned exporters attribute and aggregate those references across every framework. The judge checks their identities and input fingerprints without running exporters or tests. A genuine `Test-type: Human` uses the pull request acceptance brief; `@draft` exempts one not-yet-proven criterion; an unannotated legacy criterion retains one reference.
 
 For a criterion whose proof is inherently human, declare `Test-type: Human`; naming it in the pull request acceptance brief is its proof, and no code test is invented. `clue validate` recognizes the Human declaration and waives code evidence, but it cannot check that the brief supplies the proof — the pull request workflow and human merge gate do that. The judge also checks classified pairs, single-direction declarations, and `@draft`; it does not run tests, so your normal test runner remains responsible for whether executable evidence passes.
 

@@ -16,6 +16,9 @@ An unclassified test reference proves only that an acceptance-criterion ID occur
 
 ## Decision outcome
 
+> **Current carrier boundary:** [ADR-071](ADR-071-framework-neutral-evidence-export.md) replaces framework parsing inside the judge with repository-owned export to a common evidence manifest. Native metadata and per-executable attribution remain; exporter examples carry framework-specific conventions.
+
+
 > **Partially superseded by [ADR-036](ADR-036-jvm-evidence-per-executable.md) and extended by [ADR-037](ADR-037-brownfield-ac-id-grammar.md):** proof classes, paired directions, Go names, and Cucumber scenario tags remain current; JVM evidence is attributed to one executable, and segmented or letter-suffixed IDs use ADR-037's carrier normalization.
 
 New or materially revised classified scenarios declare `Test-type: Unit`, `Integration`, `E2E`, or `Performance` on their first non-blank line. Each declared class requires one `positive` and one `negative` reference, except an explicit `(single-direction)` declaration. Go names, JVM executable tags, and Cucumber scenario tags carry the AC identity, class, and direction; profiles without native tags use the stable named-executable fallback, while proximity comments remain unsupported. Unannotated legacy scenarios retain ADR-006's one-reference rule.
