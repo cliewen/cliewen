@@ -72,7 +72,7 @@ func Prefixes(root string) map[string]bool {
 
 func Collect(root string, producerID string) (evidence.Producer, error) {
 	prefixes := Prefixes(root)
-	p := evidence.Producer{ID: producerID, Framework: "Go/JVM/Cucumber compatibility example", Include: []string{"**/*_test.go", "**/*Test.java", "**/*Tests.java", "**/*Test.kt", "**/*Tests.kt", "**/*.feature", "docs/**/*.md"}, Exclude: []string{".git/**", ".claude/**", ".agents/**", ".idea/**", "node_modules/**", "**/node_modules/**", "vendor/**", "changes/**", "internal/scaffold/templates/**", "internal/migrate/testdata/**"}}
+	p := evidence.Producer{ID: producerID, Framework: "Go/JVM/Cucumber compatibility example", Include: []string{"**/*_test.go", "**/*Test.java", "**/*Tests.java", "**/*Test.kt", "**/*Tests.kt", "**/*.feature", "docs/**/*.md"}, Exclude: []string{".*/**", "**/.*/**", "node_modules/**", "**/node_modules/**", "vendor/**", "changes/**", "internal/scaffold/templates/**", "internal/migrate/testdata/**"}}
 	pProducerExclude := p.Exclude
 	var issues []Issue
 	record := func(path, subject, ac, typ, direction string) {
