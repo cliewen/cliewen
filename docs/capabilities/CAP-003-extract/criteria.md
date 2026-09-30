@@ -7,7 +7,7 @@ title: Acceptance criteria for CAP-003
 ---
 
 ```gherkin
-Feature: Brownfield analysis and extraction — evidence, namespaced ACs, JVM harvesting, provenance
+Feature: Brownfield analysis and extraction — evidence, namespaced ACs, executable attribution, provenance
 
   @AC-014
   Scenario: A criteria file declares ACs in its own namespace

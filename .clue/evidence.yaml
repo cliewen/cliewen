@@ -119,7 +119,7 @@ producers:
       - path: docs/capabilities/CAP-003-extract/README.md
         sha256: 57d56ceaa63eb02422e9cad0d2c00423e124d3b40e3d29b2630290291c282b97
       - path: docs/capabilities/CAP-003-extract/criteria.md
-        sha256: 304eddeedfb8de53d8de0643ec4e737811211be73da45fc6265c3d8e518462c8
+        sha256: 1a494858d9801efc936def79b3c1ad4f09df2fb105e62ac1b3e981a9e8abc3a0
       - path: docs/capabilities/CAP-003-extract/design.md
         sha256: 988ec1cb0c964e5313224e7fad3eb3cfd6010c8f0abded37663896a686e1e281
       - path: docs/capabilities/CAP-004-ship/README.md
@@ -647,7 +647,7 @@ producers:
       - path: internal/evidenceexport/jvmevidence.go
         sha256: 88a08e3a41790a19c6a84589c0a582845cd62061da9fab5e296ace779f8f0500
       - path: internal/evidenceexport/legacy.go
-        sha256: d6b1a2e68dcdcd7df6706febd5f17180ef9a88ad14e90ac7d2bc8c7cac21d25f
+        sha256: 5b642f4ee5d432fb0c1305d5e58f3dfa5de1aa31e0da58a43415874092ecf323
       - path: internal/evidenceexport/legacy_test.go
         sha256: 86d9432de14891b2bd54656cdb433eb44ceca409dff67a773766b3e284840d0d
       - path: internal/idalloc/idalloc_test.go

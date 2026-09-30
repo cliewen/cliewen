@@ -113,6 +113,10 @@ func Collect(root string, producerID string) (evidence.Producer, error) {
 		relSlash := filepath.ToSlash(rel)
 
 		if isGo {
+			if _, parseErr := parser.ParseFile(token.NewFileSet(), relSlash, text, parser.AllErrors); parseErr != nil {
+				issues = append(issues, Issue{relSlash, "Go discovery failed: " + parseErr.Error()})
+				return nil
+			}
 			for _, name := range goTestNames(text) {
 				if name == "TestMain" {
 					continue // the harness hook, not a test

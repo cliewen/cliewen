@@ -66,7 +66,7 @@ type EvidenceRef struct {
 
 // AcceptanceEvidence returns every declared criterion's classification
 // alongside each recorded evidence occurrence, in declaration and then
-// evidence order. It shares harvestACs' single tree walk with checkACTests
+// evidence order. It shares harvestACs' checked manifest import with checkACTests
 // and Coverage so migration parity's target manifest reads the same
 // declarations and evidence the validator already enforces.
 func AcceptanceEvidence(c *Corpus) (map[string]Declaration, map[string][]EvidenceRef, []Issue) {
@@ -102,7 +102,7 @@ func LedgerCriterionIdentities(c *Corpus) []CriterionIdentity {
 
 // harvestACs parses criterion declarations and imports validated evidence, shared by
 // checkACTests (which enforces it) and Coverage (which derives a report
-// from the same declarations without repeating the walk).
+// from the same declarations without a second evidence reader).
 func harvestACs(c *Corpus) (declared map[string]acDecl, classified map[string]map[string]map[string]bool, tested map[string]bool, issues []Issue, locations map[string][]EvidenceRef) {
 	declared = map[string]acDecl{}
 	// The default namespace is always known, so an undeclared AC-xxx
@@ -342,7 +342,7 @@ func checkACRef(path, subject, ac string, declared map[string]acDecl, tested map
 		return []Issue{{path, subject + " references " + ac + " which no criteria.md declares"}}
 	}
 	if d.retired {
-		return []Issue{{path, subject + " references retired " + ac + " — remove the test or re-tag it (ADR-007)"}}
+		return []Issue{{path, subject + " references retired " + ac + " â€” remove the test or re-tag it (ADR-007)"}}
 	}
 	return nil
 }
