@@ -4,6 +4,8 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 
 ## [Unreleased]
 
+## [0.27.0] - 2026-09-30
+
 ### Added
 
 - **`clue validate --intent` now states which capabilities and plans currently serve each goal.** Every goal's line names the capabilities whose `goal:` field names it and the plans whose `links` name it, each with its own status, so a goal like "the product is public" — served by a completed plan and no standing capability — is no longer indistinguishable from a goal nothing has touched yet. No new goal status and no coverage ratio: a goal named by neither prints "none" for that list, and the report computes no percentage or count, matching the existing rule for use cases.
@@ -11,6 +13,10 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 ### Changed
 
 - Executable evidence now uses one versioned `.clue/evidence.yaml` manifest for every language and test framework. Repository-owned producers export native tags, custom executable metadata or stable naming fallbacks; `clue validate`, coverage and parity check the same classified references and complete input fingerprints without running producers or tests. The built-in Go/JVM/Cucumber harvesters leave the judge; existing adopters must establish export before upgrading. `clue migrate` reports that obligation without fabricating proof. Generated lifecycle skills and `clue init` now provide the export workflow, multi-producer aggregation and framework examples.
+
+### Migration
+
+- Existing adopters must establish a repository-owned export to `.clue/evidence.yaml` before relying on upgraded validation; the judge no longer scans test frameworks directly. On an upgrade branch, pin the binary and CI caller to `v0.27.0`, run `clue migrate` without `--apply` to inspect the managed-carrier updates and evidence-export notice, and use `clue init` to materialize missing `.clue/evidence/` examples without overwriting existing files. Adapt and test producers for every actual suite, aggregate them into one manifest, and commit the export with its source inputs. Prefer native executable metadata, then custom annotations/attributes/decorators, then stable naming fallbacks; migrate proximity comments and split multi-AC executables without relabeling automated proof as Human or draft. Apply the reviewed migration with `clue migrate --apply`, run the repository's tests and `clue validate`, and retain the normal review and CI gates. Exporters establish discovery and attribution; the judge checks references and freshness without invoking them.
 
 ## [0.26.0] - 2026-09-13
 
