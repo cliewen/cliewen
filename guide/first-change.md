@@ -1,6 +1,6 @@
 # What one change produces
 
-This page traces one small change from your request to a merge commit. It shows the artifacts and command output from a real `clue 0.18.0` run in a disposable repository.
+This page traces one small change from your request to a merge commit. It illustrates the artifacts and commands used with `clue 0.27.0`. Output excerpts show the relevant verdicts; artifact counts depend on the repository.
 
 ```mermaid
 sequenceDiagram
@@ -14,6 +14,7 @@ sequenceDiagram
   You->>Agent: Go ahead
   Agent->>Repo: Branch plus the change workspace
   Agent->>Repo: Corpus artifacts, code, positive and negative evidence
+  Agent->>Repo: Run tests and regenerate .clue/evidence.yaml
   Agent->>Clue: clue validate
   Clue-->>Agent: OK, or the exact broken edge
   Agent->>Repo: Digest into docs and delete the workspace
@@ -53,12 +54,12 @@ On a repository that has never allocated an identity, the ledger has to exist fi
 clue id next: identity ledger is missing; run `clue migrate --apply` first
 ```
 
-```text
-$ clue migrate --apply
-clue migrate: apply for target pair 0.18.0
-MIG-008 .clue/id-ledger.yaml: seed the identity ledger with 2 live id(s) from the current corpus scan
-clue migrate: applied 1 file(s)
+```sh
+clue migrate
+clue migrate --apply
 ```
+
+Preview the migration before applying it. The command can seed a missing ledger, but it does not export test evidence for you.
 
 The identity comes from the ledger, not Git history. An identifier once used by a deleted artifact is never minted again. The branch takes the same name: `ch-001-greet-by-name`.
 
@@ -101,7 +102,7 @@ Plan-less: this repository has no plan yet, and this change deliberately declare
 `clue validate` already validates the workspace itself:
 
 ```text
-clue validate: OK (5 artifacts)
+clue validate: OK (...)
 ```
 
 ## 5. The corpus gains the durable part
@@ -139,9 +140,9 @@ indexed  docs/goals/README.md
 clue scaffold: 2 index block(s) regenerated
 ```
 
-## 6. The evidence is named by the criterion it proves
+## 6. Tests carry metadata, and the exporter records it
 
-The implementation is ordinary code. Its tests carry the criterion identity, declared test type, and direction in their names.
+The implementation is ordinary code. Prefer native test metadata or an executable-bound custom annotation. Go tests can use a stable naming fallback:
 
 ```go
 func TestAC001_UnitPositive_GreetsASuppliedName(t *testing.T) { … }
@@ -149,26 +150,25 @@ func TestAC001_UnitPositive_GreetsASuppliedName(t *testing.T) { … }
 func TestAC001_UnitNegative_RefusesAnEmptyName(t *testing.T) { … }
 ```
 
-Delete the negative one and the judge names exactly what is missing, by criterion and by direction:
+The agent establishes a repository-owned exporter that recognizes those names and writes the classified references to `.clue/evidence.yaml`. It includes test sources, exporter code and discovery configuration in the fingerprinted inputs. The export command depends on the repository; [acceptance evidence](./acceptance-evidence) explains the supplied examples.
+
+Run the tests, regenerate and commit the manifest, then run `clue validate`. The validator reads that manifest without scanning Go test names itself.
+
+Delete the negative test without regenerating and validation rejects the stale input fingerprint. Regenerate after the deletion and the judge can identify the missing direction:
 
 ```text
 docs/capabilities/CAP-001-greeting/criteria.md: AC-001 has no Unit negative evidence (ADR-032)
-clue validate: 1 issue(s)
 ```
 
-With both directions present, the thread is intact:
+Restore the negative test, run the tests and regenerate the export again. With both classified references present and inputs current, validation is green. Your test runner establishes whether the tests pass:
 
-```text
-$ clue validate
-clue validate: OK (8 artifacts)
+```sh
+go test ./...
+# Run the repository-owned evidence export command here.
+clue validate
 ```
 
-Note what that verdict does *not* claim. `clue` checked that the evidence exists, is classified, and points at a live criterion. Whether the tests pass is your test runner's job:
-
-```text
-$ go test ./...
-ok      example.com/greeting    0.264s
-```
+A green validation verdict checks the connection to a live criterion and the export's freshness. Review still establishes whether the assertions prove the promised behavior.
 
 ## 7. The digest deletes the workspace
 
@@ -186,7 +186,7 @@ After it, the same command is green, and `main` never learns that `/changes/` ex
 
 ```text
 $ clue validate --forbid-changes
-clue validate: OK (5 artifacts)
+clue validate: OK (...)
 ```
 
 ## 8. The pull request states what merging would accept
@@ -197,4 +197,4 @@ Then it stops. The last act is yours: a human-controlled merge commit accepts th
 
 ## Next
 
-[Learn what each skill does and when your agent uses it.](./skills)
+[Set up acceptance evidence for your test frameworks.](./acceptance-evidence)

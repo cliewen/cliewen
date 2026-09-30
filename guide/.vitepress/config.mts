@@ -76,6 +76,7 @@ export default defineConfig({
           { text: "Greenfield and brownfield", link: "/adoption" },
           { text: "How to prompt the agent", link: "/prompting" },
           { text: "What one change produces", link: "/first-change" },
+          { text: "Acceptance evidence", link: "/acceptance-evidence" },
         ],
       },
       {
