@@ -16,6 +16,9 @@ File-level JVM harvesting and tag cross-products can credit one executable from 
 
 ## Decision outcome
 
+> **Current carrier boundary:** [ADR-071](ADR-071-framework-neutral-evidence-export.md) replaces framework parsing inside the judge with repository-owned export to a common evidence manifest. Native metadata and per-executable attribution remain; exporter examples carry framework-specific conventions.
+
+
 **A JVM acceptance-evidence reference is one statically attributable Java or Kotlin executable carrying exactly one AC identity, one proof type, and one direction.** In conventional `*Test` or `*Tests` files, supported JUnit methods carry a contiguous annotation block with literal one-line tags; parameterized invocations count once, nested methods count normally, and enclosing-class tags do not supply method evidence.
 
 Class-level AC tags, ambiguous multiple identities/types/directions, and dynamic or multiline tag forms receive diagnostics and no classified credit; unrelated tags remain ordinary runner metadata. Frameworks without native tags use the stable executable name `test<PREFIX><digits><lowercase-suffix>_<Type><Direction>_<description>`, with ADR-037 prefix normalization. Native tags and the fallback name must agree when both are present. Proximity comments, source compilation, framework discovery, and parameterized expansion are not part of the parser.

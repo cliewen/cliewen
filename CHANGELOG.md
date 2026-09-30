@@ -8,6 +8,10 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 
 - **`clue validate --intent` now states which capabilities and plans currently serve each goal.** Every goal's line names the capabilities whose `goal:` field names it and the plans whose `links` name it, each with its own status, so a goal like "the product is public" — served by a completed plan and no standing capability — is no longer indistinguishable from a goal nothing has touched yet. No new goal status and no coverage ratio: a goal named by neither prints "none" for that list, and the report computes no percentage or count, matching the existing rule for use cases.
 
+### Changed
+
+- Executable evidence now uses one versioned `.clue/evidence.yaml` manifest for every language and test framework. Repository-owned producers export native tags, custom executable metadata or stable naming fallbacks; `clue validate`, coverage and parity check the same classified references and complete input fingerprints without running producers or tests. The built-in Go/JVM/Cucumber harvesters leave the judge; existing adopters must establish export before upgrading. `clue migrate` reports that obligation without fabricating proof. Generated lifecycle skills and `clue init` now provide the export workflow, multi-producer aggregation and framework examples.
+
 ## [0.26.0] - 2026-09-13
 
 ### Added

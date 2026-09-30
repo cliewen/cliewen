@@ -27,3 +27,29 @@ A formally valid manifest could still misattribute a container tag or name a Gat
 Add classified Gherkin criteria and focused Go evidence for generic import, multiple producers, freshness, diagnostic propagation, metadata attribution, and migration. Inventory current corpus, canonical skills, generated skills, scaffold templates, guide, contributor guidance, CLI and distribution metadata; repair all live claims in this change while leaving historical analyses and completed plans pinned. Use the declared draft VIS-001; this change does not promote the vision.
 
 Run the CONTRIBUTING.md gates, guide build, example checks, and clue-verify review on the committed candidate. Publish a draft PR before implementation, digest the workspace before readiness, and leave acceptance and release to the human boundary.
+
+## Live evidence-contract carriers
+
+The inventory covers the current judge/import/coverage/parity code, exporter examples and tests, capability criteria/design, architecture/design overviews, constraints and current decision outcomes, guide, contributor and CLI text, canonical lifecycle skills and their generated entrypoints/references, scaffold documentation and PR template. Historical analyses, completed plans and changelog history remain pinned.
+
+- `docs/README.md`
+- `docs/capabilities/CAP-002-validate/criteria.md`
+- `docs/capabilities/CAP-003-extract/criteria.md`
+- `docs/capabilities/CAP-003-extract/design.md`
+- `docs/decisions/ADR-005-test-reference-convention.md`
+- `docs/decisions/ADR-006-test-purpose-taxonomy.md`
+- `docs/decisions/ADR-032-classified-ac-evidence.md`
+- `docs/decisions/ADR-036-jvm-evidence-per-executable.md`
+- `docs/decisions/ADR-071-framework-neutral-evidence-export.md`
+- `docs/decisions/PDR-019-methodology-contract-carriers-move-together.md`
+- `guide/change-loop.md`
+- `guide/design.md`
+- `guide/getting-started.md`
+- `guide/methodology.md`
+- `guide/operations.md`
+- `guide/what-you-can-do.md`
+- `internal/scaffold/templates/docs/README.md`
+- `internal/scaffold/templates/docs/capabilities/README.md`
+- `internal/skills/source/skills/clue-verify.md.tmpl`
+
+Additional carriers: `AGENTS.md`, `CONTRIBUTING.md`, `docs/architecture/core.md`, `docs/architecture/README.md`, `docs/design/README.md`, `internal/scaffold/templates/github/pull_request_template.md`, `.github/pull_request_template.md`, `internal/scaffold/scaffold.go`, `internal/migrate/migrate.go`, `cmd/clue/main.go`, and their semantic guards. Generated copies are repaired by `go generate ./internal/skills`, never by hand. Source export and its focused CI regeneration are local; adopter workflow changes remain opt-in.

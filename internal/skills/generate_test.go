@@ -398,7 +398,7 @@ func TestAC054_UnitPositive_ExtractionSupportsCriterionLevelPhasing(t *testing.T
 		"Whole-file draft phasing remains available",
 		"tag each genuinely not-yet-proven criterion `@draft`",
 		"`Test-type: Human` criterion is already proven by naming it in the pull request acceptance brief",
-		"supported Go, per-executable JVM, or Cucumber evidence",
+		"exported executable evidence",
 		"A capability is therefore not the smallest activation unit",
 	} {
 		if !strings.Contains(extract, want) {
@@ -680,7 +680,7 @@ func TestSanity_MethodologyContractChangesMoveEveryLiveCarrierTogether(t *testin
 func TestSanity_VerifyRecognizesTheCompleteEvidenceContract(t *testing.T) {
 	verify := mustRenderSkill(t, "clue-verify/skill.md")
 	for _, want := range []string{
-		"supported Go, JVM, or Cucumber evidence",
+		"exported executable evidence",
 		"positive/negative direction",
 		"`(single-direction)`",
 		"a genuine `Human` criterion is named in the acceptance brief as its proof",
@@ -707,21 +707,20 @@ func TestAC058_UnitPositive_GeneratedSkillsStatePerExecutableJVMContract(t *test
 		rendered[name+"/skill.md"] = mustRenderSkill(t, name+"/skill.md")
 	}
 	required := map[string][]string{
-		"clue-delta/skill.md": {
-			"all three evidence parts attach to the same Java or Kotlin executable",
-			"`test<PREFIX><digits>[lowercase-suffix]_<Type><Direction>_<description>`",
-			"class tags, comments, and unrelated methods cannot supply missing parts",
-		},
-		"clue-extract/skill.md": {
-			"normalize each supported Java or Kotlin executable",
-			"dynamic or multi-line tag expressions",
-			"instead of installing an external rule or letting `clue` guess",
-		},
-		"clue-verify/skill.md": {
-			"JVM evidence carries its AC identity, type, and direction on the same Java or Kotlin executable",
-			"literal JUnit method tags or the stable named-executable form",
-		},
+		"clue-delta/skill.md":   {"Evidence workflow", "references/evidence-workflow.md"},
+		"clue-extract/skill.md": {"Evidence workflow", "references/evidence-workflow.md"},
+		"clue-verify/skill.md":  {"Evidence workflow", "references/evidence-workflow.md"},
 	}
+	workflow, err := os.ReadFile("source/shared/evidence-workflow.md.tmpl")
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, want := range []string{"one canonical AC identity, one proof type and one direction", "never its enclosing suite, class, module or assembly", "Ordinary proximity comments are not evidence", "Native and fallback metadata must agree", "Diagnose unsupported or ambiguous AC metadata"} {
+		if !strings.Contains(string(workflow), want) {
+			t.Errorf("shared evidence workflow omits %q", want)
+		}
+	}
+
 	for name, fragments := range required {
 		for _, fragment := range fragments {
 			if !strings.Contains(rendered[name], fragment) {

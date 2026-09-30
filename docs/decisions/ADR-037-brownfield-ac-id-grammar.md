@@ -16,6 +16,9 @@ Brownfield criteria need to preserve existing identities, including segmented pr
 
 ## Decision outcome
 
+> **Current carrier boundary:** [ADR-071](ADR-071-framework-neutral-evidence-export.md) moves framework-specific extraction to repository-owned exporters. The judge receives canonical references through the common manifest; the compatibility exporter preserves the documented aliases and purpose rules.
+
+
 **The canonical acceptance-criterion ID is `<PREFIX>-<NUMBER><SUFFIX?>`: uppercase alphanumeric prefix segments joined by single hyphens, decimal digits, and an optional lowercase suffix.** IDs are case-sensitive, declarations and links use the canonical spelling, `ac-prefix` uses the same grammar with default `AC`, full IDs remain unique, and wrong-namespace declarations fail.
 
 Evidence carriers normalize syntax only: JVM/Cucumber tags may replace prefix hyphens with underscores, while Go and JVM names remove them; numeric components and lowercase suffixes remain unchanged. Hyphen-stripped prefix collisions are rejected. Malformed-identity diagnostics apply only inside declared namespaces, leaving unrelated runner tags and prose untouched.

@@ -13,6 +13,7 @@ Transform one brownfield specification corpus into Cliewen through a report-only
 
 Read each reference when its condition is reached, before taking action governed by it. The references are required instructions, not optional background.
 
+- Before writing, migrating, exporting or verifying executable acceptance evidence, read [Evidence workflow](references/evidence-workflow.md).
 - Before branching, publishing, updating a hosted PR, or handing work to a human, read [Review boundary](references/review-boundary.md).
 - Before beginning an extraction, read [Boundaries](references/boundaries.md).
 - After proposal and before changing the target corpus, tests, routing, or hosted state, read [Rehearsal before mutation](references/rehearsal-before-mutation.md).

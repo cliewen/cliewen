@@ -19,6 +19,7 @@ import (
 	"strings"
 
 	"github.com/cliewen/cliewen/internal/corpus"
+	"github.com/cliewen/cliewen/internal/evidence"
 	"github.com/cliewen/cliewen/internal/ledger"
 	"github.com/cliewen/cliewen/internal/role"
 	"github.com/cliewen/cliewen/internal/scaffold"
@@ -107,6 +108,7 @@ const (
 	// counter was never seeded. This closes that gap for an already-existing
 	// ledger without renumbering or touching any other identity.
 	MigrationMilestoneLedgerBackfill = "MIG-016"
+	MigrationEvidenceExport          = "MIG-017"
 )
 
 // Options controls planning. Preview is the default; applying a plan is a
@@ -140,6 +142,7 @@ var orderedMigrations = []MigrationDefinition{
 	{ID: MigrationProductIntent, Description: "add the optional use-case folder and report a corpus that states no vision"},
 	{ID: MigrationLedgerEvents, Description: "make the identity ledger append-only and merge-safe"},
 	{ID: MigrationMilestoneLedgerBackfill, Description: "seed milestone identities missing from an already-existing ledger"},
+	{ID: MigrationEvidenceExport, Description: "establish repository-owned framework-neutral evidence export"},
 }
 
 // Registry returns the migration order without exposing mutable package state.
@@ -694,6 +697,7 @@ func Plan(root string, opts Options) (MigrationPlan, error) {
 	planLedgerBackfill(root, &result)
 	planLedgerEvents(root, &result)
 	planMilestoneLedgerBackfill(root, &result)
+	planEvidenceExport(root, &result)
 	planCompetingWall(root, &result)
 	planLegacyDecisionLog(root, &result)
 	overviewFolders, err := planSystemOverviews(root, &result)
@@ -2426,4 +2430,25 @@ func blankCodeSpans(line string) string {
 		i += run
 	}
 	return out.String()
+}
+
+// planEvidenceExport exposes the new obligation without inventing producer logic.
+func planEvidenceExport(root string, result *MigrationPlan) {
+	c, scanIssues := corpus.Scan(root)
+	if len(scanIssues) > 0 {
+		return
+	}
+	declared, _, _ := corpus.AcceptanceEvidence(c)
+	needed := false
+	for _, d := range declared {
+		if d.Status == "active" && !d.Retired && !d.Draft && d.TestType != "Human" {
+			needed = true
+		}
+	}
+	if !needed {
+		return
+	}
+	if _, err := evidence.Load(root); err != nil {
+		result.Notices = append(result.Notices, Notice{Path: evidence.DefaultPath, Migration: MigrationEvidenceExport, Message: "establish or regenerate repository-owned evidence export using clue-delta/clue-extract Evidence workflow and .clue/evidence/README.md; migration never fabricates references or rewrites tests: " + err.Error()})
+	}
 }

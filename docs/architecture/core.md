@@ -41,3 +41,5 @@ These are conditions on the adopting repository rather than rules a change can v
 ## Extension
 
 Adopters extend Cliewen by putting their own artifacts — including their own artifact types — into their corpus under `/docs`. The core does not enumerate what a corpus may contain; it only fixes what the thread, the merge boundary, and the judge mean. Adopter-defined types are validated against the same form rules as everything else (core frontmatter, unique IDs, resolvable links, the default status lifecycle) without needing Cliewen's permission to exist.
+
+[ADR-071](../decisions/ADR-071-framework-neutral-evidence-export.md) fixes the evidence exchange boundary: repository-owned producers attribute framework metadata, and the judge checks the canonical references and complete declared input fingerprints. Freshness is machine-checked; attribution, discovery scope and behavioral meaning retain their exporter-test and human-review proof.

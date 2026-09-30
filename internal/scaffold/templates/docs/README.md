@@ -15,7 +15,7 @@ There are two threads, and they meet only at the goal. The **intent thread** say
 ```
 VIS-001 (vision) → G-xxx (goal) → UC-xxx (use case, optional) → CAP-xxx (capability)
   → AC-xxx (acceptance criterion) → acceptance evidence
-    → classified Go/JVM/Cucumber test reference, or Human acceptance brief
+    → classified exported executable reference, or Human acceptance brief
 ```
 
 The use case is optional and links may skip it entirely; a goal reaching a capability directly is the ordinary case. The **delivery thread** says how that intent gets built, and never joins the semantic hierarchy:

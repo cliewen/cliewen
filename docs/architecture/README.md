@@ -8,6 +8,9 @@ flowchart LR
     Human --> Intent["Vision and use cases"]
     Intent --> Corpus
     Skills --> CLI[clue CLI]
+    Skills --> Producers[Repository-owned evidence producers]
+    Producers --> Evidence[".clue/evidence.yaml"]
+    Evidence --> CLI
     CLI --> Corpus[/docs corpus/]
     CLI --> State[".clue/ machine state"]
     CLI --> Allocator["Git allocator branch"]
@@ -18,7 +21,9 @@ flowchart LR
 
 **Two kinds of repository run this system, and they are not interchangeable.** This repository is Cliewen's *source*: it generates the skills and templates that an *adopter* receives, and it therefore carries rules — release process, generated-carrier parity, the shipped surface itself — that reach no adopter at all. Both kinds hold the same `docs/` shape, so the role is declared rather than inferred, in `.clue/role.yaml` ([ADR-062](../decisions/ADR-062-repository-role-is-declared-machine-state.md)). A repository with no marker is an adopter. `clue validate` applies the adopter-binding carrier rule only in the source repository, because it is the only one that ships anything.
 
-`.clue/` holds derived machine state rather than authored prose: the append-only identity ledger and the role marker. It is not a configuration layer, and nothing in it overrides a methodology rule. A team may put the ledger in Git-coordinated mode: the checked-in event log remains the lifecycle truth, while the permanent `clue/id-allocator` branch on the repository's ordinary remote serializes numeric claims through fast-forward pushes. The explicit allocation commands may use the network; `clue validate` never does ([ADR-068](../decisions/ADR-068-git-serializes-identity-claims.md)).
+`.clue/` holds derived machine state rather than authored prose: the append-only identity ledger, role marker and generated evidence snapshot. Repository-owned export configuration can accompany the evidence examples; it configures producers, never the judge's methodology rules. A team may put the ledger in Git-coordinated mode: the checked-in event log remains the lifecycle truth, while the permanent `clue/id-allocator` branch on the repository's ordinary remote serializes numeric claims through fast-forward pushes. The explicit allocation commands may use the network; `clue validate` never does ([ADR-068](../decisions/ADR-068-git-serializes-identity-claims.md)).
+
+Repository-owned exporters interpret test frameworks and bind their metadata to executables. All suites aggregate into the versioned evidence manifest; `clue validate` reads that manifest and its complete input scopes without interpreting framework syntax or starting tools. The same boundary serves coverage and migration parity. Exporter tests and human review establish attribution; fingerprints establish current inputs ([ADR-071](../decisions/ADR-071-framework-neutral-evidence-export.md)).
 
 **Two threads run through the corpus, and they meet only at the goal.** The intent thread — `VIS-001` (the vision, at `docs/vision.md`) → goal → optional `UC-xxx` use case → capability → criterion → evidence — says what the product means. The delivery thread — goal → plan → milestone → change → accepted merge — says how that meaning gets built, and never joins the semantic hierarchy. Intent links point down the composition, so a use case names the goal and capabilities it depends on and nothing names it back; `clue context` names the use cases reaching an artifact without following them ([ADR-066](../decisions/ADR-066-intent-links-point-down-and-context-names-what-points-back.md)). Both intent artifacts are optional to hold: a corpus with neither is valid, `clue init` writes a vision bootstrap only into a new repository, and `clue migrate` reports an absent vision without writing one, because nothing in a repository proves why a product exists ([ADR-065](../decisions/ADR-065-the-vision-is-a-singleton-at-a-fixed-address.md), [ADR-067](../decisions/ADR-067-a-corpus-without-a-vision-stays-valid.md)).
 

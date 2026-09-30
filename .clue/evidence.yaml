@@ -1,0 +1,3806 @@
+version: 1
+producers:
+  - id: cliewen-tests
+    framework: Go/JVM/Cucumber compatibility example
+    include:
+      - '**/*.feature'
+      - '**/*Test.java'
+      - '**/*Test.kt'
+      - '**/*Tests.java'
+      - '**/*Tests.kt'
+      - '**/*_test.go'
+      - docs/**/*.md
+      - internal/evidenceexport/**/*.go
+      - tools/export-evidence/**/*.go
+    exclude:
+      - '**/node_modules/**'
+      - .agents/**
+      - .claude/**
+      - .git/**
+      - .idea/**
+      - changes/**
+      - internal/migrate/testdata/**
+      - internal/scaffold/templates/**
+      - node_modules/**
+      - vendor/**
+    inputs:
+      - path: .review-tank-royale/bot-api/java/src/test/java/dev/robocode/tankroyale/botapi/AbstractBotTest.java
+        sha256: 5ce51cacdb0e2ba1a3d17bfcdc6783e43927d6ccec0aa6c60046c38ad08c2161
+      - path: .review-tank-royale/bot-api/java/src/test/java/dev/robocode/tankroyale/botapi/BaseBotConstructorPrecedenceTest.java
+        sha256: 4a29c4460ea56b483099170c0d1ff6a1575ab9ad7a2294a3cf6359ee18fe9b70
+      - path: .review-tank-royale/bot-api/java/src/test/java/dev/robocode/tankroyale/botapi/BaseBotConstructorTest.java
+        sha256: 7b6ae3d7207b876a9c03aab58f8a92a2c0480a010983e880d65006ee2f90ace0
+      - path: .review-tank-royale/bot-api/java/src/test/java/dev/robocode/tankroyale/botapi/BaseBotConstructorTypeParsingTest.java
+        sha256: bf610ef625a9f253717bd24265db6d603b1f6a2ec6e27342cce253c1e45eea0d
+      - path: .review-tank-royale/bot-api/java/src/test/java/dev/robocode/tankroyale/botapi/BaseBotStateTest.java
+        sha256: 31d0322154118ac99b3aec1b43386cef134ae9a199d937e07b452becbdb0999d
+      - path: .review-tank-royale/bot-api/java/src/test/java/dev/robocode/tankroyale/botapi/BotRunFirstTurnTest.java
+        sha256: 0074dfb14d29d1cd00fc40f49edf2853019287e5ca1d20087ae2d7aed4bd4b92
+      - path: .review-tank-royale/bot-api/java/src/test/java/dev/robocode/tankroyale/botapi/CommandsRadarTest.java
+        sha256: 9c4759e55b882a887b721e5cd66eb4e29f9ed3310daed83f85aa41cd7582d515
+      - path: .review-tank-royale/bot-api/java/src/test/java/dev/robocode/tankroyale/botapi/DataModelTest.java
+        sha256: 67245768b667e8c08fed6f2a4327c6e4c76f2abda9fc6f46ec5de5717e471023
+      - path: .review-tank-royale/bot-api/java/src/test/java/dev/robocode/tankroyale/botapi/MockedServerTest.java
+        sha256: 951288ae6f5cb8c6946248942105b608021f8c12e9fde3e9e53056c5e6ee1f71
+      - path: .review-tank-royale/bot-api/java/src/test/java/dev/robocode/tankroyale/botapi/ProtocolConformanceTest.java
+        sha256: d3dbc41c3df1c9fdbf7b03bde8cfd1e4a771c75db1c23df8fa37e907c44ca971
+      - path: .review-tank-royale/bot-api/java/src/test/java/dev/robocode/tankroyale/botapi/TeamMessageRealisticTest.java
+        sha256: 2c114a6ee56cb6aca48a9ef887e7dc3f213c3b0643de0b0e66c935ee63ae38e4
+      - path: .review-tank-royale/bot-api/java/src/test/java/dev/robocode/tankroyale/botapi/TeamMessageSerializationTest.java
+        sha256: 638060fdd4ceadf0ccd5584e7a3217b5a527398bbb90cfd7d32dc58614c0e93c
+      - path: .review-tank-royale/bot-api/java/src/test/java/dev/robocode/tankroyale/botapi/WonRoundEventTest.java
+        sha256: 5528ae9e599b8abadadbd26eae9f0915cb14b69f09982546b28d7e2231fed586
+      - path: .review-tank-royale/bot-api/java/src/test/java/dev/robocode/tankroyale/botapi/graphics/PointTest.java
+        sha256: 22c11a4a1696bf6e044e532d74519752cf9935f517ee27a60a9ca7825e9c8b17
+      - path: .review-tank-royale/bot-api/java/src/test/java/dev/robocode/tankroyale/botapi/graphics/SvgGraphicsTest.java
+        sha256: 658eb80876f2698631978c52f1fe06034ccaeee4a2c96c9137995eff1bc186ca
+      - path: .review-tank-royale/bot-api/java/src/test/java/dev/robocode/tankroyale/botapi/internal/EnvVarsTest.java
+        sha256: 32865a1ef5f8b2d5430873dd993af215feff0f9b35fc3302e9cb89cea180c30d
+      - path: .review-tank-royale/bot-api/java/src/test/java/dev/robocode/tankroyale/botapi/internal/EventSystemTest.java
+        sha256: fe40816604a83ed5ded19152e730baa146294e4d4d6bab5d9e01f549b059ad63
+      - path: .review-tank-royale/bot-api/java/src/test/java/dev/robocode/tankroyale/botapi/internal/RecordingPrintStreamTest.java
+        sha256: 2b818d2353214bd58bdc0fa3d6561d8ebb32eb4bfb267e68680d03ae13f9dc5b
+      - path: .review-tank-royale/bot-api/java/src/test/java/dev/robocode/tankroyale/botapi/util/CountryCodeUtilTest.java
+        sha256: 13badd2177105dfb5f3f062dc1f3712d425dbc290d3b56938adbe8165148ad52
+      - path: .review-tank-royale/bot-api/java/src/test/java/dev/robocode/tankroyale/botapi/util/JsonUtilTest.java
+        sha256: b125cf27ce48b3a8796b823d72f522500d95b348c1d671c9b803b4e50e91c997
+      - path: .review-tank-royale/bot-api/java/src/test/java/test_utils/MockedServerInitialStateTest.java
+        sha256: fcefe3d8d50f40d637fd1a7d320de082365c7410053044f49453a52a76ebd713
+      - path: .review-tank-royale/bot-api/java/src/test/java/test_utils/TestBotBuilderTest.java
+        sha256: b15eebdfd1a3562f5aac4251b72663fc1e444ce20c74e804218038b799dba3ee
+      - path: .review-tank-royale/gui/src/test/kotlin/dev/robocode/tankroyale/gui/PropertiesConsistencyTest.kt
+        sha256: d592f6e0272f5cf8823129b044bd5b3929fb835138786d9c8f0e7eb8e1de85e8
+      - path: .review-tank-royale/gui/src/test/kotlin/dev/robocode/tankroyale/gui/ansi/AnsiEditorKitResetTest.kt
+        sha256: d61017a4b04601fa3547b52e121f75e625372bfa6d0c0ffecc147c6e280ec660
+      - path: .review-tank-royale/gui/src/test/kotlin/dev/robocode/tankroyale/gui/booter/BotIdentityReaderTest.kt
+        sha256: 19d5e6f557c7262219c9f4f731e809efa364e29ce2c8b623397314465f570fbd
+      - path: .review-tank-royale/gui/src/test/kotlin/dev/robocode/tankroyale/gui/booter/BotMatcherTest.kt
+        sha256: 605d143d588d2e06d2d16f2eacb648512810caca2d7cd6f937eebdc14f27e5aa
+      - path: .review-tank-royale/gui/src/test/kotlin/dev/robocode/tankroyale/gui/settings/TankColorModeTest.kt
+        sha256: e5de182273489a22cefe7e8b793ece440524d81e67e1dc9cfbd389a4a0feb019
+      - path: .review-tank-royale/gui/src/test/kotlin/dev/robocode/tankroyale/gui/ui/arena/TankColorResolutionTest.kt
+        sha256: 98e023cfee32efd9e616fd25985009c6d15e33bf10a65cf29382d233999b8d35
+      - path: .review-tank-royale/gui/src/test/kotlin/dev/robocode/tankroyale/gui/ui/console/ConsolePanelTest.kt
+        sha256: d9ad355c605a5cc4a444af08f3793495684cd06094cd556ac9cc76b0f3c72cd1
+      - path: .review-tank-royale/gui/src/test/kotlin/dev/robocode/tankroyale/gui/util/EndpointCheckerTest.kt
+        sha256: 686656ed81ab1dde3606a2bd958b14e81ca969fa97cee1a0ba352bb08070ca64
+      - path: .review-tank-royale/gui/src/test/kotlin/dev/robocode/tankroyale/gui/util/EscapedTextDecoderTest.kt
+        sha256: b1cc2ea5cd38c4e615cbc2c051b842963cf418aa225f334b4d806448090708d1
+      - path: .review-tank-royale/gui/src/test/kotlin/dev/robocode/tankroyale/gui/util/EventTest.kt
+        sha256: d920351d6ec5bcb36dda37e5c1fc73768258e76a18c7f065d6c52bc0ce1b409f
+      - path: .review-tank-royale/lib/common/src/test/kotlin/dev/robocode/tankroyale/common/EventTest.kt
+        sha256: df4e9ba374db06cbe16aa8045fa5e9cf0695fcdb895a39ca4db32dde97139cc6
+      - path: .review-tank-royale/lib/common/src/test/kotlin/dev/robocode/tankroyale/common/recording/GameRecorderTest.kt
+        sha256: 88bfaa21b583c16ae5267edf983911783a911a65b152c6d11279b7034c86a365
+      - path: .review-tank-royale/lib/common/src/test/kotlin/dev/robocode/tankroyale/common/util/UserDataDirectoryTest.kt
+        sha256: 2fef40224487f6a163066feb5508da9e52a1cedefa60c23ebf77c8866003b552
+      - path: .review-tank-royale/lib/intent-diagnostics/src/test/kotlin/dev/robocode/tankroyale/intent/IntentDiagnosticsProxyTest.kt
+        sha256: 66868d76b279876c33c4194568becb9380e58fc68185ef9b1ae2b52475a002dd
+      - path: .review-tank-royale/lib/intent-diagnostics/src/test/kotlin/dev/robocode/tankroyale/intent/IntentStoreTest.kt
+        sha256: 849a64eff46de48c41be0e2818e43cd95399bc42542eb0c26c6bce83389db30c
+      - path: .review-tank-royale/runner/src/test/java/dev/robocode/tankroyale/runner/JavaInteropTest.java
+        sha256: 83b75a131c67135963f1e585a6297fbbc168713a313b34ad90f78a02cd0c5c15
+      - path: .review-tank-royale/runner/src/test/kotlin/dev/robocode/tankroyale/runner/BattleExceptionTest.kt
+        sha256: dc86ac8719fa91b34473f4ee7a053e5a380640e50321a2a176d7ac049cc09ef1
+      - path: .review-tank-royale/runner/src/test/kotlin/dev/robocode/tankroyale/runner/BattleResultsTest.kt
+        sha256: dd2e7df62698e970378d19525375299fa4cd18981c2e22689ce47a8d82bf7391
+      - path: .review-tank-royale/runner/src/test/kotlin/dev/robocode/tankroyale/runner/BattleRunnerIntegrationTest.kt
+        sha256: 208b3ef920f92b6ce92713778d9aa0e9e0cde89a571a787eb597a65401d75b65
+      - path: .review-tank-royale/runner/src/test/kotlin/dev/robocode/tankroyale/runner/BattleRunnerTest.kt
+        sha256: 4713be96293d124676a99ab44dd159cd4f69376e4dca5bbf24bc8450a89f1ab7
+      - path: .review-tank-royale/runner/src/test/kotlin/dev/robocode/tankroyale/runner/BattleSetupTest.kt
+        sha256: 3a5f08d1f202dbb3d12688d806d87d74104bf43d0fcc24865cce67bd040fc908
+      - path: .review-tank-royale/runner/src/test/kotlin/dev/robocode/tankroyale/runner/BootProgressTest.kt
+        sha256: af6c2cd4f3a21dd32f36628f07c51e34cd4a7702f8705695268034f8974f5b83
+      - path: .review-tank-royale/runner/src/test/kotlin/dev/robocode/tankroyale/runner/BotEntryTest.kt
+        sha256: 039b177fb6dfbfa3d3ec5a96016fe261ba39531a2060380f33c8409d5a77d5b4
+      - path: .review-tank-royale/runner/src/test/kotlin/dev/robocode/tankroyale/runner/WaitForBotsTest.kt
+        sha256: 1e30238f59cc1ee168bc56d44da8f427e90f0f0d2af48b870df97050753b713d
+      - path: .review-tank-royale/runner/src/test/kotlin/dev/robocode/tankroyale/runner/internal/BooterManagerTest.kt
+        sha256: cc3f97bd972b6f7017dd7e40b6ab5c98e2a0c8af350b19ea482dff3845bafa6d
+      - path: .review-tank-royale/runner/src/test/kotlin/dev/robocode/tankroyale/runner/internal/BotMatcherTest.kt
+        sha256: 91a97cae824e0cf2ba052494328b3a4a937bf40107e668580ba996c61a7cacbc
+      - path: .review-tank-royale/runner/src/test/kotlin/dev/robocode/tankroyale/runner/internal/ServerConnectionTest.kt
+        sha256: 2462ee45c56b4f21ac6380e78a601699999648c865923a450fa64dafc6219e58
+      - path: .review-tank-royale/runner/src/test/kotlin/dev/robocode/tankroyale/runner/internal/ServerManagerTest.kt
+        sha256: 78798b03588ddaf5b622ed6c834b48c8563e3c3240574fc945b23a9be3b2a1ec
+      - path: .review-tank-royale/server/src/test/kotlin/core/CollisionDetectorTest.kt
+        sha256: 56d7ee1e64d2214a2b16da126b18109d3c6d8c610d21126d70910fe0ac01ff3a
+      - path: .review-tank-royale/server/src/test/kotlin/core/ConnectionLifecycleTest.kt
+        sha256: 76c3fe92ce99a150279e0b7cc17ec88d93279e0e9f12d4cc118fe867d3d6ad37
+      - path: .review-tank-royale/server/src/test/kotlin/core/GameLifecycleTest.kt
+        sha256: ed6dd317e874edf603276622844f75bf376249ece20e0fe93490aff056fee8b5
+      - path: .review-tank-royale/server/src/test/kotlin/core/GunEngineTest.kt
+        sha256: fd1182f1a559df7498a7729bead4bd5af0febdc5da73aa8544c17334bee2d445
+      - path: .review-tank-royale/server/src/test/kotlin/core/TurnProcessorTest.kt
+        sha256: 466debd8f24d228cf04fa8bb54f4586b5476e306805d1f1e27f76dbce17d8021
+      - path: .review-tank-royale/server/src/test/kotlin/mapper/EventsMapperTest.kt
+        sha256: 7489a115742ead914a76e07100f9ea7b5e406d40667554a4aceb3291d8c4f245
+      - path: .review-tank-royale/server/src/test/kotlin/model/LineTest.kt
+        sha256: 52968efe41658068705a95adbeefacc15e456991dfe776c52abdea6ed5db896d
+      - path: .review-tank-royale/server/src/test/kotlin/score/GameScoringTest.kt
+        sha256: 712baf2a04d0ec9f9c3ebddf286248a5e72cd021f2e5802fb444c9688ce6108b
+      - path: .review-tank-royale/server/src/test/kotlin/score/ScoreTrackerTest.kt
+        sha256: 334fc201b04b510c3caa297f10569e735dd9f08de738968e5d00bc4848614af7
+      - path: cmd/clue/changelog_test.go
+        sha256: a0c4be31756a4380b1024c919a4e7ec6264f1f8400aedd2fc7b00d8af0693fb6
+      - path: cmd/clue/context_test.go
+        sha256: 1d12d13604b37af239551770be772c2e51d843c85a32fc589ecc64821cd1194c
+      - path: cmd/clue/contributing_test.go
+        sha256: 52dd1e3b8d9fc717f17fce43f0bd1411f472535467baac5f66afe0f693aa6b68
+      - path: cmd/clue/evidence_contract_test.go
+        sha256: 9d34dce8a5d688b4b30b8020f481ec3b7ec7a8fadf81a30b6fac64a61eb77862
+      - path: cmd/clue/init_test.go
+        sha256: 61acce05672ac81adc52733c3411f6743872a044c17483bc01fde2b167b5091d
+      - path: cmd/clue/intent_test.go
+        sha256: a24b6cea6dd2bbc0a6630bba109235cb593fd30e17845def1a930d8e4c8b1e4f
+      - path: cmd/clue/latest_test.go
+        sha256: 8777c8f6d34bd33a6d07b3229263718493f0471c6b49686d73e3e87511bb15a4
+      - path: cmd/clue/main_test.go
+        sha256: a3bb668246aa77f2926a63c4be37cc2929485acfbe2da12bda74c409be40b3ab
+      - path: cmd/clue/merge_gate_test.go
+        sha256: 5ffe7ac6d1bca448808d79a252900b8114aac38e44f3520823626b457816c9c4
+      - path: cmd/clue/next_test.go
+        sha256: 1b614f58bf8fc593536d84eef78eb664b2bdf761ec54c884e0cf7f6896f7cb90
+      - path: cmd/clue/notifier_test.go
+        sha256: 2afad91491d66bcb7a0855793cb1194b3a2bc7015fd1356a9e7622a4b3f0d0e2
+      - path: cmd/clue/plugin_test.go
+        sha256: 67696b15e2511bb9e1435f59db8255bb5e32e74cace6d3fee679bacf819bf76f
+      - path: cmd/clue/references_test.go
+        sha256: 48e379a7db2e992f730fd371c809b24388dcd8919c92d8eec3f5efb347ba15be
+      - path: cmd/clue/scaffold_test.go
+        sha256: 1ccb862433f4efd5621ddfac4e19251ca4271e9ffb2e9068dab22453643aa711
+      - path: docs/README.md
+        sha256: c3c70cc05dffb072c6efe3aa3b9d214be007dca9cb29778306758f343abffe1b
+      - path: docs/analysis/AN-002-model2diagram-extraction.md
+        sha256: 226783bf81546eb4b69ce34bc80a877db6b7db0c1bc9aa988e9ee359fcba84a0
+      - path: docs/analysis/AN-003-robocode-api-bridge-calibration.md
+        sha256: 06bb8da89bad1d386c1ae67b63b0a7d92e38eaae1633560fe8ef364ca345bc0e
+      - path: docs/analysis/AN-004-hyperfine-foreign-soil-trial.md
+        sha256: a342eea9859ef35299b92a564983867e14f54406380fee467c5e3b53063ef9d0
+      - path: docs/analysis/AN-005-es-toolkit-foreign-soil-trial.md
+        sha256: 3d4e09b2e392434a872ede10f324e691589df4f8387edd3c349e9fd829b76a99
+      - path: docs/analysis/AN-006-plain-change-overhead.md
+        sha256: 672ad9e0fbc96b251532d68fef6a02dcf03a3bdff9b6caa37086231a166beb95
+      - path: docs/analysis/AN-007-review-handoff-gap.md
+        sha256: c6fea5ae9317b9cb73d0b20a3caca915084409448b2a54f61f693170753ab1db
+      - path: docs/analysis/AN-008-methodology-critiques.md
+        sha256: f4dacfabe959dd86806aa8e26b9c271e6b44f74077b310e5f91ceb7092d199fd
+      - path: docs/analysis/AN-009-multi-agent-pr-handoff.md
+        sha256: a69d93d262621a77fa90f44cff4ffe6606a98e724fd8afdbeafa1fdc7c4f4024
+      - path: docs/analysis/AN-010-adopter-change-overhead.md
+        sha256: f9445db499742f99e8a00789ceb49e5d3f0f44ecb28c39f9c4947a791536fccf
+      - path: docs/analysis/AN-011-methodology-self-consistency.md
+        sha256: e55bc093e8ac31bd2317ce5e7af967684d2aede033b4300f0856cc460f5ed707
+      - path: docs/analysis/AN-012-adopter-configuration-cost.md
+        sha256: 378bad24913e10aff97599c32d0eeebb4b64ad1e3fcda1157c6f2e3342d8628f
+      - path: docs/analysis/AN-013-distributed-work-and-evidence-boundaries.md
+        sha256: ab7844db39c4c6d49728ef74c6460bfc8ea61c6a7df818242d514634ccc4eb01
+      - path: docs/analysis/AN-014-confidential-migration-assessment.md
+        sha256: 0df5bc3f485f83209a3261863093b1d5f59af0baad18ced80174ddf7a1177c7c
+      - path: docs/analysis/AN-017-sanitized-migration-assessment-gate-register.md
+        sha256: bf6e1a607b4996f07c1abdf8942294126357aec060ffc831840eeb971edfb66b
+      - path: docs/analysis/AN-018-skill-statement-register.md
+        sha256: 52c2508c212b9ec33b236672c70fc0e047c456e65e1b656d3d6424e9a18e9b33
+      - path: docs/analysis/AN-022-remaining-surface-scored.md
+        sha256: dd839758ed9021424bf5c5440923f651e890641017a3e3c0a5308bbcf87b969d
+      - path: docs/analysis/AN-023-read-cost-backlog-inspection.md
+        sha256: 764b256245bd86cd147a0709ebd11270b28cf301d42c64b10c3bc992810f513d
+      - path: docs/analysis/AN-024-methodology-review-acceptance-and-learning.md
+        sha256: 4b9133330e35cdf8020bbc3496537d5744d07d0c364b39412c6203fee0b31f71
+      - path: docs/analysis/AN-025-unenforced-integration-boundary.md
+        sha256: 612b0355719461b75cd2fea6153405d65f0200b2e2d3e123ce4141045f0fcf57
+      - path: docs/analysis/AN-026-trialling-the-challenge-rule.md
+        sha256: 08454826d07ff68b8caa08a4a7f3fe8d803ed05052f1f73c1d86bfc4ebbc8006
+      - path: docs/analysis/AN-027-baseline-observation-first-period.md
+        sha256: 51da2cec8c0793c15cd4878a1a8c2959696d4204b5ab9ee664fa8b289038fd85
+      - path: docs/analysis/README.md
+        sha256: 2c3033f7d81baf7e44228cdcad2b3467528402a2fe30e61e1197457084688fb2
+      - path: docs/architecture/README.md
+        sha256: bf990118de9ec127db457db955ede91b43ddb9de762d37a7cb006c2eab2504df
+      - path: docs/architecture/architecture.md
+        sha256: 085a4518d8392905c2904bb864f0a06bcbe2abcb1117a9b7e4f4ceee0eb9d92a
+      - path: docs/architecture/core.md
+        sha256: b66e3faa2d996c5264121df086ec75c9f006b277558ffa96c6e67012be910632
+      - path: docs/architecture/skills.md
+        sha256: f5898c177437ff25e932403b6106777c162c6138acb554352ce46b6b89fbef87
+      - path: docs/capabilities/CAP-001-onboarding/README.md
+        sha256: 2e915d378e0e1ca566897bee8106ec3a4fe98ee30ca2998ae68dd8d06e519c9d
+      - path: docs/capabilities/CAP-001-onboarding/criteria.md
+        sha256: fb57d046a960c47b4dcaa179d0b45ac417dd4eff4e9a96fec3dc5fdfb02cc104
+      - path: docs/capabilities/CAP-001-onboarding/design.md
+        sha256: b0cb9520822dc342bc19cb68482afd1b4a412cf057a27f60d210fce04c0c17d1
+      - path: docs/capabilities/CAP-002-validate/README.md
+        sha256: 50348ffdc759b680202821c21de23f4a6f170a55b45bf2eba603aaec19813004
+      - path: docs/capabilities/CAP-002-validate/criteria.md
+        sha256: 585571d6d314d4dbbf28145d86660cf84a0826f52543c29f700b4bd58f03511c
+      - path: docs/capabilities/CAP-002-validate/design.md
+        sha256: 61268c1dfe879be1c8e3f607645517973b07d8a164a8a4d38a7fa69e717c15dc
+      - path: docs/capabilities/CAP-003-extract/README.md
+        sha256: 57d56ceaa63eb02422e9cad0d2c00423e124d3b40e3d29b2630290291c282b97
+      - path: docs/capabilities/CAP-003-extract/criteria.md
+        sha256: 304eddeedfb8de53d8de0643ec4e737811211be73da45fc6265c3d8e518462c8
+      - path: docs/capabilities/CAP-003-extract/design.md
+        sha256: 988ec1cb0c964e5313224e7fad3eb3cfd6010c8f0abded37663896a686e1e281
+      - path: docs/capabilities/CAP-004-ship/README.md
+        sha256: f2204571f3e664730a8b6f772770edcbe9fd3f4516d257f956e113e273e14f89
+      - path: docs/capabilities/CAP-004-ship/criteria.md
+        sha256: 546c955e079bee2a2156a2f2a6d70bf4395a9d9338441923be4a7aaf2592a7b3
+      - path: docs/capabilities/CAP-004-ship/design.md
+        sha256: 17ad185070ba5d8151a89d20bc857927a2f65a75e8612ab8a3cd554a458ff32e
+      - path: docs/capabilities/CAP-005-indexes/README.md
+        sha256: 3c975c18b8ec0d49c4026754db8d25c86260c5e97ee0d82b8b27b7ee2435b437
+      - path: docs/capabilities/CAP-005-indexes/criteria.md
+        sha256: 5cf2fdb38d8453c105e836eda571f7bdedbf2ff12400e00b11d168c290a9c761
+      - path: docs/capabilities/CAP-005-indexes/design.md
+        sha256: c7a0c0b79b2f5b6242a15dffe825d50c23b1aa4a983b343e727dfea0c48f5a51
+      - path: docs/capabilities/CAP-006-collaborative-handoffs/README.md
+        sha256: c3c0b055661271b7672facf3504c1f7be283958266f329815850d7a1505fff76
+      - path: docs/capabilities/CAP-006-collaborative-handoffs/criteria.md
+        sha256: ac8ff31b79173a999e7dc1fd65a90567132871fa9b48f4e128140ef387bd715f
+      - path: docs/capabilities/CAP-006-collaborative-handoffs/design.md
+        sha256: fea438341bcc6e2a430d5459743c09c80a4fac347a9a9353fc751bba95aa2ac7
+      - path: docs/capabilities/CAP-007-focused-context/README.md
+        sha256: 7580a43131197197076bfcbf6101ec04bdb88deae6ac11664fb0ce1048bed638
+      - path: docs/capabilities/CAP-007-focused-context/criteria.md
+        sha256: 54c78ff6e2436b145123155ef271a3738dbd2c4b9d856ea4d2af7fcdb9ddffc6
+      - path: docs/capabilities/CAP-007-focused-context/design.md
+        sha256: d31d2cc91a8f3ecadbe8133f27795b7f6f6104942051007c410e086375d25d78
+      - path: docs/capabilities/CAP-008-local-verification/README.md
+        sha256: 195192824e025b56d7a388c32714264b3eb3d75c189f82052db1d6bacecf35ce
+      - path: docs/capabilities/CAP-008-local-verification/criteria.md
+        sha256: 573c8adea6b2533a70ff621500a4bd989f3da4f87e741737da7bfe5ff064bd88
+      - path: docs/capabilities/CAP-008-local-verification/design.md
+        sha256: cf531d328d53a2d445a35ad6459e474916d09f1606b62777474620a308fd8e50
+      - path: docs/capabilities/CAP-009-product-intent/README.md
+        sha256: 7a12b10d57290b6f7047aeef16b3f29ddfed180e91aca3b6fce1c2abc8a9fcde
+      - path: docs/capabilities/CAP-009-product-intent/criteria.md
+        sha256: bc596fc33ba34b95d4d7dc1e34d18f8a5e25a79b4298daed5098a4c57acfc4fc
+      - path: docs/capabilities/CAP-009-product-intent/design.md
+        sha256: 621ea47322ced16ebd028f6d52ca6da736d60f9d3349e32e49d67fc3507d2c1d
+      - path: docs/capabilities/CAP-010-team-safe-identity-allocation/README.md
+        sha256: b818398ec8d15cf412f24bb0e4690198a527ba9ffca08a4853fbacf7263db0ab
+      - path: docs/capabilities/CAP-010-team-safe-identity-allocation/criteria.md
+        sha256: ca1f97c5f156b42f0e380f12e5bc73befd4515967eebe3a5528a1311affae607
+      - path: docs/capabilities/CAP-010-team-safe-identity-allocation/design.md
+        sha256: 83df1273710ce2fb8f7f7b3502cff505cc0453355240ec13888f3fe55d21ed49
+      - path: docs/capabilities/README.md
+        sha256: 5aeb8db2fd2b7e4f7b9b954ea1024488056acc1678d22576c8e6392bc30a4328
+      - path: docs/constraints/C-001-no-hard-wrapped-markdown.md
+        sha256: 53230e8e85ba1da725a5b862162b4fa33a3f3ff801966d9fc0350395aa87de93
+      - path: docs/constraints/C-002-changelog-per-user-visible-change.md
+        sha256: 99a4fdc9b1434edb0f486e4780726acd22799661204ff6c59a2e9a2f32a3e0aa
+      - path: docs/constraints/C-003-skipped-tasks-carry-reasons.md
+        sha256: a7f1a4395f780ee035e78b896bab4f76394f9b4328d25f839bef12bb961c97cd
+      - path: docs/constraints/C-004-never-weaken-checks.md
+        sha256: dc4384792d51e6a421598c1631908e6ecb040fb0b1b63ea606227ba5b03c1779
+      - path: docs/constraints/C-005-proposal-declares-plan-item.md
+        sha256: 4a8bf01f1510fed752fc3466da67ef417d81141eefa3a919367425dc0569f71a
+      - path: docs/constraints/C-006-adrs-timeless-with-carrier.md
+        sha256: 8189f4ce7bf37b8267724285e5a56f2b82824d0711a18f2b3819791e4d9b924b
+      - path: docs/constraints/C-007-diagrams-inline-mermaid.md
+        sha256: a5c49c320bbed94468e851394a687e68459693b5d0d7992a4398c0f533f41989
+      - path: docs/constraints/C-008-completed-plans-immutable.md
+        sha256: 32d2232a2e75fc9660e0f223abc13001c0b438766d967ae94e742548a9b5fa72
+      - path: docs/constraints/C-009-type-specific-frontmatter.md
+        sha256: 7ac20e018c90b61b7b44f29eb2ee93f5f00c44cbac44d5c813b1764dc103121d
+      - path: docs/constraints/C-010-milestone-status-vocabulary.md
+        sha256: d9ed40f170fd3020f387c2858f29a555eebb924c38abbfe269744550b5116cec
+      - path: docs/constraints/C-011-decision-records-typed.md
+        sha256: 1d355179ffb9813fab8bcc1985b67c3534bb1828386bd8aabe55e156e16eb73b
+      - path: docs/constraints/C-012-agents-never-merge-own-changes.md
+        sha256: 2e036f061ae4d62c80f1b8ca10a118cd3a9e277f62c05b9c3d890675fdfea659
+      - path: docs/constraints/C-013-core-changes-need-decision.md
+        sha256: 881ebac1126ae8a2c37a0ce5b1edebd179334ab251e667971aac244e1b504d30
+      - path: docs/constraints/C-014-coverage-floor.md
+        sha256: 03b016708086ca18ba09d675d5d8f87733a68ddd5aca864f5756f100b4d75e07
+      - path: docs/constraints/C-015-onboarding-under-30-minutes.md
+        sha256: 0d815276c00233225962c22b6f43a95456f93d0d5f2964ccf3122058d5a32514
+      - path: docs/constraints/C-016-index-rows-state-their-record.md
+        sha256: 1e90476cbce5909f02a23cb4e8a383607344de74f6398326aa4ce5fe23bb44e4
+      - path: docs/constraints/C-017-agentic-review-loop-is-bounded.md
+        sha256: 3777cc944ec01d9c4ab49a4919c2fc3a46dd6609e8ce93ab8e9a67552a37207f
+      - path: docs/constraints/C-018-no-computed-figures-in-prose.md
+        sha256: 1e58d426bae280a2548be5aef6eda0b79f82816e36aa49715b925b763ac91bad
+      - path: docs/constraints/C-019-references-name-what-they-are-about.md
+        sha256: ead1376c1b042f2d44d43a7b8cdaa3d0c7d93fa43b515fed64de906a8f7911ff
+      - path: docs/constraints/C-020-orient-after-merge.md
+        sha256: 3dbb430998aa4ba8c72094eb4593025272c77e01a555f8a1ce4c8e45a02ed07d
+      - path: docs/constraints/C-021-mid-change-suggestions-are-triaged.md
+        sha256: 74bbd765bf8eef9ada12fe46d2b174e505bb6249ce77cac200ddcf1ce586267a
+      - path: docs/constraints/C-022-one-primary-consumer-per-file.md
+        sha256: c56ce327038ddf4e3d6c35f66c493a9ff7321542ca2f5cfdf9c8184197bf456e
+      - path: docs/constraints/C-023-full-work-discloses-its-vision.md
+        sha256: c1165c533ce945963f233ee8569740154c899070cef2c0376da2c47c6b0b8e85
+      - path: docs/constraints/README.md
+        sha256: e5cd9da63164053143802a62c0fdf54e0db6b7cf7f5dd86386f9ced3993d69f2
+      - path: docs/decisions/ADR-001-implementation-language.md
+        sha256: c9c3b73e6fa06a6a805b405b7c8cf2c3bbd23bbdee8ac3a5ba8825a4c6afaefa
+      - path: docs/decisions/ADR-002-inbox-is-proposed-goals.md
+        sha256: 563966daa90491276793026c40bc0d1dd9308da8aac6fba4428f24217fb64c4f
+      - path: docs/decisions/ADR-005-test-reference-convention.md
+        sha256: 1563b201cf71cdf97e0368789681c5feaece17a2e49eb250da7cc15e2dc9f41c
+      - path: docs/decisions/ADR-006-test-purpose-taxonomy.md
+        sha256: f5614206fd31beb5ddf08aa6f81f092b116e0a9673d4849653eadd463e7e4845
+      - path: docs/decisions/ADR-007-ac-lifecycle.md
+        sha256: fa7e46ecab8b0b3b134c77240b670b2ea8c48ad4ff4a47a3769286ad48f738fc
+      - path: docs/decisions/ADR-008-extraction-is-a-skill.md
+        sha256: b31dede5e4e6ed81207df2e12a12340640699d7050ae0b32ec0c9ede54f17666
+      - path: docs/decisions/ADR-009-ac-id-namespaces.md
+        sha256: ceb0663001fdbde5f5a700f1adad4bb6b51b87d9374daec7e84af9a70a0d791f
+      - path: docs/decisions/ADR-010-provenance-field.md
+        sha256: f0116871b0ddd4c26ed7dc7a3528e6e51bc6589bee26da596a31a3ca0b646058
+      - path: docs/decisions/ADR-011-version-stamping.md
+        sha256: 7e7a59cf5c1b0367e385058d6ace03e85e4a371085086eb3f78d24d8bdb507c6
+      - path: docs/decisions/ADR-012-release-notes-from-changelog.md
+        sha256: 70eee5cba2fccdb749b8aebb0a624ea1aae7bc13d7e45144a799d3691f18896a
+      - path: docs/decisions/ADR-013-ships-generic-vs-repo-local.md
+        sha256: bb6425abcc6c8fe005a6f3589f9c5a675ca00614b5358f8e59b958d58ecccb31
+      - path: docs/decisions/ADR-017-conventions-are-constraints.md
+        sha256: 5b4b7f45b695e5591a199af2a71f3d7eb5140077998e12ce7e71df96c4fe62db
+      - path: docs/decisions/ADR-018-init-templates-embedded.md
+        sha256: a7cd4f03dbaa818ce5a3ee9d2f39a0f5c5356165e5a74769dd42417ec1099328
+      - path: docs/decisions/ADR-019-init-regenerates-indexes.md
+        sha256: f8300db492346fb90f035b6f90a4bc901ed40a26cedb35d38b9d2f9bfd9b227a
+      - path: docs/decisions/ADR-020-scaffolded-register-scope.md
+        sha256: 2ca05311cc5613c285d4515e00bbe6b94af6623637c3f0c9803579d2e919aa58
+      - path: docs/decisions/ADR-021-generated-standalone-skills.md
+        sha256: 072a1f21db71759abc0bc7651ab8c53b9b901d261a102f7c327794919941f6c8
+      - path: docs/decisions/ADR-022-skill-ownership-marker.md
+        sha256: 79308baa44466d031ce365df16931e63721943abd447f2049db932861ab1776f
+      - path: docs/decisions/ADR-023-public-guide-architecture.md
+        sha256: 6e45e34de513bcc1e129a063bbacbba1b77ba3f73aaaa30025d65413bd1ef637
+      - path: docs/decisions/ADR-024-custom-domain-root.md
+        sha256: b40394f16c4f94686d88ff08b6301f0dccbb9608bdaf7d3a37f6a26f8e8ea92f
+      - path: docs/decisions/ADR-025-one-status-lifecycle.md
+        sha256: 6da4456a1085bcab9f2a011211d2af62d60a65903ee4c3990a4282998f42f757
+      - path: docs/decisions/ADR-026-adopter-types-default-lifecycle.md
+        sha256: 848655fef40840c05798bcef458ddc8d56e0aa04364d5e35e922090ef1b3cc55
+      - path: docs/decisions/ADR-027-quality-scenarios-are-constraints.md
+        sha256: bf1a08995b71e6a0271dabf9b655dc127cd8b12ce6f73dcc012584308e9b4818
+      - path: docs/decisions/ADR-028-deterministic-skill-manifest.md
+        sha256: df1109bbf3761a61473923a6565e2cb9847972e32c4bac7051a752541135569d
+      - path: docs/decisions/ADR-029-accepted-by-is-cliewen-approval-only.md
+        sha256: bf1781c56ab7fb8cdb64c105c7968c8fffa51083a540b686f931b98a9c822ed0
+      - path: docs/decisions/ADR-030-verified-install-scripts.md
+        sha256: 72b8ba65910b65762d6d88c9dd0025a87e388eabcb24a6103f9a3e7694a37206
+      - path: docs/decisions/ADR-031-plugin-ships-a-bootstrap-only.md
+        sha256: ad21c56bf3df456595e12b405ae395210727c1dc76bafc3cc1bc8f49a6e322c4
+      - path: docs/decisions/ADR-032-classified-ac-evidence.md
+        sha256: 46ae3dc67bc618bfeecfa4f15be04dfb19b1fc9e09cc457aff2e461ec68f076a
+      - path: docs/decisions/ADR-033-human-proof-and-draft-criteria.md
+        sha256: 4048d2cfb7a0a2ebed368c7e41cec175f01fd3015ce035b9c6fb559c9025d8b5
+      - path: docs/decisions/ADR-034-retirement-is-deletion.md
+        sha256: 9b7dba04c42daf0b006d472ed9af761a12d6748362722862b8dcd299f84c3c0f
+      - path: docs/decisions/ADR-035-bounded-provenance-and-reality-edges.md
+        sha256: 4b4822c76fd79a4a0f0fd09a73bb481399561404f98ee2d0639d8380ad52653b
+      - path: docs/decisions/ADR-036-jvm-evidence-per-executable.md
+        sha256: 59b3c407b5e1d182fb206fd6557265a809c8b479bbc44ba4a72397b43e19c5dc
+      - path: docs/decisions/ADR-037-brownfield-ac-id-grammar.md
+        sha256: 4cb454d2a896d3cef4c892f9ba8e7494fc245101e61e26aa482ba0121e8524a5
+      - path: docs/decisions/ADR-038-upstream-validation-workflow.md
+        sha256: 55fd6158279fe1c01860288792ad0d366393e1caefb1b9d9963101c93b2a74bc
+      - path: docs/decisions/ADR-039-versioned-corpus-migrations.md
+        sha256: bd8705b50d99c4d27895a87d82a7bf2d4b0bf7151b0d3f8be028e2c6d97a6132
+      - path: docs/decisions/ADR-040-qualified-external-references.md
+        sha256: 6b01f06bf7bd4b9704d894c01088915ba8db16f4643fa635fb95dd3c39755ffb
+      - path: docs/decisions/ADR-041-index-rows-state-their-record.md
+        sha256: af5c98aece89ace9dc3ac7dc80187896d17e5073634e5150cad7b2db6d582f76
+      - path: docs/decisions/ADR-042-release-check-outside-the-judge.md
+        sha256: b5fa4fddffe52195a4e5ef44a1bda9cbfefae324b8c536134e72578773736fca
+      - path: docs/decisions/ADR-043-upgrade-skill-is-a-managed-carrier.md
+        sha256: 592f3a70c79bcf1d21aa924efed336e270488a562bbaf896fe475f6727cf8918
+      - path: docs/decisions/ADR-044-judge-reads-state-not-transitions.md
+        sha256: e784912546cd8a1cc1cfaf45bb7ab8ef5ccc5b3ce1dc15d60781100b2f33c113
+      - path: docs/decisions/ADR-045-register-names-the-machine.md
+        sha256: a3b98c30ebc4016d5cea2d504ca2dd2f8edad493e3ca661e17233c66e3fd2698
+      - path: docs/decisions/ADR-046-index-rows-say-what-the-artifact-is-about.md
+        sha256: 49a48151c0ffc78aa3231e6629accbca7296a9b2091afd43095ac35bd36e2a2a
+      - path: docs/decisions/ADR-047-diagram-representation-preserves-links.md
+        sha256: 4a2f3a3309ad75de0c36eed4d06c9c52a67d3304e51ff101922041e354c529a7
+      - path: docs/decisions/ADR-048-corpus-wide-id-ledger.md
+        sha256: 6f8746f5b456d988928c4a243932bc2b1398ada05e7613b5beff52478baa8dc0
+      - path: docs/decisions/ADR-049-migration-parity-manifests.md
+        sha256: da8d679a116be448c7e3b25cd7d2dfe4e5612d3681f95d3a9b610beb939171d9
+      - path: docs/decisions/ADR-050-imported-change-records.md
+        sha256: 00e0473bcf33c6680543fa8d7f6cbf73699713d9aa58e1145447b39dbfea7f27
+      - path: docs/decisions/ADR-051-carrier-reconciliation-manifests.md
+        sha256: 9215e60fe8578f708395a438900915592fe473efaa0270f20db7c626b99e9bfa
+      - path: docs/decisions/ADR-052-missing-optional-carriers-do-not-block-safe-migrations.md
+        sha256: 1134187653e98915b64c93a568e0ec2048eb171c663abf39074c4b1a9b73af0e
+      - path: docs/decisions/ADR-053-deferred-parity-dispositions-are-accountable.md
+        sha256: 5217e2b61a2c500e268e1c8d453f8b9cd5b706d3661f37ec13f9d724ab507bf1
+      - path: docs/decisions/ADR-054-derived-extraction-report-region.md
+        sha256: 1ec9f912ee2504c5d4f7d0810db3e83fdf3665df95ec6f7be0ef31ee4e765b7c
+      - path: docs/decisions/ADR-055-surviving-supersession-stays-prose.md
+        sha256: 474d480b4fbe036d30e9d1e7ae000566529ec944c2996c41c6da047714b90b98
+      - path: docs/decisions/ADR-056-bounded-context-slice.md
+        sha256: f7cb56479e44dfafaa06373418f4d81c4645f959fdc8e2a08349057cf1a15298
+      - path: docs/decisions/ADR-057-read-cost-measurements.md
+        sha256: 7269ecc8a106217123068089561e24c6ffd9fe843a1775cfbab389b507f6f8d8
+      - path: docs/decisions/ADR-058-read-cost-is-a-backlog-not-a-target.md
+        sha256: bccf6f7efdeab1eeae35053f0035dc9195c3975ab481ecb25418d94051325cce
+      - path: docs/decisions/ADR-059-progressive-standalone-skill-directories.md
+        sha256: 03a4c1452df3a5f4aaacaa983a62a71f8a59f585c9a272f85316c7fbb0ff93f5
+      - path: docs/decisions/ADR-060-migration-materializes-a-missing-caller.md
+        sha256: c17d647107577c32d14eff818d9e00931474f8ab59d86e0fd80e0ea372f37b55
+      - path: docs/decisions/ADR-061-no-general-external-coordination-interface.md
+        sha256: e687a2ba3864fedb45c0962fc997efaebdca5785b468273da6731c1ab8b431a6
+      - path: docs/decisions/ADR-062-repository-role-is-declared-machine-state.md
+        sha256: 011ced24d507dea0f9d8144b1605c4ffa5fe035d6b78ab13311e44e48de6d6e6
+      - path: docs/decisions/ADR-063-a-frozen-plan-links-are-historical.md
+        sha256: 165972eef720c8f45656fdf7d86c1e500d46e8ac226fc7cce9fd30dc10a45fff
+      - path: docs/decisions/ADR-064-regeneration-owns-the-index-badge.md
+        sha256: 799fc6c3f1898f7507761fe59bd59e36c33cdbc0a95c789efb7ca2ec9b78589f
+      - path: docs/decisions/ADR-065-the-vision-is-a-singleton-at-a-fixed-address.md
+        sha256: a4298b222cec87c5c4ddc8a8d49eb86b21730ba01054ca8e57cab60507298243
+      - path: docs/decisions/ADR-066-intent-links-point-down-and-context-names-what-points-back.md
+        sha256: 84ab7761d27e884cb7f4baffaa92f778de6f932e83f35114a93ba40ebfb0307f
+      - path: docs/decisions/ADR-067-a-corpus-without-a-vision-stays-valid.md
+        sha256: 13c3e104eef0dbe7fa93e9d55e43ca2c7d65afe35b8e81aeae6cf3fe92af3259
+      - path: docs/decisions/ADR-068-git-serializes-identity-claims.md
+        sha256: 15e1d82f19143f5e35ae16434d2dcfb3d2201a4b6fc6d4656ee7a0dcf59df879
+      - path: docs/decisions/ADR-069-a-combined-ledger-is-recoverable.md
+        sha256: 6c979a825612c188abd1317451beec45aa66b80fcc864a7989afe38fba512a32
+      - path: docs/decisions/ADR-071-framework-neutral-evidence-export.md
+        sha256: 3e411e77ca4c763747796d62796976bab1cb9157a71a8a96aad5d82c31e8d723
+      - path: docs/decisions/IDR-001-constraint-index-badges-use-enforcement.md
+        sha256: 6164d71ec80e892d0d641c7a0e7d509e38d43cdcb5ecc20e944b69a0b39a241b
+      - path: docs/decisions/IDR-002-managed-skill-roster-is-reported-not-imposed.md
+        sha256: 287ede3342c739ffac502b87f30744a1dcea769aae1724adc1d15ccc05811f6b
+      - path: docs/decisions/IDR-003-release-list-nonanswers-are-cached-briefly.md
+        sha256: db4b60388041ded7ee58b5952ddba96b3a65cfe313075ef0457defc1af62670e
+      - path: docs/decisions/IDR-004-release-verification-reuses-shipped-mechanisms.md
+        sha256: 9e18d8af4a50f7ef0e23a761a57ecd70cb1ff58cbca424400878a384d07ebfe8
+      - path: docs/decisions/IDR-005-madr-conversion-preserves-meaning-deterministically.md
+        sha256: ec04c7d21407ef62ba7affd0728490f75610567e37e61859c96914da6b39d855
+      - path: docs/decisions/IDR-006-init-never-writes-through-linked-directories.md
+        sha256: 79d786f64299107bf923eaa1f36687a76fcae40bb2ef2229cc316a906de5df11
+      - path: docs/decisions/IDR-007-frontmatter-parsing-is-yaml-and-rejects-hidden-duplicates.md
+        sha256: 81b692aafed7a90fb0f625becbeb00f37783a4377cb00ca2dcad080763d23821
+      - path: docs/decisions/IDR-008-go-coverage-is-an-aggregate-tripwire.md
+        sha256: 85571951687474618495fc9c1b8119ad4968fcf991f4f26eee6c773db0d0442e
+      - path: docs/decisions/PDR-001-pr-approval-promotes-adrs.md
+        sha256: 87d95d62e0faf7b3020814feacf2a949118d106dd8c3f394e125c48696e00010
+      - path: docs/decisions/PDR-002-light-change-tier.md
+        sha256: fbd0fbd045829cbaa4d07c43bebf5144992f98fa1b8efef2f4ec45e3be66e747
+      - path: docs/decisions/PDR-003-decision-log.md
+        sha256: ef3bdc0a7d655cd33e5ea37da717fb9810f93fb44fcc0056cf2e2a43703868ca
+      - path: docs/decisions/PDR-004-merge-binds-approval-signs.md
+        sha256: b753e24f497a3fa0c192150d5cf98b67a9ecf6a212067df6f270daa84c21a163
+      - path: docs/decisions/PDR-005-foreign-soil-trials.md
+        sha256: 1a2a2aab85723797d6018923b902539d0026acdbaa12ae738924d46b0f3da29f
+      - path: docs/decisions/PDR-006-decision-records-are-typed.md
+        sha256: 99843f2cc9dcaa6bc2a69fd06bb500450fad0aadee0a871febe3fdd5dddfa422
+      - path: docs/decisions/PDR-007-review-boundary.md
+        sha256: b4684f958871b1566e4b667318287c468f40748656f1f14a136545be6bec53b8
+      - path: docs/decisions/PDR-008-plan-revisions-may-ride.md
+        sha256: 43465c6db6189c9747a3d3a16752f174d77b127eadf465715960ff5332661dd6
+      - path: docs/decisions/PDR-009-going-public.md
+        sha256: 46d365e85e1d85d6388a7865a23744456804dddfd6b811ab379f7bd063e8106f
+      - path: docs/decisions/PDR-010-community-participation.md
+        sha256: 1da3d178362503cb224aa2e068a563f42fbeefc89246bf6b10b0960bc091cba1
+      - path: docs/decisions/PDR-011-plain-changes-bypass-cliewen.md
+        sha256: e893f988eb246577675b426999a4dc3c6a34bf2fbc3ef407ce39267dc15c000b
+      - path: docs/decisions/PDR-012-agentic-review-before-publication.md
+        sha256: 27296f60db529dd6d61b9d3b33c978af58216f15f4a1c57aaf585ef1aca71040
+      - path: docs/decisions/PDR-013-explicit-core-red-line.md
+        sha256: 2e75beb09065ef57bbb48d55d76a9b94bf10d9b905b8c69ff46510e23a76cdf3
+      - path: docs/decisions/PDR-014-distribution-reopens-on-the-active-campaign.md
+        sha256: ab778712ce773449377888e65663279da4bd59cd1b7e2216a5ce5795e69869cf
+      - path: docs/decisions/PDR-015-merging-cuts-the-release.md
+        sha256: d1af71bfbf0895d9d53a6bfcf3db2279f3e4ddc3a053d1d6c4289b5a076a066d
+      - path: docs/decisions/PDR-016-pr-state-carries-agent-handoffs.md
+        sha256: e282cfccd27f7f8697c75c2ff29f35410739e69da58c878010e967c3db09c1ac
+      - path: docs/decisions/PDR-017-merge-gate-has-content.md
+        sha256: 9cbe13d2e6bff34c82f57f64250e1a69ba6bc5e76d20d74dc04cd466d7ec531c
+      - path: docs/decisions/PDR-018-behavior-changes-remain-full.md
+        sha256: 76188d9e21c9af3c5ed8e36509568f5a76b20706ef7b2ed9abb37f8ea82b01b8
+      - path: docs/decisions/PDR-019-methodology-contract-carriers-move-together.md
+        sha256: 3a59a20c161d25469d4934873e529281d3062e4cc9adf5dc0c93737827ce8839
+      - path: docs/decisions/PDR-020-extraction-rehearsal-before-mutation.md
+        sha256: 65f58eb3511b248260c63fec6f0094dffe6fa6f1ffee974f3fe1c51c730a0223
+      - path: docs/decisions/PDR-021-supported-merge-commit-history.md
+        sha256: db39466fdf008a085630c4bc16f6787e82cb3d23f905ad08bb264f64693ca948
+      - path: docs/decisions/PDR-022-vendor-entry-points-only-point.md
+        sha256: 55a185ed671d4f7ad1be904161ba3bdb8820f7c1760a252f0b8dbb87dba2f1f6
+      - path: docs/decisions/PDR-023-tool-notice-and-hub-instruction.md
+        sha256: 900b86c3f7e0e5f135a5ce9412ede1fc03f37eab22e8366459196c9f5e88b0c8
+      - path: docs/decisions/PDR-024-extraction-never-silently-discards-evidence.md
+        sha256: c67ffe8edcb1016d3677649efc43aa26665aacc5bed39153122f27a8fd8ff599
+      - path: docs/decisions/PDR-025-brownfield-migration-precedes-simplification.md
+        sha256: b518d9675c7337f01f972242f406a7805fcde4db8c542ba3f4d80a687edd50ba
+      - path: docs/decisions/PDR-026-campaigns-close-on-re-derived-evidence.md
+        sha256: 2cb94960b8ab692ee3f0522b52670f5bfef91db19f9c7ccbfeced1b91238fccb
+      - path: docs/decisions/PDR-027-branch-protection-enforces-admission-not-acceptance-evidence.md
+        sha256: e323af05874861e7a73916f0e6d1f10376a46ade8757c5aaf1eecdd2c98df691
+      - path: docs/decisions/PDR-028-derived-report-is-not-a-committed-registry.md
+        sha256: 6d672d20249980cb5c79cb986823eed03eaff20a5e8ef200964805e15f7bece2
+      - path: docs/decisions/PDR-029-simplification-tests-by-surface.md
+        sha256: 0cb504731ca3a57e194ce4854e392051d44f9202ec539618074e5092787dcfcc
+      - path: docs/decisions/PDR-030-analysis-is-a-bounded-spike.md
+        sha256: f3716ed3de5c98b31d662e75c816c238e71c7108478e31e704831f611344f3c1
+      - path: docs/decisions/PDR-031-architecture-artifacts-are-traces.md
+        sha256: 7a3e86b94199fe0894d8cf24c3b880491096337e736f2b7d33ba6a21bbbb1c3c
+      - path: docs/decisions/PDR-032-mid-change-suggestions-are-triaged.md
+        sha256: 4e347a8f0b3dad680ac38fee169e559f696b301c4336fb08c900e0124f69b6d6
+      - path: docs/decisions/PDR-033-planning-and-implementation-are-separate-steps.md
+        sha256: 8038a087af4ba052fc7251000998c77bfa3347078c307d03f6316e7f0b0cdd78
+      - path: docs/decisions/PDR-034-the-corpus-is-read-narrowly-by-default.md
+        sha256: 59a666ebbefbf7eac69495cdef1cf8fb2ef43f1d706e11c14daaf296689f4aaa
+      - path: docs/decisions/PDR-035-bounded-agentic-review-loop.md
+        sha256: 3667e1efda1cdddf5969c09c4a848dee42b442ed04ed79a2d5e0c7ff346df026
+      - path: docs/decisions/PDR-036-review-loop-budget-and-human-checkpoint.md
+        sha256: 2dc1ec1add9cb301379476bdc00e986a195c1e0d435cc880537120ef0194e4cc
+      - path: docs/decisions/PDR-037-tooling-is-judged-by-what-it-holds.md
+        sha256: 748b7f4105408cef4a1028971b47541322a5589cac912ac6fffc483d0b306acd
+      - path: docs/decisions/PDR-038-supersession-residue-declined.md
+        sha256: 2b6efabb92c244854f8b169ea7d26984f9234661b3e116adf682dc0fac12eea3
+      - path: docs/decisions/PDR-039-dependent-changes-carry-authorization.md
+        sha256: 91b501850b3a25fe3b80c3896ae22eeeb610d0d26acd207502fa0115cdff2c72
+      - path: docs/decisions/PDR-040-push-is-durability-ready-is-explicit.md
+        sha256: 54561c5b7f68c1151d043590c558977e49089026c592e958c1111e96aaf8ec49
+      - path: docs/decisions/PDR-041-release-note-scope-is-the-shipped-surface.md
+        sha256: 940a0b80b1bb127566961020f0254827751ce928c95c3473c220bd7308734d9e
+      - path: docs/decisions/PDR-042-routing-recommends-contract-aware-effort.md
+        sha256: 054e5e175dc8f1de5ace5bbc9341a1cde5036c4259724a3ede146a5d3226c4ab
+      - path: docs/decisions/PDR-043-upgrade-routes-as-simple-work.md
+        sha256: 4306b4c31b1738ad88a739525808e829a36de2b50852fba8d3f9058fd2996f46
+      - path: docs/decisions/PDR-044-concise-typed-decision-records.md
+        sha256: 363e399aba6e32e3af83e552daa686894c3580539b402d757e600372f53401db
+      - path: docs/decisions/PDR-045-p016-leaves-taxonomy-to-m075.md
+        sha256: 37af8df0c90c8b8592a385719b58853c30474fed06f7ff4e28f9f14d61a86be4
+      - path: docs/decisions/PDR-046-decisions-route-by-subject.md
+        sha256: ab2e5d15097af7203fe8d1820257bde5dfc113b5b18347c68ecbfd1745efd52f
+      - path: docs/decisions/PDR-047-agents-orient-after-a-reported-merge.md
+        sha256: ae0ff638f68ec14a893ed735dfc89d298c663a1a7868abb2ce5467f92dddfda3
+      - path: docs/decisions/PDR-048-plan-and-workspace-bookkeeping-stays-truthful.md
+        sha256: ff5de5c28d7130dc5ad4fe65ef953e6c4e85da2bc4d0e7160152dc65894512e6
+      - path: docs/decisions/PDR-049-durable-communication-is-readable-and-nonderived.md
+        sha256: 3293bb5f7b1ca065c0731e4d26ad067040ffe585f8d3cc4eb4bf29d5be78f43a
+      - path: docs/decisions/PDR-050-analysis-evidence-states-its-boundary.md
+        sha256: da7a48c5bee24d73a8d7390248c10356b8142701356153226cee64af6e867b1d
+      - path: docs/decisions/PDR-051-living-system-overviews.md
+        sha256: 5c0be3c158a6d43c55cf86719ef6583e65d8bfde74a8edf34ecd3ea880fcba34
+      - path: docs/decisions/PDR-052-a-spent-analysis-is-reported-not-retained.md
+        sha256: a2e09c5727826a3134ae7b1f63bb85be4252e6e9b16a6bfc7e22f4e99607672a
+      - path: docs/decisions/PDR-053-cited-evidence-stays-readable.md
+        sha256: f2cc818a46dc99e0e6a08fb4b67d0debf0560666254e5c05b39b321ecd8c7466
+      - path: docs/decisions/PDR-054-use-cases-are-optional-and-no-requirement-artifact.md
+        sha256: 074d04d0a6e8cee7ad0709d25a8208d4cd2b72d54c1419fd73fecb110ea4e74a
+      - path: docs/decisions/PDR-055-intent-discovery-divides-interview-inference-and-acceptance.md
+        sha256: d129afde6b65e65ca69b11f30fa4a2ef5a8eda06247a8b624e565d392a9942b9
+      - path: docs/decisions/PDR-056-plan-health-checks-and-lightweight-replanning.md
+        sha256: 21fd29c6c611ec1b84b288065c788fda7c3d6b8281929a38f7ad6088a37acece
+      - path: docs/decisions/PDR-057-next-work-and-inferred-metadata.md
+        sha256: f7103a30a27eb3d0895fd36bae1f63531253160ab77d042fc90311488a06b80f
+      - path: docs/decisions/PDR-059-the-agent-asks-whether-the-merge-boundary-is-enforced.md
+        sha256: 8767b1f136bb1162ba5fad7394a7e088a2498a463eebd3761397929b54ed0971
+      - path: docs/decisions/PDR-060-the-validation-workflow-reports-the-merge-boundary.md
+        sha256: 4a9c9672a1062ef1c7dd38fb42557e585d6fd4972c4d6d39edfedb9e943e3138
+      - path: docs/decisions/PDR-061-challenge-consequential-commitments-proportionally.md
+        sha256: 77b7c28054e056d10066f48b7079eeb2398ac3a4a587486ac8278f8eef499673
+      - path: docs/decisions/PDR-062-guidance-capture-has-an-eligibility-bar-and-no-new-type-yet.md
+        sha256: 50502a86a63177f486e7e03317b29637425d462544e8fff984e7b777aede2f2a
+      - path: docs/decisions/PDR-063-goal-service-is-reported-by-presence-and-status-not-a-ratio.md
+        sha256: 311d63cbce442873ec2f1cc45f8e2b5416a2670c2fe294a905ef420fcc96c270
+      - path: docs/decisions/README.md
+        sha256: 55cdf24ead06434657440a820c5c3b017e76bfb2a235b37fd6614ea5a2edd8a6
+      - path: docs/design/README.md
+        sha256: 5b442d58a7be5ecb0e7a88987de2aff838101f55e26c9e70a146a9603cbbd10f
+      - path: docs/goals/G-001-verifiable-thread.md
+        sha256: 4c772f07b663be4cef8a7372116d949d655acedd57350958d2bb091ded214260
+      - path: docs/goals/G-002-versioned-clue-and-skills.md
+        sha256: 160983d6ce94a7646bc145cf2dd1a8dbaaf7397735f3063751c1feeaf336038d
+      - path: docs/goals/G-003-cliewen-is-public.md
+        sha256: 3e4ec2c2a1565b06f0adbc2bccb279f40cfdb04495244ad9aec03edf7c9c0a1f
+      - path: docs/goals/G-004-local-verification-commands-run.md
+        sha256: 74bca563289617ad5186e782eea4831aad61225c5aa316cca44a37c96c9f850a
+      - path: docs/goals/G-005-index-badge-uses-enforcement-not-status.md
+        sha256: 51cc2c9542567f6bac18623fb57a7cde3277a5a5840138669bc521b064ed3db1
+      - path: docs/goals/G-006-milestone-ids-in-the-ledger.md
+        sha256: 2331cae3f239832063b0e73fa76b76fba0c948a5cafcf53c03a76e4e26d9018a
+      - path: docs/goals/G-007-changelog-scope-names-the-shipped-surface.md
+        sha256: b5f9b0f94c37969080c82cdbbdbe1b617938bf40a8c567d311aa63cdeb867959
+      - path: docs/goals/G-008-acceptance-brief-gate-knows-the-tier.md
+        sha256: b95c938eb01d13478ec68bbfb7c6521b23e3b949d87e56e0d652cd591ff1b2f6
+      - path: docs/goals/G-009-workspace-identities-have-a-command.md
+        sha256: d3f68f7c5f8dcafeb585172c03c6097679e584bffa7d8d4c7a748ad42a4add60
+      - path: docs/goals/G-010-index-row-agrees-with-its-artifact.md
+        sha256: f3804dfd4093d16897d9ed8d6597aa0d91455b6ce45e38bd1b685c55c04245e6
+      - path: docs/goals/G-011-repository-states-its-cliewen-role.md
+        sha256: 8d06cb9df729f10bfed0e6491b66d52bb191ff338aaa30bdef578c46c26bcbc1
+      - path: docs/goals/G-012-corpus-states-the-product-direction.md
+        sha256: d51e7757f856e68bcd8496498c3458b22f5b933e3e68e02f4e569e75e160d5e2
+      - path: docs/goals/G-013-team-safe-identities.md
+        sha256: 34fed9639634863d2600eae534ce737fd6fd126261ce3e2b73a23bb01231d903
+      - path: docs/goals/G-014-riskiest-assumption-is-challenged.md
+        sha256: f8e8a3ecec3ca1aa35ba5a2c3ffbea259cc68545c1d7cd068a909faa5f021ada
+      - path: docs/goals/G-015-what-the-work-teaches-is-retained.md
+        sha256: 97eadb1fa00e6fb3b828f814458ffc75771a73b0eb32e3b7e288ac196e2aa7c3
+      - path: docs/goals/G-016-acceptance-is-an-informed-decision.md
+        sha256: acf51c4d2c11754d39b545e0c167d52748fb49f38a0ecbb3daf7999529ac8ecb
+      - path: docs/goals/G-017-the-method-is-evidenced-and-simplified.md
+        sha256: cf0aa9f27aaf69ae425d4d61de21af1e97f0c49d0e6322c4e4722fde91780640
+      - path: docs/goals/G-018-coordination-reconciles-in-flight-claims.md
+        sha256: 5e4ad20d7f277bb362a7d7938f1ceea966c652fc36d8ee3c579c9b6e01fa39ea
+      - path: docs/goals/G-019-workspace-identities-need-no-hand-edited-ledger.md
+        sha256: 0ad6d79614656649a5790e926c82eecdbb6b9c4e39e746b1ae8d837c47ff133f
+      - path: docs/goals/G-020-goal-service-level-is-observable.md
+        sha256: bba8e31824a8bd38fe6a7dde1b7dc330b15cc45740209008574d15fc13b64fb3
+      - path: docs/goals/G-021-guide-sanity-tests-are-red-on-main.md
+        sha256: ad8ff1bbcaa6784bb81fb78e5c3c1855faf02db4bddb1c361d4003e1fba4b99c
+      - path: docs/goals/README.md
+        sha256: 66da7abe23357ab51f695ed736cfb76f4b280c0b7e4dc17702b4a5e0260c12c5
+      - path: docs/imported-changes/IC-001-fixture-inspectable-in-flight-work.md
+        sha256: 7c9c89b3c846fce9e0884fa93cb7e4a729cef461325140db244ace028038f060
+      - path: docs/imported-changes/IC-002-fixture-in-progress-dependent.md
+        sha256: 5cd6db4eb01080c138ee9b930de64cc42cd9334c44f8e8ab41db7086fda50b50
+      - path: docs/imported-changes/README.md
+        sha256: e09c9db920e7c5e9c98f2715fdb9c4876a04a5611309f7ffde714fec4aebd68e
+      - path: docs/plans/P-001-elaboration-baseline.md
+        sha256: 93629c523ae8014cd75a0c0b36b1c22320e1e7066436f2f02b601130df03a1e7
+      - path: docs/plans/P-002-leaves-home.md
+        sha256: 9d9fb4b4f32834a1b537c7499e061047e8c0c12dd53619d1bfd6d9f360b6bab8
+      - path: docs/plans/P-003-goes-public.md
+        sha256: 7a4129a172fd0c13daa8e8447d10a5c129a73ab266924ac1eaef5fc74d2ddac6
+      - path: docs/plans/P-004-first-try.md
+        sha256: e725e6e0023cae1f6548cda0634089d2d6dd1312a0eb1b33d7b2bdc4ec4e8c84
+      - path: docs/plans/P-005-explicit-core.md
+        sha256: 58809f8557bf859b666455a41733132041c92ef327d6a1c2e07d4139738cdf2f
+      - path: docs/plans/P-006-first-adoption.md
+        sha256: 5bee91720a6a55f0817d7eaf7b8dd772c1bb26d06ca391c3a3fe1a74ae052d60
+      - path: docs/plans/P-007-core-hardening.md
+        sha256: 7de5470995377e86a2b779edd2520ef8f956c5862033ef30b14f5a28287a4f4f
+      - path: docs/plans/P-008-self-consistency.md
+        sha256: df3e33faf70aeaa66f26e5ddb70a553cf124144e8b4db4a472cb4b9384b6097d
+      - path: docs/plans/P-009-migration-readiness.md
+        sha256: 8a7b91d750b7159d6cad14704b535da239a7116688dbab409e547157d4ae2b7a
+      - path: docs/plans/P-010-adopters-keep-current.md
+        sha256: 97c8090e9b209cb72dc511bfbb45eb2e550a76a954dac9f8a1202e892a61ca71
+      - path: docs/plans/P-011-truthful-brownfield-migration.md
+        sha256: 8bd5d60ffbc657941875603352a5739407bf34c23ed5dd8b1c4bed3a2a742219
+      - path: docs/plans/P-012-migration-gap-closes-on-evidence.md
+        sha256: 08c4f4ca683801a3b8d8be1eef5fe933f5d7300b8028fb3f14ce634fd208f6f9
+      - path: docs/plans/P-013-simplification.md
+        sha256: 9717d63593bfefcf0c2cc15787f820af6e6b3322042a4c6854c892e60d671964
+      - path: docs/plans/P-014-supersession-edge.md
+        sha256: 021e89657621e0eb3f1a9d12e737b4d5f631a451186fc1e96353a2b1d2e33622
+      - path: docs/plans/P-015-corpus-read-cost.md
+        sha256: d3f1a4a4c1cbe7c48e221277a724145bb7360b199fcaa16d48f8af43177150f9
+      - path: docs/plans/P-016-concise-decision-records.md
+        sha256: 2c951a8fdc32b5253c79d639f9b7a0e39603926ece9c85f57b4350c52469aeab
+      - path: docs/plans/P-018-living-system-overviews.md
+        sha256: d2af11121de4b93f231882870d1ef454dd370f1176b9166fe4a56025c69fa0e2
+      - path: docs/plans/P-019-role-and-forgetting.md
+        sha256: 4f2dcbe04a8d7a5277641dae102498e5978d140d1e7ed42e2982f729d6fc72de
+      - path: docs/plans/P-020-corpus-forgets-what-it-finished.md
+        sha256: a80c2cee48fbb8cab857c3e2d732a6e65d495c8c36de9ce01110a686e5e1c955
+      - path: docs/plans/P-021-cliewen-states-what-the-product-is-for.md
+        sha256: 60e7636a8cf289067d9c64bcc149d0e9ee6b1c32c9a0030ebf7482c6609942ba
+      - path: docs/plans/P-022-milestone-ids-in-the-ledger.md
+        sha256: 9263fe1c8707be3a3777e22eb990d74f831ce64ba6e8c7913b9f56578e0c8cf7
+      - path: docs/plans/P-023-challenge-plans-and-retain-what-work-teaches.md
+        sha256: 57bf9a35e727b52dad20e918f9867f359bfbdd14aa884acb9ef858b62296d4a1
+      - path: docs/plans/README.md
+        sha256: e97dfd5096589a23339e6904abcffd6c29d0dd112bb7e4c6c4d20cccc38eb9e6
+      - path: docs/use-cases/README.md
+        sha256: 9c57019d87231026f90602cb7210d669cc29ecfc0e0cd754cf7c293db093975b
+      - path: docs/use-cases/UC-001-adopt-cliewen-in-an-existing-repository.md
+        sha256: a6c7d5dcff9bbf1298b9bb9f2be032f15eba1d3b81733159bc3246c59036b94d
+      - path: docs/use-cases/UC-002-parallel-team-changes.md
+        sha256: 7acd898ed9bd78b2742bea52c300234f2ce056a9f112ff8b7a1ced9779b61656
+      - path: docs/vision.md
+        sha256: 2832ce7e6b308a4f8e3225eb4c6c80f9216eec483f8f9cb1057efc8896e77ccb
+      - path: guide/navigation_test.go
+        sha256: 3b23876fc47a636c9fb91a775bbe9cc64eefd0274fc36df336974f76647b33ac
+      - path: guide/operations_test.go
+        sha256: 332fbabe68568dd83276de6d383cc2bbffe8f725e2db1237e8d85e34b6755cda
+      - path: internal/carriers/carriers_test.go
+        sha256: 8098ebce1eee997ac0a455bd8d89f47d469e343e9110a41d6ced20a57d42fed2
+      - path: internal/ciguards/completedplans_test.go
+        sha256: f907d826c0c56645c80bc4e8a0610d4f30011432b18e8023e5b692270e09ecda
+      - path: internal/ciguards/mergeboundary_test.go
+        sha256: 3fafdc203bccd77ad916bc5a58c66a5270b589480a9cde555c8167fe05289a85
+      - path: internal/corpus/actests_test.go
+        sha256: b34aa0bd37344dee933307c15a73d402b6e074ccf45cb88202678582618a09b1
+      - path: internal/corpus/boundary_test.go
+        sha256: e56460bf46f016c3a9c961d74a479642f7648977b04ef11beaedc2a5b387ccfa
+      - path: internal/corpus/brownfield_test.go
+        sha256: a81fb8d286504be67044f0490899bd5c9d8223c135a52ced3d0edc485aa1f4d5
+      - path: internal/corpus/context_test.go
+        sha256: 37ef4c346d3d4266267199bb46e096635e05c189c99c6be3e0cd20127faa3c63
+      - path: internal/corpus/conventions_test.go
+        sha256: 9694d83cefdb6315ebad2f65d6c87124cb2ea7490754f68df32ad9bc5747a9c3
+      - path: internal/corpus/corpus_test.go
+        sha256: 15cd832abb0eae33bdb2cecbe02df2206c9e42e2da08804819fcc98201e4ba58
+      - path: internal/corpus/coverage_test.go
+        sha256: 04d62ae4c3b17e0140869bb0acb4b10fd9d19a03c59622a97fb284143c5250e4
+      - path: internal/corpus/description_test.go
+        sha256: 5ac03c292926b3ff63931c297e600da14440d41d0874dfa412fd7d94044b79ee
+      - path: internal/corpus/evidence_test.go
+        sha256: 256a0025eee49154fd745bf518fd1365b6a2bc8fd9f90edc2f75c412a4c8fe7b
+      - path: internal/corpus/expiry_test.go
+        sha256: 1637d8d84b71755424cb404b9ea8668fbc600b17615ac59557370fbb76eaf854
+      - path: internal/corpus/frozen_links_test.go
+        sha256: 51bd86aa32dc1306b6f71744c2eab856b7258b5309df521db57416cd07083160
+      - path: internal/corpus/importedchange_rule_test.go
+        sha256: 1cf5d787c48b0d1b513c96963488d7d03ab56f851b937108ea489954d9e2cc0b
+      - path: internal/corpus/intent_test.go
+        sha256: e78e94eb3aedf45871aa0f045c9c35ef102cdb06a5a2e0aa9ed44ab45f8fa926
+      - path: internal/corpus/ledger_rule_test.go
+        sha256: 1b350fe7303694a8d8d94a8a167e647b8c8bb62e1c543b097215fbd1e35c27a6
+      - path: internal/corpus/plans_test.go
+        sha256: 08e420f648df4650736ad24433d48918c4712331e1d1ae46c00165ef7f5b6c35
+      - path: internal/corpus/readcost_test.go
+        sha256: 56a6fa9514182729251a6d6f72c44d86baa95171601f35c61a9d212608d41266
+      - path: internal/corpus/references_test.go
+        sha256: d2f11843c84d2b9023fec06832a842c8e312c2e3292233358116f8ca236c1b88
+      - path: internal/corpus/skillversions_test.go
+        sha256: d9e4f4a169a95b607411db90edb2da6f8af5b4c549d3eb7ba19a987d753d2381
+      - path: internal/corpus/skillversions_unix_test.go
+        sha256: c5deadce08b1eafba6790b98ee78b47691c3235aeabede58160d0683b8807347
+      - path: internal/evidence/evidence_test.go
+        sha256: 0e2ebaee0f330d20d77d0a93714f12119815e568e7d49803c45fe325305bd0be
+      - path: internal/evidenceexport/examples_test.go
+        sha256: b26f86bf6c8ecbab2dd4b10839871961d9609cd44fdb9c779506abe2ccc1c2c2
+      - path: internal/evidenceexport/jvmevidence.go
+        sha256: 88a08e3a41790a19c6a84589c0a582845cd62061da9fab5e296ace779f8f0500
+      - path: internal/evidenceexport/legacy.go
+        sha256: 5a192e2d95d80216a9ab6bdc8fc94d415ef8286e37e486b13e20eac86b1b6fd2
+      - path: internal/evidenceexport/legacy_test.go
+        sha256: 86d9432de14891b2bd54656cdb433eb44ceca409dff67a773766b3e284840d0d
+      - path: internal/idalloc/idalloc_test.go
+        sha256: b52549967af0065c0308215911f39e70b7371331b044475dc9b5f1f9bf06ca5d
+      - path: internal/importedchange/importedchange_test.go
+        sha256: 3b867b8ee9ea1bca38edb8b063e4bd0ee265669006ebf4d65527e9177a857070
+      - path: internal/ledger/ledger_test.go
+        sha256: 3a3fd160c726051627b841d36dbad681f44d7a9c37b2628c117bbcecb2540254
+      - path: internal/mergehistory/mergehistory_test.go
+        sha256: 051ab997a1400fd73982c8cd5d7d7bdc2921c242db25925e558b052d0fec5ff3
+      - path: internal/migrate/entrypoint_test.go
+        sha256: 91e3d0ca5bec1a4393a4a0325eaec911b9df08251c89ca2b9b1258fdc64f33c1
+      - path: internal/migrate/evidence_test.go
+        sha256: a090e0d4d3ce6b8610bcb676ac375f0377e4117c06f2003987f3376fe4bf8a72
+      - path: internal/migrate/hub_test.go
+        sha256: 8e9a358ca6de51bb79508eadf2085abe89d9776aec89f7996ad9297e37e513dd
+      - path: internal/migrate/intent_test.go
+        sha256: 4266dce8b293530c89829cecb134fe197f6af628cce19bca266da4fcbdfec86c
+      - path: internal/migrate/legacy_log_test.go
+        sha256: 126d199e5bace0c125e22b308a095ff529900903897e9e4a858495c290f11c09
+      - path: internal/migrate/migrate_test.go
+        sha256: 92ff599ca5ba8dcad52dfa3b3a3c26c9d8c6e76bcecd598895a4ac39478df25a
+      - path: internal/migrate/promoted_test.go
+        sha256: bd3aeddf47f58b452fda007530035be7ae03e01588a25ea229d0887d31a1f088
+      - path: internal/migrate/role_expiry_test.go
+        sha256: befcdd39821cd2bd799f02ba6eab4dbef3853d393693307c8d9a0e27ccfed27f
+      - path: internal/migration/migration_test.go
+        sha256: 66b8eb712926d04c7cb33bee426d9cfa451f220b91fbfa20c83115486e0fe84f
+      - path: internal/parity/parity_test.go
+        sha256: c11c717730aba5c3d23af02e0cd336fd7fdf8a15a6b0557c7d39e3c79ac638be
+      - path: internal/parity/report_test.go
+        sha256: 0536b1ea4aab7424a4db4f52970d8f2c0643929a6494fa74eb5847192ab82292
+      - path: internal/refs/refs_test.go
+        sha256: 2babbe42620dad86afac1bf8d5729bb0af46c0f871386696ecf271c507d61fed
+      - path: internal/release/release_test.go
+        sha256: 48a3869ccdad8426b8ffcb47ac3ff95dfce4c879b8b7c1c2f7ddda31ba3a5f64
+      - path: internal/role/role_test.go
+        sha256: 5feb19ada5a928cf9414ebc29d8c50f618af0bbcf0a2a8a8cb882b61d37ea95b
+      - path: internal/scaffold/badge_test.go
+        sha256: 4ac11ca9f7af8bd46ff06b5bff934b79ef825d91782bd0d2589c7d3180714f99
+      - path: internal/scaffold/ciwall_test.go
+        sha256: ff14924c696837182ce9ba9beecfc1dba7082b99e7f6c01cb90ebe12aa1e1114
+      - path: internal/scaffold/intent_test.go
+        sha256: 062dc5de8093df1d42cb95721bc132c326a7f2a0e1f86bbc15bd3f8554ffdb3f
+      - path: internal/scaffold/regen_test.go
+        sha256: 3e83251ac21b10ec194dfaea993f7ff8f7f69249c2092f77cd97e66fc29e3c51
+      - path: internal/scaffold/role_test.go
+        sha256: 13e9375642c1b55d267e3331f24387d08d5ebdced8687a45eed014849b518ec1
+      - path: internal/scaffold/scaffold_entrypoint_test.go
+        sha256: 443eca212097712acc4ff8b20985de75b247da66d0c7293b2c579bb70b4ee22e
+      - path: internal/scaffold/scaffold_hub_test.go
+        sha256: 225074f4a6a53d9b8e8cfd97a9543f598c7fc21538035d117df2e460e26a7d3a
+      - path: internal/scaffold/scaffold_symlink_test.go
+        sha256: 0576bc2bf8a98364317974bf774c6cefe47ca38dcab55643d1aceb64cac3845c
+      - path: internal/scaffold/scaffold_test.go
+        sha256: 5abf7cf458f7d7d68d3c7a240a6fa5bd8342b723a3a73dd5b62bdc5b09144e55
+      - path: internal/scaffold/wallchecklist_test.go
+        sha256: 6c1c2f1bfe990ff5bc7bf25647495a413f97af3d2b0e3c875bac35b19cec8a8a
+      - path: internal/skills/generate_test.go
+        sha256: 3ba648b38bec187b12b0833cd696bc548186672adb975306405ca30a008b5cc8
+      - path: tools/export-evidence/main.go
+        sha256: 16d6ac0cbfe2a86d7460a8c4dfb62175c89467d95bb1743587f87467f771a039
+    references:
+      - id: AC-133
+        path: cmd/clue/context_test.go
+        subject: test TestAC133_UnitNegative_ContextCommandNamesUnknownIDWithoutArtifactOutput
+        type: Unit
+        direction: negative
+      - id: AC-133
+        path: cmd/clue/context_test.go
+        subject: test TestAC133_UnitNegative_ContextCommandRejectsAnUnreadableDepth
+        type: Unit
+        direction: negative
+      - id: AC-133
+        path: cmd/clue/context_test.go
+        subject: test TestAC133_UnitPositive_ContextCommandNamesTheFrontierAndWidens
+        type: Unit
+        direction: positive
+      - id: AC-133
+        path: cmd/clue/context_test.go
+        subject: test TestAC133_UnitPositive_ContextCommandPrintsCompleteArtifacts
+        type: Unit
+        direction: positive
+      - id: AC-136
+        path: cmd/clue/contributing_test.go
+        subject: test TestAC136_UnitNegative_EqualsFormInsideTheBlockIsRejected
+        type: Unit
+        direction: negative
+      - id: AC-136
+        path: cmd/clue/contributing_test.go
+        subject: test TestAC136_UnitNegative_PortableCommandsOutsideTheBlockDoNotCount
+        type: Unit
+        direction: negative
+      - id: AC-136
+        path: cmd/clue/contributing_test.go
+        subject: test TestAC136_UnitPositive_ContributingDocumentsPortableCoverageCommands
+        type: Unit
+        direction: positive
+      - id: AC-003
+        path: cmd/clue/init_test.go
+        subject: test TestAC003_ValidateExitsNonZeroOnBrokenScaffold
+      - id: AC-038
+        path: cmd/clue/init_test.go
+        subject: test TestAC038_InitReportsNoLinkWhenNoneExists
+      - id: AC-038
+        path: cmd/clue/init_test.go
+        subject: test TestAC038_InitReportsTheSymlinkedMirror
+      - id: AC-150
+        path: cmd/clue/init_test.go
+        subject: test TestAC150_InitThenValidateNamesOverviewBootstraps
+      - id: AC-182
+        path: cmd/clue/init_test.go
+        subject: test TestAC182_UnitPositive_InitReportsSkipsAndNextStep
+        type: Unit
+        direction: positive
+      - id: AC-164
+        path: cmd/clue/intent_test.go
+        subject: test TestAC164_UnitNegative_IntentReportComputesNoCoverageFigure
+        type: Unit
+        direction: negative
+      - id: AC-164
+        path: cmd/clue/intent_test.go
+        subject: test TestAC164_UnitPositive_IntentReportNamesTheVisionAndItsProvenance
+        type: Unit
+        direction: positive
+      - id: AC-165
+        path: cmd/clue/intent_test.go
+        subject: test TestAC165_UnitNegative_ContextAddsNothingWhenNoUseCaseNamesTheRoot
+        type: Unit
+        direction: negative
+      - id: AC-165
+        path: cmd/clue/intent_test.go
+        subject: test TestAC165_UnitPositive_ContextNamesTheUseCasesReachingTheRoot
+        type: Unit
+        direction: positive
+      - id: AC-202
+        path: cmd/clue/intent_test.go
+        subject: test TestAC202_UnitNegative_IntentReportComputesNoGoalCoverageFigure
+        type: Unit
+        direction: negative
+      - id: AC-202
+        path: cmd/clue/intent_test.go
+        subject: test TestAC202_UnitPositive_IntentReportNamesGoalCapabilitiesAndPlans
+        type: Unit
+        direction: positive
+      - id: AC-075
+        path: cmd/clue/latest_test.go
+        subject: test TestAC075_UnitNegative_LatestReadsNoRepositoryAndWritesNothing
+        type: Unit
+        direction: negative
+      - id: AC-075
+        path: cmd/clue/latest_test.go
+        subject: test TestAC075_UnitNegative_TheRealRunReportsOnTheRealMachine
+        type: Unit
+        direction: negative
+      - id: AC-075
+        path: cmd/clue/latest_test.go
+        subject: test TestAC075_UnitPositive_LatestPrintsOneRouteAndTheMigrateSequence
+        type: Unit
+        direction: positive
+      - id: AC-075
+        path: cmd/clue/latest_test.go
+        subject: test TestAC075_UnitPositive_TheTimeoutFlagReachesTheRequest
+        type: Unit
+        direction: positive
+      - id: AC-076
+        path: cmd/clue/latest_test.go
+        subject: test TestAC076_UnitNegative_QuietIsSilentWhenThereIsNothingToSay
+        type: Unit
+        direction: negative
+      - id: AC-076
+        path: cmd/clue/latest_test.go
+        subject: test TestAC076_UnitPositive_QuietSaysOneLineWhenBehind
+        type: Unit
+        direction: positive
+      - id: AC-077
+        path: cmd/clue/latest_test.go
+        subject: test TestAC077_UnitNegative_AKnownAnswerStillReports
+        type: Unit
+        direction: negative
+      - id: AC-077
+        path: cmd/clue/latest_test.go
+        subject: test TestAC077_UnitNegative_ASourceBuildIsNotCalledTheNewestRelease
+        type: Unit
+        direction: negative
+      - id: AC-077
+        path: cmd/clue/latest_test.go
+        subject: test TestAC077_UnitNegative_AnUnpublishedBuildIsNotCalledTheNewestRelease
+        type: Unit
+        direction: negative
+      - id: AC-077
+        path: cmd/clue/latest_test.go
+        subject: test TestAC077_UnitNegative_AnUnreadableStampIsNotReportedAsCurrent
+        type: Unit
+        direction: negative
+      - id: AC-077
+        path: cmd/clue/latest_test.go
+        subject: test TestAC077_UnitPositive_NotBeingAbleToTellExitsZeroAndSaysSo
+        type: Unit
+        direction: positive
+      - id: AC-004
+        path: cmd/clue/main_test.go
+        subject: test TestAC004_ExitCodeZeroOnValidCorpus
+      - id: AC-005
+        path: cmd/clue/main_test.go
+        subject: test TestAC005_ExitCodeOneOnBrokenCorpus
+      - id: AC-008
+        path: cmd/clue/main_test.go
+        subject: test TestAC008_ForbidChangesFlagExitCodes
+      - id: AC-019
+        path: cmd/clue/main_test.go
+        subject: test TestAC019_UnstampedBuildReportsDev
+      - id: AC-019
+        path: cmd/clue/main_test.go
+        subject: test TestAC019_VersionCommandReportsStamp
+      - id: AC-033
+        path: cmd/clue/main_test.go
+        subject: test TestAC033_RunValidateThreadsVersionIntoDriftRule
+      - id: AC-051
+        path: cmd/clue/main_test.go
+        subject: test TestAC051_CLIReportsActivationBlockerCount
+      - id: AC-051
+        path: cmd/clue/main_test.go
+        subject: test TestAC051_CLIReportsInferredDecisionsSeparately
+      - id: AC-051
+        path: cmd/clue/main_test.go
+        subject: test TestAC051_LowCostInferredArtifactsAreAccepted
+      - id: AC-052
+        path: cmd/clue/main_test.go
+        subject: test TestAC052_RealityGapsFlagPrintsAffectedCapability
+      - id: AC-064
+        path: cmd/clue/main_test.go
+        subject: test TestAC064_CLI_MigratePreviewAndApply
+      - id: AC-065
+        path: cmd/clue/main_test.go
+        subject: test TestAC065_UnitNegative_ReleaseWorkflowCannotSkipChangedRegistryGuidance
+        type: Unit
+        direction: negative
+      - id: AC-065
+        path: cmd/clue/main_test.go
+        subject: test TestAC065_UnitPositive_ReleaseWorkflowRequiresMigrationGuidance
+        type: Unit
+        direction: positive
+      - id: AC-074
+        path: cmd/clue/main_test.go
+        subject: test TestAC074_UnitNegative_StatedSubfolderAndMultiLinkRowsAreNotCounted
+        type: Unit
+        direction: negative
+      - id: AC-074
+        path: cmd/clue/main_test.go
+        subject: test TestAC074_UnitPositive_FillerIndexRowIsCountedAndListed
+        type: Unit
+        direction: positive
+      - id: AC-089
+        path: cmd/clue/main_test.go
+        subject: test TestAC089_UnitNegative_DeclaredConstraintsAreNotBacklog
+        type: Unit
+        direction: negative
+      - id: AC-089
+        path: cmd/clue/main_test.go
+        subject: test TestAC089_UnitPositive_AgentConstraintCountReported
+        type: Unit
+        direction: positive
+      - id: AC-099
+        path: cmd/clue/main_test.go
+        subject: test TestAC099_UnitNegative_DescribedFillerSubfolderAndMultiLinkRowsAreNotCounted
+        type: Unit
+        direction: negative
+      - id: AC-099
+        path: cmd/clue/main_test.go
+        subject: test TestAC099_UnitPositive_UndescribedIndexRowIsCountedAndListed
+        type: Unit
+        direction: positive
+      - id: AC-108
+        path: cmd/clue/main_test.go
+        subject: test TestAC108_UnitNegative_IDLiveRejectsNonReservedID
+        type: Unit
+        direction: negative
+      - id: AC-108
+        path: cmd/clue/main_test.go
+        subject: test TestAC108_UnitPositive_IDLivePromotesReservedID
+        type: Unit
+        direction: positive
+      - id: AC-125
+        path: cmd/clue/main_test.go
+        subject: test TestAC125_UnitPositiveAndNegative_ParityReportsDeferredPopulation
+      - id: AC-126
+        path: cmd/clue/main_test.go
+        subject: test TestAC126_UnitNegative_validateRejectsATypedRegion
+        type: Unit
+        direction: negative
+      - id: AC-127
+        path: cmd/clue/main_test.go
+        subject: test TestAC127_UnitPositive_reportCommandRendersTheRegion
+        type: Unit
+        direction: positive
+      - id: AC-132
+        path: cmd/clue/main_test.go
+        subject: test TestAC132_UnitPositive_PublicCarriersKeepCrossAgentHelpOutsideTheInitiatedSlot
+        type: Unit
+        direction: positive
+      - id: AC-135
+        path: cmd/clue/main_test.go
+        subject: test TestAC135_UnitNegative_ReadCostFlagOmitsExamplesAndSlicesAtBudget
+        type: Unit
+        direction: negative
+      - id: AC-135
+        path: cmd/clue/main_test.go
+        subject: test TestAC135_UnitPositive_ReadCostFlagCountsAndNamesMeasuredBacklogs
+        type: Unit
+        direction: positive
+      - id: AC-161
+        path: cmd/clue/main_test.go
+        subject: test TestAC161_UnitNegative_AMultiTargetConstraintRowIsNotCounted
+        type: Unit
+        direction: negative
+      - id: AC-161
+        path: cmd/clue/main_test.go
+        subject: test TestAC161_UnitNegative_MatchingAndNonConstraintBadgesAreNotCounted
+        type: Unit
+        direction: negative
+      - id: AC-161
+        path: cmd/clue/main_test.go
+        subject: test TestAC161_UnitPositive_ConstraintBadgeMismatchIsCountedAndListed
+        type: Unit
+        direction: positive
+      - id: AC-174
+        path: cmd/clue/main_test.go
+        subject: test TestAC174_UnitNegative_IDNextRejectsMissingPrefix
+        type: Unit
+        direction: negative
+      - id: AC-174
+        path: cmd/clue/main_test.go
+        subject: test TestAC174_UnitNegative_IDNextRejectsNonCanonicalPrefix
+        type: Unit
+        direction: negative
+      - id: AC-174
+        path: cmd/clue/main_test.go
+        subject: test TestAC174_UnitNegative_IDNextRejectsNonPositiveBatch
+        type: Unit
+        direction: negative
+      - id: AC-174
+        path: cmd/clue/main_test.go
+        subject: test TestAC174_UnitNegative_IDNextRequiresLedgerBackfill
+        type: Unit
+        direction: negative
+      - id: AC-174
+        path: cmd/clue/main_test.go
+        subject: test TestAC174_UnitPositive_IDNextIncrementsThroughTheLedger
+        type: Unit
+        direction: positive
+      - id: AC-174
+        path: cmd/clue/main_test.go
+        subject: test TestAC174_UnitPositive_IDNextReservesABatchAndWarnsInLocalMode
+        type: Unit
+        direction: positive
+      - id: AC-179
+        path: cmd/clue/main_test.go
+        subject: test TestAC179_UnitNegative_IDRepairLeavesAWellFormedLedgerAlone
+        type: Unit
+        direction: negative
+      - id: AC-179
+        path: cmd/clue/main_test.go
+        subject: test TestAC179_UnitNegative_IDRepairRefusesAnUndecidableLedger
+        type: Unit
+        direction: negative
+      - id: AC-179
+        path: cmd/clue/main_test.go
+        subject: test TestAC179_UnitNegative_IDRepairRequiresALedger
+        type: Unit
+        direction: negative
+      - id: AC-179
+        path: cmd/clue/main_test.go
+        subject: test TestAC179_UnitPositive_IDNextReportsAndHealsAUnionMergedLedger
+        type: Unit
+        direction: positive
+      - id: AC-179
+        path: cmd/clue/main_test.go
+        subject: test TestAC179_UnitPositive_IDRepairRewritesAUnionMergedLedger
+        type: Unit
+        direction: positive
+      - id: AC-183
+        path: cmd/clue/main_test.go
+        subject: test TestAC183_IntegrationNegative_CommandsStopOnSettingsNamingNoMode
+        type: Integration
+        direction: negative
+      - id: AC-042
+        path: cmd/clue/merge_gate_test.go
+        subject: test TestAC042_AcceptanceBriefCarriesHumanMergeQuestions
+      - id: AC-042
+        path: cmd/clue/merge_gate_test.go
+        subject: test TestAC042_CIRejectsUnfilledAcceptanceBrief
+      - id: AC-048
+        path: cmd/clue/merge_gate_test.go
+        subject: test TestAC048_UnitNegative_HumanProofRidesTheExistingCriteriaLine
+        type: Unit
+        direction: negative
+      - id: AC-048
+        path: cmd/clue/merge_gate_test.go
+        subject: test TestAC048_UnitPositive_BriefNamesHumanClassCriteriaAsTheirProof
+        type: Unit
+        direction: positive
+      - id: AC-186
+        path: cmd/clue/next_test.go
+        subject: test TestAC186_UnitNegative_NextCommandDoesNotMutateAndHandlesNoActiveWork
+        type: Unit
+        direction: negative
+      - id: AC-186
+        path: cmd/clue/next_test.go
+        subject: test TestAC186_UnitPositive_NextCommandReportsRecommendationAlternativesAndDrafts
+        type: Unit
+        direction: positive
+      - id: AC-086
+        path: cmd/clue/notifier_test.go
+        subject: test TestAC086_UnitNegative_ARepeatedNoticeCostsNoRequest
+        type: Unit
+        direction: negative
+      - id: AC-086
+        path: cmd/clue/notifier_test.go
+        subject: test TestAC086_UnitNegative_TheNoticeMovesNeitherExitCodeNorStandardOutput
+        type: Unit
+        direction: negative
+      - id: AC-086
+        path: cmd/clue/notifier_test.go
+        subject: test TestAC086_UnitPositive_AWorkflowCommandVolunteersTheNotice
+        type: Unit
+        direction: positive
+      - id: AC-086
+        path: cmd/clue/notifier_test.go
+        subject: test TestAC086_UnitPositive_TheNoticeSpeaksInTheQuietChecksWords
+        type: Unit
+        direction: positive
+      - id: AC-087
+        path: cmd/clue/notifier_test.go
+        subject: test TestAC087_UnitNegative_ABlockedNoticeWritesNothingToTheStream
+        type: Unit
+        direction: negative
+      - id: AC-087
+        path: cmd/clue/notifier_test.go
+        subject: test TestAC087_UnitNegative_ANoticeWritesNoFileInTheRepository
+        type: Unit
+        direction: negative
+      - id: AC-087
+        path: cmd/clue/notifier_test.go
+        subject: test TestAC087_UnitNegative_AnIncomparableStampCostsNoRequest
+        type: Unit
+        direction: negative
+      - id: AC-087
+        path: cmd/clue/notifier_test.go
+        subject: test TestAC087_UnitNegative_TheAmbientBudgetIsShorterThanTheRequestedCheckS
+        type: Unit
+        direction: negative
+      - id: AC-087
+        path: cmd/clue/notifier_test.go
+        subject: test TestAC087_UnitNegative_TheGateExcludesTheJudgeAScriptAndARunner
+        type: Unit
+        direction: negative
+      - id: AC-087
+        path: cmd/clue/notifier_test.go
+        subject: test TestAC087_UnitNegative_TheNoticeIsSilentWhenThereIsNothingToSay
+        type: Unit
+        direction: negative
+      - id: AC-087
+        path: cmd/clue/notifier_test.go
+        subject: test TestAC087_UnitPositive_TheGateAllowsEveryWorkflowCommand
+        type: Unit
+        direction: positive
+      - id: AC-087
+        path: cmd/clue/notifier_test.go
+        subject: test TestAC087_UnitPositive_TheNoticeSurvivesACapturedStream
+        type: Unit
+        direction: positive
+      - id: AC-039
+        path: cmd/clue/plugin_test.go
+        subject: test TestAC039_PluginCarriesNoManagedSkillAndNoVersionPin
+      - id: AC-039
+        path: cmd/clue/plugin_test.go
+        subject: test TestAC039_PluginShipsOnlyTheBootstrapSkill
+      - id: AC-067
+        path: cmd/clue/references_test.go
+        subject: test TestAC067_UnitPositive_CoverageListsForeignPointersApart
+        type: Unit
+        direction: positive
+      - id: AC-068
+        path: cmd/clue/references_test.go
+        subject: test TestAC068_UnitNegative_RefsExitsNonZeroOnlyForGone
+        type: Unit
+        direction: negative
+      - id: AC-069
+        path: cmd/clue/references_test.go
+        subject: test TestAC069_UnitNegative_AFailedRewriteStillReportsWhatWasFound
+        type: Unit
+        direction: negative
+      - id: AC-069
+        path: cmd/clue/references_test.go
+        subject: test TestAC069_UnitNegative_FrozenRedirectsDoNotAdvertiseApply
+        type: Unit
+        direction: negative
+      - id: AC-069
+        path: cmd/clue/references_test.go
+        subject: test TestAC069_UnitPositive_PinnedHistoryIsMarkedInTheReport
+        type: Unit
+        direction: positive
+      - id: AC-026
+        path: cmd/clue/scaffold_test.go
+        subject: test TestAC026_ScaffoldThenValidateExitsZero
+      - id: AC-027
+        path: cmd/clue/scaffold_test.go
+        subject: test TestAC027_ScaffoldWithoutDocsExitsOneToStderr
+      - id: AC-036
+        path: guide/navigation_test.go
+        subject: test TestAC036_UnitNegative_GuideNavigationRejectsACycle
+        type: Unit
+        direction: negative
+      - id: AC-036
+        path: guide/navigation_test.go
+        subject: test TestAC036_UnitPositive_GuideNavigationIsAcyclicAndComplete
+        type: Unit
+        direction: positive
+      - id: AC-036
+        path: guide/operations_test.go
+        subject: test TestAC036_UnitNegative_MultiplePrimaryActionsAreRejected
+        type: Unit
+        direction: negative
+      - id: AC-036
+        path: guide/operations_test.go
+        subject: test TestAC036_UnitPositive_OperationsGuideStatesSupportedBoundary
+        type: Unit
+        direction: positive
+      - id: AC-040
+        path: guide/operations_test.go
+        subject: test TestAC040_CIWallMakesKnownFindingsDurable
+      - id: AC-058
+        path: guide/operations_test.go
+        subject: test TestAC058_UnitNegative_GuideRejectsFileLevelJVMEvidence
+        type: Unit
+        direction: negative
+      - id: AC-058
+        path: guide/operations_test.go
+        subject: test TestAC058_UnitPositive_GuideStatesPerExecutableJVMCarrier
+        type: Unit
+        direction: positive
+      - id: AC-132
+        path: guide/operations_test.go
+        subject: test TestAC132_UnitPositive_ChangeLoopCoordinatesOnlyTheSharedPR
+        type: Unit
+        direction: positive
+      - id: AC-118
+        path: internal/carriers/carriers_test.go
+        subject: test TestAC118_UnitNegative_dirtyRunFails
+        type: Unit
+        direction: negative
+      - id: AC-118
+        path: internal/carriers/carriers_test.go
+        subject: test TestAC118_UnitPositive_cleanRunPasses
+        type: Unit
+        direction: positive
+      - id: AC-119
+        path: internal/carriers/carriers_test.go
+        subject: test TestAC119_UnitNegative_combinedTargetAndBlockedRejectedAtLoad
+        type: Unit
+        direction: negative
+      - id: AC-119
+        path: internal/carriers/carriers_test.go
+        subject: test TestAC119_UnitNegative_duplicateIDRejectedAtLoad
+        type: Unit
+        direction: negative
+      - id: AC-119
+        path: internal/carriers/carriers_test.go
+        subject: test TestAC119_UnitNegative_incompleteEntryRejectedAtLoad
+        type: Unit
+        direction: negative
+      - id: AC-119
+        path: internal/carriers/carriers_test.go
+        subject: test TestAC119_UnitNegative_unsupportedKindRejectedAtLoad
+        type: Unit
+        direction: negative
+      - id: AC-119
+        path: internal/carriers/carriers_test.go
+        subject: test TestAC119_UnitPositive_blockedEntryIsNotReconciled
+        type: Unit
+        direction: positive
+      - id: AC-120
+        path: internal/carriers/carriers_test.go
+        subject: test TestAC120_UnitNegative_lostFingerprintFails
+        type: Unit
+        direction: negative
+      - id: AC-120
+        path: internal/carriers/carriers_test.go
+        subject: test TestAC120_UnitPositive_matchingFingerprintPasses
+        type: Unit
+        direction: positive
+      - id: AC-121
+        path: internal/carriers/carriers_test.go
+        subject: test TestAC121_UnitNegative_missingTargetFails
+        type: Unit
+        direction: negative
+      - id: AC-121
+        path: internal/carriers/carriers_test.go
+        subject: test TestAC121_UnitPositive_presentTargetIsNotMissing
+        type: Unit
+        direction: positive
+      - id: AC-122
+        path: internal/carriers/carriers_test.go
+        subject: test TestAC122_UnitNegative_referenceStyleStaleDeletedPathReferenceFails
+        type: Unit
+        direction: negative
+      - id: AC-122
+        path: internal/carriers/carriers_test.go
+        subject: test TestAC122_UnitNegative_relativeStaleDeletedPathReferenceFails
+        type: Unit
+        direction: negative
+      - id: AC-122
+        path: internal/carriers/carriers_test.go
+        subject: test TestAC122_UnitNegative_staleDeletedPathReferenceFails
+        type: Unit
+        direction: negative
+      - id: AC-122
+        path: internal/carriers/carriers_test.go
+        subject: test TestAC122_UnitPositive_liveLinkIsNotStale
+        type: Unit
+        direction: positive
+      - id: AC-197
+        path: internal/ciguards/mergeboundary_test.go
+        subject: test TestAC197_UnitNegative_AnyMissingRuleWithholdsTheObservedNotice
+        type: Unit
+        direction: negative
+      - id: AC-197
+        path: internal/ciguards/mergeboundary_test.go
+        subject: test TestAC197_UnitPositive_EnforcedBoundaryIsReportedAsObserved
+        type: Unit
+        direction: positive
+      - id: AC-198
+        path: internal/ciguards/mergeboundary_test.go
+        subject: test TestAC198_UnitNegative_UnanswerableHostIsUnknownNeverObserved
+        type: Unit
+        direction: negative
+      - id: AC-198
+        path: internal/ciguards/mergeboundary_test.go
+        subject: test TestAC198_UnitPositive_UnenforcedBoundaryWarnsWithoutFailing
+        type: Unit
+        direction: positive
+      - id: AC-009
+        path: internal/corpus/actests_test.go
+        subject: test TestAC009_UnitNegative_ActiveACWithoutTestFails
+        type: Unit
+        direction: negative
+      - id: AC-009
+        path: internal/corpus/actests_test.go
+        subject: test TestAC009_UnitPositive_ReferencedACAndDraftFilePass
+        type: Unit
+        direction: positive
+      - id: AC-010
+        path: internal/corpus/actests_test.go
+        subject: test TestAC010_UnknownACReferenceFails
+      - id: AC-011
+        path: internal/corpus/actests_test.go
+        subject: test TestAC011_UnclassifiedTestFails
+      - id: AC-012
+        path: internal/corpus/actests_test.go
+        subject: test TestAC012_RetiredACTombstone
+      - id: AC-013
+        path: internal/corpus/actests_test.go
+        subject: test TestAC013_DuplicateACDeclarationFails
+      - id: AC-014
+        path: internal/corpus/actests_test.go
+        subject: test TestAC014_InvalidPrefixReported
+      - id: AC-014
+        path: internal/corpus/actests_test.go
+        subject: test TestAC014_NamespacedACEnforced
+      - id: AC-015
+        path: internal/corpus/actests_test.go
+        subject: test TestAC015_ForeignNamespaceTagFails
+      - id: AC-043
+        path: internal/corpus/actests_test.go
+        subject: test TestAC043_SecondTestTypeInScenarioFails
+      - id: AC-043
+        path: internal/corpus/actests_test.go
+        subject: test TestAC043_SeparatedTagsDoNotAttachToScenario
+      - id: AC-043
+        path: internal/corpus/actests_test.go
+        subject: test TestAC043_TestTypeAfterContiguousScenarioTagsIsClassified
+      - id: AC-043
+        path: internal/corpus/actests_test.go
+        subject: test TestAC043_TestTypeAfterScenarioBodyLineFails
+      - id: AC-043
+        path: internal/corpus/actests_test.go
+        subject: test TestAC043_TestTypeAfterScenarioBodyTagFails
+      - id: AC-043
+        path: internal/corpus/actests_test.go
+        subject: test TestAC043_UnitNegative_ClassifiedEvidenceCoversThePair
+        type: Unit
+        direction: negative
+      - id: AC-043
+        path: internal/corpus/actests_test.go
+        subject: test TestAC043_UnitNegative_PerformanceNamesCarryTypeAndDirection
+        type: Unit
+        direction: negative
+      - id: AC-043
+        path: internal/corpus/actests_test.go
+        subject: test TestAC043_UnitPositive_ClassifiedEvidenceNeedsBothDirections
+        type: Unit
+        direction: positive
+      - id: AC-043
+        path: internal/corpus/actests_test.go
+        subject: test TestAC043_UnitPositive_JvmTagsCarryTypeAndDirection
+        type: Unit
+        direction: positive
+      - id: AC-044
+        path: internal/corpus/actests_test.go
+        subject: test TestAC044_CucumberAmbiguousDirectionTagsFail
+      - id: AC-044
+        path: internal/corpus/actests_test.go
+        subject: test TestAC044_CucumberMultiLineTagBlocksCarryClassifiedEvidence
+      - id: AC-044
+        path: internal/corpus/actests_test.go
+        subject: test TestAC044_CucumberNonScenarioTagBlocksDoNotCountAsEvidence
+      - id: AC-044
+        path: internal/corpus/actests_test.go
+        subject: test TestAC044_UnitNegative_CucumberPairSatisfiesCoverage
+        type: Unit
+        direction: negative
+      - id: AC-044
+        path: internal/corpus/actests_test.go
+        subject: test TestAC044_UnitPositive_CucumberPositiveNeedsNegative
+        type: Unit
+        direction: positive
+      - id: AC-045
+        path: internal/corpus/actests_test.go
+        subject: test TestAC045_UnitNegative_HumanWithSingleDirectionIsMalformed
+        type: Unit
+        direction: negative
+      - id: AC-045
+        path: internal/corpus/actests_test.go
+        subject: test TestAC045_UnitPositive_HumanClassNeedsNoCodeTest
+        type: Unit
+        direction: positive
+      - id: AC-046
+        path: internal/corpus/actests_test.go
+        subject: test TestAC046_UnitNegative_RemovingDraftRestoresTheTestRequirement
+        type: Unit
+        direction: negative
+      - id: AC-046
+        path: internal/corpus/actests_test.go
+        subject: test TestAC046_UnitPositive_DraftTagExemptsOneCriterion
+        type: Unit
+        direction: positive
+      - id: AC-057
+        path: internal/corpus/actests_test.go
+        subject: test TestAC057_UnitNegative_JVMTagsDoNotCrossProductOrCreditAmbiguity
+        type: Unit
+        direction: negative
+      - id: AC-057
+        path: internal/corpus/actests_test.go
+        subject: test TestAC057_UnitPositive_MixedJVMMethodsRemainIsolated
+        type: Unit
+        direction: positive
+      - id: AC-058
+        path: internal/corpus/actests_test.go
+        subject: test TestAC058_UnitNegative_UnsupportedJVMEvidenceIsDiagnosedAndIgnored
+        type: Unit
+        direction: negative
+      - id: AC-058
+        path: internal/corpus/actests_test.go
+        subject: test TestAC058_UnitPositive_SupportedJVMExecutableFormsReceiveCredit
+        type: Unit
+        direction: positive
+      - id: AC-153
+        path: internal/corpus/boundary_test.go
+        subject: test TestAC153_UnitNegative_AnUnreadableRoleMarkerIsReportedNotDefaulted
+        type: Unit
+        direction: negative
+      - id: AC-154
+        path: internal/corpus/boundary_test.go
+        subject: test TestAC154_UnitNegative_AdopterRuleWithoutAShippedCarrierFails
+        type: Unit
+        direction: negative
+      - id: AC-154
+        path: internal/corpus/boundary_test.go
+        subject: test TestAC154_UnitNegative_AnUnknownOrMisplacedBindsFails
+        type: Unit
+        direction: negative
+      - id: AC-154
+        path: internal/corpus/boundary_test.go
+        subject: test TestAC154_UnitPositive_AScaffoldedTemplateIsAShippedCarrier
+        type: Unit
+        direction: positive
+      - id: AC-154
+        path: internal/corpus/boundary_test.go
+        subject: test TestAC154_UnitPositive_AdopterRuleNamingAShippedCarrierPasses
+        type: Unit
+        direction: positive
+      - id: AC-154
+        path: internal/corpus/boundary_test.go
+        subject: test TestAC154_UnitPositive_AnAdopterAndAnUndeclaredRepoAreNotJudged
+        type: Unit
+        direction: positive
+      - id: AC-059
+        path: internal/corpus/brownfield_test.go
+        subject: test TestAC059_UnitNegative_ExtendedIDRulesRejectMalformedAndCollidingForms
+        type: Unit
+        direction: negative
+      - id: AC-059
+        path: internal/corpus/brownfield_test.go
+        subject: test TestAC059_UnitPositive_ExtendedIDsPassAndCoverage
+        type: Unit
+        direction: positive
+      - id: AC-060
+        path: internal/corpus/brownfield_test.go
+        subject: test TestAC060_UnitNegative_ExtendedEvidenceRejectsMalformedCarrier
+        type: Unit
+        direction: negative
+      - id: AC-060
+        path: internal/corpus/brownfield_test.go
+        subject: test TestAC060_UnitPositive_ExtendedIDsWorkAcrossEvidenceCarriers
+        type: Unit
+        direction: positive
+      - id: AC-060
+        path: internal/corpus/brownfield_test.go
+        subject: test TestAC060_UnitPositive_TagsOutsideDeclaredNamespacesStayRunnerMetadata
+        type: Unit
+        direction: positive
+      - id: AC-133
+        path: internal/corpus/context_test.go
+        subject: test TestAC133_UnitNegative_ContextRejectsUnknownAndAmbiguousIDs
+        type: Unit
+        direction: negative
+      - id: AC-133
+        path: internal/corpus/context_test.go
+        subject: test TestAC133_UnitNegative_ContextReportsNoUnfollowedEdgeFromAnExcludedArtifact
+        type: Unit
+        direction: negative
+      - id: AC-133
+        path: internal/corpus/context_test.go
+        subject: test TestAC133_UnitPositive_ContextBoundsTheSliceAndNamesWhatItHeldBack
+        type: Unit
+        direction: positive
+      - id: AC-133
+        path: internal/corpus/context_test.go
+        subject: test TestAC133_UnitPositive_ContextFollowsTransitiveLinksAndEmbeddedIDs
+        type: Unit
+        direction: positive
+      - id: AC-133
+        path: internal/corpus/context_test.go
+        subject: test TestAC133_UnitPositive_ContextReportsUnfollowedEdgesAndKeepsSlicing
+        type: Unit
+        direction: positive
+      - id: AC-133
+        path: internal/corpus/context_test.go
+        subject: test TestAC133_UnitPositive_ContextTreatsProseMilestoneMentionsAsReferences
+        type: Unit
+        direction: positive
+      - id: AC-089
+        path: internal/corpus/conventions_test.go
+        subject: test TestAC089_UnitNegative_RegisterFieldsAndDeclarationsRejected
+        type: Unit
+        direction: negative
+      - id: AC-089
+        path: internal/corpus/conventions_test.go
+        subject: test TestAC089_UnitPositive_RegisterClassesAndDeclarationsAccepted
+        type: Unit
+        direction: positive
+      - id: AC-090
+        path: internal/corpus/conventions_test.go
+        subject: test TestAC090_UnitNegative_BlockStatesDoNotSwallowProse
+        type: Unit
+        direction: negative
+      - id: AC-090
+        path: internal/corpus/conventions_test.go
+        subject: test TestAC090_UnitNegative_HardWrappedProseAndListItemsRejected
+        type: Unit
+        direction: negative
+      - id: AC-090
+        path: internal/corpus/conventions_test.go
+        subject: test TestAC090_UnitPositive_StructuralLineBreaksArePermitted
+        type: Unit
+        direction: positive
+      - id: AC-090
+        path: internal/corpus/conventions_test.go
+        subject: test TestAC090_UnitPositive_VerbatimBlocksAreNotProse
+        type: Unit
+        direction: positive
+      - id: AC-091
+        path: internal/corpus/conventions_test.go
+        subject: test TestAC091_UnitNegative_SkippedTaskWithoutAReasonRejected
+        type: Unit
+        direction: negative
+      - id: AC-091
+        path: internal/corpus/conventions_test.go
+        subject: test TestAC091_UnitPositive_IndentedExamplesAreNotTasks
+        type: Unit
+        direction: positive
+      - id: AC-091
+        path: internal/corpus/conventions_test.go
+        subject: test TestAC091_UnitPositive_SkippedTaskWithAReasonPasses
+        type: Unit
+        direction: positive
+      - id: AC-092
+        path: internal/corpus/conventions_test.go
+        subject: test TestAC092_UnitNegative_ProposalWithoutADeclarationRejected
+        type: Unit
+        direction: negative
+      - id: AC-092
+        path: internal/corpus/conventions_test.go
+        subject: test TestAC092_UnitPositive_PlanItemOrPlanLessDeclarationAccepted
+        type: Unit
+        direction: positive
+      - id: AC-094
+        path: internal/corpus/conventions_test.go
+        subject: test TestAC094_UnitNegative_MissingTypeExtensionsRejected
+        type: Unit
+        direction: negative
+      - id: AC-094
+        path: internal/corpus/conventions_test.go
+        subject: test TestAC094_UnitPositive_TypeExtensionsPresentAndEmptySignatureAccepted
+        type: Unit
+        direction: positive
+      - id: AC-095
+        path: internal/corpus/conventions_test.go
+        subject: test TestAC095_UnitNegative_StatusOutsideTheVocabularyRejected
+        type: Unit
+        direction: negative
+      - id: AC-095
+        path: internal/corpus/conventions_test.go
+        subject: test TestAC095_UnitPositive_DeclaredVocabularyAndUnstatusedTablesAccepted
+        type: Unit
+        direction: positive
+      - id: AC-100
+        path: internal/corpus/conventions_test.go
+        subject: test TestAC100_UnitPositive_ImageFormsDoNotCreateValidationIssues
+        type: Unit
+        direction: positive
+      - id: AC-100
+        path: internal/corpus/conventions_test.go
+        subject: test TestAC100_UnitPositive_LocalImageLinksAndSVGAssetsAccepted
+        type: Unit
+        direction: positive
+      - id: AC-004
+        path: internal/corpus/corpus_test.go
+        subject: test TestAC004_ValidCorpusHasNoIssues
+      - id: AC-005
+        path: internal/corpus/corpus_test.go
+        subject: test TestAC005_MissingCoreFieldReported
+      - id: AC-005
+        path: internal/corpus/corpus_test.go
+        subject: test TestAC005_MissingFrontmatterReported
+      - id: AC-006
+        path: internal/corpus/corpus_test.go
+        subject: test TestAC006_MilestoneLinksResolveViaPlanBody
+      - id: AC-006
+        path: internal/corpus/corpus_test.go
+        subject: test TestAC006_UnresolvedLinkReported
+      - id: AC-007
+        path: internal/corpus/corpus_test.go
+        subject: test TestAC007_IndexDriftReported
+      - id: AC-007
+        path: internal/corpus/corpus_test.go
+        subject: test TestAC007_MissingIndexMarkersReported
+      - id: AC-008
+        path: internal/corpus/corpus_test.go
+        subject: test TestAC008_ForbidChangesGate
+      - id: AC-034
+        path: internal/corpus/corpus_test.go
+        subject: test TestAC034_BOMAtStartReported
+      - id: AC-034
+        path: internal/corpus/corpus_test.go
+        subject: test TestAC034_BOMFreeCorpusClean
+      - id: AC-034
+        path: internal/corpus/corpus_test.go
+        subject: test TestAC034_EmbeddedBOMReported
+      - id: AC-035
+        path: internal/corpus/corpus_test.go
+        subject: test TestAC035_BOMHiddenSecondFrontmatterReported
+      - id: AC-035
+        path: internal/corpus/corpus_test.go
+        subject: test TestAC035_SecondFrontmatterReported
+      - id: AC-035
+        path: internal/corpus/corpus_test.go
+        subject: test TestAC035_ThematicBreaksClean
+      - id: AC-049
+        path: internal/corpus/corpus_test.go
+        subject: test TestAC049_UnitNegative_RepeatedSupersedesEntryIsNotAConflict
+        type: Unit
+        direction: negative
+      - id: AC-049
+        path: internal/corpus/corpus_test.go
+        subject: test TestAC049_UnitNegative_SupersedesDeletedArtifactClean
+        type: Unit
+        direction: negative
+      - id: AC-049
+        path: internal/corpus/corpus_test.go
+        subject: test TestAC049_UnitPositive_ConflictingSupersedesClaimsRejected
+        type: Unit
+        direction: positive
+      - id: AC-049
+        path: internal/corpus/corpus_test.go
+        subject: test TestAC049_UnitPositive_RetiredStatusRejectedForDefaultLifecycle
+        type: Unit
+        direction: positive
+      - id: AC-049
+        path: internal/corpus/corpus_test.go
+        subject: test TestAC049_UnitPositive_RetiredStatusRejectedForGoal
+        type: Unit
+        direction: positive
+      - id: AC-049
+        path: internal/corpus/corpus_test.go
+        subject: test TestAC049_UnitPositive_SelfSupersedeRejected
+        type: Unit
+        direction: positive
+      - id: AC-049
+        path: internal/corpus/corpus_test.go
+        subject: test TestAC049_UnitPositive_SupersedesStillLiveArtifactReported
+        type: Unit
+        direction: positive
+      - id: AC-050
+        path: internal/corpus/corpus_test.go
+        subject: test TestAC050_UnitNegative_RepointedLinkIsClean
+        type: Unit
+        direction: negative
+      - id: AC-050
+        path: internal/corpus/corpus_test.go
+        subject: test TestAC050_UnitPositive_DanglingLinkNamesSuccessor
+        type: Unit
+        direction: positive
+      - id: AC-051
+        path: internal/corpus/corpus_test.go
+        subject: test TestAC051_DecisionsMustNotCarryProvenanceField
+      - id: AC-051
+        path: internal/corpus/corpus_test.go
+        subject: test TestAC051_InferredDecisionsAreVisibleButDoNotBlock
+      - id: AC-051
+        path: internal/corpus/corpus_test.go
+        subject: test TestAC051_UnitNegative_ProvenanceAndReversalCostAreLinted
+        type: Unit
+        direction: negative
+      - id: AC-051
+        path: internal/corpus/corpus_test.go
+        subject: test TestAC051_UnitNegative_ReversalCostIsBoundToProvenance
+        type: Unit
+        direction: negative
+      - id: AC-051
+        path: internal/corpus/corpus_test.go
+        subject: test TestAC051_UnitPositive_HighCostInferredMeaningBlocksActiveCapability
+        type: Unit
+        direction: positive
+      - id: AC-052
+        path: internal/corpus/corpus_test.go
+        subject: test TestAC052_UnitNegative_DraftCriterionIsNotALiveClaim
+        type: Unit
+        direction: negative
+      - id: AC-052
+        path: internal/corpus/corpus_test.go
+        subject: test TestAC052_UnitNegative_RealityMarkerRequiresAnalysisAndFailedClaimLink
+        type: Unit
+        direction: negative
+      - id: AC-052
+        path: internal/corpus/corpus_test.go
+        subject: test TestAC052_UnitPositive_RealityGapMapsCriterionToCapability
+        type: Unit
+        direction: positive
+      - id: AC-143
+        path: internal/corpus/corpus_test.go
+        subject: test TestAC143_UnitNegative_LegacyAndUnsupportedDecisionNamesFail
+        type: Unit
+        direction: negative
+      - id: AC-143
+        path: internal/corpus/corpus_test.go
+        subject: test TestAC143_UnitNegative_NestedDecisionLogFails
+        type: Unit
+        direction: negative
+      - id: AC-143
+        path: internal/corpus/corpus_test.go
+        subject: test TestAC143_UnitPositive_SubjectTypedDecisionNamesPass
+        type: Unit
+        direction: positive
+      - id: AC-151
+        path: internal/corpus/corpus_test.go
+        subject: test TestAC151_UnitNegative_MissingOrBootstrapSystemOverviewFails
+        type: Unit
+        direction: negative
+      - id: AC-151
+        path: internal/corpus/corpus_test.go
+        subject: test TestAC151_UnitPositive_SystemOverviewsAreRequiredAndActivated
+        type: Unit
+        direction: positive
+      - id: AC-186
+        path: internal/corpus/corpus_test.go
+        subject: test TestAC186_UnitNegative_VerifiedMeaningCannotCarryReversalCost
+        type: Unit
+        direction: negative
+      - id: AC-047
+        path: internal/corpus/coverage_test.go
+        subject: test TestAC047_UnitNegative_PartialAndGapCapabilitiesReportSeparately
+        type: Unit
+        direction: negative
+      - id: AC-047
+        path: internal/corpus/coverage_test.go
+        subject: test TestAC047_UnitPositive_FullySatisfiedCapabilityIsCovered
+        type: Unit
+        direction: positive
+      - id: AC-203
+        path: internal/corpus/evidence_test.go
+        subject: test TestAC203_UnitNegative_UnknownAndRetiredExportReferencesFail
+        type: Unit
+        direction: negative
+      - id: AC-203
+        path: internal/corpus/evidence_test.go
+        subject: test TestAC203_UnitPositive_CommonEvidenceFeedsValidationAndCoverage
+        type: Unit
+        direction: positive
+      - id: AC-206
+        path: internal/corpus/evidence_test.go
+        subject: test TestAC206_UnitNegative_InvalidExportDoesNotLeaveCoveredClaims
+        type: Unit
+        direction: negative
+      - id: AC-155
+        path: internal/corpus/expiry_test.go
+        subject: test TestAC155_UnitNegative_ADishonestCarriedByFails
+        type: Unit
+        direction: negative
+      - id: AC-155
+        path: internal/corpus/expiry_test.go
+        subject: test TestAC155_UnitNegative_CarriedByAnotherAnalysisFails
+        type: Unit
+        direction: negative
+      - id: AC-155
+        path: internal/corpus/expiry_test.go
+        subject: test TestAC155_UnitNegative_CarriedByOnANonAnalysisFails
+        type: Unit
+        direction: negative
+      - id: AC-155
+        path: internal/corpus/expiry_test.go
+        subject: test TestAC155_UnitPositive_AnAnalysisDeclaringNothingPasses
+        type: Unit
+        direction: positive
+      - id: AC-155
+        path: internal/corpus/expiry_test.go
+        subject: test TestAC155_UnitPositive_AnHonestCarriedByPasses
+        type: Unit
+        direction: positive
+      - id: AC-156
+        path: internal/corpus/expiry_test.go
+        subject: test TestAC156_UnitNegative_OneConditionAloneIsNotSpent
+        type: Unit
+        direction: negative
+      - id: AC-156
+        path: internal/corpus/expiry_test.go
+        subject: test TestAC156_UnitPositive_ASpentAnalysisIsDerived
+        type: Unit
+        direction: positive
+      - id: AC-158
+        path: internal/corpus/expiry_test.go
+        subject: test TestAC158_UnitNegative_ACitedSpikeIsWithheld
+        type: Unit
+        direction: negative
+      - id: AC-158
+        path: internal/corpus/expiry_test.go
+        subject: test TestAC158_UnitPositive_AnUncitedSpikeIsStillReported
+        type: Unit
+        direction: positive
+      - id: AC-157
+        path: internal/corpus/frozen_links_test.go
+        subject: test TestAC157_UnitNegative_ACompletedPlanStillFailsOnANeverDeclaredID
+        type: Unit
+        direction: negative
+      - id: AC-157
+        path: internal/corpus/frozen_links_test.go
+        subject: test TestAC157_UnitNegative_AnActivePlanStillRepoints
+        type: Unit
+        direction: negative
+      - id: AC-157
+        path: internal/corpus/frozen_links_test.go
+        subject: test TestAC157_UnitPositive_ACompletedPlanKeepsALinkToARetiredArtifact
+        type: Unit
+        direction: positive
+      - id: AC-115
+        path: internal/corpus/importedchange_rule_test.go
+        subject: test TestAC115_UnitNegative_MissingProofLinksTableFails
+        type: Unit
+        direction: negative
+      - id: AC-115
+        path: internal/corpus/importedchange_rule_test.go
+        subject: test TestAC115_UnitPositive_WellFormedImportedChangeRecordPasses
+        type: Unit
+        direction: positive
+      - id: AC-116
+        path: internal/corpus/importedchange_rule_test.go
+        subject: test TestAC116_UnitNegative_CompleteRecordWithUnprovenCriterionFails
+        type: Unit
+        direction: negative
+      - id: AC-116
+        path: internal/corpus/importedchange_rule_test.go
+        subject: test TestAC116_UnitPositive_CompleteRecordWithProvenCriterionPasses
+        type: Unit
+        direction: positive
+      - id: AC-117
+        path: internal/corpus/importedchange_rule_test.go
+        subject: test TestAC117_UnitNegative_TheSameRecordFailsOnceItClaimsComplete
+        type: Unit
+        direction: negative
+      - id: AC-117
+        path: internal/corpus/importedchange_rule_test.go
+        subject: test TestAC117_UnitPositive_InProgressRecordWithUnprovenCriterionPasses
+        type: Unit
+        direction: positive
+      - id: AC-162
+        path: internal/corpus/intent_test.go
+        subject: test TestAC162_UnitNegative_SecondVisionWrongAddressAndBootstrapFail
+        type: Unit
+        direction: negative
+      - id: AC-162
+        path: internal/corpus/intent_test.go
+        subject: test TestAC162_UnitPositive_OneVisionAtItsAddressPasses
+        type: Unit
+        direction: positive
+      - id: AC-163
+        path: internal/corpus/intent_test.go
+        subject: test TestAC163_UnitNegative_MisplacedMisnamedUnlinkedOrIncompleteUseCaseFails
+        type: Unit
+        direction: negative
+      - id: AC-163
+        path: internal/corpus/intent_test.go
+        subject: test TestAC163_UnitPositive_UseCasesAreCheckedForFormAndNeverRequired
+        type: Unit
+        direction: positive
+      - id: AC-164
+        path: internal/corpus/intent_test.go
+        subject: test TestAC164_UnitNegative_AnAbsentVisionIsAStateAndNotAnIssue
+        type: Unit
+        direction: negative
+      - id: AC-164
+        path: internal/corpus/intent_test.go
+        subject: test TestAC164_UnitPositive_IntentStateNamesTheVisionAndTheJourneys
+        type: Unit
+        direction: positive
+      - id: AC-165
+        path: internal/corpus/intent_test.go
+        subject: test TestAC165_UnitNegative_AnArtifactNoUseCaseNamesIsNamedByNothing
+        type: Unit
+        direction: negative
+      - id: AC-165
+        path: internal/corpus/intent_test.go
+        subject: test TestAC165_UnitPositive_UseCasesNamingAnArtifactAreFoundInPathOrder
+        type: Unit
+        direction: positive
+      - id: AC-202
+        path: internal/corpus/intent_test.go
+        subject: test TestAC202_UnitNegative_GoalWithNeitherCapabilityNorPlanHasEmptyLists
+        type: Unit
+        direction: negative
+      - id: AC-202
+        path: internal/corpus/intent_test.go
+        subject: test TestAC202_UnitPositive_GoalStateNamesCapabilitiesAndPlans
+        type: Unit
+        direction: positive
+      - id: AC-103
+        path: internal/corpus/ledger_rule_test.go
+        subject: test TestAC103_UnitNegative_LiveOrReservedIDPasses
+        type: Unit
+        direction: negative
+      - id: AC-103
+        path: internal/corpus/ledger_rule_test.go
+        subject: test TestAC103_UnitNegative_NoLedgerFileIsUnaffected
+        type: Unit
+        direction: negative
+      - id: AC-103
+        path: internal/corpus/ledger_rule_test.go
+        subject: test TestAC103_UnitPositive_LiveIDMissingFromLedgerRejected
+        type: Unit
+        direction: positive
+      - id: AC-103
+        path: internal/corpus/ledger_rule_test.go
+        subject: test TestAC103_UnitPositive_NonLiveLedgerCriterionRejectedWhenDeclaredLive
+        type: Unit
+        direction: positive
+      - id: AC-103
+        path: internal/corpus/ledger_rule_test.go
+        subject: test TestAC103_UnitPositive_NonLiveLedgerIDRejectedWhenLiveAgain
+        type: Unit
+        direction: positive
+      - id: AC-103
+        path: internal/corpus/ledger_rule_test.go
+        subject: test TestAC103_UnitPositive_ReservedIDRejectedWhenLiveAgain
+        type: Unit
+        direction: positive
+      - id: AC-103
+        path: internal/corpus/ledger_rule_test.go
+        subject: test TestAC103_UnitPositive_RetiredCriterionInDraftArtifactMustRemainRetired
+        type: Unit
+        direction: positive
+      - id: AC-104
+        path: internal/corpus/ledger_rule_test.go
+        subject: test TestAC104_UnitNegative_WellFormedEntriesPass
+        type: Unit
+        direction: negative
+      - id: AC-104
+        path: internal/corpus/ledger_rule_test.go
+        subject: test TestAC104_UnitPositive_MalformedLedgerEntryShapeRejected
+        type: Unit
+        direction: positive
+      - id: AC-104
+        path: internal/corpus/ledger_rule_test.go
+        subject: test TestAC104_UnitPositive_UnknownLedgerStateRejectedForLiveArtifact
+        type: Unit
+        direction: positive
+      - id: AC-106
+        path: internal/corpus/ledger_rule_test.go
+        subject: test TestAC106_UnitNegative_FreshDistinctOpaqueIDPasses
+        type: Unit
+        direction: negative
+      - id: AC-106
+        path: internal/corpus/ledger_rule_test.go
+        subject: test TestAC106_UnitPositive_RetiredOpaqueIDRejectedWhenLiveAgain
+        type: Unit
+        direction: positive
+      - id: AC-179
+        path: internal/corpus/ledger_rule_test.go
+        subject: test TestAC179_UnitNegative_ValidateSaysNothingAboutAWellFormedLedger
+        type: Unit
+        direction: negative
+      - id: AC-179
+        path: internal/corpus/ledger_rule_test.go
+        subject: test TestAC179_UnitPositive_ValidateNamesAUnionMergedLedgerAndItsRepair
+        type: Unit
+        direction: positive
+      - id: AC-189
+        path: internal/corpus/ledger_rule_test.go
+        subject: test TestAC189_UnitNegative_DistinctMilestoneIDsAcrossPlansPass
+        type: Unit
+        direction: negative
+      - id: AC-189
+        path: internal/corpus/ledger_rule_test.go
+        subject: test TestAC189_UnitNegative_MilestoneLedgerStateAgreementPasses
+        type: Unit
+        direction: negative
+      - id: AC-189
+        path: internal/corpus/ledger_rule_test.go
+        subject: test TestAC189_UnitPositive_DoneMilestoneStillMarkedLiveInLedgerRejected
+        type: Unit
+        direction: positive
+      - id: AC-189
+        path: internal/corpus/ledger_rule_test.go
+        subject: test TestAC189_UnitPositive_DuplicateMilestoneIDAcrossPlansRejected
+        type: Unit
+        direction: positive
+      - id: AC-189
+        path: internal/corpus/ledger_rule_test.go
+        subject: test TestAC189_UnitPositive_MilestoneLedgerStateMismatchRejected
+        type: Unit
+        direction: positive
+      - id: AC-186
+        path: internal/corpus/plans_test.go
+        subject: test TestAC186_UnitNegative_PlanMilestonesIgnoreExamplesAndFinishedRows
+        type: Unit
+        direction: negative
+      - id: AC-186
+        path: internal/corpus/plans_test.go
+        subject: test TestAC186_UnitPositive_UnfinishedMilestonesPrioritizeDoingAndDraftIsSeparate
+        type: Unit
+        direction: positive
+      - id: AC-187
+        path: internal/corpus/plans_test.go
+        subject: test TestAC187_UnitNegative_LedgerMilestoneIdentitiesEmptyWithoutPlans
+        type: Unit
+        direction: negative
+      - id: AC-187
+        path: internal/corpus/plans_test.go
+        subject: test TestAC187_UnitPositive_LedgerMilestoneIdentitiesSpanEveryPlanStatusInIDOrder
+        type: Unit
+        direction: positive
+      - id: AC-135
+        path: internal/corpus/readcost_test.go
+        subject: test TestAC135_UnitNegative_ReadCostBacklogsIgnoreExamplesFrozenPlansAndSlicesAtBudget
+        type: Unit
+        direction: negative
+      - id: AC-135
+        path: internal/corpus/readcost_test.go
+        subject: test TestAC135_UnitPositive_ReadCostBacklogsNameMultiDocumentArtifactsAndWideSlices
+        type: Unit
+        direction: positive
+      - id: AC-066
+        path: internal/corpus/references_test.go
+        subject: test TestAC066_UnitNegative_ADoubleBacktickSpanIsStillContent
+        type: Unit
+        direction: negative
+      - id: AC-066
+        path: internal/corpus/references_test.go
+        subject: test TestAC066_UnitNegative_AnUnclosedRunDoesNotBlindTheRestOfTheLine
+        type: Unit
+        direction: negative
+      - id: AC-066
+        path: internal/corpus/references_test.go
+        subject: test TestAC066_UnitNegative_QualifiedAndNonReferenceFormsAreNotFindings
+        type: Unit
+        direction: negative
+      - id: AC-066
+        path: internal/corpus/references_test.go
+        subject: test TestAC066_UnitPositive_BareForgeReferenceIsTheOnlyFinding
+        type: Unit
+        direction: positive
+      - id: AC-066
+        path: internal/corpus/references_test.go
+        subject: test TestAC066_UnitPositive_LineNamesWhatAReaderOpens
+        type: Unit
+        direction: positive
+      - id: AC-066
+        path: internal/corpus/references_test.go
+        subject: test TestAC066_UnitPositive_TheChecksAreWiredIntoTheJudge
+        type: Unit
+        direction: positive
+      - id: AC-067
+        path: internal/corpus/references_test.go
+        subject: test TestAC067_UnitNegative_AMalformedPointerIsNamedInFull
+        type: Unit
+        direction: negative
+      - id: AC-067
+        path: internal/corpus/references_test.go
+        subject: test TestAC067_UnitNegative_ASchemeWithNoNamespaceIsMalformed
+        type: Unit
+        direction: negative
+      - id: AC-067
+        path: internal/corpus/references_test.go
+        subject: test TestAC067_UnitNegative_AnExampleInAFenceIsNotAClaim
+        type: Unit
+        direction: negative
+      - id: AC-067
+        path: internal/corpus/references_test.go
+        subject: test TestAC067_UnitNegative_CapitalisedProseIsNotAPointer
+        type: Unit
+        direction: negative
+      - id: AC-067
+        path: internal/corpus/references_test.go
+        subject: test TestAC067_UnitNegative_MalformedPointersFailValidation
+        type: Unit
+        direction: negative
+      - id: AC-067
+        path: internal/corpus/references_test.go
+        subject: test TestAC067_UnitNegative_OrdinaryProseIsNotABrokenPointer
+        type: Unit
+        direction: negative
+      - id: AC-067
+        path: internal/corpus/references_test.go
+        subject: test TestAC067_UnitPositive_CrossRepositoryIdentityNeedsNoRevision
+        type: Unit
+        direction: positive
+      - id: AC-067
+        path: internal/corpus/references_test.go
+        subject: test TestAC067_UnitPositive_ForeignEvidencePointerIsWellFormed
+        type: Unit
+        direction: positive
+      - id: AC-067
+        path: internal/corpus/references_test.go
+        subject: test TestAC067_UnitPositive_WellFormedPointerPassesAndIsReportable
+        type: Unit
+        direction: positive
+      - id: AC-068
+        path: internal/corpus/references_test.go
+        subject: test TestAC068_UnitNegative_TheJudgeCannotReachTheNetwork
+        type: Unit
+        direction: negative
+      - id: AC-029
+        path: internal/corpus/skillversions_test.go
+        subject: test TestAC029_DelimiterLookalikeDoesNotHideMalformedMarkedSkill
+      - id: AC-029
+        path: internal/corpus/skillversions_test.go
+        subject: test TestAC029_InvalidOwnershipMarkerFails
+      - id: AC-029
+        path: internal/corpus/skillversions_test.go
+        subject: test TestAC029_MalformedNestedMarkerDoesNotClaimThirdPartySkill
+      - id: AC-029
+        path: internal/corpus/skillversions_test.go
+        subject: test TestAC029_OwnershipMarkerScopesValidation
+      - id: AC-029
+        path: internal/corpus/skillversions_test.go
+        subject: test TestAC029_UnterminatedOwnershipFrontmatterFails
+      - id: AC-031
+        path: internal/corpus/skillversions_test.go
+        subject: test TestAC031_MalformedMarkedFrontmatterIsNamedAsSuch
+      - id: AC-031
+        path: internal/corpus/skillversions_test.go
+        subject: test TestAC031_MarkedSkillWithVersionPasses
+      - id: AC-031
+        path: internal/corpus/skillversions_test.go
+        subject: test TestAC031_MarkedSkillWithoutVersionFails
+      - id: AC-031
+        path: internal/corpus/skillversions_test.go
+        subject: test TestAC031_NonStringVersionIsNamedAsSuch
+      - id: AC-032
+        path: internal/corpus/skillversions_test.go
+        subject: test TestAC032_ConsistentMarkedSkillVersionsPass
+      - id: AC-032
+        path: internal/corpus/skillversions_test.go
+        subject: test TestAC032_DivergentMarkedSkillVersionsFail
+      - id: AC-032
+        path: internal/corpus/skillversions_test.go
+        subject: test TestAC032_OutlierIsNamedEvenWhenSortedFirst
+      - id: AC-033
+        path: internal/corpus/skillversions_test.go
+        subject: test TestAC033_DevMatchingAndUnmarkedSkillsDoNotDrift
+      - id: AC-033
+        path: internal/corpus/skillversions_test.go
+        subject: test TestAC033_ReleasedBinaryDriftFails
+      - id: AC-037
+        path: internal/corpus/skillversions_test.go
+        subject: test TestAC037_ADirectoryNamedSkillMdIsNotAManifest
+      - id: AC-037
+        path: internal/corpus/skillversions_test.go
+        subject: test TestAC037_ASymlinkedManifestIsAManifest
+      - id: AC-037
+        path: internal/corpus/skillversions_test.go
+        subject: test TestAC037_AmbiguityIsReportedForAnUnmarkedSkill
+      - id: AC-037
+        path: internal/corpus/skillversions_test.go
+        subject: test TestAC037_TwoCaseVariantsAreReportedAmbiguous
+      - id: AC-037
+        path: internal/corpus/skillversions_test.go
+        subject: test TestAC037_UppercaseManifestJoinsManagedSet
+      - id: AC-079
+        path: internal/corpus/skillversions_test.go
+        subject: test TestAC079_UnitNegative_TheRuleItselfIsUnchanged
+        type: Unit
+        direction: negative
+      - id: AC-079
+        path: internal/corpus/skillversions_test.go
+        subject: test TestAC079_UnitPositive_DriftNamesTheWayOutAndTheWayToStay
+        type: Unit
+        direction: positive
+      - id: AC-082
+        path: internal/corpus/skillversions_test.go
+        subject: test TestAC082_UnitNegative_UnmarkedNonCliewenSkillPasses
+        type: Unit
+        direction: negative
+      - id: AC-082
+        path: internal/corpus/skillversions_test.go
+        subject: test TestAC082_UnitPositive_UnmarkedReservedCliewenSkillFails
+        type: Unit
+        direction: positive
+      - id: AC-037
+        path: internal/corpus/skillversions_unix_test.go
+        subject: test TestAC037_ANamedPipeIsNotAManifest
+      - id: AC-203
+        path: internal/evidence/evidence_test.go
+        subject: test TestAC203_UnitNegative_InvalidReferencesDoNotPassShape
+        type: Unit
+        direction: negative
+      - id: AC-203
+        path: internal/evidence/evidence_test.go
+        subject: test TestAC203_UnitPositive_CommonContractKeepsCanonicalMetadata
+        type: Unit
+        direction: positive
+      - id: AC-204
+        path: internal/evidence/evidence_test.go
+        subject: test TestAC204_UnitNegative_FailedAggregatePreservesCompleteExport
+        type: Unit
+        direction: negative
+      - id: AC-204
+        path: internal/evidence/evidence_test.go
+        subject: test TestAC204_UnitPositive_MultipleProducersAreDeterministic
+        type: Unit
+        direction: positive
+      - id: AC-205
+        path: internal/evidence/evidence_test.go
+        subject: test TestAC205_UnitNegative_ChangedAddedDeletedOrUnsafeInputsInvalidateEvidence
+        type: Unit
+        direction: negative
+      - id: AC-205
+        path: internal/evidence/evidence_test.go
+        subject: test TestAC205_UnitPositive_LineEndingsAndExcludedOutputsKeepEvidenceCurrent
+        type: Unit
+        direction: positive
+      - id: AC-206
+        path: internal/evidence/evidence_test.go
+        subject: test TestAC206_UnitNegative_InvalidExchangesGiveNoReferences
+        type: Unit
+        direction: negative
+      - id: AC-206
+        path: internal/evidence/evidence_test.go
+        subject: test TestAC206_UnitPositive_UnknownFrameworkNeedsNoInstalledRunner
+        type: Unit
+        direction: positive
+      - id: AC-204
+        path: internal/evidenceexport/examples_test.go
+        subject: test TestAC204_UnitNegative_ShippedAggregateDoesNotPublishFailedProducer
+        type: Unit
+        direction: negative
+      - id: AC-204
+        path: internal/evidenceexport/examples_test.go
+        subject: test TestAC204_UnitPositive_ShippedAggregateProducesJudgeReadableDeterministicBytes
+        type: Unit
+        direction: positive
+      - id: AC-207
+        path: internal/evidenceexport/examples_test.go
+        subject: test TestAC207_UnitNegative_ExamplesRejectContainersAmbiguityAndUnregisteredScenarios
+        type: Unit
+        direction: negative
+      - id: AC-207
+        path: internal/evidenceexport/examples_test.go
+        subject: test TestAC207_UnitNegative_VitestSuiteAndAmbiguousMetadataGiveDiagnostics
+        type: Unit
+        direction: negative
+      - id: AC-207
+        path: internal/evidenceexport/examples_test.go
+        subject: test TestAC207_UnitPositive_ExamplesBindDirectMetadataAndFallback
+        type: Unit
+        direction: positive
+      - id: AC-207
+        path: internal/evidenceexport/examples_test.go
+        subject: test TestAC207_UnitPositive_VitestNativeTagsAndParameterizedDeclarations
+        type: Unit
+        direction: positive
+      - id: AC-170
+        path: internal/idalloc/idalloc_test.go
+        subject: test TestAC170_IntegrationPositive_AllocateImportsRemoteHighWater
+        type: Integration
+        direction: positive
+      - id: AC-171
+        path: internal/idalloc/idalloc_test.go
+        subject: test TestAC171_IntegrationPositive_ConcurrentClonesReceiveUniqueSequentialIDs
+        type: Integration
+        direction: positive
+      - id: AC-172
+        path: internal/idalloc/idalloc_test.go
+        subject: test TestAC172_IntegrationPositive_ConcurrentWorktreesShareTheRemoteCAS
+        type: Integration
+        direction: positive
+      - id: AC-172
+        path: internal/idalloc/idalloc_test.go
+        subject: test TestAC172_IntegrationPositive_ParallelWorktreeAllocationsMergeCleanly
+        type: Integration
+        direction: positive
+      - id: AC-173
+        path: internal/idalloc/idalloc_test.go
+        subject: test TestAC173_IntegrationNegative_SyncRefusesAnUncoordinatedLedger
+        type: Integration
+        direction: negative
+      - id: AC-173
+        path: internal/idalloc/idalloc_test.go
+        subject: test TestAC173_IntegrationPositive_BatchAndReadOnlySync
+        type: Integration
+        direction: positive
+      - id: AC-175
+        path: internal/idalloc/idalloc_test.go
+        subject: test TestAC175_IntegrationNegative_MalformedRemoteFailsClosed
+        type: Integration
+        direction: negative
+      - id: AC-175
+        path: internal/idalloc/idalloc_test.go
+        subject: test TestAC175_IntegrationNegative_MissingEstablishedRefFailsClosed
+        type: Integration
+        direction: negative
+      - id: AC-175
+        path: internal/idalloc/idalloc_test.go
+        subject: test TestAC175_IntegrationNegative_UnreachableRemoteFailsClosed
+        type: Integration
+        direction: negative
+      - id: AC-176
+        path: internal/idalloc/idalloc_test.go
+        subject: test TestAC176_IntegrationPositive_MigratedHighWaterSurvivesCoordination
+        type: Integration
+        direction: positive
+      - id: AC-177
+        path: internal/idalloc/idalloc_test.go
+        subject: test TestAC177_IntegrationPositive_AmbiguousPushSuccessDoesNotAllocateAgain
+        type: Integration
+        direction: positive
+      - id: AC-177
+        path: internal/idalloc/idalloc_test.go
+        subject: test TestAC177_IntegrationPositive_SyncRecoversClaimAfterLocalSaveFailure
+        type: Integration
+        direction: positive
+      - id: AC-181
+        path: internal/idalloc/idalloc_test.go
+        subject: test TestAC181_IntegrationNegative_CoordinateRefusesToRepointAnEstablishedRemote
+        type: Integration
+        direction: negative
+      - id: AC-181
+        path: internal/idalloc/idalloc_test.go
+        subject: test TestAC181_IntegrationPositive_DisagreeingRemotesConflictAtMergeTime
+        type: Integration
+        direction: positive
+      - id: AC-115
+        path: internal/importedchange/importedchange_test.go
+        subject: test TestAC115_UnitNegative_RecordWithNoProofLinksSectionHasNoInspectableProof
+        type: Unit
+        direction: negative
+      - id: AC-115
+        path: internal/importedchange/importedchange_test.go
+        subject: test TestAC115_UnitPositive_RecordHoldsProposalDesignDependencyAndProofTask
+        type: Unit
+        direction: positive
+      - id: AC-116
+        path: internal/importedchange/importedchange_test.go
+        subject: test TestAC116_UnitNegative_CompleteRecordWithUnprovenLinkIsRejected
+        type: Unit
+        direction: negative
+      - id: AC-116
+        path: internal/importedchange/importedchange_test.go
+        subject: test TestAC116_UnitPositive_CompleteRecordWithAllLinksProvenPasses
+        type: Unit
+        direction: positive
+      - id: AC-117
+        path: internal/importedchange/importedchange_test.go
+        subject: test TestAC117_UnitNegative_TheSameUnprovenLinkFailsOnceStatusClaimsComplete
+        type: Unit
+        direction: negative
+      - id: AC-117
+        path: internal/importedchange/importedchange_test.go
+        subject: test TestAC117_UnitPositive_UnprovenLinksIsAPureCheckStatusIsTheCallersGate
+        type: Unit
+        direction: positive
+      - id: AC-102
+        path: internal/ledger/ledger_test.go
+        subject: test TestAC102_UnitNegative_OpaqueIDRejectedOnReuse
+        type: Unit
+        direction: negative
+      - id: AC-102
+        path: internal/ledger/ledger_test.go
+        subject: test TestAC102_UnitPositive_OpaqueIDPreservedVerbatim
+        type: Unit
+        direction: positive
+      - id: AC-104
+        path: internal/ledger/ledger_test.go
+        subject: test TestAC104_UnitPositive_LoadRejectsDuplicateCanonicalID
+        type: Unit
+        direction: positive
+      - id: AC-104
+        path: internal/ledger/ledger_test.go
+        subject: test TestAC104_UnitPositive_LoadRejectsMissingOrLowNumericCounter
+        type: Unit
+        direction: positive
+      - id: AC-104
+        path: internal/ledger/ledger_test.go
+        subject: test TestAC104_UnitPositive_LoadRejectsNullOrNegativeCounter
+        type: Unit
+        direction: positive
+      - id: AC-105
+        path: internal/ledger/ledger_test.go
+        subject: test TestAC105_UnitNegative_FreshlyIssuedNumberIsUnused
+        type: Unit
+        direction: negative
+      - id: AC-105
+        path: internal/ledger/ledger_test.go
+        subject: test TestAC105_UnitPositive_RetiredNumericIDNeverReissued
+        type: Unit
+        direction: positive
+      - id: AC-169
+        path: internal/ledger/ledger_test.go
+        subject: test TestAC169_UnitNegative_EventLedgerRejectsConflictingIdentityMetadata
+        type: Unit
+        direction: negative
+      - id: AC-169
+        path: internal/ledger/ledger_test.go
+        subject: test TestAC169_UnitNegative_EventLedgerRejectsUnknownSchemaVersion
+        type: Unit
+        direction: negative
+      - id: AC-169
+        path: internal/ledger/ledger_test.go
+        subject: test TestAC169_UnitPositive_EventLedgerFoldsLifecycleMonotonically
+        type: Unit
+        direction: positive
+      - id: AC-170
+        path: internal/ledger/ledger_test.go
+        subject: test TestAC170_UnitNegative_MergeClaimsRejectsConflictingMetadata
+        type: Unit
+        direction: negative
+      - id: AC-170
+        path: internal/ledger/ledger_test.go
+        subject: test TestAC170_UnitPositive_MergeClaimsIsIdempotentAndNeverDowngrades
+        type: Unit
+        direction: positive
+      - id: AC-174
+        path: internal/ledger/ledger_test.go
+        subject: test TestAC174_UnitNegative_NextNumericRejectsNonCanonicalPrefix
+        type: Unit
+        direction: negative
+      - id: AC-174
+        path: internal/ledger/ledger_test.go
+        subject: test TestAC174_UnitNegative_PrefixAbsentFromLedgerStartsAtOne
+        type: Unit
+        direction: negative
+      - id: AC-174
+        path: internal/ledger/ledger_test.go
+        subject: test TestAC174_UnitPositive_NextNumericIncrementsStoredHighWater
+        type: Unit
+        direction: positive
+      - id: AC-179
+        path: internal/ledger/ledger_test.go
+        subject: test TestAC179_UnitNegative_DisagreeingCoordinationFailsClosed
+        type: Unit
+        direction: negative
+      - id: AC-179
+        path: internal/ledger/ledger_test.go
+        subject: test TestAC179_UnitNegative_DuplicateRemoteInsideCoordinationFailsClosed
+        type: Unit
+        direction: negative
+      - id: AC-179
+        path: internal/ledger/ledger_test.go
+        subject: test TestAC179_UnitNegative_UndamagedLedgerReportsNoDamage
+        type: Unit
+        direction: negative
+      - id: AC-179
+        path: internal/ledger/ledger_test.go
+        subject: test TestAC179_UnitPositive_DuplicateCoordinationKeyWithOneValueReconciles
+        type: Unit
+        direction: positive
+      - id: AC-179
+        path: internal/ledger/ledger_test.go
+        subject: test TestAC179_UnitPositive_SavingARecoveredLedgerRewritesItClean
+        type: Unit
+        direction: positive
+      - id: AC-179
+        path: internal/ledger/ledger_test.go
+        subject: test TestAC179_UnitPositive_UnionMergedLedgerLoadsAndFoldsBothHalves
+        type: Unit
+        direction: positive
+      - id: AC-181
+        path: internal/ledger/ledger_test.go
+        subject: test TestAC181_IntegrationPositive_CoordinationIsStoredOutsideTheMergedLedger
+        type: Integration
+        direction: positive
+      - id: AC-181
+        path: internal/ledger/ledger_test.go
+        subject: test TestAC181_IntegrationPositive_InlineCoordinationStillLoadsAndMovesOutOnSave
+        type: Integration
+        direction: positive
+      - id: AC-183
+        path: internal/ledger/ledger_test.go
+        subject: test TestAC183_IntegrationNegative_FreshLedgerSaveKeepsCoordinationFile
+        type: Integration
+        direction: negative
+      - id: AC-183
+        path: internal/ledger/ledger_test.go
+        subject: test TestAC183_IntegrationNegative_LegacyLedgerSaveKeepsCoordinationFile
+        type: Integration
+        direction: negative
+      - id: AC-183
+        path: internal/ledger/ledger_test.go
+        subject: test TestAC183_IntegrationNegative_PartialCoordinationFileFailsClosed
+        type: Integration
+        direction: negative
+      - id: AC-183
+        path: internal/ledger/ledger_test.go
+        subject: test TestAC183_IntegrationPositive_ASettingsFileSayingLocalIsRemovedOnSave
+        type: Integration
+        direction: positive
+      - id: AC-183
+        path: internal/ledger/ledger_test.go
+        subject: test TestAC183_IntegrationPositive_LocalModeKeepsNoCoordinationFile
+        type: Integration
+        direction: positive
+      - id: AC-072
+        path: internal/migrate/entrypoint_test.go
+        subject: test TestAC072_UnitNegative_ARoutedEntryPointProducesNoNotice
+        type: Unit
+        direction: negative
+      - id: AC-072
+        path: internal/migrate/entrypoint_test.go
+        subject: test TestAC072_UnitNegative_MigrateNeverWritesTheEntryPoint
+        type: Unit
+        direction: negative
+      - id: AC-072
+        path: internal/migrate/entrypoint_test.go
+        subject: test TestAC072_UnitPositive_AnImportThatResolvesNowhereIsReported
+        type: Unit
+        direction: positive
+      - id: AC-072
+        path: internal/migrate/entrypoint_test.go
+        subject: test TestAC072_UnitPositive_MigrateReportsAnEntryPointThatNeverReachesTheHub
+        type: Unit
+        direction: positive
+      - id: AC-208
+        path: internal/migrate/evidence_test.go
+        subject: test TestAC208_UnitNegative_CurrentExportNeedsNoEstablishmentNotice
+        type: Unit
+        direction: negative
+      - id: AC-208
+        path: internal/migrate/evidence_test.go
+        subject: test TestAC208_UnitPositive_MigrationNamesMissingExportWithoutWritingTests
+        type: Unit
+        direction: positive
+      - id: AC-084
+        path: internal/migrate/hub_test.go
+        subject: test TestAC084_UnitNegative_AHubThatAsksProducesNoNotice
+        type: Unit
+        direction: negative
+      - id: AC-084
+        path: internal/migrate/hub_test.go
+        subject: test TestAC084_UnitNegative_MigrateNeverWritesTheHub
+        type: Unit
+        direction: negative
+      - id: AC-084
+        path: internal/migrate/hub_test.go
+        subject: test TestAC084_UnitPositive_MigrateReportsAHubThatNeverAsks
+        type: Unit
+        direction: positive
+      - id: AC-167
+        path: internal/migrate/intent_test.go
+        subject: test TestAC167_UnitNegative_AVisionAndAFolderThatExistProduceNoNoticeOrChange
+        type: Unit
+        direction: negative
+      - id: AC-167
+        path: internal/migrate/intent_test.go
+        subject: test TestAC167_UnitPositive_MigrationReportsAMissingVisionAndAddsOnlyStructure
+        type: Unit
+        direction: positive
+      - id: AC-144
+        path: internal/migrate/legacy_log_test.go
+        subject: test TestAC144_UnitNegative_LegacyDecisionRowsBlockWithoutGuessing
+        type: Unit
+        direction: negative
+      - id: AC-144
+        path: internal/migrate/legacy_log_test.go
+        subject: test TestAC144_UnitNegative_LegacyRowsWithoutOuterPipesAreInventoried
+        type: Unit
+        direction: negative
+      - id: AC-144
+        path: internal/migrate/legacy_log_test.go
+        subject: test TestAC144_UnitPositive_ConvertedCorpusHasNoLegacyMigrationWork
+        type: Unit
+        direction: positive
+      - id: AC-064
+        path: internal/migrate/migrate_test.go
+        subject: test TestAC064_UnitNegative_BareReferencesAreReportedNeverRepaired
+        type: Unit
+        direction: negative
+      - id: AC-064
+        path: internal/migrate/migrate_test.go
+        subject: test TestAC064_UnitNegative_ManifestEntriesMatchTheReleaseTheyName
+        type: Unit
+        direction: negative
+      - id: AC-064
+        path: internal/migrate/migrate_test.go
+        subject: test TestAC064_UnitNegative_MigrationDoesNotWriteThroughManagedSymlink
+        type: Unit
+        direction: negative
+      - id: AC-064
+        path: internal/migrate/migrate_test.go
+        subject: test TestAC064_UnitNegative_MigrationRefusesAmbiguousAndModifiedInputs
+        type: Unit
+        direction: negative
+      - id: AC-064
+        path: internal/migrate/migrate_test.go
+        subject: test TestAC064_UnitNegative_MigrationRefusesFieldsItCannotAnchor
+        type: Unit
+        direction: negative
+      - id: AC-064
+        path: internal/migrate/migrate_test.go
+        subject: test TestAC064_UnitNegative_MigrationRejectsChangedSourceAfterPreview
+        type: Unit
+        direction: negative
+      - id: AC-064
+        path: internal/migrate/migrate_test.go
+        subject: test TestAC064_UnitNegative_MigrationRejectsCopiedOrAmbiguousCaller
+        type: Unit
+        direction: negative
+      - id: AC-064
+        path: internal/migrate/migrate_test.go
+        subject: test TestAC064_UnitNegative_MigrationRejectsUnsupportedSyntaxAndOptions
+        type: Unit
+        direction: negative
+      - id: AC-064
+        path: internal/migrate/migrate_test.go
+        subject: test TestAC064_UnitPositive_LegacyReleasesAreReportedOldestFirst
+        type: Unit
+        direction: positive
+      - id: AC-064
+        path: internal/migrate/migrate_test.go
+        subject: test TestAC064_UnitPositive_MigrationCoversREADMEsThatAreArtifacts
+        type: Unit
+        direction: positive
+      - id: AC-064
+        path: internal/migrate/migrate_test.go
+        subject: test TestAC064_UnitPositive_MigrationEditsOnlyTopLevelFields
+        type: Unit
+        direction: positive
+      - id: AC-064
+        path: internal/migrate/migrate_test.go
+        subject: test TestAC064_UnitPositive_MigrationIsPreviewableIdempotentAndCoordinated
+        type: Unit
+        direction: positive
+      - id: AC-064
+        path: internal/migrate/migrate_test.go
+        subject: test TestAC064_UnitPositive_MigrationPreservesEveryUntouchedLineEnding
+        type: Unit
+        direction: positive
+      - id: AC-064
+        path: internal/migrate/migrate_test.go
+        subject: test TestAC064_UnitPositive_MigrationRegistryIsOrdered
+        type: Unit
+        direction: positive
+      - id: AC-080
+        path: internal/migrate/migrate_test.go
+        subject: test TestAC080_UnitNegative_PartialManagedSetCannotAuthorizeNewSkill
+        type: Unit
+        direction: negative
+      - id: AC-080
+        path: internal/migrate/migrate_test.go
+        subject: test TestAC080_UnitPositive_RecognizedReleasedSetAddsNewManagedSkill
+        type: Unit
+        direction: positive
+      - id: AC-140
+        path: internal/migrate/migrate_test.go
+        subject: test TestAC140_UnitNegative_UnrecognizedPresentThinCallerStillBlocksMigration
+        type: Unit
+        direction: negative
+      - id: AC-140
+        path: internal/migrate/migrate_test.go
+        subject: test TestAC140_UnitPositive_MigrationMaterializesMissingThinCaller
+        type: Unit
+        direction: positive
+      - id: AC-141
+        path: internal/migrate/migrate_test.go
+        subject: test TestAC141_UnitNegative_OrdinaryWorkflowsAreNotCompetingWalls
+        type: Unit
+        direction: negative
+      - id: AC-141
+        path: internal/migrate/migrate_test.go
+        subject: test TestAC141_UnitPositive_MigrationReportsCompetingValidationWall
+        type: Unit
+        direction: positive
+      - id: AC-150
+        path: internal/migrate/migrate_test.go
+        subject: test TestAC150_UnitNegative_ASoleContributorIsNotSpelledOutInTheIndexDescription
+        type: Unit
+        direction: negative
+      - id: AC-150
+        path: internal/migrate/migrate_test.go
+        subject: test TestAC150_UnitNegative_MigrationKeepsExistingOverviewProse
+        type: Unit
+        direction: negative
+      - id: AC-150
+        path: internal/migrate/migrate_test.go
+        subject: test TestAC150_UnitPositive_MigrationCreatesMissingOverviewBootstraps
+        type: Unit
+        direction: positive
+      - id: AC-150
+        path: internal/migrate/migrate_test.go
+        subject: test TestAC150_UnitPositive_MigrationIndexesTheOverviewFoldersItCreates
+        type: Unit
+        direction: positive
+      - id: AC-176
+        path: internal/migrate/migrate_test.go
+        subject: test TestAC176_UnitNegative_MigrationDoesNotEnableGitCoordination
+        type: Unit
+        direction: negative
+      - id: AC-176
+        path: internal/migrate/migrate_test.go
+        subject: test TestAC176_UnitPositive_MigratePreservesVersionOneLedgerMeaning
+        type: Unit
+        direction: positive
+      - id: AC-178
+        path: internal/migrate/migrate_test.go
+        subject: test TestAC178_UnitNegative_ExistingLedgerFileIsUntouched
+        type: Unit
+        direction: negative
+      - id: AC-178
+        path: internal/migrate/migrate_test.go
+        subject: test TestAC178_UnitPositive_LedgerBackfillBytesAreDeterministic
+        type: Unit
+        direction: positive
+      - id: AC-178
+        path: internal/migrate/migrate_test.go
+        subject: test TestAC178_UnitPositive_MigrateBackfillsLedgerFromCurrentScan
+        type: Unit
+        direction: positive
+      - id: AC-178
+        path: internal/migrate/migrate_test.go
+        subject: test TestAC178_UnitPositive_MigrateBackfillsLiveAndRetiredCriteria
+        type: Unit
+        direction: positive
+      - id: AC-178
+        path: internal/migrate/migrate_test.go
+        subject: test TestAC178_UnitPositive_MigrateBackfillsSegmentedNumericPrefix
+        type: Unit
+        direction: positive
+      - id: AC-179
+        path: internal/migrate/migrate_test.go
+        subject: test TestAC179_UnitPositive_MigratePlansTheRepairOfAUnionMergedLedger
+        type: Unit
+        direction: positive
+      - id: AC-181
+        path: internal/migrate/migrate_test.go
+        subject: test TestAC181_IntegrationNegative_LocalMigrationPlansNoCoordinationFile
+        type: Integration
+        direction: negative
+      - id: AC-181
+        path: internal/migrate/migrate_test.go
+        subject: test TestAC181_IntegrationPositive_MigrationCarriesCoordinationOutOfTheLedger
+        type: Integration
+        direction: positive
+      - id: AC-187
+        path: internal/migrate/migrate_test.go
+        subject: test TestAC187_UnitNegative_NoPlansBackfillsNoMilestoneIdentity
+        type: Unit
+        direction: negative
+      - id: AC-187
+        path: internal/migrate/migrate_test.go
+        subject: test TestAC187_UnitPositive_MigrateBackfillsMilestoneIdentitiesFromPlanTables
+        type: Unit
+        direction: positive
+      - id: AC-188
+        path: internal/migrate/migrate_test.go
+        subject: test TestAC188_IntegrationPositive_ExistingLedgerBackfillsMilestonesAndAllocatesSafelyUnderCoordination
+        type: Integration
+        direction: positive
+      - id: AC-064
+        path: internal/migrate/promoted_test.go
+        subject: test TestAC064_UnitNegative_OwnAndPromotedConstraintsAreLeftAlone
+        type: Unit
+        direction: negative
+      - id: AC-064
+        path: internal/migrate/promoted_test.go
+        subject: test TestAC064_UnitPositive_PromotedConstraintIsReported
+        type: Unit
+        direction: positive
+      - id: AC-153
+        path: internal/migrate/role_expiry_test.go
+        subject: test TestAC153_UnitPositive_ADeclaredRoleIsNotReported
+        type: Unit
+        direction: positive
+      - id: AC-153
+        path: internal/migrate/role_expiry_test.go
+        subject: test TestAC153_UnitPositive_AnUndeclaredRoleIsANoticeAndNeverAFinding
+        type: Unit
+        direction: positive
+      - id: AC-156
+        path: internal/migrate/role_expiry_test.go
+        subject: test TestAC156_UnitNegative_ReportingASpentAnalysisNeverWritesOrBlocks
+        type: Unit
+        direction: negative
+      - id: AC-156
+        path: internal/migrate/role_expiry_test.go
+        subject: test TestAC156_UnitPositive_ASpentAnalysisIsReportedWithItsEvidence
+        type: Unit
+        direction: positive
+      - id: AC-123
+        path: internal/migration/migration_test.go
+        subject: test TestAC123_UnitNegative_disposableFixturesRejectRequiredFailurePaths
+        type: Unit
+        direction: negative
+      - id: AC-123
+        path: internal/migration/migration_test.go
+        subject: test TestAC123_UnitPositive_disposableFixturesProveComposedMigrationContract
+        type: Unit
+        direction: positive
+      - id: AC-128
+        path: internal/migration/migration_test.go
+        subject: test TestAC128_UnitNegative_assessmentScaleFixtureRejectsEveryFailureClass
+        type: Unit
+        direction: negative
+      - id: AC-128
+        path: internal/migration/migration_test.go
+        subject: test TestAC128_UnitPositive_assessmentScaleFixtureProvesComposedMigrationContract
+        type: Unit
+        direction: positive
+      - id: AC-129
+        path: internal/migration/migration_test.go
+        subject: test TestAC129_UnitNegative_orderedPinnedReleasePathRejectsItsViolations
+        type: Unit
+        direction: negative
+      - id: AC-129
+        path: internal/migration/migration_test.go
+        subject: test TestAC129_UnitPositive_orderedPinnedReleasePathHoldsAtAssessmentScale
+        type: Unit
+        direction: positive
+      - id: AC-109
+        path: internal/parity/parity_test.go
+        subject: test TestAC109_UnitNegative_dirtyRunFails
+        type: Unit
+        direction: negative
+      - id: AC-109
+        path: internal/parity/parity_test.go
+        subject: test TestAC109_UnitPositive_cleanRunPasses
+        type: Unit
+        direction: positive
+      - id: AC-110
+        path: internal/parity/parity_test.go
+        subject: test TestAC110_UnitNegative_manifestValidationRejectsIncompleteExclusion
+        type: Unit
+        direction: negative
+      - id: AC-110
+        path: internal/parity/parity_test.go
+        subject: test TestAC110_UnitNegative_missingCriterionFails
+        type: Unit
+        direction: negative
+      - id: AC-110
+        path: internal/parity/parity_test.go
+        subject: test TestAC110_UnitPositive_excludedEntryIsNotMissing
+        type: Unit
+        direction: positive
+      - id: AC-110
+        path: internal/parity/parity_test.go
+        subject: test TestAC110_UnitPositive_excludedEntryWithLingeringTargetEvidenceIsNotOrphaned
+        type: Unit
+        direction: positive
+      - id: AC-111
+        path: internal/parity/parity_test.go
+        subject: test TestAC111_UnitNegative_orphanedTagFails
+        type: Unit
+        direction: negative
+      - id: AC-111
+        path: internal/parity/parity_test.go
+        subject: test TestAC111_UnitPositive_unclassifiedEvidenceIsNotOrphaned
+        type: Unit
+        direction: positive
+      - id: AC-111
+        path: internal/parity/parity_test.go
+        subject: test TestAC111_UnitPositive_unmentionedTargetIsIgnored
+        type: Unit
+        direction: positive
+      - id: AC-112
+        path: internal/parity/parity_test.go
+        subject: test TestAC112_UnitNegative_addedEvidenceFails
+        type: Unit
+        direction: negative
+      - id: AC-112
+        path: internal/parity/parity_test.go
+        subject: test TestAC112_UnitNegative_changedLocationFails
+        type: Unit
+        direction: negative
+      - id: AC-112
+        path: internal/parity/parity_test.go
+        subject: test TestAC112_UnitNegative_manifestValidationRejectsMixedProofClasses
+        type: Unit
+        direction: negative
+      - id: AC-112
+        path: internal/parity/parity_test.go
+        subject: test TestAC112_UnitPositive_unchangedEvidenceIsNotReported
+        type: Unit
+        direction: positive
+      - id: AC-113
+        path: internal/parity/parity_test.go
+        subject: test TestAC113_UnitNegative_staleFingerprintFails
+        type: Unit
+        direction: negative
+      - id: AC-113
+        path: internal/parity/parity_test.go
+        subject: test TestAC113_UnitPositive_matchingFingerprintPasses
+        type: Unit
+        direction: positive
+      - id: AC-114
+        path: internal/parity/parity_test.go
+        subject: test TestAC114_UnitNegative_mismatchedDispositionFails
+        type: Unit
+        direction: negative
+      - id: AC-114
+        path: internal/parity/parity_test.go
+        subject: test TestAC114_UnitNegative_unjustifiedDispositionFails
+        type: Unit
+        direction: negative
+      - id: AC-114
+        path: internal/parity/parity_test.go
+        subject: test TestAC114_UnitPositive_justifiedDispositionPasses
+        type: Unit
+        direction: positive
+      - id: AC-125
+        path: internal/parity/parity_test.go
+        subject: test TestAC125_UnitNegative_doorlessCorpusFailsAndSaysWhy
+        type: Unit
+        direction: negative
+      - id: AC-125
+        path: internal/parity/parity_test.go
+        subject: test TestAC125_UnitNegative_missingOrUnknownAccountabilityFails
+        type: Unit
+        direction: negative
+      - id: AC-125
+        path: internal/parity/parity_test.go
+        subject: test TestAC125_UnitNegative_nonMilestoneTablesAndExamplesAreNotPlanDoors
+        type: Unit
+        direction: negative
+      - id: AC-125
+        path: internal/parity/parity_test.go
+        subject: test TestAC125_UnitNegative_reusedPlanDoorFails
+        type: Unit
+        direction: negative
+      - id: AC-125
+        path: internal/parity/parity_test.go
+        subject: test TestAC125_UnitPositive_accountableDispositionPasses
+        type: Unit
+        direction: positive
+      - id: AC-125
+        path: internal/parity/parity_test.go
+        subject: test TestAC125_UnitPositive_bareMilestoneTableIsAPlanDoor
+        type: Unit
+        direction: positive
+      - id: AC-126
+        path: internal/parity/report_test.go
+        subject: test TestAC126_UnitNegative_aRealRegionBesideDocumentedOnesStillFails
+        type: Unit
+        direction: negative
+      - id: AC-126
+        path: internal/parity/report_test.go
+        subject: test TestAC126_UnitNegative_anUnmatchedInnerFenceCannotHideARegion
+        type: Unit
+        direction: negative
+      - id: AC-126
+        path: internal/parity/report_test.go
+        subject: test TestAC126_UnitNegative_anUnterminatedFenceCannotHideARegion
+        type: Unit
+        direction: negative
+      - id: AC-126
+        path: internal/parity/report_test.go
+        subject: test TestAC126_UnitNegative_malformedRegionFails
+        type: Unit
+        direction: negative
+      - id: AC-126
+        path: internal/parity/report_test.go
+        subject: test TestAC126_UnitNegative_staleRegionFails
+        type: Unit
+        direction: negative
+      - id: AC-126
+        path: internal/parity/report_test.go
+        subject: test TestAC126_UnitNegative_typedFigureFails
+        type: Unit
+        direction: negative
+      - id: AC-126
+        path: internal/parity/report_test.go
+        subject: test TestAC126_UnitNegative_unreadableManifestFails
+        type: Unit
+        direction: negative
+      - id: AC-126
+        path: internal/parity/report_test.go
+        subject: test TestAC126_UnitPositive_anIndentedExampleIsNotARegion
+        type: Unit
+        direction: positive
+      - id: AC-126
+        path: internal/parity/report_test.go
+        subject: test TestAC126_UnitPositive_carriageReturnsAreNotADisagreement
+        type: Unit
+        direction: positive
+      - id: AC-126
+        path: internal/parity/report_test.go
+        subject: test TestAC126_UnitPositive_documentWithoutRegionIsUnaffected
+        type: Unit
+        direction: positive
+      - id: AC-126
+        path: internal/parity/report_test.go
+        subject: test TestAC126_UnitPositive_documentedMarkersAreNotRegions
+        type: Unit
+        direction: positive
+      - id: AC-126
+        path: internal/parity/report_test.go
+        subject: test TestAC126_UnitPositive_renderedRegionPasses
+        type: Unit
+        direction: positive
+      - id: AC-127
+        path: internal/parity/report_test.go
+        subject: test TestAC127_UnitNegative_reportWithoutRegionIsRefused
+        type: Unit
+        direction: negative
+      - id: AC-127
+        path: internal/parity/report_test.go
+        subject: test TestAC127_UnitPositive_aGreenCRLFReportIsLeftAlone
+        type: Unit
+        direction: positive
+      - id: AC-127
+        path: internal/parity/report_test.go
+        subject: test TestAC127_UnitPositive_regionIsRegenerated
+        type: Unit
+        direction: positive
+      - id: AC-068
+        path: internal/refs/refs_test.go
+        subject: test TestAC068_UnitNegative_AQueryStringIsPartOfTheAddress
+        type: Unit
+        direction: negative
+      - id: AC-068
+        path: internal/refs/refs_test.go
+        subject: test TestAC068_UnitNegative_AThrottleIsNotARefusal
+        type: Unit
+        direction: negative
+      - id: AC-068
+        path: internal/refs/refs_test.go
+        subject: test TestAC068_UnitNegative_ATimeoutIsUnknownAndDoesNotFail
+        type: Unit
+        direction: negative
+      - id: AC-068
+        path: internal/refs/refs_test.go
+        subject: test TestAC068_UnitNegative_OnlyGoneIsAnError
+        type: Unit
+        direction: negative
+      - id: AC-068
+        path: internal/refs/refs_test.go
+        subject: test TestAC068_UnitPositive_AnEmphasisedOrQuotedAddressIsStillSeen
+        type: Unit
+        direction: positive
+      - id: AC-068
+        path: internal/refs/refs_test.go
+        subject: test TestAC068_UnitPositive_EveryOutcomeIsClassified
+        type: Unit
+        direction: positive
+      - id: AC-069
+        path: internal/refs/refs_test.go
+        subject: test TestAC069_UnitNegative_ACarriageReturnDoesNotSkipTheRewrite
+        type: Unit
+        direction: negative
+      - id: AC-069
+        path: internal/refs/refs_test.go
+        subject: test TestAC069_UnitNegative_ACodeSpanIsContentNotACitation
+        type: Unit
+        direction: negative
+      - id: AC-069
+        path: internal/refs/refs_test.go
+        subject: test TestAC069_UnitNegative_ACredentialNeverReachesTheOrdinaryRequest
+        type: Unit
+        direction: negative
+      - id: AC-069
+        path: internal/refs/refs_test.go
+        subject: test TestAC069_UnitNegative_ALinkLabelIsContentNotACitation
+        type: Unit
+        direction: negative
+      - id: AC-069
+        path: internal/refs/refs_test.go
+        subject: test TestAC069_UnitNegative_ARenamedPrefixDoesNotCorruptLongerAddresses
+        type: Unit
+        direction: negative
+      - id: AC-069
+        path: internal/refs/refs_test.go
+        subject: test TestAC069_UnitNegative_ARewriteNeverReachesIntoACodeSpan
+        type: Unit
+        direction: negative
+      - id: AC-069
+        path: internal/refs/refs_test.go
+        subject: test TestAC069_UnitNegative_ASiblingSharingAPrefixIsNeverCorrupted
+        type: Unit
+        direction: negative
+      - id: AC-069
+        path: internal/refs/refs_test.go
+        subject: test TestAC069_UnitNegative_AnAddressEndingASentenceIsStillRewritten
+        type: Unit
+        direction: negative
+      - id: AC-069
+        path: internal/refs/refs_test.go
+        subject: test TestAC069_UnitNegative_CredentialGoesOnlyToItsIssuer
+        type: Unit
+        direction: negative
+      - id: AC-069
+        path: internal/refs/refs_test.go
+        subject: test TestAC069_UnitNegative_PinnedHistoryAndGoneAreNeverRewritten
+        type: Unit
+        direction: negative
+      - id: AC-069
+        path: internal/refs/refs_test.go
+        subject: test TestAC069_UnitNegative_PreviewWritesNothing
+        type: Unit
+        direction: negative
+      - id: AC-069
+        path: internal/refs/refs_test.go
+        subject: test TestAC069_UnitPositive_ApplyRewritesOnlyOrdinaryArtifacts
+        type: Unit
+        direction: positive
+      - id: AC-075
+        path: internal/release/release_test.go
+        subject: test TestAC075_UnitNegative_ACurrentOrSourceBuildIsNotBehind
+        type: Unit
+        direction: negative
+      - id: AC-075
+        path: internal/release/release_test.go
+        subject: test TestAC075_UnitPositive_EachPlatformGetsItsOwnRoute
+        type: Unit
+        direction: positive
+      - id: AC-077
+        path: internal/release/release_test.go
+        subject: test TestAC077_UnitNegative_AnErrorStatusIsNotAnAnswer
+        type: Unit
+        direction: negative
+      - id: AC-077
+        path: internal/release/release_test.go
+        subject: test TestAC077_UnitNegative_AnUnboundedBodyIsNotRead
+        type: Unit
+        direction: negative
+      - id: AC-077
+        path: internal/release/release_test.go
+        subject: test TestAC077_UnitNegative_AnUnknownAnswerIsNeverCachedAsAnAnswer
+        type: Unit
+        direction: negative
+      - id: AC-077
+        path: internal/release/release_test.go
+        subject: test TestAC077_UnitNegative_BuildMetadataAndUnpublishedNumbersAreNotBehind
+        type: Unit
+        direction: negative
+      - id: AC-077
+        path: internal/release/release_test.go
+        subject: test TestAC077_UnitNegative_TheVersionIsRebuiltNotEchoed
+        type: Unit
+        direction: negative
+      - id: AC-077
+        path: internal/release/release_test.go
+        subject: test TestAC077_UnitPositive_ACandidateIsBehindTheReleaseItNames
+        type: Unit
+        direction: positive
+      - id: AC-077
+        path: internal/release/release_test.go
+        subject: test TestAC077_UnitPositive_EveryDegradationIsUnknown
+        type: Unit
+        direction: positive
+      - id: AC-078
+        path: internal/release/release_test.go
+        subject: test TestAC078_UnitNegative_StaleAndBrokenCachesAreAbsence
+        type: Unit
+        direction: negative
+      - id: AC-078
+        path: internal/release/release_test.go
+        subject: test TestAC078_UnitNegative_TheLifetimeIsTheOneDocumented
+        type: Unit
+        direction: negative
+      - id: AC-078
+        path: internal/release/release_test.go
+        subject: test TestAC078_UnitPositive_AFreshCacheCostsNoRequest
+        type: Unit
+        direction: positive
+      - id: AC-078
+        path: internal/release/release_test.go
+        subject: test TestAC078_UnitPositive_TheDefaultCacheIsOutsideTheRepository
+        type: Unit
+        direction: positive
+      - id: AC-088
+        path: internal/release/release_test.go
+        subject: test TestAC088_UnitNegative_ACheckTheUserAskedForAlwaysAsks
+        type: Unit
+        direction: negative
+      - id: AC-088
+        path: internal/release/release_test.go
+        subject: test TestAC088_UnitNegative_ARememberedFailureIsNeverAnAnswerAndACorruptCacheIsNeverAFailure
+        type: Unit
+        direction: negative
+      - id: AC-088
+        path: internal/release/release_test.go
+        subject: test TestAC088_UnitNegative_TheRememberedFailureExpiresOnItsOwnShortSchedule
+        type: Unit
+        direction: negative
+      - id: AC-088
+        path: internal/release/release_test.go
+        subject: test TestAC088_UnitPositive_AnOfflineSessionPaysForTheNonAnswerOnce
+        type: Unit
+        direction: positive
+      - id: AC-153
+        path: internal/role/role_test.go
+        subject: test TestAC153_UnitNegative_AnInvalidRoleIsNeverRendered
+        type: Unit
+        direction: negative
+      - id: AC-153
+        path: internal/role/role_test.go
+        subject: test TestAC153_UnitNegative_UnknownOrMalformedRoleFails
+        type: Unit
+        direction: negative
+      - id: AC-153
+        path: internal/role/role_test.go
+        subject: test TestAC153_UnitPositive_DeclaredRolesLoad
+        type: Unit
+        direction: positive
+      - id: AC-153
+        path: internal/role/role_test.go
+        subject: test TestAC153_UnitPositive_UndeclaredRepositoryIsAnAdopter
+        type: Unit
+        direction: positive
+      - id: AC-153
+        path: internal/role/role_test.go
+        subject: test TestAC153_UnitPositive_WriteRoundTripsThroughLoad
+        type: Unit
+        direction: positive
+      - id: AC-159
+        path: internal/scaffold/badge_test.go
+        subject: test TestAC159_UnitNegative_ADescriptionLinkIsNotMistakenForTheBadge
+        type: Unit
+        direction: negative
+      - id: AC-159
+        path: internal/scaffold/badge_test.go
+        subject: test TestAC159_UnitNegative_AnAmbiguousOrBadgelessRowIsLeftAlone
+        type: Unit
+        direction: negative
+      - id: AC-159
+        path: internal/scaffold/badge_test.go
+        subject: test TestAC159_UnitPositive_AConstraintKeepsAnEnforcementBadge
+        type: Unit
+        direction: positive
+      - id: AC-159
+        path: internal/scaffold/badge_test.go
+        subject: test TestAC159_UnitPositive_ARelativeSpellingStillAnchors
+        type: Unit
+        direction: positive
+      - id: AC-159
+        path: internal/scaffold/badge_test.go
+        subject: test TestAC159_UnitPositive_ARowNamingOneTargetTwiceStillRefreshes
+        type: Unit
+        direction: positive
+      - id: AC-159
+        path: internal/scaffold/badge_test.go
+        subject: test TestAC159_UnitPositive_AStaleBadgeIsRefreshed
+        type: Unit
+        direction: positive
+      - id: AC-062
+        path: internal/scaffold/ciwall_test.go
+        subject: test TestAC062_UnitNegative_EmbeddedWallIsRejected
+        type: Unit
+        direction: negative
+      - id: AC-062
+        path: internal/scaffold/ciwall_test.go
+        subject: test TestAC062_UnitPositive_InitEmitsThinImmutableCaller
+        type: Unit
+        direction: positive
+      - id: AC-063
+        path: internal/scaffold/ciwall_test.go
+        subject: test TestAC063_UnitNegative_LocalChoiceChangeIsDetected
+        type: Unit
+        direction: negative
+      - id: AC-063
+        path: internal/scaffold/ciwall_test.go
+        subject: test TestAC063_UnitPositive_UpstreamUpdatePreservesCallerChoices
+        type: Unit
+        direction: positive
+      - id: AC-166
+        path: internal/scaffold/intent_test.go
+        subject: test TestAC166_UnitNegative_InitNeverOverwritesAnExistingVisionOrFolder
+        type: Unit
+        direction: negative
+      - id: AC-166
+        path: internal/scaffold/intent_test.go
+        subject: test TestAC166_UnitPositive_InitMaterializesTheVisionAndTheUseCaseFolder
+        type: Unit
+        direction: positive
+      - id: AC-026
+        path: internal/scaffold/regen_test.go
+        subject: test TestAC026_CuratedDescendantEntrySurvives
+      - id: AC-026
+        path: internal/scaffold/regen_test.go
+        subject: test TestAC026_MultiLinkCuratedLineCoversAllTargets
+      - id: AC-026
+        path: internal/scaffold/regen_test.go
+        subject: test TestAC026_RegenIndexesNewArtifactAndKeepsProse
+      - id: AC-026
+        path: internal/scaffold/regen_test.go
+        subject: test TestAC026_RegenOnUnchangedTreeIsANoOp
+      - id: AC-027
+        path: internal/scaffold/regen_test.go
+        subject: test TestAC027_DocsAsRegularFileIsAnError
+      - id: AC-027
+        path: internal/scaffold/regen_test.go
+        subject: test TestAC027_NoDocsTreeIsAnErrorAndCreatesNothing
+      - id: AC-027
+        path: internal/scaffold/regen_test.go
+        subject: test TestAC027_RegenTouchesOnlyTaxonomyReadmes
+      - id: AC-096
+        path: internal/scaffold/regen_test.go
+        subject: test TestAC096_UnitNegative_LongSentenceIsCutAtAWordBoundary
+        type: Unit
+        direction: negative
+      - id: AC-096
+        path: internal/scaffold/regen_test.go
+        subject: test TestAC096_UnitPositive_AppendedRowSaysWhatTheArtifactIsAbout
+        type: Unit
+        direction: positive
+      - id: AC-097
+        path: internal/scaffold/regen_test.go
+        subject: test TestAC097_UnitNegative_UnreadableFrontmatterGetsNeitherBadgeNorTail
+        type: Unit
+        direction: negative
+      - id: AC-097
+        path: internal/scaffold/regen_test.go
+        subject: test TestAC097_UnitPositive_NoReadableSentenceLeavesNoEmptyTail
+        type: Unit
+        direction: positive
+      - id: AC-160
+        path: internal/scaffold/regen_test.go
+        subject: test TestAC160_UnitNegative_CuratedRowForAMissingTargetIsStillDropped
+        type: Unit
+        direction: negative
+      - id: AC-160
+        path: internal/scaffold/regen_test.go
+        subject: test TestAC160_UnitPositive_CuratedDescriptionOutlivesRegeneration
+        type: Unit
+        direction: positive
+      - id: AC-161
+        path: internal/scaffold/regen_test.go
+        subject: test TestAC161_UnitNegative_UnreadableIdentityAndSubfolderRowsStayPlain
+        type: Unit
+        direction: negative
+      - id: AC-161
+        path: internal/scaffold/regen_test.go
+        subject: test TestAC161_UnitPositive_AppendedRowsUseStatusOrConstraintEnforcement
+        type: Unit
+        direction: positive
+      - id: AC-153
+        path: internal/scaffold/role_test.go
+        subject: test TestAC153_UnitNegative_InitNeverOverwritesADeclaredRole
+        type: Unit
+        direction: negative
+      - id: AC-153
+        path: internal/scaffold/role_test.go
+        subject: test TestAC153_UnitPositive_InitMaterializesAnAdopterMarker
+        type: Unit
+        direction: positive
+      - id: AC-071
+        path: internal/scaffold/scaffold_entrypoint_test.go
+        subject: test TestAC071_UnitNegative_AnExistingEntryPointIsNeverTouched
+        type: Unit
+        direction: negative
+      - id: AC-071
+        path: internal/scaffold/scaffold_entrypoint_test.go
+        subject: test TestAC071_UnitPositive_InitEmitsAnEntryPointThatOnlyPoints
+        type: Unit
+        direction: positive
+      - id: AC-083
+        path: internal/scaffold/scaffold_hub_test.go
+        subject: test TestAC083_UnitNegative_InitEmitsNoVendorConfiguration
+        type: Unit
+        direction: negative
+      - id: AC-083
+        path: internal/scaffold/scaffold_hub_test.go
+        subject: test TestAC083_UnitPositive_InitEmitsAHubThatAsksWhetherWeAreBehind
+        type: Unit
+        direction: positive
+      - id: AC-038
+        path: internal/scaffold/scaffold_symlink_test.go
+        subject: test TestAC038_DanglingSymlinkIsSkippedNotFollowed
+      - id: AC-038
+        path: internal/scaffold/scaffold_symlink_test.go
+        subject: test TestAC038_RootReachedThroughASymlinkIsFullyInitialized
+      - id: AC-038
+        path: internal/scaffold/scaffold_symlink_test.go
+        subject: test TestAC038_SecondRunReportsTheSameLink
+      - id: AC-038
+        path: internal/scaffold/scaffold_symlink_test.go
+        subject: test TestAC038_SymlinkedAncestorIsDetected
+      - id: AC-038
+        path: internal/scaffold/scaffold_symlink_test.go
+        subject: test TestAC038_SymlinkedCanonicalSkillsIsSkipped
+      - id: AC-038
+        path: internal/scaffold/scaffold_symlink_test.go
+        subject: test TestAC038_SymlinkedMirrorIsNotWrittenThrough
+      - id: AC-003
+        path: internal/scaffold/scaffold_test.go
+        subject: test TestAC003_BrokenLinkNamesFileAndMissingID
+      - id: AC-003
+        path: internal/scaffold/scaffold_test.go
+        subject: test TestAC003_ResolvedLinkRestoresGreen
+      - id: AC-024
+        path: internal/scaffold/scaffold_test.go
+        subject: test TestAC024_MarkerlessReadmeGainsAppendedBlock
+      - id: AC-024
+        path: internal/scaffold/scaffold_test.go
+        subject: test TestAC024_RerunIndexesNewArtifactAndKeepsProse
+      - id: AC-024
+        path: internal/scaffold/scaffold_test.go
+        subject: test TestAC024_RerunOnUnchangedTreeIsANoOp
+      - id: AC-038
+        path: internal/scaffold/scaffold_test.go
+        subject: test TestAC038_OrdinaryMirrorDirectoryIsStillWritten
+      - id: AC-042
+        path: internal/scaffold/scaffold_test.go
+        subject: test TestAC042_InitOutputIncludesAcceptanceBriefTemplate
+      - id: AC-139
+        path: internal/scaffold/scaffold_test.go
+        subject: test TestAC139_UnitNegative_ScaffoldedRoutingDoesNotExportLegacyTiersOrReleasePolicy
+        type: Unit
+        direction: negative
+      - id: AC-139
+        path: internal/scaffold/scaffold_test.go
+        subject: test TestAC139_UnitPositive_ScaffoldedRoutingRecommendsByAcceptedContractBeforeCorpus
+        type: Unit
+        direction: positive
+      - id: AC-145
+        path: internal/scaffold/scaffold_test.go
+        subject: test TestAC145_UnitNegative_ScaffoldDoesNotOverwriteExistingDecision
+        type: Unit
+        direction: negative
+      - id: AC-145
+        path: internal/scaffold/scaffold_test.go
+        subject: test TestAC145_UnitPositive_InitAndScaffoldUseSubjectTypedDecisions
+        type: Unit
+        direction: positive
+      - id: AC-150
+        path: internal/scaffold/scaffold_test.go
+        subject: test TestAC150_UnitPositive_InitBootstrapsRequireActivation
+        type: Unit
+        direction: positive
+      - id: AC-180
+        path: internal/scaffold/scaffold_test.go
+        subject: test TestAC180_UnitNegative_InitDoesNotDuplicateAnExistingUnionRule
+        type: Unit
+        direction: negative
+      - id: AC-180
+        path: internal/scaffold/scaffold_test.go
+        subject: test TestAC180_UnitPositive_InitAppendsUnionRuleToExistingGitattributes
+        type: Unit
+        direction: positive
+      - id: AC-180
+        path: internal/scaffold/scaffold_test.go
+        subject: test TestAC180_UnitPositive_InitInstallsLedgerUnionMergeRule
+        type: Unit
+        direction: positive
+      - id: AC-182
+        path: internal/scaffold/scaffold_test.go
+        subject: test TestAC182_UnitNegative_SkipIsPerFileNotPerRun
+        type: Unit
+        direction: negative
+      - id: AC-182
+        path: internal/scaffold/scaffold_test.go
+        subject: test TestAC182_UnitPositive_ExistingFileIsSkippedAndReported
+        type: Unit
+        direction: positive
+      - id: AC-199
+        path: internal/scaffold/wallchecklist_test.go
+        subject: test TestAC199_UnitNegative_ChecklistIsHostNeutralAndNotAManagedCarrier
+        type: Unit
+        direction: negative
+      - id: AC-199
+        path: internal/scaffold/wallchecklist_test.go
+        subject: test TestAC199_UnitPositive_InitShipsTheMergeBoundaryChecklist
+        type: Unit
+        direction: positive
+      - id: AC-040
+        path: internal/skills/generate_test.go
+        subject: test TestAC040_ReviewResultsAreDurableAndCommitBound
+      - id: AC-040
+        path: internal/skills/generate_test.go
+        subject: test TestAC040_ReviewWithoutResolvableHostStateFailsOpenly
+      - id: AC-054
+        path: internal/skills/generate_test.go
+        subject: test TestAC054_UnitNegative_ExtractionRejectsCapabilityOnlyPhasing
+        type: Unit
+        direction: negative
+      - id: AC-054
+        path: internal/skills/generate_test.go
+        subject: test TestAC054_UnitPositive_ExtractionSupportsCriterionLevelPhasing
+        type: Unit
+        direction: positive
+      - id: AC-055
+        path: internal/skills/generate_test.go
+        subject: test TestAC055_UnitNegative_AnalysisRejectsUnqualifiedEvidenceClaims
+        type: Unit
+        direction: negative
+      - id: AC-055
+        path: internal/skills/generate_test.go
+        subject: test TestAC055_UnitPositive_AnalysisQualifiesEnvironmentAndPopulationEvidence
+        type: Unit
+        direction: positive
+      - id: AC-056
+        path: internal/skills/generate_test.go
+        subject: test TestAC056_UnitNegative_ExtractionRejectsMutationBeforeRehearsal
+        type: Unit
+        direction: negative
+      - id: AC-056
+        path: internal/skills/generate_test.go
+        subject: test TestAC056_UnitPositive_ExtractionRehearsesBeforeMutation
+        type: Unit
+        direction: positive
+      - id: AC-058
+        path: internal/skills/generate_test.go
+        subject: test TestAC058_UnitNegative_GeneratedSkillsRejectTheObsoleteJVMCarrier
+        type: Unit
+        direction: negative
+      - id: AC-058
+        path: internal/skills/generate_test.go
+        subject: test TestAC058_UnitPositive_GeneratedSkillsStatePerExecutableJVMContract
+        type: Unit
+        direction: positive
+      - id: AC-061
+        path: internal/skills/generate_test.go
+        subject: test TestAC061_UnitNegative_ExtractionRejectsIDRenumberingAndAdHocMinting
+        type: Unit
+        direction: negative
+      - id: AC-061
+        path: internal/skills/generate_test.go
+        subject: test TestAC061_UnitPositive_ExtractionPreservesAndMintsExtendedCriterionIDs
+        type: Unit
+        direction: positive
+      - id: AC-132
+        path: internal/skills/generate_test.go
+        subject: test TestAC132_UnitNegative_CarriersDoNotRestoreTheRetiredHandoffOrdering
+        type: Unit
+        direction: negative
+      - id: AC-132
+        path: internal/skills/generate_test.go
+        subject: test TestAC132_UnitPositive_AnyEditorOwnsTheExactFastForwardHandoff
+        type: Unit
+        direction: positive
+      - id: AC-132
+        path: internal/skills/generate_test.go
+        subject: test TestAC132_UnitPositive_ConcurrentOrClosedPRStateFailsSafely
+        type: Unit
+        direction: positive
+      - id: AC-137
+        path: internal/skills/generate_test.go
+        subject: test TestAC137_UnitNegative_EntrypointAndReferenceDriftIsRejected
+        type: Unit
+        direction: negative
+      - id: AC-137
+        path: internal/skills/generate_test.go
+        subject: test TestAC137_UnitPositive_GenerationProducesRoutedStandaloneSkillDirectories
+        type: Unit
+        direction: positive
+      - id: AC-142
+        path: internal/skills/generate_test.go
+        subject: test TestAC142_UnitNegative_GeneratedUpgradeSkillDoesNotInventAPlatformRouteSelfAuthorizeOrBindSimpleWorkToTheFullLoopBoundary
+        type: Unit
+        direction: negative
+      - id: AC-142
+        path: internal/skills/generate_test.go
+        subject: test TestAC142_UnitNegative_UpgradeRouterDoesNotSendTheAgentToGenericTiersForItsRoute
+        type: Unit
+        direction: negative
+      - id: AC-142
+        path: internal/skills/generate_test.go
+        subject: test TestAC142_UnitPositive_GeneratedUpgradeSkillRoutesAHumanAuthorizedCoordinatedUpgradeAsSimpleWork
+        type: Unit
+        direction: positive
+      - id: AC-146
+        path: internal/skills/generate_test.go
+        subject: test TestAC146_UnitNegative_ExtractionDoesNotGuessOrRouteEveryRecordToADR
+        type: Unit
+        direction: negative
+      - id: AC-146
+        path: internal/skills/generate_test.go
+        subject: test TestAC146_UnitPositive_ExtractionClassifiesDecisionsAndInventoriesLegacyRows
+        type: Unit
+        direction: positive
+      - id: AC-147
+        path: internal/skills/generate_test.go
+        subject: test TestAC147_UnitNegative_GeneratedSkillsOmitLegacyDecisionRouting
+        type: Unit
+        direction: negative
+      - id: AC-147
+        path: internal/skills/generate_test.go
+        subject: test TestAC147_UnitPositive_EveryLifecycleSkillCarriesSubjectTypedDecisionGuidance
+        type: Unit
+        direction: positive
+      - id: AC-148
+        path: internal/skills/generate_test.go
+        subject: test TestAC148_UnitNegative_GeneratedUpgradeSkillDoesNotConflateReleaseAvailabilityWithCarrierCurrency
+        type: Unit
+        direction: negative
+      - id: AC-148
+        path: internal/skills/generate_test.go
+        subject: test TestAC148_UnitPositive_GeneratedUpgradeSkillPreviewsCarrierDriftBeforeAuthorization
+        type: Unit
+        direction: positive
+      - id: AC-149
+        path: internal/skills/generate_test.go
+        subject: test TestAC149_UnitNegative_GeneratedUpgradeSkillDoesNotTreatAnUnavailableReleaseListAsCurrentOrAnUpgradeTarget
+        type: Unit
+        direction: negative
+      - id: AC-149
+        path: internal/skills/generate_test.go
+        subject: test TestAC149_UnitPositive_GeneratedUpgradeSkillPreviewsCarriersWhenReleaseAvailabilityIsUnknown
+        type: Unit
+        direction: positive
+      - id: AC-152
+        path: internal/skills/generate_test.go
+        subject: test TestAC152_UnitNegative_LifecycleSkillsDoNotRequireDocumentationHistory
+        type: Unit
+        direction: negative
+      - id: AC-152
+        path: internal/skills/generate_test.go
+        subject: test TestAC152_UnitPositive_LifecycleSkillsCarryLivingOverviewLoop
+        type: Unit
+        direction: positive
+      - id: AC-184
+        path: internal/skills/generate_test.go
+        subject: test TestAC184_UnitNegative_PlanHealthGuidanceDoesNotTurnPassingChecksOrAllReplansIntoRecords
+        type: Unit
+        direction: negative
+      - id: AC-184
+        path: internal/skills/generate_test.go
+        subject: test TestAC184_UnitPositive_PlanHealthChecksPauseInvalidWorkAndReserveDecisionRecords
+        type: Unit
+        direction: positive
+      - id: AC-186
+        path: internal/skills/generate_test.go
+        subject: test TestAC186_UnitNegative_GeneratedGuidanceDoesNotTreatDraftPlansAsActionable
+        type: Unit
+        direction: negative
+      - id: AC-186
+        path: internal/skills/generate_test.go
+        subject: test TestAC186_UnitPositive_GeneratedGuidanceExplainsNextAndReversalCostLifecycle
+        type: Unit
+        direction: positive
+      - id: AC-193
+        path: internal/skills/generate_test.go
+        subject: test TestAC193_UnitNegative_AnUnobservedBoundaryIsNeverReportedAsVerified
+        type: Unit
+        direction: negative
+      - id: AC-193
+        path: internal/skills/generate_test.go
+        subject: test TestAC193_UnitPositive_AnUnaskableHostIsReportedAsUnknown
+        type: Unit
+        direction: positive
+      - id: AC-194
+        path: internal/skills/generate_test.go
+        subject: test TestAC194_UnitNegative_BoundaryGuidanceNeverInfersEnforcementFromTheRepository
+        type: Unit
+        direction: negative
+      - id: AC-194
+        path: internal/skills/generate_test.go
+        subject: test TestAC194_UnitPositive_BoundaryGuidanceChecksTheHostBeforeClaimingACandidate
+        type: Unit
+        direction: positive
+      - id: AC-195
+        path: internal/skills/generate_test.go
+        subject: test TestAC195_UnitNegative_TheAgentNeverReconfiguresTheRepositoryUnasked
+        type: Unit
+        direction: negative
+      - id: AC-195
+        path: internal/skills/generate_test.go
+        subject: test TestAC195_UnitPositive_MissingEnforcementStopsTheAgentAndOffersTheCommands
+        type: Unit
+        direction: positive
+      - id: AC-196
+        path: internal/skills/generate_test.go
+        subject: test TestAC196_UnitNegative_AnUnenforcedBoundaryDoesNotWithholdTheCandidate
+        type: Unit
+        direction: negative
+      - id: AC-196
+        path: internal/skills/generate_test.go
+        subject: test TestAC196_UnitPositive_ADeclinedBoundaryStillReachesReadyWithItsReason
+        type: Unit
+        direction: positive
+      - id: AC-200
+        path: internal/skills/generate_test.go
+        subject: test TestAC200_UnitNegative_ChallengeRuleStaysProportional
+        type: Unit
+        direction: negative
+      - id: AC-200
+        path: internal/skills/generate_test.go
+        subject: test TestAC200_UnitPositive_ChallengeRuleReachesPlanningAndProposal
+        type: Unit
+        direction: positive
+      - id: AC-201
+        path: internal/skills/generate_test.go
+        subject: test TestAC201_UnitNegative_GuidanceCaptureDoesNotSkipTheEligibilityBar
+        type: Unit
+        direction: negative
+      - id: AC-201
+        path: internal/skills/generate_test.go
+        subject: test TestAC201_UnitPositive_GuidanceCaptureHasAnEligibilityBarAndAnExistingHome
+        type: Unit
+        direction: positive

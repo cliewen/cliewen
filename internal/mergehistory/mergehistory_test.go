@@ -156,7 +156,7 @@ func runGit(t *testing.T, root string, args ...string) string {
 	// whether these commits can be created at all.
 	cmd.Env = append(os.Environ(),
 		"GIT_CONFIG_NOSYSTEM=1",
-		"GIT_CONFIG_GLOBAL="+os.DevNull,
+		"GIT_CONFIG_GLOBAL="+filepath.Join(t.TempDir(), "absent-global-config"),
 	)
 	output, err := cmd.CombinedOutput()
 	if err != nil {

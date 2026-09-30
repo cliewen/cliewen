@@ -1,5 +1,5 @@
 ---
-id: CH-194-questions
+id: CH-194-open-questions
 type: open-questions
 status: resolved
 links: [CH-194]

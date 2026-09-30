@@ -65,6 +65,11 @@ jobs:
       - name: Build
         if: steps.scope.outputs.go == 'true'
         run: go build ./...
+      - name: Compare repository-owned evidence export
+        if: steps.scope.outputs.go == 'true' || steps.scope.outputs.corpus == 'true'
+        run: |
+          go run ./tools/export-evidence
+          git diff --exit-code -- .clue/evidence.yaml
       - name: Test (with coverage)
         if: steps.scope.outputs.go == 'true'
         run: go test ./... -coverprofile=coverage.out

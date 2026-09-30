@@ -102,3 +102,7 @@ test("Unit: NUL-delimited paths preserve spaces", () => {
     [" guide/file with spaces.md ", "guide/other.md"],
   );
 });
+
+test("Unit: repository-owned exporter changes select Go checks", () => {
+  assert.equal(classifyChange(["tools/export-evidence/main.go"]).go, true);
+});
