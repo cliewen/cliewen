@@ -199,7 +199,7 @@ func TestAC104_UnitNegative_WellFormedEntriesPass(t *testing.T) {
 func TestAC106_UnitPositive_RetiredOpaqueIDRejectedWhenLiveAgain(t *testing.T) {
 	root := writeCorpus(t, with(validFiles, map[string]string{
 		"docs/goals/G-002-second.md": "---\nid: 8f14e45f-ceea-467e-9a2b-a1c8b9d2f7a1\ntype: goal\nstatus: accepted\nlinks: []\ntitle: Imported goal\n---\n",
-		"docs/goals/README.md":       "# Goals\n\n<!-- clue:index:start -->\n- [G-001](G-001-first.md)\n- [8f14e45f-ceea-467e-9a2b-a1c8b9d2f7a1](G-002-second.md)\n<!-- clue:index:end -->\n",
+		"docs/goals/README.md":       "---\ntype: index\ntitle: Goals\n---\n\n# Goals\n\n<!-- clue:index:start -->\n- [G-001](G-001-first.md)\n- [8f14e45f-ceea-467e-9a2b-a1c8b9d2f7a1](G-002-second.md)\n<!-- clue:index:end -->\n",
 	}))
 	writeLedger(t, root, "counters: {}\nentries:\n  - id: 8f14e45f-ceea-467e-9a2b-a1c8b9d2f7a1\n    kind: opaque\n    state: retired\n")
 	c, scanIssues := Scan(root)
@@ -221,7 +221,7 @@ func TestAC106_UnitPositive_RetiredOpaqueIDRejectedWhenLiveAgain(t *testing.T) {
 func TestAC106_UnitNegative_FreshDistinctOpaqueIDPasses(t *testing.T) {
 	root := writeCorpus(t, with(validFiles, map[string]string{
 		"docs/goals/G-002-second.md": "---\nid: 8f14e45f-ceea-467e-9a2b-a1c8b9d2f7a1\ntype: goal\nstatus: accepted\nlinks: []\ntitle: Imported goal\n---\n",
-		"docs/goals/README.md":       "# Goals\n\n<!-- clue:index:start -->\n- [G-001](G-001-first.md)\n- [8f14e45f-ceea-467e-9a2b-a1c8b9d2f7a1](G-002-second.md)\n<!-- clue:index:end -->\n",
+		"docs/goals/README.md":       "---\ntype: index\ntitle: Goals\n---\n\n# Goals\n\n<!-- clue:index:start -->\n- [G-001](G-001-first.md)\n- [8f14e45f-ceea-467e-9a2b-a1c8b9d2f7a1](G-002-second.md)\n<!-- clue:index:end -->\n",
 	}))
 	// A distinct retired opaque ID must never block an unrelated freshly
 	// generated one from passing.
@@ -309,7 +309,7 @@ func TestAC189_UnitPositive_DuplicateMilestoneIDAcrossPlansRejected(t *testing.T
 	files := with(validFiles, map[string]string{
 		"docs/plans/P-001-baseline.md": milestoneTablePlan("P-001", "todo"),
 		"docs/plans/P-002-second.md":   milestoneTablePlan("P-002", "todo"),
-		"docs/plans/README.md":         "# Plans\n\n<!-- clue:index:start -->\n- [P-001](P-001-baseline.md)\n- [P-002](P-002-second.md)\n<!-- clue:index:end -->\n",
+		"docs/plans/README.md":         "---\ntype: index\ntitle: Plans\n---\n\n# Plans\n\n<!-- clue:index:start -->\n- [P-001](P-001-baseline.md)\n- [P-002](P-002-second.md)\n<!-- clue:index:end -->\n",
 	})
 	root := writeCorpus(t, files)
 	c, scanIssues := Scan(root)
@@ -333,7 +333,7 @@ func TestAC189_UnitNegative_DistinctMilestoneIDsAcrossPlansPass(t *testing.T) {
 	files := with(validFiles, map[string]string{
 		"docs/plans/P-001-baseline.md": milestoneTablePlan("P-001", "todo"),
 		"docs/plans/P-002-second.md":   second,
-		"docs/plans/README.md":         "# Plans\n\n<!-- clue:index:start -->\n- [P-001](P-001-baseline.md)\n- [P-002](P-002-second.md)\n<!-- clue:index:end -->\n",
+		"docs/plans/README.md":         "---\ntype: index\ntitle: Plans\n---\n\n# Plans\n\n<!-- clue:index:start -->\n- [P-001](P-001-baseline.md)\n- [P-002](P-002-second.md)\n<!-- clue:index:end -->\n",
 	})
 	root := writeCorpus(t, files)
 	c, scanIssues := Scan(root)

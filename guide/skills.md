@@ -1,3 +1,8 @@
+---
+type: guide
+title: The skills
+---
+
 # The skills
 
 A skill is a folder of Markdown instructions that a coding agent loads when a task matches it. Cliewen puts its process knowledge in six skills. The `clue` binary stays a small judge that only checks the repository, and your prompts can stay in ordinary words. You rarely name a skill yourself. You describe the work, and the agent picks the skill.

@@ -11,8 +11,8 @@ import (
 // asserts about it.
 func icFiles(criteriaStatus, icStatus, criterion string) map[string]string {
 	files := with(capFiles(criteriaStatus), map[string]string{
-		"docs/README.md":                    "# Corpus\n\n<!-- clue:index:start -->\n- [goals/](goals/README.md)\n- [plans/](plans/README.md)\n- [capabilities/](capabilities/README.md)\n- [imported-changes/](imported-changes/README.md)\n<!-- clue:index:end -->\n",
-		"docs/imported-changes/README.md":   "# Imported changes\n\n<!-- clue:index:start -->\n- [IC-101](IC-101-x.md)\n<!-- clue:index:end -->\n",
+		"docs/README.md":                    "---\ntype: index\ntitle: Corpus\n---\n\n# Corpus\n\n<!-- clue:index:start -->\n- [goals/](goals/README.md)\n- [plans/](plans/README.md)\n- [capabilities/](capabilities/README.md)\n- [imported-changes/](imported-changes/README.md)\n<!-- clue:index:end -->\n",
+		"docs/imported-changes/README.md":   "---\ntype: index\ntitle: Imported changes\n---\n\n# Imported changes\n\n<!-- clue:index:start -->\n- [IC-101](IC-101-x.md)\n<!-- clue:index:end -->\n",
 		"docs/imported-changes/IC-101-x.md": "---\nid: IC-101\ntype: imported-change\nstatus: " + icStatus + "\nlinks: []\ntitle: X import\nsource-revision: abc123\nsource-location: example/repo\n---\n\n## Proof links\n\n| Task | Criterion |\n|---|---|\n| do the thing | " + criterion + " |\n",
 	})
 	files["pkg/x_test.go"] = "package x\n\nfunc TestAC101_Works(t *testing.T) {}\n"
@@ -35,8 +35,8 @@ func TestAC115_UnitPositive_WellFormedImportedChangeRecordPasses(t *testing.T) {
 // inspectable proof and clue validate rejects it.
 func TestAC115_UnitNegative_MissingProofLinksTableFails(t *testing.T) {
 	files := with(capFiles("active"), map[string]string{
-		"docs/README.md":                    "# Corpus\n\n<!-- clue:index:start -->\n- [goals/](goals/README.md)\n- [plans/](plans/README.md)\n- [capabilities/](capabilities/README.md)\n- [imported-changes/](imported-changes/README.md)\n<!-- clue:index:end -->\n",
-		"docs/imported-changes/README.md":   "# Imported changes\n\n<!-- clue:index:start -->\n- [IC-101](IC-101-x.md)\n<!-- clue:index:end -->\n",
+		"docs/README.md":                    "---\ntype: index\ntitle: Corpus\n---\n\n# Corpus\n\n<!-- clue:index:start -->\n- [goals/](goals/README.md)\n- [plans/](plans/README.md)\n- [capabilities/](capabilities/README.md)\n- [imported-changes/](imported-changes/README.md)\n<!-- clue:index:end -->\n",
+		"docs/imported-changes/README.md":   "---\ntype: index\ntitle: Imported changes\n---\n\n# Imported changes\n\n<!-- clue:index:start -->\n- [IC-101](IC-101-x.md)\n<!-- clue:index:end -->\n",
 		"docs/imported-changes/IC-101-x.md": "---\nid: IC-101\ntype: imported-change\nstatus: in-progress\nlinks: []\ntitle: X import\nsource-revision: abc123\nsource-location: example/repo\n---\n\nNo proof-links section at all.\n",
 	})
 	assertIssue(t, run(t, files, false), "imported-change has no proof-links table")

@@ -10,10 +10,10 @@ import (
 
 // validFiles is a minimal corpus that must pass every rule.
 var validFiles = map[string]string{
-	"docs/README.md":               "# Corpus\n\n<!-- clue:index:start -->\n- [goals/](goals/README.md)\n- [plans/](plans/README.md)\n<!-- clue:index:end -->\n",
-	"docs/goals/README.md":         "# Goals\n\n<!-- clue:index:start -->\n- [G-001](G-001-first.md)\n<!-- clue:index:end -->\n",
+	"docs/README.md":               "---\ntype: index\ntitle: Corpus\n---\n\n# Corpus\n\n<!-- clue:index:start -->\n- [goals/](goals/README.md)\n- [plans/](plans/README.md)\n<!-- clue:index:end -->\n",
+	"docs/goals/README.md":         "---\ntype: index\ntitle: Goals\n---\n\n# Goals\n\n<!-- clue:index:start -->\n- [G-001](G-001-first.md)\n<!-- clue:index:end -->\n",
 	"docs/goals/G-001-first.md":    "---\nid: G-001\ntype: goal\nstatus: accepted\nlinks: []\ntitle: First goal\n---\n\n# G-001\n",
-	"docs/plans/README.md":         "# Plans\n\n<!-- clue:index:start -->\n- [P-001](P-001-baseline.md)\n<!-- clue:index:end -->\n",
+	"docs/plans/README.md":         "---\ntype: index\ntitle: Plans\n---\n\n# Plans\n\n<!-- clue:index:start -->\n- [P-001](P-001-baseline.md)\n<!-- clue:index:end -->\n",
 	"docs/plans/P-001-baseline.md": "---\nid: P-001\ntype: plan\nstatus: active\nlinks: [G-001]\ntitle: Baseline\n---\n\n| M-001 | do it | todo |\n",
 }
 
@@ -84,7 +84,7 @@ func TestAC005_MissingCoreFieldReported(t *testing.T) {
 func TestAC005_MissingFrontmatterReported(t *testing.T) {
 	files := with(validFiles, map[string]string{
 		"docs/goals/G-002-bare.md": "# No frontmatter here\n",
-		"docs/goals/README.md":     "# Goals\n\n<!-- clue:index:start -->\n- [G-001](G-001-first.md)\n- [G-002](G-002-bare.md)\n<!-- clue:index:end -->\n",
+		"docs/goals/README.md":     "---\ntype: index\ntitle: Goals\n---\n\n# Goals\n\n<!-- clue:index:start -->\n- [G-001](G-001-first.md)\n- [G-002](G-002-bare.md)\n<!-- clue:index:end -->\n",
 	})
 	assertIssue(t, run(t, files, false), "missing frontmatter")
 }
@@ -113,7 +113,7 @@ func TestAC006_MilestoneLinksResolveViaPlanBody(t *testing.T) {
 func TestUnit_DuplicateIDReported(t *testing.T) {
 	files := with(validFiles, map[string]string{
 		"docs/goals/G-001-copy.md": validFiles["docs/goals/G-001-first.md"],
-		"docs/goals/README.md":     "# Goals\n\n<!-- clue:index:start -->\n- [G-001](G-001-first.md)\n- [copy](G-001-copy.md)\n<!-- clue:index:end -->\n",
+		"docs/goals/README.md":     "---\ntype: index\ntitle: Goals\n---\n\n# Goals\n\n<!-- clue:index:start -->\n- [G-001](G-001-first.md)\n- [copy](G-001-copy.md)\n<!-- clue:index:end -->\n",
 	})
 	assertIssue(t, run(t, files, false), "duplicate id G-001")
 }
@@ -141,8 +141,8 @@ func TestUnit_AdopterTypeValidatesAgainstDefault(t *testing.T) {
 
 func TestAC143_UnitPositive_SubjectTypedDecisionNamesPass(t *testing.T) {
 	decisionFiles := map[string]string{
-		"docs/README.md":                           "# Corpus\n\n<!-- clue:index:start -->\n- [goals/](goals/README.md)\n- [plans/](plans/README.md)\n- [decisions/](decisions/README.md)\n<!-- clue:index:end -->\n",
-		"docs/decisions/README.md":                 "# Decisions\n\n<!-- clue:index:start -->\n- [ADR-001](ADR-001-architecture.md)\n- [PDR-001](PDR-001-process.md)\n- [IDR-001](IDR-001-implementation.md)\n<!-- clue:index:end -->\n",
+		"docs/README.md":                           "---\ntype: index\ntitle: Corpus\n---\n\n# Corpus\n\n<!-- clue:index:start -->\n- [goals/](goals/README.md)\n- [plans/](plans/README.md)\n- [decisions/](decisions/README.md)\n<!-- clue:index:end -->\n",
+		"docs/decisions/README.md":                 "---\ntype: index\ntitle: Decisions\n---\n\n# Decisions\n\n<!-- clue:index:start -->\n- [ADR-001](ADR-001-architecture.md)\n- [PDR-001](PDR-001-process.md)\n- [IDR-001](IDR-001-implementation.md)\n<!-- clue:index:end -->\n",
 		"docs/decisions/ADR-001-architecture.md":   decisionFixture("ADR-001"),
 		"docs/decisions/PDR-001-process.md":        decisionFixture("PDR-001"),
 		"docs/decisions/IDR-001-implementation.md": decisionFixture("IDR-001"),
@@ -155,8 +155,8 @@ func TestAC143_UnitPositive_SubjectTypedDecisionNamesPass(t *testing.T) {
 
 func TestAC143_UnitNegative_LegacyAndUnsupportedDecisionNamesFail(t *testing.T) {
 	files := with(validFiles, map[string]string{
-		"docs/README.md":                        "# Corpus\n\n<!-- clue:index:start -->\n- [goals/](goals/README.md)\n- [plans/](plans/README.md)\n- [decisions/](decisions/README.md)\n<!-- clue:index:end -->\n",
-		"docs/decisions/README.md":              "# Decisions\n\n<!-- clue:index:start -->\n- [log](log.md)\n- [DEC-001](DEC-001-unsupported.md)\n<!-- clue:index:end -->\n",
+		"docs/README.md":                        "---\ntype: index\ntitle: Corpus\n---\n\n# Corpus\n\n<!-- clue:index:start -->\n- [goals/](goals/README.md)\n- [plans/](plans/README.md)\n- [decisions/](decisions/README.md)\n<!-- clue:index:end -->\n",
+		"docs/decisions/README.md":              "---\ntype: index\ntitle: Decisions\n---\n\n# Decisions\n\n<!-- clue:index:start -->\n- [log](log.md)\n- [DEC-001](DEC-001-unsupported.md)\n<!-- clue:index:end -->\n",
 		"docs/decisions/log.md":                 "---\nid: LOG-001\ntype: log\nstatus: active\nlinks: []\ntitle: Decision log\n---\n",
 		"docs/decisions/DEC-001-unsupported.md": decisionFixture("DEC-001"),
 		"docs/decisions/notes.md":               "---\nid: NOTES-001\ntype: analysis\nstatus: active\nlinks: []\ntitle: Notes\n---\n",
@@ -169,9 +169,9 @@ func TestAC143_UnitNegative_LegacyAndUnsupportedDecisionNamesFail(t *testing.T) 
 
 func TestAC143_UnitNegative_NestedDecisionLogFails(t *testing.T) {
 	files := with(validFiles, map[string]string{
-		"docs/README.md":                   "# Corpus\n\n<!-- clue:index:start -->\n- [goals/](goals/README.md)\n- [plans/](plans/README.md)\n- [decisions/](decisions/README.md)\n<!-- clue:index:end -->\n",
-		"docs/decisions/README.md":         "# Decisions\n\n<!-- clue:index:start -->\n- [archive/](archive/README.md)\n<!-- clue:index:end -->\n",
-		"docs/decisions/archive/README.md": "# Archived decisions\n\n<!-- clue:index:start -->\n- [log](log.md)\n<!-- clue:index:end -->\n",
+		"docs/README.md":                   "---\ntype: index\ntitle: Corpus\n---\n\n# Corpus\n\n<!-- clue:index:start -->\n- [goals/](goals/README.md)\n- [plans/](plans/README.md)\n- [decisions/](decisions/README.md)\n<!-- clue:index:end -->\n",
+		"docs/decisions/README.md":         "---\ntype: index\ntitle: Decisions\n---\n\n# Decisions\n\n<!-- clue:index:start -->\n- [archive/](archive/README.md)\n<!-- clue:index:end -->\n",
+		"docs/decisions/archive/README.md": "---\ntype: index\ntitle: Archived decisions\n---\n\n# Archived decisions\n\n<!-- clue:index:start -->\n- [log](log.md)\n<!-- clue:index:end -->\n",
 		"docs/decisions/archive/log.md":    "---\nid: LOG-001\ntype: log\nstatus: active\nlinks: []\ntitle: Nested decision log\n---\n",
 	})
 	assertIssue(t, run(t, files, false), "legacy decision logs are not supported")
@@ -184,16 +184,16 @@ func decisionFixture(id string) string {
 func TestUnit_FolderWithoutReadme(t *testing.T) {
 	files := with(validFiles, map[string]string{
 		"docs/runbooks/RB-001-fast.md": "---\nid: RB-001\ntype: runbook\nstatus: active\nlinks: []\ntitle: Fast\n---\n",
-		"docs/README.md":               "# Corpus\n\n<!-- clue:index:start -->\n- [goals/](goals/README.md)\n- [plans/](plans/README.md)\n- [runbooks/](runbooks/RB-001-fast.md)\n<!-- clue:index:end -->\n",
+		"docs/README.md":               "---\ntype: index\ntitle: Corpus\n---\n\n# Corpus\n\n<!-- clue:index:start -->\n- [goals/](goals/README.md)\n- [plans/](plans/README.md)\n- [runbooks/](runbooks/RB-001-fast.md)\n<!-- clue:index:end -->\n",
 	})
 	assertIssue(t, run(t, files, false), "docs/runbooks: folder has no README.md")
 }
 
 func TestAC151_UnitPositive_SystemOverviewsAreRequiredAndActivated(t *testing.T) {
 	overviews := map[string]string{
-		"docs/README.md":              "# Corpus\n\n<!-- clue:index:start -->\n- [goals/](goals/README.md)\n- [plans/](plans/README.md)\n- [architecture/](architecture/README.md)\n- [design/](design/README.md)\n<!-- clue:index:end -->\n",
-		"docs/architecture/README.md": "# Architecture\n\nRepository structure.\n\n<!-- clue:index:start -->\n<!-- clue:index:end -->\n",
-		"docs/design/README.md":       "# Design\n\nCross-cutting behaviour.\n\n<!-- clue:index:start -->\n<!-- clue:index:end -->\n",
+		"docs/README.md":              "---\ntype: index\ntitle: Corpus\n---\n\n# Corpus\n\n<!-- clue:index:start -->\n- [goals/](goals/README.md)\n- [plans/](plans/README.md)\n- [architecture/](architecture/README.md)\n- [design/](design/README.md)\n<!-- clue:index:end -->\n",
+		"docs/architecture/README.md": "---\ntype: index\ntitle: Architecture\n---\n\n# Architecture\n\nRepository structure.\n\n<!-- clue:index:start -->\n<!-- clue:index:end -->\n",
+		"docs/design/README.md":       "---\ntype: index\ntitle: Design\n---\n\n# Design\n\nCross-cutting behaviour.\n\n<!-- clue:index:start -->\n<!-- clue:index:end -->\n",
 	}
 	if issues := run(t, with(validFiles, overviews), false); len(issues) != 0 {
 		t.Fatalf("activated system overviews should pass, got %v", issues)
@@ -203,12 +203,12 @@ func TestAC151_UnitPositive_SystemOverviewsAreRequiredAndActivated(t *testing.T)
 
 func TestAC151_UnitNegative_MissingOrBootstrapSystemOverviewFails(t *testing.T) {
 	overviews := map[string]string{
-		"docs/README.md":              "# Corpus\n\n<!-- clue:index:start -->\n- [goals/](goals/README.md)\n- [plans/](plans/README.md)\n- [architecture/](architecture/README.md)\n- [design/](design/README.md)\n<!-- clue:index:end -->\n",
-		"docs/architecture/README.md": "# Architecture\n\nRepository structure.\n\n<!-- clue:index:start -->\n<!-- clue:index:end -->\n",
+		"docs/README.md":              "---\ntype: index\ntitle: Corpus\n---\n\n# Corpus\n\n<!-- clue:index:start -->\n- [goals/](goals/README.md)\n- [plans/](plans/README.md)\n- [architecture/](architecture/README.md)\n- [design/](design/README.md)\n<!-- clue:index:end -->\n",
+		"docs/architecture/README.md": "---\ntype: index\ntitle: Architecture\n---\n\n# Architecture\n\nRepository structure.\n\n<!-- clue:index:start -->\n<!-- clue:index:end -->\n",
 	}
 	assertIssue(t, run(t, with(validFiles, overviews), false), "docs/design/README.md: required system overview is missing")
 
-	overviews["docs/design/README.md"] = "# Design\n\n<!-- clue:overview:bootstrap -->\n"
+	overviews["docs/design/README.md"] = "---\ntype: index\ntitle: Design\n---\n\n# Design\n\n<!-- clue:overview:bootstrap -->\n"
 	assertIssue(t, run(t, with(validFiles, overviews), false), "system overview is still the scaffold bootstrap")
 }
 
@@ -216,19 +216,19 @@ func TestAC151_UnitNegative_MissingOrBootstrapSystemOverviewFails(t *testing.T) 
 // artifact the block does not reference.
 func TestAC007_IndexDriftReported(t *testing.T) {
 	files := with(validFiles, map[string]string{
-		"docs/goals/README.md": "# Goals\n\n<!-- clue:index:start -->\n- [G-001](G-001-first.md)\n- [gone](G-777-gone.md)\n<!-- clue:index:end -->\n",
+		"docs/goals/README.md": "---\ntype: index\ntitle: Goals\n---\n\n# Goals\n\n<!-- clue:index:start -->\n- [G-001](G-001-first.md)\n- [gone](G-777-gone.md)\n<!-- clue:index:end -->\n",
 	})
 	assertIssue(t, run(t, files, false), "index references missing file G-777-gone.md")
 
 	files = with(validFiles, map[string]string{
-		"docs/goals/README.md": "# Goals\n\n<!-- clue:index:start -->\n<!-- clue:index:end -->\n",
+		"docs/goals/README.md": "---\ntype: index\ntitle: Goals\n---\n\n# Goals\n\n<!-- clue:index:start -->\n<!-- clue:index:end -->\n",
 	})
 	assertIssue(t, run(t, files, false), "index does not reference sibling G-001-first.md")
 }
 
 func TestAC007_MissingIndexMarkersReported(t *testing.T) {
 	files := with(validFiles, map[string]string{
-		"docs/goals/README.md": "# Goals — hand-written, no markers\n",
+		"docs/goals/README.md": "---\ntype: index\ntitle: Goals — hand-written, no markers\n---\n\n# Goals — hand-written, no markers\n",
 	})
 	assertIssue(t, run(t, files, false), "index markers missing")
 }
@@ -271,8 +271,8 @@ func TestAC051_UnitNegative_ProvenanceAndReversalCostAreLinted(t *testing.T) {
 
 func TestAC051_DecisionsMustNotCarryProvenanceField(t *testing.T) {
 	files := with(validFiles, map[string]string{
-		"docs/README.md":              "# Corpus\n\n<!-- clue:index:start -->\n- [goals/](goals/README.md)\n- [plans/](plans/README.md)\n- [decisions/](decisions/README.md)\n<!-- clue:index:end -->\n",
-		"docs/decisions/README.md":    "# Decisions\n\n<!-- clue:index:start -->\n- [ADR-001](ADR-001-x.md)\n<!-- clue:index:end -->\n",
+		"docs/README.md":              "---\ntype: index\ntitle: Corpus\n---\n\n# Corpus\n\n<!-- clue:index:start -->\n- [goals/](goals/README.md)\n- [plans/](plans/README.md)\n- [decisions/](decisions/README.md)\n<!-- clue:index:end -->\n",
+		"docs/decisions/README.md":    "---\ntype: index\ntitle: Decisions\n---\n\n# Decisions\n\n<!-- clue:index:start -->\n- [ADR-001](ADR-001-x.md)\n<!-- clue:index:end -->\n",
 		"docs/decisions/ADR-001-x.md": "---\nid: ADR-001\ntype: decision\nstatus: inferred\nlinks: []\ntitle: X\nprovenance: inferred\n---\n",
 	})
 	assertIssue(t, run(t, files, false), "decisions carry provenance in status")
@@ -312,7 +312,7 @@ func TestAC051_InferredDecisionsAreVisibleButDoNotBlock(t *testing.T) {
 	files := capFiles("active")
 	files["pkg/x_test.go"] = "package x\n\nfunc TestAC101_Works(t *testing.T) {}\n"
 	files["docs/README.md"] = strings.Replace(files["docs/README.md"], "- [capabilities/]", "- [decisions/](decisions/README.md)\n- [capabilities/]", 1)
-	files["docs/decisions/README.md"] = "# Decisions\n\n<!-- clue:index:start -->\n- [ADR-101](ADR-101-x.md)\n<!-- clue:index:end -->\n"
+	files["docs/decisions/README.md"] = "---\ntype: index\ntitle: Decisions\n---\n\n# Decisions\n\n<!-- clue:index:start -->\n- [ADR-101](ADR-101-x.md)\n<!-- clue:index:end -->\n"
 	files["docs/decisions/ADR-101-x.md"] = "---\nid: ADR-101\ntype: decision\nstatus: inferred\nlinks: [CAP-101]\ntitle: X\nauthor: agent\naccepted-by: []\n---\n"
 	c, scanIssues := Scan(writeCorpus(t, files))
 	if len(scanIssues) != 0 {
@@ -330,7 +330,7 @@ func TestAC052_UnitPositive_RealityGapMapsCriterionToCapability(t *testing.T) {
 	files := capFiles("active")
 	files["pkg/x_test.go"] = "package x\n\nfunc TestAC101_Works(t *testing.T) {}\n"
 	files["docs/README.md"] = strings.Replace(files["docs/README.md"], "- [capabilities/]", "- [analysis/](analysis/README.md)\n- [capabilities/]", 1)
-	files["docs/analysis/README.md"] = "# Analysis\n\n<!-- clue:index:start -->\n- [AN-101](AN-101-incident.md)\n<!-- clue:index:end -->\n"
+	files["docs/analysis/README.md"] = "---\ntype: index\ntitle: Analysis\n---\n\n# Analysis\n\n<!-- clue:index:start -->\n- [AN-101](AN-101-incident.md)\n<!-- clue:index:end -->\n"
 	files["docs/analysis/AN-101-incident.md"] = "---\nid: AN-101\ntype: analysis\nstatus: active\nlinks: [AC-101]\ntitle: Incident\nreality: contradicted\n---\n"
 	c, scanIssues := Scan(writeCorpus(t, files))
 	if len(scanIssues) != 0 {
@@ -354,7 +354,7 @@ func TestAC052_UnitNegative_RealityMarkerRequiresAnalysisAndFailedClaimLink(t *t
 	files = with(files, map[string]string{
 		"docs/README.md":                        strings.Replace(files["docs/README.md"], "- [capabilities/]", "- [analysis/](analysis/README.md)\n- [capabilities/]", 1),
 		"docs/capabilities/CAP-101-x/README.md": strings.Replace(files["docs/capabilities/CAP-101-x/README.md"], "reality: contradicted\n", "", 1),
-		"docs/analysis/README.md":               "# Analysis\n\n<!-- clue:index:start -->\n- [AN-101](AN-101-incident.md)\n<!-- clue:index:end -->\n",
+		"docs/analysis/README.md":               "---\ntype: index\ntitle: Analysis\n---\n\n# Analysis\n\n<!-- clue:index:start -->\n- [AN-101](AN-101-incident.md)\n<!-- clue:index:end -->\n",
 		"docs/analysis/AN-101-incident.md":      "---\nid: AN-101\ntype: analysis\nstatus: active\nlinks: []\ntitle: Incident\nreality: contradicted\n---\n",
 	})
 	assertIssue(t, run(t, files, false), "requires a links edge to the failed capability or live acceptance criterion")
@@ -365,7 +365,7 @@ func TestAC052_UnitNegative_RealityMarkerRequiresAnalysisAndFailedClaimLink(t *t
 func TestAC052_UnitNegative_DraftCriterionIsNotALiveClaim(t *testing.T) {
 	files := capFiles("draft")
 	files["docs/README.md"] = strings.Replace(files["docs/README.md"], "- [capabilities/]", "- [analysis/](analysis/README.md)\n- [capabilities/]", 1)
-	files["docs/analysis/README.md"] = "# Analysis\n\n<!-- clue:index:start -->\n- [AN-101](AN-101-incident.md)\n<!-- clue:index:end -->\n"
+	files["docs/analysis/README.md"] = "---\ntype: index\ntitle: Analysis\n---\n\n# Analysis\n\n<!-- clue:index:start -->\n- [AN-101](AN-101-incident.md)\n<!-- clue:index:end -->\n"
 	files["docs/analysis/AN-101-incident.md"] = "---\nid: AN-101\ntype: analysis\nstatus: active\nlinks: [AC-101]\ntitle: Incident\nreality: contradicted\n---\n"
 	assertIssue(t, run(t, files, false), "requires a links edge to the failed capability or live acceptance criterion")
 
@@ -387,8 +387,8 @@ func TestAC051_UnitNegative_ReversalCostIsBoundToProvenance(t *testing.T) {
 	assertIssue(t, run(t, files, false), "reversal-cost must be low or high")
 
 	files = with(validFiles, map[string]string{
-		"docs/README.md":              "# Corpus\n\n<!-- clue:index:start -->\n- [goals/](goals/README.md)\n- [plans/](plans/README.md)\n- [decisions/](decisions/README.md)\n<!-- clue:index:end -->\n",
-		"docs/decisions/README.md":    "# Decisions\n\n<!-- clue:index:start -->\n- [ADR-001](ADR-001-x.md)\n<!-- clue:index:end -->\n",
+		"docs/README.md":              "---\ntype: index\ntitle: Corpus\n---\n\n# Corpus\n\n<!-- clue:index:start -->\n- [goals/](goals/README.md)\n- [plans/](plans/README.md)\n- [decisions/](decisions/README.md)\n<!-- clue:index:end -->\n",
+		"docs/decisions/README.md":    "---\ntype: index\ntitle: Decisions\n---\n\n# Decisions\n\n<!-- clue:index:start -->\n- [ADR-001](ADR-001-x.md)\n<!-- clue:index:end -->\n",
 		"docs/decisions/ADR-001-x.md": "---\nid: ADR-001\ntype: decision\nstatus: inferred\nlinks: []\ntitle: X\nreversal-cost: high\n---\n",
 	})
 	issues := run(t, files, false)
@@ -478,7 +478,7 @@ func TestAC035_SecondFrontmatterReported(t *testing.T) {
 func TestAC049_UnitPositive_SupersedesStillLiveArtifactReported(t *testing.T) {
 	files := with(validFiles, map[string]string{
 		"docs/goals/G-002-second.md": "---\nid: G-002\ntype: goal\nstatus: accepted\nlinks: []\ntitle: Second goal\nsupersedes: [G-001]\n---\n",
-		"docs/goals/README.md":       "# Goals\n\n<!-- clue:index:start -->\n- [G-001](G-001-first.md)\n- [G-002](G-002-second.md)\n<!-- clue:index:end -->\n",
+		"docs/goals/README.md":       "---\ntype: index\ntitle: Goals\n---\n\n# Goals\n\n<!-- clue:index:start -->\n- [G-001](G-001-first.md)\n- [G-002](G-002-second.md)\n<!-- clue:index:end -->\n",
 	})
 	issues := run(t, files, false)
 	assertIssue(t, issues, "G-002-second.md")
@@ -490,7 +490,7 @@ func TestAC049_UnitPositive_SupersedesStillLiveArtifactReported(t *testing.T) {
 func TestAC049_UnitNegative_SupersedesDeletedArtifactClean(t *testing.T) {
 	files := with(validFiles, map[string]string{
 		"docs/goals/G-002-second.md":   "---\nid: G-002\ntype: goal\nstatus: accepted\nlinks: []\ntitle: Second goal\nsupersedes: [G-001]\n---\n",
-		"docs/goals/README.md":         "# Goals\n\n<!-- clue:index:start -->\n- [G-002](G-002-second.md)\n<!-- clue:index:end -->\n",
+		"docs/goals/README.md":         "---\ntype: index\ntitle: Goals\n---\n\n# Goals\n\n<!-- clue:index:start -->\n- [G-002](G-002-second.md)\n<!-- clue:index:end -->\n",
 		"docs/plans/P-001-baseline.md": "---\nid: P-001\ntype: plan\nstatus: active\nlinks: [G-002]\ntitle: Baseline\n---\n\n| M-001 | do it | todo |\n",
 	})
 	delete(files, "docs/goals/G-001-first.md")
@@ -505,7 +505,7 @@ func TestAC050_UnitPositive_DanglingLinkNamesSuccessor(t *testing.T) {
 	files := with(validFiles, map[string]string{
 		"docs/goals/G-002-second.md": "---\nid: G-002\ntype: goal\nstatus: accepted\nlinks: []\ntitle: Second goal\nsupersedes: [G-999]\n---\n",
 		"docs/goals/G-001-first.md":  "---\nid: G-001\ntype: goal\nstatus: accepted\nlinks: [G-999]\ntitle: First goal\n---\n",
-		"docs/goals/README.md":       "# Goals\n\n<!-- clue:index:start -->\n- [G-001](G-001-first.md)\n- [G-002](G-002-second.md)\n<!-- clue:index:end -->\n",
+		"docs/goals/README.md":       "---\ntype: index\ntitle: Goals\n---\n\n# Goals\n\n<!-- clue:index:start -->\n- [G-001](G-001-first.md)\n- [G-002](G-002-second.md)\n<!-- clue:index:end -->\n",
 	})
 	issues := run(t, files, false)
 	assertIssue(t, issues, "G-999")
@@ -545,7 +545,7 @@ func TestAC049_UnitPositive_ConflictingSupersedesClaimsRejected(t *testing.T) {
 	files := with(validFiles, map[string]string{
 		"docs/goals/G-002-second.md": "---\nid: G-002\ntype: goal\nstatus: accepted\nlinks: []\ntitle: Second goal\nsupersedes: [G-999]\n---\n",
 		"docs/goals/G-003-third.md":  "---\nid: G-003\ntype: goal\nstatus: accepted\nlinks: []\ntitle: Third goal\nsupersedes: [G-999]\n---\n",
-		"docs/goals/README.md":       "# Goals\n\n<!-- clue:index:start -->\n- [G-001](G-001-first.md)\n- [G-002](G-002-second.md)\n- [G-003](G-003-third.md)\n<!-- clue:index:end -->\n",
+		"docs/goals/README.md":       "---\ntype: index\ntitle: Goals\n---\n\n# Goals\n\n<!-- clue:index:start -->\n- [G-001](G-001-first.md)\n- [G-002](G-002-second.md)\n- [G-003](G-003-third.md)\n<!-- clue:index:end -->\n",
 	})
 	issues := run(t, files, false)
 	assertIssue(t, issues, "G-999 is claimed as superseded by more than one artifact: G-002, G-003")
@@ -556,7 +556,7 @@ func TestAC049_UnitPositive_ConflictingSupersedesClaimsRejected(t *testing.T) {
 func TestAC049_UnitNegative_RepeatedSupersedesEntryIsNotAConflict(t *testing.T) {
 	files := with(validFiles, map[string]string{
 		"docs/goals/G-002-second.md": "---\nid: G-002\ntype: goal\nstatus: accepted\nlinks: []\ntitle: Second goal\nsupersedes: [G-999, G-999]\n---\n",
-		"docs/goals/README.md":       "# Goals\n\n<!-- clue:index:start -->\n- [G-001](G-001-first.md)\n- [G-002](G-002-second.md)\n<!-- clue:index:end -->\n",
+		"docs/goals/README.md":       "---\ntype: index\ntitle: Goals\n---\n\n# Goals\n\n<!-- clue:index:start -->\n- [G-001](G-001-first.md)\n- [G-002](G-002-second.md)\n<!-- clue:index:end -->\n",
 	})
 	assertNoIssue(t, run(t, files, false), "claimed as superseded by more than one artifact")
 }
@@ -566,7 +566,7 @@ func TestAC050_UnitNegative_RepointedLinkIsClean(t *testing.T) {
 	files := with(validFiles, map[string]string{
 		"docs/goals/G-002-second.md": "---\nid: G-002\ntype: goal\nstatus: accepted\nlinks: []\ntitle: Second goal\nsupersedes: [G-999]\n---\n",
 		"docs/goals/G-001-first.md":  "---\nid: G-001\ntype: goal\nstatus: accepted\nlinks: [G-002]\ntitle: First goal\n---\n",
-		"docs/goals/README.md":       "# Goals\n\n<!-- clue:index:start -->\n- [G-001](G-001-first.md)\n- [G-002](G-002-second.md)\n<!-- clue:index:end -->\n",
+		"docs/goals/README.md":       "---\ntype: index\ntitle: Goals\n---\n\n# Goals\n\n<!-- clue:index:start -->\n- [G-001](G-001-first.md)\n- [G-002](G-002-second.md)\n<!-- clue:index:end -->\n",
 	})
 	assertNoIssue(t, run(t, files, false), "G-999")
 }

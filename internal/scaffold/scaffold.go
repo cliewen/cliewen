@@ -18,6 +18,7 @@ package scaffold
 import (
 	"embed"
 	"fmt"
+	"gopkg.in/yaml.v3"
 	"io/fs"
 	"os"
 	"os/exec"
@@ -28,6 +29,7 @@ import (
 	"runtime/debug"
 	"slices"
 	"sort"
+	"strconv"
 	"strings"
 
 	"github.com/cliewen/cliewen/internal/corpus"
@@ -546,6 +548,9 @@ func regenIndex(root, rel string) (bool, error) {
 	if strings.Contains(orig, "\r\n") {
 		eol = "\r\n"
 	}
+	// A folder README is a typed document (PDR-065): one without
+	// frontmatter gains its type: index header before the index is read.
+	text = WithIndexHeader(text, rel)
 	start := strings.Index(text, IndexStart)
 	end := strings.Index(text, IndexEnd)
 	switch {
@@ -775,5 +780,65 @@ func dirHasMarkdown(dir string) bool {
 		}
 		return nil
 	})
+	return found
+}
+
+var firstHeadingRe = regexp.MustCompile(`(?m)^# +(.+?)\s*$`)
+
+// WithIndexHeader returns a folder README's text with a type: index header
+// prepended when it carries no frontmatter, titled from its first heading or,
+// failing that, its folder's name. Text that already opens a frontmatter block
+// is returned unchanged, and the file's line endings are kept (PDR-065).
+func WithIndexHeader(text, rel string) string {
+	if strings.HasPrefix(text, "---\n") || strings.HasPrefix(text, "---\r\n") {
+		return text
+	}
+	eol := "\n"
+	if strings.Contains(text, "\r\n") {
+		eol = "\r\n"
+	}
+	title := path.Base(path.Dir(rel))
+	if m := firstHeadingRe.FindStringSubmatch(strings.ReplaceAll(text, "\r\n", "\n")); m != nil {
+		title = m[1]
+	}
+	header := "---" + eol + "type: " + corpus.IndexType + eol + "title: " + yamlTitle(title) + eol + "---" + eol
+	if strings.TrimSpace(text) == "" {
+		return header
+	}
+	return header + eol + text
+}
+
+// yamlTitle renders a title as a YAML string scalar, quoted whenever YAML
+// would otherwise read it as a number, boolean, null, sequence, or mapping.
+func yamlTitle(s string) string {
+	out, err := yaml.Marshal(s)
+	if err != nil {
+		return strconv.Quote(s)
+	}
+	return strings.TrimSuffix(string(out), "\n")
+}
+
+// HeaderlessReadmes lists every README.md under docs/ and changes/ that opens
+// no frontmatter block, in path order. A symlinked directory is not followed.
+// clue migrate heads all of them; clue scaffold heads only the taxonomy
+// READMEs whose index it owns (AC-027).
+func HeaderlessReadmes(root string) []string {
+	var found []string
+	for _, top := range []string{"docs", "changes"} {
+		_ = filepath.WalkDir(filepath.Join(root, top), func(p string, d fs.DirEntry, err error) error {
+			if err != nil || d.IsDir() || d.Name() != "README.md" {
+				return nil
+			}
+			raw, rerr := os.ReadFile(p)
+			if rerr != nil || strings.HasPrefix(string(raw), "---\n") || strings.HasPrefix(string(raw), "---\r\n") {
+				return nil
+			}
+			if rel, rerr := filepath.Rel(root, p); rerr == nil {
+				found = append(found, filepath.ToSlash(rel))
+			}
+			return nil
+		})
+	}
+	sort.Strings(found)
 	return found
 }

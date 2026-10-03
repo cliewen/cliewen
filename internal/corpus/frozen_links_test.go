@@ -5,12 +5,12 @@ import "testing"
 // retiredTargetFiles holds a corpus where AN-001 has been retired: the file
 // is gone and ADR-001 carries the pointer forward in supersedes.
 var retiredTargetFiles = map[string]string{
-	"docs/README.md":                      "# Corpus\n\n<!-- clue:index:start -->\n- [goals/](goals/README.md)\n- [plans/](plans/README.md)\n- [decisions/](decisions/README.md)\n- [architecture/](architecture/README.md)\n- [design/](design/README.md)\n<!-- clue:index:end -->\n",
-	"docs/architecture/README.md":         "# Architecture\n\nStructure.\n\n<!-- clue:index:start -->\n<!-- clue:index:end -->\n",
-	"docs/design/README.md":               "# Design\n\nCross-cutting behaviour.\n\n<!-- clue:index:start -->\n<!-- clue:index:end -->\n",
-	"docs/decisions/README.md":            "# Decisions\n\n<!-- clue:index:start -->\n- [ADR-001](ADR-001-successor.md)\n<!-- clue:index:end -->\n",
+	"docs/README.md":                      "---\ntype: index\ntitle: Corpus\n---\n\n# Corpus\n\n<!-- clue:index:start -->\n- [goals/](goals/README.md)\n- [plans/](plans/README.md)\n- [decisions/](decisions/README.md)\n- [architecture/](architecture/README.md)\n- [design/](design/README.md)\n<!-- clue:index:end -->\n",
+	"docs/architecture/README.md":         "---\ntype: index\ntitle: Architecture\n---\n\n# Architecture\n\nStructure.\n\n<!-- clue:index:start -->\n<!-- clue:index:end -->\n",
+	"docs/design/README.md":               "---\ntype: index\ntitle: Design\n---\n\n# Design\n\nCross-cutting behaviour.\n\n<!-- clue:index:start -->\n<!-- clue:index:end -->\n",
+	"docs/decisions/README.md":            "---\ntype: index\ntitle: Decisions\n---\n\n# Decisions\n\n<!-- clue:index:start -->\n- [ADR-001](ADR-001-successor.md)\n<!-- clue:index:end -->\n",
 	"docs/decisions/ADR-001-successor.md": "---\nid: ADR-001\ntype: decision\nstatus: inferred\nlinks: []\nsupersedes: [AN-001]\ntitle: Successor\nauthor: agent\naccepted-by: []\n---\n\n# ADR-001\n",
-	"docs/plans/README.md":                "# Plans\n\n<!-- clue:index:start -->\n- [P-001](P-001-baseline.md)\n<!-- clue:index:end -->\n",
+	"docs/plans/README.md":                "---\ntype: index\ntitle: Plans\n---\n\n# Plans\n\n<!-- clue:index:start -->\n- [P-001](P-001-baseline.md)\n<!-- clue:index:end -->\n",
 }
 
 func planLinking(status, target string) string {

@@ -1,3 +1,8 @@
+---
+type: agent-hub
+title: Agent routing hub
+---
+
 # Agent routing hub
 
 This repo runs **Cliewen**.
@@ -24,6 +29,8 @@ When the user asks what is next, run `clue next --all`, report the first actiona
 ## Repository conventions
 
 **Markdown prose is never hard-wrapped.** One line per paragraph and per list item; wrapping is the reader's IDE concern. Line breaks are structural only (headings, lists, tables, code fences).
+
+**Markdown files open with frontmatter.** A corpus artifact carries its artifact fields; any other Markdown file Cliewen checks carries a `type` and a `title`, and a folder README under `docs/` declares `type: index`. The pull-request template is the exception, because your forge pastes it into every pull request.
 
 **Guide writing is clear for software practitioners.** When changing prose in `/guide`, use the `humanizer` AI skill if it is installed. If it is not installed, ask the user to install it in the coding agent's local user directory before changing guide prose. The guide is for developers, people who work with coding agents, team leads, and architects. Use plain language, and explain a technical term when it first appears or link to a short glossary definition.
 

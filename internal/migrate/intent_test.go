@@ -71,7 +71,7 @@ func TestAC167_UnitNegative_AVisionAndAFolderThatExistProduceNoNoticeOrChange(t 
 	root := migrationFixture(t, "")
 	for rel, content := range map[string]string{
 		corpus.VisionPath:          "---\nid: VIS-001\ntype: vision\nstatus: active\nlinks: []\ntitle: Mine\n---\n\n# VIS-001\n\nMy own direction.\n",
-		"docs/use-cases/README.md": "# Use cases\n\n<!-- clue:index:start -->\n<!-- clue:index:end -->\n",
+		"docs/use-cases/README.md": "---\ntype: index\ntitle: Use cases\n---\n\n# Use cases\n\n<!-- clue:index:start -->\n<!-- clue:index:end -->\n",
 	} {
 		full := filepath.Join(root, filepath.FromSlash(rel))
 		if err := os.MkdirAll(filepath.Dir(full), 0o755); err != nil {

@@ -527,4 +527,21 @@ Feature: clue validate — deterministic corpus judgment
     Then the preview names the missing export and the agent workflow that establishes repository-owned producers
     And it never fabricates evidence or silently rewrites tests
     But an existing valid export needs no evidence-establishment notice
+
+  @AC-213
+  Scenario: Every corpus Markdown file carries frontmatter, and a folder README is a typed non-artifact
+    Test-type: Unit
+    Given a corpus whose folder READMEs carry a header of "type: index" and a title, and whose artifacts carry their existing fields
+    When the user runs "clue validate"
+    Then no finding is reported, and no folder README is treated as an artifact or asked for an id, status, or links
+    But a Markdown file under "docs/" or "changes/" with no frontmatter, a folder README whose type is not "index" or whose title is empty, or a non-README file without an artifact id each produce a finding naming the file
+
+  @AC-214
+  Scenario: Cliewen's delivered Markdown files carry a document header
+    Test-type: Unit
+    Given a repository carrying "AGENTS.md", "CLAUDE.md", the ".clue/evidence/" guides, ".github/cliewen-wall.md", and generated skill files, each with a non-empty type and title
+    When the user runs "clue validate"
+    Then no finding is reported for those files
+    And a delivered file that is absent produces no finding
+    But a delivered file present without a type or title produces a finding naming it, while the pull-request template and the adopter's other Markdown outside "docs/" and "changes/" are never checked for a header
 ```

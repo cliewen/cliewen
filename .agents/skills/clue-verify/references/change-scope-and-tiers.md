@@ -1,3 +1,8 @@
+---
+type: skill-reference
+title: Change routing
+---
+
 ## Change routing
 
 Before editing, inspect the smallest relevant context and tell the user `Recommended route: direct` or `Recommended route: tracked`, why, and what discovery would change that recommendation. One question decides the route: does the work change the accepted contract? Direct is the default.

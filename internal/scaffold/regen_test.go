@@ -429,7 +429,7 @@ func TestAC160_UnitPositive_CuratedDescriptionOutlivesRegeneration(t *testing.T)
 	root, _ := runInto(t)
 	readme := filepath.Join(root, "docs", "goals", "README.md")
 	curated := "- [G-001 — First goal](G-001-first.md) · `proposed` — What an author decided this actually means."
-	if err := os.WriteFile(readme, []byte("# Goals\n\n<!-- clue:index:start -->\n"+curated+"\n<!-- clue:index:end -->\n"), 0o644); err != nil {
+	if err := os.WriteFile(readme, []byte("---\ntype: index\ntitle: Goals\n---\n\n# Goals\n\n<!-- clue:index:start -->\n"+curated+"\n<!-- clue:index:end -->\n"), 0o644); err != nil {
 		t.Fatal(err)
 	}
 	body := "---\nid: G-001\ntype: goal\nstatus: proposed\nlinks: []\ntitle: First goal\n---\n\n# G-001\n\nThe body sentence a seed would have used.\n"
@@ -465,7 +465,7 @@ func TestAC160_UnitNegative_CuratedRowForAMissingTargetIsStillDropped(t *testing
 	root, _ := runInto(t)
 	readme := filepath.Join(root, "docs", "goals", "README.md")
 	curated := "- [G-404 — Deleted goal](G-404-deleted.md) · `accepted` — A description an author wrote before the file was removed."
-	if err := os.WriteFile(readme, []byte("# Goals\n\n<!-- clue:index:start -->\n"+curated+"\n<!-- clue:index:end -->\n"), 0o644); err != nil {
+	if err := os.WriteFile(readme, []byte("---\ntype: index\ntitle: Goals\n---\n\n# Goals\n\n<!-- clue:index:start -->\n"+curated+"\n<!-- clue:index:end -->\n"), 0o644); err != nil {
 		t.Fatal(err)
 	}
 	// G-404-deleted.md is deliberately never written.

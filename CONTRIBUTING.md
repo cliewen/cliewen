@@ -1,3 +1,8 @@
+---
+type: contributor-guide
+title: Contributing to Cliewen
+---
+
 # Contributing to Cliewen
 
 Thank you for helping improve Cliewen. Participation is governed by the [Code of Conduct](CODE_OF_CONDUCT.md).

@@ -1,4 +1,6 @@
 ---
+type: skill
+title: setup
 name: setup
 description: Install the clue binary and, with the user's agreement, scaffold Cliewen into the current repository. Use when the user asks to set up, install, or start using Cliewen or clue.
 ---

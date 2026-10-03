@@ -1,3 +1,8 @@
+---
+type: guide
+title: Make CI enforce Cliewen
+---
+
 # Make CI enforce Cliewen
 
 `clue init` gives you a thin GitHub Actions caller for Cliewen's upstream reusable validation workflow. With the default vendored source, the caller starts unarmed. The job warns and skips corpus validation until you commit the pinned Linux release binary and its checksum file under `.github/tools/`.

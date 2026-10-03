@@ -1,4 +1,6 @@
 ---
+type: guide
+title: Cliewen
 layout: home
 
 hero:

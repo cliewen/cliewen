@@ -1,3 +1,8 @@
+---
+type: guide
+title: The corpus
+---
+
 # The corpus
 
 The `docs/` folder is the corpus: the permanent record of what your system is for, what it can do, how it is built, and why. Agents read it before they work and update it in the same pull request as the code, so the next session starts from this record rather than from a lost chat. You review it alongside the implementation, and Git keeps every accepted version.
@@ -54,6 +59,8 @@ goal: G-001
 ```
 
 The ID is the identity, and the path is only where the file happens to be. `clue` finds artifacts by reading frontmatter. It checks IDs and status values, resolves every `links` entry, and verifies that the generated indexes match the files on disk. A file can move without becoming a different capability, while a duplicate ID or a broken link fails loudly.
+
+A Markdown file that is not an artifact carries a smaller header with only a `type` and a `title`. Folder READMEs are the usual example. Each one declares `type: index`, has no ID, and never counts as an artifact. `clue scaffold` adds the header to the top-level folder READMEs it keeps indexed, and `clue migrate` adds it to any README that lacks one. Cliewen's own files outside `docs/`, such as `AGENTS.md`, `CLAUDE.md`, and the generated skills, carry the same two fields, and `clue validate` reports any of them that has none. The pull-request template has no header, because your Git host pastes it into every new pull request. Cliewen does not check your other Markdown files.
 
 Links point down the thread: a goal names the vision, a capability names its goal, and a use case names the goal and the capabilities it crosses. Nothing links back up, so each connection is written in one place and cannot drift apart.
 

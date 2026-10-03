@@ -1,3 +1,8 @@
+---
+type: agent-hub
+title: Agent routing hub
+---
+
 # Agent routing hub
 
 This repository dogfoods Cliewen and declares `role: source` in `.clue/role.yaml`. The shared methodology below also binds adopters unless a section states otherwise; source-repository conventions apply only here. Before applying a rule that differs by repository kind, read the role marker rather than infer it from the checkout. An adopter-binding rule belongs on a shipped carrier under `internal/skills/source/` or `internal/scaffold/templates/`; `clue validate` enforces that boundary ([ADR-062](docs/decisions/ADR-062-repository-role-is-declared-machine-state.md)).
@@ -27,7 +32,7 @@ Assess documentation impact before closing every change. Keep `docs/architecture
 
 For intent work, use [`clue-plan`](.agents/skills/clue-plan/skill.md) or [`clue-extract`](.agents/skills/clue-extract/skill.md): `VIS-001` → goal → optional `UC-xxx` → capability → criterion → evidence states product meaning, while goal → plan → milestone → change → accepted merge states delivery. Links point down; vision and use cases are optional and change only when durable meaning does. A missing vision is elicited (greenfield) or inferred as cited `status: draft`, `provenance: inferred` meaning until a human confirms it; a tracked change's acceptance brief states its vision or that none exists.
 
-Markdown prose is never hard-wrapped: one line per paragraph and list item; line breaks are structural only ([C-001](docs/constraints/C-001-no-hard-wrapped-markdown.md)).
+Markdown prose is never hard-wrapped: one line per paragraph and list item; line breaks are structural only ([C-001](docs/constraints/C-001-no-hard-wrapped-markdown.md)). Markdown files open with frontmatter: an artifact carries its artifact fields, any other file a `type` and `title`, and a folder README `type: index`; only the pull-request template goes without ([PDR-065](docs/decisions/PDR-065-markdown-carries-frontmatter-by-default.md)). This repository applies it to every tracked Markdown file ([C-024](docs/constraints/C-024-every-markdown-file-carries-frontmatter.md)).
 
 The core is behind a red line: the verifiable thread (goal → plan → change → capability → criterion → acceptance evidence, including classified executable references and genuine Human proof in the acceptance brief), the tracked-route human acceptance boundary, and `clue validate` as deterministic judge ([ARCH-003](docs/architecture/core.md)). Changing what any core element means changes the accepted contract: recommend tracked and record an explicit decision; the user may choose direct with the route-override trailers above ([C-013](docs/constraints/C-013-core-changes-need-decision.md)). Periphery never constrains the core.
 

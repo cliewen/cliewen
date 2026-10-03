@@ -1,3 +1,8 @@
+---
+type: skill-reference
+title: Review boundary
+---
+
 ## Review boundary
 
 This boundary governs a tracked route the user chose. Direct work instead follows explicit user integration authority and repository policy: route selection alone never authorizes a push, an agent pushes directly to an integration branch only when the user explicitly authorizes it and permissions allow it, and a repository may impose stricter rules.

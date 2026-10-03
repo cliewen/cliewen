@@ -1,3 +1,8 @@
+---
+type: skill-reference
+title: Challenge a consequential commitment
+---
+
 ## Challenge a consequential commitment
 
 Before a consequential commitment, challenge it where the reviewer will read it: in the plan's prose for a plan, in `proposal.md` for a change. Name the assumption most likely to undermine the work, a credible alternative course, the cheapest useful test of that assumption, and the result that would stop or revise the work. Then ask what an implementation could look like that met every criterion and still failed the person the work is for — that is the failure a criterion-to-test thread cannot catch, because one author usually writes the criterion, its implementation, and its test in one sitting.

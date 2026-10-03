@@ -1,3 +1,8 @@
+---
+type: guide
+title: Acceptance evidence across frameworks
+---
+
 # Acceptance evidence across frameworks
 
 Acceptance evidence connects a criterion to the executable that proves it. Since Cliewen 0.27.0, repository-owned exporters write those connections to `.clue/evidence.yaml`. `clue validate`, coverage and parity read the same file. Cliewen does not load test frameworks or run exporters or tests.

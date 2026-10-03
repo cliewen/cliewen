@@ -1,3 +1,8 @@
+---
+type: guide
+title: The change loop
+---
+
 # The change loop
 
 Before editing, the agent asks one question: does this work change a promise the repository has already made? If not, it recommends the **direct** route, which is the default. If it does, or nobody is sure, it recommends the **tracked** route, which plans the change, tests it against acceptance criteria, and ends in a pull request you merge. The agent says why and names what it might still discover that would change the recommendation.

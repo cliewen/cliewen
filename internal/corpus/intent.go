@@ -185,7 +185,7 @@ type IntentState struct {
 // Intent derives the intent state from a scanned corpus.
 func Intent(c *Corpus) IntentState {
 	var state IntentState
-	servedBy := map[string][]GoalRef{}   // goal ID -> capabilities naming it
+	servedBy := map[string][]GoalRef{}    // goal ID -> capabilities naming it
 	deliveredBy := map[string][]GoalRef{} // goal ID -> plans naming it
 	for _, a := range c.Artifacts {
 		switch a.Type {

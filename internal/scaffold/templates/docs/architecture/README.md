@@ -1,3 +1,8 @@
+---
+type: index
+title: Architecture
+---
+
 # Architecture
 
 <!-- clue:overview:bootstrap -->

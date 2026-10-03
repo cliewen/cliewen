@@ -1,3 +1,8 @@
+---
+type: skill-reference
+title: Boundaries
+---
+
 ## Boundaries
 
 Brownfield adoption transforms an existing repository's specification corpus into a Cliewen `/docs` corpus. Use it once per adopted repository; the extraction is that repository's first `clue-delta` loop.

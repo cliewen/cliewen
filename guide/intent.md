@@ -1,3 +1,8 @@
+---
+type: guide
+title: Vision and use cases
+---
+
 # Vision and use cases
 
 A Cliewen corpus can tell you that some behavior is proven. Until now it could not tell you why anyone wanted the product at all.

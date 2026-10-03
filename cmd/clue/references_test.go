@@ -16,8 +16,8 @@ import (
 // leave such a test green.
 func TestAC067_UnitPositive_CoverageListsForeignPointersApart(t *testing.T) {
 	root := validCorpus(t)
-	writeFile(t, root, "docs/README.md", "# Corpus\n\n<!-- clue:index:start -->\n- [goals/](goals/README.md)\n- [analysis/](analysis/README.md)\n<!-- clue:index:end -->\n")
-	writeFile(t, root, "docs/analysis/README.md", "# Analysis\n\n<!-- clue:index:start -->\n- [AN-101](AN-101-x.md)\n<!-- clue:index:end -->\n")
+	writeFile(t, root, "docs/README.md", "---\ntype: index\ntitle: Corpus\n---\n\n# Corpus\n\n<!-- clue:index:start -->\n- [goals/](goals/README.md)\n- [analysis/](analysis/README.md)\n<!-- clue:index:end -->\n")
+	writeFile(t, root, "docs/analysis/README.md", "---\ntype: index\ntitle: Analysis\n---\n\n# Analysis\n\n<!-- clue:index:start -->\n- [AN-101](AN-101-x.md)\n<!-- clue:index:end -->\n")
 	writeFile(t, root, "docs/analysis/AN-101-x.md", "---\nid: AN-101\ntype: analysis\nstatus: active\nlinks: []\ntitle: X\nprovenance: inferred\nreversal-cost: low\n---\n\nProven by clue:robocode-dev/tank-royale@384d27d5/BR-001 upstream.\n")
 
 	code, out := runValidateCapturingStdout(t, []string{"--coverage", root})

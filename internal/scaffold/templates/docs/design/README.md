@@ -1,3 +1,8 @@
+---
+type: index
+title: Design
+---
+
 # Design
 
 <!-- clue:overview:bootstrap -->

@@ -1,10 +1,15 @@
+---
+type: index
+title: The Cliewen corpus
+---
+
 # The Cliewen corpus
 
 This directory is the **system-of-record**: the permanent, durable truth about the system. Tracked Cliewen changes are transient deltas on branches that get **digested** into this corpus at a human-controlled merge commit; reachable Git history is the full provenance archive, and `git log docs/` remains the durable-corpus audit trail. This index is the orientation point when a request names no artifact; once an identity is known, `clue context <id>` emits its focused outgoing-link slice and agents read further only when the task discovers another edge. Plain changes under PDR-011 stay outside the corpus.
 
 ## How the corpus is wired
 
-Every artifact carries YAML frontmatter with a common core — `id`, `type`, `status`, `links`, `title` — plus small type-specific extensions. **Identity is the ID, the path is only the current address**: tooling discovers artifacts by scanning frontmatter, and external systems reference IDs, never paths. Status lives in frontmatter, never in folder names; status views are generated.
+Every artifact carries YAML frontmatter with a common core — `id`, `type`, `status`, `links`, `title` — plus small type-specific extensions. **Identity is the ID, the path is only the current address**: tooling discovers artifacts by scanning frontmatter, and external systems reference IDs, never paths. Status lives in frontmatter, never in folder names; status views are generated. A folder README is not an artifact: its frontmatter is only `type: index` and a `title`, and any other Markdown file carries at least a `type` and `title` ([PDR-065](decisions/PDR-065-markdown-carries-frontmatter-by-default.md)).
 
 Two threads run through the corpus and meet only at the goal. The **intent thread** says what the product means, and its first two steps are optional to hold:
 

@@ -1,3 +1,8 @@
+---
+type: skill-reference
+title: Target contract
+---
+
 ## Target contract
 
 The extraction PR is complete only when all of these hold:

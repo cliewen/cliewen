@@ -1,3 +1,8 @@
+---
+type: skill-reference
+title: Evidence workflow
+---
+
 ## Evidence workflow
 
 Gherkin states the acceptance behavior; the repository's actual test frameworks implement its executable proof. Before writing or migrating tests, inspect the installed versions, discovery configuration, test types and existing metadata. Use native tags, markers, categories or properties first, executable-bound custom annotations, attributes or decorators next, and a stable name or title only when neither is practical. Ordinary proximity comments are not evidence. An AC identity belongs directly to one executable, never its enclosing suite, class, module or assembly. Each AC-proving executable carries one canonical AC identity, one proof type and one direction; other tests need no artificial AC identity.

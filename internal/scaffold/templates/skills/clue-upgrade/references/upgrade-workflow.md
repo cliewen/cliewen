@@ -1,3 +1,8 @@
+---
+type: skill-reference
+title: Upgrade workflow
+---
+
 ## Upgrade workflow
 
 Use when a repository already uses Cliewen and the human wants to find out whether, or bring it up to, a newer release. This is a route into a reviewed repository change, never a background update or authority to merge.

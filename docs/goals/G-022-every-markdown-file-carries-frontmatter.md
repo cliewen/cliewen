@@ -1,7 +1,7 @@
 ---
 id: G-022
 type: goal
-status: proposed
+status: accepted
 links: [VIS-001]
 title: Every Markdown file carries YAML frontmatter, in this repository and for adopters
 ---
@@ -10,13 +10,9 @@ title: Every Markdown file carries YAML frontmatter, in this repository and for 
 
 **Who wants it:** the maintainer, for this repository and for every adopter (2026-10-03), raised while CH-195 was in progress.
 
-**Why:** today only corpus artifacts under `docs/` and change workspaces carry frontmatter. Everything else, such as guide pages, root files like `CONTRIBUTING.md`, folder READMEs, and `.github` templates, has none, so neither an agent nor `clue` can tell from the file itself what it is, what state it is in, or what it links to. The maintainer wants frontmatter to be the default for any Markdown file, so a file has to have a reason to go without it rather than the other way round.
+**Why:** a Markdown file without frontmatter cannot say what it is, so neither an agent nor `clue` can tell its kind from the file itself. The maintainer wants frontmatter to be the default for any Markdown file, so that a file needs a reason to go without it.
 
-**Open before a plan commits to it:**
-
-- Which files are in scope, and which are deliberate exceptions: `CHANGELOG.md` (published verbatim as release bodies), `AGENTS.md`/`CLAUDE.md` (read raw by agent hosts), generated skills (which already carry their own frontmatter), `.github` templates (rendered by the forge), and guide pages (where VitePress already reads frontmatter for its own keys).
-- What fields a non-corpus file needs. The corpus `id`/`type`/`status`/`links`/`title` set may be too much for a file that is not an artifact, and an identity would put it in the ledger.
-- How existing adopters get there: a `clue migrate` notice or repair, and whether `clue validate` enforces it or only reports it.
+**Settled by [PDR-065](../decisions/PDR-065-markdown-carries-frontmatter-by-default.md):** a non-artifact file carries only `type` and `title`; the pull-request template is the one exception; for adopters the rule covers the corpus and Cliewen's delivered files, while this repository applies it to every tracked Markdown file ([C-024](../constraints/C-024-every-markdown-file-carries-frontmatter.md)).
 
 **Success looks like:**
 

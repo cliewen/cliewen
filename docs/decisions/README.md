@@ -1,3 +1,8 @@
+---
+type: index
+title: Decisions
+---
+
 # Decisions
 
 Only a future-shaping choice earns a record, routed by subject ([PDR-046](PDR-046-decisions-route-by-subject.md)): **ADRs** (Architectural Decision Records) hold software and corpus architecture; **PDRs** (Project/Process Decision Records) hold how the project or methodology works; **IDRs** (Implementation Decision Records) hold implementation choices. Reversal cost does not route a record, and routine facts, chronology, and implementation history stay in their natural carriers. A decision that adopts a well-established practice cites it by name and records only the local why and deviations.
@@ -157,4 +162,5 @@ The CLI reports inferred ADRs, PDRs, and IDRs as decisions awaiting verification
 - [PDR-063 — A goal's current service is reported by capability and plan presence, never a new status or a ratio](PDR-063-goal-service-is-reported-by-presence-and-status-not-a-ratio.md) · `inferred` — G-020 found that an adopter's agent, asked about goal status during brownfield extraction, could only say `proposed` or `accepted` — ADR-025's only goal states — regardless of how well a goal was…
 - [ADR-071 — Framework-neutral evidence export](ADR-071-framework-neutral-evidence-export.md) · `inferred` — Amends ADR-005 and ADR-036 by moving framework parsing to repository-owned producers; the judge validates one fresh manifest across every framework while native metadata and per-executable attribution remain.
 - [PDR-064 — Change routes are named direct and tracked, and override trailers are read in either spelling](PDR-064-change-routes-are-named-direct-and-tracked.md) · `inferred` — PDR-042 routes work by whether the accepted contract changes, but named the routes `simple` and `full`.
+- [PDR-065 — Markdown files carry frontmatter by default, and a non-artifact carries only type and title](PDR-065-markdown-carries-frontmatter-by-default.md) · `inferred` — Corpus artifacts and change workspaces carry frontmatter, and `clue` reads it.
 <!-- clue:index:end -->

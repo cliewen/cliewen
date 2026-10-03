@@ -1,3 +1,8 @@
+---
+type: index
+title: Imported changes
+---
+
 # Imported changes
 
 One `imported-change` record per source repository's in-flight pending change that brownfield extraction preserves ([ADR-050](../decisions/ADR-050-imported-change-records.md)). Each record pins the source revision and location it was read from, and carries the source change's intent, design rationale, dependency links, and a task-to-criterion proof-links table — the trace a deleted source `tasks.md` can no longer supply.

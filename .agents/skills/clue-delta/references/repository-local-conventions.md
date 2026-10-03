@@ -1,3 +1,8 @@
+---
+type: skill-reference
+title: Repository-local conventions
+---
+
 ## Repository-local conventions
 
 Before applying a rule that differs by repository kind, read the role in `.clue/role.yaml`. `role: adopter` is a repository that has adopted Cliewen; `role: source` is Cliewen's own repository, which generates the skills and templates adopters receive and therefore carries rules no adopter ever inherits. A repository with no marker is an adopter. Do not infer the role from a directory listing, and do not apply a source-repository rule to an adopter's work.

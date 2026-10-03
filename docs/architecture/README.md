@@ -1,3 +1,8 @@
+---
+type: index
+title: Architecture
+---
+
 # Architecture
 
 This is Cliewen's system-structure overview: the actors, boundaries, and durable technology choices that shape every capability. The cross-cutting runtime view is [design/](../design/README.md); capability-local implementation detail remains in each capability's `design.md`. Keep this page concise and update it when the system's structure changes.

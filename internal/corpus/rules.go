@@ -96,6 +96,7 @@ func Validate(c *Corpus, opts Options) []Issue {
 	issues = append(issues, checkProposalPlanItem(c)...)
 	issues = append(issues, checkMilestoneStatus(c)...)
 	issues = append(issues, checkSkillVersions(c, opts.Version)...)
+	issues = append(issues, checkDeliveredHeaders(c)...)
 	issues = append(issues, checkLedger(c)...)
 	issues = append(issues, checkImportedChanges(c)...)
 	if opts.ForbidChanges && c.HasChanges {

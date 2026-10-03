@@ -1,3 +1,8 @@
+---
+type: guide
+title: The verifiable thread
+---
+
 # The verifiable thread
 
 Cliewen organizes system knowledge as a graph with one verifiable thread from motivation to acceptance evidence, and a separate delivery thread that acts on capability content without leaving a durable link once the work lands.
