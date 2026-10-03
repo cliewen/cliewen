@@ -3,6 +3,8 @@ cliewen-skill: true
 version: 0.27.0
 type: skill
 title: clue-verify
+name: clue-verify
+description: Verify a chosen tracked Cliewen change and run its bounded adversarial review before claiming the hosted pull request is ready. Use before marking a tracked change's pull request ready for review.
 ---
 
 <!-- Generated from Cliewen's canonical skill sources; edit those sources, not this file. -->

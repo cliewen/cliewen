@@ -3,6 +3,8 @@ cliewen-skill: true
 version: 0.27.0
 type: skill
 title: clue-analysis
+name: clue-analysis
+description: Investigate an unclear risk or unknown before planning or implementation, and leave durable findings for the next workflow. Use when a risk or unknown needs a spike before a plan or change can commit to an approach.
 ---
 
 <!-- Generated from Cliewen's canonical skill sources; edit those sources, not this file. -->

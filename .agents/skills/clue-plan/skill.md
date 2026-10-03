@@ -3,6 +3,8 @@ cliewen-skill: true
 version: 0.27.0
 type: skill
 title: clue-plan
+name: clue-plan
+description: Create or revise a verifiable campaign plan through the reviewed Cliewen change loop. Use when a goal needs several steps, or a running plan must change what it promises.
 ---
 
 <!-- Generated from Cliewen's canonical skill sources; edit those sources, not this file. -->

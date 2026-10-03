@@ -125,7 +125,7 @@ producers:
       - path: docs/capabilities/CAP-004-ship/README.md
         sha256: f2204571f3e664730a8b6f772770edcbe9fd3f4516d257f956e113e273e14f89
       - path: docs/capabilities/CAP-004-ship/criteria.md
-        sha256: e04accb610c0d1b68da6ba657b0ee8badcacb332991c624684f9abbd9af48547
+        sha256: 213f128b287176a5cce40e8138ca0fca2a4db71fe67473373e1e13ce72c02e15
       - path: docs/capabilities/CAP-004-ship/design.md
         sha256: 3945f3d1093d2df517ccb229441c99d07ab08031ca4e44da9be1e7a3312a8842
       - path: docs/capabilities/CAP-005-indexes/README.md
@@ -727,7 +727,7 @@ producers:
       - path: internal/scaffold/wallchecklist_test.go
         sha256: 6c1c2f1bfe990ff5bc7bf25647495a413f97af3d2b0e3c875bac35b19cec8a8a
       - path: internal/skills/generate_test.go
-        sha256: 8cc83e76ed826a10d46e662e20d0f6ce3291c30b3c83963acefacd2c5dd86bd1
+        sha256: 45f214d67d243709f71d23c7274e396986e8ac55ac43e06a3648e7035520649d
       - path: tools/export-evidence/main.go
         sha256: 16d6ac0cbfe2a86d7460a8c4dfb62175c89467d95bb1743587f87467f771a039
     references:
@@ -3792,5 +3792,15 @@ producers:
       - id: AC-210
         path: internal/skills/generate_test.go
         subject: test TestAC210_UnitPositive_GeneratedUpgradeSkillRoutesAHumanAuthorizedCoordinatedUpgradeAsDirectWork
+        type: Unit
+        direction: positive
+      - id: AC-217
+        path: internal/skills/generate_test.go
+        subject: test TestAC217_UnitNegative_DescriptionsAreDistinctAndNeverTheGeneratedComment
+        type: Unit
+        direction: negative
+      - id: AC-217
+        path: internal/skills/generate_test.go
+        subject: test TestAC217_UnitPositive_EveryEntryPointNamesItselfAndSaysWhenToUseIt
         type: Unit
         direction: positive

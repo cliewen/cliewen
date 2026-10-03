@@ -56,12 +56,16 @@ type skillRoute struct {
 
 type skillDefinition struct {
 	description string
-	routes      []skillRoute
+	// whenToUse completes the frontmatter description an agent host reads to
+	// choose the skill; description alone opens the routing body.
+	whenToUse string
+	routes    []skillRoute
 }
 
 var skillDefinitions = map[string]skillDefinition{
 	"clue-analysis": {
 		description: "Investigate an unclear risk or unknown before planning or implementation, and leave durable findings for the next workflow.",
+		whenToUse:   "Use when a risk or unknown needs a spike before a plan or change can commit to an approach.",
 		routes: []skillRoute{
 			{heading: "Analysis workflow", file: "analysis-workflow.md", condition: "Before starting the investigation"},
 			{heading: "Decision records", file: "decision-records.md", condition: "If a finding chooses or rejects a consequential course"},
@@ -69,6 +73,7 @@ var skillDefinitions = map[string]skillDefinition{
 	},
 	"clue-plan": {
 		description: "Create or revise a verifiable campaign plan through the reviewed Cliewen change loop.",
+		whenToUse:   "Use when a goal needs several steps, or a running plan must change what it promises.",
 		routes: []skillRoute{
 			{heading: "Planning workflow", file: "planning-workflow.md", condition: "Before creating or revising a plan"},
 			{heading: "Intent model", file: "intent-model.md", condition: "Before deciding which goals a plan serves, and whether any journey needs a use case"},
@@ -79,6 +84,7 @@ var skillDefinitions = map[string]skillDefinition{
 	},
 	"clue-delta": {
 		description: "Run a chosen tracked Cliewen change from proposal through implementation, digest, verification, and human-controlled merge.",
+		whenToUse:   "Use when the user chooses the tracked route for work that changes the accepted contract.",
 		routes: []skillRoute{
 			{heading: "Evidence workflow", file: "evidence-workflow.md", condition: "Before writing, migrating, exporting or verifying executable acceptance evidence"},
 			{heading: "Change routing", file: "change-scope-and-tiers.md", condition: "Before recommending a route or starting a tracked change"},
@@ -93,6 +99,7 @@ var skillDefinitions = map[string]skillDefinition{
 	},
 	"clue-extract": {
 		description: "Transform one brownfield specification corpus into Cliewen through a report-only rehearsal and a human-authorized mutation.",
+		whenToUse:   "Use when adopting Cliewen in a repository that already holds specifications, decision records, or tagged tests.",
 		routes: []skillRoute{
 			{heading: "Evidence workflow", file: "evidence-workflow.md", condition: "Before writing, migrating, exporting or verifying executable acceptance evidence"},
 			{heading: "Review boundary", file: "review-boundary.md", condition: "Before branching, publishing, updating a hosted PR, or handing work to a human"},
@@ -109,6 +116,7 @@ var skillDefinitions = map[string]skillDefinition{
 	},
 	"clue-upgrade": {
 		description: "Check for a newer Cliewen release and, only with explicit human authorization, carry out its coordinated repository upgrade.",
+		whenToUse:   "Use when `clue latest --quiet` prints a newer release or reports `latest` as an unknown command, or when the user asks to upgrade Cliewen.",
 		routes: []skillRoute{
 			{heading: "Upgrade workflow", file: "upgrade-workflow.md", condition: "Before checking or acting on an available release, and before recommending the upgrade's route"},
 			{heading: "Change routing", file: "change-scope-and-tiers.md", condition: "When the upgrade escalates a decision of this repository's own to the tracked route"},
@@ -120,6 +128,7 @@ var skillDefinitions = map[string]skillDefinition{
 	},
 	"clue-verify": {
 		description: "Verify a chosen tracked Cliewen change and run its bounded adversarial review before claiming the hosted pull request is ready.",
+		whenToUse:   "Use before marking a tracked change's pull request ready for review.",
 		routes: []skillRoute{
 			{heading: "Evidence workflow", file: "evidence-workflow.md", condition: "Before writing, migrating, exporting or verifying executable acceptance evidence"},
 			{heading: "Change routing", file: "change-scope-and-tiers.md", condition: "Before confirming that tracked-route verification applies"},
@@ -292,7 +301,7 @@ func splitSkill(name string, complete []byte) ([]renderedFile, error) {
 	frontmatterEnd += 9
 	// Every generated file carries a document header (PDR-065): the entry
 	// point declares type: skill beside its ownership marker and version.
-	frontmatter := strings.TrimSuffix(text[:frontmatterEnd], "---\n") + documentHeaderFields("skill", name) + "---\n"
+	frontmatter := strings.TrimSuffix(text[:frontmatterEnd], "---\n") + documentHeaderFields("skill", name) + skillIdentityFields(name, definition) + "---\n"
 	body := strings.TrimLeft(text[frontmatterEnd:], "\n")
 	title := "# " + name
 	titleIndex := strings.Index(body, title+"\n")
@@ -397,4 +406,15 @@ func yamlString(s string) string {
 		return strconv.Quote(s)
 	}
 	return strings.TrimSuffix(string(out), "\n")
+}
+
+// skillIdentityFields renders the name and description agent hosts read to
+// list and choose a skill (G-024). The name is the skill's directory, and the
+// description joins the routing body's summary with when to use the skill.
+func skillIdentityFields(name string, definition skillDefinition) string {
+	return "name: " + yamlString(name) + "\ndescription: " + yamlString(skillDescription(definition)) + "\n"
+}
+
+func skillDescription(definition skillDefinition) string {
+	return definition.description + " " + definition.whenToUse
 }

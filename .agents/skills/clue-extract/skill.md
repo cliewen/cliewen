@@ -3,6 +3,8 @@ cliewen-skill: true
 version: 0.27.0
 type: skill
 title: clue-extract
+name: clue-extract
+description: Transform one brownfield specification corpus into Cliewen through a report-only rehearsal and a human-authorized mutation. Use when adopting Cliewen in a repository that already holds specifications, decision records, or tagged tests.
 ---
 
 <!-- Generated from Cliewen's canonical skill sources; edit those sources, not this file. -->
