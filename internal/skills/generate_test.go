@@ -338,6 +338,58 @@ func TestSanity_CommittedSkillsMatchCanonicalSources(t *testing.T) {
 	}
 }
 
+// Sanity (G-023): this repository mirrors each generated skill into
+// .claude/skills as a directory of symlinks, because Claude Code on a
+// case-sensitive filesystem lists a skill only through SKILL.md. Each mirror
+// links SKILL.md to the generated skill.md and every other entry to its
+// generated counterpart, so the mirror holds no copy that could drift.
+func TestSanity_ClaudeMirrorLinksEveryGeneratedSkill(t *testing.T) {
+	root := filepath.Join("..", "..")
+	skills := filepath.Join(root, ".agents", "skills")
+	mirror := filepath.Join(root, ".claude", "skills")
+	if info, err := os.Lstat(mirror); err != nil || !info.IsDir() {
+		t.Fatalf(".claude/skills must be a directory of per-skill mirrors, not a symlink or missing: %v", err)
+	}
+	for _, name := range skillNames {
+		entries, err := os.ReadDir(filepath.Join(skills, name))
+		if err != nil {
+			t.Fatal(err)
+		}
+		for _, entry := range entries {
+			link := entry.Name()
+			if link == "skill.md" {
+				link = "SKILL.md"
+			}
+			linkPath := filepath.Join(mirror, name, link)
+			target, err := os.Readlink(linkPath)
+			if err != nil {
+				t.Errorf(".claude/skills/%s/%s is not a symlink: %v", name, link, err)
+				continue
+			}
+			want := path.Join("..", "..", "..", ".agents", "skills", name, entry.Name())
+			if filepath.ToSlash(target) != want {
+				t.Errorf(".claude/skills/%s/%s points at %s, want %s", name, link, target, want)
+			}
+		}
+		if _, err := os.Lstat(filepath.Join(mirror, name, "skill.md")); err == nil {
+			t.Errorf(".claude/skills/%s carries a lower-case skill.md beside SKILL.md", name)
+		}
+	}
+	entries, err := os.ReadDir(mirror)
+	if err != nil {
+		t.Fatal(err)
+	}
+	known := map[string]bool{}
+	for _, name := range skillNames {
+		known[name] = true
+	}
+	for _, entry := range entries {
+		if !known[entry.Name()] {
+			t.Errorf(".claude/skills/%s mirrors no generated skill", entry.Name())
+		}
+	}
+}
+
 func TestSanity_EveryManagedSkillAppearsInBothRoutingHubs(t *testing.T) {
 	for _, hub := range []string{
 		filepath.Join("..", "..", "AGENTS.md"),
