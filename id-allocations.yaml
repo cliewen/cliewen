@@ -1670,6 +1670,11 @@ claims:
       state: reserved
       prefix: C
       component: "23"
+    - id: C-024
+      kind: numeric
+      state: reserved
+      prefix: C
+      component: "24"
     - id: CAP-001
       kind: numeric
       state: reserved
@@ -3226,11 +3231,11 @@ claims:
       prefix: VIS
       component: "1"
 high-water:
-    - id: AC-215
+    - id: AC-216
       kind: numeric
       state: reserved
       prefix: AC
-      component: "215"
+      component: "216"
     - id: ADR-071
       kind: numeric
       state: reserved
