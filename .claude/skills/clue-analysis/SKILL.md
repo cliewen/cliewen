@@ -1,0 +1,1 @@
+../../../.agents/skills/clue-analysis/skill.md
