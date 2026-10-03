@@ -1,3 +1,8 @@
+---
+type: guide
+title: Install from Claude Code
+---
+
 # Install from Claude Code
 
 If you already work inside Claude Code, you can install `clue` without leaving the session:

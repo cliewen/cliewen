@@ -1,3 +1,8 @@
+---
+type: guide
+title: The design of Cliewen
+---
+
 # The design of Cliewen
 
 Other guide pages explain Cliewen's rules. This page explains why those rules exist: the problem the design addresses, the parts that cannot change casually, and the limits the methodology accepts. If you are comparing Cliewen with another approach, this is the argument to evaluate.

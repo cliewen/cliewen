@@ -1,3 +1,8 @@
+---
+type: guide
+title: What you can do with it
+---
+
 # What you can do with it
 
 Cliewen is for repositories where coding agents make real changes through pull requests. That is the only prerequisite. You do not need a background in spec-driven development or Intent Engineering; those ideas explain Cliewen's origins, not how to get started.

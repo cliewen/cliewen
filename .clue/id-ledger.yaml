@@ -901,5 +901,6 @@ events:
     - {id: AC-215, kind: numeric, state: live, prefix: AC, component: "215"}
     - {id: AC-216, kind: numeric, state: live, prefix: AC, component: "216"}
     - {id: PDR-065, kind: numeric, state: live, prefix: PDR, component: "65"}
+    - {id: C-024, kind: numeric, state: live, prefix: C, component: "24"}
 high-water:
     - {id: CH-183, kind: numeric, state: reserved, prefix: CH, component: "183"}

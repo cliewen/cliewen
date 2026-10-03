@@ -1,3 +1,8 @@
+---
+type: guide
+title: Operate Cliewen safely
+---
+
 # Operate Cliewen safely
 
 This page is for a repository that has completed the disposable trial and is deciding whether to keep Cliewen. It defines the current support boundary and recovery paths that preserve repository history and the review boundary.

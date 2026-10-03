@@ -16,6 +16,6 @@ title: CH-196 tasks
 - [x] Add AC-215 (CAP-001): `clue init` and `clue scaffold` write every Markdown file with frontmatter except the pull-request template, generated skill files included, and index regeneration preserves it; positive and negative evidence
 - [x] Add AC-216 (CAP-001): `clue migrate` adds the header to managed folder READMEs and reports, never rewrites, delivered adopter-owned files lacking one; positive and negative evidence
 - [x] Implement validation, scaffold templates, skill generator output, index regeneration, and the migrate repair and notice (AC-213 to AC-216)
-- [ ] Add C-024, this repository's machine-enforced constraint that every tracked Markdown file carries frontmatter, with its named exceptions and the test that holds it
-- [ ] Add headers to this repository's Markdown files (root files, guide pages, folder READMEs, skill resources); regenerate skills, indexes, and the evidence manifest
+- [x] Add C-024, this repository's machine-enforced constraint that every tracked Markdown file carries frontmatter, with its named exceptions and the test that holds it
+- [x] Add headers to this repository's Markdown files (root files, guide pages, folder READMEs, skill resources); regenerate skills, indexes, and the evidence manifest
 - [ ] Update `/guide` prose with the humanizer skill where it describes artifact frontmatter or the README exemption

@@ -1,3 +1,8 @@
+---
+type: index
+title: Plans
+---
+
 # Plans
 
 The campaign layer: P-xxx plans with M-xxx milestones. This folder is **flat** — status lives in frontmatter, never in folder names. `draft` plans are proposed, `active` plans supply actionable work, and `completed` plans are frozen history. Plans live on `main`, mutate continuously (bookkeeping in merge digests; declared, human-directed revisions when their promise changes), and are **frozen, never deleted** when their goal is reached: a completed plan is immutable and this index doubles as the project's achievement overview.

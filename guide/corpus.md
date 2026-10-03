@@ -1,3 +1,8 @@
+---
+type: guide
+title: The corpus
+---
+
 # The corpus
 
 The `docs/` folder is the corpus: the permanent record of what your system is for, what it can do, how it is built, and why. Agents read it before they work and update it in the same pull request as the code, so the next session starts from this record rather than from a lost chat. You review it alongside the implementation, and Git keeps every accepted version.

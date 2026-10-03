@@ -2,6 +2,7 @@ package corpus
 
 import (
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -127,4 +128,65 @@ func TestAC214_UnitNegative_SymlinkedSkillMirrorIsNotReportedTwice(t *testing.T)
 	if len(issues) != 1 || !strings.HasPrefix(issues[0].Path, ".agents/") {
 		t.Fatalf("expected one issue under .agents, got %v", issues)
 	}
+}
+
+// c024Exceptions are the tracked Markdown files C-024 names as deliberately
+// header-less: the pull-request templates, which the forge pastes verbatim
+// into every new pull request, and the fixtures that model an adopter
+// repository from before document headers existed.
+var c024Exceptions = []string{
+	".github/pull_request_template.md",
+	"internal/scaffold/templates/github/pull_request_template.md",
+	"internal/migrate/testdata/pre-contract/",
+}
+
+// Sanity (C-024): every Markdown file this repository tracks carries
+// frontmatter with a type and a title, except the files C-024 names.
+func TestSanity_EveryTrackedMarkdownFileCarriesFrontmatter(t *testing.T) {
+	root, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+	for {
+		if _, err := os.Stat(filepath.Join(root, "go.mod")); err == nil {
+			break
+		}
+		parent := filepath.Dir(root)
+		if parent == root {
+			t.Fatal("repo root with go.mod not found")
+		}
+		root = parent
+	}
+	cmd := exec.Command("git", "ls-files", "-z", "--", "*.md")
+	cmd.Dir = root
+	out, err := cmd.Output()
+	if err != nil {
+		t.Skipf("git ls-files unavailable: %v", err)
+	}
+	checked := 0
+	for _, rel := range strings.Split(strings.TrimRight(string(out), "\x00"), "\x00") {
+		if rel == "" || c024Excepted(rel) {
+			continue
+		}
+		data, err := os.ReadFile(filepath.Join(root, filepath.FromSlash(rel)))
+		if err != nil {
+			continue // deleted in the working tree but still in the index
+		}
+		checked++
+		if gap := DocumentHeaderGap(string(data)); gap != "" {
+			t.Errorf("%s: %s (C-024)", rel, gap)
+		}
+	}
+	if checked == 0 {
+		t.Fatal("no tracked Markdown files were checked")
+	}
+}
+
+func c024Excepted(rel string) bool {
+	for _, e := range c024Exceptions {
+		if rel == e || (strings.HasSuffix(e, "/") && strings.HasPrefix(rel, e)) {
+			return true
+		}
+	}
+	return false
 }

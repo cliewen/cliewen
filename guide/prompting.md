@@ -1,3 +1,8 @@
+---
+type: guide
+title: How to prompt the agent
+---
+
 # How to prompt the agent
 
 You do not need to speak Cliewen's internal language. Describe what you want in ordinary terms; the repository's `AGENTS.md` tells the agent which workflow to follow, and the agent tells you which route it recommends before it edits anything.

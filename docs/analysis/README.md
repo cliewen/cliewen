@@ -1,3 +1,8 @@
+---
+type: index
+title: Analysis
+---
+
 # Analysis
 
 Spike findings and extraction reports. **Analysis must leave corpses:** every spike ends in a findings document; every rejected alternative becomes a rejected ADR. Discarded options are half of "why does the system look like this."

@@ -1,3 +1,8 @@
+---
+type: index
+title: Constraints
+---
+
 # Constraints
 
 C-xxx: rules you **must not break** — laws, licenses, policies, and since [ADR-017](../decisions/ADR-017-conventions-are-constraints.md) the **convention register**: every methodology rule that would otherwise live only in prose. Checked against every proposal; distinct from requirements.
@@ -39,4 +44,5 @@ This index is the register table. Its badge is the enforcement class rather than
 - [C-021 — A suggestion raised mid-change is triaged, never held in memory](C-021-mid-change-suggestions-are-triaged.md) · `human` — A suggestion raised during a change is triaged immediately into one of two carriers.
 - [C-022 — Every durable artifact serves one primary consumer](C-022-one-primary-consumer-per-file.md) · `partial` — `clue validate` reports the structural signs that one durable file or default context slice has grown past a focused read; a reader decides whether to split or accept it.
 - [C-023 — A tracked change's acceptance brief states the vision it proceeds under](C-023-full-work-discloses-its-vision.md) · `partial` — A tracked change's acceptance brief names the active vision it serves, or states that the repository has none and that the change proceeds without one.
+- [C-024 — Every Markdown file this repository tracks carries frontmatter](C-024-every-markdown-file-carries-frontmatter.md) · `machine` — Every tracked Markdown file opens with frontmatter that carries a non-empty `type` and `title`.
 <!-- clue:index:end -->

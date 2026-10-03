@@ -1,3 +1,8 @@
+---
+type: index
+title: Design
+---
+
 # Design
 
 This is Cliewen's cross-cutting behaviour overview. It explains how the agent workflow, deterministic CLI, durable corpus, CI wall, and human acceptance boundary work together. [Architecture](../architecture/README.md) covers their static boundaries; capability designs hold local implementation detail.

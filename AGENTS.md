@@ -1,3 +1,8 @@
+---
+type: agent-hub
+title: Agent routing hub
+---
+
 # Agent routing hub
 
 This repository dogfoods Cliewen and declares `role: source` in `.clue/role.yaml`. The shared methodology below also binds adopters unless a section states otherwise; source-repository conventions apply only here. Before applying a rule that differs by repository kind, read the role marker rather than infer it from the checkout. An adopter-binding rule belongs on a shipped carrier under `internal/skills/source/` or `internal/scaffold/templates/`; `clue validate` enforces that boundary ([ADR-062](docs/decisions/ADR-062-repository-role-is-declared-machine-state.md)).

@@ -1,3 +1,8 @@
+---
+type: guide
+title: See the judge work
+---
+
 # See the judge work
 
 Cliewen's judge is a command, not a service: `clue validate` reads a repository and either agrees that the thread from intent to acceptance evidence is intact, or names the edge that is broken. This page lets you watch that happen in a disposable Git repository, in about five minutes.

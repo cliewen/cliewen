@@ -1,3 +1,8 @@
+---
+type: index
+title: Goals
+---
+
 # Goals
 
 One file per goal: **who wants it, and why.** Goals are the top of the red thread — every capability traces back to one.

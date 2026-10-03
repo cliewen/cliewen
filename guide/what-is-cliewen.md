@@ -1,3 +1,8 @@
+---
+type: guide
+title: What is Cliewen?
+---
+
 # What is Cliewen?
 
 Cliewen is a methodology and command-line tool for teams that build software with coding agents. It keeps intent, implementation, and evidence connected. Its name comes from the Old English word for a ball of thread, which became *clue*.

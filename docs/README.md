@@ -1,3 +1,8 @@
+---
+type: index
+title: The Cliewen corpus
+---
+
 # The Cliewen corpus
 
 This directory is the **system-of-record**: the permanent, durable truth about the system. Tracked Cliewen changes are transient deltas on branches that get **digested** into this corpus at a human-controlled merge commit; reachable Git history is the full provenance archive, and `git log docs/` remains the durable-corpus audit trail. This index is the orientation point when a request names no artifact; once an identity is known, `clue context <id>` emits its focused outgoing-link slice and agents read further only when the task discovers another edge. Plain changes under PDR-011 stay outside the corpus.

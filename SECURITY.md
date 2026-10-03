@@ -1,3 +1,8 @@
+---
+type: policy
+title: Security Policy
+---
+
 # Security Policy
 
 ## Supported Versions

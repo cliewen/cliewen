@@ -1,3 +1,8 @@
+---
+type: guide
+title: What one change produces
+---
+
 # What one change produces
 
 This page traces one small change from your request to a merge commit. It illustrates the artifacts and commands used with `clue 0.27.0`. Output excerpts show the relevant verdicts; artifact counts depend on the repository.

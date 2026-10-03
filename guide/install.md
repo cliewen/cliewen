@@ -1,3 +1,8 @@
+---
+type: guide
+title: Install
+---
+
 # Install
 
 Cliewen ships as one binary called `clue`. Installing it does not change any repository. It is a command-line judge you point at a project when you choose. Nothing is written into a repository until you run `clue init`.

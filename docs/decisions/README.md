@@ -1,3 +1,8 @@
+---
+type: index
+title: Decisions
+---
+
 # Decisions
 
 Only a future-shaping choice earns a record, routed by subject ([PDR-046](PDR-046-decisions-route-by-subject.md)): **ADRs** (Architectural Decision Records) hold software and corpus architecture; **PDRs** (Project/Process Decision Records) hold how the project or methodology works; **IDRs** (Implementation Decision Records) hold implementation choices. Reversal cost does not route a record, and routine facts, chronology, and implementation history stay in their natural carriers. A decision that adopts a well-established practice cites it by name and records only the local why and deviations.
