@@ -1,6 +1,6 @@
 ## Acceptance brief
 
-<!-- Delete this entire section and every Cliewen-specific section below for simple work. Simple means the accepted contract remains unchanged. -->
+<!-- Delete this entire section and every Cliewen-specific section below for direct work. Direct means the accepted contract remains unchanged. -->
 
 <!-- REQUIRED: Replace this comment with a concise, human-facing brief before requesting merge. -->
 
@@ -21,7 +21,7 @@
 
 ## Cliewen proposal
 
-<!-- Full loop only. If the agent recommended full but the user chose simple, delete this section and retain the three PDR-042 override trailers in Git history. -->
+<!-- Tracked route only. If the agent recommended tracked but the user chose direct, delete this section and retain the three PDR-042 override trailers in Git history. -->
 
 - Change ID: `CH-xxx`
 - Plan item served: <!-- P-xxx / M-xxx, or explicitly plan-less -->
@@ -40,7 +40,7 @@
 ## Cliewen checklist
 
 - [ ] This is the initiating author's only initiated Cliewen change; review or update help on an existing PR does not consume another slot.
-- [ ] The full proposal was committed before implementation.
+- [ ] The tracked-change proposal was committed before implementation.
 - [ ] The plan item or plan-less declaration is truthful, and all artifact links resolve.
 - [ ] Consequential decisions are recorded, and active constraints were assessed.
 - [ ] Changed active acceptance criteria satisfy the evidence contract, each by one of these routes:
@@ -49,7 +49,7 @@
   - per-criterion `@draft` for a genuine gap;
   - the legacy one-supported-reference rule.
 - [ ] User-visible impact is described under `[Unreleased]` in `CHANGELOG.md`, or the change has no user-visible impact.
-- [ ] Full-change tasks are complete, plan bookkeeping is current, and no transient `/changes/` workspace remains.
+- [ ] Tracked-change tasks are complete, plan bookkeeping is current, and no transient `/changes/` workspace remains.
 - [ ] Generated artifacts were regenerated from their canonical sources where applicable.
 - [ ] The current commit received a clean agentic review pass, every blocking repair after an earlier pass triggered a new review, and advisories first reported by the clean pass remain open rather than changing its reviewed commit.
 - [ ] Reviews of an existing PR name its hosted head, and actionable findings are unresolved hosted conversations until their reviewed fixes are published.
@@ -62,4 +62,4 @@
 - [ ] The branch was updated without force, and this ready pull request's head branch and SHA equal the locally verified branch and `HEAD`.
 - [ ] This pull request existed as a draft from first publication, every working turn that changed anything ended by pushing the branch, and marking it ready was the explicit act binding verification and a clean review pass to the current head.
 - [ ] Satisfied review conversations were resolved only after their reviewed fixes reached this hosted head.
-- [ ] The full change is ready for human review and merge; no agent will accept its own full change.
+- [ ] The tracked change is ready for human review and merge; no agent will accept its own tracked change.

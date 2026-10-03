@@ -34,7 +34,7 @@ jobs:
             node .github/scripts/ci-scope.mjs "$RUNNER_TEMP/history-files" "$RUNNER_TEMP/head-message" < "$RUNNER_TEMP/changed-files" >> "$GITHUB_OUTPUT"
           else
             echo "diffok=false" >> "$GITHUB_OUTPUT"
-            echo "full=true" >> "$GITHUB_OUTPUT"
+            echo "tracked=true" >> "$GITHUB_OUTPUT"
             echo "go=true" >> "$GITHUB_OUTPUT"
             echo "corpus=true" >> "$GITHUB_OUTPUT"
             echo "guide=true" >> "$GITHUB_OUTPUT"
@@ -49,11 +49,11 @@ jobs:
       # cannot merge a draft, and ready_for_review reruns this job on the same
       # head, so the merge gate is unchanged (PDR-040).
       - name: Require a completed acceptance brief
-        if: github.event_name == 'pull_request' && github.event.pull_request.draft == false && steps.scope.outputs.full == 'true'
+        if: github.event_name == 'pull_request' && github.event.pull_request.draft == false && steps.scope.outputs.tracked == 'true'
         env:
           PR_BODY: ${{ github.event.pull_request.body }}
         run: |
-          printf '%s' "$PR_BODY" | grep -Fq '## Acceptance brief' || { echo 'FAIL: full Cliewen PRs need an acceptance brief'; exit 1; }
+          printf '%s' "$PR_BODY" | grep -Fq '## Acceptance brief' || { echo 'FAIL: tracked Cliewen PRs need an acceptance brief'; exit 1; }
           ! printf '%s' "$PR_BODY" | grep -Fq '<!-- REQUIRED' || { echo 'FAIL: replace every acceptance-brief REQUIRED placeholder'; exit 1; }
       - uses: actions/setup-go@v7
         if: steps.scope.outputs.go == 'true' || steps.scope.outputs.corpus == 'true' || steps.scope.outputs.guide == 'true'
@@ -99,7 +99,7 @@ jobs:
           else
             go run ./cmd/clue validate --forbid-changes
           fi
-      # Runs for every scope, plain or full — whitespace hygiene is not a
+      # Runs for every scope, direct or tracked — whitespace hygiene is not a
       # Cliewen concern. Gated on diffok so it shares the classifier's
       # fail-closed path: when the base diff is unresolvable the classifier
       # already forced the full pipeline, and there is no valid range to check.

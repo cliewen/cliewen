@@ -10,7 +10,7 @@ accepted-by: Flemming N. Larsen (2026-09-02, conversation)
 
 # PDR-040 — Push is durability, ready is the explicit act
 
-> **Scope amended by [PDR-042](PDR-042-routing-recommends-contract-aware-effort.md):** automatic branch publication and the ready mark govern a full loop the user chose; a simple route supplies no push authority by itself.
+> **Scope amended by [PDR-042](PDR-042-routing-recommends-contract-aware-effort.md):** automatic branch publication and the ready mark govern a tracked route the user chose; a direct route supplies no push authority by itself.
 
 ## Context and problem statement
 
@@ -18,7 +18,7 @@ Deferring publication until review left repaired work in a private worktree, whi
 
 ## Decision outcome
 
-**A push claims nothing; the ready mark claims readiness.** Every changed turn commits and pushes its branch, and the full-change pull request is a draft from first publication. The PR becomes ready only when local verification and the review loop pass on the current commit and the hosted head equals it; any substantive edit returns it to draft. Hosted history is not rewritten, and accepted `main` is incorporated by a normal merge.
+**A push claims nothing; the ready mark claims readiness.** Every changed turn commits and pushes its branch, and the tracked-change pull request is a draft from first publication. The PR becomes ready only when local verification and the review loop pass on the current commit and the hosted head equals it; any substantive edit returns it to draft. Hosted history is not rewritten, and accepted `main` is incorporated by a normal merge.
 
 Draft CI may omit digest and acceptance-brief gates because a draft cannot merge; those gates bind on `ready_for_review` and `main`. The caller declares the draft-aware behavior fail-closed, so updating the reusable workflow without the trigger cannot leave a mergeable PR with only a lenient result. Nothing here changes the human merge boundary, deterministic judge, or verifiable thread.
 

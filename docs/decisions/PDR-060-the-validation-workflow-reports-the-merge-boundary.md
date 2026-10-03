@@ -31,4 +31,4 @@ Three limits are part of the decision.
 
 ## Rejected: fail the check when the boundary is missing
 
-It would make the rule enforce itself, and it would override the maintainer's configuration from inside their own required check — the veto PDR-059 already rejected for the agent. It would also turn every run in this repository red, since this repository deliberately allows direct pushes for simple work. A rule that fails everywhere it is not followed is switched off, and then it stops producing the evidence [G-017](../goals/G-017-the-method-is-evidenced-and-simplified.md) asks for.
+It would make the rule enforce itself, and it would override the maintainer's configuration from inside their own required check — the veto PDR-059 already rejected for the agent. It would also turn every run in this repository red, since this repository deliberately allows direct pushes for direct work. A rule that fails everywhere it is not followed is switched off, and then it stops producing the evidence [G-017](../goals/G-017-the-method-is-evidenced-and-simplified.md) asks for.

@@ -184,7 +184,7 @@ func checkDecisionTaxonomy(c *Corpus) []Issue {
 	for _, a := range c.Artifacts {
 		inDecisions := path.Dir(a.Path) == "docs/decisions" || strings.HasPrefix(a.Path, "docs/decisions/")
 		if inDecisions && a.Type == "log" {
-			issues = append(issues, Issue{a.Path, "legacy decision logs are not supported — classify future-shaping rows into ADR, PDR, or IDR records in a reviewed full change"})
+			issues = append(issues, Issue{a.Path, "legacy decision logs are not supported — classify future-shaping rows into ADR, PDR, or IDR records in a reviewed tracked change"})
 			continue
 		}
 		if inDecisions && a.Type != "decision" {

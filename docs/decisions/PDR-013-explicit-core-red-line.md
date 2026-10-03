@@ -10,7 +10,7 @@ accepted-by: Flemming N. Larsen (2026-08-02, conversation)
 
 # PDR-013 — Cliewen has an explicit core behind a red line
 
-> **Acceptance scope amended by [PDR-042](PDR-042-routing-recommends-contract-aware-effort.md):** core changes are recommended for the full loop, but an explicit user choice may take the simple route with its risk recorded.
+> **Acceptance scope amended by [PDR-042](PDR-042-routing-recommends-contract-aware-effort.md):** core changes are recommended for the tracked route, but an explicit user choice may take the direct route with its risk recorded.
 
 > **The thread endpoint is refined by [PDR-019](PDR-019-methodology-contract-carriers-move-together.md):** the protected thread ends in acceptance evidence, including classified executable evidence and genuine Human proof in the acceptance brief.
 

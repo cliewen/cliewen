@@ -22,7 +22,7 @@ reversal-cost: low
 
 **Out of scope.** Executing tests or judging whether they are good ones. Project management, estimation, and scheduling. Being an agent, orchestrating agents, or depending on any particular vendor's agent. Storing state outside the repository. Deciding, in any form, whether the intent recorded is the right intent.
 
-**What constrains the direction.** Ceremony stays proportional to what changes — most work is simple work and pays for none of the loop. The judge checks form and never claims to have checked meaning; anything it cannot honestly verify is named as a residual rather than implied. Nothing the tool cannot verify is presented as verified. The corpus holds current truth, and Git holds the history. Agents prepare; humans accept.
+**What constrains the direction.** Ceremony stays proportional to what changes — most work is direct work and pays for none of the loop. The judge checks form and never claims to have checked meaning; anything it cannot honestly verify is named as a residual rather than implied. Nothing the tool cannot verify is presented as verified. The corpus holds current truth, and Git holds the history. Agents prepare; humans accept.
 
 **Succeeding looks like.** A reviewer trusting a merge because of what the corpus and the wall show, not because an agent sounded certain. An agent orienting in an unfamiliar repository from a bounded read rather than a full scan. An adopter's corpus still being maintained, and still true, a year after adoption. Someone choosing not to adopt Cliewen because its own stated limits told them it was the wrong fit.
 

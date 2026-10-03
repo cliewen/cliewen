@@ -448,23 +448,23 @@ func TestSanity_EmbeddedSkillsMatchCanonicalSkills(t *testing.T) {
 	})
 }
 
-func TestAC139_UnitPositive_ScaffoldedRoutingRecommendsByAcceptedContractBeforeCorpus(t *testing.T) {
+func TestAC209_UnitPositive_ScaffoldedRoutingRecommendsByAcceptedContractBeforeCorpus(t *testing.T) {
 	root, _ := runInto(t)
 	data, err := os.ReadFile(filepath.Join(root, "AGENTS.md"))
 	if err != nil {
 		t.Fatal(err)
 	}
 	content := string(data)
-	classify := strings.Index(content, "Recommended route: simple")
-	readCorpus := strings.Index(content, "For a full change, read [`docs/README.md`]")
+	classify := strings.Index(content, "Recommended route: direct")
+	readCorpus := strings.Index(content, "For a tracked change, read [`docs/README.md`]")
 	if classify < 0 || readCorpus < 0 || classify >= readCorpus {
-		t.Fatalf("AGENTS.md does not recommend a route before loading full-change corpus context:\n%s", content)
+		t.Fatalf("AGENTS.md does not recommend a route before loading tracked-change corpus context:\n%s", content)
 	}
 	for _, want := range []string{
 		"accepted contract unchanged",
 		"defect correction restoring an unchanged criterion",
 		"Paths and diff size may warn but never decide meaning",
-		"Cliewen-Route: simple",
+		"Cliewen-Route: direct",
 		"explicit user authorization and repository permission",
 		"Release is not a Cliewen route",
 	} {
@@ -474,7 +474,7 @@ func TestAC139_UnitPositive_ScaffoldedRoutingRecommendsByAcceptedContractBeforeC
 	}
 }
 
-func TestAC139_UnitNegative_ScaffoldedRoutingDoesNotExportLegacyTiersOrReleasePolicy(t *testing.T) {
+func TestAC209_UnitNegative_ScaffoldedRoutingDoesNotExportLegacyTiersOrReleasePolicy(t *testing.T) {
 	root, _ := runInto(t)
 	data, err := os.ReadFile(filepath.Join(root, "AGENTS.md"))
 	if err != nil {
@@ -488,14 +488,50 @@ func TestAC139_UnitNegative_ScaffoldedRoutingDoesNotExportLegacyTiersOrReleasePo
 	}
 }
 
+// retiredRouteName matches the route vocabulary PDR-064 retired, and not the
+// ordinary words: "a full address" or "simple to read" are not route names.
+var retiredRouteName = regexp.MustCompile(`(?i)Recommended route: (?:simple|full)|Cliewen-Route:\s*simple|Cliewen-Recommendation:\s*full|\bsimple (?:work|route|change)s?\b|\bfull(?:[ -]loop|[ -]change|[ -]route| Cliewen| work| PR)s?\b|\*\*(?:Simple|Full)\*\*`)
+
+// AC-209 negative: an adopter receives one route vocabulary. Every carrier
+// `clue init` materializes — the hub, the pull-request template, and every
+// generated skill — names the routes direct and tracked, never simple or full.
+func TestAC209_UnitNegative_ScaffoldedCarriersNeverNameRetiredRoutes(t *testing.T) {
+	root, _ := runInto(t)
+	checked := 0
+	err := filepath.WalkDir(root, func(p string, d fs.DirEntry, err error) error {
+		if err != nil || d.IsDir() || filepath.Ext(p) != ".md" {
+			return err
+		}
+		rel := filepath.ToSlash(strings.TrimPrefix(p, root+string(filepath.Separator)))
+		if rel != "AGENTS.md" && rel != ".github/pull_request_template.md" && !strings.HasPrefix(rel, ".agents/skills/") {
+			return nil
+		}
+		data, err := os.ReadFile(p)
+		if err != nil {
+			return err
+		}
+		checked++
+		if m := retiredRouteName.Find(data); m != nil {
+			t.Errorf("%s names a retired route: %q", rel, m)
+		}
+		return nil
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if checked < 3 {
+		t.Fatalf("checked only %d scaffolded carriers; the walk missed the hub, template, or skills", checked)
+	}
+}
+
 func TestSanity_ScaffoldedRoutingRoutesDetailedHandoffToCanonicalSkill(t *testing.T) {
 	root, _ := runInto(t)
 	hub, err := os.ReadFile(filepath.Join(root, "AGENTS.md"))
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !strings.Contains(string(hub), "Use [`clue-delta`](.agents/skills/clue-delta/skill.md)'s full loop") {
-		t.Fatal("AGENTS.md does not route a chosen full recommendation to clue-delta")
+	if !strings.Contains(string(hub), "Use [`clue-delta`](.agents/skills/clue-delta/skill.md)'s tracked route") {
+		t.Fatal("AGENTS.md does not route a chosen tracked recommendation to clue-delta")
 	}
 
 	content := readSkillDirectory(t, filepath.Join("templates", "skills", "clue-delta"))
@@ -534,7 +570,7 @@ func TestSanity_ScaffoldedCanonicalSkillCarriesMergeHistoryBoundary(t *testing.T
 	for _, want := range []string{
 		"human accepts the ready pull request with a merge commit",
 		"disable squash and rebase-and-merge",
-		"supported full-change adoption path",
+		"supported tracked-change adoption path",
 	} {
 		if !strings.Contains(content, want) {
 			t.Errorf("scaffolded clue-delta skill is missing merge-history contract %q", want)

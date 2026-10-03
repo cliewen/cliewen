@@ -8,7 +8,7 @@ title: Human acceptance is an informed decision about usable behaviour
 
 # G-016 — Human acceptance is an informed decision about usable behaviour
 
-**Who wants it:** the human at the merge gate of a full Cliewen change, in this repository and in every adopter running the loop (2026-09-12, from [AN-024](../analysis/AN-024-methodology-review-acceptance-and-learning.md)).
+**Who wants it:** the human at the merge gate of a tracked Cliewen change, in this repository and in every adopter running the loop (2026-09-12, from [AN-024](../analysis/AN-024-methodology-review-acceptance-and-learning.md)).
 
 **Why:** the method places a human at the acceptance boundary and gives them an acceptance brief to decide from. That establishes who decides and when. It cannot establish that the decision was informed, because authorising a change and witnessing its behaviour are different acts and the current brief does not reliably distinguish them.
 

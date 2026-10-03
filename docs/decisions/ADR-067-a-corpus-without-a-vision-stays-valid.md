@@ -25,7 +25,7 @@ The opposite failure is as real. A concept that is never surfaced is a concept n
 
 **Migration never drafts a vision.** A repository proves what a system does and cannot prove why anyone wanted it; a migration that produced one would be inventing the single thing in the corpus that has no evidence base. Structure that carries no meaning is a different matter and is written — the optional use-case folder and its index row are inert scaffolding.
 
-**Full work that changes meaning discloses the vision it proceeds under**, as a required line in the acceptance brief ([C-023](../constraints/C-023-full-work-discloses-its-vision.md)). This is what separates *not yet established* from *accidentally omitted*: a repository that has decided it does not need one says so, once, where a human reads it, rather than being asked again by a tool that cannot tell the two apart.
+**Tracked work that changes meaning discloses the vision it proceeds under**, as a required line in the acceptance brief ([C-023](../constraints/C-023-full-work-discloses-its-vision.md)). This is what separates *not yet established* from *accidentally omitted*: a repository that has decided it does not need one says so, once, where a human reads it, rather than being asked again by a tool that cannot tell the two apart.
 
 ## Rejected: have `clue migrate` write the same bootstrap `clue init` writes
 

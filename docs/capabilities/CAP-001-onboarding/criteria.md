@@ -184,6 +184,15 @@ Feature: Onboarding — install to first green validate
     And a hub that names the check produces no such report
     But no run writes or rewrites that hub, with or without "--apply"
 
+  @AC-212
+  Scenario: migrate reports a hub that still names the retired route names
+    Test-type: Unit
+    Given an adopted repository whose routing hub tells agents to recommend the simple or full route, or to write a simple-over-full override trailer
+    When the user runs "clue migrate"
+    Then the plan reports that the hub names routes the generated skills now call direct and tracked
+    And a hub that names only direct and tracked, or uses "simple" or "full" only as ordinary words, produces no such report
+    But no run writes or rewrites that hub, with or without "--apply"
+
   @AC-085
   Scenario: a real session learns the repository is behind
     Test-type: Human
@@ -212,7 +221,7 @@ Feature: Onboarding — install to first green validate
     Test-type: Unit
     Given an adopted corpus whose legacy decision log contains several dated rows
     When the user previews or applies "clue migrate"
-    Then the migration inventories every row and blocks all writes with guidance to classify future-shaping choices in a full change
+    Then the migration inventories every row and blocks all writes with guidance to classify future-shaping choices in a tracked change
     And a corpus whose reviewed conversion has removed the log receives no legacy-log finding or change
     But the migration never guesses a row's subject, durability, destination, or whether it is narrative that may be discarded
 

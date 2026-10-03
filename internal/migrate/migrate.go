@@ -72,7 +72,7 @@ const (
 	// line it holds against every other locally modified carrier (ADR-060).
 	MigrationCompetingWall = "MIG-009"
 	// MigrationLegacyDecisionLog inventories a legacy decision log and blocks
-	// every write until a reviewed full change classifies its durable rows and
+	// every write until a reviewed tracked change classifies its durable rows and
 	// removes the register. Classification is semantic, so migration never
 	// guesses a destination or edits the log (PDR-046).
 	MigrationLegacyDecisionLog = "MIG-010"
@@ -109,6 +109,11 @@ const (
 	// ledger without renumbering or touching any other identity.
 	MigrationMilestoneLedgerBackfill = "MIG-016"
 	MigrationEvidenceExport          = "MIG-017"
+	// MigrationHubRouteNames reports a routing hub that still tells agents to
+	// recommend the simple or full route, which PDR-064 renamed direct and
+	// tracked. It never repairs one: the hub is the adopter's own prose
+	// (PDR-023), and the skills it routes to already use the new names.
+	MigrationHubRouteNames = "MIG-018"
 )
 
 // Options controls planning. Preview is the default; applying a plan is a
@@ -143,6 +148,7 @@ var orderedMigrations = []MigrationDefinition{
 	{ID: MigrationLedgerEvents, Description: "make the identity ledger append-only and merge-safe"},
 	{ID: MigrationMilestoneLedgerBackfill, Description: "seed milestone identities missing from an already-existing ledger"},
 	{ID: MigrationEvidenceExport, Description: "establish repository-owned framework-neutral evidence export"},
+	{ID: MigrationHubRouteNames, Description: "report a routing hub that still names the retired simple and full routes"},
 }
 
 // Registry returns the migration order without exposing mutable package state.
@@ -749,6 +755,7 @@ func Plan(root string, opts Options) (MigrationPlan, error) {
 	planLedgerEvents(root, &result)
 	planMilestoneLedgerBackfill(root, &result)
 	planEvidenceExport(root, &result)
+	planHubRouteNames(root, &result)
 	planCompetingWall(root, &result)
 	planLegacyDecisionLog(root, &result)
 	overviewFolders, err := planSystemOverviews(root, &result)
@@ -1982,6 +1989,31 @@ func planHubReleaseCheck(root string, result *MigrationPlan) {
 	})
 }
 
+// hubRouteNameRe matches the route instructions a hub scaffolded before
+// PDR-064 carries: the stated recommendation and the override trailers. It
+// deliberately ignores "simple" and "full" as ordinary words, which a hub the
+// adopter wrote is free to use.
+var hubRouteNameRe = regexp.MustCompile(`(?i)Recommended route: (?:simple|full)\b|Cliewen-Route:\s*simple\b|Cliewen-Recommendation:\s*full\b`)
+
+// planHubRouteNames reports a routing hub that still tells agents to recommend
+// the simple or full route. The generated skills now say direct and tracked,
+// so an agent reading both would meet two vocabularies for one rule. Like
+// MIG-006 this is a notice: the hub is the adopter's own routing prose, and
+// override trailers in either spelling keep passing CI, so nothing breaks
+// while the adopter decides when to align it.
+func planHubRouteNames(root string, result *MigrationPlan) {
+	const rel = "AGENTS.md"
+	data, err := os.ReadFile(filepath.Join(root, rel))
+	if err != nil || !hubRouteNameRe.Match(data) {
+		return
+	}
+	result.Notices = append(result.Notices, Notice{
+		Path:      rel,
+		Migration: MigrationHubRouteNames,
+		Message:   "names the simple or full route, which the generated skills now call direct and tracked; replace `Recommended route: simple`/`full` and the `Cliewen-Route: simple`/`Cliewen-Recommendation: full` trailers with `direct`/`tracked` — migration does not edit your hub, and CI accepts either spelling",
+	})
+}
+
 // scaffoldedConstraintSource identifies a constraint `clue init` emitted, as
 // opposed to one the adopter wrote. Only the emitted one carries a promotion
 // trigger this project is in a position to say is out of date.
@@ -2251,11 +2283,11 @@ func planLegacyDecisionLog(root string, result *MigrationPlan) {
 
 	rows := legacyDecisionRows(string(data))
 	if len(rows) == 0 {
-		result.Findings = append(result.Findings, Finding{Path: rel, Migration: MigrationLegacyDecisionLog, Message: "legacy decision log remains; remove it in a reviewed full change after confirming it contains no durable unclassified choice"})
+		result.Findings = append(result.Findings, Finding{Path: rel, Migration: MigrationLegacyDecisionLog, Message: "legacy decision log remains; remove it in a reviewed tracked change after confirming it contains no durable unclassified choice"})
 		return
 	}
 	for _, row := range rows {
-		result.Findings = append(result.Findings, Finding{Path: rel, Migration: MigrationLegacyDecisionLog, Message: "legacy row " + row + " — in a reviewed full change classify any future-shaping choice by subject as ADR, PDR, or IDR, account explicitly for narrative, repair references, and remove the log; migration never guesses"})
+		result.Findings = append(result.Findings, Finding{Path: rel, Migration: MigrationLegacyDecisionLog, Message: "legacy row " + row + " — in a reviewed tracked change classify any future-shaping choice by subject as ADR, PDR, or IDR, account explicitly for narrative, repair references, and remove the log; migration never guesses"})
 	}
 }
 

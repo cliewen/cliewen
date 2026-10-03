@@ -9,10 +9,10 @@ export function parseNulDelimited(input) {
     .filter((value) => value.length > 0);
 }
 
-export function hasCompleteSimpleOverride(message) {
+export function hasCompleteDirectOverride(message) {
   const lines = message.toString("utf8").split(/\r?\n/);
-  const route = lines.some((line) => /^Cliewen-Route:\s*simple\s*$/i.test(line));
-  const recommendation = lines.some((line) => /^Cliewen-Recommendation:\s*full\s*$/i.test(line));
+  const route = lines.some((line) => /^Cliewen-Route:\s*(?:direct|simple)\s*$/i.test(line));
+  const recommendation = lines.some((line) => /^Cliewen-Recommendation:\s*(?:tracked|full)\s*$/i.test(line));
   const risk = lines.some((line) => /^Cliewen-Override:\s*\S.+$/i.test(line));
   return route && recommendation && risk;
 }
@@ -29,24 +29,24 @@ export function classifyChange(files, historyFiles = [], headMessage = "") {
     files.every((file) => releaseFiles.has(file) || generatedSkill.test(file));
 
   const proposal = historyFiles.some((file) => /^changes\/CH-[^/]+\/proposal\.md$/.test(file));
-  const override = hasCompleteSimpleOverride(headMessage);
-  const full = proposal && !override;
+  const override = hasCompleteDirectOverride(headMessage);
+  const tracked = proposal && !override;
 
-  const guide = full || release || files.some((file) => file.startsWith("guide/"));
+  const guide = tracked || release || files.some((file) => file.startsWith("guide/"));
   const corpus =
-    full ||
+    tracked ||
     release ||
     files.some((file) =>
       /^(?:docs\/|changes\/|\.clue\/|\.agents\/|AGENTS\.md$)/.test(file),
     );
   const go =
-    full ||
+    tracked ||
     release ||
     files.some((file) =>
       /^(?:cmd\/|internal\/|tools\/|\.github\/|go\.mod$|go\.sum$)/.test(file),
     );
 
-  return { full, go, corpus, guide, release, override };
+  return { tracked, go, corpus, guide, release, override };
 }
 
 function printGitHubOutputs(scope) {

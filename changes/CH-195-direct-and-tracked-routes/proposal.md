@@ -2,7 +2,7 @@
 id: CH-195
 type: change
 status: open
-links: [PDR-042, CAP-006, CAP-004, AC-139, AC-142]
+links: [PDR-042, PDR-064, CAP-006, CAP-004, CAP-001]
 title: Change routes are named direct and tracked
 ---
 

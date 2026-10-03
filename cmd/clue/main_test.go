@@ -930,7 +930,7 @@ func TestSanity_CommunityFrontDoorIsWellFormed(t *testing.T) {
 	)
 
 	for rel, wants := range map[string][]string{
-		"CONTRIBUTING.md": {"CODE_OF_CONDUCT.md", "SECURITY.md", conductMailto, "human maintainer", "plan-less", "Simple work", "For simple work", "For a full change", "automatic agentic review"},
+		"CONTRIBUTING.md": {"CODE_OF_CONDUCT.md", "SECURITY.md", conductMailto, "human maintainer", "plan-less", "Direct work", "For direct work", "For a tracked change", "automatic agentic review"},
 		"CODE_OF_CONDUCT.md": {
 			"Contributor Covenant 3.0 Code of Conduct",
 			"## Encouraged Behaviors",
@@ -947,7 +947,7 @@ func TestSanity_CommunityFrontDoorIsWellFormed(t *testing.T) {
 			"Do not open a public issue",
 		},
 		".github/pull_request_template.md": {
-			"simple work",
+			"direct work",
 			"Change ID",
 			"Plan item served",
 			"clue validate --forbid-changes",
@@ -1061,12 +1061,12 @@ func TestAC132_UnitPositive_PublicCarriersKeepCrossAgentHelpOutsideTheInitiatedS
 			"review or update help on an existing PR does not consume another slot",
 		},
 		"CONTRIBUTING.md": {
-			"A contributor may initiate one full change at a time",
-			"reviewing, and helping update an existing pull request consume no full-change slot",
+			"A contributor may initiate one tracked change at a time",
+			"reviewing, and helping update an existing pull request consume no tracked-change slot",
 		},
 		"guide/change-loop.md": {
-			"One initiating author takes one full change",
-			"Simple work and help on another pull request consume no full-change slot",
+			"One initiating author takes one tracked change",
+			"Direct work and help on another pull request consume no tracked-change slot",
 		},
 	} {
 		data, err := os.ReadFile(filepath.Join(root, filepath.FromSlash(rel)))
@@ -1103,7 +1103,7 @@ func TestSanity_PRBoundaryExplainsAuthorizationAndCIEnforcement(t *testing.T) {
 			"required check and branch protection",
 		},
 		"docs/constraints/README.md": {
-			"C-012 — Full changes remain human-accepted while simple integration follows explicit user authority",
+			"C-012 — Tracked changes remain human-accepted while direct integration follows explicit user authority",
 		},
 	} {
 		data, err := os.ReadFile(filepath.Join(root, filepath.FromSlash(rel)))
@@ -1155,17 +1155,17 @@ func TestSanity_CISeparatesSemanticRouteFromRelevantChecks(t *testing.T) {
 		".github/scripts/ci-scope.mjs": {
 			"proposal && !override",
 			`file.startsWith("guide/")`,
-			"hasCompleteSimpleOverride",
+			"hasCompleteDirectOverride",
 			"corpus",
 			"go",
 		},
 		".github/workflows/ci.yml": {
 			"Classify changed surface",
-			"full=true",
+			"tracked=true",
 			"corpus=true",
 			"go=true",
 			"guide=true",
-			"steps.scope.outputs.full == 'true'",
+			"steps.scope.outputs.tracked == 'true'",
 			"npm run guide:build",
 			"git diff --check",
 		},
