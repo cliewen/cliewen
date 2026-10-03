@@ -127,7 +127,7 @@ producers:
       - path: docs/capabilities/CAP-004-ship/criteria.md
         sha256: 213f128b287176a5cce40e8138ca0fca2a4db71fe67473373e1e13ce72c02e15
       - path: docs/capabilities/CAP-004-ship/design.md
-        sha256: 3945f3d1093d2df517ccb229441c99d07ab08031ca4e44da9be1e7a3312a8842
+        sha256: 1a16fce04553fa243cb91c1a70fc442d9116321407af4d76a6de86a98f40d4bc
       - path: docs/capabilities/CAP-005-indexes/README.md
         sha256: 11193332a15b75fb1a1913ce3d299afe9861fa2baa1071550db518384b0dc3cf
       - path: docs/capabilities/CAP-005-indexes/criteria.md
@@ -541,9 +541,9 @@ producers:
       - path: docs/goals/G-023-source-repository-skills-load-on-case-sensitive-filesystems.md
         sha256: 70a0bd8ab0c237a2ba95a390a0037f0d564fbadeab819b3745a1ce6085f4ff94
       - path: docs/goals/G-024-generated-skills-describe-when-to-use-them.md
-        sha256: cdeb68c6e57f3d9c3981dcd524acd2e6efe355b9555f9ede465c92cc85e3e49a
+        sha256: d61d69f43d482bb845064ab19a2d6f8791a6cfef1b01c7c23d4ddac8c864a5ea
       - path: docs/goals/README.md
-        sha256: 7e8d0613d7c722444f695306b7c254302d4732e47e8826ac58a1f0b78fdf7420
+        sha256: 4466e208ad7b62d4ac4a3b9b718d680a6980a7f9432c2f5eedb5a29918dd0fa1
       - path: docs/imported-changes/IC-001-fixture-inspectable-in-flight-work.md
         sha256: 7c9c89b3c846fce9e0884fa93cb7e4a729cef461325140db244ace028038f060
       - path: docs/imported-changes/IC-002-fixture-in-progress-dependent.md
