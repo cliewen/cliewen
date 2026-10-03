@@ -868,5 +868,8 @@ events:
     - {id: AC-208, kind: numeric, state: live, prefix: AC, component: "208"}
     - {id: CH-194-tasks, kind: opaque, state: live}
     - {id: CH-194-open-questions, kind: opaque, state: live}
+    - {id: CH-195, kind: numeric, state: reserved, prefix: CH, component: "195"}
+    - {id: CH-195, kind: numeric, state: live, prefix: CH, component: "195"}
+    - {id: CH-195-tasks, kind: opaque, state: live}
 high-water:
     - {id: CH-183, kind: numeric, state: reserved, prefix: CH, component: "183"}
