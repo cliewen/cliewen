@@ -1,6 +1,7 @@
 package skills
 
 import (
+	"gopkg.in/yaml.v3"
 	"io/fs"
 	"os"
 	"path"
@@ -1206,4 +1207,64 @@ func mustRender(t *testing.T) []renderedFile {
 		t.Fatal(err)
 	}
 	return files
+}
+
+// skillFrontmatter parses a rendered entry point's frontmatter block.
+func skillFrontmatter(t *testing.T, entrypoint string) map[string]any {
+	t.Helper()
+	if !strings.HasPrefix(entrypoint, "---\n") {
+		t.Fatalf("entry point has no frontmatter:\n%s", entrypoint)
+	}
+	end := strings.Index(entrypoint[4:], "\n---\n")
+	if end < 0 {
+		t.Fatalf("entry point frontmatter is unterminated:\n%s", entrypoint)
+	}
+	var fields map[string]any
+	if err := yaml.Unmarshal([]byte(entrypoint[4:4+end]), &fields); err != nil {
+		t.Fatalf("entry point frontmatter does not parse: %v", err)
+	}
+	return fields
+}
+
+// AC-217 positive: every generated entry point carries its directory as name
+// and a description that opens with its routing summary and says when to use
+// it, within the format's length limit.
+func TestAC217_UnitPositive_EveryEntryPointNamesItselfAndSaysWhenToUseIt(t *testing.T) {
+	for _, name := range skillNames {
+		definition := skillDefinitions[name]
+		fields := skillFrontmatter(t, mustRenderFile(t, path.Join(name, "skill.md")))
+		if fields["name"] != name {
+			t.Errorf("%s: name = %v, want its directory", name, fields["name"])
+		}
+		description, ok := fields["description"].(string)
+		if !ok {
+			t.Errorf("%s: description is not a string: %#v", name, fields["description"])
+			continue
+		}
+		if !strings.HasPrefix(description, definition.description+" ") || !strings.Contains(description, "Use ") {
+			t.Errorf("%s: description does not open with the routing summary and say when to use it: %q", name, description)
+		}
+		if len(description) > 1024 {
+			t.Errorf("%s: description is %d characters, over the 1024 the format allows", name, len(description))
+		}
+	}
+}
+
+// AC-217 negative: no description is empty, shared with another skill, or the
+// generated-file comment, and a definition without a when-to-use clause fails.
+func TestAC217_UnitNegative_DescriptionsAreDistinctAndNeverTheGeneratedComment(t *testing.T) {
+	seen := map[string]string{}
+	for _, name := range skillNames {
+		description, _ := skillFrontmatter(t, mustRenderFile(t, path.Join(name, "skill.md")))["description"].(string)
+		if strings.TrimSpace(description) == "" || strings.Contains(description, "Generated from") || strings.HasPrefix(description, "<!--") {
+			t.Errorf("%s: description is empty or the generated-file comment: %q", name, description)
+		}
+		if other, dup := seen[description]; dup {
+			t.Errorf("%s and %s share the description %q", name, other, description)
+		}
+		seen[description] = name
+		if strings.TrimSpace(skillDefinitions[name].whenToUse) == "" {
+			t.Errorf("%s: definition has no when-to-use clause", name)
+		}
+	}
 }

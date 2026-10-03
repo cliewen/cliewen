@@ -3,6 +3,8 @@ cliewen-skill: true
 version: 0.27.0
 type: skill
 title: clue-delta
+name: clue-delta
+description: Run a chosen tracked Cliewen change from proposal through implementation, digest, verification, and human-controlled merge. Use when the user chooses the tracked route for work that changes the accepted contract.
 ---
 
 <!-- Generated from Cliewen's canonical skill sources; edit those sources, not this file. -->

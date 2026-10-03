@@ -47,6 +47,15 @@ Feature: clue ships — a versioned binary and versioned skills, drift made lint
     And every route names when its reference must be read, every named reference exists locally, and corresponding files in both trees are byte-identical
     But a missing, changed, or unexpected generated entry point or reference fails the repository tests and names the drift
 
+  @AC-217
+  Scenario: Every generated skill names itself and describes when to use it
+    Test-type: Unit
+    Given the canonical skill definitions
+    When a maintainer runs the repository skill generator
+    Then every generated entry point's frontmatter carries a name equal to its skill directory and a description that opens with the skill's routing summary and says when to use the skill
+    And every description parses as a single YAML string of at most 1024 characters
+    But no description is empty, repeats another skill's, or is the generated-file comment
+
   @AC-029
   Scenario: The ownership marker scopes Cliewen skill validation
     Given .agents/skills contains a skill marked "cliewen-skill: true"

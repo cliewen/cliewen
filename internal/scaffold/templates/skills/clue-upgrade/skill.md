@@ -3,6 +3,8 @@ cliewen-skill: true
 version: 0.27.0
 type: skill
 title: clue-upgrade
+name: clue-upgrade
+description: Check for a newer Cliewen release and, only with explicit human authorization, carry out its coordinated repository upgrade. Use when `clue latest --quiet` prints a newer release or reports `latest` as an unknown command, or when the user asks to upgrade Cliewen.
 ---
 
 <!-- Generated from Cliewen's canonical skill sources; edit those sources, not this file. -->
