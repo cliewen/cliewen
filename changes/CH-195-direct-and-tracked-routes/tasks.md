@@ -16,5 +16,5 @@ title: CH-195 tasks
 - [x] Update `internal/scaffold/templates/` (AGENTS.md, PR template) and the shipped `clue-validation.yml`
 - [x] Update the local CI scope script and its tests to accept both spellings
 - [x] Update this repository's `AGENTS.md`, `CONTRIBUTING.md`, `.github/pull_request_template.md`, and live decisions, constraints, criteria, architecture, and design overviews
-- [ ] Update `/guide` prose with the humanizer skill, leading each route's first mention with the question that decides it
-- [ ] Retag and update tests that assert route wording; regenerate the evidence manifest
+- [x] Update `/guide` prose with the humanizer skill, leading each route's first mention with the question that decides it
+- [x] Retag and update tests that assert route wording; regenerate the evidence manifest

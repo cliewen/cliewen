@@ -1,20 +1,20 @@
 # The change loop
 
-Before editing, the agent recommends a route, **simple** or **full**. It says why and names what it might still discover that would change the recommendation.
+Before editing, the agent asks one question: does this work change a promise the repository has already made? If not, it recommends the **direct** route, which is the default. If it does, or nobody is sure, it recommends the **tracked** route, which plans the change, tests it against acceptance criteria, and ends in a pull request you merge. The agent says why and names what it might still discover that would change the recommendation.
 
-| | Simple | Full |
+| | Direct | Tracked |
 |---|---|---|
 | Use when | The work keeps every promise the repository has already made | The work changes a promise, or nobody is sure |
 | Examples | A bug fix that restores behavior an unchanged criterion already promises, regression tests, refactoring, maintenance, configuration within what was agreed, prose edits, an investigation someone will use | A new, changed, or retired acceptance criterion; a capability, decision, policy, or methodology change; a change to what a plan promises; behavior no criterion covers |
 | What it involves | The change and the checks that apply to it | A change ID, a proposal in `/changes/CH-xxx-*`, a digest into `docs/`, an acceptance brief, and an agent review before you merge |
 
-The number of files or the folders touched can prompt a second look, but they never decide the route. What decides it is whether a promise changes. The agent looks again when it learns more, and once more against the complete diff before integration. If simple work turns out to change a promise, it pauses and recommends full.
+The number of files or the folders touched can prompt a second look, but they never decide the route. What decides it is whether a promise changes. The agent looks again when it learns more, and once more against the complete diff before integration. If direct work turns out to change a promise, it pauses and recommends tracked.
 
-You can overrule a full recommendation. The work then goes ahead as simple, the repository is still kept truthful, and the final commit records your choice in three trailer lines: `Cliewen-Route: simple`, `Cliewen-Recommendation: full`, and a short `Cliewen-Override` stating the risk. A route never gives an agent permission to push. An agent pushes directly to an integration branch only when you explicitly allow it and the repository permits it. Releasing is not part of either route; your repository decides how, or whether, it releases.
+You can overrule a tracked recommendation. The work then goes ahead as direct, the repository is still kept truthful, and the final commit records your choice in three trailer lines: `Cliewen-Route: direct`, `Cliewen-Recommendation: tracked`, and a short `Cliewen-Override` stating the risk. Older commits that say `simple` and `full`, the routes' previous names, still count. A route never gives an agent permission to push. An agent pushes directly to an integration branch only when you explicitly allow it and the repository permits it. Releasing is not part of either route; your repository decides how, or whether, it releases.
 
 Once the route is set, the agent reads only the part of the corpus that governs the task. `clue context <id>` prints the named artifact and the artifacts it links to, one hop by default, and says what it left out; `--depth` follows more hops. An acceptance-criterion or milestone ID resolves to the file that declares it. When the request names no usable ID, the agent starts at `docs/README.md`, picks the closest artifact, and runs the command there. It follows links outward only, because following them backward from a shared goal would pull in most of the corpus.
 
-The full loop has six stages, and only the last one is yours:
+The tracked route has six stages, and only the last one is yours:
 
 ```mermaid
 graph TD
@@ -43,15 +43,15 @@ graph TD
 
 The same shape applies to an ordinary product request. State the behavior, connect it to a criterion and evidence, implement until the thread and tests are green, digest the temporary proposal, and hand the exact verified commit to the protected pull request.
 
-A correction that restores behavior already promised by an unchanged criterion may remain simple, with focused regression evidence. If the criterion must change or the implementation introduces behavior it does not cover, the accepted contract changes and the full loop is recommended.
+A correction that restores behavior already promised by an unchanged criterion may stay direct, with focused regression evidence. If the criterion must change or the implementation introduces behavior it does not cover, the accepted contract changes and the tracked route is recommended.
 
 ## 1. Branch
 
-For a chosen full loop, create `ch-xxx-your-slug` from accepted `main`. One initiating author takes one full change to its ready pull request before starting another. From the first commit onward, every changed session commits and pushes the branch: a push is durability, not readiness. Simple work and help on another pull request consume no full-change slot. Full work depending on an unmerged change stops at a blocking question until a human authorizes and records that dependency.
+For a chosen tracked route, create `ch-xxx-your-slug` from accepted `main`. One initiating author takes one tracked change to its ready pull request before starting another. From the first commit onward, every changed session commits and pushes the branch: a push is durability, not readiness. Direct work and help on another pull request consume no tracked-change slot. Tracked work depending on an unmerged change stops at a blocking question until a human authorizes and records that dependency.
 
 ## 2. Propose
 
-A full change commits `/changes/CH-xxx-your-slug/proposal.md` before implementation, pushes it, and opens the pull request as a draft. The proposal says what will change, why it matters, which plan item it serves or that it is plan-less, and where the decision boundary lies. The draft is where unfinished work lives and stays visible: it claims nothing and cannot be merged.
+A tracked change commits `/changes/CH-xxx-your-slug/proposal.md` before implementation, pushes it, and opens the pull request as a draft. The proposal says what will change, why it matters, which plan item it serves or that it is plan-less, and where the decision boundary lies. The draft is where unfinished work lives and stays visible: it claims nothing and cannot be merged.
 
 When the human wants to review the shape before code exists, they can opt into a spec-first pause. It is not the default. Proposing and implementing are different work, and their boundary is where a change can still be split, redirected, or handed to another agent. That is why the proposal is committed first. At the pause, the agent records it in tasks, briefly explains the proposal and implementation, and asks whether implementation should begin. The proposal is already pushed and readable on the draft pull request. The agent then waits for an answer.
 
@@ -81,9 +81,9 @@ Several agents can collaborate without waiting for one another. Separate authors
 
 ## 6. Open the review gate
 
-For a full loop, the pull request is an authorization and protected-integration gate, not a demand for duplicate human code review. The agent may publish the branch but does not accept its own full change; the human-controlled merge commit is the acceptance act. Configure that branch for merge commits and disable squash and rebase-and-merge so proposal, implementation, and digest remain reachable; from first publication, hosted history is never rebased or rewritten. Simple integration instead follows explicit user authorization and repository policy.
+For a tracked change, the pull request is an authorization and protected-integration gate, not a demand for duplicate human code review. The agent may publish the branch but does not accept its own tracked change; the human-controlled merge commit is the acceptance act. Configure that branch for merge commits and disable squash and rebase-and-merge so proposal, implementation, and digest remain reachable; from first publication, hosted history is never rebased or rewritten. Direct integration instead follows explicit user authorization and repository policy.
 
-For a full change, the PR starts with an acceptance brief. It asks whether the plan item is still wanted, puts the added or changed criteria and their scenarios in front of the human, and names what merge binds. An authorized dependent change repeats its unmerged base, authorization, and binding meaning there; disclosure does not make the base accepted. The review loop adds an advisory verdict for each changed criterion — whether its referenced tests verify the scenario, something adjacent, or leave it undetermined. That is evidence for human judgment, not a semantic claim by `clue validate`: a green build and a fluent agent do not establish that the outcome is right.
+For a tracked change, the PR starts with an acceptance brief. It asks whether the plan item is still wanted, puts the added or changed criteria and their scenarios in front of the human, and names what merge binds. An authorized dependent change repeats its unmerged base, authorization, and binding meaning there; disclosure does not make the base accepted. The review loop adds an advisory verdict for each changed criterion — whether its referenced tests verify the scenario, something adjacent, or leave it undetermined. That is evidence for human judgment, not a semantic claim by `clue validate`: a green build and a fluent agent do not establish that the outcome is right.
 
 The PR also gives hosted CI an exact candidate, but a PR alone does not enforce anything. Enforcement requires the CI workflow to run on the PR, its result to be a required status check, and branch protection to block merge until that check passes. Local verification remains fast evidence; protected hosted CI is the safeguard that the agent cannot silently skip. The [CI wall guide](./ci-wall) gives the setup and failing-PR probe. Workflow and protection changes must never weaken the gate merely to make a change pass.
 

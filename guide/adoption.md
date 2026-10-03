@@ -17,7 +17,7 @@ Tell the agent what outcome you want. You should not have to mirror every code c
 
 `clue validate` checks the parts a machine can judge: artifact structure, links, generated indexes, and traceability from active acceptance criteria to their declared acceptance evidence. A human still reviews whether the documentation and implementation say the right thing.
 
-This is agent-maintained documentation, not background synchronization. `clue` does not watch a wiki or ticket system, and it does not invent missing intent from code. A chosen full loop requires local validation before its pull request is ready. Once the [generated CI caller](./ci-wall) is armed and its upstream validation job is required, broken traceability blocks integration. Simple work runs the checks relevant to its surfaces without full-loop bookkeeping.
+This is agent-maintained documentation, not background synchronization. `clue` does not watch a wiki or ticket system, and it does not invent missing intent from code. A chosen tracked route requires local validation before its pull request is ready. Once the [generated CI caller](./ci-wall) is armed and its upstream validation job is required, broken traceability blocks integration. Direct work runs the checks relevant to its surfaces without tracked-route bookkeeping.
 
 ## Start with the minimum
 
@@ -78,7 +78,7 @@ You do not need to speak Cliewen's internal language. Describe what you want and
 
 Use `clue-extract` once when the repository already contains specifications, decision notes, tagged tests, or other durable intent.
 
-Extraction converts meaning, not just files. After proposing its full change, the agent writes a report-only rehearsal in that change's `/changes/` workspace. It inventories the source, proposed mappings, ID preservation or minting, uncertainty, test-purpose work, instruction conflicts, planned deletions, and plan doors without changing the target corpus, tests, routing, or hosted state. An unresolved conflict becomes an open question.
+Extraction converts meaning, not just files. After proposing its tracked change, the agent writes a report-only rehearsal in that change's `/changes/` workspace. It inventories the source, proposed mappings, ID preservation or minting, uncertainty, test-purpose work, instruction conflicts, planned deletions, and plan doors without changing the target corpus, tests, routing, or hosted state. An unresolved conflict becomes an open question.
 
 Only explicit human direction starts the mutation phase. That phase digests the rehearsal into the durable extraction report and removes the old parallel specification corpus before the pull request is ready. The report's criterion counts and mapping table live in one region rendered by `clue report` from the pinned source manifest that `clue parity` compares. `clue validate` renders it again, so the report cannot describe a different corpus from the one the migration checked.
 

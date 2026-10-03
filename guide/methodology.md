@@ -11,7 +11,7 @@ flowchart TD
     AC --> E{Acceptance evidence}
     E --> T[Test reference<br/>type + direction]
     E --> H[Human acceptance brief]
-    C[Constraints<br/>including verifiable quality bars] -. laws checked throughout full changes .-> CH
+    C[Constraints<br/>including verifiable quality bars] -. laws checked throughout tracked changes .-> CH
     CH -. edits capability content; no durable link .-> CAP
 ```
 
@@ -25,9 +25,9 @@ A plan is a finite campaign serving a goal. Its milestones have explicit exit cr
 
 ## Change
 
-A change is how work reaches the corpus, and it is the one part of the thread that does not stay. Cliewen recommends **simple** when the work keeps every promise the repository has made, and **full** when it changes one. Simple work, such as a bug fix against an unchanged criterion or a refactoring, has no change ID and no extra bookkeeping. Full work, such as a new acceptance criterion or a changed decision, gets a temporary workspace under `/changes/CH-xxx-*`. Before merge, the *digest* folds what the change means into `/docs` and deletes the workspace.
+A change is how work reaches the corpus, and it is the one part of the thread that does not stay. Cliewen picks a route with one question: does the work change a promise the repository has made? If not, it recommends the **direct** route, which is the default. If it does, it recommends the **tracked** route. Direct work, such as a bug fix against an unchanged criterion or a refactoring, has no change ID and no extra bookkeeping. Tracked work, such as a new acceptance criterion or a changed decision, gets a temporary workspace under `/changes/CH-xxx-*`. Before merge, the *digest* folds what the change means into `/docs` and deletes the workspace.
 
-The agent states its recommendation before editing and looks again when it learns more. If you overrule a full recommendation, the work goes ahead as simple and the commit message records the risk. Choosing a route never gives the agent permission to push; you and your repository's permissions control integration. [The change loop](./change-loop) has the details.
+The agent states its recommendation before editing and looks again when it learns more. If you overrule a tracked recommendation, the work goes ahead as direct and the commit message records the risk. Choosing a route never gives the agent permission to push; you and your repository's permissions control integration. [The change loop](./change-loop) has the details.
 
 ## System overviews
 
@@ -45,7 +45,7 @@ Constraints are rules a Cliewen change must not break: a law, license, policy, p
 
 ## Four actors, one boundary
 
-Skills carry process knowledge, `clue` is the deterministic judge, protected CI is the wall, and the human controls acceptance. A full-change PR begins with an acceptance brief that puts the remaining semantic questions — whether the plan item is still wanted, whether changed criteria fit reality, and what merge binds — in front of the human. The machine does not pretend to answer them; the human does not have to repeat a locally completed code review, but the agent can never perform the merge that accepts its own work. CI becomes a wall only when its PR check is required and branch protection blocks integration without it. The wall enforces admission to merge; it is not acceptance evidence — that remains the criterion's classified executable reference or its Human-class acceptance-brief entry.
+Skills carry process knowledge, `clue` is the deterministic judge, protected CI is the wall, and the human controls acceptance. A tracked-change PR begins with an acceptance brief that puts the remaining semantic questions — whether the plan item is still wanted, whether changed criteria fit reality, and what merge binds — in front of the human. The machine does not pretend to answer them; the human does not have to repeat a locally completed code review, but the agent can never perform the merge that accepts its own work. CI becomes a wall only when its PR check is required and branch protection blocks integration without it. The wall enforces admission to merge; it is not acceptance evidence — that remains the criterion's classified executable reference or its Human-class acceptance-brief entry.
 
 ## Next
 

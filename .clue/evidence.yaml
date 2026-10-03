@@ -599,7 +599,7 @@ producers:
       - path: guide/navigation_test.go
         sha256: 3b23876fc47a636c9fb91a775bbe9cc64eefd0274fc36df336974f76647b33ac
       - path: guide/operations_test.go
-        sha256: 332fbabe68568dd83276de6d383cc2bbffe8f725e2db1237e8d85e34b6755cda
+        sha256: 21244d1e6e82560a431219fb2499095faed56845509bf3fb149586b1b163bddd
       - path: internal/carriers/carriers_test.go
         sha256: 8098ebce1eee997ac0a455bd8d89f47d469e343e9110a41d6ced20a57d42fed2
       - path: internal/ciguards/completedplans_test.go
