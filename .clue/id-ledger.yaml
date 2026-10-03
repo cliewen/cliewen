@@ -896,5 +896,10 @@ events:
     - {id: CH-196-tasks, kind: opaque, state: live}
     - {id: G-023, kind: numeric, state: reserved, prefix: G, component: "23"}
     - {id: G-023, kind: numeric, state: live, prefix: G, component: "23"}
+    - {id: AC-213, kind: numeric, state: live, prefix: AC, component: "213"}
+    - {id: AC-214, kind: numeric, state: live, prefix: AC, component: "214"}
+    - {id: AC-215, kind: numeric, state: live, prefix: AC, component: "215"}
+    - {id: AC-216, kind: numeric, state: live, prefix: AC, component: "216"}
+    - {id: PDR-065, kind: numeric, state: live, prefix: PDR, component: "65"}
 high-water:
     - {id: CH-183, kind: numeric, state: reserved, prefix: CH, component: "183"}

@@ -193,6 +193,24 @@ Feature: Onboarding — install to first green validate
     And a hub that names only direct and tracked, or uses "simple" or "full" only as ordinary words, produces no such report
     But no run writes or rewrites that hub, with or without "--apply"
 
+  @AC-215
+  Scenario: init and scaffold write every Markdown file with frontmatter except the pull-request template
+    Test-type: Unit
+    Given an empty git repository
+    When the user runs "clue init" and then "clue scaffold"
+    Then every Markdown file they wrote, generated skill files included, starts with frontmatter carrying a non-empty type and title, folder READMEs as "type: index"
+    And regenerating a folder README's index block keeps its frontmatter unchanged
+    But the materialized pull-request template carries no frontmatter
+
+  @AC-216
+  Scenario: migrate adds the header to managed folder READMEs and reports delivered files it does not own
+    Test-type: Unit
+    Given an adopted repository whose folder READMEs, hub, evidence guides, and wall checklist carry no frontmatter
+    When the user runs "clue migrate" with "--apply"
+    Then each folder README gains a "type: index" header titled from its first heading, with its body unchanged
+    And the plan reports each header-less hub, evidence guide, or wall checklist by path with the header it needs
+    But no run writes or rewrites a hub, evidence guide, or wall checklist, and a file that already carries a header is left as it is
+
   @AC-085
   Scenario: a real session learns the repository is behind
     Test-type: Human

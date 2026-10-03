@@ -107,13 +107,13 @@ producers:
       - path: docs/capabilities/CAP-001-onboarding/README.md
         sha256: 0deb26a60056f03f75da8e45aa16c21fa2e515418854b4260bc69e61dc048119
       - path: docs/capabilities/CAP-001-onboarding/criteria.md
-        sha256: d9ea30f8ec59676f28e66d40e346d8aa6c12ac13cfbf7cdb88ad4853ddaaad9c
+        sha256: a416185ecfc1f3d73ad39362433fc6abf463d59790decaea5a0370c8ebb793b5
       - path: docs/capabilities/CAP-001-onboarding/design.md
         sha256: fcd798fd97226564d462768fffe1b32b9fce0fa38df7d9a5b0b4a3c1bd40b891
       - path: docs/capabilities/CAP-002-validate/README.md
         sha256: 50348ffdc759b680202821c21de23f4a6f170a55b45bf2eba603aaec19813004
       - path: docs/capabilities/CAP-002-validate/criteria.md
-        sha256: 585571d6d314d4dbbf28145d86660cf84a0826f52543c29f700b4bd58f03511c
+        sha256: 86888a39be7c7017e1c6c44ef5b5ef837299c1cd97de418146936fbd74240d04
       - path: docs/capabilities/CAP-002-validate/design.md
         sha256: 61268c1dfe879be1c8e3f607645517973b07d8a164a8a4d38a7fa69e717c15dc
       - path: docs/capabilities/CAP-003-extract/README.md
@@ -486,8 +486,10 @@ producers:
         sha256: 311d63cbce442873ec2f1cc45f8e2b5416a2670c2fe294a905ef420fcc96c270
       - path: docs/decisions/PDR-064-change-routes-are-named-direct-and-tracked.md
         sha256: 461326bc5a8090018939763bf13bc6a156f6bdcc09a2f7e1a468478a32cb25a8
+      - path: docs/decisions/PDR-065-markdown-carries-frontmatter-by-default.md
+        sha256: 7bf9f392fd19f0e09528ea66f973dfbec1b6b3ca8ac99f4067c9c4511254fe41
       - path: docs/decisions/README.md
-        sha256: 62c3dafc9e8fd826a8a89de81f1a927d2b4b4ad9aacea5e385f060bca105ac21
+        sha256: dbcfa26ad42a092586d9d720cb6f1d427bf957b5354ee2eebc5b46f353839ea6
       - path: docs/design/README.md
         sha256: 8c5bf861bda7ae7d52020e4706389a9387837b00757a287b6a2fc85ff0ceddb0
       - path: docs/goals/G-001-verifiable-thread.md
