@@ -12,7 +12,7 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 
 ### Migration
 
-- No migration is required. Old trailers keep working, and an `AGENTS.md` that still says `simple` and `full` keeps routing correctly. To stop agents from mixing the two vocabularies, update your hub's route sentence and override example to `direct` and `tracked`; `clue migrate` points out where they are.
+- Old override trailers keep passing, and nothing is rewritten for you. If `clue migrate` reports `MIG-018`, update your `AGENTS.md` route sentence and override example to `direct` and `tracked` on the upgrade branch; the upgrade is not complete while that notice remains, because an agent reading the old hub would otherwise mix the two vocabularies.
 
 ## [0.27.0] - 2026-09-30
 

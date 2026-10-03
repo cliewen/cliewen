@@ -8,7 +8,7 @@ title: The acceptance-brief gate distinguishes a change's route from its CI scop
 
 # G-008 — The acceptance-brief gate distinguishes a change's route from its CI scope
 
-> Accepted 2026-08-13 with PDR-042 and CH-153: semantic routing is now direct or tracked, and CI check selection no longer supplies the tracked-route signal.
+> Accepted 2026-08-13 with PDR-042 and CH-153: semantic routing is now direct or tracked (named simple and full until [PDR-064](../decisions/PDR-064-change-routes-are-named-direct-and-tracked.md)), and CI check selection no longer supplies the tracked-route signal.
 
 **Who wants it:** contributors and agents integrating direct work or taking a tracked change to a ready pull request, in this repository and in any adopter running the shipped validation workflow (2026-08-11).
 

@@ -8,7 +8,7 @@ title: Design for collaborative PR handoffs
 
 # Design — CAP-006 Collaborative PR handoffs
 
-Routing precedes coordination. The agent states a direct or tracked recommendation from accepted-contract impact, identifies its escalation conditions, and repeats the assessment against the complete diff. Paths select checks but do not select meaning. A user-directed simple override of a tracked recommendation is retained in Git trailers; it creates no corpus artifact. Route selection never supplies push authority, and repository-local integration policy remains controlling.
+Routing precedes coordination. The agent states a direct or tracked recommendation from accepted-contract impact, identifies its escalation conditions, and repeats the assessment against the complete diff. Paths select checks but do not select meaning. A user-directed direct override of a tracked recommendation is retained in Git trailers; it creates no corpus artifact. Route selection never supplies push authority, and repository-local integration policy remains controlling.
 
 Documentation joins that loop as current truth, not as a change diary. Every change asks whether it affects the system structure in `docs/architecture/README.md`, the cross-cutting behaviour in `docs/design/README.md`, a capability's local design, or a decision link. It updates the narrowest honest home, links instead of repeating prose, and records the disposition in the PR handoff. The reviewer checks that disposition against the diff. An existing overview outside the canonical path is moved only after the human approves the grouped mapping and link rewrite.
 

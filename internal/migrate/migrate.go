@@ -2268,7 +2268,7 @@ func planCompetingWall(root string, result *MigrationPlan) {
 
 // planLegacyDecisionLog reports every legacy row separately so the preview is
 // the classification inventory. Presence alone is blocking: only a reviewed
-// full change can decide whether a row becomes an ADR, PDR, or IDR, amends an
+// tracked change can decide whether a row becomes an ADR, PDR, or IDR, amends an
 // existing record, or is routine narrative that may be discarded.
 func planLegacyDecisionLog(root string, result *MigrationPlan) {
 	const rel = "docs/decisions/log.md"

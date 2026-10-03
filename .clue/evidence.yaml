@@ -139,7 +139,7 @@ producers:
       - path: docs/capabilities/CAP-006-collaborative-handoffs/criteria.md
         sha256: b851b36fd035cd6903b69bc575a55161581e70316b974a97ab7eab349b32b69f
       - path: docs/capabilities/CAP-006-collaborative-handoffs/design.md
-        sha256: 82e81058a27c540bd279f33044630e8c2745f3f98cbb3975e1a3183a6b7e9a3d
+        sha256: 17a13206d4d6d572daffb938b81eacf0ff9dd566948febd26f439b7cf47df7cb
       - path: docs/capabilities/CAP-007-focused-context/README.md
         sha256: 7580a43131197197076bfcbf6101ec04bdb88deae6ac11664fb0ce1048bed638
       - path: docs/capabilities/CAP-007-focused-context/criteria.md
@@ -505,7 +505,7 @@ producers:
       - path: docs/goals/G-007-changelog-scope-names-the-shipped-surface.md
         sha256: b5f9b0f94c37969080c82cdbbdbe1b617938bf40a8c567d311aa63cdeb867959
       - path: docs/goals/G-008-acceptance-brief-gate-knows-the-tier.md
-        sha256: 53eedd1af4a31470d3ca719def1102f2f76f47dc5a07aa4a27afb0483e5d6522
+        sha256: 320b6d5bd60bb710a09bc260f93ce8f66d05c8bd2aa6b206c7baa894ff975e39
       - path: docs/goals/G-009-workspace-identities-have-a-command.md
         sha256: 24171fce055472d1a569692029588c2771867ee855e01693d92d1c064739783d
       - path: docs/goals/G-010-index-row-agrees-with-its-artifact.md
