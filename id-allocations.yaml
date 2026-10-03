@@ -2215,6 +2215,11 @@ claims:
       state: reserved
       prefix: G
       component: "22"
+    - id: G-023
+      kind: numeric
+      state: reserved
+      prefix: G
+      component: "23"
     - id: IC-001
       kind: numeric
       state: reserved
@@ -3251,11 +3256,11 @@ high-water:
       state: reserved
       prefix: ARCH
       component: "3"
-    - id: C-023
+    - id: C-024
       kind: numeric
       state: reserved
       prefix: C
-      component: "23"
+      component: "24"
     - id: CAP-011
       kind: numeric
       state: reserved
