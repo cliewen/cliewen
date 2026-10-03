@@ -1,6 +1,6 @@
 # The corpus
 
-This directory is the **system-of-record**: the permanent, durable truth about the system. Full Cliewen changes are transient deltas on branches that get **digested** into this corpus at merge — `git log docs/` is the audit trail. Entry point for humans and agents alike; agents treat this tree as working memory when a change affects product or methodology meaning. Simple work uses no Cliewen workspace but still leaves any corpus surface it touches truthful.
+This directory is the **system-of-record**: the permanent, durable truth about the system. Tracked Cliewen changes are transient deltas on branches that get **digested** into this corpus at merge — `git log docs/` is the audit trail. Entry point for humans and agents alike; agents treat this tree as working memory when a change affects product or methodology meaning. Direct work uses no Cliewen workspace but still leaves any corpus surface it touches truthful.
 
 ## How the corpus is wired
 
@@ -32,12 +32,12 @@ When a released `clue` adds or narrows a corpus obligation, preview `clue migrat
 
 ## What lives where — and when a change updates it
 
-Each folder below holds one kind of record. A full change (the `clue-delta` loop) updates every record its work touches in the same integration; simple work remains responsible for any durable record it touches even though it uses no workspace or digest:
+Each folder below holds one kind of record. A tracked change (the `clue-delta` loop) updates every record its work touches in the same integration; direct work remains responsible for any durable record it touches even though it uses no workspace or digest:
 
 - **Vision** (`vision.md`) — one file, `VIS-001`, stating what this product or system is for. Optional to have, and edited only when the direction itself changes. A repository that has never stated one is valid; an unreplaced bootstrap is not.
 - **Goals** (`goals/`) — who wants the system and why. A new wish enters here as `status: proposed`; a change rarely touches goals.
 - **Use cases** (`use-cases/`) — optional: one actor's end-to-end path across capabilities, when the capabilities alone do not explain the outcome. Zero is a normal number, and nothing measures their absence.
-- **Plans** (`plans/`) — campaigns with verifiable milestones. Every full change names the plan item it serves (or declares itself plan-less); the digest updates plan bookkeeping, including closing a plan whose last milestone the change completes.
+- **Plans** (`plans/`) — campaigns with verifiable milestones. Every tracked change names the plan item it serves (or declares itself plan-less); the digest updates plan bookkeeping, including closing a plan whose last milestone the change completes.
 - **Capabilities** (`capabilities/`) — one folder per capability: `README.md` (what and why), `criteria.md` (acceptance criteria as Gherkin, each tied to its declared acceptance evidence), `design.md` (how it works). **Design is documented per capability** — a change that alters a capability's behavior updates its criteria and design in the same PR.
 - **Architecture** (`architecture/`) — the required system structure overview: boundaries, actors, and durable technology choices. Updated when a change alters the system's structure or public surface, not for local detail.
 - **Design** (`design/`) — the required cross-cutting behavioural overview: runtime flows, interactions, and shared patterns. Capability-local design stays in each capability folder.

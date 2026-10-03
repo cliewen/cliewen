@@ -1,6 +1,6 @@
 ## Verification checklist
 
-Run this verification and review workflow before marking a full Cliewen PR ready for review, and its hosted-head check immediately after. Pushing inside the loop needs no verification: every changed turn pushes under the [Review boundary](review-boundary.md). Simple work uses only checks relevant to its changed surfaces and does not invoke this skill. When the `clue` CLI exists, `clue validate` performs the mechanical half; until then, check by hand. Never fix a failure by weakening the check.
+Run this verification and review workflow before marking a tracked Cliewen PR ready for review, and its hosted-head check immediately after. Pushing inside the loop needs no verification: every changed turn pushes under the [Review boundary](review-boundary.md). Direct work uses only checks relevant to its changed surfaces and does not invoke this skill. When the `clue` CLI exists, `clue validate` performs the mechanical half; until then, check by hand. Never fix a failure by weakening the check.
 
 - [ ] The change uses the correct workspace under [Change routing](change-scope-and-tiers.md).
 - [ ] Every artifact touched has frontmatter `id`, `type`, `status`, `links`, and `title`, plus decision `author`/`accepted-by`, constraint `source`/`enforcement`, capability `goal`, and any other type-specific fields.
@@ -16,7 +16,7 @@ Run this verification and review workflow before marking a full Cliewen PR ready
 - [ ] The change was checked against each constraint listed in `docs/constraints/README.md`'s index (including verifiable quality bars), naming any that do not apply.
 - [ ] [Repository-local conventions](repository-local-conventions.md) satisfy their contract.
 - [ ] Diagrams use the clearest renderable form: prefer Mermaid, use ASCII art where it is clearer, and retain SVG where neither is adequate.
-- [ ] The full-change workspace is absent after digest; `main` never contains `/changes/`.
+- [ ] The tracked-change workspace is absent after digest; `main` never contains `/changes/`.
 - [ ] Every decision satisfies [Decision records](decision-records.md), including routing, timeless content, provenance, objections, and pending approval signatures.
 - [ ] The current commit received a pass with no blocking findings under the [Agentic review loop](agentic-review-loop.md); every blocking repair after an earlier clean pass triggered a new pass, and any advisory findings left open are named in the verification evidence.
 - [ ] The final handoff identifies the review mode (`context-isolated` or `in-context fallback`), reviewed commit, and number of review passes run.

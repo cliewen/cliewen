@@ -168,3 +168,78 @@ func TestAC084_UnitNegative_MigrateNeverWritesTheHub(t *testing.T) {
 		t.Error("the notice disappeared after apply, though no file was repaired")
 	}
 }
+
+// routeNameNotice returns the MIG-018 notice in a plan, or nil.
+func routeNameNotice(t *testing.T, root string) *Notice {
+	t.Helper()
+	plan, err := Plan(root, Options{ReversalCost: "low"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	for i, notice := range plan.Notices {
+		if notice.Migration == MigrationHubRouteNames {
+			return &plan.Notices[i]
+		}
+	}
+	return nil
+}
+
+// AC-212 positive: a hub scaffolded before PDR-064 still tells agents to say
+// simple or full, in the recommendation or the override trailers, and the
+// adopter is told so without the hub being touched.
+func TestAC212_UnitPositive_MigrateReportsAHubNamingRetiredRoutes(t *testing.T) {
+	for _, tc := range []struct{ name, body string }{
+		{"recommendation", "# Hub\n\nTell the user `Recommended route: simple` or `Recommended route: full`.\n"},
+		{"trailers only", "# Hub\n\nAdd `Cliewen-Route: simple`, `Cliewen-Recommendation: full`, and `Cliewen-Override: ...`.\n"},
+		{"lower case", "# Hub\n\nSay recommended route: FULL when unsure.\n"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			root := migrationFixture(t, "")
+			writeHub(t, root, tc.body)
+			notice := routeNameNotice(t, root)
+			if notice == nil {
+				t.Fatalf("no MIG-018 notice for a hub naming retired routes (%s)", tc.name)
+			}
+			if !strings.Contains(notice.Message, "direct") || !strings.Contains(notice.Message, "tracked") {
+				t.Errorf("notice does not name the current routes: %s", notice.Message)
+			}
+			assertHubUntouched(t, root, tc.body)
+		})
+	}
+}
+
+// AC-212 negative: a hub already on the new names, one using "simple" and
+// "full" as ordinary words, and an absent hub produce no report, and applying
+// the plan never rewrites a hub that was reported.
+func TestAC212_UnitNegative_MigrateIgnoresCurrentOrOrdinaryWordsAndNeverWritesTheHub(t *testing.T) {
+	for _, tc := range []struct{ name, body string }{
+		{"current names", "# Hub\n\nTell the user `Recommended route: direct` or `Recommended route: tracked`.\nAdd `Cliewen-Route: direct` and `Cliewen-Recommendation: tracked`.\n"},
+		{"ordinary words", "# Hub\n\nKeep commits simple. Run the full test suite. A full address is required.\n"},
+		{"absent", ""},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			root := migrationFixture(t, "")
+			writeHub(t, root, tc.body)
+			if notice := routeNameNotice(t, root); notice != nil {
+				t.Fatalf("a hub with no retired route names was reported (%s): %s", tc.name, notice.Message)
+			}
+		})
+	}
+
+	root := migrationFixture(t, "")
+	old := "# Hub\n\nTell the user `Recommended route: simple` or `Recommended route: full`.\n"
+	writeHub(t, root, old)
+	plan, err := Plan(root, Options{ReversalCost: "low"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, change := range plan.Changes {
+		if change.Path == "AGENTS.md" {
+			t.Fatalf("the plan would rewrite the adopter's hub")
+		}
+	}
+	if err := Apply(root, plan); err != nil {
+		t.Fatal(err)
+	}
+	assertHubUntouched(t, root, old)
+}

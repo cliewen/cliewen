@@ -407,19 +407,19 @@ func TestAC054_UnitPositive_ExtractionSupportsCriterionLevelPhasing(t *testing.T
 	}
 }
 
-func TestAC142_UnitPositive_GeneratedUpgradeSkillRoutesAHumanAuthorizedCoordinatedUpgradeAsSimpleWork(t *testing.T) {
+func TestAC210_UnitPositive_GeneratedUpgradeSkillRoutesAHumanAuthorizedCoordinatedUpgradeAsDirectWork(t *testing.T) {
 	upgrade := mustRenderSkill(t, "clue-upgrade/skill.md")
 	for _, want := range []string{
 		"Run `clue latest`",
 		"`### Migration` section",
 		"ask the human whether to upgrade now or later",
 		"Do nothing to the repository until they explicitly choose now",
-		"**An upgrade is simple work.**",
-		"Recommend `Recommended route: simple`",
+		"**An upgrade is direct work.**",
+		"Recommend `Recommended route: direct`",
 		"needs no CH identity, workspace, plan declaration, digest, acceptance brief, or mandatory agentic review",
-		"How many files the migration rewrites, and whether corpus or skill paths are among them, never makes the route full",
+		"How many files the migration rewrites, and whether corpus or skill paths are among them, never makes the route tracked",
 		"Escalate only on a semantic discovery",
-		"recommend the full loop for that decision on its own terms",
+		"recommend the tracked route for that decision on its own terms",
 		"make the repository green and create a branch",
 		"resolve every finding and notice — including those no command may repair — except the explicitly non-blocking `MIG-009` competing-wall notice",
 		"reconcile that job by hand after applying",
@@ -431,7 +431,7 @@ func TestAC142_UnitPositive_GeneratedUpgradeSkillRoutesAHumanAuthorizedCoordinat
 	}
 }
 
-func TestAC142_UnitNegative_GeneratedUpgradeSkillDoesNotInventAPlatformRouteSelfAuthorizeOrBindSimpleWorkToTheFullLoopBoundary(t *testing.T) {
+func TestAC210_UnitNegative_GeneratedUpgradeSkillDoesNotInventAPlatformRouteSelfAuthorizeOrBindDirectWorkToTheTrackedRouteBoundary(t *testing.T) {
 	upgrade := mustRenderSkill(t, "clue-upgrade/skill.md")
 	for _, forbidden := range []string{
 		"curl -fsSL https://cliewen.dev/install.sh | sh",
@@ -449,7 +449,7 @@ func TestAC142_UnitNegative_GeneratedUpgradeSkillDoesNotInventAPlatformRouteSelf
 // The upgrade skill's router must reach its workflow — where the route is
 // stated — before the generic tier text, or the agent recommends a route from
 // text that cannot know the contract change already happened upstream.
-func TestAC142_UnitNegative_UpgradeRouterDoesNotSendTheAgentToGenericTiersForItsRoute(t *testing.T) {
+func TestAC210_UnitNegative_UpgradeRouterDoesNotSendTheAgentToGenericTiersForItsRoute(t *testing.T) {
 	upgrade := mustRenderSkill(t, "clue-upgrade/skill.md")
 	workflow := strings.Index(upgrade, "references/upgrade-workflow.md")
 	tiers := strings.Index(upgrade, "references/change-scope-and-tiers.md")
@@ -601,7 +601,7 @@ func TestAC056_UnitPositive_ExtractionRehearsesBeforeMutation(t *testing.T) {
 		"do not change the target source corpus, Cliewen `/docs` corpus, tests, routing, or hosted state",
 		"source formats and entry points, proposed artifact mappings, preserved and minted IDs, confidence and reversal cost, test-purpose work, instruction conflicts, planned deletions, and named plan doors",
 		"An unresolved conflict becomes an `open-questions.md` entry and stops before mutation",
-		"Only explicit human direction begins the existing full extraction change's mutate phase",
+		"Only explicit human direction begins the existing tracked extraction change's mutate phase",
 		"digests the rehearsal into the durable extraction report under `/docs/analysis`",
 	} {
 		if !strings.Contains(extract, want) {
@@ -884,7 +884,7 @@ func TestUnit_AgenticReviewLoopConvergesOnCurrentCommit(t *testing.T) {
 	for _, want := range []string{
 		"never ask the human to clear context or initiate a separate review",
 		"start a new read-only reviewer without the implementation conversation",
-		"recover a full change's proposal from branch history",
+		"recover a tracked change's proposal from branch history",
 		"label it `in-context fallback`",
 		"only findings about correctness, intent mismatch, regressions, security, missing evidence, or unjustified complexity",
 		"operative requirement or declared intent that is violated",

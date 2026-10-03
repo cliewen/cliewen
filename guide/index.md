@@ -30,7 +30,7 @@ features:
     details: A vision and goals lead to capabilities, acceptance criteria, and declared evidence, either classified test references or genuine Human proof. The clue CLI reports broken links and missing evidence locally and in CI without executing tests.
     link: /methodology
   - title: You decide what merges
-    details: Agents prepare the change, the corpus, and the evidence. Humans keep control of intent and of the merge. Small work that changes no promise stays outside the full loop.
+    details: Agents prepare the change, the corpus, and the evidence. Humans keep control of intent and of the merge. Small work that changes no promise takes the direct route and skips the tracked change's bookkeeping.
     link: /change-loop
 ---
 

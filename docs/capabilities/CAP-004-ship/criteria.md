@@ -142,15 +142,21 @@ Feature: clue ships — a versioned binary and versioned skills, drift made lint
     # recommended the full loop. AC-142 carries the same boundary with the
     # route and its escalation condition stated.
 
-  @AC-142
+  @AC-142 @retired
   Scenario: A generated skill routes an existing adopter through a human-authorized upgrade as simple work
+    # Retired 2026-10-03 (CH-195): PDR-064 renamed the routes simple and full
+    # to direct and tracked. AC-210 carries the same upgrade boundary under the
+    # new names.
+
+  @AC-210
+  Scenario: A generated skill routes an existing adopter through a human-authorized upgrade as direct work
     Test-type: Unit
     Given a repository carrying the generated Cliewen skill set
     When an agent invokes the managed upgrade skill
     Then it runs the release check and reads the selected release's migration guidance
     And it asks the human whether to upgrade now or later before changing a repository
-    And it recommends the simple route, because the release's contract changes were accepted upstream and the adopting repository's own accepted contract is unchanged
-    And it escalates to the full loop only for a decision of the repository's own that applying the release requires, never for the migration's file count or paths
+    And it recommends the direct route, because the release's contract changes were accepted upstream and the adopting repository's own accepted contract is unchanged
+    And it escalates to the tracked route only for a decision of the repository's own that applying the release requires, never for the migration's file count or paths
     And an affirmative answer makes the repository green, branches, moves the coordinated set, resolves every notice, verifies, and hands over a pull request without merging it
     But the skill names no platform installation command and a later answer changes no repository file or hosted state
 

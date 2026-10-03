@@ -160,11 +160,11 @@ func TestAC132_UnitPositive_ChangeLoopCoordinatesOnlyTheSharedPR(t *testing.T) {
 	}
 }
 
-func TestSanity_FullChangeMergeModeIsExplicitAcrossGuidanceAndProbe(t *testing.T) {
+func TestSanity_TrackedChangeMergeModeIsExplicitAcrossGuidanceAndProbe(t *testing.T) {
 	requiredByPage := map[string][]string{
-		"operations.md":      {"Full-change merge", "Human-controlled merge commits only", "disable **squash and merge** and **rebase and merge**", "outside Cliewen's supported full-change adoption path"},
+		"operations.md":      {"Tracked-change merge", "Human-controlled merge commits only", "disable **squash and merge** and **rebase and merge**", "outside Cliewen's supported tracked-change adoption path"},
 		"change-loop.md":     {"human-controlled merge commit", "disable squash and rebase-and-merge", "hosted history is never rebased or rewritten"},
-		"ci-wall.md":         {"Create a merge commit", "Squash and merge", "Rebase and merge", ".allow_merge_commit", ".allow_squash_merge", ".allow_rebase_merge", "not ready for a full Cliewen change"},
+		"ci-wall.md":         {"Create a merge commit", "Squash and merge", "Rebase and merge", ".allow_merge_commit", ".allow_squash_merge", ".allow_rebase_merge", "not ready for a tracked Cliewen change"},
 		"getting-started.md": {"protected default branch for human-controlled merge commits only"},
 	}
 	for page, required := range requiredByPage {
@@ -194,7 +194,7 @@ func TestSanity_FullChangeMergeModeIsExplicitAcrossGuidanceAndProbe(t *testing.T
 	// Guarding a list of equivalence phrasings nobody has written yet catches
 	// nothing. The invariant that does hold: a page cannot raise squash or
 	// rebase-and-merge without also placing them outside the support boundary,
-	// so no page can describe them as an equivalent way to accept a full change.
+	// so no page can describe them as an equivalent way to accept a tracked change.
 	pages, err := filepath.Glob("*.md")
 	if err != nil {
 		t.Fatal(err)
@@ -217,7 +217,7 @@ func TestSanity_FullChangeMergeModeIsExplicitAcrossGuidanceAndProbe(t *testing.T
 			}
 		}
 		if !carriesBoundary {
-			t.Errorf("%s names squash or rebase-and-merge without stating that they fall outside the supported full-change merge mode", page)
+			t.Errorf("%s names squash or rebase-and-merge without stating that they fall outside the supported tracked-change merge mode", page)
 		}
 	}
 }

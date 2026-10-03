@@ -34,9 +34,9 @@ Please add a greeting that can be requested by name, and refuse an empty name. G
 Nothing is edited before you see a sentence like this one:
 
 ```text
-Recommended route: full. This adds a capability and a new acceptance criterion, so it changes
+Recommended route: tracked. This adds a capability and a new acceptance criterion, so it changes
 the accepted contract. What would change the recommendation: discovering that an existing
-criterion already promises this, which would make it a defect correction and therefore simple.
+criterion already promises this, which would make it a defect correction and therefore direct.
 ```
 
 This is where you can disagree. Once you say go ahead, the agent starts work.

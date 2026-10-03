@@ -2,7 +2,7 @@
 
 The `docs/` folder is the corpus: the permanent record of what your system is for, what it can do, how it is built, and why. Agents read it before they work and update it in the same pull request as the code, so the next session starts from this record rather than from a lost chat. You review it alongside the implementation, and Git keeps every accepted version.
 
-The corpus describes the system as it is now. It is not an archive of past change requests. A full change's proposal lives in a temporary `/changes/` folder while the work is in progress, and it is folded into `docs/` and deleted before merge.
+The corpus describes the system as it is now. It is not an archive of past change requests. A tracked change's proposal lives in a temporary `/changes/` folder while the work is in progress, and it is folded into `docs/` and deleted before merge.
 
 ## The taxonomy
 

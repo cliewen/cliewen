@@ -76,12 +76,12 @@ var skillDefinitions = map[string]skillDefinition{
 		},
 	},
 	"clue-delta": {
-		description: "Run a chosen full Cliewen change from proposal through implementation, digest, verification, and human-controlled merge.",
+		description: "Run a chosen tracked Cliewen change from proposal through implementation, digest, verification, and human-controlled merge.",
 		routes: []skillRoute{
 			{heading: "Evidence workflow", file: "evidence-workflow.md", condition: "Before writing, migrating, exporting or verifying executable acceptance evidence"},
-			{heading: "Change routing", file: "change-scope-and-tiers.md", condition: "Before recommending a route or starting a full change"},
+			{heading: "Change routing", file: "change-scope-and-tiers.md", condition: "Before recommending a route or starting a tracked change"},
 			{heading: "Review boundary", file: "review-boundary.md", condition: "Before branching, publishing, updating a hosted PR, or handing work to a human"},
-			{heading: "Change loop", file: "change-loop.md", condition: "After the user chooses the recommended full loop"},
+			{heading: "Change loop", file: "change-loop.md", condition: "After the user chooses the recommended tracked route"},
 			{heading: "Challenge a consequential commitment", file: "challenge-commitments.md", condition: "Before writing the proposal for a consequential change"},
 			{heading: "Intent model", file: "intent-model.md", condition: "When the change touches what the product means, or the acceptance brief must state the vision it proceeds under"},
 			{heading: "Decision records", file: "decision-records.md", condition: "When the change makes, rejects, or carries a decision"},
@@ -109,7 +109,7 @@ var skillDefinitions = map[string]skillDefinition{
 		description: "Check for a newer Cliewen release and, only with explicit human authorization, carry out its coordinated repository upgrade.",
 		routes: []skillRoute{
 			{heading: "Upgrade workflow", file: "upgrade-workflow.md", condition: "Before checking or acting on an available release, and before recommending the upgrade's route"},
-			{heading: "Change routing", file: "change-scope-and-tiers.md", condition: "When the upgrade escalates a decision of this repository's own to the full loop"},
+			{heading: "Change routing", file: "change-scope-and-tiers.md", condition: "When the upgrade escalates a decision of this repository's own to the tracked route"},
 			{heading: "Review boundary", file: "review-boundary.md", condition: "If an upgrade change begins and before branching, publishing, or handing it off"},
 			{heading: "Decision records", file: "decision-records.md", condition: "When the upgrade requires a consequential local choice"},
 			{heading: "Repository-local conventions", file: "repository-local-conventions.md", condition: "Before applying repository-specific upgrade or verification rules"},
@@ -117,10 +117,10 @@ var skillDefinitions = map[string]skillDefinition{
 		},
 	},
 	"clue-verify": {
-		description: "Verify a chosen full Cliewen change and run its bounded adversarial review before claiming the hosted pull request is ready.",
+		description: "Verify a chosen tracked Cliewen change and run its bounded adversarial review before claiming the hosted pull request is ready.",
 		routes: []skillRoute{
 			{heading: "Evidence workflow", file: "evidence-workflow.md", condition: "Before writing, migrating, exporting or verifying executable acceptance evidence"},
-			{heading: "Change routing", file: "change-scope-and-tiers.md", condition: "Before confirming that full-loop verification applies"},
+			{heading: "Change routing", file: "change-scope-and-tiers.md", condition: "Before confirming that tracked-route verification applies"},
 			{heading: "Review boundary", file: "review-boundary.md", condition: "Before inspecting or updating hosted pull-request state and before the readiness handoff"},
 			{heading: "Verification checklist", file: "verification-checklist.md", condition: "Before running readiness verification"},
 			{heading: "Agentic review loop", file: "agentic-review-loop.md", condition: "After the complete candidate is committed and its applicable local checks pass"},

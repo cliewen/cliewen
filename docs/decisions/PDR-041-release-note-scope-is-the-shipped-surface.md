@@ -10,7 +10,7 @@ accepted-by: Flemming N. Larsen (2026-09-02, conversation)
 
 # PDR-041 — Release-note scope is the shipped surface
 
-> **Terminology amended by [PDR-042](PDR-042-routing-recommends-contract-aware-effort.md):** simple/full routing replaces plain/light/full; route does not decide release-note scope.
+> **Terminology amended by [PDR-042](PDR-042-routing-recommends-contract-aware-effort.md):** direct/tracked routing replaces plain/light/full; route does not decide release-note scope.
 
 ## Context and problem statement
 

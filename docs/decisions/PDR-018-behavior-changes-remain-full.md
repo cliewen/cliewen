@@ -10,7 +10,7 @@ accepted-by: Flemming N. Larsen (2026-08-02, conversation)
 
 # PDR-018 — Behavior changes remain full until adopter evidence supports a narrower loop
 
-> **Superseded by [PDR-042](PDR-042-routing-recommends-contract-aware-effort.md):** a defect correction restoring an unchanged accepted criterion may be simple; changing the accepted contract remains the full-loop recommendation.
+> **Superseded by [PDR-042](PDR-042-routing-recommends-contract-aware-effort.md):** a defect correction restoring an unchanged accepted criterion may be direct work; changing the accepted contract remains the tracked-route recommendation.
 
 ## Context and problem statement
 

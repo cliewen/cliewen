@@ -170,7 +170,7 @@ Migration will not draft one for you. A vision is the single artifact in the cor
 
 New repositories are treated differently on purpose: `clue init` writes a marked vision bootstrap, and validation stays red until it is replaced. That way a repository starting today starts with a direction, while a repository that has been running for a year is not punished for a file that did not exist when it adopted.
 
-The distinction between *not yet established* and *quietly forgotten* is handled in one place: a full change's acceptance brief states the vision it proceeds under, or states that the repository has none. Saying so once, where a reviewer reads it, is cheaper than a tool asking forever.
+The distinction between *not yet established* and *quietly forgotten* is handled in one place: a tracked change's acceptance brief states the vision it proceeds under, or states that the repository has none. Saying so once, where a reviewer reads it, is cheaper than a tool asking forever.
 
 ## Next
 

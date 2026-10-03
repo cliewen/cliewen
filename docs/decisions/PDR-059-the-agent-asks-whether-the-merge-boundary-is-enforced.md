@@ -13,7 +13,7 @@ accepted-by: Flemming N. Larsen (2026-09-12, conversation)
 
 ## Context
 
-Cliewen requires that a full change be accepted through a protected default branch ([PDR-021](PDR-021-supported-merge-commit-history.md)), and the shipped review-boundary reference tells every adopter that a Git host unable to enforce that boundary is outside the supported full-change adoption path. Nothing has ever checked whether an adopter's boundary is enforced.
+Cliewen requires that a tracked change be accepted through a protected default branch ([PDR-021](PDR-021-supported-merge-commit-history.md)), and the shipped review-boundary reference tells every adopter that a Git host unable to enforce that boundary is outside the supported tracked-change adoption path. Nothing has ever checked whether an adopter's boundary is enforced.
 
 Nothing could. Branch protection is a setting at the host — GitHub, GitLab, Bitbucket — that no clone carries, that appears in no file, and that `git log` never shows changing. [ADR-044](ADR-044-judge-reads-state-not-transitions.md) keeps `clue validate` reading repository files and off the network, correctly: a validator that called out to a host would answer differently depending on who was logged in, and would stop working offline. So the one tool positioned to judge the corpus is structurally unable to see this.
 
@@ -25,7 +25,7 @@ Nothing could. Branch protection is a setting at the host — GitHub, GitLab, Bi
 
 Three limits are part of the decision, not caveats on it.
 
-**It asks; it does not enforce.** A missing boundary does not block the ready mark. Refusing would hand the agent a veto over the maintainer's own configuration choice, and a repository may have decided deliberately — Cliewen's own has, keeping direct pushes available for simple work. The agent asks once, accepts the answer, and states in the readiness handoff that the boundary is unenforced together with the reason given. That record is the point as much as the question is: [G-017](../goals/G-017-the-method-is-evidenced-and-simplified.md) asks for bypassed obligations *with their reasons*, and a decline is exactly that evidence.
+**It asks; it does not enforce.** A missing boundary does not block the ready mark. Refusing would hand the agent a veto over the maintainer's own configuration choice, and a repository may have decided deliberately — Cliewen's own has, keeping direct pushes available for direct work. The agent asks once, accepts the answer, and states in the readiness handoff that the boundary is unenforced together with the reason given. That record is the point as much as the question is: [G-017](../goals/G-017-the-method-is-evidenced-and-simplified.md) asks for bypassed obligations *with their reasons*, and a decline is exactly that evidence.
 
 **It never changes a setting unasked.** Repository configuration is the human's decision. The agent proposes the exact commands for the host and applies them only on explicit authorization in that exchange. An agent that quietly reconfigured a repository would be doing the thing this finding is about — acting where nobody can see.
 

@@ -61,7 +61,7 @@ An `imported-change` record (ADR-050, `internal/importedchange/`, `docs/imported
 
 ## Deliberate limits (doors)
 
-- **Rehearsal before mutation** (`clue-extract`): an extraction's first pass writes a branch-local report under `/changes/` and does not alter the target corpus, routing, tests, or hosted state. The report makes mappings, ID preservation or minting, confidence, test-purpose work, instruction conflicts, planned deletions, and plan doors inspectable; unresolved conflicts stop in `open-questions.md`. Only explicit human direction starts the same full change's mutate phase, which digests the rehearsal to `/docs/analysis` ([PDR-020](../../decisions/PDR-020-extraction-rehearsal-before-mutation.md)).
+- **Rehearsal before mutation** (`clue-extract`): an extraction's first pass writes a branch-local report under `/changes/` and does not alter the target corpus, routing, tests, or hosted state. The report makes mappings, ID preservation or minting, confidence, test-purpose work, instruction conflicts, planned deletions, and plan doors inspectable; unresolved conflicts stop in `open-questions.md`. Only explicit human direction starts the same tracked change's mutate phase, which digests the rehearsal to `/docs/analysis` ([PDR-020](../../decisions/PDR-020-extraction-rehearsal-before-mutation.md)).
 - Cucumber scenario tags and other framework metadata reach the same shared manifest. Other specification source formats still need an extraction mapping.
 - No source-format parsing in clue, ever — a new source is a new mapping section in the skill.
 - The judge never compiles source or invokes discovery. Explicit repository-owned exporters may use discovery or bounded source interpretation, whose completeness and attribution are tested and reviewed.

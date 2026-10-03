@@ -76,7 +76,7 @@ Feature: Brownfield analysis and extraction — evidence, namespaced ACs, execut
   @AC-056
   Scenario: Extraction rehearses before it mutates
     Test-type: Unit
-    Given an extraction full change has been proposed
+    Given an extraction tracked change has been proposed
     When the agent begins the extraction
     Then it first writes a report-only rehearsal under that change's workspace
     And the rehearsal inventories source formats and entry points, proposed mappings, preserved and minted IDs, confidence and reversal cost, test-purpose work, instruction conflicts, planned deletions, and plan doors

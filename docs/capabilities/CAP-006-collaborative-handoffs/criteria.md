@@ -47,16 +47,16 @@ Feature: Collaborative pull-request handoffs
 
   @AC-042
   Scenario: The human merge gate receives its remaining semantic decisions
-    Given a full Cliewen change adds or changes acceptance criteria
+    Given a tracked Cliewen change adds or changes acceptance criteria
     When the agent prepares its ready pull request
     Then the pull request starts with an acceptance brief naming the plan item, the criteria and scenarios, advisory scenario-resolution verdicts, and merge-binding decision effects
-    And CI rejects a full pull request that leaves the brief's required placeholders unfilled
+    And CI rejects a tracked pull request that leaves the brief's required placeholders unfilled
     But a scenario-resolution verdict is advisory and does not make `clue validate` fail
 
   @AC-048
   Scenario: The acceptance brief names newly declared Human-class criteria as their proof
     Test-type: Unit
-    Given a full Cliewen change adds or materially revises a criterion declaring the Human test type
+    Given a tracked Cliewen change adds or materially revises a criterion declaring the Human test type
     When the agent prepares its ready pull request
     Then the acceptance brief's criteria line names that criterion and states that the brief is its proof
     But a change touching no Human-class criterion leaves the brief's existing criteria line unchanged
@@ -91,18 +91,33 @@ Feature: Collaborative pull-request handoffs
     And its acceptance brief repeats that information for the human merge decision
     But neither record makes the base accepted or permits an agent to merge either change
 
-  @AC-139
+  @AC-139 @retired
   Scenario: The agent recommends proportionate process while the user controls integration
+    # Retired 2026-10-03 (CH-195): PDR-064 renamed the routes simple and full
+    # to direct and tracked, so the recommendation an agent states changed.
+    # AC-209 carries the same routing rule under the new names.
+
+  @AC-209
+  Scenario: The agent recommends the direct or tracked route while the user controls integration
     Test-type: Unit
     Given an agent has inspected the smallest relevant context for requested work
     When it recommends a route before editing and audits the complete diff before integration
-    Then it recommends simple when the accepted contract remains unchanged and full when an acceptance criterion, capability, decision, policy, plan promise, methodology contract, or uncovered behavior changes
+    Then it recommends direct when the accepted contract remains unchanged and tracked when an acceptance criterion, capability, decision, policy, plan promise, methodology contract, or uncovered behavior changes
     And it names what discovery would change that recommendation without using path or diff size as the semantic verdict
-    And an observational analysis, unchanged-criterion defect correction, regression test, in-contract configuration adjustment, refactor, maintenance, or editorial correction may remain simple
-    And relevant checks follow the changed surfaces independently of whether full-loop bookkeeping applies
-    But if semantic scope grows it pauses and recommends full, while an explicit user refusal proceeds as simple with complete route, recommendation, and risk trailers in Git history
+    And an observational analysis, unchanged-criterion defect correction, regression test, in-contract configuration adjustment, refactor, maintenance, or editorial correction may remain direct
+    And relevant checks follow the changed surfaces independently of whether tracked-route bookkeeping applies
+    But if semantic scope grows it pauses and recommends tracked, while an explicit user refusal proceeds as direct with complete route, recommendation, and risk trailers in Git history
     And neither route authorizes an agent push without explicit user permission and repository permission
-    And releases remain adopter-defined while this repository's administrative version cut is only a local simple-work specialization
+    And releases remain adopter-defined while this repository's administrative version cut is only a local direct-route specialization
+    But no generated skill, scaffolded hub, or scaffolded pull-request template names the routes simple or full
+
+  @AC-211
+  Scenario: CI reads a route override in the current or the legacy spelling
+    Test-type: Unit
+    Given a pull request whose history contains a change proposal
+    When the authored head commit carries a route trailer of direct or simple, a recommendation trailer of tracked or full, and a non-empty override trailer
+    Then the shipped validation workflow and the local CI scope detection both treat the override as complete and skip tracked-route bookkeeping
+    But a head commit missing any of the three trailers, naming another route or recommendation, or leaving the override risk empty still selects tracked-route bookkeeping
 
   @AC-152
   Scenario: Lifecycle guidance keeps the system documentation current without duplication
@@ -184,7 +199,7 @@ Feature: Collaborative pull-request handoffs
     When the commitment is consequential because being wrong would cost more than finding out first
     Then the guidance has it name the assumption most likely to undermine the work, a credible alternative course, the cheapest useful test, and the result that would stop or revise the work
     And it asks what an implementation could look like that met every criterion and still failed the person the work is for
-    But work that is simple, already carries out a course already challenged and understood, or can be undone within the same change at no more cost than the challenge proceeds without a challenge and without a note explaining its absence
+    But work that is direct, already carries out a course already challenged and understood, or can be undone within the same change at no more cost than the challenge proceeds without a challenge and without a note explaining its absence
 
   @AC-201
   Scenario: A reusable discovery is captured only past an eligibility bar, into an existing home

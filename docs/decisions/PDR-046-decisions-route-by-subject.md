@@ -21,7 +21,7 @@ Only a future-shaping choice earns a decision record, and its subject selects ex
 
 A new or modified record keeps the common provenance frontmatter and a compact body: enduring context, the decision, optional alternatives when they materially explain the choice, and optional consequences. Rejected future-shaping choices route by the same subject test. Triggering incidents, chronology, review history, carrier inventories, and implementation walkthroughs stay in analysis, the change workspace, the pull request, or Git history.
 
-A legacy log is migrated only through a reviewed full change that inventories every row, creates or amends the routed destination for each future-shaping choice, explicitly accounts for narrative that is discarded, repairs live references, and removes the log. `clue migrate` reports the inventory and blocks rather than guessing any classification.
+A legacy log is migrated only through a reviewed tracked change that inventories every row, creates or amends the routed destination for each future-shaping choice, explicitly accounts for narrative that is discarded, repairs live references, and removes the log. `clue migrate` reports the inventory and blocks rather than guessing any classification.
 
 This decision supersedes PDR-003 and PDR-006's reversal-cost and decision-log clauses; their provenance, human-approval, retention, and subject definitions survive. Existing ADRs and PDRs remain valid until P-016's bounded compaction milestones touch them.
 

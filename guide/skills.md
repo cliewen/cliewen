@@ -16,9 +16,9 @@ A skill is a folder of Markdown instructions that a coding agent loads when a ta
 
 Every session starts the same way. The agent runs `clue latest --quiet`, which prints one line only when a newer release exists. Then it reads the smallest relevant part of the corpus and, before editing, tells you which route it recommends, why, and what it might still discover that would change the recommendation. If you never see a sentence starting `Recommended route:`, the agent has not read `AGENTS.md`, so point it there.
 
-**Simple** work keeps every promise the repository has already made. Examples are a bug fix that makes the code meet an existing acceptance criterion again, refactoring, maintenance, configuration within what was agreed, and editing prose. The agent makes the change and runs the checks that apply to it.
+One question decides the route: does the work change a promise the repository has already made? The **direct** route is the default, for work that keeps every promise. Examples are a bug fix that makes the code meet an existing acceptance criterion again, refactoring, maintenance, configuration within what was agreed, and editing prose. The agent makes the change and runs the checks that apply to it.
 
-**Full** work changes a promise: a new or changed acceptance criterion, a capability, a decision, a policy, a plan's goals, or behavior no criterion covers yet. The agent uses the full change loop, with a written proposal and a pull request that you merge. When the agent is unsure, it recommends full. You can overrule it, and it then records your choice and the risk in the commit message. [The change loop](./change-loop) walks through both routes.
+The **tracked** route is for work that changes a promise: a new or changed acceptance criterion, a capability, a decision, a policy, a plan's goals, or behavior no criterion covers yet. The agent runs a tracked change, with a written proposal, tests tied to the criteria, and a pull request that you merge. When the agent is unsure, it recommends tracked. You can overrule it, and it then records your choice and the risk in the commit message. [The change loop](./change-loop) walks through both routes.
 
 ## The six skills
 
@@ -26,8 +26,8 @@ Every session starts the same way. The agent runs `clue latest --quiet`, which p
 |---|---|---|
 | `clue-plan` | A goal needs several steps, or a running plan must change what it promises | A plan with milestones you can check off |
 | `clue-analysis` | Something is too uncertain to plan or build yet | A findings document that a plan or change then uses |
-| `clue-delta` | You accept a full route | A branch, a proposal, the code, tests, and updated `docs/`, in one pull request |
-| `clue-verify` | A full change is about to be marked ready for review | A checked and independently reviewed pull request |
+| `clue-delta` | You accept a tracked route | A branch, a proposal, the code, tests, and updated `docs/`, in one pull request |
+| `clue-verify` | A tracked change is about to be marked ready for review | A checked and independently reviewed pull request |
 | `clue-extract` | An existing repository adopts Cliewen, once | A reviewed first corpus built from your existing specifications and tests |
 | `clue-upgrade` | A newer Cliewen release exists | The repository moved to that release in one reviewed change |
 
@@ -41,9 +41,9 @@ It asks you whether the goal is right, whether the milestones are in the right o
 
 Say `Before we build this, find out whether <risk>.` The agent runs a time-boxed investigation (a spike) such as a prototype, a measurement, or a reading of the sources. It ends with a findings document under `docs/analysis/` that records what was tried, what was rejected and why, and the revisions it looked at. It does not write findings that no plan or change will use.
 
-### `clue-delta`: make a full change
+### `clue-delta`: make a tracked change
 
-This is the skill behind most real work. After you accept a full route, the agent:
+This is the skill behind most real work. After you accept a tracked route, the agent:
 
 1. branches from `main`;
 2. writes `proposal.md` in a temporary `/changes/CH-xxx-slug/` folder, pushes it, and opens a draft pull request;
@@ -55,7 +55,7 @@ It stops and asks you when a question blocks the work, when a plan no longer hol
 
 ### `clue-verify`: check before ready
 
-Before a full pull request is marked ready, the agent runs the repository's tests and `clue validate --forbid-changes` on the exact commit. Where the agent host supports it, it starts a fresh reviewer that sees the declared intent but not the implementation conversation. Blocking findings are fixed and reviewed again. The pull request opens with an *acceptance brief*: one screen saying what merging would accept, with a verdict on whether each changed criterion's tests really check its scenario.
+Before a tracked pull request is marked ready, the agent runs the repository's tests and `clue validate --forbid-changes` on the exact commit. Where the agent host supports it, it starts a fresh reviewer that sees the declared intent but not the implementation conversation. Blocking findings are fixed and reviewed again. The pull request opens with an *acceptance brief*: one screen saying what merging would accept, with a verdict on whether each changed criterion's tests really check its scenario.
 
 ### `clue-extract`: adopt an existing repository
 
@@ -63,7 +63,7 @@ Say *"Bring this repository into Cliewen."* The first result is a report-only re
 
 ### `clue-upgrade`: take a new release
 
-When `clue latest` reports a newer release, the agent tells you and does nothing until you say *now*. On a yes, it previews `clue migrate` and shows you how to install the new binary on your machine. It then moves the skills, the CI workflow, and any corpus obligations to that release together in one branch. An upgrade is simple work, because the release's own changes were reviewed before it was published. If the preview reports analysis documents that may have served their purpose, the agent asks you about them one at a time and retires any you approve in a separate change.
+When `clue latest` reports a newer release, the agent tells you and does nothing until you say *now*. On a yes, it previews `clue migrate` and shows you how to install the new binary on your machine. It then moves the skills, the CI workflow, and any corpus obligations to that release together in one branch. An upgrade takes the direct route, because the release's own changes were reviewed before it was published. If the preview reports analysis documents that may have served their purpose, the agent asks you about them one at a time and retires any you approve in a separate change.
 
 ## Habits the skills build in
 
@@ -73,7 +73,7 @@ A few rules run across several skills. Knowing them helps you read what the agen
 
 Before a plan's promise is adopted or revised, or before the proposal for a change that would be expensive to get wrong, the agent writes a short challenge where you will review it, in the plan or in `proposal.md`. The challenge names the assumption most likely to sink the work, a credible alternative, the cheapest test of that assumption, and the result that would stop or change the work. It also asks how an implementation could meet every criterion and still fail the person it is for. Tests written in the same sitting as the criteria cannot catch that failure.
 
-Simple work skips this. So does work that follows a course already challenged, or that could be undone within the same change for less than the challenge would cost. The agent adds no note to explain the skip.
+Direct work skips this. So does work that follows a course already challenged, or that could be undone within the same change for less than the challenge would cost. The agent adds no note to explain the skip.
 
 ### It checks that the plan still holds
 
@@ -97,4 +97,4 @@ Because the skills are committed files, the guidance that shaped a branch is par
 
 ## Next
 
-[See the full change loop step by step.](./change-loop)
+[See the change loop step by step.](./change-loop)

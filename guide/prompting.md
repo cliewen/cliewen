@@ -6,13 +6,13 @@ You do not need to speak Cliewen's internal language. Describe what you want in 
 graph LR
   P["Your prompt"] --> R["Agent reads AGENTS.md and the smallest slice"]
   R --> Q{"Does the accepted contract change?"}
-  Q -- no --> S["Simple work: change, relevant checks, PR"]
-  Q -- yes --> F["Full loop: proposal, evidence, digest, PR"]
+  Q -- no --> S["Direct route: change, relevant checks, PR"]
+  Q -- yes --> F["Tracked route: proposal, evidence, digest, PR"]
   S --> H["You merge"]
   F --> H
 ```
 
-A Cliewen agent starts by saying *Recommended route: simple* or *Recommended route: full*, followed by its reason and what discovery could change that recommendation. If you do not see that sentence, the agent has not read the repository's routing hub.
+A Cliewen agent starts by asking whether the work changes the accepted contract, the set of promises the repository has already made. The answer gives the route: *Recommended route: direct* when nothing it promises changes, which is the default, or *Recommended route: tracked* when a promise changes. The agent follows the route with its reason and what discovery could change that recommendation. If you do not see that sentence, the agent has not read the repository's routing hub.
 
 ## Start something new
 
@@ -32,7 +32,7 @@ Use this once, when the repository already contains specifications, decision not
 Bring this repository into Cliewen. Keep the links between its existing specifications and tests, and flag anything that disagrees.
 ```
 
-The agent should route this to the extraction skill as a full change. Its first output is a report-only rehearsal: an inventory and proposed mapping, not a rewritten corpus. Nothing changes until you direct it. [Greenfield and brownfield](./adoption#adopt-one-existing-repository) explains the rehearsal and why every extracted artifact starts as `inferred`.
+The agent should route this to the extraction skill as a tracked change. Its first output is a report-only rehearsal: an inventory and proposed mapping, not a rewritten corpus. Nothing changes until you direct it. [Greenfield and brownfield](./adoption#adopt-one-existing-repository) explains the rehearsal and why every extracted artifact starts as `inferred`.
 
 ## Make a routine change
 
