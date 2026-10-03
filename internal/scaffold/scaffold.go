@@ -18,6 +18,7 @@ package scaffold
 import (
 	"embed"
 	"fmt"
+	"gopkg.in/yaml.v3"
 	"io/fs"
 	"os"
 	"os/exec"
@@ -807,11 +808,37 @@ func WithIndexHeader(text, rel string) string {
 	return header + eol + text
 }
 
-// yamlTitle double-quotes a title YAML would otherwise read as something
-// other than a plain string.
+// yamlTitle renders a title as a YAML string scalar, quoted whenever YAML
+// would otherwise read it as a number, boolean, null, sequence, or mapping.
 func yamlTitle(s string) string {
-	if strings.ContainsAny(s, ":#'\"[]{},&*!|>%@`") {
+	out, err := yaml.Marshal(s)
+	if err != nil {
 		return strconv.Quote(s)
 	}
-	return s
+	return strings.TrimSuffix(string(out), "\n")
+}
+
+// HeaderlessReadmes lists every README.md under docs/ and changes/ that opens
+// no frontmatter block, in path order. A symlinked directory is not followed.
+// clue migrate heads all of them; clue scaffold heads only the taxonomy
+// READMEs whose index it owns (AC-027).
+func HeaderlessReadmes(root string) []string {
+	var found []string
+	for _, top := range []string{"docs", "changes"} {
+		_ = filepath.WalkDir(filepath.Join(root, top), func(p string, d fs.DirEntry, err error) error {
+			if err != nil || d.IsDir() || d.Name() != "README.md" {
+				return nil
+			}
+			raw, rerr := os.ReadFile(p)
+			if rerr != nil || strings.HasPrefix(string(raw), "---\n") || strings.HasPrefix(string(raw), "---\r\n") {
+				return nil
+			}
+			if rel, rerr := filepath.Rel(root, p); rerr == nil {
+				found = append(found, filepath.ToSlash(rel))
+			}
+			return nil
+		})
+	}
+	sort.Strings(found)
+	return found
 }

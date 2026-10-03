@@ -57,7 +57,7 @@ func writtenMarkdown(t *testing.T, root string) []string {
 // READMEs as type: index, and regenerating an index keeps that header.
 func TestAC215_UnitPositive_InitWritesEveryMarkdownFileWithFrontmatter(t *testing.T) {
 	root, _ := runInto(t)
-	if _, err := Run(root); err != nil {
+	if _, err := Regen(root); err != nil {
 		t.Fatal(err)
 	}
 	files := writtenMarkdown(t, root)
@@ -132,9 +132,45 @@ func TestAC215_UnitPositive_ScaffoldGivesAHeaderlessFolderReadmeItsHeader(t *tes
 	if err != nil {
 		t.Fatal(err)
 	}
-	want := "---\ntype: index\ntitle: \"Goals, our way\"\n---\n\n" + prose
+	want := "---\ntype: index\ntitle: Goals, our way\n---\n\n" + prose
 	if !strings.HasPrefix(string(got), want) {
 		t.Fatalf("expected the header before unchanged prose, got:\n%s", got)
+	}
+}
+
+// AC-215 positive: a heading YAML would read as a number, boolean, null, or
+// sequence still becomes a string title the judge accepts.
+func TestAC215_UnitPositive_AwkwardHeadingsBecomeValidStringTitles(t *testing.T) {
+	root, _ := runInto(t)
+	headings := map[string]string{
+		"docs/architecture/README.md": "2026",
+		"docs/design/README.md":       "- dash",
+		"docs/goals/README.md":        "true",
+		"docs/plans/README.md":        "null",
+	}
+	for rel, heading := range headings {
+		if err := os.WriteFile(filepath.Join(root, filepath.FromSlash(rel)), []byte("# "+heading+"\n\nNotes.\n"), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+	if _, err := Regen(root); err != nil {
+		t.Fatal(err)
+	}
+	for rel, heading := range headings {
+		data, err := os.ReadFile(filepath.Join(root, filepath.FromSlash(rel)))
+		if err != nil {
+			t.Fatal(err)
+		}
+		fields := headerOf(t, string(data))
+		if title, ok := fields["title"].(string); !ok || title != heading || fields["type"] != corpus.IndexType {
+			t.Errorf("%s header = %v, want type index and string title %q", rel, fields, heading)
+		}
+	}
+	_, issues := corpus.Scan(root)
+	for _, issue := range issues {
+		if strings.Contains(issue.Msg, "README") || strings.Contains(issue.Msg, "frontmatter") {
+			t.Errorf("the judge rejected a header the tool wrote: %v", issue)
+		}
 	}
 }
 

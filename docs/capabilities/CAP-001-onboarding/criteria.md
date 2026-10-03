@@ -199,7 +199,7 @@ Feature: Onboarding — install to first green validate
     Given an empty git repository
     When the user runs "clue init" and then "clue scaffold"
     Then every Markdown file they wrote, generated skill files included, starts with frontmatter carrying a non-empty type and title, folder READMEs as "type: index"
-    And regenerating a folder README's index block keeps its frontmatter unchanged, while a folder README with none gains a "type: index" header titled from its first heading
+    And regenerating a folder README's index block keeps its frontmatter unchanged, while a top-level folder README with none gains a "type: index" header titled from its first heading as a string
     But the materialized pull-request template carries no frontmatter
 
   @AC-216
@@ -207,7 +207,7 @@ Feature: Onboarding — install to first green validate
     Test-type: Unit
     Given an adopted repository whose folder READMEs, hub, evidence guides, and wall checklist carry no frontmatter
     When the user runs "clue migrate" with "--apply"
-    Then each folder README gains a "type: index" header titled from its first heading, with its body unchanged
+    Then each README under "docs/" without frontmatter, at any depth, gains a "type: index" header titled from its first heading, with its body unchanged
     And the plan reports each header-less hub, evidence guide, or wall checklist by path with the header it needs
     But no run writes or rewrites a hub, evidence guide, or wall checklist, and a file that already carries a header is left as it is
 

@@ -6,6 +6,7 @@ import (
 	"bytes"
 	"embed"
 	"fmt"
+	"gopkg.in/yaml.v3"
 	"io/fs"
 	"os"
 	"path"
@@ -391,8 +392,9 @@ func documentHeaderFields(kind, title string) string {
 // yamlString leaves a plain title unquoted and double-quotes one YAML would
 // otherwise read as something other than a string.
 func yamlString(s string) string {
-	if strings.ContainsAny(s, ":#'\"[]{},&*!|>%@`") || strings.TrimSpace(s) != s {
+	out, err := yaml.Marshal(s)
+	if err != nil {
 		return strconv.Quote(s)
 	}
-	return s
+	return strings.TrimSuffix(string(out), "\n")
 }

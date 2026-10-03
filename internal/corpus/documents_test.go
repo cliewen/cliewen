@@ -40,6 +40,8 @@ func TestAC213_UnitNegative_MissingOrWrongHeadersAreNamed(t *testing.T) {
 		{"readme of another type", "docs/goals/README.md", "---\ntype: guide\ntitle: Goals\n---\n\n# Goals\n\n<!-- clue:index:start -->\n- [G-001](G-001-first.md)\n<!-- clue:index:end -->\n", "docs/goals/README.md: folder README must declare type: index"},
 		{"readme without a title", "docs/goals/README.md", "---\ntype: index\ntitle: \"\"\n---\n\n# Goals\n\n<!-- clue:index:start -->\n- [G-001](G-001-first.md)\n<!-- clue:index:end -->\n", "docs/goals/README.md: folder README has no title"},
 		{"artifact without frontmatter", "docs/goals/G-002-bare.md", "# G-002\n", "docs/goals/G-002-bare.md: missing frontmatter (expected id"},
+		{"non-README file with only a document header", "docs/goals/notes.md", "---\ntype: guide\ntitle: Notes\n---\n\n# Notes\n", "docs/goals/notes.md: missing or empty core field(s): id"},
+		{"deep README without frontmatter", "docs/goals/archive/README.md", "# Archive\n", "docs/goals/archive/README.md: " + MissingIndexHeader},
 		{"change workspace without frontmatter", "changes/CH-001-x/notes.md", "# Notes\n", "changes/CH-001-x/notes.md: missing frontmatter"},
 	}
 	for _, tc := range cases {

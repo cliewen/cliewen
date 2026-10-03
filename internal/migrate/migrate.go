@@ -157,7 +157,7 @@ var orderedMigrations = []MigrationDefinition{
 	{ID: MigrationMilestoneLedgerBackfill, Description: "seed milestone identities missing from an already-existing ledger"},
 	{ID: MigrationEvidenceExport, Description: "establish repository-owned framework-neutral evidence export"},
 	{ID: MigrationHubRouteNames, Description: "report a routing hub that still names the retired simple and full routes"},
-	{ID: MigrationIndexHeaders, Description: "give each folder README without frontmatter its type: index header"},
+	{ID: MigrationIndexHeaders, Description: "give each README under docs/ or changes/ without frontmatter its type: index header"},
 	{ID: MigrationDeliveredHeaders, Description: "report a delivered file the adopter owns that carries no document header"},
 }
 
@@ -2584,6 +2584,17 @@ func planIndexHeaders(root string, result *MigrationPlan) {
 			if e.IsDir() {
 				readmes = append(readmes, path.Join("docs", e.Name(), "README.md"))
 			}
+		}
+	}
+	// A README below the taxonomy is a folder README too, and validate holds
+	// every one of them to a header.
+	seen := map[string]bool{}
+	for _, rel := range readmes {
+		seen[rel] = true
+	}
+	for _, rel := range scaffold.HeaderlessReadmes(root) {
+		if !seen[rel] {
+			readmes = append(readmes, rel)
 		}
 	}
 	planned := map[string]int{}

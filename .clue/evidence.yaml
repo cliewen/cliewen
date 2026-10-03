@@ -107,15 +107,15 @@ producers:
       - path: docs/capabilities/CAP-001-onboarding/README.md
         sha256: 0deb26a60056f03f75da8e45aa16c21fa2e515418854b4260bc69e61dc048119
       - path: docs/capabilities/CAP-001-onboarding/criteria.md
-        sha256: 8f5d17a63ca095323eadbf8b6814f076c033d85851716f6224ab6b447aadbd59
+        sha256: f01182e8f2176dacf86df97dad80036dfdda2522ae867e3ce05add849245111e
       - path: docs/capabilities/CAP-001-onboarding/design.md
-        sha256: 56dd92b1afa82d79d126d251731a2a82d080a5ecfef0ffa1b26fe03b19855e32
+        sha256: c4b458ea3e96a99aa5cf1bb8f740d36083e691ce4389788a1bedf4a27f2d0211
       - path: docs/capabilities/CAP-002-validate/README.md
         sha256: 50348ffdc759b680202821c21de23f4a6f170a55b45bf2eba603aaec19813004
       - path: docs/capabilities/CAP-002-validate/criteria.md
         sha256: 86888a39be7c7017e1c6c44ef5b5ef837299c1cd97de418146936fbd74240d04
       - path: docs/capabilities/CAP-002-validate/design.md
-        sha256: ea20ca80b3872d6fb185408afb7793c91366744fdeea05fc31a7c972d44976ef
+        sha256: 113570e7d9d13be5deefa132c35fc63ee745cda1dc6d56dcb08b8fcc227c7c2c
       - path: docs/capabilities/CAP-003-extract/README.md
         sha256: 12588a6ab8725ed63389bc19bf5deaa096ed42c9867f2fe30ca81789f75549ea
       - path: docs/capabilities/CAP-003-extract/criteria.md
@@ -631,7 +631,7 @@ producers:
       - path: internal/corpus/description_test.go
         sha256: 5ac03c292926b3ff63931c297e600da14440d41d0874dfa412fd7d94044b79ee
       - path: internal/corpus/documents_test.go
-        sha256: 38697bbf46e1393d06a320d2b4fe66d09a6bb5cd39bd6386fe7d794764eff9f3
+        sha256: 7391576faffbd5258bcab793fe70aeb07e69523464b5223ef6b0368cb9b0f214
       - path: internal/corpus/evidence_test.go
         sha256: 256a0025eee49154fd745bf518fd1365b6a2bc8fd9f90edc2f75c412a4c8fe7b
       - path: internal/corpus/expiry_test.go
@@ -677,7 +677,7 @@ producers:
       - path: internal/migrate/evidence_test.go
         sha256: a090e0d4d3ce6b8610bcb676ac375f0377e4117c06f2003987f3376fe4bf8a72
       - path: internal/migrate/frontmatter_test.go
-        sha256: 2c6da3559d95beb4af1d9d366f7c1b46d0af6a9ff74d628ae6baebef6a63c1af
+        sha256: 44f2f4e228fec18b610786e49b65b54a2cd222c08e5e6c56f8cf7b0fbb7f6027
       - path: internal/migrate/hub_test.go
         sha256: f84c1bfae4959d98601232296f4d32972ab423d3351e417b4a2eed48e8255bd2
       - path: internal/migrate/intent_test.go
@@ -707,7 +707,7 @@ producers:
       - path: internal/scaffold/ciwall_test.go
         sha256: ff14924c696837182ce9ba9beecfc1dba7082b99e7f6c01cb90ebe12aa1e1114
       - path: internal/scaffold/frontmatter_test.go
-        sha256: b1110acb902d1ce965159dfe3948e54f4585738f17b2ef3e0a61e11a2ba4b497
+        sha256: 545b875ebc200c53ba8b4f0e2c6662970e29778f7ea6c06f2e8484ddde79465c
       - path: internal/scaffold/intent_test.go
         sha256: 062dc5de8093df1d42cb95721bc132c326a7f2a0e1f86bbc15bd3f8554ffdb3f
       - path: internal/scaffold/regen_test.go
@@ -3346,6 +3346,11 @@ producers:
         subject: test TestAC215_UnitNegative_PullRequestTemplateCarriesNoFrontmatter
         type: Unit
         direction: negative
+      - id: AC-215
+        path: internal/scaffold/frontmatter_test.go
+        subject: test TestAC215_UnitPositive_AwkwardHeadingsBecomeValidStringTitles
+        type: Unit
+        direction: positive
       - id: AC-215
         path: internal/scaffold/frontmatter_test.go
         subject: test TestAC215_UnitPositive_InitWritesEveryMarkdownFileWithFrontmatter

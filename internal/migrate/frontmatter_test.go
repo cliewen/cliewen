@@ -45,8 +45,9 @@ func readFile(t *testing.T, root, rel string) string {
 func TestAC216_UnitPositive_MigrateHeadsFolderReadmesAndReportsOwnedFiles(t *testing.T) {
 	root := migrationFixture(t, "")
 	writeFiles(t, root, ownedDelivered)
+	writeFiles(t, root, map[string]string{"docs/analysis/payments/README.md": "# 2026\n\nPayment spikes.\n"})
 	before := map[string]string{}
-	for _, rel := range []string{"docs/README.md", "docs/analysis/README.md"} {
+	for _, rel := range []string{"docs/README.md", "docs/analysis/README.md", "docs/analysis/payments/README.md"} {
 		before[rel] = readFile(t, root, rel)
 		if strings.HasPrefix(before[rel], "---") {
 			t.Fatalf("fixture %s already carries frontmatter", rel)
@@ -78,7 +79,11 @@ func TestAC216_UnitPositive_MigrateHeadsFolderReadmesAndReportsOwnedFiles(t *tes
 	for rel, body := range before {
 		got := readFile(t, root, rel)
 		title := strings.TrimPrefix(strings.SplitN(body, "\n", 2)[0], "# ")
-		if !strings.HasPrefix(got, "---\ntype: index\ntitle: "+title+"\n---\n\n") {
+		wantTitle := title
+		if title == "2026" {
+			wantTitle = `"2026"` // quoted, or YAML would read the title as a number
+		}
+		if !strings.HasPrefix(got, "---\ntype: index\ntitle: "+wantTitle+"\n---\n\n") {
 			t.Errorf("%s did not gain its type: index header titled %q:\n%s", rel, title, got)
 		}
 		if !strings.Contains(got, strings.SplitN(body, "<!--", 2)[0]) {
