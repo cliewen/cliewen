@@ -534,8 +534,10 @@ producers:
         sha256: 9f7f452aa316b173295b8b4645af6224d1c298bfef198698f44e775539efd7bd
       - path: docs/goals/G-022-every-markdown-file-carries-frontmatter.md
         sha256: bb378c2d1994ad77603f255f137b37d61c702715a9e8dc5fb7ab10e721ab3efb
+      - path: docs/goals/G-023-source-repository-skills-load-on-case-sensitive-filesystems.md
+        sha256: 05054d0670d99b2b522f5e7fdd72b546857f81b164df90fca41b78463dbe1258
       - path: docs/goals/README.md
-        sha256: 60abfc3665c6edbe5921919d23e8ca154a83538bf0d52d87a0781714fdd9d42e
+        sha256: a1a43bdea2ede541672f97c47bb7753a0c507d8f6ecaf5620423f9fdc9cffdd3
       - path: docs/imported-changes/IC-001-fixture-inspectable-in-flight-work.md
         sha256: 7c9c89b3c846fce9e0884fa93cb7e4a729cef461325140db244ace028038f060
       - path: docs/imported-changes/IC-002-fixture-in-progress-dependent.md

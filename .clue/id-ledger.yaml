@@ -894,5 +894,7 @@ events:
     - {id: C-024, kind: numeric, state: reserved, prefix: C, component: "24"}
     - {id: CH-196, kind: numeric, state: live, prefix: CH, component: "196"}
     - {id: CH-196-tasks, kind: opaque, state: live}
+    - {id: G-023, kind: numeric, state: reserved, prefix: G, component: "23"}
+    - {id: G-023, kind: numeric, state: live, prefix: G, component: "23"}
 high-water:
     - {id: CH-183, kind: numeric, state: reserved, prefix: CH, component: "183"}
