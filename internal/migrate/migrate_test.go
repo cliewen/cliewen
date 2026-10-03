@@ -563,7 +563,7 @@ func TestAC064_UnitNegative_MigrationRejectsChangedSourceAfterPreview(t *testing
 
 func TestAC064_UnitPositive_MigrationRegistryIsOrdered(t *testing.T) {
 	registry := Registry()
-	want := []string{MigrationReversalCost, MigrationStatusLifecycle, MigrationManagedCarriers, MigrationQualifiedReferences, MigrationClaudeEntryPoint, MigrationHubReleaseCheck, MigrationPromotedConstraints, MigrationLedgerBackfill, MigrationCompetingWall, MigrationLegacyDecisionLog, MigrationSystemOverviews, MigrationRoleMarker, MigrationSpentAnalysis, MigrationProductIntent, MigrationLedgerEvents, MigrationMilestoneLedgerBackfill, MigrationEvidenceExport, MigrationHubRouteNames}
+	want := []string{MigrationReversalCost, MigrationStatusLifecycle, MigrationManagedCarriers, MigrationQualifiedReferences, MigrationClaudeEntryPoint, MigrationHubReleaseCheck, MigrationPromotedConstraints, MigrationLedgerBackfill, MigrationCompetingWall, MigrationLegacyDecisionLog, MigrationSystemOverviews, MigrationRoleMarker, MigrationSpentAnalysis, MigrationProductIntent, MigrationLedgerEvents, MigrationMilestoneLedgerBackfill, MigrationEvidenceExport, MigrationHubRouteNames, MigrationIndexHeaders, MigrationDeliveredHeaders}
 	if len(registry) != len(want) {
 		t.Fatalf("registry has %d entries, want %d", len(registry), len(want))
 	}
@@ -684,7 +684,17 @@ func TestAC150_UnitNegative_ASoleContributorIsNotSpelledOutInTheIndexDescription
 	if err := os.MkdirAll(filepath.Dir(full), 0o755); err != nil {
 		t.Fatal(err)
 	}
-	if err := os.WriteFile(full, []byte("# Use cases\n\n<!-- clue:index:start -->\n<!-- clue:index:end -->\n"), 0o644); err != nil {
+	if err := os.WriteFile(full, []byte("---\ntype: index\ntitle: Use cases\n---\n\n# Use cases\n\n<!-- clue:index:start -->\n<!-- clue:index:end -->\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	// A corpus index that already carries its header keeps MIG-019 out of
+	// the change, so MIG-011 really is its only contributor.
+	index := filepath.Join(root, "docs", "README.md")
+	indexText, err := os.ReadFile(index)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(index, []byte("---\ntype: index\ntitle: Docs\n---\n\n"+string(indexText)), 0o644); err != nil {
 		t.Fatal(err)
 	}
 	plan, err := Plan(root, Options{ReversalCost: "low"})
@@ -714,7 +724,7 @@ func TestAC150_UnitNegative_MigrationKeepsExistingOverviewProse(t *testing.T) {
 	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
 		t.Fatal(err)
 	}
-	const existing = "# Architecture\n\nRepository-owned overview.\n\n<!-- clue:index:start -->\n<!-- clue:index:end -->\n"
+	const existing = "---\ntype: index\ntitle: Architecture\n---\n\n# Architecture\n\nRepository-owned overview.\n\n<!-- clue:index:start -->\n<!-- clue:index:end -->\n"
 	if err := os.WriteFile(path, []byte(existing), 0o644); err != nil {
 		t.Fatal(err)
 	}
@@ -807,7 +817,7 @@ func TestAC064_UnitPositive_MigrationCoversREADMEsThatAreArtifacts(t *testing.T)
 	write(capability, "---\nid: CAP-009\ntype: capability\nstatus: active\nlinks: []\ntitle: Example capability\ngoal: G-101\nprovenance: inferred\n---\n\nProse body.\n")
 	// Prose README, and one whose leading `---` never closes: corpus.Scan
 	// treats both as prose, so neither may become a change or a finding.
-	write("docs/capabilities/README.md", "# Capabilities\n\nNo frontmatter here.\n")
+	write("docs/capabilities/README.md", "---\ntype: index\ntitle: Capabilities\n---\n\n# Capabilities\n\nNo frontmatter here.\n")
 	write("docs/capabilities/CAP-009-example/notes/README.md", "---\nnot a frontmatter block\n\nprose\n")
 
 	plan, err := Plan(root, Options{ReversalCost: "high"})

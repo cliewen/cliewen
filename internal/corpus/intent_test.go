@@ -17,11 +17,11 @@ const capabilityBody = "---\nid: CAP-001\ntype: capability\nstatus: active\nlink
 // every index row the layout rules require.
 func intentFiles(extra map[string]string) map[string]string {
 	base := with(validFiles, map[string]string{
-		"docs/README.md":                            "# Corpus\n\n<!-- clue:index:start -->\n- [vision.md](vision.md)\n- [goals/](goals/README.md)\n- [plans/](plans/README.md)\n- [use-cases/](use-cases/README.md)\n- [capabilities/](capabilities/README.md)\n<!-- clue:index:end -->\n",
+		"docs/README.md":                            "---\ntype: index\ntitle: Corpus\n---\n\n# Corpus\n\n<!-- clue:index:start -->\n- [vision.md](vision.md)\n- [goals/](goals/README.md)\n- [plans/](plans/README.md)\n- [use-cases/](use-cases/README.md)\n- [capabilities/](capabilities/README.md)\n<!-- clue:index:end -->\n",
 		"docs/vision.md":                            visionBody,
-		"docs/capabilities/README.md":               "# Capabilities\n\n<!-- clue:index:start -->\n- [CAP-001](CAP-001-thing/README.md)\n<!-- clue:index:end -->\n",
+		"docs/capabilities/README.md":               "---\ntype: index\ntitle: Capabilities\n---\n\n# Capabilities\n\n<!-- clue:index:start -->\n- [CAP-001](CAP-001-thing/README.md)\n<!-- clue:index:end -->\n",
 		"docs/capabilities/CAP-001-thing/README.md": capabilityBody,
-		"docs/use-cases/README.md":                  "# Use cases\n\n<!-- clue:index:start -->\n- [UC-001](UC-001-a-journey.md)\n<!-- clue:index:end -->\n",
+		"docs/use-cases/README.md":                  "---\ntype: index\ntitle: Use cases\n---\n\n# Use cases\n\n<!-- clue:index:start -->\n- [UC-001](UC-001-a-journey.md)\n<!-- clue:index:end -->\n",
 		"docs/use-cases/UC-001-a-journey.md":        useCaseBody,
 	})
 	return with(base, extra)
@@ -43,7 +43,7 @@ func TestAC162_UnitNegative_SecondVisionWrongAddressAndBootstrapFail(t *testing.
 	second := strings.Replace(visionBody, "id: VIS-001", "id: VIS-002", 1)
 	issues := run(t, intentFiles(map[string]string{
 		"docs/goals/VIS-002-rival.md": second,
-		"docs/goals/README.md":        "# Goals\n\n<!-- clue:index:start -->\n- [G-001](G-001-first.md)\n- [VIS-002](VIS-002-rival.md)\n<!-- clue:index:end -->\n",
+		"docs/goals/README.md":        "---\ntype: index\ntitle: Goals\n---\n\n# Goals\n\n<!-- clue:index:start -->\n- [G-001](G-001-first.md)\n- [VIS-002](VIS-002-rival.md)\n<!-- clue:index:end -->\n",
 	}), false)
 	assertIssue(t, issues, "a corpus has one vision")
 	assertIssue(t, issues, "a vision lives at docs/vision.md")
@@ -83,14 +83,14 @@ func TestAC163_UnitNegative_MisplacedMisnamedUnlinkedOrIncompleteUseCaseFails(t 
 	issues := run(t, intentFiles(map[string]string{
 		"docs/goals/UC-001-a-journey.md":     useCaseBody,
 		"docs/use-cases/UC-001-a-journey.md": "",
-		"docs/goals/README.md":               "# Goals\n\n<!-- clue:index:start -->\n- [G-001](G-001-first.md)\n- [UC-001](UC-001-a-journey.md)\n<!-- clue:index:end -->\n",
+		"docs/goals/README.md":               "---\ntype: index\ntitle: Goals\n---\n\n# Goals\n\n<!-- clue:index:start -->\n- [G-001](G-001-first.md)\n- [UC-001](UC-001-a-journey.md)\n<!-- clue:index:end -->\n",
 	}), false)
 	assertIssue(t, issues, "use cases live in docs/use-cases")
 
 	issues = run(t, intentFiles(map[string]string{
 		"docs/use-cases/UC-001-a-journey.md": "",
 		"docs/use-cases/journey.md":          useCaseBody,
-		"docs/use-cases/README.md":           "# Use cases\n\n<!-- clue:index:start -->\n- [UC-001](journey.md)\n<!-- clue:index:end -->\n",
+		"docs/use-cases/README.md":           "---\ntype: index\ntitle: Use cases\n---\n\n# Use cases\n\n<!-- clue:index:start -->\n- [UC-001](journey.md)\n<!-- clue:index:end -->\n",
 	}), false)
 	assertIssue(t, issues, "filename matching their id")
 
@@ -144,9 +144,9 @@ func TestAC164_UnitNegative_AnAbsentVisionIsAStateAndNotAnIssue(t *testing.T) {
 // AC-202: a goal's state names the capabilities and plans that serve it.
 func TestAC202_UnitPositive_GoalStateNamesCapabilitiesAndPlans(t *testing.T) {
 	files := intentFiles(map[string]string{
-		"docs/goals/README.md":       "# Goals\n\n<!-- clue:index:start -->\n- [G-001](G-001-first.md)\n- [G-002](G-002-second.md)\n<!-- clue:index:end -->\n",
-		"docs/goals/G-002-second.md": "---\nid: G-002\ntype: goal\nstatus: accepted\nlinks: []\ntitle: Second goal\n---\n\n# G-002\n",
-		"docs/plans/README.md":       "# Plans\n\n<!-- clue:index:start -->\n- [P-001](P-001-baseline.md)\n- [P-002](P-002-delivered.md)\n<!-- clue:index:end -->\n",
+		"docs/goals/README.md":          "---\ntype: index\ntitle: Goals\n---\n\n# Goals\n\n<!-- clue:index:start -->\n- [G-001](G-001-first.md)\n- [G-002](G-002-second.md)\n<!-- clue:index:end -->\n",
+		"docs/goals/G-002-second.md":    "---\nid: G-002\ntype: goal\nstatus: accepted\nlinks: []\ntitle: Second goal\n---\n\n# G-002\n",
+		"docs/plans/README.md":          "---\ntype: index\ntitle: Plans\n---\n\n# Plans\n\n<!-- clue:index:start -->\n- [P-001](P-001-baseline.md)\n- [P-002](P-002-delivered.md)\n<!-- clue:index:end -->\n",
 		"docs/plans/P-002-delivered.md": "---\nid: P-002\ntype: plan\nstatus: completed\nlinks: [G-002]\ntitle: Delivered\n---\n\n| M-002 | did it | done |\n",
 	})
 	c, issues := Scan(writeCorpus(t, files))
@@ -184,8 +184,8 @@ func TestAC202_UnitPositive_GoalStateNamesCapabilitiesAndPlans(t *testing.T) {
 // count — the rendering of "none" is the command's job, covered beside it.
 func TestAC202_UnitNegative_GoalWithNeitherCapabilityNorPlanHasEmptyLists(t *testing.T) {
 	files := intentFiles(map[string]string{
-		"docs/goals/README.md":       "# Goals\n\n<!-- clue:index:start -->\n- [G-001](G-001-first.md)\n- [G-003](G-003-third.md)\n<!-- clue:index:end -->\n",
-		"docs/goals/G-003-third.md":  "---\nid: G-003\ntype: goal\nstatus: proposed\nlinks: []\ntitle: Third goal\n---\n\n# G-003\n",
+		"docs/goals/README.md":      "---\ntype: index\ntitle: Goals\n---\n\n# Goals\n\n<!-- clue:index:start -->\n- [G-001](G-001-first.md)\n- [G-003](G-003-third.md)\n<!-- clue:index:end -->\n",
+		"docs/goals/G-003-third.md": "---\nid: G-003\ntype: goal\nstatus: proposed\nlinks: []\ntitle: Third goal\n---\n\n# G-003\n",
 	})
 	c, issues := Scan(writeCorpus(t, files))
 	if len(issues) != 0 {
@@ -203,7 +203,7 @@ func TestAC202_UnitNegative_GoalWithNeitherCapabilityNorPlanHasEmptyLists(t *tes
 func TestAC165_UnitPositive_UseCasesNamingAnArtifactAreFoundInPathOrder(t *testing.T) {
 	c, issues := Scan(writeCorpus(t, intentFiles(map[string]string{
 		"docs/use-cases/UC-002-another.md": strings.Replace(strings.Replace(useCaseBody, "id: UC-001", "id: UC-002", 1), "A journey", "Another journey", 1),
-		"docs/use-cases/README.md":         "# Use cases\n\n<!-- clue:index:start -->\n- [UC-001](UC-001-a-journey.md)\n- [UC-002](UC-002-another.md)\n<!-- clue:index:end -->\n",
+		"docs/use-cases/README.md":         "---\ntype: index\ntitle: Use cases\n---\n\n# Use cases\n\n<!-- clue:index:start -->\n- [UC-001](UC-001-a-journey.md)\n- [UC-002](UC-002-another.md)\n<!-- clue:index:end -->\n",
 	})))
 	if len(issues) != 0 {
 		t.Fatal(issues)

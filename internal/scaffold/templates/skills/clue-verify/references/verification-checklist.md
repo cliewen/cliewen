@@ -1,3 +1,8 @@
+---
+type: skill-reference
+title: Verification checklist
+---
+
 ## Verification checklist
 
 Run this verification and review workflow before marking a tracked Cliewen PR ready for review, and its hosted-head check immediately after. Pushing inside the loop needs no verification: every changed turn pushes under the [Review boundary](review-boundary.md). Direct work uses only checks relevant to its changed surfaces and does not invoke this skill. When the `clue` CLI exists, `clue validate` performs the mechanical half; until then, check by hand. Never fix a failure by weakening the check.

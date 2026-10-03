@@ -51,7 +51,7 @@ func TestAC137_UnitPositive_GenerationProducesRoutedStandaloneSkillDirectories(t
 			if strings.Contains(entrypoint, "## "+route.heading+"\n") {
 				t.Errorf("%s/skill.md eagerly carries deferred section %q", name, route.heading)
 			}
-			if content := mustRenderFile(t, path.Join(name, "references", route.file)); !strings.HasPrefix(content, "## "+route.heading+"\n") {
+			if content := mustRenderFile(t, path.Join(name, "references", route.file)); !strings.HasPrefix(content, documentHeader("skill-reference", route.heading)+"\n## "+route.heading+"\n") {
 				t.Errorf("%s reference %s does not carry routed section %q", name, route.file, route.heading)
 			}
 		}

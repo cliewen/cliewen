@@ -114,6 +114,14 @@ const (
 	// tracked. It never repairs one: the hub is the adopter's own prose
 	// (PDR-023), and the skills it routes to already use the new names.
 	MigrationHubRouteNames = "MIG-018"
+	// MigrationIndexHeaders gives each taxonomy folder README that has no
+	// frontmatter its type: index header (PDR-065). The README's index block
+	// is already generated, so the header is added the same way.
+	MigrationIndexHeaders = "MIG-019"
+	// MigrationDeliveredHeaders reports a delivered file the adopter owns, such
+	// as the hub or the wall checklist, that carries no document header. It
+	// never repairs one: those files are the adopter's prose (PDR-023).
+	MigrationDeliveredHeaders = "MIG-020"
 )
 
 // Options controls planning. Preview is the default; applying a plan is a
@@ -149,6 +157,8 @@ var orderedMigrations = []MigrationDefinition{
 	{ID: MigrationMilestoneLedgerBackfill, Description: "seed milestone identities missing from an already-existing ledger"},
 	{ID: MigrationEvidenceExport, Description: "establish repository-owned framework-neutral evidence export"},
 	{ID: MigrationHubRouteNames, Description: "report a routing hub that still names the retired simple and full routes"},
+	{ID: MigrationIndexHeaders, Description: "give each folder README without frontmatter its type: index header"},
+	{ID: MigrationDeliveredHeaders, Description: "report a delivered file the adopter owns that carries no document header"},
 }
 
 // Registry returns the migration order without exposing mutable package state.
@@ -777,6 +787,8 @@ func Plan(root string, opts Options) (MigrationPlan, error) {
 	if err := planIndexRows(root, append(overviewFolders, intentFolders...), &result); err != nil {
 		return MigrationPlan{}, err
 	}
+	planIndexHeaders(root, &result)
+	planDeliveredHeaders(root, &result)
 	sortPlan(&result)
 	return result, nil
 }
@@ -899,7 +911,7 @@ func planRoleMarker(root string, result *MigrationPlan) {
 // artifact, and acting on that declaration is a deletion — which ADR-034
 // keeps inside a reviewed change with Git history as the archive.
 func planSpentAnalyses(root string, result *MigrationPlan) {
-	c, issues := corpus.Scan(root)
+	c, issues := scanForPlanning(root)
 	if len(issues) > 0 {
 		return // parse-level problems are corpus.Validate's judgment, not migration's
 	}
@@ -1234,8 +1246,18 @@ func isArtifactFile(name string, data []byte) bool {
 	if name != "README.md" {
 		return true
 	}
-	_, _, ok, err := splitFrontmatter(string(data))
-	return ok && err == nil
+	_, inner, ok, err := splitFrontmatter(string(data))
+	if !ok || err != nil {
+		return false
+	}
+	// A folder README's type: index header has no identity, and corpus.Scan
+	// does not treat it as an artifact either (PDR-065).
+	var fields map[string]any
+	if yaml.Unmarshal([]byte(inner), &fields) != nil {
+		return true // let artifact migration report the broken block
+	}
+	_, hasID := fields["id"]
+	return hasID
 }
 
 func migrateArtifact(rel string, before []byte, reversalCost string) ([]byte, []string, []Finding) {
@@ -1998,9 +2020,10 @@ var hubRouteNameRe = regexp.MustCompile(`(?i)Recommended route: (?:simple|full)\
 // planHubRouteNames reports a routing hub that still tells agents to recommend
 // the simple or full route. The generated skills now say direct and tracked,
 // so an agent reading both would meet two vocabularies for one rule. Like
-// MIG-006 this is a notice: the hub is the adopter's own routing prose, and
-// override trailers in either spelling keep passing CI, so nothing breaks
-// while the adopter decides when to align it.
+// MIG-006 this is a notice: the hub is the adopter's own routing prose, so the
+// adopter makes the edit. Override trailers in either spelling keep passing
+// CI, but the upgrade workflow resolves every notice, so an upgrade completes
+// only once the hub is aligned.
 func planHubRouteNames(root string, result *MigrationPlan) {
 	const rel = "AGENTS.md"
 	data, err := os.ReadFile(filepath.Join(root, rel))
@@ -2075,7 +2098,7 @@ func planLedgerBackfill(root string, result *MigrationPlan) {
 	if ledger.Exists(root) {
 		return
 	}
-	c, issues := corpus.Scan(root)
+	c, issues := scanForPlanning(root)
 	if len(issues) > 0 {
 		return // parse-level problems are corpus.Validate's judgment, not migration's
 	}
@@ -2158,7 +2181,7 @@ func planMilestoneLedgerBackfill(root string, result *MigrationPlan) {
 			return
 		}
 	}
-	c, issues := corpus.Scan(root)
+	c, issues := scanForPlanning(root)
 	if len(issues) > 0 {
 		return // parse-level problems are corpus.Validate's judgment, not migration's
 	}
@@ -2533,5 +2556,88 @@ func planEvidenceExport(root string, result *MigrationPlan) {
 	}
 	if _, err := evidence.Load(root); err != nil {
 		result.Notices = append(result.Notices, Notice{Path: evidence.DefaultPath, Migration: MigrationEvidenceExport, Message: "establish or regenerate repository-owned evidence export using clue-delta/clue-extract Evidence workflow and .clue/evidence/README.md; migration never fabricates references or rewrites tests: " + err.Error()})
+	}
+}
+
+// scanForPlanning scans the corpus for planning, reading past the issues the
+// plan itself repairs: a folder README with no header gains one under
+// MIG-019, so it must not stop the backfills that run in the same plan.
+func scanForPlanning(root string) (*corpus.Corpus, []corpus.Issue) {
+	c, issues := corpus.Scan(root)
+	kept := issues[:0]
+	for _, issue := range issues {
+		if issue.Msg != corpus.MissingIndexHeader {
+			kept = append(kept, issue)
+		}
+	}
+	return c, kept
+}
+
+// planIndexHeaders gives every taxonomy folder README without frontmatter its
+// type: index header (PDR-065). A README this plan already changes, for index
+// rows or as a new bootstrap, receives the header in that same change, since
+// two changes on one path would overwrite each other at apply time.
+func planIndexHeaders(root string, result *MigrationPlan) {
+	readmes := []string{"docs/README.md"}
+	if entries, err := os.ReadDir(filepath.Join(root, "docs")); err == nil {
+		for _, e := range entries {
+			if e.IsDir() {
+				readmes = append(readmes, path.Join("docs", e.Name(), "README.md"))
+			}
+		}
+	}
+	planned := map[string]int{}
+	for i, change := range result.Changes {
+		planned[change.Path] = i
+	}
+	for _, rel := range readmes {
+		if i, ok := planned[rel]; ok {
+			change := &result.Changes[i]
+			if after := scaffold.WithIndexHeader(string(change.After), rel); after != string(change.After) {
+				change.After = []byte(after)
+				change.Description += "; add the folder README's type: index header"
+			}
+			continue
+		}
+		if hasLinkBoundary(root, rel) {
+			continue // the symlinked corpus is already a finding of its own
+		}
+		before, err := os.ReadFile(filepath.Join(root, filepath.FromSlash(rel)))
+		if err != nil {
+			continue // a missing README is validate's report, not migration's
+		}
+		after := scaffold.WithIndexHeader(string(before), rel)
+		if after == string(before) {
+			continue
+		}
+		result.Changes = append(result.Changes, Change{Path: rel, Migration: MigrationIndexHeaders, Description: "add the folder README's type: index header, titled from its first heading", Existed: true, Before: before, After: []byte(after)})
+	}
+}
+
+// deliveredHeaderTypes names the header each delivered file carries when
+// clue init writes it, so a notice can say exactly what to add.
+var deliveredHeaderTypes = map[string]string{
+	"AGENTS.md":                    "agent-hub",
+	"CLAUDE.md":                    "agent-hub",
+	".clue/evidence/README.md":     "evidence-guide",
+	".clue/evidence/frameworks.md": "evidence-guide",
+	".github/cliewen-wall.md":      "checklist",
+}
+
+// planDeliveredHeaders reports each delivered file the adopter owns that is
+// present without a document header, and writes none of them (PDR-023).
+func planDeliveredHeaders(root string, result *MigrationPlan) {
+	for _, rel := range corpus.DeliveredMarkdown {
+		data, err := os.ReadFile(filepath.Join(root, filepath.FromSlash(rel)))
+		if err != nil {
+			continue
+		}
+		if gap := corpus.DocumentHeaderGap(string(data)); gap != "" {
+			result.Notices = append(result.Notices, Notice{
+				Path:      rel,
+				Migration: MigrationDeliveredHeaders,
+				Message:   gap + "; add a header with `type: " + deliveredHeaderTypes[rel] + "` and the file's title — migration does not edit this file",
+			})
+		}
 	}
 }

@@ -199,7 +199,7 @@ Feature: Onboarding — install to first green validate
     Given an empty git repository
     When the user runs "clue init" and then "clue scaffold"
     Then every Markdown file they wrote, generated skill files included, starts with frontmatter carrying a non-empty type and title, folder READMEs as "type: index"
-    And regenerating a folder README's index block keeps its frontmatter unchanged
+    And regenerating a folder README's index block keeps its frontmatter unchanged, while a folder README with none gains a "type: index" header titled from its first heading
     But the materialized pull-request template carries no frontmatter
 
   @AC-216

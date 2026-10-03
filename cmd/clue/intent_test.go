@@ -14,13 +14,13 @@ func intentCorpus(t *testing.T, vision string) string {
 	t.Helper()
 	root := t.TempDir()
 	files := map[string]string{
-		"docs/README.md":                            "# Corpus\n\n<!-- clue:index:start -->\n- [goals/](goals/README.md)\n- [use-cases/](use-cases/README.md)\n- [capabilities/](capabilities/README.md)\n<!-- clue:index:end -->\n",
-		"docs/goals/README.md":                      "# Goals\n\n<!-- clue:index:start -->\n- [G-001](G-001-first.md)\n<!-- clue:index:end -->\n",
+		"docs/README.md":                            "---\ntype: index\ntitle: Corpus\n---\n\n# Corpus\n\n<!-- clue:index:start -->\n- [goals/](goals/README.md)\n- [use-cases/](use-cases/README.md)\n- [capabilities/](capabilities/README.md)\n<!-- clue:index:end -->\n",
+		"docs/goals/README.md":                      "---\ntype: index\ntitle: Goals\n---\n\n# Goals\n\n<!-- clue:index:start -->\n- [G-001](G-001-first.md)\n<!-- clue:index:end -->\n",
 		"docs/goals/G-001-first.md":                 "---\nid: G-001\ntype: goal\nstatus: accepted\nlinks: []\ntitle: First goal\n---\n\n# G-001\n",
-		"docs/capabilities/README.md":               "# Capabilities\n\n<!-- clue:index:start -->\n- [CAP-001](CAP-001-thing/README.md)\n- [CAP-002](CAP-002-other/README.md)\n<!-- clue:index:end -->\n",
+		"docs/capabilities/README.md":               "---\ntype: index\ntitle: Capabilities\n---\n\n# Capabilities\n\n<!-- clue:index:start -->\n- [CAP-001](CAP-001-thing/README.md)\n- [CAP-002](CAP-002-other/README.md)\n<!-- clue:index:end -->\n",
 		"docs/capabilities/CAP-001-thing/README.md": "---\nid: CAP-001\ntype: capability\nstatus: active\nlinks: [G-001]\ntitle: A capability\ngoal: G-001\n---\n\n# CAP-001\n",
 		"docs/capabilities/CAP-002-other/README.md": "---\nid: CAP-002\ntype: capability\nstatus: active\nlinks: [G-001]\ntitle: Another capability\ngoal: G-001\n---\n\n# CAP-002\n",
-		"docs/use-cases/README.md":                  "# Use cases\n\n<!-- clue:index:start -->\n- [UC-001](UC-001-a-journey.md)\n<!-- clue:index:end -->\n",
+		"docs/use-cases/README.md":                  "---\ntype: index\ntitle: Use cases\n---\n\n# Use cases\n\n<!-- clue:index:start -->\n- [UC-001](UC-001-a-journey.md)\n<!-- clue:index:end -->\n",
 		"docs/use-cases/UC-001-a-journey.md":        "---\nid: UC-001\ntype: use-case\nstatus: active\nlinks: [G-001, CAP-001]\ntitle: A journey\n---\n\n# UC-001\n\n## Actors\n\nSomeone.\n\n## Trigger\n\nThey ask.\n\n## Main flow\n\n1. It happens.\n\n## Outcome\n\nIt happened.\n",
 	}
 	if vision != "" {
@@ -79,10 +79,10 @@ func TestAC164_UnitNegative_IntentReportComputesNoCoverageFigure(t *testing.T) {
 // is empty — never a count.
 func TestAC202_UnitPositive_IntentReportNamesGoalCapabilitiesAndPlans(t *testing.T) {
 	root := intentCorpus(t, "")
-	writeFile(t, root, "docs/README.md", "# Corpus\n\n<!-- clue:index:start -->\n- [goals/](goals/README.md)\n- [plans/](plans/README.md)\n- [use-cases/](use-cases/README.md)\n- [capabilities/](capabilities/README.md)\n<!-- clue:index:end -->\n")
-	writeFile(t, root, "docs/goals/README.md", "# Goals\n\n<!-- clue:index:start -->\n- [G-001](G-001-first.md)\n- [G-002](G-002-second.md)\n<!-- clue:index:end -->\n")
+	writeFile(t, root, "docs/README.md", "---\ntype: index\ntitle: Corpus\n---\n\n# Corpus\n\n<!-- clue:index:start -->\n- [goals/](goals/README.md)\n- [plans/](plans/README.md)\n- [use-cases/](use-cases/README.md)\n- [capabilities/](capabilities/README.md)\n<!-- clue:index:end -->\n")
+	writeFile(t, root, "docs/goals/README.md", "---\ntype: index\ntitle: Goals\n---\n\n# Goals\n\n<!-- clue:index:start -->\n- [G-001](G-001-first.md)\n- [G-002](G-002-second.md)\n<!-- clue:index:end -->\n")
 	writeFile(t, root, "docs/goals/G-002-second.md", "---\nid: G-002\ntype: goal\nstatus: accepted\nlinks: []\ntitle: Second goal\n---\n\n# G-002\n")
-	writeFile(t, root, "docs/plans/README.md", "# Plans\n\n<!-- clue:index:start -->\n- [P-002](P-002-delivered.md)\n<!-- clue:index:end -->\n")
+	writeFile(t, root, "docs/plans/README.md", "---\ntype: index\ntitle: Plans\n---\n\n# Plans\n\n<!-- clue:index:start -->\n- [P-002](P-002-delivered.md)\n<!-- clue:index:end -->\n")
 	writeFile(t, root, "docs/plans/P-002-delivered.md", "---\nid: P-002\ntype: plan\nstatus: completed\nlinks: [G-002]\ntitle: Delivered\n---\n\n| M-002 | did it | done |\n")
 	var out bytes.Buffer
 	if code := runValidate([]string{"--intent", root}, &out); code != 0 {

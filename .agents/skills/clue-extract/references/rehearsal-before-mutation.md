@@ -1,3 +1,8 @@
+---
+type: skill-reference
+title: Rehearsal before mutation
+---
+
 ## Rehearsal before mutation
 
 After the extraction's tracked change is proposed, begin with a mandatory report-only pass. Write the rehearsal report under `/changes/<CH-xxx-slug>/`; do not change the target source corpus, Cliewen `/docs` corpus, tests, routing, or hosted state.

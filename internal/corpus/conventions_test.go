@@ -9,8 +9,8 @@ import (
 // constraint file, so a register rule can be exercised on its own.
 func constraintCorpus(file string) map[string]string {
 	return with(validFiles, map[string]string{
-		"docs/README.md":                 "# Corpus\n\n<!-- clue:index:start -->\n- [goals/](goals/README.md)\n- [plans/](plans/README.md)\n- [constraints/](constraints/README.md)\n<!-- clue:index:end -->\n",
-		"docs/constraints/README.md":     "# Constraints\n\n<!-- clue:index:start -->\n- [C-001](C-001-rule.md)\n<!-- clue:index:end -->\n",
+		"docs/README.md":                 "---\ntype: index\ntitle: Corpus\n---\n\n# Corpus\n\n<!-- clue:index:start -->\n- [goals/](goals/README.md)\n- [plans/](plans/README.md)\n- [constraints/](constraints/README.md)\n<!-- clue:index:end -->\n",
+		"docs/constraints/README.md":     "---\ntype: index\ntitle: Constraints\n---\n\n# Constraints\n\n<!-- clue:index:start -->\n- [C-001](C-001-rule.md)\n<!-- clue:index:end -->\n",
 		"docs/constraints/C-001-rule.md": file,
 	})
 }
@@ -101,7 +101,7 @@ b := 2
 Final paragraph.
 `
 	assertClean(t, run(t, with(validFiles, map[string]string{
-		"docs/goals/README.md":          "# Goals\n\n<!-- clue:index:start -->\n- [G-001](G-001-first.md)\n- [G-002](G-002-structure.md)\n<!-- clue:index:end -->\n",
+		"docs/goals/README.md":          "---\ntype: index\ntitle: Goals\n---\n\n# Goals\n\n<!-- clue:index:start -->\n- [G-001](G-001-first.md)\n- [G-002](G-002-structure.md)\n<!-- clue:index:end -->\n",
 		"docs/goals/G-002-structure.md": page,
 	}), false), "a page whose only line breaks are structural")
 }
@@ -153,7 +153,7 @@ Still inside.
 Final paragraph.
 `
 	assertClean(t, run(t, with(validFiles, map[string]string{
-		"docs/goals/README.md":       "# Goals\n\n<!-- clue:index:start -->\n- [G-001](G-001-first.md)\n- [G-002](G-002-blocks.md)\n<!-- clue:index:end -->\n",
+		"docs/goals/README.md":       "---\ntype: index\ntitle: Goals\n---\n\n# Goals\n\n<!-- clue:index:start -->\n- [G-001](G-001-first.md)\n- [G-002](G-002-blocks.md)\n<!-- clue:index:end -->\n",
 		"docs/goals/G-002-blocks.md": page,
 	}), false), "verbatim and structural blocks")
 }
@@ -232,7 +232,7 @@ func TestAC090_UnitNegative_BlockStatesDoNotSwallowProse(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			page := "---\nid: G-002\ntype: goal\nstatus: accepted\nlinks: []\ntitle: Blocks\n---\n\n# A heading\n\n" + tc.body
 			assertIssue(t, run(t, with(validFiles, map[string]string{
-				"docs/goals/README.md":       "# Goals\n\n<!-- clue:index:start -->\n- [G-001](G-001-first.md)\n- [G-002](G-002-blocks.md)\n<!-- clue:index:end -->\n",
+				"docs/goals/README.md":       "---\ntype: index\ntitle: Goals\n---\n\n# Goals\n\n<!-- clue:index:start -->\n- [G-001](G-001-first.md)\n- [G-002](G-002-blocks.md)\n<!-- clue:index:end -->\n",
 				"docs/goals/G-002-blocks.md": page,
 			}), false), "paragraph continues on a new line")
 		})
@@ -242,14 +242,14 @@ func TestAC090_UnitNegative_BlockStatesDoNotSwallowProse(t *testing.T) {
 func TestAC090_UnitNegative_HardWrappedProseAndListItemsRejected(t *testing.T) {
 	wrapped := "---\nid: G-002\ntype: goal\nstatus: accepted\nlinks: []\ntitle: Wrapped\n---\n\n# A heading\n\nThis paragraph was broken\nacross two lines.\n"
 	issues := run(t, with(validFiles, map[string]string{
-		"docs/goals/README.md":        "# Goals\n\n<!-- clue:index:start -->\n- [G-001](G-001-first.md)\n- [G-002](G-002-wrapped.md)\n<!-- clue:index:end -->\n",
+		"docs/goals/README.md":        "---\ntype: index\ntitle: Goals\n---\n\n# Goals\n\n<!-- clue:index:start -->\n- [G-001](G-001-first.md)\n- [G-002](G-002-wrapped.md)\n<!-- clue:index:end -->\n",
 		"docs/goals/G-002-wrapped.md": wrapped,
 	}), false)
 	assertIssue(t, issues, "line 12: paragraph continues on a new line")
 
 	wrappedItem := "---\nid: G-002\ntype: goal\nstatus: accepted\nlinks: []\ntitle: Wrapped\n---\n\n# A heading\n\n- A list item broken\n  across two lines\n"
 	assertIssue(t, run(t, with(validFiles, map[string]string{
-		"docs/goals/README.md":        "# Goals\n\n<!-- clue:index:start -->\n- [G-001](G-001-first.md)\n- [G-002](G-002-wrapped.md)\n<!-- clue:index:end -->\n",
+		"docs/goals/README.md":        "---\ntype: index\ntitle: Goals\n---\n\n# Goals\n\n<!-- clue:index:start -->\n- [G-001](G-001-first.md)\n- [G-002](G-002-wrapped.md)\n<!-- clue:index:end -->\n",
 		"docs/goals/G-002-wrapped.md": wrappedItem,
 	}), false), "paragraph continues on a new line")
 }
@@ -314,9 +314,9 @@ func TestAC092_UnitNegative_ProposalWithoutADeclarationRejected(t *testing.T) {
 func TestAC100_UnitPositive_LocalImageLinksAndSVGAssetsAccepted(t *testing.T) {
 	page := "---\nid: G-002\ntype: goal\nstatus: accepted\nlinks: []\ntitle: Diagrams\n---\n\n# G-002\n\n![the architecture](images/architecture.svg)\n\n![the context][context]\n\n![collapsed][]\n\n<img src=\"images/component.svg\" alt=\"the component\">\n\n[context]: https://example.invalid/context.svg\n\n[collapsed]: https://example.invalid/collapsed.svg\n"
 	assertClean(t, run(t, with(validFiles, map[string]string{
-		"docs/goals/README.md":               "# Goals\n\n<!-- clue:index:start -->\n- [G-001](G-001-first.md)\n- [G-002](G-002-diagrams.md)\n- [images/](images/README.md)\n<!-- clue:index:end -->\n",
+		"docs/goals/README.md":               "---\ntype: index\ntitle: Goals\n---\n\n# Goals\n\n<!-- clue:index:start -->\n- [G-001](G-001-first.md)\n- [G-002](G-002-diagrams.md)\n- [images/](images/README.md)\n<!-- clue:index:end -->\n",
 		"docs/goals/G-002-diagrams.md":       page,
-		"docs/goals/images/README.md":        "# Images\n",
+		"docs/goals/images/README.md":        "---\ntype: index\ntitle: Images\n---\n\n# Images\n",
 		"docs/goals/images/architecture.svg": "<svg xmlns=\"http://www.w3.org/2000/svg\"/>",
 		"docs/goals/images/component.svg":    "<svg xmlns=\"http://www.w3.org/2000/svg\"/>",
 	}), false), "local SVG assets and local or external image links")
@@ -328,7 +328,7 @@ func TestAC100_UnitPositive_LocalImageLinksAndSVGAssetsAccepted(t *testing.T) {
 func TestAC100_UnitPositive_ImageFormsDoNotCreateValidationIssues(t *testing.T) {
 	page := "---\nid: G-002\ntype: goal\nstatus: accepted\nlinks: []\ntitle: Diagrams\n---\n\n# G-002\n\n![local](architecture.png)\n\n<img src=\"https://example.invalid/architecture.png\" alt=\"external\">\n"
 	issues := run(t, with(validFiles, map[string]string{
-		"docs/goals/README.md":         "# Goals\n\n<!-- clue:index:start -->\n- [G-001](G-001-first.md)\n- [G-002](G-002-diagrams.md)\n<!-- clue:index:end -->\n",
+		"docs/goals/README.md":         "---\ntype: index\ntitle: Goals\n---\n\n# Goals\n\n<!-- clue:index:start -->\n- [G-001](G-001-first.md)\n- [G-002](G-002-diagrams.md)\n<!-- clue:index:end -->\n",
 		"docs/goals/G-002-diagrams.md": page,
 		"docs/goals/architecture.png":  "not actually an image",
 	}), false)
@@ -339,8 +339,8 @@ func TestAC100_UnitPositive_ImageFormsDoNotCreateValidationIssues(t *testing.T) 
 func TestAC094_UnitPositive_TypeExtensionsPresentAndEmptySignatureAccepted(t *testing.T) {
 	decision := "---\nid: ADR-001\ntype: decision\nstatus: inferred\nlinks: []\ntitle: A decision\nauthor: agent\naccepted-by: []\n---\n\n# ADR-001\n"
 	assertClean(t, run(t, with(validFiles, map[string]string{
-		"docs/README.md":              "# Corpus\n\n<!-- clue:index:start -->\n- [goals/](goals/README.md)\n- [plans/](plans/README.md)\n- [decisions/](decisions/README.md)\n<!-- clue:index:end -->\n",
-		"docs/decisions/README.md":    "# Decisions\n\n<!-- clue:index:start -->\n- [ADR-001](ADR-001-a.md)\n<!-- clue:index:end -->\n",
+		"docs/README.md":              "---\ntype: index\ntitle: Corpus\n---\n\n# Corpus\n\n<!-- clue:index:start -->\n- [goals/](goals/README.md)\n- [plans/](plans/README.md)\n- [decisions/](decisions/README.md)\n<!-- clue:index:end -->\n",
+		"docs/decisions/README.md":    "---\ntype: index\ntitle: Decisions\n---\n\n# Decisions\n\n<!-- clue:index:start -->\n- [ADR-001](ADR-001-a.md)\n<!-- clue:index:end -->\n",
 		"docs/decisions/ADR-001-a.md": decision,
 	}), false), "a decision carrying author and an empty accepted-by")
 }
@@ -348,15 +348,15 @@ func TestAC094_UnitPositive_TypeExtensionsPresentAndEmptySignatureAccepted(t *te
 func TestAC094_UnitNegative_MissingTypeExtensionsRejected(t *testing.T) {
 	noAuthor := "---\nid: ADR-001\ntype: decision\nstatus: inferred\nlinks: []\ntitle: A decision\n---\n\n# ADR-001\n"
 	assertIssue(t, run(t, with(validFiles, map[string]string{
-		"docs/README.md":              "# Corpus\n\n<!-- clue:index:start -->\n- [goals/](goals/README.md)\n- [plans/](plans/README.md)\n- [decisions/](decisions/README.md)\n<!-- clue:index:end -->\n",
-		"docs/decisions/README.md":    "# Decisions\n\n<!-- clue:index:start -->\n- [ADR-001](ADR-001-a.md)\n<!-- clue:index:end -->\n",
+		"docs/README.md":              "---\ntype: index\ntitle: Corpus\n---\n\n# Corpus\n\n<!-- clue:index:start -->\n- [goals/](goals/README.md)\n- [plans/](plans/README.md)\n- [decisions/](decisions/README.md)\n<!-- clue:index:end -->\n",
+		"docs/decisions/README.md":    "---\ntype: index\ntitle: Decisions\n---\n\n# Decisions\n\n<!-- clue:index:start -->\n- [ADR-001](ADR-001-a.md)\n<!-- clue:index:end -->\n",
 		"docs/decisions/ADR-001-a.md": noAuthor,
 	}), false), "decision missing or empty field(s): accepted-by, author")
 
 	noGoal := "---\nid: CAP-001\ntype: capability\nstatus: draft\nlinks: [G-001]\ntitle: A capability\n---\n\n# CAP-001\n"
 	assertIssue(t, run(t, with(validFiles, map[string]string{
-		"docs/README.md":                        "# Corpus\n\n<!-- clue:index:start -->\n- [goals/](goals/README.md)\n- [plans/](plans/README.md)\n- [capabilities/](capabilities/README.md)\n<!-- clue:index:end -->\n",
-		"docs/capabilities/README.md":           "# Capabilities\n\n<!-- clue:index:start -->\n- [CAP-001](CAP-001-a/README.md)\n<!-- clue:index:end -->\n",
+		"docs/README.md":                        "---\ntype: index\ntitle: Corpus\n---\n\n# Corpus\n\n<!-- clue:index:start -->\n- [goals/](goals/README.md)\n- [plans/](plans/README.md)\n- [capabilities/](capabilities/README.md)\n<!-- clue:index:end -->\n",
+		"docs/capabilities/README.md":           "---\ntype: index\ntitle: Capabilities\n---\n\n# Capabilities\n\n<!-- clue:index:start -->\n- [CAP-001](CAP-001-a/README.md)\n<!-- clue:index:end -->\n",
 		"docs/capabilities/CAP-001-a/README.md": noGoal,
 	}), false), "capability missing or empty field(s): goal")
 }
@@ -433,7 +433,7 @@ func TestAC095_UnitNegative_StatusOutsideTheVocabularyRejected(t *testing.T) {
 
 func planCorpus(plan string) map[string]string {
 	return with(validFiles, map[string]string{
-		"docs/plans/README.md":       "# Plans\n\n<!-- clue:index:start -->\n- [P-001](P-001-baseline.md)\n- [P-002](P-002-second.md)\n<!-- clue:index:end -->\n",
+		"docs/plans/README.md":       "---\ntype: index\ntitle: Plans\n---\n\n# Plans\n\n<!-- clue:index:start -->\n- [P-001](P-001-baseline.md)\n- [P-002](P-002-second.md)\n<!-- clue:index:end -->\n",
 		"docs/plans/P-002-second.md": plan,
 	})
 }

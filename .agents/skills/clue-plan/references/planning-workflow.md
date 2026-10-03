@@ -1,3 +1,8 @@
+---
+type: skill-reference
+title: Planning workflow
+---
+
 ## Planning workflow
 
 Use when creating a plan or changing what a plan promises.

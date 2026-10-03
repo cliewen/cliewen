@@ -102,11 +102,19 @@ func Scan(root string) (*Corpus, []Issue) {
 				return nil
 			}
 			if !ok {
-				// README.md files are exempt from carrying frontmatter;
-				// everything else in docs/ and changes/ is an artifact.
-				if d.Name() != "README.md" {
+				if d.Name() == "README.md" {
+					issues = append(issues, Issue{rel, MissingIndexHeader})
+				} else {
 					issues = append(issues, Issue{rel, "missing frontmatter (expected id, type, status, links, title)"})
 				}
+				return nil
+			}
+			// A folder README is a typed document, not an artifact: its
+			// header is type: index and a title, with no identity (PDR-065).
+			// A README that carries an id outside the taxonomy folders, such
+			// as a capability's, stays an artifact.
+			if d.Name() == "README.md" && (isTaxonomyReadme(rel) || fields["id"] == nil) {
+				issues = append(issues, checkIndexHeader(rel, fields)...)
 				return nil
 			}
 			// BodyLine is where Body starts in the file, so a finding that

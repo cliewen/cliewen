@@ -28,6 +28,7 @@ import (
 	"runtime/debug"
 	"slices"
 	"sort"
+	"strconv"
 	"strings"
 
 	"github.com/cliewen/cliewen/internal/corpus"
@@ -546,6 +547,9 @@ func regenIndex(root, rel string) (bool, error) {
 	if strings.Contains(orig, "\r\n") {
 		eol = "\r\n"
 	}
+	// A folder README is a typed document (PDR-065): one without
+	// frontmatter gains its type: index header before the index is read.
+	text = WithIndexHeader(text, rel)
 	start := strings.Index(text, IndexStart)
 	end := strings.Index(text, IndexEnd)
 	switch {
@@ -776,4 +780,38 @@ func dirHasMarkdown(dir string) bool {
 		return nil
 	})
 	return found
+}
+
+var firstHeadingRe = regexp.MustCompile(`(?m)^# +(.+?)\s*$`)
+
+// WithIndexHeader returns a folder README's text with a type: index header
+// prepended when it carries no frontmatter, titled from its first heading or,
+// failing that, its folder's name. Text that already opens a frontmatter block
+// is returned unchanged, and the file's line endings are kept (PDR-065).
+func WithIndexHeader(text, rel string) string {
+	if strings.HasPrefix(text, "---\n") || strings.HasPrefix(text, "---\r\n") {
+		return text
+	}
+	eol := "\n"
+	if strings.Contains(text, "\r\n") {
+		eol = "\r\n"
+	}
+	title := path.Base(path.Dir(rel))
+	if m := firstHeadingRe.FindStringSubmatch(strings.ReplaceAll(text, "\r\n", "\n")); m != nil {
+		title = m[1]
+	}
+	header := "---" + eol + "type: " + corpus.IndexType + eol + "title: " + yamlTitle(title) + eol + "---" + eol
+	if strings.TrimSpace(text) == "" {
+		return header
+	}
+	return header + eol + text
+}
+
+// yamlTitle double-quotes a title YAML would otherwise read as something
+// other than a plain string.
+func yamlTitle(s string) string {
+	if strings.ContainsAny(s, ":#'\"[]{},&*!|>%@`") {
+		return strconv.Quote(s)
+	}
+	return s
 }

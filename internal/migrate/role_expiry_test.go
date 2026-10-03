@@ -84,14 +84,14 @@ func spentCorpus(t *testing.T) string {
 	t.Helper()
 	root := migrationFixture(t, "")
 	files := map[string]string{
-		"docs/README.md":                      "# Corpus\n\n<!-- clue:index:start -->\n- [plans/](plans/README.md)\n- [analysis/](analysis/README.md)\n- [architecture/](architecture/README.md)\n- [design/](design/README.md)\n<!-- clue:index:end -->\n",
-		"docs/plans/README.md":                "# Plans\n\n<!-- clue:index:start -->\n- [P-001](P-001-done.md)\n- [P-002](P-002-open.md)\n<!-- clue:index:end -->\n",
+		"docs/README.md":                      "---\ntype: index\ntitle: Corpus\n---\n\n# Corpus\n\n<!-- clue:index:start -->\n- [plans/](plans/README.md)\n- [analysis/](analysis/README.md)\n- [architecture/](architecture/README.md)\n- [design/](design/README.md)\n<!-- clue:index:end -->\n",
+		"docs/plans/README.md":                "---\ntype: index\ntitle: Plans\n---\n\n# Plans\n\n<!-- clue:index:start -->\n- [P-001](P-001-done.md)\n- [P-002](P-002-open.md)\n<!-- clue:index:end -->\n",
 		"docs/plans/P-001-done.md":            "---\nid: P-001\ntype: plan\nstatus: completed\nlinks: []\ntitle: Done\n---\n\n| M-001 | done | done |\n",
 		"docs/plans/P-002-open.md":            "---\nid: P-002\ntype: plan\nstatus: active\nlinks: []\ntitle: Open\n---\n\n| M-002 | open | todo |\n",
-		"docs/architecture/README.md":         "# Architecture\n\nStructure.\n\n<!-- clue:index:start -->\n- [ARCH-001](ARCH-001-shape.md)\n<!-- clue:index:end -->\n",
+		"docs/architecture/README.md":         "---\ntype: index\ntitle: Architecture\n---\n\n# Architecture\n\nStructure.\n\n<!-- clue:index:start -->\n- [ARCH-001](ARCH-001-shape.md)\n<!-- clue:index:end -->\n",
 		"docs/architecture/ARCH-001-shape.md": "---\nid: ARCH-001\ntype: architecture\nstatus: active\nlinks: []\ntitle: Shape\n---\n\n# ARCH-001\n",
-		"docs/design/README.md":               "# Design\n\nCross-cutting behaviour.\n\n<!-- clue:index:start -->\n<!-- clue:index:end -->\n",
-		"docs/analysis/README.md":             "# Analysis\n\n<!-- clue:index:start -->\n- [AN-001](AN-001-spent.md)\n- [AN-002](AN-002-live.md)\n<!-- clue:index:end -->\n",
+		"docs/design/README.md":               "---\ntype: index\ntitle: Design\n---\n\n# Design\n\nCross-cutting behaviour.\n\n<!-- clue:index:start -->\n<!-- clue:index:end -->\n",
+		"docs/analysis/README.md":             "---\ntype: index\ntitle: Analysis\n---\n\n# Analysis\n\n<!-- clue:index:start -->\n- [AN-001](AN-001-spent.md)\n- [AN-002](AN-002-live.md)\n<!-- clue:index:end -->\n",
 		"docs/analysis/AN-001-spent.md":       "---\nid: AN-001\ntype: analysis\nstatus: active\nlinks: [P-001]\ncarried-by: [ARCH-001]\ntitle: Spent\n---\n\n# AN-001\n",
 		"docs/analysis/AN-002-live.md":        "---\nid: AN-002\ntype: analysis\nstatus: active\nlinks: [P-002]\ncarried-by: [ARCH-001]\ntitle: Live\n---\n\n# AN-002\n",
 	}

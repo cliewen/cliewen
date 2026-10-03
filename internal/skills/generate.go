@@ -11,6 +11,7 @@ import (
 	"path"
 	"path/filepath"
 	"sort"
+	"strconv"
 	"strings"
 	"text/template"
 )
@@ -288,7 +289,9 @@ func splitSkill(name string, complete []byte) ([]renderedFile, error) {
 		return nil, fmt.Errorf("split %s: unterminated frontmatter", name)
 	}
 	frontmatterEnd += 9
-	frontmatter := text[:frontmatterEnd]
+	// Every generated file carries a document header (PDR-065): the entry
+	// point declares type: skill beside its ownership marker and version.
+	frontmatter := strings.TrimSuffix(text[:frontmatterEnd], "---\n") + documentHeaderFields("skill", name) + "---\n"
 	body := strings.TrimLeft(text[frontmatterEnd:], "\n")
 	title := "# " + name
 	titleIndex := strings.Index(body, title+"\n")
@@ -354,7 +357,7 @@ func splitSkill(name string, complete []byte) ([]renderedFile, error) {
 		router.WriteString(").\n")
 		files = append(files, renderedFile{
 			relativePath: path.Join(name, "references", route.file),
-			content:      normalize([]byte(content)),
+			content:      normalize([]byte(documentHeader("skill-reference", route.heading) + "\n" + content)),
 		})
 	}
 	if len(sections) != 0 {
@@ -373,4 +376,23 @@ func normalize(content []byte) []byte {
 	text := strings.ReplaceAll(string(content), "\r\n", "\n")
 	text = strings.TrimSpace(text) + "\n"
 	return []byte(text)
+}
+
+// documentHeader renders the type-and-title frontmatter a generated file
+// that is not a skill entry point carries (PDR-065).
+func documentHeader(kind, title string) string {
+	return "---\n" + documentHeaderFields(kind, title) + "---\n"
+}
+
+func documentHeaderFields(kind, title string) string {
+	return "type: " + kind + "\ntitle: " + yamlString(title) + "\n"
+}
+
+// yamlString leaves a plain title unquoted and double-quotes one YAML would
+// otherwise read as something other than a string.
+func yamlString(s string) string {
+	if strings.ContainsAny(s, ":#'\"[]{},&*!|>%@`") || strings.TrimSpace(s) != s {
+		return strconv.Quote(s)
+	}
+	return s
 }

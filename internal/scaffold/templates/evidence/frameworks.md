@@ -1,3 +1,8 @@
+---
+type: evidence-guide
+title: Metadata patterns to adapt
+---
+
 # Metadata patterns to adapt
 
 These examples use AC-001 only as a placeholder. Replace it with a real Gherkin criterion and retain its assertions when translating an existing test. Each example illustrates the positive and negative directions of the same behavior: a numeric string parses, and an invalid string is rejected. The test runner still executes the tests; export records their references.

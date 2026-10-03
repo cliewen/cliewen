@@ -72,7 +72,7 @@ func mustFingerprint(t *testing.T, root, targetPath string) string {
 func TestAC118_UnitPositive_cleanRunPasses(t *testing.T) {
 	root := writeFiles(t, map[string]string{
 		".github/workflows/ci.yml": workflowContent,
-		"docs/decisions/README.md": "# decisions\n",
+		"docs/decisions/README.md": "---\ntype: index\ntitle: decisions\n---\n\n# decisions\n",
 	})
 	fp := mustFingerprint(t, root, ".github/workflows/ci.yml")
 	inv := Inventory{
@@ -128,7 +128,7 @@ func TestAC118_UnitNegative_dirtyRunFails(t *testing.T) {
 // with no target is not reconciled against anything and produces no
 // finding — its presence alone is the record of a known gap.
 func TestAC119_UnitPositive_blockedEntryIsNotReconciled(t *testing.T) {
-	root := writeFiles(t, map[string]string{"docs/decisions/README.md": "# decisions\n"})
+	root := writeFiles(t, map[string]string{"docs/decisions/README.md": "---\ntype: index\ntitle: decisions\n---\n\n# decisions\n"})
 	inv := Inventory{
 		SourceRevision: "rev-1",
 		SourceLocation: "source",
@@ -241,7 +241,7 @@ func TestAC120_UnitNegative_lostFingerprintFails(t *testing.T) {
 // TestAC121_UnitPositive_presentTargetIsNotMissing proves a mapped entry
 // whose target path exists produces no missing-asset finding.
 func TestAC121_UnitPositive_presentTargetIsNotMissing(t *testing.T) {
-	root := writeFiles(t, map[string]string{"docs/decisions/README.md": "# decisions\n"})
+	root := writeFiles(t, map[string]string{"docs/decisions/README.md": "---\ntype: index\ntitle: decisions\n---\n\n# decisions\n"})
 	fp := mustFingerprint(t, root, "docs/decisions/README.md")
 	inv := Inventory{
 		SourceRevision: "rev-1", SourceLocation: "source",
@@ -260,7 +260,7 @@ func TestAC121_UnitPositive_presentTargetIsNotMissing(t *testing.T) {
 // target path does not exist in the reconciled corpus fails as a missing
 // asset.
 func TestAC121_UnitNegative_missingTargetFails(t *testing.T) {
-	root := writeFiles(t, map[string]string{"docs/decisions/README.md": "# decisions\n"})
+	root := writeFiles(t, map[string]string{"docs/decisions/README.md": "---\ntype: index\ntitle: decisions\n---\n\n# decisions\n"})
 	inv := Inventory{
 		SourceRevision: "rev-1", SourceLocation: "source",
 		Entries: []Entry{{ID: "CARRIER-8", Kind: KindDiagramAsset, SourcePath: "openspec/diagram.svg", TargetPath: "docs/architecture/diagram.svg", Fingerprint: "deadbeef"}},

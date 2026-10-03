@@ -1,3 +1,8 @@
+---
+type: skill-reference
+title: "clue-extract mapping: OpenSpec"
+---
+
 # clue-extract mapping: OpenSpec
 
 Source mapping for [clue-extract](../skill.md) — the target contract in `skill.md` governs; this file only says what maps where for an OpenSpec corpus.

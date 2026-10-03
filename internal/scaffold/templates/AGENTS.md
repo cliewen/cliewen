@@ -1,3 +1,8 @@
+---
+type: agent-hub
+title: Agent routing hub
+---
+
 # Agent routing hub
 
 This repo runs **Cliewen**.

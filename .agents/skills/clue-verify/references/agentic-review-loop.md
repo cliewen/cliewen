@@ -1,3 +1,8 @@
+---
+type: skill-reference
+title: Agentic review loop
+---
+
 ## Agentic review loop
 
 Run this loop automatically; never ask the human to clear context or initiate a separate review.

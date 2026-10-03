@@ -1,3 +1,8 @@
+---
+type: skill-reference
+title: Intent model
+---
+
 ## Intent model
 
 A corpus carries two threads, and they meet only at the goal.

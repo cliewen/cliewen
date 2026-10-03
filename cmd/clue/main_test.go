@@ -35,8 +35,8 @@ func writeFile(t *testing.T, root, rel, content string) {
 func validCorpus(t *testing.T) string {
 	t.Helper()
 	root := t.TempDir()
-	writeFile(t, root, "docs/README.md", "# Corpus\n\n<!-- clue:index:start -->\n- [goals/](goals/README.md)\n<!-- clue:index:end -->\n")
-	writeFile(t, root, "docs/goals/README.md", "# Goals\n\n<!-- clue:index:start -->\n- [G-001](G-001-first.md)\n<!-- clue:index:end -->\n")
+	writeFile(t, root, "docs/README.md", "---\ntype: index\ntitle: Corpus\n---\n\n# Corpus\n\n<!-- clue:index:start -->\n- [goals/](goals/README.md)\n<!-- clue:index:end -->\n")
+	writeFile(t, root, "docs/goals/README.md", "---\ntype: index\ntitle: Goals\n---\n\n# Goals\n\n<!-- clue:index:start -->\n- [G-001](G-001-first.md)\n<!-- clue:index:end -->\n")
 	writeFile(t, root, "docs/goals/G-001-first.md", "---\nid: G-001\ntype: goal\nstatus: accepted\nlinks: []\ntitle: First goal\n---\n")
 	return root
 }
@@ -53,9 +53,9 @@ func TestAC004_ExitCodeZeroOnValidCorpus(t *testing.T) {
 // passes or fails.
 func TestAC125_UnitPositiveAndNegative_ParityReportsDeferredPopulation(t *testing.T) {
 	root := validCorpus(t)
-	writeFile(t, root, "docs/plans/README.md", "# Plans\n\n<!-- clue:index:start -->\n- [P-001](P-001-plan.md)\n<!-- clue:index:end -->\n")
+	writeFile(t, root, "docs/plans/README.md", "---\ntype: index\ntitle: Plans\n---\n\n# Plans\n\n<!-- clue:index:start -->\n- [P-001](P-001-plan.md)\n<!-- clue:index:end -->\n")
 	writeFile(t, root, "docs/plans/P-001-plan.md", "---\nid: P-001\ntype: plan\nstatus: active\nlinks: []\ntitle: Plan\n---\n\n| ID | Milestone | Status | Evidence |\n|---|---|---|---|\n| M-001 | Door | `todo` | |\n")
-	writeFile(t, root, "docs/capabilities/README.md", "# Capabilities\n\n<!-- clue:index:start -->\n- [CAP-001](CAP-001-x/README.md)\n<!-- clue:index:end -->\n")
+	writeFile(t, root, "docs/capabilities/README.md", "---\ntype: index\ntitle: Capabilities\n---\n\n# Capabilities\n\n<!-- clue:index:start -->\n- [CAP-001](CAP-001-x/README.md)\n<!-- clue:index:end -->\n")
 	writeFile(t, root, "docs/capabilities/CAP-001-x/README.md", "---\nid: CAP-001\ntype: capability\nstatus: active\nlinks: [G-001]\ntitle: X\ngoal: G-001\n---\n")
 	writeFile(t, root, "docs/capabilities/CAP-001-x/criteria.md", "---\nid: CAP-001-criteria\ntype: criteria\nstatus: active\nlinks: [CAP-001]\ntitle: X criteria\n---\n\n```gherkin\nFeature: X\n\n  @AC-001 @draft\n  Scenario: deferred\n    Given a deferred criterion\n    Then it remains draft\n```\n")
 	manifest := filepath.Join(t.TempDir(), "source.yaml")
@@ -77,11 +77,11 @@ func TestAC125_UnitPositiveAndNegative_ParityReportsDeferredPopulation(t *testin
 func reportCorpus(t *testing.T) string {
 	t.Helper()
 	root := validCorpus(t)
-	writeFile(t, root, "docs/analysis/README.md", "# Analysis\n\n<!-- clue:index:start -->\n- [AN-001](AN-001-extraction.md) — the fixture extraction report\n<!-- clue:index:end -->\n")
+	writeFile(t, root, "docs/analysis/README.md", "---\ntype: index\ntitle: Analysis\n---\n\n# Analysis\n\n<!-- clue:index:start -->\n- [AN-001](AN-001-extraction.md) — the fixture extraction report\n<!-- clue:index:end -->\n")
 	writeFile(t, root, "docs/analysis/AN-001-source-manifest.yaml", "source-revision: rev-1\nsource-location: source\nentries:\n  - id: AC-900\n    excluded: true\n    reason: not carried forward\n")
 	report := "---\nid: AN-001\ntype: analysis\nstatus: active\nlinks: [G-001]\ntitle: Fixture extraction report\n---\n\n# AN-001\n\n<!-- clue:derived-from: docs/analysis/AN-001-source-manifest.yaml -->\n| Excluded from the migration | 417 |\n<!-- clue:derived-end -->\n"
 	writeFile(t, root, "docs/analysis/AN-001-extraction.md", report)
-	writeFile(t, root, "docs/README.md", "# Corpus\n\n<!-- clue:index:start -->\n- [goals/](goals/README.md)\n- [analysis/](analysis/README.md)\n<!-- clue:index:end -->\n")
+	writeFile(t, root, "docs/README.md", "---\ntype: index\ntitle: Corpus\n---\n\n# Corpus\n\n<!-- clue:index:start -->\n- [goals/](goals/README.md)\n- [analysis/](analysis/README.md)\n<!-- clue:index:end -->\n")
 	return root
 }
 
@@ -138,11 +138,11 @@ func TestAC051_LowCostInferredArtifactsAreAccepted(t *testing.T) {
 
 func TestAC052_RealityGapsFlagPrintsAffectedCapability(t *testing.T) {
 	root := validCorpus(t)
-	writeFile(t, root, "docs/README.md", "# Corpus\n\n<!-- clue:index:start -->\n- [goals/](goals/README.md)\n- [capabilities/](capabilities/README.md)\n- [analysis/](analysis/README.md)\n<!-- clue:index:end -->\n")
-	writeFile(t, root, "docs/capabilities/README.md", "# Capabilities\n\n<!-- clue:index:start -->\n- [CAP-101](CAP-101-x/README.md)\n<!-- clue:index:end -->\n")
+	writeFile(t, root, "docs/README.md", "---\ntype: index\ntitle: Corpus\n---\n\n# Corpus\n\n<!-- clue:index:start -->\n- [goals/](goals/README.md)\n- [capabilities/](capabilities/README.md)\n- [analysis/](analysis/README.md)\n<!-- clue:index:end -->\n")
+	writeFile(t, root, "docs/capabilities/README.md", "---\ntype: index\ntitle: Capabilities\n---\n\n# Capabilities\n\n<!-- clue:index:start -->\n- [CAP-101](CAP-101-x/README.md)\n<!-- clue:index:end -->\n")
 	writeFile(t, root, "docs/capabilities/CAP-101-x/README.md", "---\nid: CAP-101\ntype: capability\nstatus: active\nlinks: []\ntitle: X\ngoal: G-101\n---\n")
 	writeFile(t, root, "docs/capabilities/CAP-101-x/criteria.md", "---\nid: CAP-101-criteria\ntype: criteria\nstatus: active\nlinks: [CAP-101]\ntitle: X criteria\n---\n\n```gherkin\nFeature: X\n\n  @AC-101 @draft\n  Scenario: X\n    Given X\n    Then X\n```\n")
-	writeFile(t, root, "docs/analysis/README.md", "# Analysis\n\n<!-- clue:index:start -->\n- [AN-101](AN-101-incident.md)\n<!-- clue:index:end -->\n")
+	writeFile(t, root, "docs/analysis/README.md", "---\ntype: index\ntitle: Analysis\n---\n\n# Analysis\n\n<!-- clue:index:start -->\n- [AN-101](AN-101-incident.md)\n<!-- clue:index:end -->\n")
 	writeFile(t, root, "docs/analysis/AN-101-incident.md", "---\nid: AN-101\ntype: analysis\nstatus: active\nlinks: [AC-101]\ntitle: Incident\nreality: contradicted\n---\n")
 	code, out := runValidateCapturingStdout(t, []string{"--reality-gaps", root})
 	if code != 0 || !strings.Contains(out, "CAP-101: contradicted by AN-101") {
@@ -152,8 +152,8 @@ func TestAC052_RealityGapsFlagPrintsAffectedCapability(t *testing.T) {
 
 func TestAC051_CLIReportsInferredDecisionsSeparately(t *testing.T) {
 	root := validCorpus(t)
-	writeFile(t, root, "docs/README.md", "# Corpus\n\n<!-- clue:index:start -->\n- [goals/](goals/README.md)\n- [decisions/](decisions/README.md)\n<!-- clue:index:end -->\n")
-	writeFile(t, root, "docs/decisions/README.md", "# Decisions\n\n<!-- clue:index:start -->\n- [ADR-101](ADR-101-x.md)\n<!-- clue:index:end -->\n")
+	writeFile(t, root, "docs/README.md", "---\ntype: index\ntitle: Corpus\n---\n\n# Corpus\n\n<!-- clue:index:start -->\n- [goals/](goals/README.md)\n- [decisions/](decisions/README.md)\n<!-- clue:index:end -->\n")
+	writeFile(t, root, "docs/decisions/README.md", "---\ntype: index\ntitle: Decisions\n---\n\n# Decisions\n\n<!-- clue:index:start -->\n- [ADR-101](ADR-101-x.md)\n<!-- clue:index:end -->\n")
 	writeFile(t, root, "docs/decisions/ADR-101-x.md", "---\nid: ADR-101\ntype: decision\nstatus: inferred\nlinks: []\ntitle: X\nauthor: agent\naccepted-by: []\n---\n")
 	code, out := runValidateCapturingStdout(t, []string{root})
 	if code != 0 || !strings.Contains(out, "1 inferred decision(s) awaiting verification") {
@@ -163,8 +163,8 @@ func TestAC051_CLIReportsInferredDecisionsSeparately(t *testing.T) {
 
 func TestAC051_CLIReportsActivationBlockerCount(t *testing.T) {
 	root := validCorpus(t)
-	writeFile(t, root, "docs/README.md", "# Corpus\n\n<!-- clue:index:start -->\n- [goals/](goals/README.md)\n- [capabilities/](capabilities/README.md)\n<!-- clue:index:end -->\n")
-	writeFile(t, root, "docs/capabilities/README.md", "# Capabilities\n\n<!-- clue:index:start -->\n- [CAP-101](CAP-101-x/README.md)\n<!-- clue:index:end -->\n")
+	writeFile(t, root, "docs/README.md", "---\ntype: index\ntitle: Corpus\n---\n\n# Corpus\n\n<!-- clue:index:start -->\n- [goals/](goals/README.md)\n- [capabilities/](capabilities/README.md)\n<!-- clue:index:end -->\n")
+	writeFile(t, root, "docs/capabilities/README.md", "---\ntype: index\ntitle: Capabilities\n---\n\n# Capabilities\n\n<!-- clue:index:start -->\n- [CAP-101](CAP-101-x/README.md)\n<!-- clue:index:end -->\n")
 	writeFile(t, root, "docs/capabilities/CAP-101-x/README.md", "---\nid: CAP-101\ntype: capability\nstatus: active\nlinks: []\ntitle: X\ngoal: G-101\nprovenance: inferred\nreversal-cost: high\n---\n")
 
 	r, w, err := os.Pipe()
@@ -194,8 +194,8 @@ func TestAC051_CLIReportsActivationBlockerCount(t *testing.T) {
 // count the CLI prints counts `agent` and nothing else.
 func TestAC089_UnitPositive_AgentConstraintCountReported(t *testing.T) {
 	root := validCorpus(t)
-	writeFile(t, root, "docs/README.md", "# Corpus\n\n<!-- clue:index:start -->\n- [goals/](goals/README.md)\n- [constraints/](constraints/README.md)\n<!-- clue:index:end -->\n")
-	writeFile(t, root, "docs/constraints/README.md", "# Constraints\n\n<!-- clue:index:start -->\n- [C-001](C-001-rule.md)\n<!-- clue:index:end -->\n")
+	writeFile(t, root, "docs/README.md", "---\ntype: index\ntitle: Corpus\n---\n\n# Corpus\n\n<!-- clue:index:start -->\n- [goals/](goals/README.md)\n- [constraints/](constraints/README.md)\n<!-- clue:index:end -->\n")
+	writeFile(t, root, "docs/constraints/README.md", "---\ntype: index\ntitle: Constraints\n---\n\n# Constraints\n\n<!-- clue:index:start -->\n- [C-001](C-001-rule.md)\n<!-- clue:index:end -->\n")
 	writeFile(t, root, "docs/constraints/C-001-rule.md", "---\nid: C-001\ntype: constraint\nstatus: active\nlinks: []\ntitle: A rule\nsource: G-001\nenforcement: agent\n---\n")
 	if code := runValidate([]string{root}, io.Discard); code != 0 {
 		t.Fatalf("an agent-enforced constraint is valid; expected exit 0, got %d", code)
@@ -208,8 +208,8 @@ func TestAC089_UnitPositive_AgentConstraintCountReported(t *testing.T) {
 
 func TestAC089_UnitNegative_DeclaredConstraintsAreNotBacklog(t *testing.T) {
 	root := validCorpus(t)
-	writeFile(t, root, "docs/README.md", "# Corpus\n\n<!-- clue:index:start -->\n- [goals/](goals/README.md)\n- [constraints/](constraints/README.md)\n<!-- clue:index:end -->\n")
-	writeFile(t, root, "docs/constraints/README.md", "# Constraints\n\n<!-- clue:index:start -->\n- [C-001](C-001-rule.md)\n<!-- clue:index:end -->\n")
+	writeFile(t, root, "docs/README.md", "---\ntype: index\ntitle: Corpus\n---\n\n# Corpus\n\n<!-- clue:index:start -->\n- [goals/](goals/README.md)\n- [constraints/](constraints/README.md)\n<!-- clue:index:end -->\n")
+	writeFile(t, root, "docs/constraints/README.md", "---\ntype: index\ntitle: Constraints\n---\n\n# Constraints\n\n<!-- clue:index:start -->\n- [C-001](C-001-rule.md)\n<!-- clue:index:end -->\n")
 	writeFile(t, root, "docs/constraints/C-001-rule.md", "---\nid: C-001\ntype: constraint\nstatus: active\nlinks: []\ntitle: A rule\nsource: G-001\nenforcement: machine\n---\n")
 	c, _ := corpus.Scan(root)
 	if n := agentConstraintCount(c); n != 0 {
@@ -299,7 +299,7 @@ func TestUnit_ResolvedVersionPreservesExplicitDevStamp(t *testing.T) {
 // against lagging skills, a matching release passes.
 func TestAC033_RunValidateThreadsVersionIntoDriftRule(t *testing.T) {
 	root := validCorpus(t)
-	writeFile(t, root, ".agents/skills/clue-delta/skill.md", "---\ncliewen-skill: true\nversion: 0.1.0\n---\n\n# clue-delta\n")
+	writeFile(t, root, ".agents/skills/clue-delta/skill.md", "---\ncliewen-skill: true\nversion: 0.1.0\ntype: skill\ntitle: clue-delta\n---\n\n# clue-delta\n")
 	old := version
 	defer func() { version = old }()
 	version = "0.2.0"
@@ -859,7 +859,7 @@ func TestSanity_ReleaseRunsTheJudgeStampedAsTheTag(t *testing.T) {
 	// The arguments the release actually passes, against a corpus whose
 	// skills lag the stamp: exit 1, naming both versions.
 	root := validCorpus(t)
-	writeFile(t, root, ".agents/skills/clue-delta/skill.md", "---\ncliewen-skill: true\nversion: 0.1.0\n---\n\n# clue-delta\n")
+	writeFile(t, root, ".agents/skills/clue-delta/skill.md", "---\ncliewen-skill: true\nversion: 0.1.0\ntype: skill\ntitle: clue-delta\n---\n\n# clue-delta\n")
 	// runValidate receives the arguments after the subcommand, as main does.
 	runArgs := append(append([]string{}, args[1:]...), root)
 	old := version
@@ -1270,8 +1270,8 @@ func TestAC008_ForbidChangesFlagExitCodes(t *testing.T) {
 // existing curated index into a failing corpus.
 func TestAC161_UnitPositive_ConstraintBadgeMismatchIsCountedAndListed(t *testing.T) {
 	root := validCorpus(t)
-	writeFile(t, root, "docs/README.md", "# Corpus\n\n<!-- clue:index:start -->\n- [goals/](goals/README.md)\n- [constraints/](constraints/README.md)\n<!-- clue:index:end -->\n")
-	writeFile(t, root, "docs/constraints/README.md", "# Constraints\n\n<!-- clue:index:start -->\n- [C-001 — Constraint](C-001-constraint.md) · `active`\n<!-- clue:index:end -->\n")
+	writeFile(t, root, "docs/README.md", "---\ntype: index\ntitle: Corpus\n---\n\n# Corpus\n\n<!-- clue:index:start -->\n- [goals/](goals/README.md)\n- [constraints/](constraints/README.md)\n<!-- clue:index:end -->\n")
+	writeFile(t, root, "docs/constraints/README.md", "---\ntype: index\ntitle: Constraints\n---\n\n# Constraints\n\n<!-- clue:index:start -->\n- [C-001 — Constraint](C-001-constraint.md) · `active`\n<!-- clue:index:end -->\n")
 	writeFile(t, root, "docs/constraints/C-001-constraint.md", "---\nid: C-001\ntype: constraint\nstatus: active\nlinks: [G-001]\ntitle: Constraint\nsource: G-001\nenforcement: machine\n---\n")
 	code, out := runValidateCapturingStdout(t, []string{"--index-rows", root})
 	if code != 0 {
@@ -1289,8 +1289,8 @@ func TestAC161_UnitPositive_ConstraintBadgeMismatchIsCountedAndListed(t *testing
 // types, are outside the constraint-badge population.
 func TestAC161_UnitNegative_MatchingAndNonConstraintBadgesAreNotCounted(t *testing.T) {
 	root := validCorpus(t)
-	writeFile(t, root, "docs/README.md", "# Corpus\n\n<!-- clue:index:start -->\n- [goals/](goals/README.md)\n- [constraints/](constraints/README.md)\n<!-- clue:index:end -->\n")
-	writeFile(t, root, "docs/constraints/README.md", "# Constraints\n\n<!-- clue:index:start -->\n- [C-001 — Constraint](C-001-constraint.md) · `machine`\n<!-- clue:index:end -->\n")
+	writeFile(t, root, "docs/README.md", "---\ntype: index\ntitle: Corpus\n---\n\n# Corpus\n\n<!-- clue:index:start -->\n- [goals/](goals/README.md)\n- [constraints/](constraints/README.md)\n<!-- clue:index:end -->\n")
+	writeFile(t, root, "docs/constraints/README.md", "---\ntype: index\ntitle: Constraints\n---\n\n# Constraints\n\n<!-- clue:index:start -->\n- [C-001 — Constraint](C-001-constraint.md) · `machine`\n<!-- clue:index:end -->\n")
 	writeFile(t, root, "docs/constraints/C-001-constraint.md", "---\nid: C-001\ntype: constraint\nstatus: active\nlinks: [G-001]\ntitle: Constraint\nsource: G-001\nenforcement: machine\n---\n")
 	code, out := runValidateCapturingStdout(t, []string{"--index-rows", root})
 	if code != 0 {
@@ -1306,8 +1306,8 @@ func TestAC161_UnitNegative_MatchingAndNonConstraintBadgesAreNotCounted(t *testi
 // artifact owns it, so reporting it would name a row nothing can repair.
 func TestAC161_UnitNegative_AMultiTargetConstraintRowIsNotCounted(t *testing.T) {
 	root := validCorpus(t)
-	writeFile(t, root, "docs/README.md", "# Corpus\n\n<!-- clue:index:start -->\n- [goals/](goals/README.md)\n- [constraints/](constraints/README.md)\n<!-- clue:index:end -->\n")
-	writeFile(t, root, "docs/constraints/README.md", "# Constraints\n\n<!-- clue:index:start -->\n- [C-001 — Constraint](C-001-constraint.md) · `human` — read with [C-002](C-002-constraint.md)\n<!-- clue:index:end -->\n")
+	writeFile(t, root, "docs/README.md", "---\ntype: index\ntitle: Corpus\n---\n\n# Corpus\n\n<!-- clue:index:start -->\n- [goals/](goals/README.md)\n- [constraints/](constraints/README.md)\n<!-- clue:index:end -->\n")
+	writeFile(t, root, "docs/constraints/README.md", "---\ntype: index\ntitle: Constraints\n---\n\n# Constraints\n\n<!-- clue:index:start -->\n- [C-001 — Constraint](C-001-constraint.md) · `human` — read with [C-002](C-002-constraint.md)\n<!-- clue:index:end -->\n")
 	writeFile(t, root, "docs/constraints/C-001-constraint.md", "---\nid: C-001\ntype: constraint\nstatus: active\nlinks: [G-001]\ntitle: Constraint\nsource: G-001\nenforcement: machine\n---\n")
 	writeFile(t, root, "docs/constraints/C-002-constraint.md", "---\nid: C-002\ntype: constraint\nstatus: active\nlinks: [G-001]\ntitle: Second constraint\nsource: G-001\nenforcement: machine\n---\n")
 	code, out := runValidateCapturingStdout(t, []string{"--index-rows", root})
@@ -1325,7 +1325,7 @@ func TestAC161_UnitNegative_AMultiTargetConstraintRowIsNotCounted(t *testing.T) 
 // never failed on (ADR-041).
 func TestAC074_UnitPositive_FillerIndexRowIsCountedAndListed(t *testing.T) {
 	root := validCorpus(t)
-	writeFile(t, root, "docs/goals/README.md", "# Goals\n\n<!-- clue:index:start -->\n- [G-001-first](G-001-first.md)\n<!-- clue:index:end -->\n")
+	writeFile(t, root, "docs/goals/README.md", "---\ntype: index\ntitle: Goals\n---\n\n# Goals\n\n<!-- clue:index:start -->\n- [G-001-first](G-001-first.md)\n<!-- clue:index:end -->\n")
 	code, out := runValidateCapturingStdout(t, []string{"--index-rows", root})
 	if code != 0 {
 		t.Fatalf("a filler row is counted, never failed on; expected exit 0, got %d, output=%q", code, out)
@@ -1343,7 +1343,7 @@ func TestAC074_UnitPositive_FillerIndexRowIsCountedAndListed(t *testing.T) {
 // filler and never grades curated prose.
 func TestAC074_UnitNegative_StatedSubfolderAndMultiLinkRowsAreNotCounted(t *testing.T) {
 	root := validCorpus(t)
-	writeFile(t, root, "docs/goals/README.md", "# Goals\n\n<!-- clue:index:start -->\n- [G-001 — First goal](G-001-first.md) · `accepted`\n- [G-002-second](G-002-second.md) and [G-003-third](G-003-third.md)\n<!-- clue:index:end -->\n")
+	writeFile(t, root, "docs/goals/README.md", "---\ntype: index\ntitle: Goals\n---\n\n# Goals\n\n<!-- clue:index:start -->\n- [G-001 — First goal](G-001-first.md) · `accepted`\n- [G-002-second](G-002-second.md) and [G-003-third](G-003-third.md)\n<!-- clue:index:end -->\n")
 	writeFile(t, root, "docs/goals/G-002-second.md", "---\nid: G-002\ntype: goal\nstatus: accepted\nlinks: []\ntitle: Second goal\n---\n")
 	writeFile(t, root, "docs/goals/G-003-third.md", "---\nid: G-003\ntype: goal\nstatus: accepted\nlinks: []\ntitle: Third goal\n---\n")
 	code, out := runValidateCapturingStdout(t, []string{"--index-rows", root})
@@ -1364,7 +1364,7 @@ func TestAC074_UnitNegative_StatedSubfolderAndMultiLinkRowsAreNotCounted(t *test
 // seeded, so it is reported and never failed on (ADR-046).
 func TestAC099_UnitPositive_UndescribedIndexRowIsCountedAndListed(t *testing.T) {
 	root := validCorpus(t)
-	writeFile(t, root, "docs/goals/README.md", "# Goals\n\n<!-- clue:index:start -->\n- [G-001 — First goal](G-001-first.md) · `accepted`\n<!-- clue:index:end -->\n")
+	writeFile(t, root, "docs/goals/README.md", "---\ntype: index\ntitle: Goals\n---\n\n# Goals\n\n<!-- clue:index:start -->\n- [G-001 — First goal](G-001-first.md) · `accepted`\n<!-- clue:index:end -->\n")
 	code, out := runValidateCapturingStdout(t, []string{"--index-rows", root})
 	if code != 0 {
 		t.Fatalf("an undescribed row is counted, never failed on; expected exit 0, got %d, output=%q", code, out)
@@ -1386,7 +1386,7 @@ func TestAC099_UnitPositive_UndescribedIndexRowIsCountedAndListed(t *testing.T) 
 // row in both populations.
 func TestAC099_UnitNegative_DescribedFillerSubfolderAndMultiLinkRowsAreNotCounted(t *testing.T) {
 	root := validCorpus(t)
-	writeFile(t, root, "docs/goals/README.md", "# Goals\n\n<!-- clue:index:start -->\n"+
+	writeFile(t, root, "docs/goals/README.md", "---\ntype: index\ntitle: Goals\n---\n\n# Goals\n\n<!-- clue:index:start -->\n"+
 		"- [G-001 — First goal](G-001-first.md) · `accepted` — What this goal is actually about.\n"+
 		"- [G-002-second](G-002-second.md) · `accepted`\n"+
 		"- [G-003 — Third goal](G-003-third.md) · `accepted` and [G-004 — Fourth goal](G-004-fourth.md) · `accepted`\n"+
@@ -1403,7 +1403,7 @@ func TestAC099_UnitNegative_DescribedFillerSubfolderAndMultiLinkRowsAreNotCounte
 	}
 	// A subfolder README states a section, not a record, so neither population
 	// reads it — the clause is only meaningful with such a row present.
-	writeFile(t, root, "docs/goals/sub/README.md", "# Sub\n\n<!-- clue:index:start -->\n<!-- clue:index:end -->\n")
+	writeFile(t, root, "docs/goals/sub/README.md", "---\ntype: index\ntitle: Sub\n---\n\n# Sub\n\n<!-- clue:index:start -->\n<!-- clue:index:end -->\n")
 	code, out := runValidateCapturingStdout(t, []string{"--index-rows", root})
 	if code != 0 {
 		t.Fatalf("expected exit 0, got %d, output=%q", code, out)
@@ -1433,7 +1433,7 @@ func TestAC099_UnitNegative_DescribedFillerSubfolderAndMultiLinkRowsAreNotCounte
 func TestAC135_UnitPositive_ReadCostFlagCountsAndNamesMeasuredBacklogs(t *testing.T) {
 	root := validCorpus(t)
 	links := make([]string, 0, corpus.DefaultContextSliceBudget)
-	rows := []string{"# Goals", "", "<!-- clue:index:start -->", "- [G-001](G-001-first.md)"}
+	rows := []string{"---", "type: index", "title: Goals", "---", "", "# Goals", "", "<!-- clue:index:start -->", "- [G-001](G-001-first.md)"}
 	for n := 2; n <= corpus.DefaultContextSliceBudget+1; n++ {
 		id := fmt.Sprintf("G-%03d", n)
 		links = append(links, id)
@@ -1456,7 +1456,7 @@ func TestAC135_UnitPositive_ReadCostFlagCountsAndNamesMeasuredBacklogs(t *testin
 func TestAC135_UnitNegative_ReadCostFlagOmitsExamplesAndSlicesAtBudget(t *testing.T) {
 	root := validCorpus(t)
 	links := make([]string, 0, corpus.DefaultContextSliceBudget-1)
-	rows := []string{"# Goals", "", "<!-- clue:index:start -->", "- [G-001](G-001-first.md)"}
+	rows := []string{"---", "type: index", "title: Goals", "---", "", "# Goals", "", "<!-- clue:index:start -->", "- [G-001](G-001-first.md)"}
 	for n := 2; n <= corpus.DefaultContextSliceBudget; n++ {
 		id := fmt.Sprintf("G-%03d", n)
 		links = append(links, id)

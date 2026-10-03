@@ -5,13 +5,13 @@ import "testing"
 // analysisFiles extends the baseline corpus with an analysis folder and a
 // completed plan, the shape every carried-by and expiry case builds on.
 var analysisFiles = map[string]string{
-	"docs/README.md":                      "# Corpus\n\n<!-- clue:index:start -->\n- [goals/](goals/README.md)\n- [plans/](plans/README.md)\n- [analysis/](analysis/README.md)\n- [architecture/](architecture/README.md)\n- [design/](design/README.md)\n<!-- clue:index:end -->\n",
-	"docs/design/README.md":               "# Design\n\nCross-cutting behaviour.\n\n<!-- clue:index:start -->\n<!-- clue:index:end -->\n",
-	"docs/plans/README.md":                "# Plans\n\n<!-- clue:index:start -->\n- [P-001](P-001-baseline.md)\n<!-- clue:index:end -->\n",
+	"docs/README.md":                      "---\ntype: index\ntitle: Corpus\n---\n\n# Corpus\n\n<!-- clue:index:start -->\n- [goals/](goals/README.md)\n- [plans/](plans/README.md)\n- [analysis/](analysis/README.md)\n- [architecture/](architecture/README.md)\n- [design/](design/README.md)\n<!-- clue:index:end -->\n",
+	"docs/design/README.md":               "---\ntype: index\ntitle: Design\n---\n\n# Design\n\nCross-cutting behaviour.\n\n<!-- clue:index:start -->\n<!-- clue:index:end -->\n",
+	"docs/plans/README.md":                "---\ntype: index\ntitle: Plans\n---\n\n# Plans\n\n<!-- clue:index:start -->\n- [P-001](P-001-baseline.md)\n<!-- clue:index:end -->\n",
 	"docs/plans/P-001-baseline.md":        "---\nid: P-001\ntype: plan\nstatus: completed\nlinks: [G-001]\ntitle: Baseline\n---\n\n| M-001 | do it | done |\n",
-	"docs/architecture/README.md":         "# Architecture\n\nStructure.\n\n<!-- clue:index:start -->\n- [ARCH-001](ARCH-001-shape.md)\n<!-- clue:index:end -->\n",
+	"docs/architecture/README.md":         "---\ntype: index\ntitle: Architecture\n---\n\n# Architecture\n\nStructure.\n\n<!-- clue:index:start -->\n- [ARCH-001](ARCH-001-shape.md)\n<!-- clue:index:end -->\n",
 	"docs/architecture/ARCH-001-shape.md": "---\nid: ARCH-001\ntype: architecture\nstatus: active\nlinks: []\ntitle: Shape\n---\n\n# ARCH-001\n",
-	"docs/analysis/README.md":             "# Analysis\n\n<!-- clue:index:start -->\n- [AN-001](AN-001-spike.md)\n<!-- clue:index:end -->\n",
+	"docs/analysis/README.md":             "---\ntype: index\ntitle: Analysis\n---\n\n# Analysis\n\n<!-- clue:index:start -->\n- [AN-001](AN-001-spike.md)\n<!-- clue:index:end -->\n",
 	"docs/analysis/AN-001-spike.md":       "---\nid: AN-001\ntype: analysis\nstatus: active\nlinks: [P-001]\ncarried-by: [ARCH-001]\ntitle: Spike\n---\n\n# AN-001\n",
 }
 
@@ -66,7 +66,7 @@ func TestAC155_UnitNegative_CarriedByOnANonAnalysisFails(t *testing.T) {
 // forwarding address.
 func TestAC155_UnitNegative_CarriedByAnotherAnalysisFails(t *testing.T) {
 	files := with(validFiles, with(analysisFiles, map[string]string{
-		"docs/analysis/README.md":       "# Analysis\n\n<!-- clue:index:start -->\n- [AN-001](AN-001-spike.md)\n- [AN-002](AN-002-other.md)\n<!-- clue:index:end -->\n",
+		"docs/analysis/README.md":       "---\ntype: index\ntitle: Analysis\n---\n\n# Analysis\n\n<!-- clue:index:start -->\n- [AN-001](AN-001-spike.md)\n- [AN-002](AN-002-other.md)\n<!-- clue:index:end -->\n",
 		"docs/analysis/AN-002-other.md": "---\nid: AN-002\ntype: analysis\nstatus: active\nlinks: [P-001]\ntitle: Other\n---\n\n# AN-002\n",
 		"docs/analysis/AN-001-spike.md": "---\nid: AN-001\ntype: analysis\nstatus: active\nlinks: [P-001]\ncarried-by: [AN-002]\ntitle: Spike\n---\n\n# AN-001\n",
 	}))
@@ -122,9 +122,9 @@ func TestAC156_UnitNegative_OneConditionAloneIsNotSpent(t *testing.T) {
 func citingCorpus(t *testing.T, extra map[string]string) *Corpus {
 	t.Helper()
 	files := with(validFiles, with(analysisFiles, map[string]string{
-		"docs/README.md":             "# Corpus\n\n<!-- clue:index:start -->\n- [goals/](goals/README.md)\n- [plans/](plans/README.md)\n- [analysis/](analysis/README.md)\n- [architecture/](architecture/README.md)\n- [design/](design/README.md)\n- [decisions/](decisions/README.md)\n- [constraints/](constraints/README.md)\n<!-- clue:index:end -->\n",
-		"docs/decisions/README.md":   "# Decisions\n\n<!-- clue:index:start -->\n- [ADR-001](ADR-001-a-rule.md)\n<!-- clue:index:end -->\n",
-		"docs/constraints/README.md": "# Constraints\n\n<!-- clue:index:start -->\n- [C-001](C-001-a-rule.md)\n<!-- clue:index:end -->\n",
+		"docs/README.md":             "---\ntype: index\ntitle: Corpus\n---\n\n# Corpus\n\n<!-- clue:index:start -->\n- [goals/](goals/README.md)\n- [plans/](plans/README.md)\n- [analysis/](analysis/README.md)\n- [architecture/](architecture/README.md)\n- [design/](design/README.md)\n- [decisions/](decisions/README.md)\n- [constraints/](constraints/README.md)\n<!-- clue:index:end -->\n",
+		"docs/decisions/README.md":   "---\ntype: index\ntitle: Decisions\n---\n\n# Decisions\n\n<!-- clue:index:start -->\n- [ADR-001](ADR-001-a-rule.md)\n<!-- clue:index:end -->\n",
+		"docs/constraints/README.md": "---\ntype: index\ntitle: Constraints\n---\n\n# Constraints\n\n<!-- clue:index:start -->\n- [C-001](C-001-a-rule.md)\n<!-- clue:index:end -->\n",
 	}))
 	c, issues := Scan(writeCorpus(t, with(files, extra)))
 	if len(issues) != 0 {
@@ -147,7 +147,7 @@ func TestAC158_UnitPositive_AnUncitedSpikeIsStillReported(t *testing.T) {
 	c := citingCorpus(t, map[string]string{
 		"docs/decisions/ADR-001-a-rule.md": adr("P-001"),
 		"docs/constraints/C-001-a-rule.md": constraint("P-001"),
-		"docs/analysis/README.md":          "# Analysis\n\n<!-- clue:index:start -->\n- [AN-001](AN-001-spike.md)\n- [AN-002](AN-002-other.md)\n<!-- clue:index:end -->\n",
+		"docs/analysis/README.md":          "---\ntype: index\ntitle: Analysis\n---\n\n# Analysis\n\n<!-- clue:index:start -->\n- [AN-001](AN-001-spike.md)\n- [AN-002](AN-002-other.md)\n<!-- clue:index:end -->\n",
 		"docs/analysis/AN-002-other.md":    "---\nid: AN-002\ntype: analysis\nstatus: active\nlinks: [P-001, AN-001]\ntitle: Other\n---\n\n# AN-002\n",
 	})
 	spent := SpentAnalyses(c)

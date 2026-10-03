@@ -1,3 +1,8 @@
+---
+type: skill-reference
+title: Change loop
+---
+
 ## Change loop
 
 Use when the user chooses the tracked Cliewen route recommended for accepted-contract change. Direct work is recommended before this skill and does not invoke it. Apply [Decision records](decision-records.md), [Repository-local conventions](repository-local-conventions.md), and [Durable work state](durable-work-state.md) throughout the loop.

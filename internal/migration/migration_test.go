@@ -172,15 +172,15 @@ func fixtureTarget(t *testing.T, prefix, criterion, revision, location string) s
 	}
 	ledgerFile := fmt.Sprintf("counters:\n  G: 1\n  CAP: 901\n  IC: 901\n  %s: %s\nentries:\n  - id: G-001\n    kind: numeric\n    state: live\n    prefix: G\n    component: 1\n  - id: CAP-901\n    kind: numeric\n    state: live\n    prefix: CAP\n    component: 901\n  - id: IC-901\n    kind: numeric\n    state: live\n    prefix: IC\n    component: 901\n%s  - id: %s\n    kind: numeric\n    state: live\n    prefix: %s\n    component: %s\n    source-revision: %s\n    source-location: %s\n  - id: %s-criteria\n    kind: opaque\n    state: live\n", prefix, counter, archived, criterion, prefix, component, revision, location, prefix)
 	writeFixtureFiles(t, root, map[string]string{
-		"docs/README.md":                        "# fixture\n\n<!-- clue:index:start -->\n- [goals/](goals/) — fixture goal\n- [capabilities/](capabilities/) — fixture capability\n- [imported-changes/](imported-changes/) — fixture imported work\n<!-- clue:index:end -->\n",
-		"docs/goals/README.md":                  "# goals\n\n<!-- clue:index:start -->\n- [G-001.md](G-001.md) — fixture goal\n<!-- clue:index:end -->\n",
+		"docs/README.md":                        "---\ntype: index\ntitle: fixture\n---\n\n# fixture\n\n<!-- clue:index:start -->\n- [goals/](goals/) — fixture goal\n- [capabilities/](capabilities/) — fixture capability\n- [imported-changes/](imported-changes/) — fixture imported work\n<!-- clue:index:end -->\n",
+		"docs/goals/README.md":                  "---\ntype: index\ntitle: goals\n---\n\n# goals\n\n<!-- clue:index:start -->\n- [G-001.md](G-001.md) — fixture goal\n<!-- clue:index:end -->\n",
 		"docs/goals/G-001.md":                   "---\nid: G-001\ntype: goal\nstatus: accepted\nlinks: []\ntitle: Fixture goal\n---\n\n# Fixture goal\n",
-		"docs/capabilities/README.md":           "# capabilities\n\n<!-- clue:index:start -->\n- [fixture/](fixture/) — fixture capability\n<!-- clue:index:end -->\n",
+		"docs/capabilities/README.md":           "---\ntype: index\ntitle: capabilities\n---\n\n# capabilities\n\n<!-- clue:index:start -->\n- [fixture/](fixture/) — fixture capability\n<!-- clue:index:end -->\n",
 		"docs/capabilities/fixture/README.md":   "---\nid: CAP-901\ntype: capability\nstatus: active\nlinks: [G-001]\ntitle: Fixture capability\ngoal: G-001\n---\n\n# Fixture capability\n",
 		"docs/capabilities/fixture/criteria.md": criteria,
-		"docs/imported-changes/README.md":       "# imported changes\n\n<!-- clue:index:start -->\n- [IC-901.md](IC-901.md) — fixture source work\n<!-- clue:index:end -->\n",
+		"docs/imported-changes/README.md":       "---\ntype: index\ntitle: imported changes\n---\n\n# imported changes\n\n<!-- clue:index:start -->\n- [IC-901.md](IC-901.md) — fixture source work\n<!-- clue:index:end -->\n",
 		"docs/imported-changes/IC-901.md":       fmt.Sprintf("---\nid: IC-901\ntype: imported-change\nstatus: complete\nlinks: [CAP-901]\ntitle: Fixture pending source work\nsource-revision: %s\nsource-location: %s\n---\n\n# Fixture pending source work\n\n## Intent\n\nPreserve the source change.\n\n## Design rationale\n\nThe target retains the proof link.\n\n## Dependencies\n\nNone.\n\n## Proof links\n\n| Task | Criterion |\n| --- | --- |\n| Preserve source proof | %s |\n", revision, location, criterion),
-		"AGENTS.md":                             "# fixture routing\n",
+		"AGENTS.md":                             "---\ntype: agent-hub\ntitle: fixture routing\n---\n\n# fixture routing\n",
 		"tests/fixture_test.go":                 "package fixture\n\nfunc Test" + strings.ReplaceAll(criterion, "-", "") + "_IntegrationPositive_preservesProof(t *testing.T) {}\nfunc Test" + strings.ReplaceAll(criterion, "-", "") + "_IntegrationNegative_rejectsLoss(t *testing.T) {}\n",
 		".clue/id-ledger.yaml":                  ledgerFile,
 	})
@@ -348,7 +348,7 @@ func materializeAssessmentScaleTarget(t *testing.T, root, revision, location str
 	var criteria, tests, ledgerFile, importedIndex strings.Builder
 	fmt.Fprint(&criteria, "---\nid: SCL-criteria\ntype: criteria\nstatus: active\nlinks: [CAP-901]\ntitle: Assessment-scale fixture criteria\nac-prefix: SCL\n---\n\n```gherkin\nFeature: Assessment-scale migration\n")
 	fmt.Fprintf(&ledgerFile, "counters:\n  G: 1\n  CAP: 901\n  IC: %d\n  SCL: %d\nentries:\n  - id: G-001\n    kind: numeric\n    state: live\n    prefix: G\n    component: 1\n  - id: CAP-901\n    kind: numeric\n    state: live\n    prefix: CAP\n    component: 901\n  - id: SCL-criteria\n    kind: opaque\n    state: live\n", assessmentScaleInFlightBase+assessmentScaleInFlight, assessmentScaleArchivedBase+assessmentScaleArchived)
-	fmt.Fprint(&importedIndex, "# imported changes\n\n<!-- clue:index:start -->\n")
+	fmt.Fprint(&importedIndex, "---\ntype: index\ntitle: imported changes\n---\n\n# imported changes\n\n<!-- clue:index:start -->\n")
 	for i := 1; i <= assessmentScaleCriteria; i++ {
 		id := fmt.Sprintf("SCL-%03d", i)
 		fmt.Fprintf(&criteria, "\n  @%s\n  Scenario: source proof %d survives migration\n    Test-type: Integration\n    Given source proof %d\n    When it is migrated\n    Then it remains classified\n", id, i, i)
@@ -366,16 +366,16 @@ func materializeAssessmentScaleTarget(t *testing.T, root, revision, location str
 		fmt.Fprintf(&importedIndex, "- [%s.md](%s.md) — fixture source work\n", id, id)
 	}
 	writeFixtureFiles(t, root, map[string]string{
-		"docs/README.md":                        "# fixture\n\n<!-- clue:index:start -->\n- [goals/](goals/) — fixture goal\n- [capabilities/](capabilities/) — fixture capability\n- [imported-changes/](imported-changes/) — fixture imported work\n<!-- clue:index:end -->\n",
-		"docs/goals/README.md":                  "# goals\n\n<!-- clue:index:start -->\n- [G-001.md](G-001.md) — fixture goal\n<!-- clue:index:end -->\n",
+		"docs/README.md":                        "---\ntype: index\ntitle: fixture\n---\n\n# fixture\n\n<!-- clue:index:start -->\n- [goals/](goals/) — fixture goal\n- [capabilities/](capabilities/) — fixture capability\n- [imported-changes/](imported-changes/) — fixture imported work\n<!-- clue:index:end -->\n",
+		"docs/goals/README.md":                  "---\ntype: index\ntitle: goals\n---\n\n# goals\n\n<!-- clue:index:start -->\n- [G-001.md](G-001.md) — fixture goal\n<!-- clue:index:end -->\n",
 		"docs/goals/G-001.md":                   "---\nid: G-001\ntype: goal\nstatus: accepted\nlinks: []\ntitle: Fixture goal\n---\n\n# Fixture goal\n",
-		"docs/capabilities/README.md":           "# capabilities\n\n<!-- clue:index:start -->\n- [fixture/](fixture/) — fixture capability\n<!-- clue:index:end -->\n",
+		"docs/capabilities/README.md":           "---\ntype: index\ntitle: capabilities\n---\n\n# capabilities\n\n<!-- clue:index:start -->\n- [fixture/](fixture/) — fixture capability\n<!-- clue:index:end -->\n",
 		"docs/capabilities/fixture/README.md":   "---\nid: CAP-901\ntype: capability\nstatus: active\nlinks: [G-001]\ntitle: Fixture capability\ngoal: G-001\n---\n\n# Fixture capability\n",
 		"docs/capabilities/fixture/criteria.md": criteria.String(),
 		"docs/imported-changes/README.md":       importedIndex.String() + "<!-- clue:index:end -->\n",
 		"tests/scale_test.go":                   "package fixture\n\nimport \"testing\"\n\n" + tests.String(),
 		".clue/id-ledger.yaml":                  ledgerFile.String(),
-		"AGENTS.md":                             "# assessment-scale fixture routing\n",
+		"AGENTS.md":                             "---\ntype: agent-hub\ntitle: assessment-scale fixture routing\n---\n\n# assessment-scale fixture routing\n",
 		".github/workflows/validate.yml":        "name: validate\non: [push]\njobs:\n  validate:\n    runs-on: ubuntu-latest\n    steps:\n      - run: clue validate .\n",
 	})
 	for i := 1; i <= assessmentScaleInFlight; i++ {
@@ -393,7 +393,7 @@ func writeFixtureSkills(t *testing.T, root, version string) {
 	t.Helper()
 	files := map[string]string{}
 	for _, name := range []string{"clue-delta", "clue-extract", "clue-verify"} {
-		files[".agents/skills/"+name+"/skill.md"] = fmt.Sprintf("---\ncliewen-skill: true\nversion: %s\n---\n\n# %s\n", version, name)
+		files[".agents/skills/"+name+"/skill.md"] = fmt.Sprintf("---\ncliewen-skill: true\nversion: %s\ntype: skill\ntitle: %s\n---\n\n# %s\n", version, name, name)
 	}
 	writeFixtureFiles(t, root, files)
 }

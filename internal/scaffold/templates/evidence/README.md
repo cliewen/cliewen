@@ -1,3 +1,8 @@
+---
+type: evidence-guide
+title: Repository-owned acceptance evidence
+---
+
 # Repository-owned acceptance evidence
 
 Gherkin describes behavior. Tests carry AC identity, proof type and direction in the framework's native metadata, custom executable-bound metadata, or a stable name/title. This folder holds examples, not a framework support registry. Establish and test the repository's export command before activating machine-proven criteria.

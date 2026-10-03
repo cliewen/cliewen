@@ -775,7 +775,7 @@ func TestUnit_MissingFolderReadmeIsReportedNotInvented(t *testing.T) {
 func TestUnit_CrlfReadmeKeepsItsLineEndings(t *testing.T) {
 	root, _ := runInto(t)
 	readme := filepath.Join(root, "docs", "goals", "README.md")
-	proseCRLF := "# Goals\r\n\r\nProse that must stay CRLF.\r\n\r\n"
+	proseCRLF := "---\r\ntype: index\r\ntitle: Goals\r\n---\r\n\r\n# Goals\r\n\r\nProse that must stay CRLF.\r\n\r\n"
 	crlf := proseCRLF + IndexStart + "\r\n" + IndexEnd + "\r\n"
 	if err := os.WriteFile(readme, []byte(crlf), 0o644); err != nil {
 		t.Fatal(err)
