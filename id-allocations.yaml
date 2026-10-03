@@ -1050,6 +1050,11 @@ claims:
       state: reserved
       prefix: AC
       component: "211"
+    - id: AC-212
+      kind: numeric
+      state: reserved
+      prefix: AC
+      component: "212"
     - id: ADR-001
       kind: numeric
       state: reserved
@@ -3186,11 +3191,11 @@ claims:
       prefix: VIS
       component: "1"
 high-water:
-    - id: AC-208
+    - id: AC-211
       kind: numeric
       state: reserved
       prefix: AC
-      component: "208"
+      component: "211"
     - id: ADR-071
       kind: numeric
       state: reserved
