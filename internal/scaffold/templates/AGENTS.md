@@ -30,6 +30,8 @@ When the user asks what is next, run `clue next --all`, report the first actiona
 
 **Markdown prose is never hard-wrapped.** One line per paragraph and per list item; wrapping is the reader's IDE concern. Line breaks are structural only (headings, lists, tables, code fences).
 
+**Markdown files open with frontmatter.** A corpus artifact carries its artifact fields; any other Markdown file Cliewen checks carries a `type` and a `title`, and a folder README under `docs/` declares `type: index`. The pull-request template is the exception, because your forge pastes it into every pull request.
+
 **Guide writing is clear for software practitioners.** When changing prose in `/guide`, use the `humanizer` AI skill if it is installed. If it is not installed, ask the user to install it in the coding agent's local user directory before changing guide prose. The guide is for developers, people who work with coding agents, team leads, and architects. Use plain language, and explain a technical term when it first appears or link to a short glossary definition.
 
 **The core is behind a red line.** Cliewen's core is the verifiable thread (goal → plan → change → capability → criterion → acceptance evidence, including classified executable references and genuine Human proof in the acceptance brief), the tracked-route human acceptance boundary, and `clue validate` as deterministic judge. A change that alters what any of these means changes the accepted contract, so the agent recommends tracked and records an explicit decision; the user retains the authority to choose direct with the required override trailers. Everything else is periphery you may freely extend — including your own artifact types under `docs/` — and periphery never constrains the core.

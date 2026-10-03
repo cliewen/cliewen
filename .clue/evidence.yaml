@@ -51,7 +51,7 @@ producers:
       - path: cmd/clue/scaffold_test.go
         sha256: 1ccb862433f4efd5621ddfac4e19251ca4271e9ffb2e9068dab22453643aa711
       - path: docs/README.md
-        sha256: 687edad0a0b04ace1064eb61f963278924e5740828d7a000051cd3b3a9eacd1c
+        sha256: 9387b319e918f4770ce533a93a0405b9af09ce5ebd3ca60da2f5a829d98d4506
       - path: docs/analysis/AN-002-model2diagram-extraction.md
         sha256: 226783bf81546eb4b69ce34bc80a877db6b7db0c1bc9aa988e9ee359fcba84a0
       - path: docs/analysis/AN-003-robocode-api-bridge-calibration.md
@@ -109,13 +109,13 @@ producers:
       - path: docs/capabilities/CAP-001-onboarding/criteria.md
         sha256: 8f5d17a63ca095323eadbf8b6814f076c033d85851716f6224ab6b447aadbd59
       - path: docs/capabilities/CAP-001-onboarding/design.md
-        sha256: fcd798fd97226564d462768fffe1b32b9fce0fa38df7d9a5b0b4a3c1bd40b891
+        sha256: 56dd92b1afa82d79d126d251731a2a82d080a5ecfef0ffa1b26fe03b19855e32
       - path: docs/capabilities/CAP-002-validate/README.md
         sha256: 50348ffdc759b680202821c21de23f4a6f170a55b45bf2eba603aaec19813004
       - path: docs/capabilities/CAP-002-validate/criteria.md
         sha256: 86888a39be7c7017e1c6c44ef5b5ef837299c1cd97de418146936fbd74240d04
       - path: docs/capabilities/CAP-002-validate/design.md
-        sha256: 61268c1dfe879be1c8e3f607645517973b07d8a164a8a4d38a7fa69e717c15dc
+        sha256: ea20ca80b3872d6fb185408afb7793c91366744fdeea05fc31a7c972d44976ef
       - path: docs/capabilities/CAP-003-extract/README.md
         sha256: 12588a6ab8725ed63389bc19bf5deaa096ed42c9867f2fe30ca81789f75549ea
       - path: docs/capabilities/CAP-003-extract/criteria.md

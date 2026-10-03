@@ -9,7 +9,7 @@ This directory is the **system-of-record**: the permanent, durable truth about t
 
 ## How the corpus is wired
 
-Every artifact carries YAML frontmatter with a common core — `id`, `type`, `status`, `links`, `title` — plus small type-specific extensions. **Identity is the ID, the path is only the current address**: tooling discovers artifacts by scanning frontmatter, and external systems reference IDs, never paths. Status lives in frontmatter, never in folder names; status views are generated.
+Every artifact carries YAML frontmatter with a common core — `id`, `type`, `status`, `links`, `title` — plus small type-specific extensions. **Identity is the ID, the path is only the current address**: tooling discovers artifacts by scanning frontmatter, and external systems reference IDs, never paths. Status lives in frontmatter, never in folder names; status views are generated. A folder README is not an artifact: its frontmatter is only `type: index` and a `title`, and any other Markdown file carries at least a `type` and `title` ([PDR-065](decisions/PDR-065-markdown-carries-frontmatter-by-default.md)).
 
 Two threads run through the corpus and meet only at the goal. The **intent thread** says what the product means, and its first two steps are optional to hold:
 

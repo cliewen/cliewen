@@ -9,7 +9,7 @@ This directory is the **system-of-record**: the permanent, durable truth about t
 
 ## How the corpus is wired
 
-Every artifact carries YAML frontmatter with a common core — `id`, `type`, `status`, `links`, `title` — plus small type-specific extensions. **Identity is the ID, the path is only the current address**: tooling discovers artifacts by scanning frontmatter, and external systems reference IDs, never paths.
+Every artifact carries YAML frontmatter with a common core — `id`, `type`, `status`, `links`, `title` — plus small type-specific extensions. **Identity is the ID, the path is only the current address**: tooling discovers artifacts by scanning frontmatter, and external systems reference IDs, never paths. A folder README is not an artifact: its frontmatter is only `type: index` and a `title`, which `clue scaffold` adds when it is missing.
 
 An extracted non-decision carries `provenance: inferred` and `reversal-cost: low|high`; low explicitly permits deferral, while high-cost inferred meaning blocks an active capability joined to it by one `links:` edge. Remove `reversal-cost` when a human verifies the artifact. Decisions carry provenance in `status`. An incident analysis where the corpus was green but reality disproved a claim carries `reality: contradicted` and links the failed capability or acceptance criterion; `clue validate --reality-gaps` derives the affected-capability view. An analysis whose findings have reached durable form names those artifacts in `carried-by: [ID, …]`, which lets `clue migrate` report the spike as spent once every plan it serves is complete and no live decision or constraint still cites it.
 
