@@ -2573,8 +2573,8 @@ func scanForPlanning(root string) (*corpus.Corpus, []corpus.Issue) {
 	return c, kept
 }
 
-// planIndexHeaders gives every taxonomy folder README without frontmatter its
-// type: index header (PDR-065). A README this plan already changes, for index
+// planIndexHeaders gives every README under docs/ and changes/ without
+// frontmatter its type: index header, at any depth (PDR-065). A README this plan already changes, for index
 // rows or as a new bootstrap, receives the header in that same change, since
 // two changes on one path would overwrite each other at apply time.
 func planIndexHeaders(root string, result *MigrationPlan) {
