@@ -4,6 +4,16 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 
 ## [Unreleased]
 
+### Changed
+
+- **The two change routes are now called `direct` and `tracked` instead of `simple` and `full`.** What each route requires is unchanged. One question decides between them: does the work change the accepted contract? Direct, the default, is for work that keeps every promise; tracked is for work that changes one and runs the proposal, evidence, digest, and human-merge loop. The generated skills, the `AGENTS.md` and pull-request template that `clue init` and `clue scaffold` write, and `clue` messages use the new names, so an agent now says `Recommended route: direct` or `Recommended route: tracked`.
+- **The Cliewen validation workflow accepts a route override in either spelling, permanently.** A commit carrying `Cliewen-Route: direct` and `Cliewen-Recommendation: tracked`, or the older `simple` and `full`, or a mix of the two, counts as a complete override, so commits written under earlier skills keep passing. Any other value still leaves the acceptance-brief check in force.
+- **`clue migrate` reports a routing hub that still uses the old route names.** When `AGENTS.md` still says `Recommended route: simple` or `full`, or shows the old trailer values, the migration plan adds a notice naming the new ones. It never rewrites your hub.
+
+### Migration
+
+- No migration is required. Old trailers keep working, and an `AGENTS.md` that still says `simple` and `full` keeps routing correctly. To stop agents from mixing the two vocabularies, update your hub's route sentence and override example to `direct` and `tracked`; `clue migrate` points out where they are.
+
 ## [0.27.0] - 2026-09-30
 
 ### Added

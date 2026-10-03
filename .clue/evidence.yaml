@@ -101,9 +101,9 @@ producers:
       - path: docs/architecture/architecture.md
         sha256: 5de753ab9456c106f3c2dd7d044d16fd9f2c9fc182a2ee58fda09633948020e9
       - path: docs/architecture/core.md
-        sha256: ee94937d42658b7eef227441095260af7c6f7bd9834d5360e376503d647463ad
+        sha256: 4404753a8ee5893c3554c508254fbe7af0d38129397377a27acd56ea5f95f1ba
       - path: docs/architecture/skills.md
-        sha256: a417baa18e78bf432883ea66a5c31a618bb3c76d53de5a5eb4debaf7993d105a
+        sha256: ca45930e5d3f2d60c87fd1d25204e0b94f1b9db5c4e45f418c31557590331858
       - path: docs/capabilities/CAP-001-onboarding/README.md
         sha256: 0deb26a60056f03f75da8e45aa16c21fa2e515418854b4260bc69e61dc048119
       - path: docs/capabilities/CAP-001-onboarding/criteria.md

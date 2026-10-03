@@ -20,7 +20,7 @@ Remove any one element and the other two stop meaning anything: evidence without
 
 ## The red line
 
-A change that alters the *meaning* of a core element — what the thread connects, what acceptance binds, what a green validate asserts — is always recommended for the tracked route with an explicit decision record and human acceptance. An explicit user choice may route it as simple under PDR-042, with the override and remaining risk retained in Git history. When a peripheral rule conflicts with a core element, the peripheral rule yields or is retired.
+A change that alters the *meaning* of a core element — what the thread connects, what acceptance binds, what a green validate asserts — is always recommended for the tracked route with an explicit decision record and human acceptance. An explicit user choice may route it as direct under PDR-042, with the override and remaining risk retained in Git history. When a peripheral rule conflicts with a core element, the peripheral rule yields or is retired.
 
 ## Periphery
 
