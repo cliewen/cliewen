@@ -14,7 +14,7 @@ const IndexType = "index"
 
 // MissingIndexHeader is the scan issue for a folder README with no
 // frontmatter. clue migrate repairs it, so migration planning reads past it.
-const MissingIndexHeader = "missing frontmatter (a folder README carries type: index and a title, PDR-065)"
+const MissingIndexHeader = "missing frontmatter (a folder README carries type: index and a title, PDR-065; clue migrate adds it)"
 
 // DeliveredMarkdown lists the Markdown files Cliewen materializes outside
 // docs/ that an adopter keeps and edits. Each carries a document header when

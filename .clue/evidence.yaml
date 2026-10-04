@@ -535,7 +535,7 @@ producers:
       - path: docs/goals/G-020-goal-service-level-is-observable.md
         sha256: bba8e31824a8bd38fe6a7dde1b7dc330b15cc45740209008574d15fc13b64fb3
       - path: docs/goals/G-021-guide-sanity-tests-are-red-on-main.md
-        sha256: 9f7f452aa316b173295b8b4645af6224d1c298bfef198698f44e775539efd7bd
+        sha256: cb8d000687ec62a4005dc74d155a8f836feb4e31f566b46b296282158c7bb6ad
       - path: docs/goals/G-022-every-markdown-file-carries-frontmatter.md
         sha256: a474a1020f494f9e84aad07166cda28c1dbdd22d734e04f29e1167e65c26c9d7
       - path: docs/goals/G-023-source-repository-skills-load-on-case-sensitive-filesystems.md
