@@ -9,6 +9,8 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 
 ## [Unreleased]
 
+## [0.28.0] - 2026-10-04
+
 ### Changed
 
 - **Each generated skill now names itself and says when to use it.** The entry point's frontmatter carries `name`, equal to the skill's directory, and a `description` that states what the skill does and when to reach for it. Agent hosts that list skills by description, such as Claude Code, previously showed the generated-file comment for all six `clue-*` skills. The refreshed skills arrive through `clue migrate` as part of the usual managed-skill update.
