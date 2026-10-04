@@ -1,6 +1,6 @@
 ---
 cliewen-skill: true
-version: 0.27.0
+version: 0.28.0
 type: skill
 title: clue-upgrade
 name: clue-upgrade
