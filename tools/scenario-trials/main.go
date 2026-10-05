@@ -38,18 +38,15 @@ func main() {
 
 func runCommand(args []string) {
 	fs := flag.NewFlagSet("run", flag.ExitOnError)
-	scenario := fs.String("scenario", "routing", "scenario name")
+	scenario := fs.String("scenario", "routing", "scenario: "+strings.Join(scenarioNames(), ", "))
 	agent := fs.String("agent", "", "agent adapter: "+strings.Join(adapterNames(), ", "))
 	runs := fs.Int("runs", 5, "number of runs")
 	commit := fs.String("clue-commit", "HEAD", "revision the clue binary and skills are built from")
 	login := fs.String("login", "", "where the agent's login lives, outside the repository; each adapter has a default under ~/.cliewen-trial")
 	out := fs.String("out", "scenario-runs", "directory for run records")
 	model := fs.String("model", "", "model to pass to the agent")
-	variant := fs.String("variant", "baseline", "method variant; only baseline exists before M-107")
+	variant := fs.String("variant", baselineVariant, "method variant, a named removal applied inside the container only: "+strings.Join(variantNames(), ", "))
 	_ = fs.Parse(args)
-	if *variant != "baseline" {
-		fatal(fmt.Errorf("method variant %q does not exist yet", *variant))
-	}
 	ad, err := adapterFor(*agent)
 	if err != nil {
 		fatal(err)

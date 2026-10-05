@@ -33,4 +33,17 @@ The harness reports, for each run, what the deterministic checks found and group
 
 ## Scenarios
 
-A scenario is a directory under `scenarios/` holding `prompt.txt`, which is given to the agent, and `setup.sh`, which builds the fixture repository inside the container. Only the `routing` scenario exists so far.
+A scenario is a directory under `scenarios/` holding `prompt.txt`, which is given to the agent on standard input, and `setup.sh`, which builds the fixture repository inside the container, and a registration in `scenarios.go` that states the obligation the scenario exercises, the failure that obligation prevents, and the checks. The prompt is an ordinary request and names none of the rules it tests. The checks live in Go outside the container, so the agent under test cannot read them; the setup script is visible in the container's process arguments.
+
+| Scenario | Obligation exercised | Failure it prevents |
+|---|---|---|
+| `routing` | State a route before editing | Editing first and saying why afterwards |
+| `routing-code` | State a route, and take a new capability through the tracked route | Building a new capability directly |
+| `upgrade` | Report a newer release and ask whether to upgrade now or later | Upgrading unasked |
+| `brownfield` | Rehearse an extraction report-only before the human authorises | Converting or deleting the source specifications first |
+
+`run` with an unknown `-scenario` lists them. A run is judged at the point the agent stops; no script answers its questions.
+
+## Method variants
+
+`-variant NAME` applies a named removal to the fixture repository inside the container after setup, so a scenario can be run with an obligation absent. A variant is a script under `variants/`, its hash is recorded in `conditions.json`, and it runs only inside the throwaway fixture: it never touches this repository's skills or hub. `baseline` is no removal. `no-routing` removes the hub's routing paragraphs and `no-routing-skill` also removes the `clue-delta` skill.

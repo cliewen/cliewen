@@ -7,4 +7,6 @@ COPY clue /usr/local/bin/clue
 RUN chmod +x /usr/local/bin/clue
 USER node
 WORKDIR /home/node
+RUN mkdir -p /home/node/bin
+ENV PATH=/home/node/bin:${PATH}
 RUN git config --global user.name trial && git config --global user.email trial@example.invalid && git config --global init.defaultBranch main

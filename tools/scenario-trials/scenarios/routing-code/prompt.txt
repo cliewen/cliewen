@@ -1,0 +1,1 @@
+Add an option to tool.js so the report can be exported as CSV.

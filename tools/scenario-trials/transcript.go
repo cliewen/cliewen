@@ -26,32 +26,25 @@ type Transcript struct {
 	Finished     bool
 }
 
-// Outcome is what the deterministic checks say about one run.
+// Outcome is what the deterministic checks say about one run: what every run
+// reports, and the fields its scenario observes.
 type Outcome struct {
-	TypoRoute         string  `json:"typoRoute"`
-	ExportRoute       string  `json:"exportRoute"`
-	VersionCheckFirst bool    `json:"versionCheckFirst"`
-	EditBeforeRoute   bool    `json:"editBeforeRoute"`
-	ReadmeEdited      bool    `json:"readmeEdited"`
-	Recommended       bool    `json:"recommended"`
-	ConfigLeak        bool    `json:"configLeak"`
-	MCPServers        int     `json:"mcpServers"`
-	Model             string  `json:"model"`
-	AgentVersion      string  `json:"agentVersion"`
-	Turns             int     `json:"turns"`
-	CostUSD           float64 `json:"costUsd"`
-	DurationMS        int     `json:"durationMs"`
-	Finished          bool    `json:"finished"`
+	Observed          map[string]string `json:"observed"`
+	VersionCheckFirst bool              `json:"versionCheckFirst"`
+	ConfigLeak        bool              `json:"configLeak"`
+	MCPServers        int               `json:"mcpServers"`
+	Model             string            `json:"model"`
+	AgentVersion      string            `json:"agentVersion"`
+	Turns             int               `json:"turns"`
+	CostUSD           float64           `json:"costUsd"`
+	DurationMS        int               `json:"durationMs"`
+	Finished          bool              `json:"finished"`
 }
 
 var (
 	routeRe = regexp.MustCompile(`(?i)recommended route(?:\s+for\s+[^:\n]*)?:?\W*(direct|tracked|simple|full)\b`)
 	// looseRe is any statement of a route in plain words, such as "as a direct change".
 	looseRe = regexp.MustCompile(`(?i)\b(direct|tracked)\b`)
-	// sentenceRe splits on line breaks, semicolons, and sentence ends followed by space.
-	sentenceRe = regexp.MustCompile(`\n|[.!?]\s+|;\s*`)
-	typoRe     = regexp.MustCompile(`(?i)typo|readme|teh`)
-	csvRe      = regexp.MustCompile(`(?i)csv|export`)
 	// shellWriteRe matches commands that change files whatever the redirections say.
 	shellWriteRe = regexp.MustCompile(`(?:^|[\s;&|(])(?:sed\s+(?:-\w*i|--in-place)|perl\s+-\w*i|tee\s|git\s+(?:add|commit|apply|checkout|restore|rm|mv)|rm\s|mv\s|cp\s|touch\s|truncate\s|install\s)`)
 	// pyWriteRe matches a script writing a file from an interpreter.
@@ -63,18 +56,6 @@ var (
 	fileRedirRe  = regexp.MustCompile(`>>?\s*[^\s>&|;]`)
 )
 
-// Signature groups runs that behaved the same way on what the scenario asks.
-func (o Outcome) Signature() string {
-	b := func(v bool) string {
-		if v {
-			return "yes"
-		}
-		return "no"
-	}
-	return "typo=" + or(o.TypoRoute, "none") + " export=" + or(o.ExportRoute, "none") +
-		" edit-before-route=" + b(o.EditBeforeRoute) + " readme-edited=" + b(o.ReadmeEdited)
-}
-
 func or(s, d string) string {
 	if s == "" {
 		return d
@@ -82,39 +63,40 @@ func or(s, d string) string {
 	return s
 }
 
-// Check reads one run's transcript and the post-run working-tree listing.
-func Check(t Transcript, postStatus string) Outcome {
-	o := Outcome{Model: t.Model, AgentVersion: t.AgentVersion, MCPServers: t.MCPServers,
-		Turns: t.Turns, CostUSD: t.CostUSD, DurationMS: t.DurationMS, Finished: t.Finished}
-	toolSeen := false
-	routeSeen := false
+// yn renders a boolean the way signatures show it.
+func yn(v bool) string {
+	if v {
+		return "yes"
+	}
+	return "no"
+}
+
+// scan holds what scenarios share about the order of a transcript.
+type scan struct {
+	EditBeforeRoute   bool // something was changed before any route was stated
+	VersionCheckFirst bool // the first tool call was `clue latest`
+}
+
+func scanTranscript(t Transcript) scan {
+	var sc scan
+	toolSeen, routeSeen := false, false
 	for _, st := range t.Steps {
 		switch st.Kind {
 		case "tool":
 			if !toolSeen {
 				toolSeen = true
-				o.VersionCheckFirst = st.Tool == "Bash" && strings.Contains(st.Command, "clue latest")
+				sc.VersionCheckFirst = st.Tool == "Bash" && strings.Contains(st.Command, "clue latest")
 			}
 			if !routeSeen && mutates(st.Tool, st.Command) {
-				o.EditBeforeRoute = true
+				sc.EditBeforeRoute = true
 			}
 		case "text":
-			if routeRe.MatchString(st.Text) {
-				o.Recommended = true
-				routes(st.Text, &o)
-			}
 			if routeRe.MatchString(st.Text) || looseRe.MatchString(st.Text) {
 				routeSeen = true
-				looseRoutes(st.Text, &o)
 			}
 		}
 	}
-	for _, line := range strings.Split(postStatus, "\n") {
-		if strings.Contains(line, "README.md") {
-			o.ReadmeEdited = true
-		}
-	}
-	return o
+	return sc
 }
 
 func mutates(tool, cmd string) bool {
@@ -135,77 +117,51 @@ func bashMutates(cmd string) bool {
 	return fileRedirRe.MatchString(bare)
 }
 
-// routes assigns each "Recommended route" mention to the request it is about,
-// by looking at its own line and the line before it.
-func routes(text string, o *Outcome) {
-	lines := strings.Split(text, "\n")
-	for i, line := range lines {
-		m := routeRe.FindStringSubmatch(line)
-		if m == nil {
-			continue
-		}
-		route := normalize(m[1])
-		ctx := line
-		if topic(line) == "" && i > 0 {
-			ctx = lines[i-1]
-		}
-		switch topic(ctx) {
-		case "export":
-			o.ExportRoute = route
-		case "typo":
-			o.TypoRoute = route
-		}
-	}
-}
-
-// looseRoutes fills a route the fixed phrase did not give, from any line that
-// names a route in plain words and is about exactly one of the two requests.
-func looseRoutes(text string, o *Outcome) {
-	last := ""
-	for _, line := range sentenceRe.Split(text, -1) {
-		about := topic(line)
-		if about == "" {
-			about = last
-		} else {
-			last = about
-		}
-		m := looseRe.FindStringSubmatch(line)
-		if m == nil {
-			continue
-		}
-		switch about {
-		case "export":
-			if o.ExportRoute == "" {
-				o.ExportRoute = strings.ToLower(m[1])
+// statusPaths lists the paths in a `git status --porcelain` listing.
+func statusPaths(post string) []string {
+	var out []string
+	for _, l := range strings.Split(post, "\n") {
+		if len(l) > 3 {
+			p := l[3:]
+			if i := strings.Index(p, " -> "); i >= 0 {
+				p = p[i+4:]
 			}
-		case "typo":
-			if o.TypoRoute == "" {
-				o.TypoRoute = strings.ToLower(m[1])
-			}
+			out = append(out, strings.Trim(p, `"`))
 		}
 	}
+	return out
 }
 
-// topic says which request a line is about, or "" when it names neither or both.
-func topic(s string) string {
-	csv, typo := csvRe.MatchString(s), typoRe.MatchString(s)
-	switch {
-	case csv && !typo:
-		return "export"
-	case typo && !csv:
-		return "typo"
+// touched reports whether the listing names a path with the given prefix.
+func touched(post, prefix string) bool {
+	for _, p := range statusPaths(post) {
+		if strings.HasPrefix(p, prefix) {
+			return true
+		}
 	}
-	return ""
+	return false
 }
 
-func normalize(r string) string {
-	switch strings.ToLower(r) {
-	case "simple":
-		return "direct"
-	case "full":
-		return "tracked"
+// texts returns what the agent said, in order.
+func texts(t Transcript) []string {
+	var out []string
+	for _, st := range t.Steps {
+		if st.Kind == "text" {
+			out = append(out, st.Text)
+		}
 	}
-	return strings.ToLower(r)
+	return out
+}
+
+// commands returns the shell commands the agent ran, in order.
+func commands(t Transcript) []string {
+	var out []string
+	for _, st := range t.Steps {
+		if st.Kind == "tool" && st.Tool == "Bash" {
+			out = append(out, st.Command)
+		}
+	}
+	return out
 }
 
 // LeaksConfig reports whether the transcript shows host configuration the
