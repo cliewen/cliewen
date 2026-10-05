@@ -2875,6 +2875,11 @@ claims:
       state: reserved
       prefix: M
       component: "107"
+    - id: M-108
+      kind: numeric
+      state: reserved
+      prefix: M
+      component: "108"
     - id: P-001
       kind: numeric
       state: reserved
@@ -3346,11 +3351,11 @@ high-water:
       state: reserved
       prefix: ADR
       component: "71"
-    - id: AN-030
+    - id: AN-031
       kind: numeric
       state: reserved
       prefix: AN
-      component: "30"
+      component: "31"
     - id: ARCH-003
       kind: numeric
       state: reserved
