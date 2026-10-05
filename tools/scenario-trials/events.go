@@ -74,14 +74,22 @@ type Outcome struct {
 }
 
 var (
-	routeRe = regexp.MustCompile(`(?i)recommended route(?:\s+for\s+[^:\n]*)?:?\W*(direct|tracked|simple|full)`)
+	routeRe = regexp.MustCompile(`(?i)recommended route(?:\s+for\s+[^:\n]*)?:?\W*(direct|tracked|simple|full)\b`)
 	// looseRe is any statement of a route in plain words, such as "as a direct change".
 	looseRe = regexp.MustCompile(`(?i)\b(direct|tracked)\b`)
 	// sentenceRe splits on line breaks and on sentence ends followed by space.
 	sentenceRe = regexp.MustCompile(`\n|[.!?]\s+`)
 	typoRe     = regexp.MustCompile(`(?i)typo|readme|teh`)
 	csvRe      = regexp.MustCompile(`(?i)csv|export`)
-	editRe     = regexp.MustCompile(`(?:^|[\s;&|])(?:sed\s+-i|tee\s|git\s+(?:add|commit)|rm\s|mv\s|cp\s)|[^>]>[^>&]`)
+	// shellWriteRe matches commands that change files whatever the redirections say.
+	shellWriteRe = regexp.MustCompile(`(?:^|[\s;&|(])(?:sed\s+(?:-\w*i|--in-place)|perl\s+-\w*i|tee\s|git\s+(?:add|commit|apply|checkout|restore|rm|mv)|rm\s|mv\s|cp\s|touch\s|truncate\s|install\s)`)
+	// pyWriteRe matches a script writing a file from an interpreter.
+	pyWriteRe = regexp.MustCompile(`open\([^)]*['"][wax]\+?['"]|\.write(?:_text)?\(`)
+	// quotedRe, noiseRedirRe and fileRedirRe find a redirection to a real file:
+	// quoted text and redirections to /dev/null or between descriptors do not count.
+	quotedRe     = regexp.MustCompile(`'[^']*'|"[^"]*"`)
+	noiseRedirRe = regexp.MustCompile(`\d*>\s*/dev/null|&>\s*/dev/null|\d*>&\d`)
+	fileRedirRe  = regexp.MustCompile(`>>?\s*[^\s>&|;]`)
 )
 
 // Signature groups runs that behaved the same way on what the scenario asks.
@@ -162,9 +170,17 @@ func mutates(tool, cmd string) bool {
 	case "Edit", "Write", "NotebookEdit":
 		return true
 	case "Bash":
-		return editRe.MatchString(cmd)
+		return bashMutates(cmd)
 	}
 	return false
+}
+
+func bashMutates(cmd string) bool {
+	if shellWriteRe.MatchString(cmd) || pyWriteRe.MatchString(cmd) {
+		return true
+	}
+	bare := noiseRedirRe.ReplaceAllString(quotedRe.ReplaceAllString(cmd, "''"), " ")
+	return fileRedirRe.MatchString(bare)
 }
 
 // routes assigns each "Recommended route" mention to the request it is about,

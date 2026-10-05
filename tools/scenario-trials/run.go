@@ -11,6 +11,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
 	"runtime"
 	"sort"
 	"strings"
@@ -19,6 +20,9 @@ import (
 
 //go:embed Dockerfile scenarios
 var assets embed.FS
+
+// modelRe keeps the model name from reaching the container's shell as anything but a word.
+var modelRe = regexp.MustCompile(`^[A-Za-z0-9._:/-]+$`)
 
 // Options are the parameters of one invocation; none of them is a secret.
 type Options struct {
@@ -70,7 +74,13 @@ func Run(o Options) error {
 	if err != nil {
 		return fmt.Errorf("scenario %q: %w", o.Scenario, err)
 	}
-	setup, _ := assets.ReadFile("scenarios/" + o.Scenario + "/setup.sh")
+	setup, err := assets.ReadFile("scenarios/" + o.Scenario + "/setup.sh")
+	if err != nil {
+		return fmt.Errorf("scenario %q: %w", o.Scenario, err)
+	}
+	if o.Model != "" && !modelRe.MatchString(o.Model) {
+		return fmt.Errorf("model %q is not a plain model name", o.Model)
+	}
 	token, err := os.ReadFile(o.TokenFile)
 	if err != nil {
 		return fmt.Errorf("token file: %w", err)
@@ -103,7 +113,7 @@ func Run(o Options) error {
 		if err != nil {
 			return fmt.Errorf("run %d: %w", i, err)
 		}
-		fmt.Printf("run %d: %s turns=%d cost=$%.2f %ds\n", i, res.Signature, res.Outcome.Turns, res.Outcome.CostUSD, res.Outcome.DurationMS/1000)
+		fmt.Printf("run %d: %s turns=%d cost=$%.2f %ds config-leak=%t clue-matches-build=%t\n", i, res.Signature, res.Outcome.Turns, res.Outcome.CostUSD, res.Outcome.DurationMS/1000, res.Outcome.ConfigLeak, res.ClueMatchesBuild)
 		sum.Runs = append(sum.Runs, res)
 		sum.Spread[res.Signature]++
 	}
@@ -221,7 +231,7 @@ type built struct{ dir, commit, skills, sha string }
 
 // buildClue compiles a Linux clue from the named commit in a throwaway
 // worktree, so the binary and the skills it scaffolds are that commit's.
-func buildClue(rev string) (built, error) {
+func buildClue(rev string) (_ built, retErr error) {
 	root := strings.TrimSpace(capture("git", "rev-parse", "--show-toplevel"))
 	commit := strings.TrimSpace(capture("git", "-C", root, "rev-parse", rev))
 	if len(commit) != 40 {
@@ -231,6 +241,11 @@ func buildClue(rev string) (built, error) {
 	if err != nil {
 		return built{}, err
 	}
+	defer func() {
+		if retErr != nil {
+			_ = os.RemoveAll(ctxDir)
+		}
+	}()
 	wt := filepath.Join(ctxDir, "src")
 	if out, err := exec.Command("git", "-C", root, "worktree", "add", "--detach", wt, commit).CombinedOutput(); err != nil {
 		return built{}, fmt.Errorf("worktree: %v: %s", err, out)
@@ -239,7 +254,7 @@ func buildClue(rev string) (built, error) {
 		_ = exec.Command("git", "-C", root, "worktree", "remove", "--force", wt).Run()
 	}()
 	bin := filepath.Join(ctxDir, "clue")
-	cmd := exec.Command("go", "build", "-buildvcs=false", "-o", bin, "./cmd/clue")
+	cmd := exec.Command("go", "build", "-buildvcs=false", "-trimpath", "-o", bin, "./cmd/clue")
 	cmd.Dir = wt
 	cmd.Env = append(os.Environ(), "GOOS=linux", "GOARCH=amd64", "CGO_ENABLED=0")
 	if out, err := cmd.CombinedOutput(); err != nil {

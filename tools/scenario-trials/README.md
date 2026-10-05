@@ -10,7 +10,7 @@ Repository tooling for [P-024](../../docs/plans/P-024-repeatable-scenario-trials
 ## Prerequisites
 
 - Docker with Linux containers, a Go toolchain, and Git on the host.
-- A Claude Code subscription token from `claude setup-token`, saved as a single line in `~/.cliewen-trial/token` (outside the repository). Write it with an editor or `Set-Content -NoNewline -Path <file> -Value <token>`; never pass it where its text could become a file name or reach a log. Revoke and replace it if it ever appears in a transcript or a repository.
+- A Claude Code subscription token from `claude setup-token`, saved as a single line in `~/.cliewen-trial/token` (outside the repository). Write it by pasting into an editor and saving; never pass it on a command line, where its text could become a file name or reach shell history or a log. Revoke and replace it if it ever appears in a transcript or a repository.
 
 ## Run
 

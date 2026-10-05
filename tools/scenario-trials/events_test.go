@@ -91,6 +91,14 @@ func TestUnit_Mutates(t *testing.T) {
 	for cmd, want := range map[string]bool{
 		"sed -i 's/a/b/' README.md": true, "echo x > f": true, "git commit -m x": true,
 		"ls -la": false, "cat README.md": false, "rg -n Teh": false, "clue latest --quiet": false,
+		// redirections that are not writes to a file
+		"clue latest --quiet 2>/dev/null": false, "git status >/dev/null": false, "ls 2>&1": false,
+		"clue latest --quiet &>/dev/null; ls": false, "grep -rn 'a->b' .": false, "awk 'a>b' f": false,
+		`echo "a > b"`: false,
+		// writes the first version missed
+		"echo hi >> README.md": true, "echo hi>>README.md": true, "perl -pi -e 's/a/b/' README.md": true,
+		"python - <<EOF\nopen('README.md','w').write('x')\nEOF": true, "cat x > out.txt 2>/dev/null": true,
+		"git apply fix.patch": true, "touch f": true,
 	} {
 		if got := mutates("Bash", cmd); got != want {
 			t.Errorf("mutates(%q) = %v, want %v", cmd, got, want)
