@@ -545,7 +545,7 @@ producers:
       - path: docs/goals/G-024-generated-skills-describe-when-to-use-them.md
         sha256: d61d69f43d482bb845064ab19a2d6f8791a6cfef1b01c7c23d4ddac8c864a5ea
       - path: docs/goals/G-025-method-behaviour-is-re-observable-on-chosen-agents.md
-        sha256: 6c8a1b48f1538fc7f9fb75c2371496db907c6fe43b3d7df0f233235c27661387
+        sha256: c59a076c65d6f5937b7fd0d6d7b2535dc2d4a0ec3a0eb1fcfcc6a4811193c783
       - path: docs/goals/README.md
         sha256: 01951c0d3662c26e2fd1d960b2b9d5cd66b79602d663576eb89d5fc1fd11f061
       - path: docs/imported-changes/IC-001-fixture-inspectable-in-flight-work.md
@@ -599,7 +599,7 @@ producers:
       - path: docs/plans/P-023-challenge-plans-and-retain-what-work-teaches.md
         sha256: 57bf9a35e727b52dad20e918f9867f359bfbdd14aa884acb9ef858b62296d4a1
       - path: docs/plans/P-024-repeatable-scenario-trials.md
-        sha256: b6408b8247bef677b28af6474e8a46c61293eee0c874c647ed13eb9a4bd63d6a
+        sha256: 14f221da0a2e1aa0fdadc99b86ed6948ce38945741edf7a62e73dea20c14472e
       - path: docs/plans/README.md
         sha256: 2d38f7abcd312817d4b5b669f49c6fe50c1a822f4721340953062746827630c4
       - path: docs/use-cases/README.md
