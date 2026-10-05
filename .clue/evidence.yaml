@@ -95,7 +95,7 @@ producers:
       - path: docs/analysis/AN-027-baseline-observation-first-period.md
         sha256: 51da2cec8c0793c15cd4878a1a8c2959696d4204b5ab9ee664fa8b289038fd85
       - path: docs/analysis/AN-028-scenario-trials-on-different-agents.md
-        sha256: 3b203b4f1ac95f413d190c3924e71dcbef8dffe1dbc1b24f0d9ae69233aacdac
+        sha256: cfffa614a321d6bb9d472e340d3a7e463b96cb4e2156bc1b1e1571a3b6489fb9
       - path: docs/analysis/README.md
         sha256: d6f22f75f4b71627eb4a62022709cd6577911f88d6161ecfe5c47e0e1d77c930
       - path: docs/architecture/README.md
