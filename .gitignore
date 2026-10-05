@@ -19,3 +19,6 @@ coverage.out
 node_modules/
 guide/.vitepress/cache/
 guide/.vitepress/dist/
+
+# scenario-trial run records (transcripts can hold anything the agent printed)
+scenario-runs/
