@@ -7,11 +7,11 @@ import (
 	"flag"
 	"fmt"
 	"os"
-	"path/filepath"
+	"strings"
 )
 
 const usage = `usage:
-  scenario-trials run [-scenario routing] [-agent claude] [-runs 5] [-clue-commit REV] [-token-file FILE] [-out DIR] [-model NAME]
+  scenario-trials run -agent NAME [-scenario routing] [-runs 5] [-clue-commit REV] [-login PATH] [-out DIR] [-model NAME]
   scenario-trials check RUN_DIRECTORY   evaluate stored transcripts again with the current checks; runs no agent`
 
 func main() {
@@ -38,12 +38,11 @@ func main() {
 
 func runCommand(args []string) {
 	fs := flag.NewFlagSet("run", flag.ExitOnError)
-	home, _ := os.UserHomeDir()
 	scenario := fs.String("scenario", "routing", "scenario name")
-	agent := fs.String("agent", "claude", "agent adapter")
+	agent := fs.String("agent", "", "agent adapter: "+strings.Join(adapterNames(), ", "))
 	runs := fs.Int("runs", 5, "number of runs")
 	commit := fs.String("clue-commit", "HEAD", "revision the clue binary and skills are built from")
-	token := fs.String("token-file", filepath.Join(home, ".cliewen-trial", "token"), "file holding the agent login token, outside the repository")
+	login := fs.String("login", "", "where the agent's login lives, outside the repository; each adapter has a default under ~/.cliewen-trial")
 	out := fs.String("out", "scenario-runs", "directory for run records")
 	model := fs.String("model", "", "model to pass to the agent")
 	variant := fs.String("variant", "baseline", "method variant; only baseline exists before M-107")
@@ -51,7 +50,15 @@ func runCommand(args []string) {
 	if *variant != "baseline" {
 		fatal(fmt.Errorf("method variant %q does not exist yet", *variant))
 	}
-	if err := Run(Options{Scenario: *scenario, Agent: *agent, Runs: *runs, Commit: *commit, TokenFile: *token, OutDir: *out, Model: *model, Variant: *variant}); err != nil {
+	ad, err := adapterFor(*agent)
+	if err != nil {
+		fatal(err)
+	}
+	if *login == "" {
+		home, _ := os.UserHomeDir()
+		*login = ad.DefaultLogin(home)
+	}
+	if err := Run(Options{Scenario: *scenario, Agent: *agent, Runs: *runs, Commit: *commit, Login: *login, OutDir: *out, Model: *model, Variant: *variant}); err != nil {
 		fatal(err)
 	}
 }

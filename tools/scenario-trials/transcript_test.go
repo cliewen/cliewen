@@ -24,9 +24,9 @@ func text(t string) string {
 
 const resultEv = `{"type":"result","subtype":"success","num_turns":4,"total_cost_usd":0.07,"duration_ms":12000}`
 
-func parse(t *testing.T, s string) []Event {
+func parse(t *testing.T, s string) Transcript {
 	t.Helper()
-	ev, err := ParseEvents(strings.NewReader(s))
+	ev, err := claudeAdapter{}.Parse(strings.NewReader(s))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -111,8 +111,8 @@ func TestUnit_Mutates(t *testing.T) {
 
 func TestUnit_ParseEventsSkipsNoise(t *testing.T) {
 	ev := parse(t, "not json\n\n"+initEv+"\n{}\n")
-	if len(ev) != 1 || ev[0].Type != "system" {
-		t.Fatalf("events = %+v", ev)
+	if len(ev.Steps) != 0 || ev.Model != "claude-x" {
+		t.Fatalf("transcript = %+v", ev)
 	}
 }
 
@@ -166,7 +166,7 @@ func TestUnit_RecheckRewritesStoredRuns(t *testing.T) {
 			t.Fatal(err)
 		}
 	}
-	write("conditions.json", `{"runs":2,"scenario":"routing"}`)
+	write("conditions.json", `{"runs":2,"scenario":"routing","agent":"claude"}`)
 	events := stream(initEv, text("Recommended route for the typo: direct\nRecommended route for CSV export: tracked"), resultEv)
 	write("run-1/events.jsonl", events)
 	write("run-2/events.jsonl", events)
@@ -196,5 +196,18 @@ func TestUnit_LooseRouteUsesPreviousSentenceTopic(t *testing.T) {
 		resultEv))
 	if o := Check(ev, ""); o.TypoRoute != "direct" || o.ExportRoute != "" {
 		t.Fatalf("routes = %q/%q", o.TypoRoute, o.ExportRoute)
+	}
+}
+
+func TestUnit_LooseRouteReadsClausesAndCarriesTheTopicForward(t *testing.T) {
+	both := parse(t, stream(initEv,
+		text("Recommended route: direct for the README typo; tracked for CSV export, because it adds a capability."), resultEv))
+	if o := Check(both, ""); o.TypoRoute != "direct" || o.ExportRoute != "tracked" {
+		t.Fatalf("clauses: %q/%q", o.TypoRoute, o.ExportRoute)
+	}
+	carried := parse(t, stream(initEv,
+		text(`I fixed the typo ("Teh" is now "The"). I have not committed it. That part is editorial work, so I treated it as a direct change.`), resultEv))
+	if o := Check(carried, ""); o.TypoRoute != "direct" {
+		t.Fatalf("carried topic: %q", o.TypoRoute)
 	}
 }

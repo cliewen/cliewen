@@ -98,8 +98,10 @@ producers:
         sha256: 7ff57195a2fa2f6b850b405ac512aec63f845d4f8bcfcf46ee98f18a3f98fc9b
       - path: docs/analysis/AN-029-five-routing-runs-on-claude-code.md
         sha256: 852701e7ebba41e2c69d25fb0130011b3f9b7698ea9ed1707a69929438df714a
+      - path: docs/analysis/AN-030-routing-on-two-agents-through-one-interface.md
+        sha256: 6cdf296e356f9013e5936dd8d8290d572a53aea3a1debf092a510727aed42f18
       - path: docs/analysis/README.md
-        sha256: b2f0f71be89365559df458a1ba8d999ea40b21f692dbc9d58a36b4347c174731
+        sha256: e516cd9d92ec9c06fab668e53256b32085827fb1a0c7c943fcadc2a1d113b778
       - path: docs/architecture/README.md
         sha256: b9dea39be535f939134483d7a03673af7316201ce35ed1b1f0cbb56b26cf5241
       - path: docs/architecture/architecture.md
@@ -368,6 +370,8 @@ producers:
         sha256: 85571951687474618495fc9c1b8119ad4968fcf991f4f26eee6c773db0d0442e
       - path: docs/decisions/IDR-009-scenario-trial-harness-is-go-repository-tooling.md
         sha256: 68ff85e52165a7274d52890a1524d43d3789a043aca1cea822c18560b9caf016
+      - path: docs/decisions/IDR-010-agents-are-reached-through-adapters-over-one-interface.md
+        sha256: 64799ee557d61b596927f469c4ccaab5927153705d1fea779e7f42374dc411c9
       - path: docs/decisions/PDR-001-pr-approval-promotes-adrs.md
         sha256: 87d95d62e0faf7b3020814feacf2a949118d106dd8c3f394e125c48696e00010
       - path: docs/decisions/PDR-002-light-change-tier.md
@@ -497,7 +501,7 @@ producers:
       - path: docs/decisions/PDR-065-markdown-carries-frontmatter-by-default.md
         sha256: 7bf9f392fd19f0e09528ea66f973dfbec1b6b3ca8ac99f4067c9c4511254fe41
       - path: docs/decisions/README.md
-        sha256: e59ef3546e7d70a685f547bbed8cb66e5f725ae356aa0902101e5f13d8689f0f
+        sha256: 478d1399b229d7aaca18bca65504ecb22891bed5bc68b04d001323da52c16385
       - path: docs/design/README.md
         sha256: baab3f0a3f13d3833971a1e82bbb4b8ffa33800ec1274191231bc3fa71855bbc
       - path: docs/goals/G-001-verifiable-thread.md
@@ -603,7 +607,7 @@ producers:
       - path: docs/plans/P-023-challenge-plans-and-retain-what-work-teaches.md
         sha256: 57bf9a35e727b52dad20e918f9867f359bfbdd14aa884acb9ef858b62296d4a1
       - path: docs/plans/P-024-repeatable-scenario-trials.md
-        sha256: 5814a012326e0d5f16307eb59f8556257295937cfeab66229834fe1d97715e69
+        sha256: a464abc6ea01454ae539b8496dffd6a438225d0108aa608bdbfa7b59348120f8
       - path: docs/plans/README.md
         sha256: 36fa2979d6ec7e75e81eb29759540b96b0e74fbf987b456098ad82114450dcac
       - path: docs/use-cases/README.md
@@ -740,8 +744,10 @@ producers:
         sha256: 45f214d67d243709f71d23c7274e396986e8ac55ac43e06a3648e7035520649d
       - path: tools/export-evidence/main.go
         sha256: 16d6ac0cbfe2a86d7460a8c4dfb62175c89467d95bb1743587f87467f771a039
-      - path: tools/scenario-trials/events_test.go
-        sha256: 0250fec4a850bd5514eefbe5d3302e2a3643dd25c477236818e32dc557b9c847
+      - path: tools/scenario-trials/agent_test.go
+        sha256: 4f5273aead705c06efef81af863283a84a420fa0dced681617a49047ac4883f5
+      - path: tools/scenario-trials/transcript_test.go
+        sha256: 9b8ec460634c9a72c9b0e5193e1c0ad958c52b4331f8984bb7c76cbecfe4cc53
     references:
       - id: AC-133
         path: cmd/clue/context_test.go
