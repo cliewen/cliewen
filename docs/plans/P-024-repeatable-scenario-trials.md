@@ -1,7 +1,7 @@
 ---
 id: P-024
 type: plan
-status: draft
+status: active
 links: [G-025, G-017, VIS-001, AN-028, AN-027]
 title: The method's behaviour is re-observed through repeatable scenario trials on different agents
 ---
