@@ -1555,6 +1555,11 @@ claims:
       state: reserved
       prefix: AN
       component: "29"
+    - id: AN-030
+      kind: numeric
+      state: reserved
+      prefix: AN
+      component: "30"
     - id: ARCH-001
       kind: numeric
       state: reserved
@@ -3366,11 +3371,11 @@ high-water:
       state: reserved
       prefix: IC
       component: "2"
-    - id: IDR-009
+    - id: IDR-010
       kind: numeric
       state: reserved
       prefix: IDR
-      component: "9"
+      component: "10"
     - id: LOG-001
       kind: numeric
       state: reserved
