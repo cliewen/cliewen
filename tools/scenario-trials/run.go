@@ -26,8 +26,8 @@ var modelRe = regexp.MustCompile(`^[A-Za-z0-9._:/-]+$`)
 
 // Options are the parameters of one invocation; none of them is a secret.
 type Options struct {
-	Scenario, Agent, Commit, TokenFile, OutDir, Model, Variant string
-	Runs                                                       int
+	Scenario, Agent, Commit, Login, OutDir, Model, Variant string
+	Runs                                                   int
 }
 
 // Conditions is what every run in an invocation has to be read against.
@@ -56,6 +56,7 @@ type RunResult struct {
 	ContainerOS      string  `json:"containerOs"`
 	ClueMatchesBuild bool    `json:"clueMatchesBuild"`
 	SkillsVersion    string  `json:"skillsVersion"`
+	WallMS           int     `json:"wallMs"`
 }
 
 // Summary groups the runs by what the checks say they did.
@@ -67,8 +68,9 @@ type Summary struct {
 
 // Run executes the invocation and writes its records under OutDir.
 func Run(o Options) error {
-	if o.Agent != "claude" {
-		return fmt.Errorf("agent %q has no adapter yet", o.Agent)
+	ad, err := adapterFor(o.Agent)
+	if err != nil {
+		return err
 	}
 	prompt, err := assets.ReadFile("scenarios/" + o.Scenario + "/prompt.txt")
 	if err != nil {
@@ -81,9 +83,9 @@ func Run(o Options) error {
 	if o.Model != "" && !modelRe.MatchString(o.Model) {
 		return fmt.Errorf("model %q is not a plain model name", o.Model)
 	}
-	token, err := os.ReadFile(o.TokenFile)
+	creds, err := ad.Credentials(o)
 	if err != nil {
-		return fmt.Errorf("token file: %w", err)
+		return err
 	}
 	cond := Conditions{Scenario: o.Scenario, Agent: o.Agent, ModelFlag: o.Model, Variant: o.Variant, Runs: o.Runs,
 		HostOS: runtime.GOOS + "/" + runtime.GOARCH, Started: time.Now().UTC()}
@@ -109,11 +111,11 @@ func Run(o Options) error {
 	}
 	sum := Summary{Conditions: cond, Spread: map[string]int{}}
 	for i := 1; i <= o.Runs; i++ {
-		res, err := runOnce(dir, i, cond, o, string(prompt), string(setup), strings.TrimSpace(string(token)))
+		res, err := runOnce(dir, i, cond, o, ad, creds, string(prompt), string(setup))
 		if err != nil {
 			return fmt.Errorf("run %d: %w", i, err)
 		}
-		fmt.Printf("run %d: %s turns=%d cost=$%.2f %ds config-leak=%t clue-matches-build=%t\n", i, res.Signature, res.Outcome.Turns, res.Outcome.CostUSD, res.Outcome.DurationMS/1000, res.Outcome.ConfigLeak, res.ClueMatchesBuild)
+		fmt.Printf("run %d: %s turns=%d cost=$%.2f %ds config-leak=%t clue-matches-build=%t\n", i, res.Signature, res.Outcome.Turns, res.Outcome.CostUSD, res.WallMS/1000, res.Outcome.ConfigLeak, res.ClueMatchesBuild)
 		sum.Runs = append(sum.Runs, res)
 		sum.Spread[res.Signature]++
 	}
@@ -136,26 +138,19 @@ func Recheck(dir string) error {
 	if err := json.Unmarshal(b, &cond); err != nil {
 		return err
 	}
+	ad, err := adapterFor(cond.Agent)
+	if err != nil {
+		return err
+	}
 	sum := Summary{Conditions: cond, Spread: map[string]int{}}
 	for i := 1; i <= cond.Runs; i++ {
 		runDir := filepath.Join(dir, fmt.Sprintf("run-%d", i))
-		var res RunResult
+		var prior RunResult
 		if b, err := os.ReadFile(filepath.Join(runDir, "result.json")); err == nil {
-			_ = json.Unmarshal(b, &res)
+			_ = json.Unmarshal(b, &prior)
 		}
-		raw, err := os.ReadFile(filepath.Join(runDir, "events.jsonl"))
+		res, err := evaluate(runDir, i, cond, ad, prior)
 		if err != nil {
-			return err
-		}
-		events, err := ParseEvents(bytes.NewReader(raw))
-		if err != nil {
-			return err
-		}
-		res.Run = i
-		res.Outcome = Check(events, read(runDir, "post-status.txt"))
-		res.Outcome.ConfigLeak = LeaksConfig(string(raw))
-		res.Signature = res.Outcome.Signature()
-		if err := writeJSON(filepath.Join(runDir, "result.json"), res); err != nil {
 			return err
 		}
 		fmt.Printf("run %d: %s\n", i, res.Signature)
@@ -186,44 +181,65 @@ func FormatSpread(s Summary) string {
 	return b.String()
 }
 
-func runOnce(dir string, n int, cond Conditions, o Options, prompt, setup, token string) (RunResult, error) {
+func runOnce(dir string, n int, cond Conditions, o Options, ad Adapter, creds Credentials, prompt, setup string) (RunResult, error) {
 	runDir := filepath.Join(dir, fmt.Sprintf("run-%d", n))
 	if err := os.MkdirAll(runDir, 0o755); err != nil {
 		return RunResult{}, err
 	}
-	model := ""
-	if o.Model != "" {
-		model = " --model " + o.Model
-	}
-	script := "( " + setup + " ) && cd /home/node/work && " +
-		"claude -p --setting-sources project,local --permission-mode acceptEdits --allowedTools 'Bash Read Write Edit Glob Grep' --max-turns 25 --output-format stream-json --verbose --no-session-persistence" + model +
-		" > /out/events.jsonl 2> /out/stderr.txt; echo $? > /out/exit.txt; " +
+	script := "( " + setup + " ) && cd /home/node/work && " + ad.Command(o.Model) + "; echo $? > /out/exit.txt; " +
 		"git status --porcelain > /out/post-status.txt; sha256sum /usr/local/bin/clue | cut -d' ' -f1 > /out/post-clue.txt; " +
-		"uname -sr > /out/post-os.txt; grep -m1 '^version' .agents/skills/clue-delta/skill.md > /out/post-skills.txt"
+		"uname -sr > /out/post-os.txt; grep -m1 '^version' .agents/skills/clue-delta/skill.md > /out/post-skills.txt; " + ad.Probe()
+	args := []string{"run", "--rm", "-i"}
+	for _, name := range creds.Pass {
+		args = append(args, "-e", name)
+	}
+	args = append(args, "--mount", "type=bind,source="+runDir+",target=/out")
+	for _, m := range creds.Mounts {
+		args = append(args, "--mount", m)
+	}
+	args = append(args, cond.ImageTag, "bash", "-c", script)
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Minute)
 	defer cancel()
-	cmd := exec.CommandContext(ctx, "docker", "run", "--rm", "-i", "-e", "CLAUDE_CODE_OAUTH_TOKEN",
-		"--mount", "type=bind,source="+runDir+",target=/out", cond.ImageTag, "bash", "-c", script)
-	cmd.Env = append(os.Environ(), "CLAUDE_CODE_OAUTH_TOKEN="+token)
+	cmd := exec.CommandContext(ctx, "docker", args...)
+	cmd.Env = append(os.Environ(), creds.Env...)
 	cmd.Stdin = strings.NewReader(prompt)
 	var docker bytes.Buffer
 	cmd.Stdout, cmd.Stderr = &docker, &docker
+	start := time.Now()
 	runErr := cmd.Run()
+	wall := int(time.Since(start).Milliseconds())
 	_ = os.WriteFile(filepath.Join(runDir, "docker.txt"), docker.Bytes(), 0o644)
-	raw, err := os.ReadFile(filepath.Join(runDir, "events.jsonl"))
-	if err != nil {
+	if _, err := os.Stat(filepath.Join(runDir, "events.jsonl")); err != nil {
 		return RunResult{}, fmt.Errorf("no event stream (%v); see %s", runErr, filepath.Join(runDir, "docker.txt"))
 	}
-	events, err := ParseEvents(bytes.NewReader(raw))
+	return evaluate(runDir, n, cond, ad, RunResult{WallMS: wall})
+}
+
+// evaluate reads a run directory's stored files and scores them with the
+// current checks. It is the one place a result is made, for a live run and for
+// a re-check of stored ones, so the two cannot disagree.
+func evaluate(runDir string, n int, cond Conditions, ad Adapter, prior RunResult) (RunResult, error) {
+	raw, err := os.ReadFile(filepath.Join(runDir, "events.jsonl"))
 	if err != nil {
 		return RunResult{}, err
 	}
-	out := Check(events, read(runDir, "post-status.txt"))
+	t, err := ad.Parse(bytes.NewReader(raw))
+	if err != nil {
+		return RunResult{}, err
+	}
+	out := Check(t, read(runDir, "post-status.txt"))
 	out.ConfigLeak = LeaksConfig(string(raw))
-	res := RunResult{Run: n, Outcome: out, Signature: out.Signature(),
-		ExitCode: read(runDir, "exit.txt"), ContainerOS: read(runDir, "post-os.txt"),
-		ClueMatchesBuild: read(runDir, "post-clue.txt") == cond.ClueSHA256,
-		SkillsVersion:    strings.TrimPrefix(read(runDir, "post-skills.txt"), "version: ")}
+	if out.AgentVersion == "" {
+		out.AgentVersion = read(runDir, "post-agent.txt")
+	}
+	if out.Model == "" {
+		out.Model = read(runDir, "post-model.txt")
+	}
+	res := prior
+	res.Run, res.Outcome, res.Signature = n, out, out.Signature()
+	res.ExitCode, res.ContainerOS = read(runDir, "exit.txt"), read(runDir, "post-os.txt")
+	res.ClueMatchesBuild = read(runDir, "post-clue.txt") == cond.ClueSHA256
+	res.SkillsVersion = strings.TrimPrefix(read(runDir, "post-skills.txt"), "version: ")
 	return res, writeJSON(filepath.Join(runDir, "result.json"), res)
 }
 

@@ -1,58 +1,29 @@
 package main
 
 import (
-	"bufio"
-	"encoding/json"
-	"io"
 	"regexp"
 	"strings"
 )
 
-// Event is the part of one Claude Code stream-json line the checks read.
-type Event struct {
-	Type    string `json:"type"`
-	Subtype string `json:"subtype"`
-
-	// system/init
-	Model        string            `json:"model"`
-	MCPServers   []json.RawMessage `json:"mcp_servers"`
-	Plugins      []json.RawMessage `json:"plugins"`
-	Skills       []string          `json:"skills"`
-	MemoryPaths  map[string]string `json:"memory_paths"`
-	CodeVersion  string            `json:"claude_code_version"`
-	APIKeySource string            `json:"apiKeySource"`
-
-	// assistant
-	Message struct {
-		Content []Block `json:"content"`
-	} `json:"message"`
-
-	// result
-	NumTurns int     `json:"num_turns"`
-	CostUSD  float64 `json:"total_cost_usd"`
-	Duration int     `json:"duration_ms"`
+// Step is one thing an agent said or did, in the order it happened. Every
+// adapter turns its own event stream into these, so no check names a vendor.
+type Step struct {
+	Kind    string // "text" or "tool"
+	Text    string // the words, for Kind "text"
+	Tool    string // "Bash", "Edit" or "Write", for Kind "tool"
+	Command string // the shell command, for Tool "Bash"
 }
 
-// Block is one content block of an assistant message.
-type Block struct {
-	Type  string          `json:"type"`
-	Text  string          `json:"text"`
-	Name  string          `json:"name"`
-	Input json.RawMessage `json:"input"`
-}
-
-// ParseEvents reads a stream-json transcript, skipping lines that are not JSON.
-func ParseEvents(r io.Reader) ([]Event, error) {
-	var out []Event
-	sc := bufio.NewScanner(r)
-	sc.Buffer(make([]byte, 0, 1<<20), 16<<20)
-	for sc.Scan() {
-		var e Event
-		if json.Unmarshal(sc.Bytes(), &e) == nil && e.Type != "" {
-			out = append(out, e)
-		}
-	}
-	return out, sc.Err()
+// Transcript is a run as the checks see it, with what the stream itself reports.
+type Transcript struct {
+	Steps        []Step
+	Model        string
+	AgentVersion string
+	MCPServers   int
+	Turns        int
+	CostUSD      float64
+	DurationMS   int
+	Finished     bool
 }
 
 // Outcome is what the deterministic checks say about one run.
@@ -77,8 +48,8 @@ var (
 	routeRe = regexp.MustCompile(`(?i)recommended route(?:\s+for\s+[^:\n]*)?:?\W*(direct|tracked|simple|full)\b`)
 	// looseRe is any statement of a route in plain words, such as "as a direct change".
 	looseRe = regexp.MustCompile(`(?i)\b(direct|tracked)\b`)
-	// sentenceRe splits on line breaks and on sentence ends followed by space.
-	sentenceRe = regexp.MustCompile(`\n|[.!?]\s+`)
+	// sentenceRe splits on line breaks, semicolons, and sentence ends followed by space.
+	sentenceRe = regexp.MustCompile(`\n|[.!?]\s+|;\s*`)
 	typoRe     = regexp.MustCompile(`(?i)typo|readme|teh`)
 	csvRe      = regexp.MustCompile(`(?i)csv|export`)
 	// shellWriteRe matches commands that change files whatever the redirections say.
@@ -111,41 +82,30 @@ func or(s, d string) string {
 	return s
 }
 
-// Check reads one run's events and the post-run working-tree listing.
-func Check(events []Event, postStatus string) Outcome {
-	var o Outcome
+// Check reads one run's transcript and the post-run working-tree listing.
+func Check(t Transcript, postStatus string) Outcome {
+	o := Outcome{Model: t.Model, AgentVersion: t.AgentVersion, MCPServers: t.MCPServers,
+		Turns: t.Turns, CostUSD: t.CostUSD, DurationMS: t.DurationMS, Finished: t.Finished}
 	toolSeen := false
 	routeSeen := false
-	for _, e := range events {
-		switch e.Type {
-		case "system":
-			if e.Subtype == "init" {
-				o.Model, o.AgentVersion, o.MCPServers = e.Model, e.CodeVersion, len(e.MCPServers)
+	for _, st := range t.Steps {
+		switch st.Kind {
+		case "tool":
+			if !toolSeen {
+				toolSeen = true
+				o.VersionCheckFirst = st.Tool == "Bash" && strings.Contains(st.Command, "clue latest")
 			}
-		case "result":
-			o.Turns, o.CostUSD, o.DurationMS, o.Finished = e.NumTurns, e.CostUSD, e.Duration, e.Subtype == "success"
-		case "assistant":
-			for _, b := range e.Message.Content {
-				switch b.Type {
-				case "tool_use":
-					cmd := toolCommand(b)
-					if !toolSeen {
-						toolSeen = true
-						o.VersionCheckFirst = b.Name == "Bash" && strings.Contains(cmd, "clue latest")
-					}
-					if !routeSeen && mutates(b.Name, cmd) {
-						o.EditBeforeRoute = true
-					}
-				case "text":
-					if routeRe.MatchString(b.Text) {
-						o.Recommended = true
-						routes(b.Text, &o)
-					}
-					if routeRe.MatchString(b.Text) || looseRe.MatchString(b.Text) {
-						routeSeen = true
-						looseRoutes(b.Text, &o)
-					}
-				}
+			if !routeSeen && mutates(st.Tool, st.Command) {
+				o.EditBeforeRoute = true
+			}
+		case "text":
+			if routeRe.MatchString(st.Text) {
+				o.Recommended = true
+				routes(st.Text, &o)
+			}
+			if routeRe.MatchString(st.Text) || looseRe.MatchString(st.Text) {
+				routeSeen = true
+				looseRoutes(st.Text, &o)
 			}
 		}
 	}
@@ -155,14 +115,6 @@ func Check(events []Event, postStatus string) Outcome {
 		}
 	}
 	return o
-}
-
-func toolCommand(b Block) string {
-	var in struct {
-		Command string `json:"command"`
-	}
-	_ = json.Unmarshal(b.Input, &in)
-	return in.Command
 }
 
 func mutates(tool, cmd string) bool {
@@ -209,15 +161,17 @@ func routes(text string, o *Outcome) {
 // looseRoutes fills a route the fixed phrase did not give, from any line that
 // names a route in plain words and is about exactly one of the two requests.
 func looseRoutes(text string, o *Outcome) {
-	parts := sentenceRe.Split(text, -1)
-	for i, line := range parts {
+	last := ""
+	for _, line := range sentenceRe.Split(text, -1) {
+		about := topic(line)
+		if about == "" {
+			about = last
+		} else {
+			last = about
+		}
 		m := looseRe.FindStringSubmatch(line)
 		if m == nil {
 			continue
-		}
-		about := topic(line)
-		if about == "" && i > 0 {
-			about = topic(parts[i-1])
 		}
 		switch about {
 		case "export":
