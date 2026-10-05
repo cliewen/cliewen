@@ -1,0 +1,35 @@
+---
+id: P-024
+type: plan
+status: draft
+links: [G-025, G-017, VIS-001, AN-028, AN-027]
+title: The method's behaviour is re-observed through repeatable scenario trials on different agents
+---
+
+# P-024 — The method's behaviour is re-observed through repeatable scenario trials on different agents
+
+[G-017](../goals/G-017-the-method-is-evidenced-and-simplified.md) asks for evidence that the method does what its goals promise, and [AN-027](../analysis/AN-027-baseline-observation-first-period.md) produced the first period by hand. [AN-028](../analysis/AN-028-scenario-trials-on-different-agents.md) found that a repeatable, manually started trial is feasible: the same task ran on two agents in a Linux container with an empty home, pinned agent versions, a `clue` built from a named commit, and subscription logins supplied from outside the repository. [G-025](../goals/G-025-method-behaviour-is-re-observable-on-chosen-agents.md) is the goal; this plan delivers it in five steps that each leave something usable.
+
+## Challenge
+
+**The assumption most likely to undermine this plan** is that repeated runs of one scenario are stable enough to compare. AN-028's two runs ended in different states on a simple scenario, one agent editing before asking and the other not, and both were correct. If the spread is wide, a harness built around pass and fail produces noise that reads as a result. **The credible alternative** is a written checklist per scenario and hand observation, as AN-027 did: free to build, but not repeatable after a skill changes and no comparison across agents. **The cheapest test** is M-103 itself: one scenario, five runs on one agent, before any other scenario or adapter exists. **The result that would stop or revise the work** is a spread too wide to compare, in which case M-105 and M-106 are revised before they start to report a distribution and what a human should read, or a harness that costs more attention than the hand observation it replaces, in which case the plan closes early with a finding and the checklist is what remains.
+
+**How a build could meet every exit criterion and still fail the maintainer:** scenarios whose deterministic checks pass while the transcript shows a confused or lucky agent; skills tuned until the scenarios pass, which measures the scenarios and not the method; and conditions that hold on one machine and one container and are described as general. The plan answers them with a transcript a human reads, scenario texts the agent under test cannot see, and conditions stated in every recorded result.
+
+## Boundaries
+
+The harness is repository tooling, not a shipped surface, and the method never depends on a particular agent (the vision's out-of-scope line). The container runs Linux and bash, so a result says nothing about PowerShell-specific behaviour such as the backtick problem M-098 found; a Windows host adapter is a later door, not part of this plan. Where the harness lives and in what language is an open question M-103 settles; the recommendation is Go under `tools/`.
+
+## Milestones
+
+| ID | Milestone (exit criterion) | Status | Evidence |
+|---|---|---|---|
+| M-103 | **One pinned scenario runs from one command, five times on one agent, and the spread is recorded.** The routing scenario (a typo fix and a new capability, posed without naming routes) runs in a container built from a named `clue` commit with an empty agent home, and each run records the `clue` commit, skills version, agent, model, container image, and operating system. Five runs on one agent sit in one comparison. The plan then states whether the spread allows comparison, or revises M-105 and M-106 to report distributions. It also settles where the harness lives and in what language. | `todo` | |
+| M-104 | **Two agents run the same scenario through one adapter interface, from a clean configuration.** Claude Code and Codex both run through adapters that share the interface, each with its subscription login supplied from outside the repository and never written into an image layer or a log. What each agent could still see from its host configuration is stated, and the interface names no vendor outside its own adapter. | `todo` | |
+| M-105 | **A first scenario set runs with graded results.** At least five scenarios, each traced to a goal or use case, cover routing, greenfield adoption to a first green `clue validate`, a tracked change to an acceptance brief, a brownfield rehearsal that stops before authorisation, and an upgrade the user has not approved. Each states what a machine checks, what a person reads, and how a later human answer is supplied or why the run is graded at the point the agent should stop. The agent under test cannot read the scenario texts. | `todo` | |
+| M-106 | **A model reached through OpenCode runs the same scenario with no code specific to that model.** One OpenCode run, on a model that is neither of the first two agents' defaults, uses the existing interface and records whether OpenCode honours `AGENTS.md` and the repository's skills, and what leaks from its configuration. | `todo` | |
+| M-107 | **A first comparison period is recorded and the harness is kept, revised, or dropped on its evidence.** An analysis fixes population, conditions, and repetition before observing, as AN-027 did, runs the scenario set across the agents, records what in G-017's categories each run showed, and states whether any skill or obligation changed as a result. It decides whether the harness earns its upkeep. | `todo` | |
+
+## Mutation rules
+
+Status and evidence fields in the milestone table may mutate in an implementing change's merge digest. Everything else changes only through a declared plan revision backed by a correctly typed decision record. Plan adjustments are decisions.

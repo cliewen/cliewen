@@ -1,3 +1,11 @@
+---
+id: CH-198-questions
+type: open-questions
+status: open
+links: [CH-198]
+title: Scenario-trials plan open questions
+---
+
 # Open questions
 
 Neither question blocks this change; both are answered by the maintainer in review.

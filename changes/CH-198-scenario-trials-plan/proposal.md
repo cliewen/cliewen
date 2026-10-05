@@ -1,7 +1,7 @@
 ---
 id: CH-198
 type: change
-status: active
+status: open
 links: [G-025, P-024, G-017, AN-028]
 title: Plan the repeatable scenario trials the method needs to be evidenced
 ---
