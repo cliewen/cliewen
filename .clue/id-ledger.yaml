@@ -932,5 +932,11 @@ events:
     - {id: CH-199, kind: numeric, state: reserved, prefix: CH, component: "199"}
     - {id: IDR-009, kind: numeric, state: reserved, prefix: IDR, component: "9"}
     - {id: CH-199, kind: numeric, state: live, prefix: CH, component: "199"}
+    - {id: AN-029, kind: numeric, state: reserved, prefix: AN, component: "29"}
+    - {id: AN-029, kind: numeric, state: live, prefix: AN, component: "29"}
+    - {id: IDR-009, kind: numeric, state: live, prefix: IDR, component: "9"}
+    - {id: CH-199-tasks, kind: opaque, state: live}
+    - {id: CH-199-questions, kind: opaque, state: live}
+    - {id: M-103, kind: numeric, state: retired, prefix: M, component: "103"}
 high-water:
     - {id: CH-183, kind: numeric, state: reserved, prefix: CH, component: "183"}

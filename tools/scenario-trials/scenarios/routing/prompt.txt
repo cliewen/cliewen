@@ -1,0 +1,1 @@
+The README has a typo ('Teh'). Also, I want the tool to be able to export its report as CSV, which it cannot do today. Please handle both.
