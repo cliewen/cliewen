@@ -1,7 +1,7 @@
 ---
 id: G-025
 type: goal
-status: proposed
+status: accepted
 links: [G-017, VIS-001]
 title: What the method makes an agent do can be re-observed, on chosen agents and models, whenever the maintainer asks
 ---
