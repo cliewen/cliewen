@@ -115,7 +115,7 @@ func Run(o Options) error {
 		if err != nil {
 			return fmt.Errorf("run %d: %w", i, err)
 		}
-		fmt.Printf("run %d: %s turns=%d cost=$%.2f %ds config-leak=%t clue-matches-build=%t\n", i, res.Signature, res.Outcome.Turns, res.Outcome.CostUSD, res.WallMS/1000, res.Outcome.ConfigLeak, res.ClueMatchesBuild)
+		fmt.Printf("run %d: %s turns=%d cost=$%.2f %ds finished=%t config-leak=%t clue-matches-build=%t\n", i, res.Signature, res.Outcome.Turns, res.Outcome.CostUSD, res.WallMS/1000, res.Outcome.Finished, res.Outcome.ConfigLeak, res.ClueMatchesBuild)
 		sum.Runs = append(sum.Runs, res)
 		sum.Spread[res.Signature]++
 	}

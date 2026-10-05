@@ -116,3 +116,33 @@ func TestUnit_AdapterRegistry(t *testing.T) {
 		t.Fatalf("error = %v", err)
 	}
 }
+
+func TestUnit_UnwrapShellKeepsMultiLineBodies(t *testing.T) {
+	wrapped := "/bin/bash -lc 'sed -i s/Teh/The/ README.md\ngit diff'"
+	if got := unwrapShell(wrapped); got != "sed -i s/Teh/The/ README.md\ngit diff" {
+		t.Fatalf("unwrapShell = %q", got)
+	}
+	tr := Transcript{Steps: []Step{
+		{Kind: "tool", Tool: "Bash", Command: unwrapShell(wrapped)},
+		{Kind: "text", Text: "Recommended route: direct for the typo."},
+	}}
+	if !Check(tr, "").EditBeforeRoute {
+		t.Fatal("a multi-line command that starts with sed -i is an edit")
+	}
+}
+
+func TestUnit_CodexProbeReadsTheNewestSessionAndLoginPathsWithCommasAreRefused(t *testing.T) {
+	if p := (codexAdapter{}).Probe(); !strings.Contains(p, "ls -t") || strings.Contains(p, "grep -rhao") {
+		t.Fatalf("probe must pick the newest session file, got %q", p)
+	}
+	dir := filepath.Join(t.TempDir(), "a,b")
+	if err := os.MkdirAll(dir, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(dir, "auth.json"), []byte("{}"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := (codexAdapter{}).Credentials(Options{Login: dir}); err == nil {
+		t.Fatal("a comma in the login path must be refused")
+	}
+}

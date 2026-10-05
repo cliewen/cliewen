@@ -30,6 +30,9 @@ func (codexAdapter) Credentials(o Options) (Credentials, error) {
 	if err != nil {
 		return Credentials{}, err
 	}
+	if strings.Contains(dir, ",") {
+		return Credentials{}, fmt.Errorf("codex login: a comma in %s would alter the mount specification", dir)
+	}
 	if _, err := os.Stat(filepath.Join(dir, "auth.json")); err != nil {
 		return Credentials{}, fmt.Errorf("codex login: no auth.json in %s: %w", dir, err)
 	}
@@ -46,8 +49,11 @@ func (codexAdapter) Command(model string) string {
 }
 
 func (codexAdapter) Probe() string {
+	// The login directory persists between runs, so its sessions folder holds
+	// earlier runs too; the newest session file is this run's.
 	return `codex --version > /out/post-agent.txt; ` +
-		`grep -rhao '"model":"[^"]*"' /home/node/.codex/sessions 2>/dev/null | head -1 | cut -d'"' -f4 > /out/post-model.txt`
+		`f=$(ls -t $(find /home/node/.codex/sessions -name '*.jsonl' 2>/dev/null) 2>/dev/null | head -1); ` +
+		`[ -n "$f" ] && grep -ao '"model":"[^"]*"' "$f" | head -1 | cut -d'"' -f4 > /out/post-model.txt`
 }
 
 // codexEvent is the part of one Codex exec --json line that is read.
@@ -60,7 +66,7 @@ type codexEvent struct {
 	} `json:"item"`
 }
 
-var shellWrapRe = regexp.MustCompile(`^\S*(?:ba)?sh\s+-l?c\s+(.*)$`)
+var shellWrapRe = regexp.MustCompile(`(?s)^\S*(?:ba)?sh\s+-l?c\s+(.*)$`)
 
 // unwrapShell returns the command inside the login-shell wrapper Codex records.
 func unwrapShell(c string) string {

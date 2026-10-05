@@ -19,13 +19,13 @@ go run ./tools/scenario-trials run -agent NAME -runs 5
 go run ./tools/scenario-trials check scenario-runs/<invocation>
 ```
 
-`run` builds a Linux `clue` from `-clue-commit` (default `HEAD`) in a throwaway worktree, builds a container image keyed to that binary, and runs the scenario `-runs` times with an empty agent home. Each invocation writes `scenario-runs/<time>-<scenario>-<agent>/` with `conditions.json`, a `run-N/` directory per run (event stream, final working-tree status, read-back facts, `result.json`) and `summary.json`. `scenario-runs/` is ignored by Git. `-login` names where the agent's login lives, outside the repository; each adapter has a default under `~/.cliewen-trial`.
+`run` builds a Linux `clue` from `-clue-commit` (default `HEAD`) in a throwaway worktree, builds a container image keyed to that binary, and runs the scenario `-runs` times with an empty agent home for a run that has one; a Codex run keeps the session files of its login directory, which persists between runs. Each invocation writes `scenario-runs/<time>-<scenario>-<agent>/` with `conditions.json`, a `run-N/` directory per run (event stream, final working-tree status, read-back facts, `result.json`) and `summary.json`. `scenario-runs/` is ignored by Git. `-login` names where the agent's login lives, outside the repository; each adapter has a default under `~/.cliewen-trial`.
 
 `check` evaluates the stored transcripts again with the current checks and rewrites the results and summary. It runs no agent, which is how a revised check is tried on earlier runs.
 
 ## Agents
 
-An agent is reached through an adapter ([IDR-010](../../docs/decisions/IDR-010-agents-are-reached-through-adapters-over-one-interface.md)): a file that registers how its login is supplied, the command that runs it headless, a probe for its version and model, and a parser from its event stream to the neutral transcript the checks read. The runner and the checks name no vendor. `run` with no `-agent` lists the registered adapters. Both installed agents run as a user who can read their own login inside the container, so the login is the maintainer's own subscription login in a throwaway container and is kept out of image layers, argument lists, result files and logs.
+An agent is reached through an adapter ([IDR-010](../../docs/decisions/IDR-010-agents-are-reached-through-adapters-over-one-interface.md)): a file that registers how its login is supplied, the command that runs it headless, a probe for its version and model, and a parser from its event stream to the neutral transcript the checks read. The runner and the checks name no vendor. `run` without a known `-agent` fails and lists the registered adapters. Both installed agents run as a user who can read their own login inside the container, so the login is the maintainer's own subscription login in a throwaway container and is kept out of image layers, argument lists, result files and logs.
 
 ## What a result means
 
