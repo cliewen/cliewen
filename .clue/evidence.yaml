@@ -101,7 +101,7 @@ producers:
       - path: docs/analysis/AN-030-routing-on-two-agents-through-one-interface.md
         sha256: 6cdf296e356f9013e5936dd8d8290d572a53aea3a1debf092a510727aed42f18
       - path: docs/analysis/AN-031-four-scenarios-and-a-removal-trial.md
-        sha256: f42c491fef9d60729fe7a6fe8f779403be1b921bf971aaa0d54f99445a1273ec
+        sha256: 46bfa78bdb6c764fdb57a32809cc1bc83d2fc6f5e2359c673d54b8012037b158
       - path: docs/analysis/README.md
         sha256: 02f27e5f3599537551baa4a4a0a39f31b19f63c63ad7d7d82f770526b1763911
       - path: docs/architecture/README.md
@@ -609,7 +609,7 @@ producers:
       - path: docs/plans/P-023-challenge-plans-and-retain-what-work-teaches.md
         sha256: 57bf9a35e727b52dad20e918f9867f359bfbdd14aa884acb9ef858b62296d4a1
       - path: docs/plans/P-024-repeatable-scenario-trials.md
-        sha256: 26aab690a93c2a54ec5ad3538a8bde48115100c21495f9031d89f30b378b880c
+        sha256: 6603fd33bdeabe5397141c2d8374043a239866b361b169ec2180d33e33f254ed
       - path: docs/plans/README.md
         sha256: 36fa2979d6ec7e75e81eb29759540b96b0e74fbf987b456098ad82114450dcac
       - path: docs/use-cases/README.md

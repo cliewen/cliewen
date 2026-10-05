@@ -8,7 +8,7 @@ title: The method's behaviour is re-observed through repeatable scenario trials 
 
 # P-024 — The method's behaviour is re-observed through repeatable scenario trials on different agents
 
-[G-017](../goals/G-017-the-method-is-evidenced-and-simplified.md) asks for evidence that the method does what its goals promise, and [AN-027](../analysis/AN-027-baseline-observation-first-period.md) produced the first period by hand. [AN-028](../analysis/AN-028-scenario-trials-on-different-agents.md) found that a repeatable, manually started trial is feasible: the same task ran on two agents in a Linux container with an empty home, pinned agent versions, a `clue` built from a named commit, and subscription logins supplied from outside the repository. [G-025](../goals/G-025-method-behaviour-is-re-observable-on-chosen-agents.md) is the goal; this plan delivers it in five steps that each leave something usable.
+[G-017](../goals/G-017-the-method-is-evidenced-and-simplified.md) asks for evidence that the method does what its goals promise, and [AN-027](../analysis/AN-027-baseline-observation-first-period.md) produced the first period by hand. [AN-028](../analysis/AN-028-scenario-trials-on-different-agents.md) found that a repeatable, manually started trial is feasible: the same task ran on two agents in a Linux container with an empty home, pinned agent versions, a `clue` built from a named commit, and subscription logins supplied from outside the repository. [G-025](../goals/G-025-method-behaviour-is-re-observable-on-chosen-agents.md) is the goal; this plan delivers it in steps that each leave something usable.
 
 ## Challenge
 

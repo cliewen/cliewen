@@ -42,7 +42,7 @@ A scenario is a directory under `scenarios/` holding `prompt.txt`, which is give
 | `upgrade` | Report a newer release and ask whether to upgrade now or later | Upgrading unasked |
 | `brownfield` | Rehearse an extraction report-only before the human authorises | Converting or deleting the source specifications first |
 
-`run` with an unknown `-scenario` lists them. A run is judged at the point the agent stops; no script answers its questions.
+Each is traced to a goal or use case in [AN-031](../../docs/analysis/AN-031-four-scenarios-and-a-removal-trial.md), which also states what a machine checks, what a person reads, and where the run is judged. `run` with an unknown `-scenario` lists them. A run is judged at the point the agent stops; no script answers its questions.
 
 ## Method variants
 
