@@ -2320,6 +2320,11 @@ claims:
       state: reserved
       prefix: IDR
       component: "9"
+    - id: IDR-010
+      kind: numeric
+      state: reserved
+      prefix: IDR
+      component: "10"
     - id: LOG-001
       kind: numeric
       state: reserved
@@ -3346,11 +3351,11 @@ high-water:
       state: reserved
       prefix: CAP
       component: "11"
-    - id: CH-199
+    - id: CH-200
       kind: numeric
       state: reserved
       prefix: CH
-      component: "199"
+      component: "200"
     - id: G-025
       kind: numeric
       state: reserved
