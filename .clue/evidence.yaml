@@ -105,7 +105,7 @@ producers:
       - path: docs/analysis/AN-032-one-opencode-run-on-a-third-model.md
         sha256: 04eca19959f2452496c8296e80c68795465ffe635d16ea2420050d2f6bdc9abf
       - path: docs/analysis/AN-033-first-comparison-period.md
-        sha256: 441b8bb53be4d982d2501d7e59eed9f9d06f3e4e75cb9e0761ee28034403ce25
+        sha256: 885a86ba1519245777e436d68d314356b21fce20145407a2f6294f3cf9dbc963
       - path: docs/analysis/README.md
         sha256: 4f07ae8003e3f5c536e57f94e85f9f4b5541bede61d5c841649e722fa1b95590
       - path: docs/architecture/README.md
