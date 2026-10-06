@@ -132,6 +132,13 @@ git commit -qm init
 git init -q --bare /home/node/remote.git
 git remote add origin /home/node/remote.git
 git push -q origin HEAD:main 2>/dev/null || git push -q origin HEAD
+# An adopted repository that shares a remote already has an identity ledger and coordinated allocation; clue init leaves neither (AN-035).
+clue migrate --apply >/dev/null
+clue id coordinate --remote origin >/dev/null
+clue validate >/dev/null
+git add -A
+git commit -qm "Seed the identity ledger" --allow-empty
+git push -q origin HEAD:main 2>/dev/null || git push -q origin HEAD
 # A hosting CLI that records what it is given and never reaches a network.
 mkdir -p /home/node/bin
 cat > /home/node/bin/gh <<'SHIM'
