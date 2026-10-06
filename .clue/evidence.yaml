@@ -104,8 +104,10 @@ producers:
         sha256: 46bfa78bdb6c764fdb57a32809cc1bc83d2fc6f5e2359c673d54b8012037b158
       - path: docs/analysis/AN-032-one-opencode-run-on-a-third-model.md
         sha256: 04eca19959f2452496c8296e80c68795465ffe635d16ea2420050d2f6bdc9abf
+      - path: docs/analysis/AN-033-first-comparison-period.md
+        sha256: 441b8bb53be4d982d2501d7e59eed9f9d06f3e4e75cb9e0761ee28034403ce25
       - path: docs/analysis/README.md
-        sha256: 0b13698f76acc9e90971fbc29ce8c5ce8d7c563f910142b5f621b04b3491f3ad
+        sha256: 4f07ae8003e3f5c536e57f94e85f9f4b5541bede61d5c841649e722fa1b95590
       - path: docs/architecture/README.md
         sha256: b9dea39be535f939134483d7a03673af7316201ce35ed1b1f0cbb56b26cf5241
       - path: docs/architecture/architecture.md
@@ -749,7 +751,7 @@ producers:
       - path: tools/export-evidence/main.go
         sha256: 16d6ac0cbfe2a86d7460a8c4dfb62175c89467d95bb1743587f87467f771a039
       - path: tools/scenario-trials/agent_test.go
-        sha256: cdd7c62b2b352719e7484e7b5fa2bf657b653e633df7adea9bd88db52faf24f0
+        sha256: 66003d805cc95ac5244df85a114460f20747102a781453ad21e5a2796588ffcb
       - path: tools/scenario-trials/scenarios_test.go
         sha256: 3ad5a7ff28cac24bd4b9ae44316d3f887e4c3368aba33e1f2c351ea72202aa47
       - path: tools/scenario-trials/transcript_test.go

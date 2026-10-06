@@ -21,13 +21,16 @@ import (
 //go:embed Dockerfile scenarios variants
 var assets embed.FS
 
+// effortRe keeps the effort from reaching the container's shell as anything but a word.
+var effortRe = regexp.MustCompile(`^[a-z]+$`)
+
 // modelRe keeps the model name from reaching the container's shell as anything but a word.
 var modelRe = regexp.MustCompile(`^[A-Za-z0-9._:/-]+$`)
 
 // Options are the parameters of one invocation; none of them is a secret.
 type Options struct {
-	Scenario, Agent, Commit, Login, OutDir, Model, Variant string
-	Runs                                                   int
+	Scenario, Agent, Commit, Login, OutDir, Model, Variant, Effort string
+	Runs                                                           int
 }
 
 // Conditions is what every run in an invocation has to be read against.
@@ -37,6 +40,7 @@ type Conditions struct {
 	Failure       string    `json:"failure"`
 	Agent         string    `json:"agent"`
 	ModelFlag     string    `json:"modelFlag"`
+	Effort        string    `json:"effort"`
 	Variant       string    `json:"variant"`
 	VariantSHA256 string    `json:"variantSha256,omitempty"`
 	Runs          int       `json:"runs"`
@@ -94,11 +98,15 @@ func Run(o Options) error {
 	if o.Model != "" && !modelRe.MatchString(o.Model) {
 		return fmt.Errorf("model %q is not a plain model name", o.Model)
 	}
+	ad, effort, err := withEffort(ad, o.Effort)
+	if err != nil {
+		return err
+	}
 	creds, err := ad.Credentials(o)
 	if err != nil {
 		return err
 	}
-	cond := Conditions{Scenario: o.Scenario, Obligation: scn.Obligation, Failure: scn.Failure, VariantSHA256: variantHash, Agent: o.Agent, ModelFlag: o.Model, Variant: o.Variant, Runs: o.Runs,
+	cond := Conditions{Scenario: o.Scenario, Obligation: scn.Obligation, Failure: scn.Failure, VariantSHA256: variantHash, Agent: o.Agent, ModelFlag: o.Model, Effort: effort, Variant: o.Variant, Runs: o.Runs,
 		HostOS: runtime.GOOS + "/" + runtime.GOARCH, Started: time.Now().UTC()}
 	build, err := buildClue(o.Commit)
 	if err != nil {
@@ -350,4 +358,24 @@ func writeJSON(path string, v any) error {
 		return err
 	}
 	return os.WriteFile(path, append(b, '\n'), 0o644)
+}
+
+// withEffort applies a requested reasoning effort to an adapter that takes one
+// and returns the effort the conditions record: the adapter's own, or "default"
+// for an agent that is run at its default.
+func withEffort(ad Adapter, requested string) (Adapter, string, error) {
+	if requested != "" {
+		if !effortRe.MatchString(requested) {
+			return nil, "", fmt.Errorf("effort %q is not a plain word", requested)
+		}
+		ea, ok := ad.(interface{ WithEffort(string) Adapter })
+		if !ok {
+			return nil, "", fmt.Errorf("agent %q does not take a reasoning effort", ad.Name())
+		}
+		ad = ea.WithEffort(requested)
+	}
+	if e, ok := ad.(interface{ Effort() string }); ok {
+		return ad, e.Effort(), nil
+	}
+	return ad, "default", nil
 }

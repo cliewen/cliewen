@@ -16,13 +16,24 @@ import (
 // configuration of its own, so what the run reads is what the fixture holds.
 // The model is the -model flag in OpenCode's provider/model form; the reasoning
 // effort is fixed here so every run states the same condition.
-type opencodeAdapter struct{}
+type opencodeAdapter struct{ effort string }
 
 func init() { register(opencodeAdapter{}) }
 
-const opencodeEffort = "medium"
+const opencodeDefaultEffort = "medium"
 
 func (opencodeAdapter) Name() string { return "opencode" }
+
+// Effort is the reasoning effort the run uses, which the conditions record.
+func (a opencodeAdapter) Effort() string {
+	if a.effort != "" {
+		return a.effort
+	}
+	return opencodeDefaultEffort
+}
+
+// WithEffort returns the adapter set to run at the given reasoning effort.
+func (a opencodeAdapter) WithEffort(effort string) Adapter { a.effort = effort; return a }
 
 func (opencodeAdapter) DefaultLogin(home string) string {
 	return filepath.Join(home, ".cliewen-trial", "opencode")
@@ -42,7 +53,7 @@ func (opencodeAdapter) Credentials(o Options) (Credentials, error) {
 	return Credentials{Mounts: []string{"type=bind,source=" + dir + ",target=/home/node/.local/share/opencode"}}, nil
 }
 
-func (opencodeAdapter) Command(model string) string {
+func (a opencodeAdapter) Command(model string) string {
 	m := ""
 	if model != "" {
 		m = " -m " + model
@@ -50,7 +61,7 @@ func (opencodeAdapter) Command(model string) string {
 	// Docker creates the parents of the mount as root, so OpenCode's state, cache
 	// and config directories go to /tmp, where the user can write.
 	return "XDG_STATE_HOME=/tmp/oc-state XDG_CACHE_HOME=/tmp/oc-cache XDG_CONFIG_HOME=/tmp/oc-config " +
-		"opencode run --format json --variant " + opencodeEffort + m + " > /out/events.jsonl 2> /out/stderr.txt"
+		"opencode run --format json --variant " + a.Effort() + m + " > /out/events.jsonl 2> /out/stderr.txt"
 }
 
 func (opencodeAdapter) Probe() string { return "opencode --version > /out/post-agent.txt" }
