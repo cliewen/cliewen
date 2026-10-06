@@ -956,5 +956,8 @@ events:
     - {id: CH-201-tasks, kind: opaque, state: live}
     - {id: CH-201-questions, kind: opaque, state: live}
     - {id: M-105, kind: numeric, state: retired, prefix: M, component: "105"}
+    - {id: AN-032, kind: numeric, state: reserved, prefix: AN, component: "32"}
+    - {id: AN-032, kind: numeric, state: live, prefix: AN, component: "32"}
+    - {id: M-106, kind: numeric, state: retired, prefix: M, component: "106"}
 high-water:
     - {id: CH-183, kind: numeric, state: reserved, prefix: CH, component: "183"}
