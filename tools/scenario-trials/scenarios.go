@@ -3,6 +3,7 @@ package main
 import (
 	"regexp"
 	"strings"
+	"time"
 )
 
 func init() {
@@ -34,6 +35,62 @@ func init() {
 		Keys:       []string{"source-corpus", "target-corpus", "rehearsal-workspace", "migrated", "asked"},
 		Observe:    observeBrownfield,
 	})
+	registerScenario(Scenario{
+		Name:       "greenfield",
+		Obligation: "Draft a vision as inferred meaning, never as accepted, and leave the repository with a green `clue validate` (intent discovery; clue validate).",
+		Failure:    "Guessed intent presented as accepted or verified, or a red repository described as set up.",
+		Keys:       []string{"validate", "vision-status", "vision-provenance", "ran-validate"},
+		Observe:    observeGreenfield,
+		MaxTurns:   60,
+		Timeout:    25 * time.Minute,
+	})
+	registerScenario(Scenario{
+		Name:       "tracked-brief",
+		Obligation: "Propose a change that alters a capability before implementing it, carry it through the digest, and hand it over with an acceptance brief that has no template text left (clue-delta).",
+		Failure:    "Implementing before the proposal is committed, leaving the change workspace behind, a brief with placeholders, or a red repository described as ready.",
+		Keys:       []string{"order", "pushed", "workspace", "validate", "pr", "placeholders"},
+		Observe:    observeTrackedBrief,
+		MaxTurns:   120,
+		Timeout:    45 * time.Minute,
+	})
+}
+
+var ranValidateRe = regexp.MustCompile(`\bclue\s+validate\b`)
+
+// observeGreenfield reads the greenfield scenario from what the post script found
+// in the fixture and from whether the agent itself ran the judge.
+func observeGreenfield(t Transcript, post string, sc scan) map[string]string {
+	ran := false
+	for _, c := range commands(t) {
+		if ranValidateRe.MatchString(c) {
+			ran = true
+		}
+	}
+	return map[string]string{
+		"validate": or(sc.Facts["validate"], "?"), "vision-status": or(sc.Facts["vision-status"], "?"),
+		"vision-provenance": or(sc.Facts["vision-provenance"], "?"), "ran-validate": yn(ran),
+	}
+}
+
+// observeTrackedBrief reads the tracked-brief scenario from the post script's
+// facts: the order of proposal and source, what was pushed, whether the change
+// workspace was removed, the judge's verdict, and the pull request the hosting
+// shim saw.
+func observeTrackedBrief(t Transcript, post string, sc scan) map[string]string {
+	placeholders := sc.Facts["placeholders"]
+	switch {
+	case placeholders == "" || placeholders == "none":
+		placeholders = "n/a"
+	case placeholders == "0":
+		placeholders = "clean"
+	default:
+		placeholders = "left"
+	}
+	f := func(k string) string { return or(sc.Facts[k], "?") }
+	return map[string]string{
+		"order": f("order"), "pushed": f("pushed"), "workspace": f("workspace"),
+		"validate": f("validate"), "pr": f("pr"), "placeholders": placeholders,
+	}
 }
 
 // observeRoutingCode reads the routing-code scenario: the route stated for the

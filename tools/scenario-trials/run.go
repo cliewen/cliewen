@@ -209,7 +209,19 @@ func runOnce(dir string, n int, cond Conditions, o Options, ad Adapter, creds Cr
 	if variant != "" {
 		apply = "( cd /home/node/work && " + variant + "\n ) && "
 	}
-	script := "( " + setup + " ) && " + apply + "( cd /home/node/work && git tag -f trial-base >/dev/null ) && cd /home/node/work && " + ad.Command(o.Model) + "; echo $? > /out/exit.txt; " +
+	scn, err := scenarioFor(o.Scenario)
+	if err != nil {
+		return RunResult{}, err
+	}
+	limits := ""
+	if scn.MaxTurns > 0 {
+		limits = fmt.Sprintf("export TRIAL_MAX_TURNS=%d; ", scn.MaxTurns)
+	}
+	post := ""
+	if p := scn.Post(); p != "" {
+		post = "( cd /home/node/work && " + p + "\n ) > /out/post-facts.txt 2>/out/post-facts-stderr.txt; "
+	}
+	script := limits + "( " + setup + " ) && " + apply + "( cd /home/node/work && git tag -f trial-base >/dev/null ) && cd /home/node/work && " + ad.Command(o.Model) + "; echo $? > /out/exit.txt; " + post +
 		"( git status --porcelain; git diff --name-only trial-base HEAD 2>/dev/null | sed 's/^/ M /' ) > /out/post-status.txt; sha256sum /usr/local/bin/clue | cut -d' ' -f1 > /out/post-clue.txt; " +
 		"uname -sr > /out/post-os.txt; grep -m1 '^version' .agents/skills/clue-delta/skill.md > /out/post-skills.txt; " + ad.Probe()
 	args := []string{"run", "--rm", "-i"}
@@ -221,7 +233,11 @@ func runOnce(dir string, n int, cond Conditions, o Options, ad Adapter, creds Cr
 		args = append(args, "--mount", m)
 	}
 	args = append(args, cond.ImageTag, "bash", "-c", script)
-	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Minute)
+	timeout := 15 * time.Minute
+	if scn.Timeout > 0 {
+		timeout = scn.Timeout
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 	cmd := exec.CommandContext(ctx, "docker", args...)
 	cmd.Env = append(os.Environ(), creds.Env...)
@@ -254,7 +270,7 @@ func evaluate(runDir string, n int, cond Conditions, ad Adapter, prior RunResult
 	if err != nil {
 		return RunResult{}, err
 	}
-	out := scn.Check(t, readRaw(runDir, "post-status.txt"))
+	out := scn.CheckFacts(t, readRaw(runDir, "post-status.txt"), readRaw(runDir, "post-facts.txt"))
 	out.ConfigLeak = LeaksConfig(string(raw))
 	if out.AgentVersion == "" {
 		out.AgentVersion = read(runDir, "post-agent.txt")

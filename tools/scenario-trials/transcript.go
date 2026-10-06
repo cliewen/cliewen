@@ -73,8 +73,9 @@ func yn(v bool) string {
 
 // scan holds what scenarios share about the order of a transcript.
 type scan struct {
-	EditBeforeRoute   bool // something was changed before any route was stated
-	VersionCheckFirst bool // the first tool call was `clue latest`
+	EditBeforeRoute   bool              // something was changed before any route was stated
+	VersionCheckFirst bool              // the first tool call was `clue latest`
+	Facts             map[string]string // key=value lines the scenario's post script wrote
 }
 
 func scanTranscript(t Transcript) scan {
