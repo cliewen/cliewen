@@ -180,3 +180,32 @@ func TestUnit_OpencodeCredentialsMountTheDataDirectory(t *testing.T) {
 		t.Fatalf("credentials = %+v, %v", c, err)
 	}
 }
+
+func TestUnit_EffortIsRecordedAndOnlyAcceptedByAnAgentThatTakesOne(t *testing.T) {
+	ad, e, err := withEffort(opencodeAdapter{}, "")
+	if err != nil || e != "medium" || !strings.Contains(ad.Command("m"), "--variant medium") {
+		t.Fatalf("default effort = %q, %v", e, err)
+	}
+	ad, e, err = withEffort(opencodeAdapter{}, "high")
+	if err != nil || e != "high" || !strings.Contains(ad.Command("m"), "--variant high") {
+		t.Fatalf("effort = %q, %v", e, err)
+	}
+	if _, e, err = withEffort(claudeAdapter{}, ""); err != nil || e != "default" {
+		t.Fatalf("claude effort = %q, %v", e, err)
+	}
+	if _, _, err = withEffort(codexAdapter{}, "high"); err == nil {
+		t.Fatal("an agent that takes no effort must refuse one")
+	}
+	if _, _, err = withEffort(opencodeAdapter{}, "high; rm"); err == nil {
+		t.Fatal("an effort that is not a plain word must be refused")
+	}
+}
+
+func TestUnit_VariantsFailWhenTheyRemoveNothing(t *testing.T) {
+	for _, n := range []string{"no-routing", "no-routing-skill"} {
+		s, _, err := variantScript(n)
+		if err != nil || !strings.Contains(s, "variant removed nothing") {
+			t.Fatalf("%s must guard against removing nothing: %v", n, err)
+		}
+	}
+}

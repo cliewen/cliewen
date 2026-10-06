@@ -11,7 +11,7 @@ import (
 )
 
 const usage = `usage:
-  scenario-trials run -agent NAME [-scenario routing] [-runs 5] [-clue-commit REV] [-login PATH] [-out DIR] [-model NAME]
+  scenario-trials run -agent NAME [-scenario routing] [-runs 5] [-clue-commit REV] [-login PATH] [-out DIR] [-model NAME] [-effort WORD] [-variant NAME]
   scenario-trials check RUN_DIRECTORY   evaluate stored transcripts again with the current checks; runs no agent`
 
 func main() {
@@ -45,6 +45,7 @@ func runCommand(args []string) {
 	login := fs.String("login", "", "where the agent's login lives, outside the repository; each adapter has a default under ~/.cliewen-trial")
 	out := fs.String("out", "scenario-runs", "directory for run records")
 	model := fs.String("model", "", "model to pass to the agent")
+	effort := fs.String("effort", "", "reasoning effort, for an agent that takes one; the conditions record it")
 	variant := fs.String("variant", baselineVariant, "method variant, a named removal applied inside the container only: "+strings.Join(variantNames(), ", "))
 	_ = fs.Parse(args)
 	ad, err := adapterFor(*agent)
@@ -55,7 +56,7 @@ func runCommand(args []string) {
 		home, _ := os.UserHomeDir()
 		*login = ad.DefaultLogin(home)
 	}
-	if err := Run(Options{Scenario: *scenario, Agent: *agent, Runs: *runs, Commit: *commit, Login: *login, OutDir: *out, Model: *model, Variant: *variant}); err != nil {
+	if err := Run(Options{Scenario: *scenario, Agent: *agent, Runs: *runs, Commit: *commit, Login: *login, OutDir: *out, Model: *model, Variant: *variant, Effort: *effort}); err != nil {
 		fatal(err)
 	}
 }
