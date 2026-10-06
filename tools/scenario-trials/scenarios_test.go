@@ -109,12 +109,23 @@ func TestUnit_ScenariosStateTheirObligationAndFailureAndHavePromptAndFixture(t *
 
 func TestUnit_SignatureFollowsTheScenariosKeys(t *testing.T) {
 	s, _ := scenarioFor("upgrade")
-	o := Outcome{Observed: map[string]string{"reported": "yes", "asked": "no", "changed-repo": "no", "applied": "no"}}
+	o := Outcome{Observed: map[string]string{"reported": "yes", "asked": "no", "changed-repo": "no", "applied": "no"}, Finished: true}
 	if got := s.Signature(o); got != "reported=yes asked=no changed-repo=no applied=no" {
 		t.Fatalf("signature = %q", got)
 	}
 	if got := s.Signature(Outcome{}); !strings.Contains(got, "reported=?") {
 		t.Fatalf("a missing field shows as ?: %q", got)
+	}
+	o.Finished = false
+	if got := s.Signature(o); !strings.HasSuffix(got, " unfinished") {
+		t.Fatalf("a run that did not finish carries its own marker: %q", got)
+	}
+}
+
+func TestUnit_OpencodeAllowsTmpAndNothingElseOutsideTheFixture(t *testing.T) {
+	c := opencodeAdapter{}.Command("m")
+	if !strings.Contains(c, `"external_directory":{"/tmp/**":"allow"}`) || strings.Contains(c, `"*":"allow"`) {
+		t.Fatalf("command = %q", c)
 	}
 }
 
