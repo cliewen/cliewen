@@ -105,7 +105,7 @@ producers:
       - path: docs/analysis/AN-032-one-opencode-run-on-a-third-model.md
         sha256: 04eca19959f2452496c8296e80c68795465ffe635d16ea2420050d2f6bdc9abf
       - path: docs/analysis/AN-033-first-comparison-period.md
-        sha256: 4a8cf0a7b7af0aa8c2e6fdeb90e80785046ce992e2dd11bffc488204c11e57fb
+        sha256: eed23d62c7908e64941cff7335808d4e78e31fa0ba922b3aee9eee54497b12dd
       - path: docs/analysis/README.md
         sha256: 94bad0483c31f4390d3831efaee7af0890ebe22631414bfe4cf9ff3bc03c71e9
       - path: docs/architecture/README.md
@@ -613,7 +613,7 @@ producers:
       - path: docs/plans/P-023-challenge-plans-and-retain-what-work-teaches.md
         sha256: 57bf9a35e727b52dad20e918f9867f359bfbdd14aa884acb9ef858b62296d4a1
       - path: docs/plans/P-024-repeatable-scenario-trials.md
-        sha256: e72342a73e5b1a9388378cd05a067871b9bc81a30cf51fd1f783f403de0f34ff
+        sha256: 5edc35c0f981b8b4f1a23c4db21b9249c3ce761113cdc7bd3c67ac120bd60ec1
       - path: docs/plans/README.md
         sha256: 36fa2979d6ec7e75e81eb29759540b96b0e74fbf987b456098ad82114450dcac
       - path: docs/use-cases/README.md
