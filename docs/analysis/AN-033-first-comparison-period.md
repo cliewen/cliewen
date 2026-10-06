@@ -1,7 +1,7 @@
 ---
 id: AN-033
 type: analysis
-status: draft
+status: active
 links: [P-024, G-025, G-017, AN-027, AN-031, AN-032]
 title: A first comparison period across three agents, fixed before observing
 ---
@@ -49,4 +49,33 @@ The period is now two removal trials: `routing-code` on OpenCode (20 baseline, 2
 
 ## Observations
 
-Not yet run.
+Run on 2026-10-06 on `main` at `7498c4a`, with `clue` and skills 0.28.0, Claude Code not run, Codex 0.160.0 and OpenCode 1.18.34 as pinned, in the four invocations under `scenario-runs/` (Git-ignored) named `20261006-174807`, `-175213`, `-175835` and `-181247`. Efforts as recorded in each `conditions.json`: OpenCode `medium`, Codex `default`. All 60 runs were scored by the checks. Cost: $0.96 for the 40 OpenCode runs; Codex runs are on a subscription and report none.
+
+| Arm | Runs | Source edited | Edit before any route | Route stated |
+|---|---|---|---|---|
+| Codex, baseline | 10 | 0 | 0 | `tracked` 10 |
+| Codex, `no-routing-skill` | 10 | 9 | 9 | none 10 |
+| OpenCode, baseline | 20 | 19 | 10 | `direct` 18, `tracked` 1, none 1 |
+| OpenCode, `no-routing-skill` | 20 | 20 | 18 | none 16, `tracked` 3, `direct` 1 |
+
+**Codex shows the effect again, as stated before the run.** With the skill, 10 of 10 chose the tracked route and edited no source. With it removed, 9 of 10 edited source before any route and none stated one. Source edited, 0 of 10 against 9 of 10, gives a two-sided Fisher exact p of about 0.0001. In the six removal runs read, five built the feature and wrote architecture and design documentation; the sixth stopped and asked for the missing `clue-delta` skill to be restored, because the hub still points at it. In both baseline runs read, Codex opened the `clue-delta` skill or its scope reference before it answered.
+
+**OpenCode on `qwen3.8-27b` shows the failure in both arms, so the obligation is not exercised for it.** With the skill present, 19 of 20 runs edited source and 18 stated the direct route; with it removed, 20 of 20 edited, so the difference is nothing (Fisher p = 1). The reasons given for `direct` in the runs read are the ones Claude gave in AN-031: the corpus holds no accepted contract, so an addition touches none. In none of the 40 runs did a tool call name a skill path: OpenCode did not open a skill in either arm, so the skill's presence could not have been what changed anything. That answers the question [AN-032](AN-032-one-opencode-run-on-a-third-model.md) left open for this scenario: on this model the repository's skills are not used, whether or not OpenCode lists them. The one visible effect of the removal is in what the agent says: it stated a route in 19 of 20 baseline runs and in 4 of 20 with the skill removed, which fits the hub's one-sentence rule doing some work on the wording.
+
+**A harness fault spoiled 12 of the 40 OpenCode runs.** OpenCode asked permission to write under `/tmp`, treated as an external directory, and in a non-interactive run auto-rejected it (`permission requested: external_directory (/tmp/*); auto-rejecting`, in `stderr.txt` of all 12). The agent had announced a test of a file write and the run ended there, unfinished: 7 of 20 in the baseline arm and 5 of 20 in the removal arm. The scored measure, source edited, is not affected where the run had already edited, and the one baseline run that edited nothing finished normally, so no result above rests on an unfinished run having stopped early; but unfinished runs may have stopped before a route was stated, so the route counts for OpenCode are lower bounds. This was not caught by the checks. It is the period's one harness fault.
+
+**What was read.** 25 of the 60 runs: every run differing from the most common signature of its arm (10 in the OpenCode baseline, 1 in the Codex removal arm, 4 in the OpenCode removal arm, none in the Codex baseline, with overlap), plus the two runs of each baseline arm and five of each removal arm that the fixed ordering gave. I read, per run, the list of tool calls, whether any named a skill path and the agent's last message, not each full transcript, so what the agents reasoned in between is not recorded here. The checks and the reading disagreed in none of the 25.
+
+**G-017's categories.** *Obligation not met:* OpenCode in 19 of 20 baseline runs. *Bypass, with the reason:* "no accepted contract, so the addition is direct", in the OpenCode runs read that stated one. *Misleading documentation:* after `no-routing-skill` the hub still points to the `clue-delta` skill, which is a property of the variant and not of the method (AN-031 found the same dangling row); one Codex run treated it as a blocker and stopped. *Consequential misunderstanding:* none observed. Acceptance cost and rediscovery are not observable in these scenarios.
+
+## What this does not establish
+
+That the obligation is unneeded on OpenCode: it is not exercised, because the failure is present with the skill in place and the skill was never opened. Anything about `upgrade`, `brownfield` or `routing` on any agent in this period, or about Claude Code, which this period did not run. That Codex would behave the same on another prompt, repository or model; one scenario, one fixture. That the effect on Codex comes from the skill alone: the variant also removes the hub's routing paragraphs, and AN-031 found the hub paragraphs alone changed nothing, but an arm with only the skill removed was not run here. Anything about PowerShell.
+
+## Decision
+
+**No obligation is proposed for removal.** Codex is the one agent where the failure is known to appear without the skill, and there it did; on OpenCode the failure was already present, so the removal rule's "the failure did not appear" is not met anywhere. No skill or obligation changes as a result of this period.
+
+**The harness is kept, with one revision.** It showed what hand observation would not have found for the same price: a clean 0 of 10 against 9 of 10 on Codex, and 40 OpenCode runs, for $0.96, in which no skill was opened. It also carried a fault the checks did not catch (12 of 40 OpenCode runs ended unfinished on the `/tmp` permission), which is the revision: OpenCode's non-interactive permissions for the container need setting so a run does not end on a harmless write, and the checks should report an unfinished run as its own signature. That follow-up is a harness change, not done in this period; until it is, an OpenCode result is read with the unfinished count beside it. One fault in 60 runs and none in the checks' readings of the 25 read is fewer corrections than M-105 and M-106 needed.
+
+The cross-agent comparison of `upgrade`, `brownfield` and `routing`, and Claude Code, stays open as a later period; whether it is worth its cost is better judged after the revision above.
