@@ -59,8 +59,12 @@ func (a opencodeAdapter) Command(model string) string {
 		m = " -m " + model
 	}
 	// Docker creates the parents of the mount as root, so OpenCode's state, cache
-	// and config directories go to /tmp, where the user can write.
+	// and config directories go to /tmp, where the user can write. OpenCode treats
+	// /tmp as an external directory and, in a run nobody can answer, rejects a
+	// write there and ends the run (AN-033); the throwaway container is the
+	// boundary, so /tmp is allowed and nothing else is.
 	return "XDG_STATE_HOME=/tmp/oc-state XDG_CACHE_HOME=/tmp/oc-cache XDG_CONFIG_HOME=/tmp/oc-config " +
+		`OPENCODE_CONFIG_CONTENT='{"permission":{"external_directory":{"/tmp/**":"allow"}}}' ` +
 		"opencode run --format json --variant " + a.Effort() + m + " > /out/events.jsonl 2> /out/stderr.txt"
 }
 

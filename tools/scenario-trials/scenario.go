@@ -63,11 +63,16 @@ func (s Scenario) Check(t Transcript, postStatus string) Outcome {
 	}
 }
 
-// Signature groups runs that behaved the same way on what the scenario asks.
+// Signature groups runs that behaved the same way on what the scenario asks. A run
+// that did not finish carries its own marker, so that a stop the agent did not
+// choose is not counted with the runs that ended where the agent decided to.
 func (s Scenario) Signature(o Outcome) string {
 	parts := make([]string, 0, len(s.Keys))
 	for _, k := range s.Keys {
 		parts = append(parts, k+"="+or(o.Observed[k], "?"))
+	}
+	if !o.Finished {
+		parts = append(parts, "unfinished")
 	}
 	return strings.Join(parts, " ")
 }
