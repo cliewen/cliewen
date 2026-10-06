@@ -102,8 +102,10 @@ producers:
         sha256: 6cdf296e356f9013e5936dd8d8290d572a53aea3a1debf092a510727aed42f18
       - path: docs/analysis/AN-031-four-scenarios-and-a-removal-trial.md
         sha256: 46bfa78bdb6c764fdb57a32809cc1bc83d2fc6f5e2359c673d54b8012037b158
+      - path: docs/analysis/AN-032-one-opencode-run-on-a-third-model.md
+        sha256: 04eca19959f2452496c8296e80c68795465ffe635d16ea2420050d2f6bdc9abf
       - path: docs/analysis/README.md
-        sha256: 02f27e5f3599537551baa4a4a0a39f31b19f63c63ad7d7d82f770526b1763911
+        sha256: 0b13698f76acc9e90971fbc29ce8c5ce8d7c563f910142b5f621b04b3491f3ad
       - path: docs/architecture/README.md
         sha256: b9dea39be535f939134483d7a03673af7316201ce35ed1b1f0cbb56b26cf5241
       - path: docs/architecture/architecture.md
@@ -609,7 +611,7 @@ producers:
       - path: docs/plans/P-023-challenge-plans-and-retain-what-work-teaches.md
         sha256: 57bf9a35e727b52dad20e918f9867f359bfbdd14aa884acb9ef858b62296d4a1
       - path: docs/plans/P-024-repeatable-scenario-trials.md
-        sha256: 6603fd33bdeabe5397141c2d8374043a239866b361b169ec2180d33e33f254ed
+        sha256: fca5ad776b00273f0e889e5ea9414d5dba790366c52f998fba0d6b14ea1ae0bc
       - path: docs/plans/README.md
         sha256: 36fa2979d6ec7e75e81eb29759540b96b0e74fbf987b456098ad82114450dcac
       - path: docs/use-cases/README.md
@@ -747,7 +749,7 @@ producers:
       - path: tools/export-evidence/main.go
         sha256: 16d6ac0cbfe2a86d7460a8c4dfb62175c89467d95bb1743587f87467f771a039
       - path: tools/scenario-trials/agent_test.go
-        sha256: 4f5273aead705c06efef81af863283a84a420fa0dced681617a49047ac4883f5
+        sha256: cdd7c62b2b352719e7484e7b5fa2bf657b653e633df7adea9bd88db52faf24f0
       - path: tools/scenario-trials/scenarios_test.go
         sha256: 3ad5a7ff28cac24bd4b9ae44316d3f887e4c3368aba33e1f2c351ea72202aa47
       - path: tools/scenario-trials/transcript_test.go
