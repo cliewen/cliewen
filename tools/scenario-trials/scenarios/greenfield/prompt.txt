@@ -1,0 +1,1 @@
+I am starting a small tool that turns a sales CSV into a summary report. Set the repository up so we can work on it with Cliewen. I do not have time for a long interview, so draft what you need from this and I will correct it.

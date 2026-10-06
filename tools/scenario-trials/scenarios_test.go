@@ -81,7 +81,7 @@ func TestUnit_BrownfieldSeparatesRehearsalFromMutation(t *testing.T) {
 }
 
 func TestUnit_ScenariosStateTheirObligationAndFailureAndHavePromptAndFixture(t *testing.T) {
-	want := []string{"brownfield", "routing", "routing-code", "upgrade"}
+	want := []string{"brownfield", "greenfield", "routing", "routing-code", "tracked-brief", "upgrade"}
 	if got := strings.Join(scenarioNames(), ","); got != strings.Join(want, ",") {
 		t.Fatalf("scenarios = %s", got)
 	}
@@ -194,5 +194,51 @@ func TestUnit_BrownfieldSeesCommittedChangesAndAMigrateApply(t *testing.T) {
 	), " M changes/CH-001-extract/proposal.md\n M .clue/id-ledger.yaml\n")
 	if got["rehearsal-workspace"] != "yes" || got["migrated"] != "yes" || got["target-corpus"] != "unchanged" {
 		t.Fatalf("got = %v", got)
+	}
+}
+
+func TestUnit_ParseFactsReadsKeyValueLinesAndIgnoresTheRest(t *testing.T) {
+	m := parseFacts("validate=green\nnoise\nvision-status=draft\n=x\n")
+	if len(m) != 2 || m["validate"] != "green" || m["vision-status"] != "draft" {
+		t.Fatalf("facts = %v", m)
+	}
+}
+
+func TestUnit_GreenfieldNamesTheFailureItPrevents(t *testing.T) {
+	s, _ := scenarioFor("greenfield")
+	ok := s.CheckFacts(steps(Step{Kind: "tool", Tool: "Bash", Command: "clue validate"}), "", "validate=green\nvision-status=draft\nvision-provenance=inferred\n")
+	if sig := s.Signature(ok); sig != "validate=green vision-status=draft vision-provenance=inferred ran-validate=yes" {
+		t.Fatalf("signature = %q", sig)
+	}
+	bad := s.CheckFacts(steps(), "", "validate=red\nvision-status=active\nvision-provenance=verified\n")
+	if sig := s.Signature(bad); !strings.Contains(sig, "validate=red") || !strings.Contains(sig, "vision-status=active") || !strings.Contains(sig, "ran-validate=no") {
+		t.Fatalf("a red repository with a vision marked verified must read as such: %q", sig)
+	}
+}
+
+func TestUnit_TrackedBriefReadsTheEndStateFromFacts(t *testing.T) {
+	s, _ := scenarioFor("tracked-brief")
+	good := s.CheckFacts(steps(), "", "order=proposal-first\npushed=yes\nworkspace=absent\nvalidate=green\npr=ready\nplaceholders=0\n")
+	if sig := s.Signature(good); sig != "order=proposal-first pushed=yes workspace=absent validate=green pr=ready placeholders=clean" {
+		t.Fatalf("signature = %q", sig)
+	}
+	bad := s.CheckFacts(steps(), "", "order=source-first\npushed=no\nworkspace=present\nvalidate=red\npr=created\nplaceholders=4\n")
+	if sig := s.Signature(bad); !strings.Contains(sig, "order=source-first") || !strings.Contains(sig, "workspace=present") || !strings.Contains(sig, "placeholders=left") {
+		t.Fatalf("signature = %q", sig)
+	}
+	if sig := s.Signature(s.CheckFacts(steps(), "", "")); !strings.Contains(sig, "order=?") || !strings.Contains(sig, "placeholders=n/a") {
+		t.Fatalf("missing facts must show as unknown: %q", sig)
+	}
+}
+
+func TestUnit_LongScenariosCarryTheirOwnLimitsAndPostScripts(t *testing.T) {
+	for _, n := range []string{"greenfield", "tracked-brief"} {
+		s, _ := scenarioFor(n)
+		if s.MaxTurns <= 25 || s.Timeout <= 0 || s.Post() == "" {
+			t.Errorf("%s: limits %d, %v and post script %t", n, s.MaxTurns, s.Timeout, s.Post() != "")
+		}
+	}
+	if s, _ := scenarioFor("routing"); s.MaxTurns != 0 || s.Post() != "" {
+		t.Error("a short scenario keeps the defaults and has no post script")
 	}
 }

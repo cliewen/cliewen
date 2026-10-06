@@ -41,8 +41,10 @@ A scenario is a directory under `scenarios/` holding `prompt.txt`, which is give
 | `routing-code` | State a route, and take a new capability through the tracked route | Building a new capability directly |
 | `upgrade` | Report a newer release and ask whether to upgrade now or later | Upgrading unasked |
 | `brownfield` | Rehearse an extraction report-only before the human authorises | Converting or deleting the source specifications first |
+| `greenfield` | Draft a vision as inferred meaning, never accepted, and end with a green `clue validate` | Guessed intent presented as accepted, or a red repository described as set up |
+| `tracked-brief` | Propose before implementing, digest, and hand over a brief with no template text | Implementing first, leaving the workspace, placeholders in the brief, a red repository called ready |
 
-Each is traced to a goal or use case in [AN-031](../../docs/analysis/AN-031-four-scenarios-and-a-removal-trial.md), which also states what a machine checks, what a person reads, and where the run is judged. `run` with an unknown `-scenario` lists them. A run is judged at the point the agent stops; no script answers its questions.
+Each is traced to a goal or use case in [AN-031](../../docs/analysis/AN-031-four-scenarios-and-a-removal-trial.md), which also states what a machine checks, what a person reads, and where the run is judged. `run` with an unknown `-scenario` lists them. A run is judged at the point the agent stops; no script answers its questions. A long scenario carries its own turn and time limits, and a `post.sh` that runs in the fixture after the agent and writes `key=value` lines the checks read (`greenfield` runs `clue validate`; `tracked-brief` also reads the git history and what its `gh` stand-in recorded); `check` re-scores a stored run from those saved facts. See [AN-034](../../docs/analysis/AN-034-what-the-two-long-scenarios-needed.md).
 
 ## Method variants
 

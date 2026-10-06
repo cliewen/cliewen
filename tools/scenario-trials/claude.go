@@ -38,7 +38,7 @@ func (claudeAdapter) Command(model string) string {
 		m = " --model " + model
 	}
 	return "claude -p --setting-sources project,local --permission-mode acceptEdits " +
-		"--allowedTools 'Bash Read Write Edit Glob Grep' --max-turns 25 --output-format stream-json " +
+		"--allowedTools 'Bash Read Write Edit Glob Grep' --max-turns ${TRIAL_MAX_TURNS:-25} --output-format stream-json " +
 		"--verbose --no-session-persistence" + m + " > /out/events.jsonl 2> /out/stderr.txt"
 }
 

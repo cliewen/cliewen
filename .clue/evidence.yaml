@@ -106,8 +106,10 @@ producers:
         sha256: 04eca19959f2452496c8296e80c68795465ffe635d16ea2420050d2f6bdc9abf
       - path: docs/analysis/AN-033-first-comparison-period.md
         sha256: 1baee85daa86d7d864110bb2e2b96df147fdedf2ecb148f4d9c124420659c2af
+      - path: docs/analysis/AN-034-what-the-two-long-scenarios-needed.md
+        sha256: f656753e61b21e9b12a054efe87d3512bca911a1dd85be1ae8b3a33e6b4beebd
       - path: docs/analysis/README.md
-        sha256: 94bad0483c31f4390d3831efaee7af0890ebe22631414bfe4cf9ff3bc03c71e9
+        sha256: 4db0e074887db15a2d5deae603fe0a4a17671d79a7897402d08637367dcdc635
       - path: docs/architecture/README.md
         sha256: b9dea39be535f939134483d7a03673af7316201ce35ed1b1f0cbb56b26cf5241
       - path: docs/architecture/architecture.md
@@ -753,7 +755,7 @@ producers:
       - path: tools/scenario-trials/agent_test.go
         sha256: 66003d805cc95ac5244df85a114460f20747102a781453ad21e5a2796588ffcb
       - path: tools/scenario-trials/scenarios_test.go
-        sha256: d29dfe2467641a747572999bfd7ebe9579fcaad29d8600f3b78bb8b64bb7eca2
+        sha256: 37bd157374026bfefa199d9714385911a9d618798bfa59f432a0e3f0d24180f7
       - path: tools/scenario-trials/transcript_test.go
         sha256: c35e17ae37dd02fc315538ca46a91264e7ba52ab7cbf1a2a5aeab2502e8615eb
     references:
