@@ -18,7 +18,7 @@ import (
 	"time"
 )
 
-//go:embed Dockerfile scenarios
+//go:embed Dockerfile scenarios variants
 var assets embed.FS
 
 // modelRe keeps the model name from reaching the container's shell as anything but a word.
@@ -33,9 +33,12 @@ type Options struct {
 // Conditions is what every run in an invocation has to be read against.
 type Conditions struct {
 	Scenario      string    `json:"scenario"`
+	Obligation    string    `json:"obligation"`
+	Failure       string    `json:"failure"`
 	Agent         string    `json:"agent"`
 	ModelFlag     string    `json:"modelFlag"`
 	Variant       string    `json:"variant"`
+	VariantSHA256 string    `json:"variantSha256,omitempty"`
 	Runs          int       `json:"runs"`
 	ClueCommit    string    `json:"clueCommit"`
 	SkillsVersion string    `json:"skillsVersion"`
@@ -72,13 +75,21 @@ func Run(o Options) error {
 	if err != nil {
 		return err
 	}
-	prompt, err := assets.ReadFile("scenarios/" + o.Scenario + "/prompt.txt")
+	scn, err := scenarioFor(o.Scenario)
+	if err != nil {
+		return err
+	}
+	prompt, err := scn.Prompt()
 	if err != nil {
 		return fmt.Errorf("scenario %q: %w", o.Scenario, err)
 	}
-	setup, err := assets.ReadFile("scenarios/" + o.Scenario + "/setup.sh")
+	setup, err := scn.Setup()
 	if err != nil {
 		return fmt.Errorf("scenario %q: %w", o.Scenario, err)
+	}
+	variant, variantHash, err := variantScript(o.Variant)
+	if err != nil {
+		return err
 	}
 	if o.Model != "" && !modelRe.MatchString(o.Model) {
 		return fmt.Errorf("model %q is not a plain model name", o.Model)
@@ -87,7 +98,7 @@ func Run(o Options) error {
 	if err != nil {
 		return err
 	}
-	cond := Conditions{Scenario: o.Scenario, Agent: o.Agent, ModelFlag: o.Model, Variant: o.Variant, Runs: o.Runs,
+	cond := Conditions{Scenario: o.Scenario, Obligation: scn.Obligation, Failure: scn.Failure, VariantSHA256: variantHash, Agent: o.Agent, ModelFlag: o.Model, Variant: o.Variant, Runs: o.Runs,
 		HostOS: runtime.GOOS + "/" + runtime.GOARCH, Started: time.Now().UTC()}
 	build, err := buildClue(o.Commit)
 	if err != nil {
@@ -111,7 +122,7 @@ func Run(o Options) error {
 	}
 	sum := Summary{Conditions: cond, Spread: map[string]int{}}
 	for i := 1; i <= o.Runs; i++ {
-		res, err := runOnce(dir, i, cond, o, ad, creds, string(prompt), string(setup))
+		res, err := runOnce(dir, i, cond, o, ad, creds, prompt, setup, variant)
 		if err != nil {
 			return fmt.Errorf("run %d: %w", i, err)
 		}
@@ -181,13 +192,17 @@ func FormatSpread(s Summary) string {
 	return b.String()
 }
 
-func runOnce(dir string, n int, cond Conditions, o Options, ad Adapter, creds Credentials, prompt, setup string) (RunResult, error) {
+func runOnce(dir string, n int, cond Conditions, o Options, ad Adapter, creds Credentials, prompt, setup, variant string) (RunResult, error) {
 	runDir := filepath.Join(dir, fmt.Sprintf("run-%d", n))
 	if err := os.MkdirAll(runDir, 0o755); err != nil {
 		return RunResult{}, err
 	}
-	script := "( " + setup + " ) && cd /home/node/work && " + ad.Command(o.Model) + "; echo $? > /out/exit.txt; " +
-		"git status --porcelain > /out/post-status.txt; sha256sum /usr/local/bin/clue | cut -d' ' -f1 > /out/post-clue.txt; " +
+	apply := ""
+	if variant != "" {
+		apply = "( cd /home/node/work && " + variant + "\n ) && "
+	}
+	script := "( " + setup + " ) && " + apply + "( cd /home/node/work && git tag -f trial-base >/dev/null ) && cd /home/node/work && " + ad.Command(o.Model) + "; echo $? > /out/exit.txt; " +
+		"( git status --porcelain; git diff --name-only trial-base HEAD 2>/dev/null | sed 's/^/ M /' ) > /out/post-status.txt; sha256sum /usr/local/bin/clue | cut -d' ' -f1 > /out/post-clue.txt; " +
 		"uname -sr > /out/post-os.txt; grep -m1 '^version' .agents/skills/clue-delta/skill.md > /out/post-skills.txt; " + ad.Probe()
 	args := []string{"run", "--rm", "-i"}
 	for _, name := range creds.Pass {
@@ -227,7 +242,11 @@ func evaluate(runDir string, n int, cond Conditions, ad Adapter, prior RunResult
 	if err != nil {
 		return RunResult{}, err
 	}
-	out := Check(t, read(runDir, "post-status.txt"))
+	scn, err := scenarioFor(cond.Scenario)
+	if err != nil {
+		return RunResult{}, err
+	}
+	out := scn.Check(t, readRaw(runDir, "post-status.txt"))
 	out.ConfigLeak = LeaksConfig(string(raw))
 	if out.AgentVersion == "" {
 		out.AgentVersion = read(runDir, "post-agent.txt")
@@ -236,7 +255,7 @@ func evaluate(runDir string, n int, cond Conditions, ad Adapter, prior RunResult
 		out.Model = read(runDir, "post-model.txt")
 	}
 	res := prior
-	res.Run, res.Outcome, res.Signature = n, out, out.Signature()
+	res.Run, res.Outcome, res.Signature = n, out, scn.Signature(out)
 	res.ExitCode, res.ContainerOS = read(runDir, "exit.txt"), read(runDir, "post-os.txt")
 	res.ClueMatchesBuild = read(runDir, "post-clue.txt") == cond.ClueSHA256
 	res.SkillsVersion = strings.TrimPrefix(read(runDir, "post-skills.txt"), "version: ")
@@ -312,6 +331,12 @@ func ensureImage(b built) (tag, id string, err error) {
 func capture(name string, args ...string) string {
 	out, _ := exec.Command(name, args...).Output()
 	return string(out)
+}
+
+// readRaw returns a file as it is, without trimming: a porcelain status line starts with a space that means something.
+func readRaw(dir, name string) string {
+	b, _ := os.ReadFile(filepath.Join(dir, name))
+	return string(b)
 }
 
 func read(dir, name string) string {

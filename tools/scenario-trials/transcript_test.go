@@ -40,10 +40,10 @@ func TestUnit_CheckRecommendsBeforeEditing(t *testing.T) {
 		tool("Edit", `{"file_path":"README.md"}`),
 		resultEv))
 	o := Check(ev, " M README.md\n")
-	if o.TypoRoute != "direct" || o.ExportRoute != "tracked" {
-		t.Fatalf("routes = %q/%q", o.TypoRoute, o.ExportRoute)
+	if o.Typo != "direct" || o.Export != "tracked" {
+		t.Fatalf("routes = %q/%q", o.Typo, o.Export)
 	}
-	if o.EditBeforeRoute || !o.VersionCheckFirst || !o.ReadmeEdited || !o.Recommended || !o.Finished {
+	if o.EditBeforeRoute || !o.VersionCheckFirst || !o.ReadmeEdited || !o.Finished {
 		t.Fatalf("outcome = %+v", o)
 	}
 	if o.Model != "claude-x" || o.AgentVersion != "9.9.9" || o.Turns != 4 || o.CostUSD != 0.07 {
@@ -72,14 +72,14 @@ func TestUnit_CheckNormalisesOldVocabularyAndSkipsReads(t *testing.T) {
 	if o.EditBeforeRoute {
 		t.Fatal("reads must not count as edits")
 	}
-	if o.TypoRoute != "direct" || o.ExportRoute != "tracked" {
-		t.Fatalf("routes = %q/%q", o.TypoRoute, o.ExportRoute)
+	if o.Typo != "direct" || o.Export != "tracked" {
+		t.Fatalf("routes = %q/%q", o.Typo, o.Export)
 	}
 }
 
 func TestUnit_CheckNoRecommendation(t *testing.T) {
 	o := Check(parse(t, stream(initEv, text("Done."), resultEv)), "")
-	if o.Recommended || o.TypoRoute != "" || o.ExportRoute != "" {
+	if o.Typo != "" || o.Export != "" {
 		t.Fatalf("outcome = %+v", o)
 	}
 	if got := o.Signature(); got != "typo=none export=none edit-before-route=no readme-edited=no" {
@@ -150,8 +150,8 @@ func TestUnit_CheckAcceptsRouteForPhraseAndPlainWords(t *testing.T) {
 	if o.EditBeforeRoute {
 		t.Fatal("a route stated in plain words before the edit counts as stated")
 	}
-	if o.TypoRoute != "direct" || o.ExportRoute != "tracked" {
-		t.Fatalf("routes = %q/%q", o.TypoRoute, o.ExportRoute)
+	if o.Typo != "direct" || o.Export != "tracked" {
+		t.Fatalf("routes = %q/%q", o.Typo, o.Export)
 	}
 }
 
@@ -194,20 +194,42 @@ func TestUnit_LooseRouteUsesPreviousSentenceTopic(t *testing.T) {
 	ev := parse(t, stream(initEv,
 		text(`I fixed the README typo ("Teh" is now "The"). That change is direct and I haven't committed it. I haven't started the CSV export.`),
 		resultEv))
-	if o := Check(ev, ""); o.TypoRoute != "direct" || o.ExportRoute != "" {
-		t.Fatalf("routes = %q/%q", o.TypoRoute, o.ExportRoute)
+	if o := Check(ev, ""); o.Typo != "direct" || o.Export != "" {
+		t.Fatalf("routes = %q/%q", o.Typo, o.Export)
 	}
 }
 
 func TestUnit_LooseRouteReadsClausesAndCarriesTheTopicForward(t *testing.T) {
 	both := parse(t, stream(initEv,
 		text("Recommended route: direct for the README typo; tracked for CSV export, because it adds a capability."), resultEv))
-	if o := Check(both, ""); o.TypoRoute != "direct" || o.ExportRoute != "tracked" {
-		t.Fatalf("clauses: %q/%q", o.TypoRoute, o.ExportRoute)
+	if o := Check(both, ""); o.Typo != "direct" || o.Export != "tracked" {
+		t.Fatalf("clauses: %q/%q", o.Typo, o.Export)
 	}
 	carried := parse(t, stream(initEv,
 		text(`I fixed the typo ("Teh" is now "The"). I have not committed it. That part is editorial work, so I treated it as a direct change.`), resultEv))
-	if o := Check(carried, ""); o.TypoRoute != "direct" {
-		t.Fatalf("carried topic: %q", o.TypoRoute)
+	if o := Check(carried, ""); o.Typo != "direct" {
+		t.Fatalf("carried topic: %q", o.Typo)
 	}
+}
+
+// rOutcome is the routing scenario's outcome with its observed fields as plain values.
+type rOutcome struct {
+	Outcome
+	Typo, Export                  string
+	EditBeforeRoute, ReadmeEdited bool
+}
+
+func (o rOutcome) Signature() string { return scenarios["routing"].Signature(o.Outcome) }
+
+// Check scores a transcript with the routing scenario's checks.
+func Check(t Transcript, post string) rOutcome {
+	o := scenarios["routing"].Check(t, post)
+	none := func(s string) string {
+		if s == "none" {
+			return ""
+		}
+		return s
+	}
+	return rOutcome{Outcome: o, Typo: none(o.Observed["typo"]), Export: none(o.Observed["export"]),
+		EditBeforeRoute: o.Observed["edit-before-route"] == "yes", ReadmeEdited: o.Observed["readme-edited"] == "yes"}
 }
