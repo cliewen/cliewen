@@ -2,7 +2,8 @@ FROM node:24-slim
 RUN apt-get update && apt-get install -y --no-install-recommends git ca-certificates ripgrep && rm -rf /var/lib/apt/lists/*
 ARG CLAUDE_CODE_VERSION=2.1.289
 ARG CODEX_VERSION=0.160.0
-RUN npm install -g @anthropic-ai/claude-code@${CLAUDE_CODE_VERSION} @openai/codex@${CODEX_VERSION}
+ARG OPENCODE_VERSION=1.18.34
+RUN npm install -g @anthropic-ai/claude-code@${CLAUDE_CODE_VERSION} @openai/codex@${CODEX_VERSION} opencode-ai@${OPENCODE_VERSION}
 COPY clue /usr/local/bin/clue
 RUN chmod +x /usr/local/bin/clue
 USER node

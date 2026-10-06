@@ -103,7 +103,7 @@ func TestUnit_CredentialsComeFromOutsideTheRepositoryAndStayOutOfArguments(t *te
 }
 
 func TestUnit_AdapterRegistry(t *testing.T) {
-	for _, n := range []string{"claude", "codex"} {
+	for _, n := range []string{"claude", "codex", "opencode"} {
 		a, err := adapterFor(n)
 		if err != nil || a.Name() != n {
 			t.Fatalf("adapter %q: %v", n, err)
@@ -112,7 +112,7 @@ func TestUnit_AdapterRegistry(t *testing.T) {
 			t.Errorf("%s command or probe is empty", n)
 		}
 	}
-	if _, err := adapterFor("nope"); err == nil || !strings.Contains(err.Error(), "claude, codex") {
+	if _, err := adapterFor("nope"); err == nil || !strings.Contains(err.Error(), "claude, codex, opencode") {
 		t.Fatalf("error = %v", err)
 	}
 }
@@ -144,5 +144,39 @@ func TestUnit_CodexProbeReadsTheNewestSessionAndLoginPathsWithCommasAreRefused(t
 	}
 	if _, err := (codexAdapter{}).Credentials(Options{Login: dir}); err == nil {
 		t.Fatal("a comma in the login path must be refused")
+	}
+}
+
+func TestUnit_OpencodeParseGivesTheNeutralTranscript(t *testing.T) {
+	stream := `{"type":"step_start","timestamp":1000,"part":{"type":"step-start"}}
+{"type":"tool_use","timestamp":2000,"part":{"type":"tool","tool":"bash","state":{"input":{"command":"clue latest --quiet"}}}}
+{"type":"tool_use","timestamp":2500,"part":{"type":"tool","tool":"edit","state":{"input":{}}}}
+{"type":"step_finish","timestamp":2600,"part":{"type":"step-finish","reason":"tool-calls","cost":0.5}}
+{"type":"text","timestamp":3000,"part":{"type":"text","text":"Recommended route: direct"}}
+{"type":"step_finish","timestamp":3100,"part":{"type":"step-finish","reason":"stop","cost":0.25}}
+`
+	tr, err := opencodeAdapter{}.Parse(strings.NewReader(stream))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(tr.Steps) != 3 || tr.Steps[0].Command != "clue latest --quiet" || tr.Steps[1].Tool != "Edit" || tr.Steps[2].Text != "Recommended route: direct" {
+		t.Fatalf("steps = %+v", tr.Steps)
+	}
+	if !tr.Finished || tr.Turns != 2 || tr.CostUSD != 0.75 || tr.DurationMS != 2100 {
+		t.Fatalf("transcript = %+v", tr)
+	}
+}
+
+func TestUnit_OpencodeCredentialsMountTheDataDirectory(t *testing.T) {
+	dir := t.TempDir()
+	if _, err := (opencodeAdapter{}).Credentials(Options{Login: dir}); err == nil {
+		t.Fatal("a data directory without auth.json must be an error")
+	}
+	if err := os.WriteFile(filepath.Join(dir, "auth.json"), []byte("{}"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	c, err := opencodeAdapter{}.Credentials(Options{Login: dir})
+	if err != nil || len(c.Env) != 0 || len(c.Mounts) != 1 || !strings.HasSuffix(c.Mounts[0], "target=/home/node/.local/share/opencode") {
+		t.Fatalf("credentials = %+v, %v", c, err)
 	}
 }
