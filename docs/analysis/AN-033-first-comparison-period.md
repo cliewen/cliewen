@@ -41,6 +41,12 @@ The Codex and OpenCode `routing-code` baseline arms are the baseline cells for t
 
 **What would make the period uninformative.** Spread so wide in a baseline cell that its modal behaviour is not a majority; checks that disagree with the transcripts read in more than one run in ten of those read, in which case the checks are corrected and every stored run re-scored before anything is concluded; or a harness fault that spoils a cell, which is re-run and recorded.
 
+## Amendment before the Codex runs, on the maintainer's direction
+
+Made after the protocol merged and after the OpenCode `routing-code` arms had started, and before any Codex or Claude Code run. The maintainer chose the narrower period, because the broad baseline cells were expected to show no failure and so to decide nothing about whether the harness earns its upkeep.
+
+The period is now two removal trials: `routing-code` on OpenCode (20 baseline, 20 `no-routing-skill`) and on Codex (10 and 10), 60 runs, from the `main` commit `7498c4a`. The other baseline cells, every scenario on Claude Code and `routing`, `upgrade` and `brownfield` on Codex and OpenCode, are **not run in this period**, and nothing here says anything about them. The conditions, the reading protocol, the decision rules and the expected outcome above are unchanged, except that the "differs from the most common one" and the two-per-baseline-cell reading apply to the two trials' baseline arms only. A comparison across agents of `upgrade` and `brownfield` stays open as a later period.
+
 ## Observations
 
 Not yet run.
