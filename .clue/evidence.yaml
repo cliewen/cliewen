@@ -109,7 +109,7 @@ producers:
       - path: docs/analysis/AN-034-what-the-two-long-scenarios-needed.md
         sha256: f656753e61b21e9b12a054efe87d3512bca911a1dd85be1ae8b3a33e6b4beebd
       - path: docs/analysis/AN-035-first-runs-of-the-two-long-scenarios.md
-        sha256: b3e2505a14f6a21d767882e725f101bddde2f89af7c78a1410c9b22db925b8e0
+        sha256: 39b50707464e50a134fe4c98f057bddb49b177bdf68eea1048c6d520a4cf5e94
       - path: docs/analysis/README.md
         sha256: ec5188e4d235d3123196254f1fc7ee17c7e59ecd131fcbb75818f5dfe8aa95b0
       - path: docs/architecture/README.md
@@ -617,7 +617,7 @@ producers:
       - path: docs/plans/P-023-challenge-plans-and-retain-what-work-teaches.md
         sha256: 57bf9a35e727b52dad20e918f9867f359bfbdd14aa884acb9ef858b62296d4a1
       - path: docs/plans/P-024-repeatable-scenario-trials.md
-        sha256: 5edc35c0f981b8b4f1a23c4db21b9249c3ce761113cdc7bd3c67ac120bd60ec1
+        sha256: f6710691c97f3c7ee09dff3df757454fcc2389864d285bcd0dceff23dbc8f28a
       - path: docs/plans/README.md
         sha256: 36fa2979d6ec7e75e81eb29759540b96b0e74fbf987b456098ad82114450dcac
       - path: docs/use-cases/README.md
