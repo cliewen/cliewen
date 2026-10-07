@@ -177,9 +177,9 @@ producers:
       - path: docs/capabilities/CAP-009-product-intent/design.md
         sha256: 621ea47322ced16ebd028f6d52ca6da736d60f9d3349e32e49d67fc3507d2c1d
       - path: docs/capabilities/CAP-010-team-safe-identity-allocation/README.md
-        sha256: b818398ec8d15cf412f24bb0e4690198a527ba9ffca08a4853fbacf7263db0ab
+        sha256: 4d8724165e10832d138ed4e0981ccfef835af64d2f0a73b98864c822203b8498
       - path: docs/capabilities/CAP-010-team-safe-identity-allocation/criteria.md
-        sha256: ca1f97c5f156b42f0e380f12e5bc73befd4515967eebe3a5528a1311affae607
+        sha256: 3bab97910ef11f9e21f33dfdc4dc85559dcaf3ffab27fad8f2c6a260fe1ea91d
       - path: docs/capabilities/CAP-010-team-safe-identity-allocation/design.md
         sha256: 83df1273710ce2fb8f7f7b3502cff505cc0453355240ec13888f3fe55d21ed49
       - path: docs/capabilities/README.md
@@ -512,8 +512,10 @@ producers:
         sha256: 461326bc5a8090018939763bf13bc6a156f6bdcc09a2f7e1a468478a32cb25a8
       - path: docs/decisions/PDR-065-markdown-carries-frontmatter-by-default.md
         sha256: 7bf9f392fd19f0e09528ea66f973dfbec1b6b3ca8ac99f4067c9c4511254fe41
+      - path: docs/decisions/PDR-066-a-sole-contributors-change-proceeds-on-local-allocation.md
+        sha256: 0c18aecaca999a366d8a51e98b1f9be26d199688072aa2e5b1bc4e4fdb3d5e76
       - path: docs/decisions/README.md
-        sha256: 478d1399b229d7aaca18bca65504ecb22891bed5bc68b04d001323da52c16385
+        sha256: a21cc8105357a1655bede845332d77591136127b569eb2ce1cc7cc403d0227c9
       - path: docs/design/README.md
         sha256: baab3f0a3f13d3833971a1e82bbb4b8ffa33800ec1274191231bc3fa71855bbc
       - path: docs/goals/G-001-verifiable-thread.md
@@ -753,7 +755,7 @@ producers:
       - path: internal/scaffold/wallchecklist_test.go
         sha256: 6c1c2f1bfe990ff5bc7bf25647495a413f97af3d2b0e3c875bac35b19cec8a8a
       - path: internal/skills/generate_test.go
-        sha256: 45f214d67d243709f71d23c7274e396986e8ac55ac43e06a3648e7035520649d
+        sha256: b43d2c90d6f1fa64244d441a7a5b313bf51282602637b77306036f79e9b2140f
       - path: tools/export-evidence/main.go
         sha256: 16d6ac0cbfe2a86d7460a8c4dfb62175c89467d95bb1743587f87467f771a039
       - path: tools/scenario-trials/agent_test.go
@@ -3834,5 +3836,15 @@ producers:
       - id: AC-217
         path: internal/skills/generate_test.go
         subject: test TestAC217_UnitPositive_EveryEntryPointNamesItselfAndSaysWhenToUseIt
+        type: Unit
+        direction: positive
+      - id: AC-218
+        path: internal/skills/generate_test.go
+        subject: test TestAC218_UnitNegative_LocalAllocationStillStopsForAnotherContributorOrAnUnreadableRemote
+        type: Unit
+        direction: negative
+      - id: AC-218
+        path: internal/skills/generate_test.go
+        subject: test TestAC218_UnitPositive_LocalAllocationProceedsOnAReadRemoteAndSaysSo
         type: Unit
         direction: positive
