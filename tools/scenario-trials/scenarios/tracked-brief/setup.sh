@@ -163,7 +163,13 @@ case "$1 $2" in
     d=false; [ -f /home/node/gh/draft ] && d=true
     printf '{"number":1,"url":"https://github.com/example/demo/pull/1","state":"OPEN","isDraft":%s,"headRefName":"%s","headRefOid":"%s","baseRefName":"main"}\n' "$d" "$(git -C /home/node/work branch --show-current)" "$(git -C /home/node/work rev-parse HEAD)" ;;
   "repo view") echo '{"nameWithOwner":"example/demo","url":"https://github.com/example/demo","defaultBranchRef":{"name":"main"}}' ;;
-  "ruleset check"|"api "*) echo '{}' ;;
+  "ruleset check")
+    printf 'Rules applied to main in example/demo:\n- deletion\n- non_fast_forward\n- pull_request\n- required_status_checks (validate)\n' ;;
+  "api "*)
+    case " $* " in
+      *protection*) echo '{"required_status_checks":{"strict":true,"contexts":["validate"]},"required_pull_request_reviews":{"required_approving_review_count":0},"enforce_admins":{"enabled":true},"allow_force_pushes":{"enabled":false},"allow_deletions":{"enabled":false}}' ;;
+      *) echo '{"allow_merge_commit":true,"allow_squash_merge":false,"allow_rebase_merge":false,"default_branch":"main"}' ;;
+    esac ;;
   *) echo "ok" ;;
 esac
 SHIM
