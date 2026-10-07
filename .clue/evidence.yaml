@@ -110,8 +110,10 @@ producers:
         sha256: f656753e61b21e9b12a054efe87d3512bca911a1dd85be1ae8b3a33e6b4beebd
       - path: docs/analysis/AN-035-first-runs-of-the-two-long-scenarios.md
         sha256: 39b50707464e50a134fe4c98f057bddb49b177bdf68eea1048c6d520a4cf5e94
+      - path: docs/analysis/AN-036-what-stops-the-first-tracked-change-in-a-fresh-repository.md
+        sha256: b7516360a65f25988d83db751618c384460a0ff0d6625ca4a7bdddc2864e1386
       - path: docs/analysis/README.md
-        sha256: ec5188e4d235d3123196254f1fc7ee17c7e59ecd131fcbb75818f5dfe8aa95b0
+        sha256: 2e24859922f7d2e10519111846bc82f10d1aa727ba24dfabe488a4749b502a24
       - path: docs/architecture/README.md
         sha256: b9dea39be535f939134483d7a03673af7316201ce35ed1b1f0cbb56b26cf5241
       - path: docs/architecture/architecture.md
@@ -757,7 +759,7 @@ producers:
       - path: tools/scenario-trials/agent_test.go
         sha256: 66003d805cc95ac5244df85a114460f20747102a781453ad21e5a2796588ffcb
       - path: tools/scenario-trials/scenarios_test.go
-        sha256: 37bd157374026bfefa199d9714385911a9d618798bfa59f432a0e3f0d24180f7
+        sha256: 694eefa7c02c1a821e61d2448534373b117ebed3784319914c71712c47110505
       - path: tools/scenario-trials/transcript_test.go
         sha256: c35e17ae37dd02fc315538ca46a91264e7ba52ab7cbf1a2a5aeab2502e8615eb
     references:
