@@ -617,9 +617,9 @@ producers:
       - path: docs/plans/P-023-challenge-plans-and-retain-what-work-teaches.md
         sha256: 57bf9a35e727b52dad20e918f9867f359bfbdd14aa884acb9ef858b62296d4a1
       - path: docs/plans/P-024-repeatable-scenario-trials.md
-        sha256: f6710691c97f3c7ee09dff3df757454fcc2389864d285bcd0dceff23dbc8f28a
+        sha256: b0c65117cf90bce64a3eb7eebf9a30fe3bdd5d6e457998d03d515d4502b6d7b7
       - path: docs/plans/README.md
-        sha256: 36fa2979d6ec7e75e81eb29759540b96b0e74fbf987b456098ad82114450dcac
+        sha256: 791f58143428dcdfef1799ea3975e587826595775e4eddfd7e6d00d6ec8044c8
       - path: docs/use-cases/README.md
         sha256: cd3895091a18d9b3c4bde031378fa16c8463fff19c2fecc94c7c6503a175f4c0
       - path: docs/use-cases/UC-001-adopt-cliewen-in-an-existing-repository.md
