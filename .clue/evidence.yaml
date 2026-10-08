@@ -181,9 +181,9 @@ producers:
       - path: docs/capabilities/CAP-010-team-safe-identity-allocation/README.md
         sha256: 4d8724165e10832d138ed4e0981ccfef835af64d2f0a73b98864c822203b8498
       - path: docs/capabilities/CAP-010-team-safe-identity-allocation/criteria.md
-        sha256: 3bab97910ef11f9e21f33dfdc4dc85559dcaf3ffab27fad8f2c6a260fe1ea91d
+        sha256: 4d8595d7f9c0dbb3ec02a405afdfc9eae5616d4b9ac150fcce73df8b3c4cdb1e
       - path: docs/capabilities/CAP-010-team-safe-identity-allocation/design.md
-        sha256: 3103540d8f5addf9ab4fb1d02628412bf0983cfe63b3c505cbbdbff8f161cf33
+        sha256: 6044a5556f8b74619651a6b85998a9e8d26fd036a021774b3aa3a442a55f2afa
       - path: docs/capabilities/README.md
         sha256: b04da7c5a046bd8dbcafcf0e7533e78f4b74ac4589d01d4f726ed89d4942072c
       - path: docs/constraints/C-001-no-hard-wrapped-markdown.md
@@ -515,7 +515,7 @@ producers:
       - path: docs/decisions/PDR-065-markdown-carries-frontmatter-by-default.md
         sha256: 7bf9f392fd19f0e09528ea66f973dfbec1b6b3ca8ac99f4067c9c4511254fe41
       - path: docs/decisions/PDR-066-a-sole-contributors-change-proceeds-on-local-allocation.md
-        sha256: e14a24af15b6fd943ac05bf3c30bbd3e126909849d96bf4aacf2f01b415d80e0
+        sha256: cb18fffd2308a09db1e57b7fd5d9b50fcd59e2a592ce0eb43f175d52bcf0ea86
       - path: docs/decisions/README.md
         sha256: a21cc8105357a1655bede845332d77591136127b569eb2ce1cc7cc403d0227c9
       - path: docs/design/README.md
@@ -757,7 +757,7 @@ producers:
       - path: internal/scaffold/wallchecklist_test.go
         sha256: 6c1c2f1bfe990ff5bc7bf25647495a413f97af3d2b0e3c875bac35b19cec8a8a
       - path: internal/skills/generate_test.go
-        sha256: b43d2c90d6f1fa64244d441a7a5b313bf51282602637b77306036f79e9b2140f
+        sha256: 29e1afe60a89dac4e9cc97d432b8f3be83e38630c84c9c7d9823105378013706
       - path: tools/export-evidence/main.go
         sha256: 16d6ac0cbfe2a86d7460a8c4dfb62175c89467d95bb1743587f87467f771a039
       - path: tools/scenario-trials/agent_test.go

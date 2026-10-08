@@ -129,7 +129,7 @@ Feature: Team-safe identity allocation
     Test-type: Unit
     Given a repository whose ledger allocates locally and an agent starting a tracked change
     When "clue id next" warns that allocation is local
-    Then the change loop has the agent read the remote with plain Git for another contributor's "ch-*" branch and for change claims on the allocator branch
+    Then the change loop has the agent read the remote with plain Git for any other "ch-*" branch, merged or not, and for the allocator branch, whose existence is enough
     And where there is none the agent continues on serialized allocation and states in the acceptance brief's ledger note that allocation was local, what it read, and that coordination comes before a second contributor
-    But where another contributor's branch exists, or the remote cannot be read, the agent stops and does not allocate on its own judgement
+    But where another "ch-*" branch or the allocator branch exists, or the remote cannot be read, the agent stops and does not allocate on its own judgement
 ```

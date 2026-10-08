@@ -980,5 +980,9 @@ events:
     - {id: PDR-066, kind: numeric, state: live, prefix: PDR, component: "66"}
     - {id: AN-037, kind: numeric, state: reserved, prefix: AN, component: "37"}
     - {id: AN-037, kind: numeric, state: live, prefix: AN, component: "37"}
+    - {id: CH-203, kind: numeric, state: reserved, prefix: CH, component: "203"}
+    - {id: CH-203, kind: numeric, state: live, prefix: CH, component: "203"}
+    - {id: CH-203-tasks, kind: opaque, state: live}
+    - {id: CH-203-questions, kind: opaque, state: live}
 high-water:
     - {id: CH-183, kind: numeric, state: reserved, prefix: CH, component: "183"}
