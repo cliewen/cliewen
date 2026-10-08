@@ -2,7 +2,7 @@
 id: AN-037
 type: analysis
 status: active
-links: [CH-202, AN-036, AN-035, CAP-010, G-025]
+links: [AN-036, AN-035, CAP-010, G-025]
 title: Does the local-allocation rule tell a sole contributor from a second one
 ---
 
@@ -10,7 +10,7 @@ title: Does the local-allocation rule tell a sole contributor from a second one
 
 ## Purpose
 
-[CH-202](../../changes/CH-202-sole-contributor-local-allocation/proposal.md) changes the change loop so that, on the local-allocation warning, an agent reads the remote with plain Git and goes on when it finds no other contributor. Its challenge named the cheapest test and what would stop the work: the agent proceeding where another contributor's branch is on the remote, or still stopping in most runs without one. This records that test.
+CH-202 changes the change loop so that, on the local-allocation warning, an agent reads the remote with plain Git and goes on when it finds no other contributor. Its challenge named the cheapest test and what would stop the work: the agent proceeding where another contributor's branch is on the remote, or still stopping in most runs without one. This records that test.
 
 ## Method
 
@@ -35,7 +35,7 @@ Re-run directories: `20261008-142409-tracked-brief-claude`, `20261008-143841-tra
 
 **The sole-contributor condition mostly held.** 9 of 10 `local-allocation` runs proceeded. The one that stopped (Claude Code run 3, `20261008-142409-tracked-brief-claude`) stopped at the route recommendation with three clarifying questions about the CSV design, not on the allocation rule; it never reached the identity step. AN-036 saw the same kind of stop once in five Claude Code runs on this scenario.
 
-**Not read.** I did not read the nine completed acceptance briefs for the ledger note the rule requires (that allocation was local, what was read, and that `clue id coordinate` comes before a second contributor); a search showed `git ls-remote` in the transcript of every completed run, which shows the check was made, not that the brief says so. The reading is open.
+**The ledger note.** Read from the pull-request bodies the `gh` stand-in recorded, for the nine runs that reached a pull request. Seven carry it: Claude Code runs 2 and 4 and Codex runs 1 to 5 each say allocation was local and that the remote had no other change branch, and the Codex notes also say that unpublished work cannot be excluded and that `clue id coordinate` comes before a second contributor; Claude Code's two notes give only the remote reading and the coordinate advice. Claude Code run 1 proceeded without the note, and Claude Code run 5 stopped at a draft pull request with no brief. So the rule changes behaviour in 9 of 10 runs, but the note is stated in 7 of the 9 that proceeded, and the two gaps are the failure the proposal's challenge named: proceeding without the record.
 
 ## The rule's stated limit
 
@@ -43,4 +43,4 @@ The agent can see only pushed branches and claims. A second clone whose branch i
 
 ## Decision
 
-By the stated rules the work continues: no run proceeded past another contributor's branch, and the wording changed behaviour (AN-036: nine of ten stopped; here nine of ten proceeded, once the fixture was corrected). The cost of the fault was one re-run of four cells. Reading the briefs' ledger notes remains before this change is digested.
+By the stated rules the work continues: no run proceeded past another contributor's branch, and the wording changed behaviour (AN-036: nine of ten stopped; here nine of ten proceeded, once the fixture was corrected). The cost of the fault was one re-run of four cells. The missing note in two runs is recorded here and not pursued: the rule text already requires it.

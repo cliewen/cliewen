@@ -112,8 +112,10 @@ producers:
         sha256: 39b50707464e50a134fe4c98f057bddb49b177bdf68eea1048c6d520a4cf5e94
       - path: docs/analysis/AN-036-what-stops-the-first-tracked-change-in-a-fresh-repository.md
         sha256: e5d546e5d3462d582e240cb96f6388fd7b82808317f0bc2bbc3c303e6ee8e5a4
+      - path: docs/analysis/AN-037-does-the-local-allocation-rule-tell-a-sole-contributor-from-a-second-one.md
+        sha256: ceec839a2749d2dd1bda196948056e646f605e20210c601f27561dc203c288f8
       - path: docs/analysis/README.md
-        sha256: 2e24859922f7d2e10519111846bc82f10d1aa727ba24dfabe488a4749b502a24
+        sha256: 960766b8473c930df77c6f1e72bbde945bf93f08433a7e047fa8763fd2cbf192
       - path: docs/architecture/README.md
         sha256: b9dea39be535f939134483d7a03673af7316201ce35ed1b1f0cbb56b26cf5241
       - path: docs/architecture/architecture.md
@@ -513,7 +515,7 @@ producers:
       - path: docs/decisions/PDR-065-markdown-carries-frontmatter-by-default.md
         sha256: 7bf9f392fd19f0e09528ea66f973dfbec1b6b3ca8ac99f4067c9c4511254fe41
       - path: docs/decisions/PDR-066-a-sole-contributors-change-proceeds-on-local-allocation.md
-        sha256: 0c18aecaca999a366d8a51e98b1f9be26d199688072aa2e5b1bc4e4fdb3d5e76
+        sha256: e14a24af15b6fd943ac05bf3c30bbd3e126909849d96bf4aacf2f01b415d80e0
       - path: docs/decisions/README.md
         sha256: a21cc8105357a1655bede845332d77591136127b569eb2ce1cc7cc403d0227c9
       - path: docs/design/README.md
@@ -761,7 +763,7 @@ producers:
       - path: tools/scenario-trials/agent_test.go
         sha256: 66003d805cc95ac5244df85a114460f20747102a781453ad21e5a2796588ffcb
       - path: tools/scenario-trials/scenarios_test.go
-        sha256: 694eefa7c02c1a821e61d2448534373b117ebed3784319914c71712c47110505
+        sha256: 898acd54de665578be8ea9d0261afe3ff002959a2dd10b4e876ddaabb4025d49
       - path: tools/scenario-trials/transcript_test.go
         sha256: c35e17ae37dd02fc315538ca46a91264e7ba52ab7cbf1a2a5aeab2502e8615eb
     references:

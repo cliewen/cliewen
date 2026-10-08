@@ -2,7 +2,7 @@
 id: PDR-066
 type: decision
 status: inferred
-links: [CAP-010, CH-202, ADR-068]
+links: [CAP-010, ADR-068]
 title: A sole contributor's tracked change proceeds on local allocation and says so
 author: agent
 accepted-by: []
