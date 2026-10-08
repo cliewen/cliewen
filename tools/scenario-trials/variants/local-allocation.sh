@@ -7,3 +7,5 @@ unlink .clue/id-coordination.yaml
 git add -A
 git commit -qm "Settings update"
 git push -q origin HEAD:main 2>/dev/null || git push -q origin HEAD
+# Coordination left an allocator branch on the remote; a repository that never coordinated has none, and an agent reads it as another contributor's claim.
+git push -q origin --delete clue/id-allocator 2>/dev/null || { echo "variant removed nothing: no clue/id-allocator on the remote" >&2; exit 1; }
