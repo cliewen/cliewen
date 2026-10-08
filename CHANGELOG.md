@@ -9,6 +9,10 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 
 ## [Unreleased]
 
+### Changed
+
+- **The generated `clue-delta` change loop no longer stops at the local-allocation warning when the agent is the only contributor.** On the warning from `clue id next CH`, the agent now reads the remote with `git ls-remote --heads origin` for another `ch-*` branch and for change claims on `clue/id-allocator`. With none, it continues on serialized allocation and states in the acceptance brief that allocation was local, what it read, and that `clue id coordinate` comes before a second contributor. It still stops where another contributor's branch exists or the remote cannot be read. A clone that has not pushed is invisible to the check, which the skill says.
+
 ## [0.28.0] - 2026-10-04
 
 ### Changed

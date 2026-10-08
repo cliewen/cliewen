@@ -123,4 +123,13 @@ Feature: Team-safe identity allocation
     When the user runs "clue migrate --apply" and then allocates through "clue id next M"
     Then every declared M-xxx identity is added to the ledger at its own live or retired state without renumbering or duplicating any existing entry
     And the allocation returns a milestone ID above every one declared in the corpus
+
+  @AC-218
+  Scenario: A sole contributor's change proceeds on local allocation and says so, and anyone else's branch stops it
+    Test-type: Unit
+    Given a repository whose ledger allocates locally and an agent starting a tracked change
+    When "clue id next" warns that allocation is local
+    Then the change loop has the agent read the remote with plain Git for another contributor's "ch-*" branch and for change claims on the allocator branch
+    And where there is none the agent continues on serialized allocation and states in the acceptance brief's ledger note that allocation was local, what it read, and that coordination comes before a second contributor
+    But where another contributor's branch exists, or the remote cannot be read, the agent stops and does not allocate on its own judgement
 ```

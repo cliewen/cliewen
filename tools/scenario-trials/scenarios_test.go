@@ -144,7 +144,7 @@ func TestUnit_VariantsAreNamedRemovalsWithAHash(t *testing.T) {
 	if _, _, err := variantScript("nope"); err == nil || !strings.Contains(err.Error(), "no-routing") {
 		t.Fatalf("error = %v", err)
 	}
-	if got := strings.Join(variantNames(), ","); got != "baseline,local-allocation,no-routing,no-routing-skill" {
+	if got := strings.Join(variantNames(), ","); got != "baseline,local-allocation,no-routing,no-routing-skill,other-contributor" {
 		t.Fatalf("variants = %s", got)
 	}
 }

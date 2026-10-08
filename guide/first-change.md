@@ -77,7 +77,7 @@ commit .clue/id-ledger.yaml and .clue/id-coordination.yaml together, then merge 
 protect the allocator branch from force-push and deletion while allowing ordinary fast-forward pushes
 ```
 
-After that, `clue id next CH` claims its number through the remote allocator branch. Clones and worktrees can allocate at the same time without receiving the same number. Until coordination is enabled, the command warns that allocation is local; teams must serialize it on their integration branch.
+After that, `clue id next CH` claims its number through the remote allocator branch. Clones and worktrees can allocate at the same time without receiving the same number. Until coordination is enabled, the command warns that allocation is local. When you work alone, the agent checks the remote for anyone else's change branch, goes on if there is none, and says in the acceptance brief that allocation was local and what it checked. If it finds another contributor's branch, or cannot read the remote, it stops and asks you to enable coordination with `clue id coordinate`. Run that command before a second person starts, because a clone that has not pushed is invisible to the check.
 
 ## 4. It writes the proposal before it writes any code
 

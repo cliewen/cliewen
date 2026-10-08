@@ -173,6 +173,37 @@ func TestAC184_UnitNegative_PlanHealthGuidanceDoesNotTurnPassingChecksOrAllRepla
 	}
 }
 
+func TestAC218_UnitPositive_LocalAllocationProceedsOnAReadRemoteAndSaysSo(t *testing.T) {
+	delta := mustRenderFile(t, "clue-delta/references/change-loop.md")
+	for _, want := range []string{
+		"git ls-remote --heads origin",
+		"a `ch-*` branch other than your own",
+		"change claims on `clue/id-allocator`",
+		"serialize allocation on the integration branch",
+		"state in the acceptance brief's ledger note that allocation was local, what you read",
+		"`clue id coordinate` comes before a second contributor starts",
+		"never present it as proof that you are alone",
+	} {
+		if !strings.Contains(delta, want) {
+			t.Errorf("change loop is missing %q", want)
+		}
+	}
+}
+
+func TestAC218_UnitNegative_LocalAllocationStillStopsForAnotherContributorOrAnUnreadableRemote(t *testing.T) {
+	delta := mustRenderFile(t, "clue-delta/references/change-loop.md")
+	for _, want := range []string{
+		"Where another contributor's branch exists, or the remote cannot be read, stop",
+	} {
+		if !strings.Contains(delta, want) {
+			t.Errorf("change loop is missing %q", want)
+		}
+	}
+	if strings.Contains(delta, "stop and either serialize allocation on the integration branch") {
+		t.Error("the change loop still tells the agent to stop unconditionally at the local-allocation warning")
+	}
+}
+
 func TestAC186_UnitPositive_GeneratedGuidanceExplainsNextAndReversalCostLifecycle(t *testing.T) {
 	durable := mustRenderFile(t, "clue-delta/references/durable-work-state.md")
 	for _, want := range []string{
