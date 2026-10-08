@@ -1,11 +1,11 @@
 ---
 id: PDR-066
 type: decision
-status: inferred
+status: verified
 links: [CAP-010, ADR-068]
 title: A sole contributor's tracked change proceeds on local allocation and says so
 author: agent
-accepted-by: []
+accepted-by: Flemming N. Larsen (2026-10-08, conversation)
 ---
 
 # PDR-066 — A sole contributor's tracked change proceeds on local allocation and says so

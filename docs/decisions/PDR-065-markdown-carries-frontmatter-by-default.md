@@ -1,11 +1,11 @@
 ---
 id: PDR-065
 type: decision
-status: inferred
+status: verified
 links: [G-022, PDR-023, CAP-002, CAP-001, CAP-005]
 title: Markdown files carry frontmatter by default, and a non-artifact carries only type and title
 author: agent
-accepted-by: []
+accepted-by: Flemming N. Larsen (2026-10-08, conversation)
 ---
 
 # PDR-065 — Markdown files carry frontmatter by default
