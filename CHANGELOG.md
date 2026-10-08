@@ -9,6 +9,10 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 
 ## [Unreleased]
 
+### Local acceptance
+
+- Adopters may explicitly select local human acceptance with `clue accept`: preflight an exact candidate, confirm it interactively, and preserve its tree, proposal history and complete acceptance brief in a local merge commit. PR acceptance remains the default; the ID ledger and allocation coordination are unchanged. Generated lifecycle skills and the new `.clue/acceptance/brief.md` template carry the local handoff and its procedural trust limits.
+
 ### Changed
 
 - **The generated `clue-delta` change loop no longer stops at the local-allocation warning when the agent is the only contributor.** On the warning from `clue id next CH`, the agent now reads the remote with `git ls-remote --heads origin` for any other `ch-*` branch, merged or not, and for a `clue/id-allocator` branch, whose existence is enough because the listing shows no claims. With none, it continues on serialized allocation and states in the acceptance brief that allocation was local, what it read, and that `clue id coordinate` comes before a second contributor. It stops where another change branch or the allocator branch exists or the remote cannot be read, and enabling `clue id coordinate` ends that question. A clone that has not pushed is invisible to the check, which the skill says.

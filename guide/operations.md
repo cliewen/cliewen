@@ -25,7 +25,7 @@ This page is for a repository that has completed the disposable trial and is dec
 
 Cliewen reads `.clue/evidence.yaml` and never invokes an exporter or test runner. Framework and language are descriptions, not a support list. Establish a producer using native executable metadata, custom annotations/attributes/decorators, or a stable name/title. Test its attribution and discovery scope; the judge checks references and freshness within that declared scope. Ordinary comments next to a test and AC metadata on a containing suite/class/assembly provide no proof. Cross-repository evidence remains outside the contract.
 
-A new or revised machine-proven criterion declares `Test-type: Unit`, `Integration`, `E2E`, or `Performance`, and the validator requires supported evidence classified with that type in positive and negative directions; `(single-direction)` is the explicit narrow exception. An unannotated legacy criterion retains its one-supported-reference rule. `Test-type: Human` uses the pull request acceptance brief rather than code evidence, and `@draft` exempts only the individual criterion that is not yet proven.
+A new or revised machine-proven criterion declares `Test-type: Unit`, `Integration`, `E2E`, or `Performance`, and the validator requires supported evidence classified with that type in positive and negative directions; `(single-direction)` is the explicit narrow exception. An unannotated legacy criterion retains its one-supported-reference rule. `Test-type: Human` uses the acceptance brief rather than code evidence, and `@draft` exempts only the individual criterion that is not yet proven.
 
 ## Coordinate identity allocation for a team
 

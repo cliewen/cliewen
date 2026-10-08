@@ -22,6 +22,8 @@ producers:
       - node_modules/**
       - vendor/**
     inputs:
+      - path: cmd/clue/accept_test.go
+        sha256: e9efde4cdac3b8f406dfa61744eee63235f7b804ccda987c4311d70973f861c3
       - path: cmd/clue/changelog_test.go
         sha256: a0c4be31756a4380b1024c919a4e7ec6264f1f8400aedd2fc7b00d8af0693fb6
       - path: cmd/clue/context_test.go
@@ -117,11 +119,11 @@ producers:
       - path: docs/analysis/README.md
         sha256: 960766b8473c930df77c6f1e72bbde945bf93f08433a7e047fa8763fd2cbf192
       - path: docs/architecture/README.md
-        sha256: b9dea39be535f939134483d7a03673af7316201ce35ed1b1f0cbb56b26cf5241
+        sha256: 49d97a35f26f38c8021f6954cef19fcfdb908bd1c36e797c41e7f6ae9a3b1ccd
       - path: docs/architecture/architecture.md
-        sha256: 5de753ab9456c106f3c2dd7d044d16fd9f2c9fc182a2ee58fda09633948020e9
+        sha256: 9eaa4b1ba9acf8f7ca2a91142ea738bb7b19d8a4544b567ca0ae00667473ef2e
       - path: docs/architecture/core.md
-        sha256: 4404753a8ee5893c3554c508254fbe7af0d38129397377a27acd56ea5f95f1ba
+        sha256: 40b3e80b1374799aa133519b52c90982f36f9d68336084e96dbfed28f3a35be1
       - path: docs/architecture/skills.md
         sha256: ca45930e5d3f2d60c87fd1d25204e0b94f1b9db5c4e45f418c31557590331858
       - path: docs/capabilities/CAP-001-onboarding/README.md
@@ -157,7 +159,7 @@ producers:
       - path: docs/capabilities/CAP-006-collaborative-handoffs/README.md
         sha256: 7b6c41fc958896202d223a4c5717c6f560ea7f12b16cf9dbb8b3daeb05168c3f
       - path: docs/capabilities/CAP-006-collaborative-handoffs/criteria.md
-        sha256: b851b36fd035cd6903b69bc575a55161581e70316b974a97ab7eab349b32b69f
+        sha256: 5d6a13ada8236d496f240ec2a070d63598fa618cc9c9e3bbb0aa9275034b0624
       - path: docs/capabilities/CAP-006-collaborative-handoffs/design.md
         sha256: 17a13206d4d6d572daffb938b81eacf0ff9dd566948febd26f439b7cf47df7cb
       - path: docs/capabilities/CAP-007-focused-context/README.md
@@ -184,8 +186,14 @@ producers:
         sha256: 4d8595d7f9c0dbb3ec02a405afdfc9eae5616d4b9ac150fcce73df8b3c4cdb1e
       - path: docs/capabilities/CAP-010-team-safe-identity-allocation/design.md
         sha256: 6044a5556f8b74619651a6b85998a9e8d26fd036a021774b3aa3a442a55f2afa
+      - path: docs/capabilities/CAP-012-local-acceptance/README.md
+        sha256: dae897fcb6abd1b0417f9f350c2f19de705e8f644f4fc9b38f6d925c40d86c06
+      - path: docs/capabilities/CAP-012-local-acceptance/criteria.md
+        sha256: 61813c70b54e008a65ee5d658f5eb7a067f9ee84174f5df2db6bde6bcd4ba647
+      - path: docs/capabilities/CAP-012-local-acceptance/design.md
+        sha256: afaed294e7119afa91457ac768cc987e84486ef707382c5cf381167ed4ef26b0
       - path: docs/capabilities/README.md
-        sha256: b04da7c5a046bd8dbcafcf0e7533e78f4b74ac4589d01d4f726ed89d4942072c
+        sha256: 56738038302283359fc43cec3c001adeaf2a7aed4d0e3f41652f699ef46cb239
       - path: docs/constraints/C-001-no-hard-wrapped-markdown.md
         sha256: 53230e8e85ba1da725a5b862162b4fa33a3f3ff801966d9fc0350395aa87de93
       - path: docs/constraints/C-002-changelog-per-user-visible-change.md
@@ -209,7 +217,7 @@ producers:
       - path: docs/constraints/C-011-decision-records-typed.md
         sha256: 1d355179ffb9813fab8bcc1985b67c3534bb1828386bd8aabe55e156e16eb73b
       - path: docs/constraints/C-012-agents-never-merge-own-changes.md
-        sha256: 0ab1b149ca01e083aa71a01f1086c642d2b720571b98837e10f821b0ceabef82
+        sha256: 22f48acfd0ad541eb628e1841c663ad3b39c903342cf862aabb582d3f6b0a1d2
       - path: docs/constraints/C-013-core-changes-need-decision.md
         sha256: bec152b83c4b60081dabd011383f3eccae9acc36fc452b325de25b2062ec90eb
       - path: docs/constraints/C-014-coverage-floor.md
@@ -399,7 +407,7 @@ producers:
       - path: docs/decisions/PDR-006-decision-records-are-typed.md
         sha256: 99843f2cc9dcaa6bc2a69fd06bb500450fad0aadee0a871febe3fdd5dddfa422
       - path: docs/decisions/PDR-007-review-boundary.md
-        sha256: f81d66c98074fc8a0d8794b753f6daf7a6036490a8e68d1bdf7947910cb846b1
+        sha256: c8f1dde65b7fbed9797965dc4b4105da86b667ca3ccc642288058361e27dbe15
       - path: docs/decisions/PDR-008-plan-revisions-may-ride.md
         sha256: 43465c6db6189c9747a3d3a16752f174d77b127eadf465715960ff5332661dd6
       - path: docs/decisions/PDR-009-going-public.md
@@ -409,7 +417,7 @@ producers:
       - path: docs/decisions/PDR-011-plain-changes-bypass-cliewen.md
         sha256: 1ae8fd231869bf4f1cace4a162859531ce9b7c585f31b605fc93ed18aaaf67e0
       - path: docs/decisions/PDR-012-agentic-review-before-publication.md
-        sha256: 7f02baa7eacbd013471f045121afd4f3de2d0bbe531ddeab864f1d2f5f15cae0
+        sha256: 83934af1ebaccaf72a09a5f72477b4b9769250e4e194cff329c703348866f0f9
       - path: docs/decisions/PDR-013-explicit-core-red-line.md
         sha256: 025cf092a3efa3a161ea10350ad864493a0f03a9ea966b2f627b4f9a00e64eb8
       - path: docs/decisions/PDR-014-distribution-reopens-on-the-active-campaign.md
@@ -417,17 +425,17 @@ producers:
       - path: docs/decisions/PDR-015-merging-cuts-the-release.md
         sha256: d1af71bfbf0895d9d53a6bfcf3db2279f3e4ddc3a053d1d6c4289b5a076a066d
       - path: docs/decisions/PDR-016-pr-state-carries-agent-handoffs.md
-        sha256: 69232e2eefd991b60cfd646cfa0bc15c236c1f87a180b108b46aedce3575b7e3
+        sha256: 9246987f79493fe5694a6fc762dec16c2a6256c5fc3067f8d940d4449d72b5b7
       - path: docs/decisions/PDR-017-merge-gate-has-content.md
         sha256: 9cbe13d2e6bff34c82f57f64250e1a69ba6bc5e76d20d74dc04cd466d7ec531c
       - path: docs/decisions/PDR-018-behavior-changes-remain-full.md
         sha256: 9521776a1444a7897627b6696695c197a6308fa0188d3292e70d7042470d2dc2
       - path: docs/decisions/PDR-019-methodology-contract-carriers-move-together.md
-        sha256: 3a59a20c161d25469d4934873e529281d3062e4cc9adf5dc0c93737827ce8839
+        sha256: 6740d7b8e42644e9514bb9ea73a30e1c62ad22cc6b0055bbcb107c06bd218979
       - path: docs/decisions/PDR-020-extraction-rehearsal-before-mutation.md
         sha256: f524d455eddf026f3cacaeccb46d195835a38cdb30d494dd7f4c841dde941d81
       - path: docs/decisions/PDR-021-supported-merge-commit-history.md
-        sha256: 767b246b8c2a4bf775a908304fe8732d45d38ca4aa19639dd013942eb960eff1
+        sha256: f738687e96557c0ab96624be8f47594f48b41a61129ab5599c69c8ba3a56926e
       - path: docs/decisions/PDR-022-vendor-entry-points-only-point.md
         sha256: 55a185ed671d4f7ad1be904161ba3bdb8820f7c1760a252f0b8dbb87dba2f1f6
       - path: docs/decisions/PDR-023-tool-notice-and-hub-instruction.md
@@ -465,7 +473,7 @@ producers:
       - path: docs/decisions/PDR-039-dependent-changes-carry-authorization.md
         sha256: 91b501850b3a25fe3b80c3896ae22eeeb610d0d26acd207502fa0115cdff2c72
       - path: docs/decisions/PDR-040-push-is-durability-ready-is-explicit.md
-        sha256: d69d804bef6e87def5d0fa0e4f63b4cca4de9ad33924e92284c1aa70abb56e04
+        sha256: 300e330a732a9aedd91474d1abe2c0e15c8870ab5af9d19fd150211b559acd9d
       - path: docs/decisions/PDR-041-release-note-scope-is-the-shipped-surface.md
         sha256: fe14d1c944d8b3a35456ac63afdf941b2c13db17b0af8546cd2c7f6fa6b9ac58
       - path: docs/decisions/PDR-042-routing-recommends-contract-aware-effort.md
@@ -516,12 +524,14 @@ producers:
         sha256: 92d02ba2eacb858ea2a145e6d9201a2fd4d5d73d4fff173748ad529baa22a99c
       - path: docs/decisions/PDR-066-a-sole-contributors-change-proceeds-on-local-allocation.md
         sha256: f5d9f8dfd794cc4b897dfbc84fa3ea2e866dc8a8570077782d7f71d4f57bd258
+      - path: docs/decisions/PDR-067-local-human-acceptance.md
+        sha256: 3192926a503eee1f5cd9935c173184c775045673ce23c3aab4d8ad286ba65fc7
       - path: docs/decisions/README.md
-        sha256: eb340f4e00003acc887ee60adca319559ee7fcf9a9bd77f0d0a0bea4058213c6
+        sha256: 5f8cb95f7cddc54399a6698317dc3c93eda27af5e794137e09b6b6d6b34b5571
       - path: docs/design/README.md
-        sha256: baab3f0a3f13d3833971a1e82bbb4b8ffa33800ec1274191231bc3fa71855bbc
+        sha256: 4e5b1ee18bd97e4840f1f05e59c327e7b78e54ee54d79c6aec025e1e5744fd13
       - path: docs/goals/G-001-verifiable-thread.md
-        sha256: dde3e7b22c01b2c0455ac18b379102b907c1fe99912253012e03332be4399a49
+        sha256: 279f837d361200bdbc80997595cc33c39c477e5a0acfa6f7a66dfaed136d890a
       - path: docs/goals/G-002-versioned-clue-and-skills.md
         sha256: 160983d6ce94a7646bc145cf2dd1a8dbaaf7397735f3063751c1feeaf336038d
       - path: docs/goals/G-003-cliewen-is-public.md
@@ -638,6 +648,8 @@ producers:
         sha256: 3b23876fc47a636c9fb91a775bbe9cc64eefd0274fc36df336974f76647b33ac
       - path: guide/operations_test.go
         sha256: 21244d1e6e82560a431219fb2499095faed56845509bf3fb149586b1b163bddd
+      - path: internal/accept/accept_test.go
+        sha256: a0026cf32cd360a135122037690f1e17585b2028f933589379d8aab65b901699
       - path: internal/carriers/carriers_test.go
         sha256: 1c26592f6e73d76320c87acd95bfa33644e3d4d4293b037c9705892e26daa6d8
       - path: internal/ciguards/completedplans_test.go
@@ -757,7 +769,7 @@ producers:
       - path: internal/scaffold/wallchecklist_test.go
         sha256: 6c1c2f1bfe990ff5bc7bf25647495a413f97af3d2b0e3c875bac35b19cec8a8a
       - path: internal/skills/generate_test.go
-        sha256: 29e1afe60a89dac4e9cc97d432b8f3be83e38630c84c9c7d9823105378013706
+        sha256: bce8c9079733a8387df93aab733193e5f604fc7843f5d2093a7808ef33133777
       - path: tools/export-evidence/main.go
         sha256: 16d6ac0cbfe2a86d7460a8c4dfb62175c89467d95bb1743587f87467f771a039
       - path: tools/scenario-trials/agent_test.go
@@ -1250,6 +1262,36 @@ producers:
         path: guide/operations_test.go
         subject: test TestAC132_UnitPositive_ChangeLoopCoordinatesOnlyTheSharedPR
         type: Unit
+        direction: positive
+      - id: AC-219
+        path: internal/accept/accept_test.go
+        subject: test TestAC219_IntegrationNegative_IncompleteOrMismatchedBrief
+        type: Integration
+        direction: negative
+      - id: AC-219
+        path: internal/accept/accept_test.go
+        subject: test TestAC219_IntegrationPositive_ExactTreeAndRecoverableHistory
+        type: Integration
+        direction: positive
+      - id: AC-220
+        path: internal/accept/accept_test.go
+        subject: test TestAC220_IntegrationNegative_UnsafeOrChangedState
+        type: Integration
+        direction: negative
+      - id: AC-220
+        path: internal/accept/accept_test.go
+        subject: test TestAC220_IntegrationPositive_CheckAndCancellationAreReadOnly
+        type: Integration
+        direction: positive
+      - id: AC-221
+        path: internal/accept/accept_test.go
+        subject: test TestAC221_IntegrationNegative_DefaultAndSourceCannotAcceptLocally
+        type: Integration
+        direction: negative
+      - id: AC-221
+        path: internal/accept/accept_test.go
+        subject: test TestAC221_IntegrationPositive_AllocationAndProceduralBoundary
+        type: Integration
         direction: positive
       - id: AC-118
         path: internal/carriers/carriers_test.go

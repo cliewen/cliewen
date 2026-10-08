@@ -84,6 +84,7 @@ export default defineConfig({
         items: [
           { text: "The skills", link: "/skills" },
           { text: "The change loop", link: "/change-loop" },
+          { text: "Local acceptance", link: "/local-acceptance" },
           { text: "Enforce CI", link: "/ci-wall" },
           { text: "Operate safely", link: "/operations" },
         ],

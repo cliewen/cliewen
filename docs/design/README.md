@@ -5,6 +5,8 @@ title: Design
 
 # Design
 
+Local acceptance has a separate Git transition flow: candidate preflight, human confirmation, repeated preflight, locked base comparison, and a merge preserving the exact candidate tree and complete brief. The [local acceptance design](../capabilities/CAP-012-local-acceptance/design.md) specifies opt-in, the record format, refusal, and interruption recovery. The ID allocator is unchanged.
+
 This is Cliewen's cross-cutting behaviour overview. It explains how the agent workflow, deterministic CLI, durable corpus, CI wall, and human acceptance boundary work together. [Architecture](../architecture/README.md) covers their static boundaries; capability designs hold local implementation detail.
 
 ```mermaid

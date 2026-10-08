@@ -10,6 +10,8 @@ accepted-by: Flemming N. Larsen (2026-08-02, conversation)
 
 # PDR-021 — Tracked Cliewen changes are accepted with a merge commit that preserves their branch history
 
+> **Local acceptance refinement:** [PDR-067](PDR-067-local-human-acceptance.md) adds an explicitly opted-in local mechanism for adopters. The PR-specific mechanics below govern the default workflow and this source repository; local preparation retains proposal, digest, evidence, exact-commit review, and a human-controlled merge with the complete brief in Git history.
+
 ## Context and problem statement
 
 The proposal, implementation, digest, and durable corpus form a provenance chain, but integration modes can leave the same final tree while retaining different history. The repository needs a supported mode whose accepted `main` keeps that chain without making the forge the system of record.

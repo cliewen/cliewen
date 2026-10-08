@@ -404,8 +404,16 @@ func TestSanity_ClaudeMirrorLinksEveryGeneratedSkill(t *testing.T) {
 				t.Errorf(".claude/skills/%s/%s points at %s, want %s", name, link, target, want)
 			}
 		}
-		if _, err := os.Lstat(filepath.Join(mirror, name, "skill.md")); err == nil {
-			t.Errorf(".claude/skills/%s carries a lower-case skill.md beside SKILL.md", name)
+		// Inspect stored spelling: Lstat("skill.md") also finds SKILL.md on
+		// Windows, where that is the correct sole entry, not a duplicate.
+		mirrorEntries, err := os.ReadDir(filepath.Join(mirror, name))
+		if err != nil {
+			t.Fatal(err)
+		}
+		for _, entry := range mirrorEntries {
+			if entry.Name() == "skill.md" {
+				t.Errorf(".claude/skills/%s carries a lower-case skill.md beside SKILL.md", name)
+			}
 		}
 	}
 	entries, err := os.ReadDir(mirror)

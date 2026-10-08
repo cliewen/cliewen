@@ -8,7 +8,7 @@ author: agent
 accepted-by: Flemming N. Larsen (2026-08-02, conversation)
 ---
 
-# PDR-019 — Methodology contract changes update every live carrier in the same change
+# PDR-019 â€” Methodology contract changes update every live carrier in the same change
 
 ## Context and problem statement
 
@@ -20,6 +20,6 @@ Mechanical validation can be green while skills, guidance, templates, architectu
 
 The implementing change records the inventory, repairs all named carriers together, regenerates derived copies, and adds focused guards for stable machine-recognizable claims. The general completeness obligation remains agent-enforced; a carrier registry requires its own evidence and is not inferred here.
 
-**Refining [PDR-013](PDR-013-explicit-core-red-line.md), the protected thread ends in acceptance evidence:** goal → plan → change → capability → acceptance criterion → acceptance evidence. Unit, Integration, E2E, and Performance criteria use classified exported executable evidence, with `(single-direction)` as the explicit exception; Human criteria use the pull-request acceptance brief; `@draft` marks one unproven promise; legacy criteria without a proof type retain the one-reference contract. `clue validate` checks declarations and references, while normal test runners execute tests. This refinement crosses the red line and therefore requires the decision and human boundary already named by C-013.
+**Refining [PDR-013](PDR-013-explicit-core-red-line.md), the protected thread ends in acceptance evidence:** goal â†’ plan â†’ change â†’ capability â†’ acceptance criterion â†’ acceptance evidence. Unit, Integration, E2E, and Performance criteria use classified exported executable evidence, with `(single-direction)` as the explicit exception; Human criteria use the acceptance brief (the PR body by default or the local merge record under PDR-067); `@draft` marks one unproven promise; legacy criteria without a proof type retain the one-reference contract. `clue validate` checks declarations and references, while normal test runners execute tests. This refinement crosses the red line and therefore requires the decision and human boundary already named by C-013.
 
 C-006, the shared decision-record fragment in lifecycle skills, the decisions READMEs, ARCH-003, C-013, routing hubs, acceptance criteria, and content guards carry the rule and its evidence-model refinement.

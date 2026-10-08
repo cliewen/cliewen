@@ -5,6 +5,8 @@ title: The verifiable thread
 
 # The verifiable thread
 
+This page describes the default PR workflow. An adopter that explicitly chooses [local acceptance](./local-acceptance) uses the same proposal, evidence, digest and review obligations, with a human-run command and a Git-retained brief replacing the PR handoff. ID allocation and coordination stay the same.
+
 Cliewen organizes system knowledge as a graph with one verifiable thread from motivation to acceptance evidence, and a separate delivery thread that acts on capability content without leaving a durable link once the work lands.
 
 ```mermaid
@@ -40,7 +42,7 @@ Every corpus has two concise system views. `docs/architecture/README.md` explain
 
 ## Capability and acceptance criterion
 
-A capability owns a plain-language explanation, Gherkin criteria and implementer-facing design. A new or revised machine-proven criterion declares `Test-type: Unit`, `Integration`, `E2E`, or `Performance` and requires classified positive and negative executable references in `.clue/evidence.yaml`, unless it explicitly records `(single-direction)`. Each executable carries one canonical AC identity, type and direction in native metadata, executable-bound custom metadata, or a stable naming fallback. Repository-owned exporters attribute and aggregate those references across every framework. The judge checks their identities and input fingerprints without running exporters or tests. A genuine `Test-type: Human` uses the pull request acceptance brief; `@draft` exempts one not-yet-proven criterion; an unannotated legacy criterion retains one reference. When a criterion changes meaning, retire its ID and mint another.
+A capability owns a plain-language explanation, Gherkin criteria and implementer-facing design. A new or revised machine-proven criterion declares `Test-type: Unit`, `Integration`, `E2E`, or `Performance` and requires classified positive and negative executable references in `.clue/evidence.yaml`, unless it explicitly records `(single-direction)`. Each executable carries one canonical AC identity, type and direction in native metadata, executable-bound custom metadata, or a stable naming fallback. Repository-owned exporters attribute and aggregate those references across every framework. The judge checks their identities and input fingerprints without running exporters or tests. A genuine `Test-type: Human` uses the acceptance brief; `@draft` exempts one not-yet-proven criterion; an unannotated legacy criterion retains one reference. When a criterion changes meaning, retire its ID and mint another.
 
 That immutability matters. A test tagged `AC-042` should always mean the same promise, even years later.
 

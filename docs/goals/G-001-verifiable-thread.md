@@ -14,7 +14,7 @@ Engineers and organizations doing agent-driven development who must answer — t
 
 ## Why
 
-Agent-written code outpaces human ability to keep documentation, decisions and acceptance evidence honest by hand. Existing SDD frameworks document the *change* and let the system's durable truth rot. Cliewen makes the documentation corpus the system-of-record and mechanically enforces the chain goal → capability → acceptance criterion → acceptance evidence, so the thread from intention to verified merge never breaks and never falls behind. Machine-proven criteria end in supported, classified test references; genuine Human-class criteria end in the pull request acceptance brief that the human merge judges.
+Agent-written code outpaces human ability to keep documentation, decisions and acceptance evidence honest by hand. Existing SDD frameworks document the *change* and let the system's durable truth rot. Cliewen makes the documentation corpus the system-of-record and mechanically enforces the chain goal → capability → acceptance criterion → acceptance evidence, so the thread from intention to verified merge never breaks and never falls behind. Machine-proven criteria end in supported, classified test references; genuine Human-class criteria end in the acceptance brief that the human merge judges.
 
 ## Success looks like
 

@@ -6,7 +6,7 @@ links: [G-016, G-001, ARCH-003]
 title: Human-controlled local acceptance without a pull request
 ---
 
-# CH-204 — Local acceptance
+# CH-204 â€” Local acceptance
 
 This change is plan-less: it implements the plan accepted in conversation on 2026-10-08, including the final instruction to keep the existing identity ledger and coordination behavior unchanged. It serves G-016 under the draft, inferred VIS-001; this change does not confirm the vision.
 
@@ -27,3 +27,9 @@ Implementation: CLI dispatch/help, acceptance package, focused Git integration t
 ## Acceptance
 
 AC-219: exact-candidate local acceptance and durable provenance. AC-220: refusal and non-mutating preflight/cancellation. AC-221: declared opt-in and procedural human boundary with PR and identity compatibility. The final PR must report the human trial honestly rather than inventing a maintainer observation.
+
+## Implementation findings
+
+The command reads base and candidate blobs directly so export attributes cannot hide invalid corpus files. A prepared ref transaction compares and locks the accepted base before changing the index and checkout. The first version rejects tracked symlinks and submodules, and documents interruption recovery. Disposable Git tests cover local and linked-worktree acceptance, cancellation, ref contention, changed brief/base, invalid corpus and absent opt-in. The guide builds. Full committed-candidate verification and isolated review follow digest. No unfamiliar maintainer usability observation has been obtained.
+
+The existing Claude mirror sanity test used a case-insensitive filesystem lookup to reject lower-case filenames, falsely rejecting the correct SKILL.md on Windows. It now inspects stored directory-entry spelling, retaining its original contract.

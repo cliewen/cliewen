@@ -5,13 +5,15 @@ title: Cliewen
 
 # Cliewen
 
+PR acceptance is the default. Adopters may explicitly choose [local human acceptance](https://cliewen.dev/local-acceptance), which records the exact candidate and brief in a local merge commit. The existing ID ledger and Git coordination work with either mechanism.
+
 > Evidence-backed Intent Engineering for coding agents.
 
-**Cliewen** is a methodology for repositories where coding agents implement real product changes through pull requests. It keeps requirements, decisions, implementation, and acceptance evidence connected in Git, and catches missing evidence before merge. **`clue`** is its command-line judge; the **corpus** under `docs/` is the permanent system record that agents maintain with the code.
+**Cliewen** is a methodology for repositories where coding agents implement real product changes on reviewed branches. It keeps requirements, decisions, implementation, and acceptance evidence connected in Git, and catches missing evidence before merge. **`clue`** is its command-line judge; the **corpus** under `docs/` is the permanent system record that agents maintain with the code.
 
 *Evidence-backed Intent Engineering* is Cliewen's own description of its approach, not an established industry label: human intent is recorded as durable goals, capabilities, decisions, constraints, and acceptance criteria; every active criterion declares the evidence that accepts it — a classified executable reference or explicitly identified human verification — and tooling checks mechanically that the chain is complete before a human merges. It makes the connection between intent and acceptance evidence explicit, reviewable, and checkable. It does not prove your software satisfies your intent: `clue` does not execute tests, judge whether a test asserts the right behavior, or know whether the intent was right in the first place. Semantic acceptance stays with review and the human at the merge gate.
 
-The name comes from Old English *cliewen*, “ball of thread” — the word that became *clue*. The enforced thread is **goal → capability → acceptance criterion → acceptance evidence**: classified executable references for machine-proven criteria or the pull request acceptance brief for genuine Human proof.
+The name comes from Old English *cliewen*, “ball of thread” — the word that became *clue*. The enforced thread is **goal → capability → acceptance criterion → acceptance evidence**: classified executable references for machine-proven criteria or the acceptance brief for genuine Human proof.
 
 SDD frameworks document the *change*; Cliewen documents the *system*. Changes are transient deltas digested into the permanent corpus at merge — tracked Cliewen changes use a human-controlled merge commit so their proposal, implementation, digest, and durable corpus history remain reachable from `main`; reachable Git history is the provenance archive.
 
