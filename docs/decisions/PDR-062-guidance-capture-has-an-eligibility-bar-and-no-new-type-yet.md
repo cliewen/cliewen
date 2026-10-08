@@ -1,12 +1,12 @@
 ---
 id: PDR-062
 type: decision
-status: inferred
+status: verified
 author: agent
 links: [P-023, M-096, M-097, M-098, M-100, G-015, AN-024, ADR-026, ADR-062]
 title: A reusable discovery earns capture only past an eligibility bar, and files into an existing home rather than a new corpus type
 binds: adopter
-accepted-by: []
+accepted-by: Flemming N. Larsen (2026-10-08, conversation)
 ---
 
 # PDR-062 — Guidance capture has an eligibility bar, an existing home, and no new corpus type yet

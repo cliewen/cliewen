@@ -1,11 +1,11 @@
 ---
 id: ADR-071
 type: decision
-status: inferred
+status: verified
 links: [CAP-002, CAP-003, ADR-005, ADR-032, ADR-036, ADR-044, PDR-019]
 title: The judge consumes framework-neutral evidence exported by the repository
 author: agent
-accepted-by: []
+accepted-by: Flemming N. Larsen (2026-10-08, conversation)
 binds: adopter
 ---
 

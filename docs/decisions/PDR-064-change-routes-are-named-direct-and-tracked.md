@@ -1,11 +1,11 @@
 ---
 id: PDR-064
 type: decision
-status: inferred
+status: verified
 links: [PDR-042, PDR-023, CAP-006, CAP-001]
 title: Change routes are named direct and tracked, and override trailers are read in either spelling
 author: agent
-accepted-by: []
+accepted-by: Flemming N. Larsen (2026-10-08, conversation)
 ---
 
 # PDR-064 — Change routes are named direct and tracked

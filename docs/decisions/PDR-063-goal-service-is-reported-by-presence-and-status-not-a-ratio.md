@@ -1,11 +1,11 @@
 ---
 id: PDR-063
 type: decision
-status: inferred
+status: verified
 links: [G-020, ADR-025, PDR-054, ARCH-003, CAP-009]
 title: A goal's current service is reported by capability and plan presence, never a new status or a ratio
 author: agent
-accepted-by: []
+accepted-by: Flemming N. Larsen (2026-10-08, conversation)
 ---
 
 # PDR-063 — A goal's service is reported, never scored
