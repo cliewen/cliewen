@@ -179,7 +179,7 @@ producers:
       - path: docs/capabilities/CAP-009-product-intent/design.md
         sha256: 621ea47322ced16ebd028f6d52ca6da736d60f9d3349e32e49d67fc3507d2c1d
       - path: docs/capabilities/CAP-010-team-safe-identity-allocation/README.md
-        sha256: 4d8724165e10832d138ed4e0981ccfef835af64d2f0a73b98864c822203b8498
+        sha256: e9cf6cafd867da2c4056891dc952a157ecec1684d7cd79fa01ff67b4f50e9903
       - path: docs/capabilities/CAP-010-team-safe-identity-allocation/criteria.md
         sha256: 4d8595d7f9c0dbb3ec02a405afdfc9eae5616d4b9ac150fcce73df8b3c4cdb1e
       - path: docs/capabilities/CAP-010-team-safe-identity-allocation/design.md
