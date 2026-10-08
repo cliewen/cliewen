@@ -16,7 +16,7 @@ The change loop told an agent to stop at `clue id next`'s local-allocation warni
 
 ## Decision outcome
 
-**On the warning, the agent reads the remote with plain Git for another contributor and goes on if there is none.** It looks for a `ch-*` branch other than its own and for change claims on the allocator branch. With none, it continues on serialized allocation, commits and pushes the ledger with the proposal, and records in the acceptance brief's ledger note that allocation was local, what it read, and that `clue id coordinate` comes before a second contributor. It stops, as before, where another contributor's branch exists or the remote cannot be read; the answer there is to enable coordination, which ends the question.
+**On the warning, the agent reads the remote with plain Git for another contributor and goes on if there is none.** It looks for any `ch-*` branch other than its own, merged or not, because the remote does not say who wrote it, and for the allocator branch, whose existence is enough because a branch listing shows no claims. With none, it continues on serialized allocation, commits and pushes the ledger with the proposal, and records in the acceptance brief's ledger note that allocation was local, what it read, and that `clue id coordinate` comes before a second contributor. It stops, as before, where such a branch or the allocator branch exists or the remote cannot be read; the answer there is to enable coordination, which ends the question.
 
 **The check reads Git, not the forge.** A pull request needs a pushed branch, so a pull-request list adds nothing a branch listing does not show, and a repository hosted where a forge command cannot reach is treated like any other.
 

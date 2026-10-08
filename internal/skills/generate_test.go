@@ -177,8 +177,8 @@ func TestAC218_UnitPositive_LocalAllocationProceedsOnAReadRemoteAndSaysSo(t *tes
 	delta := mustRenderFile(t, "clue-delta/references/change-loop.md")
 	for _, want := range []string{
 		"git ls-remote --heads origin",
-		"a `ch-*` branch other than your own",
-		"change claims on `clue/id-allocator`",
+		"any `ch-*` branch other than your own, merged or not",
+		"a `clue/id-allocator` branch, whose existence is enough because the listing shows no claims",
 		"serialize allocation on the integration branch",
 		"state in the acceptance brief's ledger note that allocation was local, what you read",
 		"`clue id coordinate` comes before a second contributor starts",
@@ -193,7 +193,8 @@ func TestAC218_UnitPositive_LocalAllocationProceedsOnAReadRemoteAndSaysSo(t *tes
 func TestAC218_UnitNegative_LocalAllocationStillStopsForAnotherContributorOrAnUnreadableRemote(t *testing.T) {
 	delta := mustRenderFile(t, "clue-delta/references/change-loop.md")
 	for _, want := range []string{
-		"Where another contributor's branch exists, or the remote cannot be read, stop",
+		"Where another contributor's branch or the allocator branch exists, or the remote cannot be read, stop",
+		"which ends the question",
 	} {
 		if !strings.Contains(delta, want) {
 			t.Errorf("change loop is missing %q", want)
