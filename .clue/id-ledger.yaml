@@ -1003,5 +1003,8 @@ events:
     - {id: CAP-012-criteria, kind: opaque, state: live}
     - {id: CAP-012-design, kind: opaque, state: live}
     - {id: AC-131, kind: numeric, state: retired, prefix: AC, component: "131"}
+    - {id: CH-204, kind: numeric, state: retired, prefix: CH, component: "204"}
+    - {id: CH-204-tasks, kind: opaque, state: retired}
+    - {id: CH-204-questions, kind: opaque, state: retired}
 high-water:
     - {id: CH-183, kind: numeric, state: reserved, prefix: CH, component: "183"}
