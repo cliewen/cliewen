@@ -1595,6 +1595,11 @@ claims:
       state: reserved
       prefix: AN
       component: "36"
+    - id: AN-037
+      kind: numeric
+      state: reserved
+      prefix: AN
+      component: "37"
     - id: ARCH-001
       kind: numeric
       state: reserved
@@ -3451,11 +3456,11 @@ high-water:
       state: reserved
       prefix: P
       component: "24"
-    - id: PDR-065
+    - id: PDR-066
       kind: numeric
       state: reserved
       prefix: PDR
-      component: "65"
+      component: "66"
     - id: UC-002
       kind: numeric
       state: reserved
