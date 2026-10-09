@@ -1,13 +1,18 @@
 ---
 type: guide
-title: Local acceptance
+title: Acceptance
 ---
 
-# Local acceptance
+# Acceptance
 
-An adopting repository can accept a tracked change without a pull request. The agent prepares a branch and its evidence. You review a brief and run `clue accept` to create a merge commit containing the exact candidate and the acceptance record.
+Cliewen keeps acceptance with the human. The agent prepares and verifies a tracked change, and you decide whether its outcome and evidence are acceptable. The repository chooses where that decision is recorded.
 
-New adoption defaults to local acceptance. Select PR explicitly with `clue init --acceptance=pr`. Existing repositories retain their accepted workflow during upgrade. Cliewen's own source repository requires PRs. Local acceptance relies on the human and agent following their roles; it provides no hosted admission gate, and neither Git identity nor a confirmation prompt proves who operated the terminal.
+New adoption defaults to local acceptance with `clue init`. PR acceptance is an active choice with `clue init --acceptance=pr`. Existing repositories keep their accepted workflow during upgrade. Cliewen's own source repository explicitly uses PR acceptance.
+
+| Acceptance | Initial setup | Your approval |
+|---|---|---|
+| Local — default for new adoption | `clue init` | Run `clue accept` and confirm in the terminal |
+| PR — selected explicitly | `clue init --acceptance=pr` | Accept the ready PR with a merge commit |
 
 ## Choose the workflow
 
@@ -23,7 +28,23 @@ The generated `AGENTS.md` tells the agent to follow this file, so the mode is se
 
 Keep the existing ID ledger and allocation settings. Multiple contributors still reserve IDs through the shared Git allocator. Local acceptance and ID coordination are separate: accepting locally does not permit an allocator to fall back when its remote is unavailable.
 
-## Prepare and review
+## Choose PR acceptance
+
+To select PR acceptance when initializing a repository, run:
+
+```sh
+clue init --acceptance=pr
+```
+
+This records `mode: pr` and `branch: main` in `.clue/acceptance.yaml`. Use the appropriate integration branch if your repository uses another name. Init preserves existing policy and refuses a conflicting option; change an existing decision under its current acceptance workflow.
+
+The agent publishes the proposal as a draft PR, implements and digests the change, verifies and reviews the exact candidate, and marks the PR ready with its acceptance brief. You judge that brief and accept through a merge commit. Hosted CI and branch protection can enforce admission where configured. See [the PR change loop](./change-loop) for the complete handoff and [the CI wall](./ci-wall) for enforcement setup.
+
+## Local acceptance
+
+Local acceptance relies on the human and agent following their roles. It provides no hosted admission gate, and Git identity and a confirmation prompt do not prove who operated the terminal.
+
+### Prepare and review
 
 The agent follows the normal tracked workflow: reserve an ID, commit a proposal, implement, digest the change workspace, then verify and review the complete candidate commit. It commits each handoff and publishes only as your repository permits. A change to the reviewed candidate requires another verification and review pass.
 
@@ -47,7 +68,7 @@ The command reads the candidate from Git objects, validates its digested corpus 
 
 The first version requires regular tracked files. It refuses tracked symlinks and submodules rather than claiming to have validated content it cannot safely materialize in isolation.
 
-## Accept or decline
+### Accept or decline
 
 Read the brief and evidence. If the change is wanted and the evidence supports it, run the same command yourself without `--check`:
 
@@ -61,7 +82,7 @@ After confirmation, the command repeats preflight, locks and compares the integr
 
 Deleting the change branch afterwards leaves its history reachable. Read the retained brief with `git show --no-patch --format=%B <acceptance-commit>`; the proposal remains in the history of its second parent.
 
-## Handle changed or interrupted work
+### Handle changed or interrupted work
 
 If the integration branch advances, incorporate it into the change branch, repeat verification and review, and prepare a brief for the new revisions. A dirty checkout, incomplete brief, missing proposal, undigested workspace, or invalid corpus prevents acceptance.
 

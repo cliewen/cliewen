@@ -5,7 +5,7 @@ title: What one change produces
 
 # What one change produces
 
-This page describes the PR workflow, selected with `clue init --acceptance=pr`. New adoption defaults to [local acceptance](./local-acceptance) and uses the same proposal, evidence, digest and review obligations, with a human-run command and a Git-retained brief replacing the PR handoff. ID allocation and coordination stay the same.
+This page describes the PR workflow, selected with `clue init --acceptance=pr`. New adoption defaults to [local acceptance](./acceptance) and uses the same proposal, evidence, digest and review obligations, with a human-run command and a Git-retained brief replacing the PR handoff. ID allocation and coordination stay the same.
 
 This page traces one small change from your request to a merge commit. It illustrates the artifacts and commands used with `clue 0.27.0`. Output excerpts show the relevant verdicts; artifact counts depend on the repository.
 

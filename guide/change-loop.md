@@ -5,7 +5,7 @@ title: The change loop
 
 # The change loop
 
-This page describes the PR workflow, selected with `clue init --acceptance=pr`. New adoption defaults to [local acceptance](./local-acceptance) and uses the same proposal, evidence, digest and review obligations, with a human-run command and a Git-retained brief replacing the PR handoff. ID allocation and coordination stay the same.
+This page describes the PR workflow, selected with `clue init --acceptance=pr`. New adoption defaults to [local acceptance](./acceptance) and uses the same proposal, evidence, digest and review obligations, with a human-run command and a Git-retained brief replacing the PR handoff. ID allocation and coordination stay the same.
 
 Before editing, the agent asks one question: does this work change a promise the repository has already made? If not, it recommends the **direct** route, which is the default. If it does, or nobody is sure, it recommends the **tracked** route, which plans the change, tests it against acceptance criteria, and ends in a pull request you merge. The agent says why and names what it might still discover that would change the recommendation.
 
@@ -102,4 +102,4 @@ Review fixes are committed and pushed with the turn that made them, then locally
 
 ## Next
 
-[Consider local acceptance before choosing the integration gate.](./local-acceptance)
+[See the default local acceptance and the explicit PR choice.](./acceptance)
