@@ -3445,6 +3445,11 @@ claims:
       state: reserved
       prefix: PDR
       component: "68"
+    - id: PDR-069
+      kind: numeric
+      state: reserved
+      prefix: PDR
+      component: "69"
     - id: UC-001
       kind: numeric
       state: reserved
@@ -3461,11 +3466,11 @@ claims:
       prefix: VIS
       component: "1"
 high-water:
-    - id: AC-222
+    - id: AC-226
       kind: numeric
       state: reserved
       prefix: AC
-      component: "222"
+      component: "226"
     - id: ADR-071
       kind: numeric
       state: reserved
