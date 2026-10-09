@@ -7,6 +7,8 @@ title: Changelog
 
 All notable, user-visible changes to `clue` and the Cliewen skills. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and versions follow semver. Each GitHub release body is this file's matching version section, extracted verbatim by the release workflow — a release with no section here fails.
 
+## [Unreleased]
+
 ## [0.29.0] - 2026-10-09
 
 ### Local acceptance
