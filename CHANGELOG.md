@@ -9,14 +9,18 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 
 ## [Unreleased]
 
+## [0.30.0] - 2026-10-09
+
 ### Changed
 
-- Local human acceptance on `main` is the default whenever `.clue/acceptance.yaml` is absent, for new and existing adopters. Choose PR actively with `clue init --acceptance=pr`. Init preserves explicit policy and rejects conflicting options before writing. Acceptance compares effective policy on base and candidate; an absent file and explicit local/main policy are equivalent. Generated skills and the guide follow the same default. Repository role does not select acceptance policy; source repositories can also use local acceptance.
-- The acceptance guide is at `/acceptance`; the former `/local-acceptance` page is removed.
+- You can accept changes locally without a pull request. Local acceptance on `main` is now the default, including in existing repositories without an acceptance policy. The agent prepares the change and its evidence; you review the acceptance brief and confirm with `clue accept`.
+- Choose a pull-request workflow with `clue init --acceptance=pr`. Existing explicit choices are preserved, and init refuses to overwrite a different choice.
+- The [acceptance guide](https://cliewen.dev/acceptance) explains both workflows. Update bookmarks to the former `/local-acceptance` page.
 
 ### Migration
 
-- The historical PR fallback, prior-adoption detection and MIG-021 are removed. Migration validates policy but never creates or rewrites it. Repositories that require PR acceptance must record `mode: pr` and their integration branch explicitly. Preview `clue migrate` to update managed skills, and align any user-owned hub wording with the policy. The ID ledger and coordination are unchanged.
+- If your repository requires pull requests, record `mode: pr` and your integration branch in `.clue/acceptance.yaml` before upgrading. Without that file, acceptance now defaults to local on `main`.
+- Upgrade `clue` and its agent instructions together. Preview `clue migrate`, then apply the reviewed update. Custom repository instructions are preserved; update any wording that still requires pull requests by default. ID allocation and coordination work as before.
 
 ## [0.29.0] - 2026-10-09
 
