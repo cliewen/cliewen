@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -156,7 +157,7 @@ func TestSanity_LinkedWorktreeAcceptance(t *testing.T) {
 	}
 }
 
-func TestSanity_BaseAdvanceDuringConfirmation(t *testing.T) {
+func TestAC220_IntegrationNegative_BaseAdvanceDuringConfirmation(t *testing.T) {
 	r := fixture(t, nil)
 	p, err := Check(r)
 	if err != nil {
@@ -172,6 +173,44 @@ func TestSanity_BaseAdvanceDuringConfirmation(t *testing.T) {
 	}
 	if got := mustGit(t, r.Root, "rev-parse", "HEAD"); got != advanced {
 		t.Fatal("overwrote newer accepted work")
+	}
+}
+
+func TestAC220_IntegrationPositive_GitCallbacksNeverExecute(t *testing.T) {
+	r := fixture(t, nil)
+	callbacks := filepath.Join(r.Root, ".git", "configured-hooks")
+	marker := filepath.Join(r.Root, ".git", "callback-ran")
+	for _, name := range []string{"reference-transaction", "post-index-change", "fsmonitor"} {
+		write(t, callbacks, name, "#!/bin/sh\nprintf '%s\\n' '"+name+"' >> '"+filepath.ToSlash(marker)+"'\nexit 0\n")
+		if err := os.Chmod(filepath.Join(callbacks, name), 0755); err != nil {
+			t.Fatal(err)
+		}
+	}
+	mustGit(t, r.Root, "config", "core.hooksPath", callbacks)
+	mustGit(t, r.Root, "config", "core.fsmonitor", filepath.ToSlash(filepath.Join(callbacks, "fsmonitor")))
+	// Prove this fixture would invoke its callbacks without our overrides.
+	for _, args := range [][]string{{"status", "--porcelain"}, {"update-ref", "refs/heads/hook-control", r.Base}} {
+		out, err := exec.Command("git", append([]string{"-C", r.Root}, args...)...).CombinedOutput()
+		if err != nil {
+			t.Fatalf("hook control: %v: %s", err, out)
+		}
+	}
+	control, err := os.ReadFile(marker)
+	if err != nil || !strings.Contains(string(control), "fsmonitor") || !strings.Contains(string(control), "reference-transaction") {
+		t.Fatalf("callbacks were not active: %s (%v)", control, err)
+	}
+	if err = os.Remove(marker); err != nil {
+		t.Fatal(err)
+	}
+	p, err := Check(r)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err = p.Confirm(strings.NewReader("accept CH-001\n"), io.Discard, true); err != nil {
+		t.Fatal(err)
+	}
+	if _, err = os.Stat(marker); !os.IsNotExist(err) {
+		t.Fatalf("acceptance invoked a configured callback: %v", err)
 	}
 }
 

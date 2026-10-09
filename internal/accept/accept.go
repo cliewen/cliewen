@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"regexp"
 	"strings"
@@ -52,18 +51,6 @@ type Candidate struct {
 var oid = regexp.MustCompile(`^(?:[0-9a-f]{40}|[0-9a-f]{64})$`)
 var changeID = regexp.MustCompile(`^CH-[0-9]+$`)
 var sections = []string{"Intent", "Criteria and evidence", "Binding decisions", "Verification", "Review"}
-
-func command(root string, args ...string) *exec.Cmd {
-	c := exec.Command("git", append([]string{"-C", root}, args...)...)
-	// Do not let an inherited Git context redirect commands into another repo.
-	for _, e := range os.Environ() {
-		if !strings.HasPrefix(e, "GIT_") {
-			c.Env = append(c.Env, e)
-		}
-	}
-	c.Env = append(c.Env, "GIT_NO_REPLACE_OBJECTS=1", "GIT_OPTIONAL_LOCKS=0")
-	return c
-}
 
 func git(root string, args ...string) (string, error) {
 	b, err := command(root, args...).CombinedOutput()

@@ -191,7 +191,7 @@ producers:
       - path: docs/capabilities/CAP-012-local-acceptance/criteria.md
         sha256: 61813c70b54e008a65ee5d658f5eb7a067f9ee84174f5df2db6bde6bcd4ba647
       - path: docs/capabilities/CAP-012-local-acceptance/design.md
-        sha256: afaed294e7119afa91457ac768cc987e84486ef707382c5cf381167ed4ef26b0
+        sha256: c3264fe92b41430924078d24ec30d76162a210b657ef6b4662d32d7bdfcb42d1
       - path: docs/capabilities/README.md
         sha256: 56738038302283359fc43cec3c001adeaf2a7aed4d0e3f41652f699ef46cb239
       - path: docs/constraints/C-001-no-hard-wrapped-markdown.md
@@ -649,7 +649,7 @@ producers:
       - path: guide/operations_test.go
         sha256: 21244d1e6e82560a431219fb2499095faed56845509bf3fb149586b1b163bddd
       - path: internal/accept/accept_test.go
-        sha256: a0026cf32cd360a135122037690f1e17585b2028f933589379d8aab65b901699
+        sha256: 1683955d91bf8c6f54cbb5b195aee92a22e50bc16492e7f0924befaf5396af58
       - path: internal/carriers/carriers_test.go
         sha256: 1c26592f6e73d76320c87acd95bfa33644e3d4d4293b037c9705892e26daa6d8
       - path: internal/ciguards/completedplans_test.go
@@ -1275,12 +1275,22 @@ producers:
         direction: positive
       - id: AC-220
         path: internal/accept/accept_test.go
+        subject: test TestAC220_IntegrationNegative_BaseAdvanceDuringConfirmation
+        type: Integration
+        direction: negative
+      - id: AC-220
+        path: internal/accept/accept_test.go
         subject: test TestAC220_IntegrationNegative_UnsafeOrChangedState
         type: Integration
         direction: negative
       - id: AC-220
         path: internal/accept/accept_test.go
         subject: test TestAC220_IntegrationPositive_CheckAndCancellationAreReadOnly
+        type: Integration
+        direction: positive
+      - id: AC-220
+        path: internal/accept/accept_test.go
+        subject: test TestAC220_IntegrationPositive_GitCallbacksNeverExecute
         type: Integration
         direction: positive
       - id: AC-221
