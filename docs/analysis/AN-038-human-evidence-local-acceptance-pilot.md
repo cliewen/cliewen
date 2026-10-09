@@ -10,7 +10,7 @@ title: Prepared trial of concrete Human evidence with local acceptance
 
 ## Question and consumer
 
-Do screenshots tied to a specific revision help the owner explain a rejection and acceptance, rather than merely add paperwork? This prepared investigation serves G-016 and informs any later change to Human evidence. Ledger setup friction additionally informs G-019. It does not adopt a new evidence format, change the validator, or establish general onboarding usability.
+Do screenshots tied to a specific revision help the owner explain a rejection and acceptance, rather than merely add paperwork? The findings should help a person [make an informed acceptance decision](../goals/G-016-acceptance-is-an-informed-decision.md): explain whether a change is wanted and whether the observed behavior supports it. The ledger setup findings should also help contributors [register and finish a change workspace without editing the identity ledger by hand](../goals/G-019-workspace-identities-need-no-hand-edited-ledger.md). It does not adopt a new evidence format, change the validator, or establish general onboarding usability.
 
 ## Evidence boundary
 

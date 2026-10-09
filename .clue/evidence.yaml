@@ -119,7 +119,7 @@ producers:
       - path: docs/analysis/AN-037-does-the-local-allocation-rule-tell-a-sole-contributor-from-a-second-one.md
         sha256: ceec839a2749d2dd1bda196948056e646f605e20210c601f27561dc203c288f8
       - path: docs/analysis/AN-038-human-evidence-local-acceptance-pilot.md
-        sha256: 9089897bac068cc28bc3af4f40a9725c72cb27441ed91650e3efde6399d9bfb5
+        sha256: fb9bc0000128e12ce5fcc2726d1ae9e50afd9ddea39e67731a3d1daccd5c572e
       - path: docs/analysis/README.md
         sha256: 49fe700699c3e3100c726657b720e88c7beab2d5d70760e4707c2b8bb13a3cd7
       - path: docs/architecture/README.md
