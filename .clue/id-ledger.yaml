@@ -1043,5 +1043,7 @@ events:
     - {id: AC-231, kind: numeric, state: live, prefix: AC, component: "231"}
     - {id: AC-228, kind: numeric, state: retired, prefix: AC, component: "228"}
     - {id: AC-229, kind: numeric, state: retired, prefix: AC, component: "229"}
+    - {id: AN-038, kind: numeric, state: reserved, prefix: AN, component: "38"}
+    - {id: AN-038, kind: numeric, state: live, prefix: AN, component: "38"}
 high-water:
     - {id: CH-183, kind: numeric, state: reserved, prefix: CH, component: "183"}
