@@ -9,6 +9,8 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 
 ## [Unreleased]
 
+## [0.30.0] - 2026-10-09
+
 ### Changed
 
 - Fresh `clue init` now defaults to local human acceptance; choose PR actively with `--acceptance=pr`. Init resolves policy before writing, keeps existing decisions, and rejects conflicting options. Generated workflow skills follow the accepted repository policy without asking at each change. Existing repositories retain their previous workflow, and Cliewen's source explicitly remains PR-based.
