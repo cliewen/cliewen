@@ -533,7 +533,7 @@ producers:
       - path: docs/decisions/PDR-069-local-acceptance-is-the-default.md
         sha256: 74273be1b67deff02819ec63b974afe269b86128f510848f8ad3cf92aad636e8
       - path: docs/decisions/PDR-070-source-repository-uses-local-acceptance.md
-        sha256: ec4543404a000fe3feb9f3a68e558e6a5bc77d891eb3ef4cb3a7647311af3697
+        sha256: 32be04a870952b6d532c68b0602dd64b95e03b93d0b723a1bf5b4b5b54f45a56
       - path: docs/decisions/README.md
         sha256: c14895c31bb4f697c81cd08ab816e21960d47a6ce7c28d2628aef5f696c14391
       - path: docs/design/README.md
