@@ -7,7 +7,7 @@ title: Acceptance
 
 Cliewen keeps acceptance with the human. The agent prepares and verifies a tracked change, and you decide whether its outcome and evidence are acceptable. The repository chooses where that decision is recorded.
 
-Local acceptance on `main` is the default, including when `.clue/acceptance.yaml` is absent. `clue init` writes this default explicitly. PR acceptance is an active choice with `clue init --acceptance=pr`. Cliewen's own source repository explicitly uses PR acceptance.
+Local acceptance on `main` is the default, including when `.clue/acceptance.yaml` is absent. `clue init` writes this default explicitly. PR acceptance is an active choice with `clue init --acceptance=pr`. Repository role does not change the policy. Cliewen's own source repository also uses local acceptance on `main`.
 
 | Acceptance | Initial setup | Your approval |
 |---|---|---|

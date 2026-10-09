@@ -15,7 +15,6 @@ import (
 	"github.com/cliewen/cliewen/internal/acceptpolicy"
 	"github.com/cliewen/cliewen/internal/corpus"
 	"github.com/cliewen/cliewen/internal/parity"
-	"github.com/cliewen/cliewen/internal/role"
 	"gopkg.in/yaml.v3"
 )
 
@@ -108,15 +107,7 @@ func parseBrief(data []byte, r Request) (Brief, error) {
 }
 
 func loadConfig(root string) (config, error) {
-	var c config
-	r, _, err := role.Load(root)
-	if err != nil {
-		return c, err
-	}
-	if r == role.Source {
-		return c, fmt.Errorf("source repositories require PR acceptance")
-	}
-	c, _, err = acceptpolicy.Load(root)
+	c, _, err := acceptpolicy.Load(root)
 	if err != nil {
 		return c, err
 	}

@@ -11,7 +11,7 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 
 ### Changed
 
-- Local human acceptance on `main` is the default whenever `.clue/acceptance.yaml` is absent, for new and existing adopters. Choose PR actively with `clue init --acceptance=pr`. Init preserves explicit policy and rejects conflicting options before writing. Acceptance compares effective policy on base and candidate; an absent file and explicit local/main policy are equivalent. Generated skills and the guide follow the same default. Cliewen's source explicitly remains PR-based.
+- Local human acceptance on `main` is the default whenever `.clue/acceptance.yaml` is absent, for new and existing adopters. Choose PR actively with `clue init --acceptance=pr`. Init preserves explicit policy and rejects conflicting options before writing. Acceptance compares effective policy on base and candidate; an absent file and explicit local/main policy are equivalent. Generated skills and the guide follow the same default. Repository role does not select acceptance policy; source repositories can also use local acceptance.
 - The acceptance guide is at `/acceptance`; the former `/local-acceptance` page is removed.
 
 ### Migration

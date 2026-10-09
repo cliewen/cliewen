@@ -10,6 +10,8 @@ accepted-by: Flemming N. Larsen (2026-08-02, conversation); Flemming N. Larsen (
 
 # PDR-015 — This repository's release PR cuts a recoverable clue release
 
+PDR-070 changes this repository's administrative release handoff to a human-controlled local merge. The focused release gates, version stamping, publication trigger and published-tag protection remain unchanged; a release PR is optional.
+
 ## Context and problem statement
 
 This repository's release preparation needed only a chosen version and user-facing notes, while treating a tag as a release made failed publication consume a version. Adopter releases are their own product operations and are outside Cliewen's method and tooling.

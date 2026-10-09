@@ -11,6 +11,8 @@ binds: adopter
 
 # Local acceptance is the default
 
+PDR-070 supersedes the source-only PR restriction in this record and selects local acceptance for Cliewen's source repository.
+
 ## Context
 
 The owner requested one default for both new and existing adopters, with no compatibility layer for an implicit PR convention. Preserving that convention made an absent file mean different things depending on prior repository state.

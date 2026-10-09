@@ -13,6 +13,8 @@ binds: adopter
 
 PDR-069 supersedes the implicit PR fallback and MIG-021 described here. This record retains the original decision; current policy defaults to local on main without a file and preserves explicit choices.
 
+PDR-070 supersedes the source-only PR restriction in this record and selects local acceptance for Cliewen's source repository.
+
 ## Context
 
 Requiring each new adopter to opt into local acceptance adds a setup decision before its first change. Changing an existing repository's implicit PR workflow on upgrade would instead change meaning without human acceptance.
