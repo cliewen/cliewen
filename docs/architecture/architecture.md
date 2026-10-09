@@ -44,7 +44,7 @@ flowchart TD
 2. **Transient** — `/changes/<CH-xxx>/` on a branch only. Dies at merge, digested into permanent docs. CI gate: `main` never contains `/changes/`.
 3. **Campaign** — `/docs/plans`. Live on `main`, mutate continuously (bookkeeping in digests; human-directed revisions after a failed plan-health check), frozen immutable at `status: completed` — never deleted.
 
-Git is the engine: for a chosen tracked route the branch is the proposal, the selected PR or local handoff is the review gate (fresh adoption defaults to local under PDR-068, and legacy choices remain unchanged), the supported merge commit is acceptance, and reachable history is the provenance archive. Direct work stays outside that graph and follows explicit user authority and repository policy; a declined tracked recommendation is retained in vendor-neutral Git trailers ([PDR-042](../decisions/PDR-042-routing-recommends-contract-aware-effort.md)). Repo-native, never forge-native.
+Git is the engine: for a chosen tracked route the branch is the proposal, the selected PR or local handoff is the review gate (missing policy defaults to local on main under PDR-069, and PR is explicitly selected), the supported merge commit is acceptance, and reachable history is the provenance archive. Direct work stays outside that graph and follows explicit user authority and repository policy; a declined tracked recommendation is retained in vendor-neutral Git trailers ([PDR-042](../decisions/PDR-042-routing-recommends-contract-aware-effort.md)). Repo-native, never forge-native.
 
 ## The frontmatter graph
 

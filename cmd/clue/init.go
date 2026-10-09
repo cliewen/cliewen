@@ -17,7 +17,7 @@ import (
 // reports it as linked.
 func runInit(args []string, out, errOut io.Writer) int {
 	fs := flag.NewFlagSet("init", flag.ExitOnError)
-	acceptance := fs.String("acceptance", "", "initial acceptance: local (fresh adoption default) or pr; existing policy is never overwritten")
+	acceptance := fs.String("acceptance", "", "initial acceptance: local (default) or pr; existing policy is never overwritten")
 	_ = fs.Parse(args)
 	root := "."
 	if fs.NArg() > 0 {

@@ -11,11 +11,12 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 
 ### Changed
 
-- Fresh `clue init` now defaults to local human acceptance; choose PR actively with `--acceptance=pr`. Init resolves policy before writing, keeps existing decisions, and rejects conflicting options. Generated workflow skills follow the accepted repository policy without asking at each change. Existing repositories retain their previous workflow, and Cliewen's source explicitly remains PR-based.
+- Local human acceptance on `main` is the default whenever `.clue/acceptance.yaml` is absent, for new and existing adopters. Choose PR actively with `clue init --acceptance=pr`. Init preserves explicit policy and rejects conflicting options before writing. Acceptance compares effective policy on base and candidate; an absent file and explicit local/main policy are equivalent. Generated skills and the guide follow the same default. Cliewen's source explicitly remains PR-based.
+- The acceptance guide is at `/acceptance`; the former `/local-acceptance` page is removed.
 
 ### Migration
 
-- Preview `clue migrate` and apply the reviewed update. MIG-021 records legacy PR explicitly when an existing adoption lacks `.clue/acceptance.yaml`; it preserves valid local/PR files and reports malformed policy instead of guessing. User-owned hub text is not overwritten; update any reported contradictory wording. The ID ledger and coordination are unchanged.
+- The historical PR fallback, prior-adoption detection and MIG-021 are removed. Migration validates policy but never creates or rewrites it. Repositories that require PR acceptance must record `mode: pr` and their integration branch explicitly. Preview `clue migrate` to update managed skills, and align any user-owned hub wording with the policy. The ID ledger and coordination are unchanged.
 
 ## [0.29.0] - 2026-10-09
 

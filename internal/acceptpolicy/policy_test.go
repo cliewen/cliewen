@@ -18,11 +18,11 @@ func put(t *testing.T, root, path, body string) {
 	}
 }
 
-func TestAC226_UnitPositive_ExplicitAndLegacyPolicy(t *testing.T) {
+func TestAC229_UnitPositive_ExplicitAndDefaultPolicy(t *testing.T) {
 	root := t.TempDir()
 	p, present, e := Load(root)
-	if e != nil || present || p != (Policy{PR, "main"}) {
-		t.Fatalf("legacy %v %v %v", p, present, e)
+	if e != nil || present || p != (Policy{Local, "main"}) {
+		t.Fatalf("default %v %v %v", p, present, e)
 	}
 	for _, mode := range []string{Local, PR} {
 		put(t, root, Path, "# preserve this comment\nmode: "+mode+"\nbranch: release/stable\n")
@@ -41,7 +41,7 @@ func TestAC226_UnitPositive_ExplicitAndLegacyPolicy(t *testing.T) {
 	}
 }
 
-func TestAC226_UnitNegative_InvalidPolicyIsNotGuessed(t *testing.T) {
+func TestAC229_UnitNegative_InvalidPolicyIsNotGuessed(t *testing.T) {
 	root := t.TempDir()
 	for _, body := range []string{"", "mode: unknown\nbranch: main\n", "mode: local\n", "mode: local\nbranch: bad..name\n", "mode: local\nbranch: main\nextra: ignored\n", "mode: local\nbranch: main\n---\nmode: pr\nbranch: main\n", "mode: local\nmode: pr\nbranch: main\n"} {
 		put(t, root, Path, body)
@@ -68,20 +68,13 @@ func TestSanity_PolicyBranchValidationAgreesWithGit(t *testing.T) {
 	}
 }
 
-func TestUnit_PriorAdoptionSignalsAndFreshProjects(t *testing.T) {
-	for _, tc := range []struct {
-		path, body string
-		prior      bool
-	}{
-		{"README.md", "ordinary project", false}, {"docs/notes.md", "---\ntype: guide\ntitle: Notes\n---\n", false},
-		{".clue/role.yaml", "role: adopter\n", true}, {".clue/id-ledger.yaml", "old state", true}, {".clue/evidence.yaml", "old state", true},
-		{".agents/skills/clue-delta/skill.md", "legacy skill", true}, {".claude/skills/clue-delta/SKILL.md", "legacy mirror", true},
-		{"docs/README.md", "<!-- clue:index:start -->", true}, {"docs/g.md", "---\nid: G-001\ntype: goal\nstatus: accepted\nlinks: []\ntitle: Goal\n---\n", true},
-	} {
-		root := t.TempDir()
-		put(t, root, tc.path, tc.body)
-		if got, e := PreviouslyAdopted(root); e != nil || got != tc.prior {
-			t.Fatalf("%s: %v %v", tc.path, got, e)
-		}
+func TestUnit_SourceInitRequiresExplicitPRChoice(t *testing.T) {
+	root := t.TempDir()
+	put(t, root, ".clue/role.yaml", "role: source\n")
+	if _, e := SelectInit(root, ""); e == nil {
+		t.Fatal("source default accepted")
+	}
+	if p, e := SelectInit(root, PR); e != nil || p != (Policy{PR, "main"}) {
+		t.Fatalf("explicit source PR: %v %v", p, e)
 	}
 }
