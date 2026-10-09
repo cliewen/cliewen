@@ -41,7 +41,7 @@ graph TD
 | Stage | What the change carried |
 |---|---|
 | Need | Make acceptance-criterion-to-test traceability enforceable rather than conventional |
-| Proposal | CH-003 declared the intended AC↔test contract and served the baseline plan's traceability milestone |
+| Proposal | CH-003 declared the intended ACâ†”test contract and served the baseline plan's traceability milestone |
 | Durable capability | [`clue validate`](https://github.com/cliewen/cliewen/tree/main/docs/capabilities/CAP-002-validate) owns criteria such as AC-009, which requires a supported reference for every active legacy machine-proven criterion |
 | Classified evidence | Focused tests show both the missing-reference failure and referenced-evidence success path; new or revised criteria also declare proof type and evidence direction |
 | Implementation | Repository-owned exporters read executable metadata; the validator reads the common manifest and diagnoses missing or stale references |
@@ -76,7 +76,7 @@ Never weaken a test or lint rule to make the build pass. A failing check is evid
 
 Once every implementation task is complete or explicitly infeasible, update durable documentation, decisions, indexes, plan bookkeeping, and release notes for shipped behavior or workflow changes. Then delete the `/changes` workspace.
 
-Plan bookkeeping includes closing the plan. When a change completes a campaign's last milestone, the same digest sets that plan `completed` — a campaign is over once its last milestone is evidenced, and leaving it open makes the plan index claim work is in flight that is not. A successor plan is designated in that digest when one is decided; not having decided one is no reason to keep the finished plan open.
+Plan bookkeeping includes closing the plan. When a change completes a campaign's last milestone, the same digest sets that plan `completed` â€” a campaign is over once its last milestone is evidenced, and leaving it open makes the plan index claim work is in flight that is not. A successor plan is designated in that digest when one is decided; not having decided one is no reason to keep the finished plan open.
 
 Deletion is the digest: the proposal has been absorbed into the current system truth, and Git retains the delta. `main` never contains `/changes`.
 
@@ -90,11 +90,11 @@ Several agents can collaborate without waiting for one another. Separate authors
 
 For a tracked change, the pull request is an authorization and protected-integration gate, not a demand for duplicate human code review. The agent may publish the branch but does not accept its own tracked change; the human-controlled merge commit is the acceptance act. Configure that branch for merge commits and disable squash and rebase-and-merge so proposal, implementation, and digest remain reachable; from first publication, hosted history is never rebased or rewritten. Direct integration instead follows explicit user authorization and repository policy.
 
-For a tracked change, the PR starts with an acceptance brief. It asks whether the plan item is still wanted, puts the added or changed criteria and their scenarios in front of the human, and names what merge binds. An authorized dependent change repeats its unmerged base, authorization, and binding meaning there; disclosure does not make the base accepted. The review loop adds an advisory verdict for each changed criterion — whether its referenced tests verify the scenario, something adjacent, or leave it undetermined. That is evidence for human judgment, not a semantic claim by `clue validate`: a green build and a fluent agent do not establish that the outcome is right.
+For a tracked change, the PR starts with an acceptance brief. It asks whether the plan item is still wanted, puts the added or changed criteria and their scenarios in front of the human, and names what merge binds. An authorized dependent change repeats its unmerged base, authorization, and binding meaning there; disclosure does not make the base accepted. The review loop adds an advisory verdict for each changed criterion â€” whether its referenced tests verify the scenario, something adjacent, or leave it undetermined. That is evidence for human judgment, not a semantic claim by `clue validate`: a green build and a fluent agent do not establish that the outcome is right.
 
 The PR also gives hosted CI an exact candidate, but a PR alone does not enforce anything. Enforcement requires the CI workflow to run on the PR, its result to be a required status check, and branch protection to block merge until that check passes. Local verification remains fast evidence; protected hosted CI is the safeguard that the agent cannot silently skip. The [CI wall guide](./ci-wall) gives the setup and failing-PR probe. Workflow and protection changes must never weaken the gate merely to make a change pass.
 
-That protection is a setting at your Git host, so nothing in your repository records it and `clue validate` cannot see it — which is how a repository can run Cliewen for a long time, pass every check, and enforce nothing. So before an agent marks a PR ready for the first time in a repository, it asks the host what the branch actually enforces. If something is missing it stops, says what, and offers the commands your host accepts; it changes no setting without your go-ahead, and on a host it cannot query it reports the state as unknown rather than assuming you are covered. You can decline — the PR still goes ready, and the handoff records that the boundary is unenforced and why.
+That protection is a setting at your Git host, so nothing in your repository records it and `clue validate` cannot see it â€” which is how a repository can run Cliewen for a long time, pass every check, and enforce nothing. So before an agent marks a PR ready for the first time in a repository, it asks the host what the branch actually enforces. If something is missing it stops, says what, and offers the commands your host accepts; it changes no setting without your go-ahead, and on a host it cannot query it reports the state as unknown rather than assuming you are covered. You can decline â€” the PR still goes ready, and the handoff records that the boundary is unenforced and why.
 
 Mark the pull request ready for review only after local review and verification pass on the current head. Report the review mode, reviewed commit, number of passes run, and advisory findings left open, then confirm that the hosted head branch and SHA equal the clean, locally reviewed branch and `HEAD` before and immediately after marking it ready. Stopping anywhere else is ordinary rather than an exception: the branch is pushed, the pull request is a draft, and no claim of readiness exists.
 
@@ -102,4 +102,4 @@ Review fixes are committed and pushed with the turn that made them, then locally
 
 ## Next
 
-[Make the checks blocking in CI.](./ci-wall)
+[Consider local acceptance before choosing the integration gate.](./local-acceptance)
