@@ -32,6 +32,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/cliewen/cliewen/internal/acceptpolicy"
 	"github.com/cliewen/cliewen/internal/corpus"
 	"github.com/cliewen/cliewen/internal/ledger"
 	"github.com/cliewen/cliewen/internal/role"
@@ -269,6 +270,16 @@ func isCliewenCheckout(root string) bool {
 // .gitattributes, which has the ledger's union-merge rule appended when it
 // is missing (see ensureUnionAttribute).
 func Run(root string) (*Report, error) {
+	return RunWithAcceptance(root, "")
+}
+
+// RunWithAcceptance accepts an explicit initial policy choice. Resolution and
+// conflicts precede every write; existing policy remains repository-owned.
+func RunWithAcceptance(root, requested string) (*Report, error) {
+	policy, err := acceptpolicy.SelectInit(root, requested)
+	if err != nil {
+		return nil, err
+	}
 	version, err := PairVersion()
 	if err != nil {
 		return nil, err
@@ -309,6 +320,9 @@ func Run(root string) (*Report, error) {
 		return nil, err
 	}
 	if err := writeIfAbsent(root, role.DefaultPath, roleData, rep, links); err != nil {
+		return nil, err
+	}
+	if err := writeIfAbsent(root, acceptpolicy.Path, policy.Bytes(), rep, links); err != nil {
 		return nil, err
 	}
 	if err := regenIndexes(root, rep); err != nil {

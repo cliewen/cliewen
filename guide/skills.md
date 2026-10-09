@@ -5,7 +5,7 @@ title: The skills
 
 # The skills
 
-This page describes the default PR workflow. An adopter that explicitly chooses [local acceptance](./local-acceptance) uses the same proposal, evidence, digest and review obligations, with a human-run command and a Git-retained brief replacing the PR handoff. ID allocation and coordination stay the same.
+This page describes the PR workflow, selected with `clue init --acceptance=pr`. New adoption defaults to [local acceptance](./local-acceptance) and uses the same proposal, evidence, digest and review obligations, with a human-run command and a Git-retained brief replacing the PR handoff. ID allocation and coordination stay the same.
 
 A skill is a folder of Markdown instructions that a coding agent loads when a task matches it. Cliewen puts its process knowledge in six skills. The `clue` binary stays a small judge that only checks the repository, and your prompts can stay in ordinary words. You rarely name a skill yourself. You describe the work, and the agent picks the skill.
 

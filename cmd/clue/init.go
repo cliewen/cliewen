@@ -17,12 +17,13 @@ import (
 // reports it as linked.
 func runInit(args []string, out, errOut io.Writer) int {
 	fs := flag.NewFlagSet("init", flag.ExitOnError)
+	acceptance := fs.String("acceptance", "", "initial acceptance: local (fresh adoption default) or pr; existing policy is never overwritten")
 	_ = fs.Parse(args)
 	root := "."
 	if fs.NArg() > 0 {
 		root = fs.Arg(0)
 	}
-	rep, err := scaffold.Run(root)
+	rep, err := scaffold.RunWithAcceptance(root, *acceptance)
 	if err != nil {
 		fmt.Fprintf(errOut, "clue init: %v\n", err)
 		return 1

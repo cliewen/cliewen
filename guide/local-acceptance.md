@@ -7,11 +7,11 @@ title: Local acceptance
 
 An adopting repository can accept a tracked change without a pull request. The agent prepares a branch and its evidence. You review a brief and run `clue accept` to create a merge commit containing the exact candidate and the acceptance record.
 
-PR acceptance remains the default. Cliewen's own source repository requires PRs. Local acceptance relies on the human and agent following their roles; it provides no hosted admission gate, and neither Git identity nor a confirmation prompt proves who operated the terminal.
+New adoption defaults to local acceptance. Select PR explicitly with `clue init --acceptance=pr`. Existing repositories retain their accepted workflow during upgrade. Cliewen's own source repository requires PRs. Local acceptance relies on the human and agent following their roles; it provides no hosted admission gate, and neither Git identity nor a confirmation prompt proves who operated the terminal.
 
 ## Choose the workflow
 
-Under your repository's existing integration policy, accept this configuration on the integration branch before starting the first locally accepted change:
+`clue init` writes this configuration for a new adoption. Commit it as part of the accepted setup before starting the first tracked change:
 
 ```yaml
 # .clue/acceptance.yaml
@@ -19,7 +19,7 @@ mode: local
 branch: main
 ```
 
-Declare the same choice in your repository's `AGENTS.md`. Both the accepted base and candidate must carry the configuration. A candidate cannot enable local acceptance for itself. If your repository requires PRs, follow that policy; this setting does not authorize changing branch protections.
+The generated `AGENTS.md` tells the agent to follow this file, so the mode is selected once for the repository. Existing user-authored hubs are preserved. If you change an older repository from PR to local, update its hub wording and accept the new policy under its previous integration rules. Both the accepted base and candidate must carry the configuration. A candidate cannot enable local acceptance for itself. `clue migrate` previews MIG-021 to record PR explicitly in an existing adoption that lacks policy; applying it does not opt that repository into local. Existing valid local and PR files are kept byte-for-byte. Malformed policy blocks migration writes. If your repository requires PRs, follow that policy; this setting does not authorize changing branch protections.
 
 Keep the existing ID ledger and allocation settings. Multiple contributors still reserve IDs through the shared Git allocator. Local acceptance and ID coordination are separate: accepting locally does not permit an allocator to fall back when its remote is unavailable.
 

@@ -7,6 +7,8 @@ title: Agent routing hub
 
 This repository dogfoods Cliewen and declares `role: source` in `.clue/role.yaml`. The shared methodology below also binds adopters unless a section states otherwise; source-repository conventions apply only here. Before applying a rule that differs by repository kind, read the role marker rather than infer it from the checkout. An adopter-binding rule belongs on a shipped carrier under `internal/skills/source/` or `internal/scaffold/templates/`; `clue validate` enforces that boundary ([ADR-062](docs/decisions/ADR-062-repository-role-is-declared-machine-state.md)).
 
+This source repository explicitly selects PR acceptance in `.clue/acceptance.yaml`. The local default for new adopters does not change its human-merge integration policy.
+
 ## Always first
 
 Before your first tool call, including for a question or review, run `clue latest --quiet`. Route a non-empty result, or an unknown `latest` command, to [`clue-upgrade`](.agents/skills/clue-upgrade/skill.md); the human alone decides whether to upgrade. Run this network check unprompted only for that purpose, never as a validation verdict or required check. Ordinary `clue` workflow commands also report an available update.

@@ -18,6 +18,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/cliewen/cliewen/internal/acceptpolicy"
 	"github.com/cliewen/cliewen/internal/corpus"
 	"github.com/cliewen/cliewen/internal/evidence"
 	"github.com/cliewen/cliewen/internal/ledger"
@@ -122,6 +123,8 @@ const (
 	// as the hub or the wall checklist, that carries no document header. It
 	// never repairs one: those files are the adopter's prose (PDR-023).
 	MigrationDeliveredHeaders = "MIG-020"
+	// MigrationAcceptancePolicy preserves historical PR acceptance explicitly.
+	MigrationAcceptancePolicy = "MIG-021"
 )
 
 // Options controls planning. Preview is the default; applying a plan is a
@@ -159,6 +162,7 @@ var orderedMigrations = []MigrationDefinition{
 	{ID: MigrationHubRouteNames, Description: "report a routing hub that still names the retired simple and full routes"},
 	{ID: MigrationIndexHeaders, Description: "give each README under docs/ or changes/ without frontmatter its type: index header"},
 	{ID: MigrationDeliveredHeaders, Description: "report a delivered file the adopter owns that carries no document header"},
+	{ID: MigrationAcceptancePolicy, Description: "make legacy PR acceptance explicit and preserve existing policy"},
 }
 
 // Registry returns the migration order without exposing mutable package state.
@@ -847,6 +851,7 @@ func Plan(root string, opts Options) (MigrationPlan, error) {
 		return MigrationPlan{}, err
 	}
 	result := MigrationPlan{Target: target}
+	planAcceptancePolicy(root, &result)
 	if opts.ReversalCost != "" && opts.ReversalCost != "low" && opts.ReversalCost != "high" {
 		result.Findings = append(result.Findings, Finding{Migration: MigrationReversalCost, Message: "reversal-cost must be low or high"})
 		return result, nil
@@ -893,6 +898,34 @@ func Plan(root string, opts Options) (MigrationPlan, error) {
 	planDeliveredHeaders(root, &result)
 	sortPlan(&result)
 	return result, nil
+}
+
+func planAcceptancePolicy(root string, result *MigrationPlan) {
+	if linkedAncestor(root, acceptpolicy.Path) {
+		result.Findings = append(result.Findings, Finding{Path: acceptpolicy.Path, Migration: MigrationAcceptancePolicy, Message: "acceptance policy is behind a symlink; resolve the repository-owned path before migration"})
+		return
+	}
+	p, present, err := acceptpolicy.Load(root)
+	if err != nil {
+		result.Findings = append(result.Findings, Finding{Path: acceptpolicy.Path, Migration: MigrationAcceptancePolicy, Message: "acceptance policy cannot be resolved: " + err.Error()})
+		return
+	}
+	if !present {
+		prior, err := acceptpolicy.PreviouslyAdopted(root)
+		if err != nil {
+			result.Findings = append(result.Findings, Finding{Path: acceptpolicy.Path, Migration: MigrationAcceptancePolicy, Message: err.Error()})
+			return
+		}
+		if prior {
+			result.Changes = append(result.Changes, Change{Path: acceptpolicy.Path, Migration: MigrationAcceptancePolicy, Description: "record the existing PR acceptance convention explicitly; no workflow change", After: p.Bytes()})
+		}
+	}
+	if p.Mode == acceptpolicy.Local {
+		body, err := os.ReadFile(filepath.Join(root, "AGENTS.md"))
+		if err == nil && strings.Contains(string(body), "PR acceptance is the default.") {
+			result.Notices = append(result.Notices, Notice{Path: "AGENTS.md", Migration: MigrationAcceptancePolicy, Message: "hub still describes PR as default while policy selects local; update repository-owned wording to follow .clue/acceptance.yaml; migration never rewrites the hub"})
+		}
+	}
 }
 
 // planLedgerEvents converts an existing version-one ledger without changing

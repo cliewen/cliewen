@@ -67,7 +67,7 @@ func resolvedVersion(stamp, moduleVersion string) string {
 const usage = `clue — a verifiable thread from goal to acceptance evidence
 
 Usage:
-  clue init [path]
+  clue init [--acceptance=local|pr] [path]
   clue scaffold [path]
   clue context [--depth=<n>|all] [--stats] <id> [path]
   clue next [--all] [path]
@@ -92,6 +92,9 @@ Commands:
              local acceptance reference in clue-delta for setup and recovery.
 
   init       Materialize the Cliewen convention under path (default "."):
+             fresh adoption selects local human acceptance; --acceptance=pr
+             actively selects PR acceptance. Existing adoption retains PR
+             without a policy, and existing policy is never overwritten.
              the docs/ taxonomy, AGENTS.md routing hub, agent skills
              (.agents/skills + .claude/skills mirror), and a CI workflow
              template. Idempotent: existing files are never overwritten

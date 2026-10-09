@@ -5,7 +5,7 @@ title: Greenfield and brownfield
 
 # Greenfield and brownfield
 
-This page describes the default PR workflow. An adopter that explicitly chooses [local acceptance](./local-acceptance) uses the same proposal, evidence, digest and review obligations, with a human-run command and a Git-retained brief replacing the PR handoff. ID allocation and coordination stay the same.
+This page describes the PR workflow, selected with `clue init --acceptance=pr`. New adoption defaults to [local acceptance](./local-acceptance) and uses the same proposal, evidence, digest and review obligations, with a human-run command and a Git-retained brief replacing the PR handoff. ID allocation and coordination stay the same.
 
 Cliewen works for new systems and systems with years of history. The first step differs: a greenfield project can state its intended outcomes directly, while a brownfield project must find and reconcile the intent that already exists.
 
