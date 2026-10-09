@@ -92,7 +92,7 @@ Total Go statement coverage must remain at least 80%. `clue-verify` then automat
 
 ## Propose for Human Acceptance
 
-For direct work, provide a summary, exact candidate and base commits, relevant verification and remaining uncertainty. The human integrates the branch locally; a CH identity, tracked brief and automatic agentic review are not required.
+For direct work, provide a summary, exact candidate and base commits, relevant verification and remaining uncertainty. A human maintainer integrates the branch locally; a CH identity, tracked brief and automatic agentic review are not required.
 
 For tracked work, follow `clue-delta`'s local review boundary. Commit the complete candidate, pass mechanical checks and automatic agentic review, and fill the private acceptance brief for the exact candidate, base and reviewed revisions. Run `clue accept <candidate-sha> --base <base-sha> --brief <file> --check` on the clean main checkout at the base. Hand the human the brief and the same command without `--check`; only the human runs the accepting command and confirms. It creates the history-preserving merge but never pushes. The human publishes accepted main through the repository's authorized process.
 
