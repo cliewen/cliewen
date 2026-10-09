@@ -7,7 +7,7 @@ title: Changelog
 
 All notable, user-visible changes to `clue` and the Cliewen skills. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and versions follow semver. Each GitHub release body is this file's matching version section, extracted verbatim by the release workflow — a release with no section here fails.
 
-## [Unreleased]
+## [0.29.0] - 2026-10-09
 
 ### Local acceptance
 
@@ -16,6 +16,10 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 ### Changed
 
 - **The generated `clue-delta` change loop no longer stops at the local-allocation warning when the agent is the only contributor.** On the warning from `clue id next CH`, the agent now reads the remote with `git ls-remote --heads origin` for any other `ch-*` branch, merged or not, and for a `clue/id-allocator` branch, whose existence is enough because the listing shows no claims. With none, it continues on serialized allocation and states in the acceptance brief that allocation was local, what it read, and that `clue id coordinate` comes before a second contributor. It stops where another change branch or the allocator branch exists or the remote cannot be read, and enabling `clue id coordinate` ends that question. A clone that has not pushed is invisible to the check, which the skill says.
+
+### Migration
+
+- Upgrade the binary and matching CI caller to v0.29.0, then preview `clue migrate` and apply the reviewed managed-skill update. No new mandatory corpus schema migration is introduced. Run `clue init` to add the missing `.clue/acceptance/brief.md` template without overwriting existing files. PR acceptance remains the default; local acceptance requires an explicit repository decision and `.clue/acceptance.yaml` on the accepted base before using it. ID allocation and coordination keep their existing requirements.
 
 ## [0.28.0] - 2026-10-04
 
