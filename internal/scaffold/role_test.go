@@ -34,6 +34,8 @@ func TestAC153_UnitNegative_InitNeverOverwritesADeclaredRole(t *testing.T) {
 	if err := role.Write(root, role.Source); err != nil {
 		t.Fatal(err)
 	}
+	// Source repositories actively select PR; the role itself must be preserved.
+	acceptanceFile(t, root, ".clue/acceptance.yaml", "mode: pr\nbranch: main\n")
 	before, err := os.ReadFile(filepath.Join(root, role.DefaultPath))
 	if err != nil {
 		t.Fatal(err)

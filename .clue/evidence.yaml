@@ -769,7 +769,7 @@ producers:
       - path: internal/scaffold/regen_test.go
         sha256: f23e09a755df9f4e2c64b305d92bc06bee183f756f7afb9a366a1f43770e7929
       - path: internal/scaffold/role_test.go
-        sha256: 13e9375642c1b55d267e3331f24387d08d5ebdced8687a45eed014849b518ec1
+        sha256: 3cb547fe93b4e837f13f55637298ef8c553013103140a1dc63b0bdeb2affa16e
       - path: internal/scaffold/scaffold_entrypoint_test.go
         sha256: 443eca212097712acc4ff8b20985de75b247da66d0c7293b2c579bb70b4ee22e
       - path: internal/scaffold/scaffold_hub_test.go
