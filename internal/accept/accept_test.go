@@ -310,7 +310,7 @@ func TestAC220_IntegrationNegative_UnsafeOrChangedState(t *testing.T) {
 	}
 }
 
-func TestAC221_IntegrationPositive_AllocationAndProceduralBoundary(t *testing.T) {
+func TestAC225_IntegrationPositive_AllocationAndProceduralBoundary(t *testing.T) {
 	r := fixture(t, func(root string) {
 		write(t, root, ".clue/id-ledger.yaml", "version: 2\nevents: []\n")
 		write(t, root, ".clue/id-coordination.yaml", "mode: git\nremote: origin\n")
@@ -336,7 +336,7 @@ func TestAC221_IntegrationPositive_AllocationAndProceduralBoundary(t *testing.T)
 	}
 }
 
-func TestAC221_IntegrationNegative_DefaultAndSourceCannotAcceptLocally(t *testing.T) {
+func TestAC225_IntegrationNegative_DefaultAndSourceCannotAcceptLocally(t *testing.T) {
 	for _, name := range []string{"candidate-mode", "candidate-branch", "source", "no-opt-in", "candidate-only-opt-in"} {
 		t.Run(name, func(t *testing.T) {
 			r := fixture(t, func(root string) {

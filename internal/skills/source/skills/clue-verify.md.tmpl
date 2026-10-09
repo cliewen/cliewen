@@ -5,7 +5,7 @@
 
 ## Verification checklist
 
-Select the acceptance mechanism under [Review boundary](review-boundary.md). An opted-in local workflow uses the same checks and review loop below, records findings and repairs in committed history, and hands off a brief bound to the reviewed commit. Hosted-head checks, PR readiness and hosted conversations apply only to the PR mechanism; the local handoff replaces them without claiming equivalent enforcement.
+Select the acceptance mechanism under [Review boundary](review-boundary.md). A selected local workflow uses the same checks and review loop below, records findings and repairs in committed history, and hands off a brief bound to the reviewed commit. Hosted-head checks, PR readiness and hosted conversations apply only to the PR mechanism; the local handoff replaces them without claiming equivalent enforcement.
 
 Run this verification and review workflow before marking a tracked Cliewen PR ready for review, and its hosted-head check immediately after. Pushing inside the loop needs no verification: every changed turn pushes under the [Review boundary](review-boundary.md). Direct work uses only checks relevant to its changed surfaces and does not invoke this skill. When the `clue` CLI exists, `clue validate` performs the mechanical half; until then, check by hand. Never fix a failure by weakening the check.
 

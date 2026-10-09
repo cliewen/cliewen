@@ -12,18 +12,16 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/cliewen/cliewen/internal/acceptpolicy"
 	"github.com/cliewen/cliewen/internal/corpus"
 	"github.com/cliewen/cliewen/internal/parity"
 	"github.com/cliewen/cliewen/internal/role"
 	"gopkg.in/yaml.v3"
 )
 
-const ConfigPath = ".clue/acceptance.yaml"
+const ConfigPath = acceptpolicy.Path
 
-type config struct {
-	Mode   string `yaml:"mode"`
-	Branch string `yaml:"branch"`
-}
+type config = acceptpolicy.Policy
 
 // Brief metadata binds the human-readable claims to an exact candidate.
 // Neither this metadata nor its body proves that tests ran or a human observed it.
@@ -118,15 +116,15 @@ func loadConfig(root string) (config, error) {
 	if r == role.Source {
 		return c, fmt.Errorf("source repositories require PR acceptance")
 	}
-	b, err := os.ReadFile(filepath.Join(root, ConfigPath))
+	c, present, err := acceptpolicy.Load(root)
 	if err != nil {
-		return c, fmt.Errorf("local acceptance requires committed %s opt-in: %w", ConfigPath, err)
-	}
-	if err = decode(b, &c); err != nil {
 		return c, err
 	}
-	if c.Mode != "local" || c.Branch == "" {
-		return c, fmt.Errorf("%s requires mode: local and an explicit branch", ConfigPath)
+	if !present {
+		return c, fmt.Errorf("legacy repository without %s retains PR acceptance; initialize or migrate its policy before local acceptance", ConfigPath)
+	}
+	if c.Mode != acceptpolicy.Local {
+		return c, fmt.Errorf("PR acceptance is selected; clue accept performs local acceptance only")
 	}
 	if _, err = git(root, "check-ref-format", "refs/heads/"+c.Branch); err != nil {
 		return c, fmt.Errorf("invalid acceptance branch: %w", err)

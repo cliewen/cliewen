@@ -5,7 +5,7 @@ title: Agent routing hub
 
 # Agent routing hub
 
-PR acceptance is the default. An adopter may explicitly select local acceptance under `clue-delta`'s review boundary by committing `.clue/acceptance.yaml` (`mode: local`, `branch: <integration-branch>`) on its accepted base and declaring the choice here. Agents prepare and preflight; only a human runs accepting `clue accept`. Repository policy may require PRs. ID allocation and coordination remain unchanged.
+Follow `.clue/acceptance.yaml` on the accepted base under `clue-delta`'s review boundary. New adoption defaults to local; `clue init --acceptance=pr` actively selects PR. Existing adoption without a policy retains its legacy PR workflow until reviewed migration makes it explicit. Do not ask the user to select a mode at each change. Agents prepare and preflight; only a human runs accepting `clue accept`. Change policy under the previously accepted workflow. Repository permissions may require PRs. ID allocation and coordination remain unchanged.
 
 This repo runs **Cliewen**.
 

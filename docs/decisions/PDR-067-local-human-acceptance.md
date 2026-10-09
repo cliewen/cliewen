@@ -11,6 +11,8 @@ binds: adopter
 
 # PDR-067 — Local human acceptance
 
+> **Default refined by [PDR-068](PDR-068-local-default-preserves-existing-policy.md):** new adoption selects local, explicit PR is supported, and migration preserves each existing repository's accepted workflow. The earlier opt-in default below is superseded.
+
 ## Context
 
 A PR provides a hosted review and admission boundary, but requiring a forge excludes repositories that can retain the same proposal history and explicitly accept a reviewed branch locally. Identity allocation and acceptance are independent concerns.

@@ -5,7 +5,7 @@ title: Cliewen
 
 # Cliewen
 
-PR acceptance is the default. Adopters may explicitly choose [local human acceptance](https://cliewen.dev/local-acceptance), which records the exact candidate and brief in a local merge commit. The existing ID ledger and Git coordination work with either mechanism.
+New adoption defaults to [local human acceptance](https://cliewen.dev/local-acceptance), which records the exact candidate and brief in a local merge commit. Choose PR acceptance with `clue init --acceptance=pr`. Existing repositories keep their accepted workflow when upgrading. The ID ledger and Git coordination work with either mechanism.
 
 > Evidence-backed Intent Engineering for coding agents.
 

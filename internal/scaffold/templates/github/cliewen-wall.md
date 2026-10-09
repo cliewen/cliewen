@@ -5,7 +5,7 @@ title: Make the Cliewen check block merging
 
 # Make the Cliewen check block merging
 
-This checklist applies to PR acceptance, the default workflow. An explicitly opted-in local acceptance workflow has a procedural human boundary and does not claim this hosted enforcement. See [local acceptance](https://cliewen.dev/local-acceptance).
+This checklist applies to selected PR acceptance. An explicitly opted-in local acceptance workflow has a procedural human boundary and does not claim this hosted enforcement. See [local acceptance](https://cliewen.dev/local-acceptance).
 
 `clue init` wrote `.github/workflows/clue.yml`, which runs a check named `validate` on every pull request. A check only reports. Nothing stops a pull request with a red check from being merged until your Git host is told to require it, and that setting lives at the host, not in this repository: no file records it, so `clue validate` can never tell you whether it is on. The `validate` job asks GitHub on every run and says what it found: a notice when the rules GitHub can report to it are in place, and a warning naming what is missing when they are not.
 
