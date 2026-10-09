@@ -7,16 +7,16 @@ title: Acceptance
 
 Cliewen keeps acceptance with the human. The agent prepares and verifies a tracked change, and you decide whether its outcome and evidence are acceptable. The repository chooses where that decision is recorded.
 
-New adoption defaults to local acceptance with `clue init`. PR acceptance is an active choice with `clue init --acceptance=pr`. Existing repositories keep their accepted workflow during upgrade. Cliewen's own source repository explicitly uses PR acceptance.
+Local acceptance on `main` is the default, including when `.clue/acceptance.yaml` is absent. `clue init` writes this default explicitly. PR acceptance is an active choice with `clue init --acceptance=pr`. Cliewen's own source repository explicitly uses PR acceptance.
 
 | Acceptance | Initial setup | Your approval |
 |---|---|---|
-| Local — default for new adoption | `clue init` | Run `clue accept` and confirm in the terminal |
+| Local — default | `clue init` | Run `clue accept` and confirm in the terminal |
 | PR — selected explicitly | `clue init --acceptance=pr` | Accept the ready PR with a merge commit |
 
 ## Choose the workflow
 
-`clue init` writes this configuration for a new adoption. Commit it as part of the accepted setup before starting the first tracked change:
+`clue init` writes this configuration when no policy exists. The same default also applies without this file:
 
 ```yaml
 # .clue/acceptance.yaml
@@ -24,7 +24,7 @@ mode: local
 branch: main
 ```
 
-The generated `AGENTS.md` tells the agent to follow this file, so the mode is selected once for the repository. Existing user-authored hubs are preserved. If you change an older repository from PR to local, update its hub wording and accept the new policy under its previous integration rules. Both the accepted base and candidate must carry the configuration. A candidate cannot enable local acceptance for itself. `clue migrate` previews MIG-021 to record PR explicitly in an existing adoption that lacks policy; applying it does not opt that repository into local. Existing valid local and PR files are kept byte-for-byte. Malformed policy blocks migration writes. If your repository requires PRs, follow that policy; this setting does not authorize changing branch protections.
+The generated `AGENTS.md` tells the agent to follow the repository's policy. Without this file, the policy is local acceptance on `main`. Init preserves an existing explicit choice and refuses conflicting options. Base and candidate must resolve to the same local policy; adding an explicit local/main file leaves the default unchanged. A candidate cannot override an accepted PR policy to accept itself locally. `clue migrate` does not create acceptance policy, and malformed policy blocks migration writes. If your repository requires PRs, select `mode: pr` explicitly and follow its integration rules. Existing user-authored hubs are preserved; update any wording that contradicts the selected policy.
 
 Keep the existing ID ledger and allocation settings. Multiple contributors still reserve IDs through the shared Git allocator. Local acceptance and ID coordination are separate: accepting locally does not permit an allocator to fall back when its remote is unavailable.
 

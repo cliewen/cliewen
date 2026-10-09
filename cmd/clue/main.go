@@ -84,17 +84,17 @@ Usage:
   clue version
 
 Commands:
-  accept     Preflight an explicitly opted-in adopter's exact candidate with
+  accept     Preflight an adopter's exact candidate under local policy with
              --check, or let a human confirm a local acceptance merge. Requires
-             committed .clue/acceptance.yaml on the base and candidate, a clean
+             matching effective local policy on the base and candidate, a clean
              integration checkout and a complete brief. Never pushes. Human
              presence and verification claims remain procedural. See the
              local acceptance reference in clue-delta for setup and recovery.
 
   init       Materialize the Cliewen convention under path (default "."):
-             fresh adoption selects local human acceptance; --acceptance=pr
-             actively selects PR acceptance. Existing adoption retains PR
-             without a policy, and existing policy is never overwritten.
+             local human acceptance is the default; --acceptance=pr
+             actively selects PR acceptance. Without a policy, acceptance is
+             local on main. Existing explicit policy is never overwritten.
              the docs/ taxonomy, AGENTS.md routing hub, agent skills
              (.agents/skills + .claude/skills mirror), and a CI workflow
              template. Idempotent: existing files are never overwritten

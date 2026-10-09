@@ -11,7 +11,7 @@ binds: adopter
 
 # PDR-067 — Local human acceptance
 
-> **Default refined by [PDR-068](PDR-068-local-default-preserves-existing-policy.md):** new adoption selects local, explicit PR is supported, and migration preserves each existing repository's accepted workflow. The earlier opt-in default below is superseded.
+> **Default refined by [PDR-069](PDR-069-local-acceptance-is-the-default.md):** missing policy means local acceptance on main; PR requires an explicit choice. The earlier opt-in default below is superseded.
 
 ## Context
 

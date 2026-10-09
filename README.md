@@ -5,7 +5,7 @@ title: Cliewen
 
 # Cliewen
 
-New adoption defaults to [local human acceptance](https://cliewen.dev/acceptance), which records the exact candidate and brief in a local merge commit. Choose PR acceptance with `clue init --acceptance=pr`. Existing repositories keep their accepted workflow when upgrading. The ID ledger and Git coordination work with either mechanism.
+Acceptance defaults to [local human acceptance](https://cliewen.dev/acceptance), which records the exact candidate and brief in a local merge commit. Choose PR acceptance with `clue init --acceptance=pr`. Without `.clue/acceptance.yaml`, acceptance is local on `main`; existing explicit policy is preserved. The ID ledger and Git coordination work with either mechanism.
 
 > Evidence-backed Intent Engineering for coding agents.
 

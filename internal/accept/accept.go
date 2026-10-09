@@ -116,12 +116,9 @@ func loadConfig(root string) (config, error) {
 	if r == role.Source {
 		return c, fmt.Errorf("source repositories require PR acceptance")
 	}
-	c, present, err := acceptpolicy.Load(root)
+	c, _, err = acceptpolicy.Load(root)
 	if err != nil {
 		return c, err
-	}
-	if !present {
-		return c, fmt.Errorf("legacy repository without %s retains PR acceptance; initialize or migrate its policy before local acceptance", ConfigPath)
 	}
 	if c.Mode != acceptpolicy.Local {
 		return c, fmt.Errorf("PR acceptance is selected; clue accept performs local acceptance only")
@@ -147,7 +144,7 @@ func Check(r Request) (*Candidate, error) {
 	if err = p.cleanBase(); err != nil {
 		return nil, err
 	}
-	// Load opt-in from the accepted commit, never ignored or assume-unchanged
+	// Resolve policy from the accepted commit, never ignored or assume-unchanged
 	// working files. An unaccepted candidate cannot authorize itself.
 	baseSnapshot, err := os.MkdirTemp("", "clue-accept-base-")
 	if err != nil {

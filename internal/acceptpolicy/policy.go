@@ -6,7 +6,6 @@ import (
 	"bytes"
 	"fmt"
 	"io"
-	"io/fs"
 	"os"
 	"path/filepath"
 	"strings"
@@ -24,11 +23,9 @@ type Policy struct {
 	Branch string `yaml:"branch"`
 }
 
-// Load preserves the historical PR convention when the policy is absent.
-// Fresh init materializes local explicitly, so absence never upgrades a repo
-// into a different acceptance workflow.
+// Load defaults to local acceptance on main when no policy is declared.
 func Load(root string) (Policy, bool, error) {
-	p := Policy{Mode: PR, Branch: "main"}
+	p := Policy{Mode: Local, Branch: "main"}
 	r, _, err := role.Load(root)
 	if err != nil {
 		return p, false, err
@@ -117,111 +114,9 @@ func SelectInit(root, requested string) (Policy, error) {
 	}
 	if requested != "" {
 		p.Mode = requested
-	} else {
-		prior, e := PreviouslyAdopted(root)
-		if e != nil {
-			return p, e
-		}
-		if !prior {
-			p.Mode = Local
-		}
 	}
 	if r == role.Source && p.Mode != PR {
 		return p, fmt.Errorf("source repositories require PR acceptance")
 	}
 	return p, nil
-}
-
-// PreviouslyAdopted is conservative: Cliewen machine state, canonical skills,
-// corpus artifacts or index markers retain PR. Ordinary Git/project files do
-// not count as adoption. Symlinked convention trees never become fresh roots.
-func PreviouslyAdopted(root string) (bool, error) {
-	for _, name := range []string{".clue/role.yaml", ".clue/id-ledger.yaml", ".clue/evidence.yaml"} {
-		if _, err := os.Lstat(filepath.Join(root, name)); err == nil {
-			return true, nil
-		} else if !os.IsNotExist(err) {
-			return false, err
-		}
-	}
-	for _, dir := range []string{".clue", ".agents/skills", ".claude/skills", "docs", "changes"} {
-		if info, err := os.Lstat(filepath.Join(root, dir)); err == nil && info.Mode()&os.ModeSymlink != 0 {
-			return true, nil
-		} else if err != nil && !os.IsNotExist(err) {
-			return false, err
-		}
-	}
-	for _, name := range []string{"clue-analysis", "clue-delta", "clue-extract", "clue-plan", "clue-upgrade", "clue-verify"} {
-		for _, file := range []string{filepath.Join(".agents/skills", name, "skill.md"), filepath.Join(".claude/skills", name, "SKILL.md")} {
-			if _, err := os.Lstat(filepath.Join(root, file)); err == nil {
-				return true, nil
-			} else if !os.IsNotExist(err) {
-				return false, err
-			}
-		}
-	}
-	for _, folder := range []string{"docs", "changes"} {
-		found := false
-		err := filepath.WalkDir(filepath.Join(root, folder), func(name string, d fs.DirEntry, err error) error {
-			if os.IsNotExist(err) {
-				return nil
-			}
-			if err != nil {
-				return err
-			}
-			if found {
-				return fs.SkipAll
-			}
-			if d.IsDir() {
-				return nil
-			}
-			if d.Type()&os.ModeSymlink != 0 {
-				found = true
-				return fs.SkipAll
-			}
-			if !strings.HasSuffix(name, ".md") {
-				return nil
-			}
-			data, e := os.ReadFile(name)
-			if e != nil {
-				return e
-			}
-			text := strings.ReplaceAll(strings.TrimPrefix(string(data), "\ufeff"), "\r\n", "\n")
-			if strings.Contains(text, "<!-- clue:index:start -->") {
-				found = true
-				return fs.SkipAll
-			}
-			if !strings.HasPrefix(text, "---\n") {
-				return nil
-			}
-			header, _, ok := strings.Cut(text[4:], "\n---")
-			if !ok {
-				return nil
-			}
-			var meta map[string]any
-			if yaml.Unmarshal([]byte(header), &meta) != nil {
-				// Malformed Cliewen-shaped data is ambiguous, never fresh.
-				found = true
-				for _, key := range []string{"id:", "type:", "status:", "links:", "title:"} {
-					found = found && strings.Contains(header, key)
-				}
-			} else {
-				found = true
-				for _, key := range []string{"id", "type", "status", "links", "title"} {
-					_, ok := meta[key]
-					found = found && ok
-				}
-			}
-			if found {
-				return fs.SkipAll
-			}
-			return nil
-		})
-		if err != nil {
-			return false, err
-		}
-		if found {
-			return true, nil
-		}
-	}
-	return false, nil
 }
