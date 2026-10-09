@@ -2,7 +2,7 @@
 
 This boundary governs a tracked route the user chose. Direct work instead follows explicit user integration authority and repository policy: route selection alone never authorizes a push, an agent pushes directly to an integration branch only when the user explicitly authorizes it and permissions allow it, and a repository may impose stricter rules.
 
-Resolve acceptance from `.clue/acceptance.yaml` on the accepted base. Without the file, acceptance is local on `main`, regardless of prior adoption. `clue init` materializes that default; `clue init --acceptance=pr` actively selects PR. Follow the effective policy without asking again for each change. Base and candidate must resolve to the same local policy; an absent file and an explicit local/main file are equivalent. Source repositories explicitly select PR and remain PR-only. A policy change is a human decision under the accepted workflow; a candidate cannot override accepted PR policy to accept itself locally. Init preserves existing explicit choices, and migration never creates acceptance policy. Identity allocation and coordination remain unchanged.
+Resolve acceptance from `.clue/acceptance.yaml` on the accepted base. Without the file, acceptance is local on `main`, regardless of prior adoption. `clue init` materializes that default; `clue init --acceptance=pr` actively selects PR. Follow the effective policy without asking again for each change. Base and candidate must resolve to the same local policy; an absent file and an explicit local/main file are equivalent. Repository role does not select an acceptance mechanism; source and adopter repositories follow the same policy. A policy change is a human decision under the accepted workflow; a candidate cannot override accepted PR policy to accept itself locally. Init preserves existing explicit choices, and migration never creates acceptance policy. Identity allocation and coordination remain unchanged.
 
 ### Local acceptance
 
@@ -18,7 +18,7 @@ Cancellation and preflight failures do not integrate. Regenerate the brief and r
 
 ### Pull-request acceptance
 
-The remainder governs selected PR acceptance, including Cliewen's own source repository.
+The remainder applies when the accepted policy selects PR.
 
 Every tracked change branches from the current tip of `main`, never from unaccepted work. Each initiating author takes one tracked Cliewen change to its ready PR before starting another; independent authors may work in parallel from `main`, and direct work does not consume this slot. Reviewing or helping update an existing PR does not mint another change or create a global lock. If work must build on an unmerged change, record a blocking open question and stop unless the human explicitly authorizes it. Keep its answered question committed until digest, naming the unmerged base, the authorization, and the meaning the dependent merge would bind; repeat the same disclosure in the ready acceptance brief. That record does not make the base accepted or permit an agent to merge either change. When accepted `main` advances while the change is open, incorporate it by merging `main` into the change branch with a normal push, never by rewriting hosted history, then repeat verification and review.
 

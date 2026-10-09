@@ -10,7 +10,7 @@ enforcement: partial
 
 # C-012 — Tracked changes are human-accepted and direct integration is user-authorized
 
-**Local acceptance refinement:** [PDR-067](../decisions/PDR-067-local-human-acceptance.md) adds an explicitly selected local mechanism for adopters. Its human-run command replaces the PR-specific publication and readiness mechanics below; the agent still never accepts its own tracked change. This source repository retains every PR requirement below. Identity allocation and coordination remain independent.
+**Local acceptance refinement:** [PDR-067](../decisions/PDR-067-local-human-acceptance.md) adds an explicitly selected local mechanism for adopters. Its human-run command replaces the PR-specific publication and readiness mechanics below; the agent still never accepts its own tracked change. PDR-070 selects local acceptance for this source repository. PR-specific requirements below apply only when the accepted policy selects PR; local work follows the generated local review boundary. Identity allocation and coordination remain independent.
 
 Every tracked change branches from the current tip of `main`, never from unaccepted work. An initiating author holds one tracked Cliewen change in flight at a time; reviewing or helping update an existing pull request does not mint another change or create a global lock. An agent never accepts its own tracked change: the human-controlled merge commit is the acceptance act, and squash and rebase-and-merge do not preserve the reviewed proposal, implementation, and digest chain.
 

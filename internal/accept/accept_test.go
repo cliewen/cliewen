@@ -310,7 +310,7 @@ func TestAC220_IntegrationNegative_UnsafeOrChangedState(t *testing.T) {
 	}
 }
 
-func TestAC228_IntegrationPositive_AllocationAndProceduralBoundary(t *testing.T) {
+func TestAC230_IntegrationPositive_AllocationAndProceduralBoundary(t *testing.T) {
 	r := fixture(t, func(root string) {
 		write(t, root, ".clue/id-ledger.yaml", "version: 2\nevents: []\n")
 		write(t, root, ".clue/id-coordination.yaml", "mode: git\nremote: origin\n")
@@ -336,8 +336,8 @@ func TestAC228_IntegrationPositive_AllocationAndProceduralBoundary(t *testing.T)
 	}
 }
 
-func TestAC228_IntegrationNegative_ChangedPolicyAndSourceCannotAcceptLocally(t *testing.T) {
-	for _, name := range []string{"candidate-mode", "candidate-branch", "source", "accepted-pr"} {
+func TestAC230_IntegrationNegative_ChangedPolicyCannotAcceptLocally(t *testing.T) {
+	for _, name := range []string{"candidate-mode", "candidate-branch", "accepted-pr"} {
 		t.Run(name, func(t *testing.T) {
 			r := fixture(t, func(root string) {
 				switch name {
@@ -345,8 +345,6 @@ func TestAC228_IntegrationNegative_ChangedPolicyAndSourceCannotAcceptLocally(t *
 					write(t, root, ConfigPath, "mode: pr\nbranch: main\n")
 				case "candidate-branch":
 					write(t, root, ConfigPath, "mode: local\nbranch: other\n")
-				case "source":
-					write(t, root, ".clue/role.yaml", "role: source\n")
 				}
 			})
 			if name == "accepted-pr" {
@@ -370,7 +368,7 @@ func TestAC228_IntegrationNegative_ChangedPolicyAndSourceCannotAcceptLocally(t *
 	}
 }
 
-func TestAC228_IntegrationPositive_MissingPolicyAcceptsLocally(t *testing.T) {
+func TestAC230_IntegrationPositive_MissingPolicyAcceptsLocally(t *testing.T) {
 	for _, explicitCandidate := range []bool{false, true} {
 		r := fixture(t, nil)
 		mustGit(t, r.Root, "rm", ConfigPath)
@@ -393,5 +391,25 @@ func TestAC228_IntegrationPositive_MissingPolicyAcceptsLocally(t *testing.T) {
 		if _, err = p.Confirm(strings.NewReader("accept CH-001\n"), io.Discard, true); err != nil {
 			t.Fatal(err)
 		}
+	}
+}
+
+func TestAC230_IntegrationPositive_SourceUsesLocalAcceptance(t *testing.T) {
+	r := fixture(t, nil)
+	write(t, r.Root, ".clue/role.yaml", "role: source\n")
+	mustGit(t, r.Root, "add", ".clue/role.yaml")
+	mustGit(t, r.Root, "commit", "-m", "Declare source role with local policy")
+	r.Base = mustGit(t, r.Root, "rev-parse", "HEAD")
+	mustGit(t, r.Root, "switch", "change")
+	mustGit(t, r.Root, "merge", "--no-edit", "main")
+	r.Candidate = mustGit(t, r.Root, "rev-parse", "HEAD")
+	mustGit(t, r.Root, "switch", "main")
+	writeBrief(t, r)
+	p, err := Check(r)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err = p.Confirm(strings.NewReader("accept CH-001\n"), io.Discard, true); err != nil {
+		t.Fatal(err)
 	}
 }

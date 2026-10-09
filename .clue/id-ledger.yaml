@@ -1035,5 +1035,13 @@ events:
     - {id: AC-224, kind: numeric, state: retired, prefix: AC, component: "224"}
     - {id: AC-225, kind: numeric, state: retired, prefix: AC, component: "225"}
     - {id: AC-226, kind: numeric, state: retired, prefix: AC, component: "226"}
+    - {id: PDR-070, kind: numeric, state: reserved, prefix: PDR, component: "70"}
+    - {id: AC-230, kind: numeric, state: reserved, prefix: AC, component: "230"}
+    - {id: AC-231, kind: numeric, state: reserved, prefix: AC, component: "231"}
+    - {id: PDR-070, kind: numeric, state: live, prefix: PDR, component: "70"}
+    - {id: AC-230, kind: numeric, state: live, prefix: AC, component: "230"}
+    - {id: AC-231, kind: numeric, state: live, prefix: AC, component: "231"}
+    - {id: AC-228, kind: numeric, state: retired, prefix: AC, component: "228"}
+    - {id: AC-229, kind: numeric, state: retired, prefix: AC, component: "229"}
 high-water:
     - {id: CH-183, kind: numeric, state: reserved, prefix: CH, component: "183"}

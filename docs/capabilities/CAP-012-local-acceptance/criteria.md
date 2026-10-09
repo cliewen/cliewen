@@ -62,23 +62,31 @@ Scenario: Missing policy defaults to local regardless of adoption history
   And existing explicit local and PR policies remain byte-identical
   And preview writes nothing and malformed policy blocks apply
 
-@AC-228
+@AC-228 @retired
 Scenario: Effective local policy is independent of identity allocation
+  # Retired by PDR-070; superseded by AC-230.
+
+@AC-229 @retired
+Scenario: Shared strict policy parsing uses the local default
+  # Retired by PDR-070; superseded by AC-231.
+
+@AC-230
+Scenario: Effective local policy works independently of repository role and identity allocation
   Test-type: Integration
-  Given base and candidate with equivalent effective local policies
+  Given base and candidate with equivalent effective local policies in an adopter or source repository
   When a human requests local acceptance
   Then absent policy defaults to local on main and explicit local/main is equivalent
-  And differing policies or source repositories are refused
+  And differing policies or an accepted PR policy are refused
   And acceptance leaves the ID ledger and coordination configuration unchanged
   And confirmation states the procedural limits of human presence and verification claims
 
-@AC-229
-Scenario: Shared strict policy parsing uses the local default
+@AC-231
+Scenario: Shared strict policy parsing is independent of repository role
   Test-type: Unit
   Given acceptance configuration consumed by init, migration or local acceptance
-  When its policy is read
+  When its policy is read in an adopter or source repository
   Then absence means local acceptance on main
   And an explicit file requires local or pr with a valid explicit branch
   And malformed data, unknown fields and multiple YAML documents are refused
-  And explicit source policy permits PR only
+  And init supports the local default and explicit local or PR in either role
 ```

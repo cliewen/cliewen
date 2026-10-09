@@ -26,7 +26,7 @@ type Policy struct {
 // Load defaults to local acceptance on main when no policy is declared.
 func Load(root string) (Policy, bool, error) {
 	p := Policy{Mode: Local, Branch: "main"}
-	r, _, err := role.Load(root)
+	_, _, err := role.Load(root)
 	if err != nil {
 		return p, false, err
 	}
@@ -52,9 +52,6 @@ func Load(root string) (Policy, bool, error) {
 	}
 	if err = Validate(p); err != nil {
 		return p, true, err
-	}
-	if r == role.Source && p.Mode != PR {
-		return p, true, fmt.Errorf("source repositories require explicit PR acceptance")
 	}
 	return p, true, nil
 }
@@ -108,15 +105,8 @@ func SelectInit(root, requested string) (Policy, error) {
 		}
 		return p, nil
 	}
-	r, _, err := role.Load(root)
-	if err != nil {
-		return p, err
-	}
 	if requested != "" {
 		p.Mode = requested
-	}
-	if r == role.Source && p.Mode != PR {
-		return p, fmt.Errorf("source repositories require PR acceptance")
 	}
 	return p, nil
 }

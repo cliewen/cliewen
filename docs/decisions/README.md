@@ -169,4 +169,5 @@ The CLI reports inferred ADRs, PDRs, and IDRs as decisions awaiting verification
 - [PDR-067 — Adopters may explicitly select human-controlled local acceptance](PDR-067-local-human-acceptance.md) · `inferred` — A PR provides a hosted review and admission boundary, but requiring a forge excludes repositories that can retain the same proposal history and explicitly accept a reviewed branch locally.
 - [PDR-068 — New adoption defaults to local acceptance and existing policy is preserved](PDR-068-local-default-preserves-existing-policy.md) · `inferred` — Requiring each new adopter to opt into local acceptance adds a setup decision before its first change.
 - [PDR-069-local-acceptance-is-the-default](PDR-069-local-acceptance-is-the-default.md)
+- [PDR-070 — Source repositories follow acceptance policy and Cliewen uses local acceptance](PDR-070-source-repository-uses-local-acceptance.md) · `inferred` — The owner selected local acceptance for Cliewen itself.
 <!-- clue:index:end -->

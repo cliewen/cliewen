@@ -13,6 +13,8 @@ binds: adopter
 
 > **Default refined by [PDR-069](PDR-069-local-acceptance-is-the-default.md):** missing policy means local acceptance on main; PR requires an explicit choice. The earlier opt-in default below is superseded.
 
+PDR-070 supersedes the source-only PR restriction in this record and selects local acceptance for Cliewen's source repository.
+
 ## Context
 
 A PR provides a hosted review and admission boundary, but requiring a forge excludes repositories that can retain the same proposal history and explicitly accept a reviewed branch locally. Identity allocation and acceptance are independent concerns.
