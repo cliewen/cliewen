@@ -2285,6 +2285,11 @@ claims:
       state: reserved
       prefix: CH
       component: "205"
+    - id: CH-206
+      kind: numeric
+      state: reserved
+      prefix: CH
+      component: "206"
     - id: G-001
       kind: numeric
       state: reserved
@@ -3511,11 +3516,11 @@ high-water:
       state: reserved
       prefix: ADR
       component: "71"
-    - id: AN-037
+    - id: AN-038
       kind: numeric
       state: reserved
       prefix: AN
-      component: "37"
+      component: "38"
     - id: ARCH-003
       kind: numeric
       state: reserved
