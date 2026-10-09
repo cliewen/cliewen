@@ -70,10 +70,15 @@ Feature: Collaborative pull-request handoffs
     And the upstream workflow still owns scope detection, the armed warning, the acceptance-brief gate, and the "clue validate --forbid-changes" step
     And the branch-protection probe can identify the same stable "validate" check
 
-  @AC-131
+  @AC-131 @retired
+  Scenario: Every tracked workflow publishes continuously
+    # Retired by CH-204: PDR-067 permits local acceptance without hosted publication.
+    # AC-222 retains the PR-mode obligation; CAP-012 covers local acceptance.
+
+  @AC-222
   Scenario: Work is continuously published and readiness is a separate explicit act
     Test-type: Human
-    Given an agent works on a Cliewen change
+    Given an agent works on a Cliewen change using PR acceptance
     When any working turn changes something
     Then that turn ends by committing and pushing the change branch, whatever state the work is in
     And the pull request exists as a draft from first publication, so unfinished work is visible and unmergeable rather than parked in a local worktree

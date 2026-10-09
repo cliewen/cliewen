@@ -10,6 +10,8 @@ accepted-by: Flemming N. Larsen (2026-09-02, conversation)
 
 # PDR-040 — Push is durability, ready is the explicit act
 
+> **Local acceptance refinement:** [PDR-067](PDR-067-local-human-acceptance.md) adds an explicitly opted-in local mechanism for adopters. The PR-specific mechanics below govern the default workflow and this source repository; local preparation retains proposal, digest, evidence, exact-commit review, and a human-controlled merge with the complete brief in Git history.
+
 > **Scope amended by [PDR-042](PDR-042-routing-recommends-contract-aware-effort.md):** automatic branch publication and the ready mark govern a tracked route the user chose; a direct route supplies no push authority by itself.
 
 ## Context and problem statement

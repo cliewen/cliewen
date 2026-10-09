@@ -71,6 +71,7 @@ Usage:
   clue scaffold [path]
   clue context [--depth=<n>|all] [--stats] <id> [path]
   clue next [--all] [path]
+  clue accept <candidate-sha> --base <base-sha> --brief <file> [--check]
   clue id coordinate [--remote=<name>] [--force] [--timeout=<duration>] [path]
   clue id next [--count=<n>] [--remote=<name>] [--timeout=<duration>] <prefix> [path]
   clue id sync [--remote=<name>] [--timeout=<duration>] [path]
@@ -83,6 +84,13 @@ Usage:
   clue version
 
 Commands:
+  accept     Preflight an explicitly opted-in adopter's exact candidate with
+             --check, or let a human confirm a local acceptance merge. Requires
+             committed .clue/acceptance.yaml on the base and candidate, a clean
+             integration checkout and a complete brief. Never pushes. Human
+             presence and verification claims remain procedural. See the
+             local acceptance reference in clue-delta for setup and recovery.
+
   init       Materialize the Cliewen convention under path (default "."):
              the docs/ taxonomy, AGENTS.md routing hub, agent skills
              (.agents/skills + .claude/skills mirror), and a CI workflow
@@ -275,6 +283,8 @@ func main() {
 // inside its own case leaves no such place.
 func run(command string, args []string) int {
 	switch command {
+	case "accept":
+		return runAccept(args, os.Stdin, os.Stdout, os.Stderr, interactiveInput())
 	case "init":
 		return runInit(args, os.Stdout, os.Stderr)
 	case "scaffold":

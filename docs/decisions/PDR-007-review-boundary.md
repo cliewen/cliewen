@@ -10,6 +10,8 @@ accepted-by: Flemming N. Larsen (2026-07-18, PR #20 review conversation)
 
 # PDR-007 — The PR is the authorization boundary
 
+> **Local acceptance refinement:** [PDR-067](PDR-067-local-human-acceptance.md) adds an explicitly opted-in local mechanism for adopters. The PR-specific mechanics below govern the default workflow and this source repository; local preparation retains proposal, digest, evidence, exact-commit review, and a human-controlled merge with the complete brief in Git history.
+
 > **Scope amended by [PDR-042](PDR-042-routing-recommends-contract-aware-effort.md):** this boundary governs a chosen tracked route; direct integration follows explicit user authority and repository policy.
 
 > **Amended by [PDR-040](PDR-040-push-is-durability-ready-is-explicit.md) and [PDR-039](PDR-039-dependent-changes-carry-authorization.md):** a tracked change is published as a draft from its first commit, readiness follows current-head review, and any authorized dependent base is disclosed without becoming accepted.

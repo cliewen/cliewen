@@ -7,7 +7,7 @@ title: What is Cliewen?
 
 Cliewen is a methodology and command-line tool for teams that build software with coding agents. It keeps intent, implementation, and evidence connected. Its name comes from the Old English word for a ball of thread, which became *clue*.
 
-The central idea is that the documentation describes the system as it exists now, rather than piling up past change requests. The vision says what the product is for. A goal says who needs an outcome and why, a capability says what the system can do, and each active acceptance criterion names the evidence that proves it. Machine-proven criteria use supported, classified test references. Criteria that only a person can judge use the pull request's acceptance brief. The `clue` command checks that this thread is intact.
+The central idea is that the documentation describes the system as it exists now, rather than piling up past change requests. The vision says what the product is for. A goal says who needs an outcome and why, a capability says what the system can do, and each active acceptance criterion names the evidence that proves it. Machine-proven criteria use supported, classified test references. Criteria that only a person can judge use the acceptance brief. The `clue` command checks that this thread is intact.
 
 ```mermaid
 graph TD
@@ -48,7 +48,7 @@ Coding agents can produce changes faster than people can review them. That moves
 Before it edits anything, a Cliewen agent asks whether the work changes a promise the repository has already made, and recommends a route from the answer. The *direct* route, the default, is for work that keeps every promise, such as a bug fix or a refactoring. The *tracked* route is for work that changes a promise, such as a new acceptance criterion. You choose, and your repository's own rules decide how work gets integrated. For tracked work, Cliewen separates what a machine can check from what a person must judge:
 
 - The corpus under `/docs` is the system of record.
-- A branch is a proposal. The pull request is where authorization happens: the agent may publish a tracked change, but it cannot accept that change into `main`.
+- A branch is a proposal. In the default workflow, the pull request is where authorization happens. An explicitly opted-in adopter may use [local acceptance](./local-acceptance). In either workflow, the agent may publish a tracked change, but it cannot accept that change into `main`.
 - While the work is in progress, a tracked change keeps its proposal in a temporary `/changes/CH-xxx-*` folder. Before merge, the agent folds what it means into `/docs` and deletes the folder.
 - The `clue` CLI checks structure, links, and acceptance-evidence traceability without executing tests.
 - A human accepts a tracked change by merging it. That person does not have to repeat a code review the agent already completed. Direct work is integrated only with your explicit permission and within what the repository allows.
@@ -84,7 +84,7 @@ Cliewen is not an issue tracker, a project-management service, or a way to remov
 
 ::: details The exact evidence rules — the reference your agent needs, not your first read
 
-Canonical criterion IDs use `<PREFIX>-<digits>[lowercase-suffix]`, preserving brownfield identities such as `SNAP-SQS-001` and `ADP-045b`. A new or revised machine-proven criterion declares `Test-type: Unit`, `Integration`, `E2E`, or `Performance` and requires classified positive and negative executable references in `.clue/evidence.yaml`, unless it explicitly records `(single-direction)`. Each executable carries one canonical AC identity, type and direction in native metadata, executable-bound custom metadata, or a stable naming fallback. Repository-owned exporters attribute and aggregate those references across every framework. The judge checks their identities and input fingerprints without running exporters or tests. A genuine `Test-type: Human` uses the pull request acceptance brief; `@draft` exempts one not-yet-proven criterion; an unannotated legacy criterion retains one reference.
+Canonical criterion IDs use `<PREFIX>-<digits>[lowercase-suffix]`, preserving brownfield identities such as `SNAP-SQS-001` and `ADP-045b`. A new or revised machine-proven criterion declares `Test-type: Unit`, `Integration`, `E2E`, or `Performance` and requires classified positive and negative executable references in `.clue/evidence.yaml`, unless it explicitly records `(single-direction)`. Each executable carries one canonical AC identity, type and direction in native metadata, executable-bound custom metadata, or a stable naming fallback. Repository-owned exporters attribute and aggregate those references across every framework. The judge checks their identities and input fingerprints without running exporters or tests. A genuine `Test-type: Human` uses the acceptance brief; `@draft` exempts one not-yet-proven criterion; an unannotated legacy criterion retains one reference.
 
 :::
 

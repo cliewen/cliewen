@@ -127,8 +127,8 @@ var skillDefinitions = map[string]skillDefinition{
 		},
 	},
 	"clue-verify": {
-		description: "Verify a chosen tracked Cliewen change and run its bounded adversarial review before claiming the hosted pull request is ready.",
-		whenToUse:   "Use before marking a tracked change's pull request ready for review.",
+		description: "Verify a chosen tracked Cliewen change and run its bounded adversarial review before handing an exact candidate to the human for acceptance.",
+		whenToUse:   "Use before a tracked change's PR readiness or local acceptance handoff.",
 		routes: []skillRoute{
 			{heading: "Evidence workflow", file: "evidence-workflow.md", condition: "Before writing, migrating, exporting or verifying executable acceptance evidence"},
 			{heading: "Change routing", file: "change-scope-and-tiers.md", condition: "Before confirming that tracked-route verification applies"},

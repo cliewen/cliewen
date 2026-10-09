@@ -4,14 +4,14 @@ version: 0.28.0
 type: skill
 title: clue-verify
 name: clue-verify
-description: Verify a chosen tracked Cliewen change and run its bounded adversarial review before claiming the hosted pull request is ready. Use before marking a tracked change's pull request ready for review.
+description: Verify a chosen tracked Cliewen change and run its bounded adversarial review before handing an exact candidate to the human for acceptance. Use before a tracked change's PR readiness or local acceptance handoff.
 ---
 
 <!-- Generated from Cliewen's canonical skill sources; edit those sources, not this file. -->
 
 # clue-verify
 
-Verify a chosen tracked Cliewen change and run its bounded adversarial review before claiming the hosted pull request is ready.
+Verify a chosen tracked Cliewen change and run its bounded adversarial review before handing an exact candidate to the human for acceptance.
 
 ## Routing
 

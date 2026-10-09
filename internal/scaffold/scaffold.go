@@ -351,7 +351,7 @@ func Regen(root string) (*Report, error) {
 // init never writes through one (see linkedAncestor).
 func targetsFor(rel string) []string {
 	switch {
-	case strings.HasPrefix(rel, "evidence/"):
+	case strings.HasPrefix(rel, "evidence/"), strings.HasPrefix(rel, "acceptance/"):
 		return []string{".clue/" + rel}
 	case strings.HasPrefix(rel, "github/"):
 		return []string{"." + rel}

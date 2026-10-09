@@ -5,6 +5,8 @@ title: Planning workflow
 
 ## Planning workflow
 
+Follow the acceptance mechanism selected under `clue-delta`'s review boundary. References below to a branch and PR use its local acceptance handoff for an explicitly opted-in adopter; planning and human acceptance obligations remain the same.
+
 Use when creating a plan or changing what a plan promises.
 
 1. Before planning anything, check what direction the corpus states: run `clue validate --intent`. A plan whose goals serve no stated vision is not blocked, but a repository that has never stated one is the moment to offer [Intent discovery](intent-discovery.md), and a plan that contradicts an active vision is a conflict to raise rather than to plan around.

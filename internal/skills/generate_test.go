@@ -404,8 +404,16 @@ func TestSanity_ClaudeMirrorLinksEveryGeneratedSkill(t *testing.T) {
 				t.Errorf(".claude/skills/%s/%s points at %s, want %s", name, link, target, want)
 			}
 		}
-		if _, err := os.Lstat(filepath.Join(mirror, name, "skill.md")); err == nil {
-			t.Errorf(".claude/skills/%s carries a lower-case skill.md beside SKILL.md", name)
+		// Inspect stored spelling: Lstat("skill.md") also finds SKILL.md on
+		// Windows, where that is the correct sole entry, not a duplicate.
+		mirrorEntries, err := os.ReadDir(filepath.Join(mirror, name))
+		if err != nil {
+			t.Fatal(err)
+		}
+		for _, entry := range mirrorEntries {
+			if entry.Name() == "skill.md" {
+				t.Errorf(".claude/skills/%s carries a lower-case skill.md beside SKILL.md", name)
+			}
 		}
 	}
 	entries, err := os.ReadDir(mirror)
@@ -482,7 +490,7 @@ func TestAC054_UnitPositive_ExtractionSupportsCriterionLevelPhasing(t *testing.T
 	for _, want := range []string{
 		"Whole-file draft phasing remains available",
 		"tag each genuinely not-yet-proven criterion `@draft`",
-		"`Test-type: Human` criterion is already proven by naming it in the pull request acceptance brief",
+		"`Test-type: Human` criterion is already proven by naming it in the acceptance brief",
 		"exported executable evidence",
 		"A capability is therefore not the smallest activation unit",
 	} {
