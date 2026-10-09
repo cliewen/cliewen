@@ -431,7 +431,7 @@ producers:
       - path: docs/decisions/PDR-018-behavior-changes-remain-full.md
         sha256: 9521776a1444a7897627b6696695c197a6308fa0188d3292e70d7042470d2dc2
       - path: docs/decisions/PDR-019-methodology-contract-carriers-move-together.md
-        sha256: 6740d7b8e42644e9514bb9ea73a30e1c62ad22cc6b0055bbcb107c06bd218979
+        sha256: 3642327cb35bb884f86a4381a545135c7887a19f8764c37d4fb35e4b05ff968a
       - path: docs/decisions/PDR-020-extraction-rehearsal-before-mutation.md
         sha256: f524d455eddf026f3cacaeccb46d195835a38cdb30d494dd7f4c841dde941d81
       - path: docs/decisions/PDR-021-supported-merge-commit-history.md
@@ -769,7 +769,7 @@ producers:
       - path: internal/scaffold/wallchecklist_test.go
         sha256: 6c1c2f1bfe990ff5bc7bf25647495a413f97af3d2b0e3c875bac35b19cec8a8a
       - path: internal/skills/generate_test.go
-        sha256: bce8c9079733a8387df93aab733193e5f604fc7843f5d2093a7808ef33133777
+        sha256: 435281d27426f9a12abf8b2cef912f3ba870d464a55717205bebd81f5dc2eab8
       - path: tools/export-evidence/main.go
         sha256: 16d6ac0cbfe2a86d7460a8c4dfb62175c89467d95bb1743587f87467f771a039
       - path: tools/scenario-trials/agent_test.go

@@ -490,7 +490,7 @@ func TestAC054_UnitPositive_ExtractionSupportsCriterionLevelPhasing(t *testing.T
 	for _, want := range []string{
 		"Whole-file draft phasing remains available",
 		"tag each genuinely not-yet-proven criterion `@draft`",
-		"`Test-type: Human` criterion is already proven by naming it in the pull request acceptance brief",
+		"`Test-type: Human` criterion is already proven by naming it in the acceptance brief",
 		"exported executable evidence",
 		"A capability is therefore not the smallest activation unit",
 	} {
