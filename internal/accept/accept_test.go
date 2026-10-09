@@ -310,7 +310,7 @@ func TestAC220_IntegrationNegative_UnsafeOrChangedState(t *testing.T) {
 	}
 }
 
-func TestAC225_IntegrationPositive_AllocationAndProceduralBoundary(t *testing.T) {
+func TestAC230_IntegrationPositive_AllocationAndProceduralBoundary(t *testing.T) {
 	r := fixture(t, func(root string) {
 		write(t, root, ".clue/id-ledger.yaml", "version: 2\nevents: []\n")
 		write(t, root, ".clue/id-coordination.yaml", "mode: git\nremote: origin\n")
@@ -336,8 +336,8 @@ func TestAC225_IntegrationPositive_AllocationAndProceduralBoundary(t *testing.T)
 	}
 }
 
-func TestAC225_IntegrationNegative_DefaultAndSourceCannotAcceptLocally(t *testing.T) {
-	for _, name := range []string{"candidate-mode", "candidate-branch", "source", "no-opt-in", "candidate-only-opt-in"} {
+func TestAC230_IntegrationNegative_ChangedPolicyCannotAcceptLocally(t *testing.T) {
+	for _, name := range []string{"candidate-mode", "candidate-branch", "accepted-pr"} {
 		t.Run(name, func(t *testing.T) {
 			r := fixture(t, func(root string) {
 				switch name {
@@ -345,21 +345,18 @@ func TestAC225_IntegrationNegative_DefaultAndSourceCannotAcceptLocally(t *testin
 					write(t, root, ConfigPath, "mode: pr\nbranch: main\n")
 				case "candidate-branch":
 					write(t, root, ConfigPath, "mode: local\nbranch: other\n")
-				case "source":
-					write(t, root, ".clue/role.yaml", "role: source\n")
 				}
 			})
-			if name == "no-opt-in" || name == "candidate-only-opt-in" {
-				mustGit(t, r.Root, "rm", ConfigPath)
-				mustGit(t, r.Root, "commit", "-m", "Remove opt-in")
+			if name == "accepted-pr" {
+				write(t, r.Root, ConfigPath, "mode: pr\nbranch: main\n")
+				mustGit(t, r.Root, "add", ConfigPath)
+				mustGit(t, r.Root, "commit", "-m", "Require PR acceptance")
 				r.Base = mustGit(t, r.Root, "rev-parse", "HEAD")
 				mustGit(t, r.Root, "switch", "change")
 				mustGit(t, r.Root, "merge", "--no-edit", "main")
-				if name == "candidate-only-opt-in" {
-					write(t, r.Root, ConfigPath, "mode: local\nbranch: main\n")
-					mustGit(t, r.Root, "add", ConfigPath)
-					mustGit(t, r.Root, "commit", "-m", "Unaccepted opt-in")
-				}
+				write(t, r.Root, ConfigPath, "mode: local\nbranch: main\n")
+				mustGit(t, r.Root, "add", ConfigPath)
+				mustGit(t, r.Root, "commit", "-m", "Unaccepted local policy")
 				r.Candidate = mustGit(t, r.Root, "rev-parse", "HEAD")
 				mustGit(t, r.Root, "switch", "main")
 				writeBrief(t, r)
@@ -368,5 +365,51 @@ func TestAC225_IntegrationNegative_DefaultAndSourceCannotAcceptLocally(t *testin
 				t.Fatal("unsupported local acceptance passed")
 			}
 		})
+	}
+}
+
+func TestAC230_IntegrationPositive_MissingPolicyAcceptsLocally(t *testing.T) {
+	for _, explicitCandidate := range []bool{false, true} {
+		r := fixture(t, nil)
+		mustGit(t, r.Root, "rm", ConfigPath)
+		mustGit(t, r.Root, "commit", "-m", "Use default local acceptance")
+		r.Base = mustGit(t, r.Root, "rev-parse", "HEAD")
+		mustGit(t, r.Root, "switch", "change")
+		mustGit(t, r.Root, "merge", "--no-edit", "main")
+		if explicitCandidate {
+			write(t, r.Root, ConfigPath, "mode: local\nbranch: main\n")
+			mustGit(t, r.Root, "add", ConfigPath)
+			mustGit(t, r.Root, "commit", "-m", "Record unchanged local policy")
+		}
+		r.Candidate = mustGit(t, r.Root, "rev-parse", "HEAD")
+		mustGit(t, r.Root, "switch", "main")
+		writeBrief(t, r)
+		p, err := Check(r)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if _, err = p.Confirm(strings.NewReader("accept CH-001\n"), io.Discard, true); err != nil {
+			t.Fatal(err)
+		}
+	}
+}
+
+func TestAC230_IntegrationPositive_SourceUsesLocalAcceptance(t *testing.T) {
+	r := fixture(t, nil)
+	write(t, r.Root, ".clue/role.yaml", "role: source\n")
+	mustGit(t, r.Root, "add", ".clue/role.yaml")
+	mustGit(t, r.Root, "commit", "-m", "Declare source role with local policy")
+	r.Base = mustGit(t, r.Root, "rev-parse", "HEAD")
+	mustGit(t, r.Root, "switch", "change")
+	mustGit(t, r.Root, "merge", "--no-edit", "main")
+	r.Candidate = mustGit(t, r.Root, "rev-parse", "HEAD")
+	mustGit(t, r.Root, "switch", "main")
+	writeBrief(t, r)
+	p, err := Check(r)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err = p.Confirm(strings.NewReader("accept CH-001\n"), io.Discard, true); err != nil {
+		t.Fatal(err)
 	}
 }

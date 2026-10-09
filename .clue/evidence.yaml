@@ -121,11 +121,11 @@ producers:
       - path: docs/analysis/README.md
         sha256: 960766b8473c930df77c6f1e72bbde945bf93f08433a7e047fa8763fd2cbf192
       - path: docs/architecture/README.md
-        sha256: be50380113170dbbc5abab4ffb4a427a1a527e4b17a8530975c96df9e09d752c
+        sha256: 9c726f2a7afa62995387b2f4a9891b8ca76d2ae0c8bb59389308e45dbf5fcd21
       - path: docs/architecture/architecture.md
-        sha256: 78aaee0c4689f164dcf06adb7642526457355bc9a745f106f7bcd3eacbdb47ae
+        sha256: 3e61c0eae3cc1d76e5b85d2d1e2d087702486a7c925aee3799f0752e1226ff93
       - path: docs/architecture/core.md
-        sha256: 6cf5abbd214cf9184aaa73e8d6b5545d6eb678edb8222de8a9d2466f9c579a93
+        sha256: 7d792413dab0a390d065cba0634cf2f3358b31ef0912a4d48943bfd5188f5689
       - path: docs/architecture/skills.md
         sha256: ca45930e5d3f2d60c87fd1d25204e0b94f1b9db5c4e45f418c31557590331858
       - path: docs/capabilities/CAP-001-onboarding/README.md
@@ -151,7 +151,7 @@ producers:
       - path: docs/capabilities/CAP-004-ship/criteria.md
         sha256: 213f128b287176a5cce40e8138ca0fca2a4db71fe67473373e1e13ce72c02e15
       - path: docs/capabilities/CAP-004-ship/design.md
-        sha256: 1a16fce04553fa243cb91c1a70fc442d9116321407af4d76a6de86a98f40d4bc
+        sha256: 09f49f4384e1134087a2fab5dd17414e3c768c839fbf300fd6420e4b7524a1c1
       - path: docs/capabilities/CAP-005-indexes/README.md
         sha256: 11193332a15b75fb1a1913ce3d299afe9861fa2baa1071550db518384b0dc3cf
       - path: docs/capabilities/CAP-005-indexes/criteria.md
@@ -189,11 +189,11 @@ producers:
       - path: docs/capabilities/CAP-010-team-safe-identity-allocation/design.md
         sha256: 6044a5556f8b74619651a6b85998a9e8d26fd036a021774b3aa3a442a55f2afa
       - path: docs/capabilities/CAP-012-local-acceptance/README.md
-        sha256: e744e8c12f5ddff70905f3de6fcc851d5301f4e9d4f4322569bc1c0ff9e5392e
+        sha256: 4269370ebdf4530221fa0b9627e70fa27b267f2b551781a248a58233f8b692c4
       - path: docs/capabilities/CAP-012-local-acceptance/criteria.md
-        sha256: 6bcae104652e07ae9c11c598c83e195e07eb3998ac6f8c47b06e4ed0a287b68b
+        sha256: 65adc915d3ad6d9458d69cef6ed2b51829ea652218e55a670ffe895e5ac470cf
       - path: docs/capabilities/CAP-012-local-acceptance/design.md
-        sha256: 1b770154db5199515ffbdd2ff6bb35518ef6c461504a3585dfbbeb55c2845595
+        sha256: 4b8f5e321bd7c2e0be408fbf77864a6f30458a9bb390fd13853b47c7bb09468b
       - path: docs/capabilities/README.md
         sha256: 56738038302283359fc43cec3c001adeaf2a7aed4d0e3f41652f699ef46cb239
       - path: docs/constraints/C-001-no-hard-wrapped-markdown.md
@@ -219,7 +219,7 @@ producers:
       - path: docs/constraints/C-011-decision-records-typed.md
         sha256: 1d355179ffb9813fab8bcc1985b67c3534bb1828386bd8aabe55e156e16eb73b
       - path: docs/constraints/C-012-agents-never-merge-own-changes.md
-        sha256: 22f48acfd0ad541eb628e1841c663ad3b39c903342cf862aabb582d3f6b0a1d2
+        sha256: a518fc59a5670f73e6b5bf0b90555f0f39bfd84a214280c3779dd4325832b02b
       - path: docs/constraints/C-013-core-changes-need-decision.md
         sha256: bec152b83c4b60081dabd011383f3eccae9acc36fc452b325de25b2062ec90eb
       - path: docs/constraints/C-014-coverage-floor.md
@@ -425,7 +425,7 @@ producers:
       - path: docs/decisions/PDR-014-distribution-reopens-on-the-active-campaign.md
         sha256: ab778712ce773449377888e65663279da4bd59cd1b7e2216a5ce5795e69869cf
       - path: docs/decisions/PDR-015-merging-cuts-the-release.md
-        sha256: d1af71bfbf0895d9d53a6bfcf3db2279f3e4ddc3a053d1d6c4289b5a076a066d
+        sha256: 4787429de6870f0ec1570585426cc226ae683fdf719736203ce2bfb54ce6e982
       - path: docs/decisions/PDR-016-pr-state-carries-agent-handoffs.md
         sha256: 9246987f79493fe5694a6fc762dec16c2a6256c5fc3067f8d940d4449d72b5b7
       - path: docs/decisions/PDR-017-merge-gate-has-content.md
@@ -527,13 +527,17 @@ producers:
       - path: docs/decisions/PDR-066-a-sole-contributors-change-proceeds-on-local-allocation.md
         sha256: f5d9f8dfd794cc4b897dfbc84fa3ea2e866dc8a8570077782d7f71d4f57bd258
       - path: docs/decisions/PDR-067-local-human-acceptance.md
-        sha256: 3838d5e14ca7d7bc1cb830fb6ee570f8aed526d145c9d169c7d830915479e775
+        sha256: 854ce5e79db17dc46487267eee53b4c84aeb3663349ea2e03af3940cc90bc27d
       - path: docs/decisions/PDR-068-local-default-preserves-existing-policy.md
-        sha256: abca2cedce74cce619446114eac2ee961bcb97f322359c0a40cf214cb4fb4123
+        sha256: 39997b75e9ed3e0af85911fff4b74273bc994bac707bfce7620594377a42636b
+      - path: docs/decisions/PDR-069-local-acceptance-is-the-default.md
+        sha256: 74273be1b67deff02819ec63b974afe269b86128f510848f8ad3cf92aad636e8
+      - path: docs/decisions/PDR-070-source-repository-uses-local-acceptance.md
+        sha256: 32be04a870952b6d532c68b0602dd64b95e03b93d0b723a1bf5b4b5b54f45a56
       - path: docs/decisions/README.md
-        sha256: 106af15a338ce56386324a00cc5dfd84d04fd7f2a1cd1744cbfcb90194ae94b8
+        sha256: c14895c31bb4f697c81cd08ab816e21960d47a6ce7c28d2628aef5f696c14391
       - path: docs/design/README.md
-        sha256: 0fdd1fea296c8ea427cfa33565eac07efae685af6b5f4b7dfa94dbba1160ec2b
+        sha256: 384ea8980d20200595d4804d1da36bedcb3b9dd670b72e1c1cd76dd0bbc918de
       - path: docs/goals/G-001-verifiable-thread.md
         sha256: 279f837d361200bdbc80997595cc33c39c477e5a0acfa6f7a66dfaed136d890a
       - path: docs/goals/G-002-versioned-clue-and-skills.md
@@ -653,9 +657,9 @@ producers:
       - path: guide/operations_test.go
         sha256: 21244d1e6e82560a431219fb2499095faed56845509bf3fb149586b1b163bddd
       - path: internal/accept/accept_test.go
-        sha256: bc415fdbcd366ee8650d896e257bbccd85f610c184fb5f465f09baad05153d06
+        sha256: 143a8a8343b276cce84711d32874864e9f05eef85b56f6fe0ab7a6988f9fef37
       - path: internal/acceptpolicy/policy_test.go
-        sha256: 5a770dd905b55a59e22a9db866505d1af34edfa25113742e945aa0d9d84ac989
+        sha256: 45ace0bc2647644cb7cc213e029f58e183985fe4252380d34a44aac4f3239f98
       - path: internal/carriers/carriers_test.go
         sha256: 1c26592f6e73d76320c87acd95bfa33644e3d4d4293b037c9705892e26daa6d8
       - path: internal/ciguards/completedplans_test.go
@@ -723,7 +727,7 @@ producers:
       - path: internal/mergehistory/mergehistory_test.go
         sha256: 051ab997a1400fd73982c8cd5d7d7bdc2921c242db25925e558b052d0fec5ff3
       - path: internal/migrate/acceptance_test.go
-        sha256: dbaa5d47acffd496ed83d9cafb61e59a66f294b436f656cd218e122bb56f9b95
+        sha256: 58bd8576eb9e751e6cd380817f8d6a1f841a063e71e45a6af6b56d65137296ab
       - path: internal/migrate/entrypoint_test.go
         sha256: 91e3d0ca5bec1a4393a4a0325eaec911b9df08251c89ca2b9b1258fdc64f33c1
       - path: internal/migrate/evidence_test.go
@@ -737,7 +741,7 @@ producers:
       - path: internal/migrate/legacy_log_test.go
         sha256: 126d199e5bace0c125e22b308a095ff529900903897e9e4a858495c290f11c09
       - path: internal/migrate/migrate_test.go
-        sha256: 1147449c2d48e2b4aa1c23dd33924f43b9971d545a0e46e5ef2a0e4f7a30c015
+        sha256: 2e2ab0d5f0a47915b3f24c9a1a02e89d2ee1c7a4da963859c530e8e6ceadd22c
       - path: internal/migrate/promoted_test.go
         sha256: bd3aeddf47f58b452fda007530035be7ae03e01588a25ea229d0887d31a1f088
       - path: internal/migrate/role_expiry_test.go
@@ -755,7 +759,7 @@ producers:
       - path: internal/role/role_test.go
         sha256: 5feb19ada5a928cf9414ebc29d8c50f618af0bbcf0a2a8a8cb882b61d37ea95b
       - path: internal/scaffold/acceptance_test.go
-        sha256: fe04342bd8ef4c3a9a0d4f8c847b2da81628656c843e933c4e5a40d15963c587
+        sha256: da65e5450f166171a87c9457790e14096a3d045adf0fc946560fdaaa4e083916
       - path: internal/scaffold/badge_test.go
         sha256: 4ac11ca9f7af8bd46ff06b5bff934b79ef825d91782bd0d2589c7d3180714f99
       - path: internal/scaffold/ciwall_test.go
@@ -767,7 +771,7 @@ producers:
       - path: internal/scaffold/regen_test.go
         sha256: f23e09a755df9f4e2c64b305d92bc06bee183f756f7afb9a366a1f43770e7929
       - path: internal/scaffold/role_test.go
-        sha256: 13e9375642c1b55d267e3331f24387d08d5ebdced8687a45eed014849b518ec1
+        sha256: 3cb547fe93b4e837f13f55637298ef8c553013103140a1dc63b0bdeb2affa16e
       - path: internal/scaffold/scaffold_entrypoint_test.go
         sha256: 443eca212097712acc4ff8b20985de75b247da66d0c7293b2c579bb70b4ee22e
       - path: internal/scaffold/scaffold_hub_test.go
@@ -1313,24 +1317,39 @@ producers:
         subject: test TestAC220_IntegrationPositive_GitCallbacksNeverExecute
         type: Integration
         direction: positive
-      - id: AC-225
+      - id: AC-230
         path: internal/accept/accept_test.go
-        subject: test TestAC225_IntegrationNegative_DefaultAndSourceCannotAcceptLocally
+        subject: test TestAC230_IntegrationNegative_ChangedPolicyCannotAcceptLocally
         type: Integration
         direction: negative
-      - id: AC-225
+      - id: AC-230
         path: internal/accept/accept_test.go
-        subject: test TestAC225_IntegrationPositive_AllocationAndProceduralBoundary
+        subject: test TestAC230_IntegrationPositive_AllocationAndProceduralBoundary
         type: Integration
         direction: positive
-      - id: AC-226
+      - id: AC-230
+        path: internal/accept/accept_test.go
+        subject: test TestAC230_IntegrationPositive_MissingPolicyAcceptsLocally
+        type: Integration
+        direction: positive
+      - id: AC-230
+        path: internal/accept/accept_test.go
+        subject: test TestAC230_IntegrationPositive_SourceUsesLocalAcceptance
+        type: Integration
+        direction: positive
+      - id: AC-231
         path: internal/acceptpolicy/policy_test.go
-        subject: test TestAC226_UnitNegative_InvalidPolicyIsNotGuessed
+        subject: test TestAC231_UnitNegative_InvalidPolicyIsNotGuessed
         type: Unit
         direction: negative
-      - id: AC-226
+      - id: AC-231
         path: internal/acceptpolicy/policy_test.go
-        subject: test TestAC226_UnitPositive_ExplicitAndLegacyPolicy
+        subject: test TestAC231_UnitPositive_ExplicitAndDefaultPolicy
+        type: Unit
+        direction: positive
+      - id: AC-231
+        path: internal/acceptpolicy/policy_test.go
+        subject: test TestAC231_UnitPositive_SourceAndAdopterSharePolicySelection
         type: Unit
         direction: positive
       - id: AC-118
@@ -2681,14 +2700,14 @@ producers:
         subject: test TestAC183_IntegrationPositive_LocalModeKeepsNoCoordinationFile
         type: Integration
         direction: positive
-      - id: AC-224
+      - id: AC-227
         path: internal/migrate/acceptance_test.go
-        subject: test TestAC224_IntegrationNegative_MalformedPolicyBlocksAllWrites
+        subject: test TestAC227_IntegrationNegative_MalformedPolicyBlocksAllWrites
         type: Integration
         direction: negative
-      - id: AC-224
+      - id: AC-227
         path: internal/migrate/acceptance_test.go
-        subject: test TestAC224_IntegrationPositive_MigrationMakesLegacyPRExplicit
+        subject: test TestAC227_IntegrationPositive_MigrationLeavesAbsentPolicyLocal
         type: Integration
         direction: positive
       - id: AC-072
@@ -3431,14 +3450,14 @@ producers:
         subject: test TestAC223_IntegrationPositive_FreshDefaultAndExplicitPR
         type: Integration
         direction: positive
-      - id: AC-224
+      - id: AC-227
         path: internal/scaffold/acceptance_test.go
-        subject: test TestAC224_IntegrationNegative_InitNeverOverwritesLocalChoice
+        subject: test TestAC227_IntegrationNegative_InitNeverOverwritesLocalChoice
         type: Integration
         direction: negative
-      - id: AC-224
+      - id: AC-227
         path: internal/scaffold/acceptance_test.go
-        subject: test TestAC224_IntegrationPositive_LegacyInitPreservesPR
+        subject: test TestAC227_IntegrationPositive_ExistingAdoptionDefaultsToLocal
         type: Integration
         direction: positive
       - id: AC-159

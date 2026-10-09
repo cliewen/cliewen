@@ -62,21 +62,21 @@ func TestAC223_IntegrationNegative_ConflictingOptionsWriteNothing(t *testing.T) 
 	}
 }
 
-func TestAC224_IntegrationPositive_LegacyInitPreservesPR(t *testing.T) {
-	for _, tc := range []struct{ path, body string }{{".clue/role.yaml", "role: adopter\n"}, {".clue/role.yaml", "role: source\n"}, {"docs/old.md", "---\nid: G-001\ntype: goal\nstatus: accepted\nlinks: []\ntitle: Legacy\n---\n"}} {
+func TestAC227_IntegrationPositive_ExistingAdoptionDefaultsToLocal(t *testing.T) {
+	for _, tc := range []struct{ path, body string }{{".clue/role.yaml", "role: adopter\n"}, {"docs/old.md", "---\nid: G-001\ntype: goal\nstatus: accepted\nlinks: []\ntitle: Legacy\n---\n"}} {
 		root := t.TempDir()
 		acceptanceFile(t, root, tc.path, tc.body)
 		if _, e := Run(root); e != nil {
 			t.Fatal(e)
 		}
 		p, _, e := acceptpolicy.Load(root)
-		if e != nil || p.Mode != "pr" {
-			t.Fatalf("legacy switched: %v %v", p, e)
+		if e != nil || p.Mode != "local" {
+			t.Fatalf("default: %v %v", p, e)
 		}
 	}
 }
 
-func TestAC224_IntegrationNegative_InitNeverOverwritesLocalChoice(t *testing.T) {
+func TestAC227_IntegrationNegative_InitNeverOverwritesLocalChoice(t *testing.T) {
 	root := t.TempDir()
 	body := "# chosen before init\nmode: local\nbranch: trunk\n"
 	acceptanceFile(t, root, acceptpolicy.Path, body)

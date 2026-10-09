@@ -15,7 +15,6 @@ import (
 	"github.com/cliewen/cliewen/internal/acceptpolicy"
 	"github.com/cliewen/cliewen/internal/corpus"
 	"github.com/cliewen/cliewen/internal/parity"
-	"github.com/cliewen/cliewen/internal/role"
 	"gopkg.in/yaml.v3"
 )
 
@@ -108,20 +107,9 @@ func parseBrief(data []byte, r Request) (Brief, error) {
 }
 
 func loadConfig(root string) (config, error) {
-	var c config
-	r, _, err := role.Load(root)
+	c, _, err := acceptpolicy.Load(root)
 	if err != nil {
 		return c, err
-	}
-	if r == role.Source {
-		return c, fmt.Errorf("source repositories require PR acceptance")
-	}
-	c, present, err := acceptpolicy.Load(root)
-	if err != nil {
-		return c, err
-	}
-	if !present {
-		return c, fmt.Errorf("legacy repository without %s retains PR acceptance; initialize or migrate its policy before local acceptance", ConfigPath)
 	}
 	if c.Mode != acceptpolicy.Local {
 		return c, fmt.Errorf("PR acceptance is selected; clue accept performs local acceptance only")
@@ -147,7 +135,7 @@ func Check(r Request) (*Candidate, error) {
 	if err = p.cleanBase(); err != nil {
 		return nil, err
 	}
-	// Load opt-in from the accepted commit, never ignored or assume-unchanged
+	// Resolve policy from the accepted commit, never ignored or assume-unchanged
 	// working files. An unaccepted candidate cannot authorize itself.
 	baseSnapshot, err := os.MkdirTemp("", "clue-accept-base-")
 	if err != nil {
