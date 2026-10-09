@@ -84,7 +84,7 @@ Usage:
   clue version
 
 Commands:
-  accept     Preflight an adopter's exact candidate under local policy with
+  accept     Preflight a repository's exact candidate under local policy with
              --check, or let a human confirm a local acceptance merge. Requires
              matching effective local policy on the base and candidate, a clean
              integration checkout and a complete brief. Never pushes. Human
