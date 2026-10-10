@@ -2320,6 +2320,11 @@ claims:
       state: reserved
       prefix: CH
       component: "206"
+    - id: CH-207
+      kind: numeric
+      state: reserved
+      prefix: CH
+      component: "207"
     - id: G-001
       kind: numeric
       state: reserved
@@ -3586,11 +3591,11 @@ high-water:
       state: reserved
       prefix: CH
       component: "206"
-    - id: G-026
+    - id: G-027
       kind: numeric
       state: reserved
       prefix: G
-      component: "26"
+      component: "27"
     - id: IC-002
       kind: numeric
       state: reserved
