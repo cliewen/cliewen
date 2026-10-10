@@ -25,4 +25,4 @@ reviewed: <REQUIRED>
 
 ## Review
 
-<REQUIRED> Record the review mode, clean result, pass count and remaining advisories. The reviewed frontmatter value must equal candidate. No blocking findings may remain at handoff.
+<REQUIRED> Record the review mode, clean result, pass count and remaining advisories. The reviewed frontmatter value must equal candidate. No blocking findings may remain at handoff. Human approval is a separate decision: if execution is delegated, record the actual exact approval and bind its record to the complete brief hash. Do not invent approval.

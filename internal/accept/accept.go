@@ -291,6 +291,10 @@ func (p *Candidate) Confirm(input io.Reader, output io.Writer, interactive bool)
 	if err != nil || strings.TrimSpace(line) != "accept "+p.metadata.Change {
 		return "", fmt.Errorf("acceptance cancelled; no integration performed")
 	}
+	return p.complete("")
+}
+
+func (p *Candidate) complete(approvalRecord string) (string, error) {
 	fresh, err := Check(p.request)
 	if err != nil {
 		return "", err
@@ -299,6 +303,9 @@ func (p *Candidate) Confirm(input io.Reader, output io.Writer, interactive bool)
 		return "", fmt.Errorf("acceptance inputs changed during confirmation; rerun and review them")
 	}
 	message := fmt.Sprintf("Accept %s locally\n\nCandidate: %s\nBase: %s\n\n%s\n", p.metadata.Change, p.request.Candidate, p.request.Base, p.brief)
+	if approvalRecord != "" {
+		message += "\n## Recorded human approval\n\n" + approvalRecord + "\n"
+	}
 	c := command(p.root, "commit-tree", p.tree, "-p", p.request.Base, "-p", p.request.Candidate)
 	c.Stdin = strings.NewReader(message)
 	var errors bytes.Buffer

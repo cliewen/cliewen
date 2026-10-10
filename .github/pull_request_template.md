@@ -62,4 +62,4 @@
 - [ ] The branch was updated without force, and this ready pull request's head branch and SHA equal the locally verified branch and `HEAD`.
 - [ ] This pull request existed as a draft from first publication, every working turn that changed anything ended by pushing the branch, and marking it ready was the explicit act binding verification and a clean review pass to the current head.
 - [ ] Satisfied review conversations were resolved only after their reviewed fixes reached this hosted head.
-- [ ] The tracked change is ready for human review and merge; no agent will accept its own tracked change.
+- [ ] The tracked change is ready for human review and merge; no agent will decide or fabricate approval of its own tracked change. PR integration follows the selected human-controlled PR boundary.

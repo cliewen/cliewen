@@ -71,7 +71,7 @@ Usage:
   clue scaffold [path]
   clue context [--depth=<n>|all] [--stats] <id> [path]
   clue next [--all] [path]
-  clue accept <candidate-sha> --base <base-sha> --brief <file> [--check]
+  clue accept <candidate-sha> --base <base-sha> --brief <file> [--approval <file>] [--check]
   clue id coordinate [--remote=<name>] [--force] [--timeout=<duration>] [path]
   clue id next [--count=<n>] [--remote=<name>] [--timeout=<duration>] <prefix> [path]
   clue id sync [--remote=<name>] [--timeout=<duration>] [path]
@@ -90,6 +90,8 @@ Commands:
              integration checkout and a complete brief. Never pushes. Human
              presence and verification claims remain procedural. See the
              local acceptance reference in clue-delta for setup and recovery.
+             --approval records an exact human decision for delegated execution;
+             it authenticates neither human presence nor recorded provenance.
 
   init       Materialize the Cliewen convention under path (default "."):
              local human acceptance is the default; --acceptance=pr

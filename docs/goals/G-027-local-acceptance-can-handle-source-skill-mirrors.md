@@ -1,13 +1,13 @@
 ---
 id: G-027
 type: goal
-status: proposed
+status: accepted
 links: [VIS-001]
 title: Local acceptance can handle the source repository's managed skill mirrors
 ---
 
 # Accept source work locally with managed mirrors
 
-The source repository selects local acceptance, but its committed Claude skill entry points and reference directories use Git symlinks. The current local command refuses all tracked symlinks before validating a snapshot. Consequently a source change cannot receive native local preflight merely because source role is now permitted.
+The source repository's local acceptance must handle its committed Claude skill mirrors without making the owner perform a manual Git merge. Those internal links must resolve against the same committed revision, and the snapshot must retain all validation content without following live filesystem targets or escaping the private snapshot.
 
-The command should eventually support a reviewed, complete and safe source snapshot or provide an explicitly accepted alternative for this repository. This is a proposed follow-up from the readable-reference change, not authority to weaken snapshot checks or silently accept work. The observed source tree is the accepted release commit `5be6182506f1d2f58da3ea87ee359fe259d0578e`; `git ls-tree -r main` names the managed symlinks, and the local command's materializer rejects their mode.
+The owner explicitly requested this fix after the readable-reference candidate's native preflight refused a managed mirror. The [local acceptance design](../capabilities/CAP-012-local-acceptance/design.md) explains the committed-graph boundary. Unsafe links remain refused; supporting internal mirrors does not authorize an agent to invent human approval.

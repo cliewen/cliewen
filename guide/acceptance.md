@@ -66,17 +66,17 @@ clue accept <candidate-sha> --base <base-sha> --brief <file> --check
 
 The command reads the candidate from Git objects, validates its digested corpus and checks the proposal history. It does not execute tests, exporters, or a review. Their recorded results remain claims for you to assess. Preflight leaves refs, the index, and tracked files unchanged.
 
-The first version requires regular tracked files. It refuses tracked symlinks and submodules rather than claiming to have validated content it cannot safely materialize in isolation.
+Cliewen materializes regular files and safe internal Git links from the committed revision. It refuses escaping or missing targets, metadata paths, cycles, excessive expansion and submodules.
 
 ### Accept or decline
 
-Read the brief and evidence. If the change is wanted and the evidence supports it, run the same command yourself without `--check`:
+Read the brief and evidence. If the change is wanted and the evidence supports it, either approve the exact candidate and delegate execution as described below, or run the same command yourself without `--check`:
 
 ```sh
 clue accept <candidate-sha> --base <base-sha> --brief <file>
 ```
 
-The command shows the brief and asks you to type `accept CH-xxx` using the change's actual ID. There is no unattended confirmation flag. To decline, cancel or enter another answer; the integration branch stays unchanged. Explain needed changes to the agent before it prepares a new candidate.
+The command shows the brief and asks you to type `accept CH-xxx` using the change's actual ID. Without a recorded approval, execution requires the interactive confirmation. To decline, cancel or enter another answer; the integration branch stays unchanged. Explain needed changes to the agent before it prepares a new candidate.
 
 After confirmation, the command repeats preflight, locks and compares the integration base, and creates a merge with the base as its first parent and the candidate as its second. The merge tree is exactly the candidate tree. The command runs no Git hooks and does not push. Run your required verification before acceptance and publish the accepted branch through your repository's normal authorized process.
 
@@ -87,6 +87,19 @@ Deleting the change branch afterwards leaves its history reachable. Read the ret
 If the integration branch advances, incorporate it into the change branch, repeat verification and review, and prepare a brief for the new revisions. A dirty checkout, incomplete brief, missing proposal, undigested workspace, or invalid corpus prevents acceptance.
 
 If acceptance is interrupted, inspect `git status` and `git log -1` before retrying. A clean acceptance merge means it completed. If HEAD is still the base but the candidate tree is staged, preserve unrelated edits first. Only when both the index and working tree match the recorded candidate with no intervening edits, restore the base using `git read-tree -m -u <candidate-sha> <base-sha>` and repeat preflight. If the state differs, stop and investigate. Do not use a force reset to hide an uncertain outcome.
+
+### Delegate execution after your approval
+
+You can approve a reviewed change in your conversation with the coding agent and let the agent execute integration. Approve the exact candidate, base and complete acceptance brief; a changed candidate or brief needs a new decision. The agent records your actual approval using the template at `.clue/acceptance/approval.yaml`, including the complete brief's SHA-256 hash, who approved it, the venue, actual statement and recording time.
+
+```sh
+clue accept <candidate-sha> --base <base-sha> --brief <file> --approval <record> --check
+clue accept <candidate-sha> --base <base-sha> --brief <file> --approval <record>
+```
+
+The first command checks without integrating. The second executes the bound decision without a terminal prompt and preserves the approval record with the brief in the merge. The tool verifies matching inputs and provenance fields; it cannot authenticate who authored the statement. An agent must never invent your approval. The command never pushes; explicitly authorize the agent to publish the accepted branch if you want that step delegated too.
+
+Safe internal links are validated from the committed Git revision. Cliewen copies their target content into the private snapshot without following live filesystem links, while preserving the original candidate tree and link modes in acceptance. Links outside the repo, missing targets, cycles, metadata paths, excessive expansion and submodules are refused.
 
 ## Next
 

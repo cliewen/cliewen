@@ -11,6 +11,8 @@ binds: adopter
 
 # Source repositories use the same acceptance policy
 
+The [recorded human approval policy](PDR-072-recorded-human-approval-allows-delegated-local-execution.md) permits delegated execution of an exact human decision and safe internal link snapshots. Its human decision boundary supersedes the earlier requirement that the human personally run the local command.
+
 ## Context
 
 The owner selected local acceptance for Cliewen itself. A source-only PR restriction in the policy reader and local command prevented that choice even with explicit local configuration. Repository role identifies which methodology carriers apply; it need not dictate the acceptance mechanism.

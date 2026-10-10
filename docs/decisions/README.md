@@ -171,4 +171,5 @@ The CLI reports inferred ADRs, PDRs, and IDRs as decisions awaiting verification
 - [PDR-069-local-acceptance-is-the-default](PDR-069-local-acceptance-is-the-default.md)
 - [PDR-070 — Source repositories follow acceptance policy and Cliewen uses local acceptance](PDR-070-source-repository-uses-local-acceptance.md) · `inferred` — The owner selected local acceptance for Cliewen itself.
 - [PDR-071 — Human-facing references explain relevant meaning inline](PDR-071-readable-references-explain-meaning-inline.md) · `inferred` — An unexplained identity makes a reader navigate before understanding a document, report or handoff.
+- [PDR-072 — Recorded human approval permits delegated local execution with safe committed snapshots](PDR-072-recorded-human-approval-allows-delegated-local-execution.md) · `inferred` — Requiring the owner to execute a terminal command adds manual work after the owner has already approved an exact reviewed candidate.
 <!-- clue:index:end -->
