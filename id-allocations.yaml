@@ -1170,6 +1170,21 @@ claims:
       state: reserved
       prefix: AC
       component: "235"
+    - id: AC-236
+      kind: numeric
+      state: reserved
+      prefix: AC
+      component: "236"
+    - id: AC-237
+      kind: numeric
+      state: reserved
+      prefix: AC
+      component: "237"
+    - id: AC-238
+      kind: numeric
+      state: reserved
+      prefix: AC
+      component: "238"
     - id: ADR-001
       kind: numeric
       state: reserved
@@ -3601,11 +3616,11 @@ high-water:
       state: reserved
       prefix: CH
       component: "207"
-    - id: G-027
+    - id: G-028
       kind: numeric
       state: reserved
       prefix: G
-      component: "27"
+      component: "28"
     - id: IC-002
       kind: numeric
       state: reserved
