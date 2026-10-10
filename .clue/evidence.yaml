@@ -681,7 +681,7 @@ producers:
       - path: internal/accept/approval_test.go
         sha256: 088579bf0672affb71a0e5878919dbdc5740167bd92dae9af0bb62f25876f07b
       - path: internal/accept/snapshot_test.go
-        sha256: d8b2706e817325405929e5711afcecd46a619767d88bb0a69e8e1aed3d699365
+        sha256: c641c837f296b17584ffb49cc6c3698a69061b0445c614214d0d2dbcac35793f
       - path: internal/acceptpolicy/policy_test.go
         sha256: 45ace0bc2647644cb7cc213e029f58e183985fe4252380d34a44aac4f3239f98
       - path: internal/carriers/carriers_test.go
@@ -1434,7 +1434,17 @@ producers:
         direction: negative
       - id: AC-236
         path: internal/accept/snapshot_test.go
+        subject: test TestAC236_IntegrationNegative_ParentTraversalCannotEraseInvalidComponents
+        type: Integration
+        direction: negative
+      - id: AC-236
+        path: internal/accept/snapshot_test.go
         subject: test TestAC236_IntegrationPositive_InternalFileDirectoryAndChainLinksUseCommittedContent
+        type: Integration
+        direction: positive
+      - id: AC-236
+        path: internal/accept/snapshot_test.go
+        subject: test TestAC236_IntegrationPositive_ParentTraversalFollowsCommittedDirectoryLinks
         type: Integration
         direction: positive
       - id: AC-231

@@ -97,3 +97,29 @@ func TestAC236_IntegrationNegative_OversizedLinkBlobFailsWithoutBlockedGitReader
 		t.Fatal("oversized link accepted")
 	}
 }
+
+func TestAC236_IntegrationPositive_ParentTraversalFollowsCommittedDirectoryLinks(t *testing.T) {
+	root, _ := snapshotFixture(t, map[string]string{"alias": "regular/nested", "link": "alias/../data.txt"})
+	write(t, root, "data.txt", "wrong root bytes\n")
+	mustGit(t, root, "add", "data.txt")
+	mustGit(t, root, "commit", "-m", "Distinct root target")
+	destination := t.TempDir()
+	if e := materialize(root, mustGit(t, root, "rev-parse", "HEAD"), destination); e != nil {
+		t.Fatal(e)
+	}
+	got, e := os.ReadFile(filepath.Join(destination, "link"))
+	if e != nil || string(got) != "committed bytes\n" {
+		t.Fatalf("wrong resolved bytes: %q %v", got, e)
+	}
+}
+
+func TestAC236_IntegrationNegative_ParentTraversalCannotEraseInvalidComponents(t *testing.T) {
+	for _, target := range []string{"missing/../regular/data.txt", "regular/data.txt/../data.txt", "alias/../../../outside", "alias/../.git/../data.txt"} {
+		t.Run(target, func(t *testing.T) {
+			root, rev := snapshotFixture(t, map[string]string{"alias": "regular/nested", "link": target})
+			if e := materialize(root, rev, t.TempDir()); e == nil {
+				t.Fatal("invalid traversal accepted")
+			}
+		})
+	}
+}

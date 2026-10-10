@@ -162,46 +162,56 @@ func materialize(root, revision, destination string) error {
 		}
 	}
 	blobsRead = true
-	var resolve func(string, map[string]bool) (string, error)
-	resolve = func(name string, chain map[string]bool) (string, error) {
-		if name == "" {
-			return "", nil
-		}
-		parts := strings.Split(name, "/")
-		for i := range parts {
-			prefix := strings.Join(parts[:i+1], "/")
+	var walk func(string, []string, map[string]bool) (string, error)
+	walk = func(current string, parts []string, chain map[string]bool) (string, error) {
+		for _, part := range parts {
+			if nodes[current] == nil || nodes[current].mode != "tree" {
+				return "", fmt.Errorf("link target traverses non-directory %q", current)
+			}
+			switch part {
+			case "", ".":
+				continue
+			case "..":
+				if current == "" {
+					return "", fmt.Errorf("external link target escapes snapshot")
+				}
+				current = path.Dir(current)
+				if current == "." {
+					current = ""
+				}
+				continue
+			}
+			if strings.EqualFold(part, ".git") || !safeSnapshotPath(part) {
+				return "", fmt.Errorf("unsafe internal link component %q", part)
+			}
+			prefix := path.Join(current, part)
 			node := nodes[prefix]
 			if node == nil {
-				return "", fmt.Errorf("missing internal link target %q", name)
+				return "", fmt.Errorf("missing internal link target %q", prefix)
 			}
-			if node.mode == "120000" {
-				if chain[prefix] {
-					return "", fmt.Errorf("internal link cycle at %q", prefix)
-				}
-				target := node.target
-				if strings.ContainsAny(target, "\\\x00") || path.IsAbs(target) || (len(target) > 1 && target[1] == ':') {
-					return "", fmt.Errorf("external or unsafe link target at %q", prefix)
-				}
-				target = path.Clean(path.Join(path.Dir(prefix), target))
-				if target == "." {
-					target = ""
-				}
-				if target != "" && !safeSnapshotPath(target) {
-					return "", fmt.Errorf("external or unsafe link target at %q", prefix)
-				}
-				if i+1 < len(parts) {
-					target = path.Join(target, strings.Join(parts[i+1:], "/"))
-				}
-				chain[prefix] = true
-				resolved, e := resolve(target, chain)
-				delete(chain, prefix)
-				return resolved, e
+			if node.mode != "120000" {
+				current = prefix
+				continue
 			}
-			if i+1 < len(parts) && node.mode != "tree" {
-				return "", fmt.Errorf("link target traverses non-directory %q", prefix)
+			if chain[prefix] {
+				return "", fmt.Errorf("internal link cycle at %q", prefix)
 			}
+			target := node.target
+			if strings.ContainsAny(target, "\\\x00") || path.IsAbs(target) || (len(target) > 1 && target[1] == ':') {
+				return "", fmt.Errorf("external or unsafe link target at %q", prefix)
+			}
+			chain[prefix] = true
+			resolved, e := walk(current, strings.Split(target, "/"), chain)
+			delete(chain, prefix)
+			if e != nil {
+				return "", e
+			}
+			current = resolved
 		}
-		return name, nil
+		return current, nil
+	}
+	resolve := func(name string, chain map[string]bool) (string, error) {
+		return walk("", strings.Split(name, "/"), chain)
 	}
 	remaining := (len(nodes) + 1) * 32
 	var copyNode func(string, string, map[string]bool) error
