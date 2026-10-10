@@ -162,9 +162,14 @@ func materialize(root, revision, destination string) error {
 		}
 	}
 	blobsRead = true
+	resolutionRemaining := (len(nodes) + 1) * 32
 	var walk func(string, []string, map[string]bool) (string, error)
 	walk = func(current string, parts []string, chain map[string]bool) (string, error) {
 		for _, part := range parts {
+			resolutionRemaining--
+			if resolutionRemaining < 0 {
+				return "", fmt.Errorf("internal link resolution exceeds snapshot budget")
+			}
 			if nodes[current] == nil || nodes[current].mode != "tree" {
 				return "", fmt.Errorf("link target traverses non-directory %q", current)
 			}

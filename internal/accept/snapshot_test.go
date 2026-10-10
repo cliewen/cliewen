@@ -123,3 +123,15 @@ func TestAC236_IntegrationNegative_ParentTraversalCannotEraseInvalidComponents(t
 		})
 	}
 }
+
+func TestAC236_IntegrationNegative_ExcessiveAcyclicResolutionIsBounded(t *testing.T) {
+	links := map[string]string{"b0": "regular"}
+	for level := 1; level <= 30; level++ {
+		previous := fmt.Sprintf("b%d", level-1)
+		links[fmt.Sprintf("b%d", level)] = previous + "/../" + previous
+	}
+	root, rev := snapshotFixture(t, links)
+	if e := materialize(root, rev, t.TempDir()); e == nil || !strings.Contains(e.Error(), "resolution exceeds snapshot budget") {
+		t.Fatalf("unbounded resolution: %v", e)
+	}
+}
