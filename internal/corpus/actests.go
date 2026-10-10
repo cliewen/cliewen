@@ -22,6 +22,8 @@ var (
 
 type acDecl struct {
 	path, status string
+	name         string
+	ambiguous    bool
 	retired      bool
 	draft        bool // @draft (ADR-033): exempt from the active-file test requirement without retiring the AC
 	testType     string
@@ -104,70 +106,13 @@ func LedgerCriterionIdentities(c *Corpus) []CriterionIdentity {
 // checkACTests (which enforces it) and Coverage (which derives a report
 // from the same declarations without a second evidence reader).
 func harvestACs(c *Corpus) (declared map[string]acDecl, classified map[string]map[string]map[string]bool, tested map[string]bool, issues []Issue, locations map[string][]EvidenceRef) {
-	declared = map[string]acDecl{}
-	// The default namespace is always known, so an undeclared AC-xxx
-	// reference fails as unknown, not as purpose-less.
-	prefixes := map[string]bool{"AC": true}
-	normalizedPrefixes := map[string]string{normalizeACPrefix("AC"): "AC"}
-	for _, a := range c.Artifacts {
-		if a.Type != "criteria" {
-			continue
-		}
-		prefix := "AC"
-		if v, present := a.Fields["ac-prefix"]; present {
-			s, _ := v.(string)
-			if !acPrefixRe.MatchString(s) {
-				issues = append(issues, Issue{a.Path, "ac-prefix must be uppercase alphanumeric segments joined by single hyphens, starting with a letter (ADR-037)"})
-				continue
-			}
-			prefix = s
-		}
-		if previous, exists := normalizedPrefixes[normalizeACPrefix(prefix)]; exists && previous != prefix {
-			issues = append(issues, Issue{a.Path, "ac-prefix " + prefix + " collides with " + previous + " after carrier normalization (ADR-037)"})
-		} else {
-			normalizedPrefixes[normalizeACPrefix(prefix)] = prefix
-		}
-		prefixes[prefix] = true
-		// Tag lines are read per line: `@AC-012 @retired` on one line is
-		// the tombstone form (ADR-007).
-		lines := strings.Split(a.Body, "\n")
-		for i, line := range lines {
-			retired := strings.Contains(line, "@retired")
-			draft := strings.Contains(line, "@draft")
-			for _, m := range acCandidateTagRe.FindAllStringSubmatch(line, -1) {
-				ac := m[1]
-				acPrefix, _, _, valid := parseACID(ac)
-				if !valid {
-					// Only a near-miss inside this file's own namespace is a
-					// malformed declaration; any other @token is prose.
-					if inNamespace(ac, prefix) {
-						issues = append(issues, Issue{a.Path, "tag @" + ac + " is not a canonical acceptance-criterion ID (ADR-037: use <PREFIX>-<digits><lowercase-suffix>)"})
-					}
-					continue
-				}
-				if acPrefix != prefix {
-					issues = append(issues, Issue{a.Path, "tag @" + ac + " is outside this file's namespace " + prefix + " (ADR-009: fix the tag or move the AC to its capability)"})
-					continue
-				}
-				if prev, dup := declared[ac]; dup {
-					issues = append(issues, Issue{a.Path, "duplicate declaration of " + ac + " (already declared in " + prev.path + ")"})
-					continue
-				}
-				d := acDecl{path: a.Path, status: a.Status, retired: retired, draft: draft}
-				d.testType, d.single, d.invalidType = scenarioTestType(lines[i+1:])
-				if d.testType == "Human" && d.single {
-					d.testType, d.single, d.humanSingle = "", false, true
-				}
-				declared[ac] = d
-			}
-		}
-	}
+	declared, issues = criterionDeclarations(c)
 
 	tested = map[string]bool{}
 	classified = map[string]map[string]map[string]bool{}
 	locations = map[string][]EvidenceRef{}
 	record := func(path, subject, ac, typ, direction string) {
-		issues = append(issues, checkACRef(path, subject, ac, declared, tested)...)
+		issues = append(issues, registerLocalIssues(c, checkACRef(path, subject, ac, declared, tested), ac)...)
 		locations[ac] = append(locations[ac], EvidenceRef{Path: path, Subject: subject, Type: typ, Direction: direction})
 		if typ == "" || direction == "" {
 			return
@@ -257,27 +202,27 @@ func checkACTests(c *Corpus) []Issue {
 		exempt := d.draft || d.testType == "Human" || d.humanSingle
 		live := d.status == "active" && !d.retired
 		if live && d.humanSingle {
-			issues = append(issues, Issue{d.path, ac + " declares Test-type: Human (single-direction), which the Human class does not use (ADR-033)"})
+			issues = append(issues, localIssue(c, d.path, ac+" declares Test-type: Human (single-direction), which the Human class does not use (ADR-033)", ac))
 		}
 		if live && !exempt && !tested[ac] {
-			issues = append(issues, Issue{d.path, ac + " has no test (ADR-071: export an executable reference in .clue/evidence.yaml)"})
+			issues = append(issues, localIssue(c, d.path, ac+" has no test (ADR-071: export an executable reference in .clue/evidence.yaml)", ac))
 		}
 		if d.status != "active" || d.retired || exempt || d.testType == "" {
 			if live && !exempt && d.invalidType {
-				issues = append(issues, Issue{d.path, ac + " has a Test-type that is not the first non-blank scenario-body line (ADR-032)"})
+				issues = append(issues, localIssue(c, d.path, ac+" has a Test-type that is not the first non-blank scenario-body line (ADR-032)", ac))
 			}
 			continue
 		}
 		coverage := classified[ac][d.testType]
 		if d.single {
 			if len(coverage) == 0 {
-				issues = append(issues, Issue{d.path, ac + " has no " + d.testType + " evidence (ADR-032)"})
+				issues = append(issues, localIssue(c, d.path, ac+" has no "+d.testType+" evidence (ADR-032)", ac))
 			}
 			continue
 		}
 		for _, direction := range []string{"positive", "negative"} {
 			if !coverage[direction] {
-				issues = append(issues, Issue{d.path, ac + " has no " + d.testType + " " + direction + " evidence (ADR-032)"})
+				issues = append(issues, localIssue(c, d.path, ac+" has no "+d.testType+" "+direction+" evidence (ADR-032)", ac))
 			}
 		}
 	}
@@ -345,4 +290,85 @@ func checkACRef(path, subject, ac string, declared map[string]acDecl, tested map
 		return []Issue{{path, subject + " references retired " + ac + " — remove the test or re-tag it (ADR-007)"}}
 	}
 	return nil
+}
+
+// criterionDeclarations supplies identity and scenario names to validation and
+// presentation from the same parser, without importing executable evidence.
+func criterionDeclarations(c *Corpus) (declared map[string]acDecl, issues []Issue) {
+	declared = map[string]acDecl{}
+	normalizedPrefixes := map[string]string{normalizeACPrefix("AC"): "AC"}
+	// The default namespace is always known, so an undeclared AC-xxx
+	// reference fails as unknown, not as purpose-less.
+	prefixes := map[string]bool{"AC": true}
+	for _, a := range c.Artifacts {
+		if a.Type != "criteria" {
+			continue
+		}
+		prefix := "AC"
+		if v, present := a.Fields["ac-prefix"]; present {
+			s, _ := v.(string)
+			if !acPrefixRe.MatchString(s) {
+				issues = append(issues, Issue{a.Path, "ac-prefix must be uppercase alphanumeric segments joined by single hyphens, starting with a letter (ADR-037)"})
+				continue
+			}
+			prefix = s
+		}
+		if previous, exists := normalizedPrefixes[normalizeACPrefix(prefix)]; exists && previous != prefix {
+			issues = append(issues, Issue{a.Path, "ac-prefix " + prefix + " collides with " + previous + " after carrier normalization (ADR-037)"})
+		} else {
+			normalizedPrefixes[normalizeACPrefix(prefix)] = prefix
+		}
+		prefixes[prefix] = true
+		// Tag lines are read per line: `@AC-012 @retired` on one line is
+		// the tombstone form (ADR-007).
+		lines := strings.Split(a.Body, "\n")
+		for i, line := range lines {
+			retired := strings.Contains(line, "@retired")
+			draft := strings.Contains(line, "@draft")
+			for _, m := range acCandidateTagRe.FindAllStringSubmatch(line, -1) {
+				ac := m[1]
+				acPrefix, _, _, valid := parseACID(ac)
+				if !valid {
+					// Only a near-miss inside this file's own namespace is a
+					// malformed declaration; any other @token is prose.
+					if inNamespace(ac, prefix) {
+						issues = append(issues, Issue{a.Path, "tag @" + ac + " is not a canonical acceptance-criterion ID (ADR-037: use <PREFIX>-<digits><lowercase-suffix>)"})
+					}
+					continue
+				}
+				if acPrefix != prefix {
+					issues = append(issues, Issue{a.Path, "tag @" + ac + " is outside this file's namespace " + prefix + " (ADR-009: fix the tag or move the AC to its capability)"})
+					continue
+				}
+				if prev, dup := declared[ac]; dup {
+					issues = append(issues, Issue{a.Path, "duplicate declaration of " + ac + " (already declared in " + prev.path + ")"})
+					prev.ambiguous = true
+					declared[ac] = prev
+					continue
+				}
+				d := acDecl{path: a.Path, status: a.Status, retired: retired, draft: draft, name: scenarioName(lines[i+1:])}
+				d.testType, d.single, d.invalidType = scenarioTestType(lines[i+1:])
+				if d.testType == "Human" && d.single {
+					d.testType, d.single, d.humanSingle = "", false, true
+				}
+				declared[ac] = d
+			}
+		}
+	}
+
+	return declared, issues
+}
+
+func scenarioName(lines []string) string {
+	for _, line := range lines {
+		text := strings.TrimSpace(line)
+		if strings.HasPrefix(text, "@") || strings.HasPrefix(text, "Feature:") || strings.HasPrefix(text, "Rule:") {
+			break
+		}
+		if isScenarioHeader(text) {
+			_, name, _ := strings.Cut(text, ":")
+			return strings.TrimSpace(name)
+		}
+	}
+	return ""
 }

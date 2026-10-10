@@ -71,7 +71,7 @@ Usage:
   clue scaffold [path]
   clue context [--depth=<n>|all] [--stats] <id> [path]
   clue next [--all] [path]
-  clue accept <candidate-sha> --base <base-sha> --brief <file> [--check]
+  clue accept <candidate-sha> --base <base-sha> --brief <file> [--approval <file>] [--check]
   clue id coordinate [--remote=<name>] [--force] [--timeout=<duration>] [path]
   clue id next [--count=<n>] [--remote=<name>] [--timeout=<duration>] <prefix> [path]
   clue id sync [--remote=<name>] [--timeout=<duration>] [path]
@@ -90,6 +90,8 @@ Commands:
              integration checkout and a complete brief. Never pushes. Human
              presence and verification claims remain procedural. See the
              local acceptance reference in clue-delta for setup and recovery.
+             --approval records an exact human decision for delegated execution;
+             it authenticates neither human presence nor recorded provenance.
 
   init       Materialize the Cliewen convention under path (default "."):
              local human acceptance is the default; --acceptance=pr
@@ -728,9 +730,10 @@ func runValidate(args []string, out io.Writer) int {
 	// contract it renders (ADR-054) rather than inside the graph rules.
 	issues = append(issues, parity.CheckReports(root)...)
 	provenance := corpus.ProvenanceBacklog(c)
+	names := corpus.NewReferenceNames(c)
 	if len(issues) > 0 {
 		for _, is := range issues {
-			fmt.Fprintln(out, is)
+			fmt.Fprintln(out, names.Issue(is))
 		}
 		fmt.Fprintf(os.Stderr, "clue validate: %d issue(s)", len(issues))
 		if len(provenance.BlockerArtifacts) > 0 {
@@ -744,18 +747,18 @@ func runValidate(args []string, out io.Writer) int {
 	}
 	if *coverage {
 		for _, cc := range corpus.Coverage(c) {
-			fmt.Fprintf(out, "%s: %s\n", cc.Capability, cc.State)
+			fmt.Fprintf(out, "%s: %s\n", names.Label(cc.Capability), cc.State)
 		}
 		// A pointer to proof in another repository is listed apart from
 		// coverage, never inside it. Naming it says a human can go and look;
 		// counting it would be importing a verdict this judge cannot see.
 		for _, p := range corpus.ForeignPointers(c) {
-			fmt.Fprintf(out, "%s: named but locally unproven\n", p)
+			fmt.Fprintf(out, "external evidence %s: named but locally unproven\n", p)
 		}
 	}
 	if *realityGaps {
 		for _, gap := range corpus.RealityGaps(c) {
-			fmt.Fprintf(out, "%s: contradicted by %s\n", gap.Capability, strings.Join(gap.Analyses, ", "))
+			fmt.Fprintf(out, "%s: contradicted by %s\n", names.Label(gap.Capability), namedRefs(names, gap.Analyses))
 		}
 	}
 	// No command clears this count: index regeneration preserves any row
@@ -792,23 +795,23 @@ func runValidate(args []string, out io.Writer) int {
 			if state.Vision.Inferred {
 				meaning = "inferred — no human has confirmed it"
 			}
-			fmt.Fprintf(out, "vision: %s %s (%s, %s) at %s\n", state.Vision.ID, state.Vision.Title, state.Vision.Status, meaning, state.Vision.Path)
+			fmt.Fprintf(out, "vision: %s (%s, %s) at %s\n", corpus.HumanReference(state.Vision.Title, state.Vision.ID), state.Vision.Status, meaning, state.Vision.Path)
 		} else {
 			fmt.Fprintf(out, "vision: none — this corpus states no direction (%s is absent)\n", corpus.VisionPath)
 		}
 		for _, use := range state.UseCases {
 			crosses := "no capability"
 			if len(use.Capabilities) > 0 {
-				crosses = strings.Join(use.Capabilities, ", ")
+				crosses = namedRefs(names, use.Capabilities)
 			}
-			fmt.Fprintf(out, "use case: %s %s (%s) crosses %s\n", use.ID, use.Title, use.Status, crosses)
+			fmt.Fprintf(out, "use case: %s (%s) crosses %s\n", corpus.HumanReference(use.Title, use.ID), use.Status, crosses)
 		}
 		if len(state.UseCases) == 0 {
 			fmt.Fprintln(out, "use cases: none — they are optional, and absence is not a gap")
 		}
 		for _, goal := range state.Goals {
-			fmt.Fprintf(out, "goal: %s %s (%s) capabilities: %s, plans: %s\n",
-				goal.ID, goal.Title, goal.Status, goalRefList(goal.Capabilities), goalRefList(goal.Plans))
+			fmt.Fprintf(out, "goal: %s (%s) capabilities: %s, plans: %s\n",
+				corpus.HumanReference(goal.Title, goal.ID), goal.Status, goalRefList(names, goal.Capabilities), goalRefList(names, goal.Plans))
 		}
 	}
 	if *readCost {
@@ -852,15 +855,15 @@ func runValidate(args []string, out io.Writer) int {
 // identity-and-status list, or "none" — never a count, so the intent
 // report's no-ratio rule (AC-164, AC-202) holds for goals the same way it
 // already does for use cases.
-func goalRefList(refs []corpus.GoalRef) string {
+func goalRefList(names *corpus.ReferenceNames, refs []corpus.GoalRef) string {
 	if len(refs) == 0 {
 		return "none"
 	}
-	var names []string
+	var labels []string
 	for _, ref := range refs {
-		names = append(names, fmt.Sprintf("%s (%s)", ref.ID, ref.Status))
+		labels = append(labels, fmt.Sprintf("%s (%s)", names.Label(ref.ID), ref.Status))
 	}
-	return strings.Join(names, ", ")
+	return strings.Join(labels, ", ")
 }
 
 // runParity compares a pinned source manifest against the target manifest
@@ -1191,4 +1194,12 @@ func runRefs(args []string, out, errOut io.Writer) int {
 		return 1
 	}
 	return 0
+}
+
+func namedRefs(names *corpus.ReferenceNames, ids []string) string {
+	labels := make([]string, 0, len(ids))
+	for _, id := range ids {
+		labels = append(labels, names.Label(id))
+	}
+	return strings.Join(labels, ", ")
 }

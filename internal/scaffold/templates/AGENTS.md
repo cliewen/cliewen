@@ -5,7 +5,7 @@ title: Agent routing hub
 
 # Agent routing hub
 
-Follow `.clue/acceptance.yaml` on the accepted base under `clue-delta`'s review boundary. Acceptance defaults to local on main without this file; `clue init --acceptance=pr` actively selects PR. Init preserves explicit policy, and migration does not create it. Do not ask the user to select a mode at each change. Agents prepare and preflight; only a human runs accepting `clue accept`. Change policy under the previously accepted workflow. Repository permissions may require PRs. ID allocation and coordination remain unchanged.
+Follow `.clue/acceptance.yaml` on the accepted base under `clue-delta`'s review boundary. Acceptance defaults to local on main without this file; `clue init --acceptance=pr` actively selects PR. Init preserves explicit policy, and migration does not create it. Do not ask the user to select a mode at each change. Agents prepare and preflight; a human decides acceptance. After exact approval, an agent may execute `clue accept --approval <record>` and an explicitly authorized push. No agent invents or decides its own approval. Change policy under the previously accepted workflow. Repository permissions may require PRs. ID allocation and coordination remain unchanged.
 
 This repo runs **Cliewen**.
 
@@ -27,6 +27,8 @@ Every change assesses documentation impact before it closes. Keep `/docs/archite
 **Intent has two threads that meet at the goal.** `VIS-001` (the repository's vision, at `docs/vision.md`) → goal → optional `UC-xxx` use case → capability → criterion → evidence says what the product means; goal → plan → milestone → change → accepted merge says how it gets delivered. Links point down: a use case names the goal it serves and the capabilities it crosses, a goal names the vision, and no capability names a use case back. Both artifacts are optional to have — `clue validate` never requires one and never counts coverage over them — and both are edited only when their durable meaning actually changes, never as routine upkeep. When no usable vision exists, elicit one (greenfield) or infer a cited draft from repository evidence (brownfield) as the skills describe; drafted meaning stays `status: draft` with `provenance: inferred` until a human confirms it, and a tracked change's acceptance brief states the vision it proceeds under, or that there is none.
 
 When the user asks what is next, run `clue next --all`, report the first actionable milestone and the alternatives, then read the selected plan with `clue context` before asking whether to start. For a tracked change, read [`docs/README.md`](docs/README.md) only when the request does not name or resolve to an artifact; use it to identify the closest artifact, then run `clue context <id>`. When an identity is already known, run `clue context` directly and read the bounded slice it prints. The `/docs` corpus remains the system-of-record and working memory.
+
+Explain referenced meaning in the text so a person can understand it without identity lookups. Before writing human prose, reports or handoffs, follow [Readable references](.agents/skills/clue-analysis/references/readable-references.md). Canonical IDs remain unchanged where they are literal or machine-facing data.
 
 ## Repository conventions
 

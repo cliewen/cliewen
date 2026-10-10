@@ -17,6 +17,7 @@ Run a chosen tracked Cliewen change from proposal through implementation, digest
 
 Read each reference when its condition is reached, before taking action governed by it. The references are required instructions, not optional background.
 
+- Before writing reader-facing prose, a human report or a handoff, read [Readable references](references/readable-references.md).
 - Before writing, migrating, exporting or verifying executable acceptance evidence, read [Evidence workflow](references/evidence-workflow.md).
 - Before recommending a route or starting a tracked change, read [Change routing](references/change-scope-and-tiers.md).
 - Before branching, publishing, updating a hosted PR, or handing work to a human, read [Review boundary](references/review-boundary.md).

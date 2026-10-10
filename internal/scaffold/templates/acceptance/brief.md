@@ -9,7 +9,7 @@ reviewed: <REQUIRED>
 
 ## Intent
 
-<REQUIRED> State the plan item or plan-less status, vision or absence, whether this outcome remains wanted, and consequential uncertainty.
+<REQUIRED> Explain the relevant meaning inline and use descriptive links for optional detail; keep any useful ID secondary. State the plan item or plan-less status, vision or absence, whether this outcome remains wanted, and consequential uncertainty.
 
 ## Criteria and evidence
 
@@ -25,4 +25,4 @@ reviewed: <REQUIRED>
 
 ## Review
 
-<REQUIRED> Record the review mode, clean result, pass count and remaining advisories. The reviewed frontmatter value must equal candidate. No blocking findings may remain at handoff.
+<REQUIRED> Record the review mode, clean result, pass count and remaining advisories. The reviewed frontmatter value must equal candidate. No blocking findings may remain at handoff. Human approval is a separate decision: if execution is delegated, record the actual exact approval and bind its record to the complete brief hash. Do not invent approval.

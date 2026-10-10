@@ -2,7 +2,7 @@
 
 <!-- Delete this entire section and every Cliewen-specific section below for direct work. Direct means the accepted contract remains unchanged. -->
 
-<!-- REQUIRED: Replace this comment with a concise, human-facing brief before requesting merge. -->
+<!-- REQUIRED: Replace this comment with a concise, human-facing brief before requesting merge. Explain referenced meaning inline; use descriptive links and secondary IDs so reading needs no identity lookup. -->
 
 - Plan item and whether it remains wanted: <!-- REQUIRED -->
 - The vision this change proceeds under, or that the repository states none: <!-- REQUIRED, or none stated -->
@@ -62,4 +62,4 @@
 - [ ] The branch was updated without force, and this ready pull request's head branch and SHA equal the locally verified branch and `HEAD`.
 - [ ] This pull request existed as a draft from first publication, every working turn that changed anything ended by pushing the branch, and marking it ready was the explicit act binding verification and a clean review pass to the current head.
 - [ ] Satisfied review conversations were resolved only after their reviewed fixes reached this hosted head.
-- [ ] The tracked change is ready for human review and merge; no agent will accept its own tracked change.
+- [ ] The tracked change is ready for human review and merge; no agent will decide or fabricate approval of its own tracked change. PR integration follows the selected human-controlled PR boundary.

@@ -15,6 +15,8 @@ binds: adopter
 
 PDR-070 supersedes the source-only PR restriction in this record and selects local acceptance for Cliewen's source repository.
 
+The [recorded human approval policy](PDR-072-recorded-human-approval-allows-delegated-local-execution.md) permits delegated execution of an exact human decision and safe internal link snapshots. Its human decision boundary supersedes the earlier requirement that the human personally run the local command.
+
 ## Context
 
 A PR provides a hosted review and admission boundary, but requiring a forge excludes repositories that can retain the same proposal history and explicitly accept a reviewed branch locally. Identity allocation and acceptance are independent concerns.

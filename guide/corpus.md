@@ -136,6 +136,16 @@ You can use the same commands to find your way around.
 
 Cliewen runs on itself. Browse its [corpus entry point](https://github.com/cliewen/cliewen/blob/main/docs/README.md), its [plan index](https://github.com/cliewen/cliewen/blob/main/docs/plans/README.md), or the [validator capability](https://github.com/cliewen/cliewen/tree/main/docs/capabilities/CAP-002-validate) to see real artifacts rather than a toy example.
 
+## Refer to meaning while writing
+
+Explain why a reference matters in the text the reader is already reading. Use descriptive links for optional detail. An ID helps exact identification, but the reader should understand the purpose and required action without looking it up.
+
+Instead of “this investigation serves G-016”, write “the findings should help a person decide whether the observed behavior supports accepting the change”. Link the relevant words to the goal when the reader may want more detail. Keep the goal's canonical ID in metadata.
+
+The same method applies to documents, release notes, CLI messages and acceptance summaries. Release notes describe what changes for users and what they need to do when upgrading. Literal command arguments, metadata and criterion tags retain their IDs. A reference table can help navigation in a long document; explain the relevant meaning in the main text as well.
+
+CLI reports show names with secondary IDs, such as “Onboarding (CAP-001): covered”. That remains a report of declared evidence coverage, not proof that a user understood the documentation or that tests passed.
+
 ## Next
 
 [See how a corpus states what the product is for.](./intent)

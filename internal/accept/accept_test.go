@@ -157,7 +157,7 @@ func TestSanity_LinkedWorktreeAcceptance(t *testing.T) {
 	}
 }
 
-func TestAC220_IntegrationNegative_BaseAdvanceDuringConfirmation(t *testing.T) {
+func TestAC238_IntegrationNegative_BaseAdvanceDuringConfirmation(t *testing.T) {
 	r := fixture(t, nil)
 	p, err := Check(r)
 	if err != nil {
@@ -176,7 +176,7 @@ func TestAC220_IntegrationNegative_BaseAdvanceDuringConfirmation(t *testing.T) {
 	}
 }
 
-func TestAC220_IntegrationPositive_GitCallbacksNeverExecute(t *testing.T) {
+func TestAC238_IntegrationPositive_GitCallbacksNeverExecute(t *testing.T) {
 	r := fixture(t, nil)
 	callbacks := filepath.Join(r.Root, ".git", "configured-hooks")
 	marker := filepath.Join(r.Root, ".git", "callback-ran")
@@ -214,7 +214,7 @@ func TestAC220_IntegrationPositive_GitCallbacksNeverExecute(t *testing.T) {
 	}
 }
 
-func TestAC220_IntegrationPositive_CheckAndCancellationAreReadOnly(t *testing.T) {
+func TestAC238_IntegrationPositive_CheckAndCancellationAreReadOnly(t *testing.T) {
 	r := fixture(t, nil)
 	refs := mustGit(t, r.Root, "show-ref")
 	index := mustGit(t, r.Root, "write-tree")
@@ -248,7 +248,7 @@ func (d *duringConfirmation) Read(b []byte) (int, error) {
 	return d.reader.Read(b)
 }
 
-func TestAC220_IntegrationNegative_UnsafeOrChangedState(t *testing.T) {
+func TestAC238_IntegrationNegative_UnsafeOrChangedState(t *testing.T) {
 	for _, name := range []string{"dirty", "untracked", "stale", "workspace", "invalid", "missing-history", "changed-brief", "changed-during-confirmation", "ref-lock", "unsupported-link", "export-ignore"} {
 		t.Run(name, func(t *testing.T) {
 			r := fixture(t, func(root string) {

@@ -51,9 +51,10 @@ func runContext(args []string, out, errOut io.Writer) int {
 	}
 
 	c, issues := corpus.Scan(root)
+	names := corpus.NewReferenceNames(c)
 	if len(issues) > 0 {
 		for _, issue := range issues {
-			fmt.Fprintln(errOut, issue)
+			fmt.Fprintln(errOut, names.Issue(issue))
 		}
 		fmt.Fprintf(errOut, "clue context: %d scan issue(s)\n", len(issues))
 		return 1
@@ -64,7 +65,7 @@ func runContext(args []string, out, errOut io.Writer) int {
 		return 1
 	}
 	for _, issue := range unfollowed {
-		fmt.Fprintln(errOut, "clue context:", issue)
+		fmt.Fprintln(errOut, "clue context:", names.Issue(issue))
 	}
 
 	bytes := 0
@@ -72,7 +73,7 @@ func runContext(args []string, out, errOut io.Writer) int {
 		if i > 0 {
 			fmt.Fprintln(out)
 		}
-		fmt.Fprintf(out, "===== %s | %s =====\n", artifact.ID, artifact.Path)
+		fmt.Fprintf(out, "===== %s | %s =====\n", corpus.HumanReference(artifact.Title, artifact.ID), artifact.Path)
 		content := c.Contents[artifact.Path]
 		bytes += len(content)
 		fmt.Fprint(out, content)
@@ -110,7 +111,7 @@ func printFrontier(out io.Writer, frontier []corpus.Frontier, depth int) {
 		if f.Hops != depth+1 {
 			continue
 		}
-		fmt.Fprintf(out, "%s | %s\n", f.Artifact.ID, f.Artifact.Title)
+		fmt.Fprintf(out, "%s\n", corpus.HumanReference(f.Artifact.Title, f.Artifact.ID))
 	}
 	if beyond > 0 {
 		fmt.Fprintf(out, "... and %d further artifact(s) more than %d hop(s) out\n", beyond, depth+1)
@@ -133,6 +134,6 @@ func printUseCases(out io.Writer, useCases []*corpus.Artifact) {
 	}
 	fmt.Fprintf(out, "\n----- %d use case(s) naming this artifact; not followed -----\n", len(useCases))
 	for _, useCase := range useCases {
-		fmt.Fprintf(out, "%s | %s | %s\n", useCase.ID, useCase.Title, useCase.Path)
+		fmt.Fprintf(out, "%s | %s\n", corpus.HumanReference(useCase.Title, useCase.ID), useCase.Path)
 	}
 }

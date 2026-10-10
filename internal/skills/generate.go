@@ -352,7 +352,8 @@ func splitSkill(name string, complete []byte) ([]renderedFile, error) {
 	router.WriteString(definition.description)
 	router.WriteString("\n\n## Routing\n\nRead each reference when its condition is reached, before taking action governed by it. The references are required instructions, not optional background.\n\n")
 	files := []renderedFile{{relativePath: path.Join(name, "skill.md")}}
-	for _, route := range definition.routes {
+	routes := append([]skillRoute{{heading: "Readable references", file: "readable-references.md", condition: "Before writing reader-facing prose, a human report or a handoff"}}, definition.routes...)
+	for _, route := range routes {
 		content, found := sections[route.heading]
 		if !found {
 			return nil, fmt.Errorf("split %s: routed section %q is missing", name, route.heading)

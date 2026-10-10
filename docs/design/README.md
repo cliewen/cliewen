@@ -5,7 +5,9 @@ title: Design
 
 # Design
 
-Local acceptance has a separate Git transition flow: candidate preflight, human confirmation, repeated preflight, locked base comparison, and a merge preserving the exact candidate tree and complete brief. The [local acceptance design](../capabilities/CAP-012-local-acceptance/design.md) specifies the local default and explicit PR selection, the record format, refusal, and interruption recovery. Source and adopter repositories share policy selection; this repository selects local on main under PDR-070. The ID allocator is unchanged.
+Local acceptance has a separate Git transition flow: candidate preflight, interactive or recorded human approval, repeated preflight, locked base comparison, and a merge preserving the exact candidate tree and complete brief. The [local acceptance design](../capabilities/CAP-012-local-acceptance/design.md) specifies the local default and explicit PR selection, the record format, refusal, and interruption recovery. Source and adopter repositories share policy selection; this repository selects local on main under PDR-070. The ID allocator is unchanged.
+
+Human reference presentation is separate from raw corpus identity and validation. The [readable-reference design](../capabilities/CAP-013-readable-references/design.md) explains the shared writing instruction, local naming index and explicit diagnostic subjects; none changes proof semantics or claims to measure comprehension.
 
 This is Cliewen's cross-cutting behaviour overview. It explains how the agent workflow, deterministic CLI, durable corpus, CI wall, and human acceptance boundary work together. [Architecture](../architecture/README.md) covers their static boundaries; capability designs hold local implementation detail.
 

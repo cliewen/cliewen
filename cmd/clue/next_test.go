@@ -19,10 +19,10 @@ func TestAC186_UnitPositive_NextCommandReportsRecommendationAlternativesAndDraft
 		t.Fatalf("next exit = %d, stderr = %s", code, errOut.String())
 	}
 	got := out.String()
-	if !strings.Contains(got, "P-002/M-002 | doing | Resume") || !strings.Contains(got, "Other active alternatives: 1") {
+	if !strings.Contains(got, "Resume (M-002) | doing | plan: Second plan (P-002)") || !strings.Contains(got, "Other active alternatives: 1") {
 		t.Fatalf("recommendation or alternatives missing: %s", got)
 	}
-	if !strings.Contains(got, "P-003/M-003 | todo | Proposed") || !strings.Contains(got, "not actionable") {
+	if !strings.Contains(got, "Proposed (M-003) | todo | plan: Proposed plan (P-003)") || !strings.Contains(got, "not actionable") {
 		t.Fatalf("draft milestone was not explained: %s", got)
 	}
 
@@ -32,11 +32,11 @@ func TestAC186_UnitPositive_NextCommandReportsRecommendationAlternativesAndDraft
 		t.Fatalf("next --all exit = %d, stderr = %s", code, errOut.String())
 	}
 	got = out.String()
-	if strings.Index(got, "P-002/M-002") > strings.Index(got, "P-001/M-001") {
+	if strings.Index(got, "Resume (M-002)") > strings.Index(got, "First (M-001)") {
 		t.Fatalf("doing milestone did not precede todo: %s", got)
 	}
 	activeSection := strings.SplitN(got, "Proposed unfinished milestones", 2)[0]
-	if strings.Contains(activeSection, "P-003/M-003 |") {
+	if strings.Contains(activeSection, "Proposed (M-003) |") {
 		t.Fatalf("draft milestone leaked into active --all list: %s", got)
 	}
 }
@@ -53,7 +53,7 @@ func TestAC186_UnitNegative_NextCommandDoesNotMutateAndHandlesNoActiveWork(t *te
 	if code := runNext([]string{root}, &out, &errOut); code != 0 {
 		t.Fatalf("next exit = %d, stderr = %s", code, errOut.String())
 	}
-	if !strings.Contains(out.String(), "No actionable milestone in active plans.") || !strings.Contains(out.String(), "P-001/M-001") {
+	if !strings.Contains(out.String(), "No actionable milestone in active plans.") || !strings.Contains(out.String(), "Proposed (M-001)") {
 		t.Fatalf("no-active report missing: %s", out.String())
 	}
 	after, err := os.ReadFile(path)

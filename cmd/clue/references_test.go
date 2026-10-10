@@ -24,7 +24,7 @@ func TestAC067_UnitPositive_CoverageListsForeignPointersApart(t *testing.T) {
 	if code != 0 {
 		t.Fatalf("expected a valid corpus, got exit %d: %s", code, out)
 	}
-	want := "clue:robocode-dev/tank-royale@384d27d5/BR-001: named but locally unproven"
+	want := "external evidence clue:robocode-dev/tank-royale@384d27d5/BR-001: named but locally unproven"
 	if !strings.Contains(out, want) {
 		t.Fatalf("expected the pointer listed, got:\n%s", out)
 	}

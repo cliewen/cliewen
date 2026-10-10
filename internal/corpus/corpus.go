@@ -48,12 +48,13 @@ func (i Issue) String() string { return i.Path + ": " + i.Msg }
 // Corpus is a scanned repository: the artifact graph plus the file
 // inventory the layout rules need.
 type Corpus struct {
-	Root       string
-	Artifacts  []*Artifact
-	ByID       map[string][]*Artifact // >1 entry means duplicate identity
-	MDFiles    []string               // all .md under docs/ and changes/
-	Contents   map[string]string      // path -> file text (LF-normalized)
-	HasChanges bool                   // any file under changes/
+	Root                 string
+	Artifacts            []*Artifact
+	ByID                 map[string][]*Artifact // >1 entry means duplicate identity
+	MDFiles              []string               // all .md under docs/ and changes/
+	Contents             map[string]string      // path -> file text (LF-normalized)
+	HasChanges           bool                   // any file under changes/
+	localIssueReferences map[Issue][]string     // explicit local diagnostic subjects; presentation only
 }
 
 // Scan walks docs/ and changes/ under root, parsing frontmatter into the

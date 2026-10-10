@@ -1043,5 +1043,52 @@ events:
     - {id: AC-231, kind: numeric, state: live, prefix: AC, component: "231"}
     - {id: AC-228, kind: numeric, state: retired, prefix: AC, component: "228"}
     - {id: AC-229, kind: numeric, state: retired, prefix: AC, component: "229"}
+    - {id: AN-038, kind: numeric, state: reserved, prefix: AN, component: "38"}
+    - {id: CH-206, kind: numeric, state: reserved, prefix: CH, component: "206"}
+    - {id: G-026, kind: numeric, state: reserved, prefix: G, component: "26"}
+    - {id: CAP-013, kind: numeric, state: reserved, prefix: CAP, component: "13"}
+    - {id: PDR-071, kind: numeric, state: reserved, prefix: PDR, component: "71"}
+    - {id: C-025, kind: numeric, state: reserved, prefix: C, component: "25"}
+    - {id: AC-232, kind: numeric, state: reserved, prefix: AC, component: "232"}
+    - {id: AC-233, kind: numeric, state: reserved, prefix: AC, component: "233"}
+    - {id: AC-234, kind: numeric, state: reserved, prefix: AC, component: "234"}
+    - {id: AC-235, kind: numeric, state: reserved, prefix: AC, component: "235"}
+    - {id: CH-206, kind: numeric, state: live, prefix: CH, component: "206"}
+    - {id: CH-206-tasks, kind: opaque, state: live}
+    - {id: CH-206-questions, kind: opaque, state: live}
+    - {id: G-027, kind: numeric, state: reserved, prefix: G, component: "27"}
+    - {id: G-026, kind: numeric, state: live, prefix: G, component: "26"}
+    - {id: G-027, kind: numeric, state: live, prefix: G, component: "27"}
+    - {id: CAP-013, kind: numeric, state: live, prefix: CAP, component: "13"}
+    - {id: CAP-013-criteria, kind: opaque, state: live}
+    - {id: CAP-013-design, kind: opaque, state: live}
+    - {id: PDR-071, kind: numeric, state: live, prefix: PDR, component: "71"}
+    - {id: C-025, kind: numeric, state: live, prefix: C, component: "25"}
+    - {id: AC-232, kind: numeric, state: live, prefix: AC, component: "232"}
+    - {id: AC-233, kind: numeric, state: live, prefix: AC, component: "233"}
+    - {id: AC-234, kind: numeric, state: live, prefix: AC, component: "234"}
+    - {id: AC-235, kind: numeric, state: live, prefix: AC, component: "235"}
+    - {id: CH-206, kind: numeric, state: retired, prefix: CH, component: "206"}
+    - {id: CH-206-tasks, kind: opaque, state: retired}
+    - {id: CH-206-questions, kind: opaque, state: retired}
+    - {id: CH-207, kind: numeric, state: reserved, prefix: CH, component: "207"}
+    - {id: PDR-072, kind: numeric, state: reserved, prefix: PDR, component: "72"}
+    - {id: G-028, kind: numeric, state: reserved, prefix: G, component: "28"}
+    - {id: AC-236, kind: numeric, state: reserved, prefix: AC, component: "236"}
+    - {id: AC-237, kind: numeric, state: reserved, prefix: AC, component: "237"}
+    - {id: AC-238, kind: numeric, state: reserved, prefix: AC, component: "238"}
+    - {id: CH-207, kind: numeric, state: live, prefix: CH, component: "207"}
+    - {id: CH-207-tasks, kind: opaque, state: live}
+    - {id: CH-207-questions, kind: opaque, state: live}
+    - {id: PDR-072, kind: numeric, state: live, prefix: PDR, component: "72"}
+    - {id: G-028, kind: numeric, state: live, prefix: G, component: "28"}
+    - {id: AC-236, kind: numeric, state: live, prefix: AC, component: "236"}
+    - {id: AC-237, kind: numeric, state: live, prefix: AC, component: "237"}
+    - {id: AC-238, kind: numeric, state: live, prefix: AC, component: "238"}
+    - {id: AC-220, kind: numeric, state: retired, prefix: AC, component: "220"}
+    - {id: CH-207, kind: numeric, state: retired, prefix: CH, component: "207"}
+    - {id: CH-207-tasks, kind: opaque, state: retired}
+    - {id: CH-207-questions, kind: opaque, state: retired}
 high-water:
     - {id: CH-183, kind: numeric, state: reserved, prefix: CH, component: "183"}
+    - {id: AN-038, kind: numeric, state: reserved, prefix: AN, component: "38"}

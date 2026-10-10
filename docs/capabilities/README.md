@@ -19,4 +19,5 @@ One folder per capability — the middle anchor of the red thread. Every capabil
 - [CAP-009-product-intent/](CAP-009-product-intent/README.md)
 - [CAP-010-team-safe-identity-allocation/](CAP-010-team-safe-identity-allocation/README.md)
 - [CAP-012-local-acceptance/](CAP-012-local-acceptance/README.md)
+- [CAP-013-readable-references/](CAP-013-readable-references/README.md)
 <!-- clue:index:end -->
