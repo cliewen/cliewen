@@ -9,6 +9,8 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 
 ## [Unreleased]
 
+## [0.31.0] - 2026-10-10
+
 ### Changed
 
 - Approve an exact reviewed candidate in your conversation and let the agent execute local integration with a recorded approval. `clue accept --approval <file>` binds the decision to the candidate, base and complete brief hash, retains the actual approval and repeats all freshness checks. Explicitly authorize the push if you want that delegated too.
@@ -19,7 +21,7 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 
 ### Migration
 
-- After upgrading, preview `clue migrate` and apply the reviewed managed-instruction update. Align custom repository instructions with the same writing method. No new corpus schema or identity migration is required.
+- After upgrading, preview `clue migrate` and apply the reviewed managed-instruction update. Align custom repository instructions with the same writing method. Run `clue init` to add the approval-record template without overwriting existing files. No new corpus schema or identity migration is required.
 
 ## [0.30.0] - 2026-10-09
 
