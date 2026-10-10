@@ -7,7 +7,7 @@ title: Readable references
 
 Write the meaning a reader needs in the sentence itself. Explain what a referenced goal, decision, criterion, change or rule means for this work, so the reader can understand the purpose and required action without opening it. A title or link alone is insufficient when the consequence remains implicit.
 
-Use descriptive link text for optional detail and verification. Show the canonical ID as secondary information only when precise identification helps, for example “informed acceptance (G-016)”. Read the referenced source before describing it; do not invent its meaning. A short reference table may help a long document, but the main text must stand on its own. Summarize the relevant effect without copying whole records into a second source of truth.
+Use descriptive link text for optional detail and verification. Show the canonical ID as secondary information only when precise identification helps, for example `readable goal name (G-123)`. Read the referenced source before describing it; do not invent its meaning. A short reference table may help a long document, but the main text must stand on its own. Summarize the relevant effect without copying whole records into a second source of truth.
 
 Apply this method to documents, changelogs, human CLI messages, status updates, reports and acceptance handoffs. Changelogs state the user-visible change and required upgrade action; omit internal decision, criterion and migration IDs. A useful sentence is “Repositories requiring pull requests must select PR acceptance explicitly before upgrading”, rather than naming a migration code and expecting the reader to look it up.
 

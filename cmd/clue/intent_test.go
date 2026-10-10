@@ -125,7 +125,7 @@ func TestAC165_UnitPositive_ContextNamesTheUseCasesReachingTheRoot(t *testing.T)
 		t.Fatalf("expected exit 0, got %d\n%s", code, errOut.String())
 	}
 	printed := out.String()
-	if !strings.Contains(printed, "use case(s) naming this artifact") || !strings.Contains(printed, "UC-001 | A journey | docs/use-cases/UC-001-a-journey.md") {
+	if !strings.Contains(printed, "use case(s) naming this artifact") || !strings.Contains(printed, "A journey (UC-001) | docs/use-cases/UC-001-a-journey.md") {
 		t.Fatalf("context did not name the use case:\n%s", printed)
 	}
 	// Names only: the use case's own body never reaches the slice.

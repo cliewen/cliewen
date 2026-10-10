@@ -37,7 +37,7 @@ producers:
       - path: cmd/clue/init_test.go
         sha256: 61acce05672ac81adc52733c3411f6743872a044c17483bc01fde2b167b5091d
       - path: cmd/clue/intent_test.go
-        sha256: 5f59bf23f22235b1c4124408c78af17098d26d11a2227810d6ddcdee69b891b5
+        sha256: 76480eb55f3422ad69de45315858a9fbe2761d2c60dfb620bde584e300e359bc
       - path: cmd/clue/latest_test.go
         sha256: 8777c8f6d34bd33a6d07b3229263718493f0471c6b49686d73e3e87511bb15a4
       - path: cmd/clue/main_test.go
