@@ -2460,6 +2460,11 @@ claims:
       state: reserved
       prefix: G
       component: "27"
+    - id: G-028
+      kind: numeric
+      state: reserved
+      prefix: G
+      component: "28"
     - id: IC-001
       kind: numeric
       state: reserved
@@ -3626,11 +3631,11 @@ high-water:
       state: reserved
       prefix: P
       component: "24"
-    - id: PDR-071
+    - id: PDR-072
       kind: numeric
       state: reserved
       prefix: PDR
-      component: "71"
+      component: "72"
     - id: UC-002
       kind: numeric
       state: reserved
