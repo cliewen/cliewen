@@ -681,7 +681,7 @@ producers:
       - path: internal/accept/approval_test.go
         sha256: 088579bf0672affb71a0e5878919dbdc5740167bd92dae9af0bb62f25876f07b
       - path: internal/accept/snapshot_test.go
-        sha256: 321b3dd64b88ebc52b3c27921147a80207a8c24e1525026cb74f58de4534b5da
+        sha256: d8b2706e817325405929e5711afcecd46a619767d88bb0a69e8e1aed3d699365
       - path: internal/acceptpolicy/policy_test.go
         sha256: 45ace0bc2647644cb7cc213e029f58e183985fe4252380d34a44aac4f3239f98
       - path: internal/carriers/carriers_test.go
@@ -1425,6 +1425,11 @@ producers:
       - id: AC-236
         path: internal/accept/snapshot_test.go
         subject: test TestAC236_IntegrationNegative_ExternalDanglingMetadataAndCyclesFailClosed
+        type: Integration
+        direction: negative
+      - id: AC-236
+        path: internal/accept/snapshot_test.go
+        subject: test TestAC236_IntegrationNegative_OversizedLinkBlobFailsWithoutBlockedGitReader
         type: Integration
         direction: negative
       - id: AC-236

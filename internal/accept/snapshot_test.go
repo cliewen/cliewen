@@ -90,3 +90,10 @@ func TestAC236_IntegrationNegative_ExcessiveAcyclicLinkExpansionIsBounded(t *tes
 		t.Fatalf("unbounded expansion: %v", e)
 	}
 }
+
+func TestAC236_IntegrationNegative_OversizedLinkBlobFailsWithoutBlockedGitReader(t *testing.T) {
+	root, rev := snapshotFixture(t, map[string]string{"link": strings.Repeat("x", 100000)})
+	if e := materialize(root, rev, t.TempDir()); e == nil {
+		t.Fatal("oversized link accepted")
+	}
+}

@@ -104,7 +104,14 @@ func materialize(root, revision, destination string) error {
 		input.Close()
 		return err
 	}
-	defer func() { input.Close(); _ = c.Wait() }()
+	blobsRead := false
+	defer func() {
+		input.Close()
+		if !blobsRead && c.Process != nil {
+			_ = c.Process.Kill()
+		}
+		_ = c.Wait()
+	}()
 	reader := bufio.NewReader(output)
 	for _, name := range names {
 		node := nodes[name]
@@ -154,6 +161,7 @@ func materialize(root, revision, destination string) error {
 			return fmt.Errorf("invalid candidate blob terminator")
 		}
 	}
+	blobsRead = true
 	var resolve func(string, map[string]bool) (string, error)
 	resolve = func(name string, chain map[string]bool) (string, error) {
 		if name == "" {
