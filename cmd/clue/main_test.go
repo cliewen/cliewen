@@ -145,7 +145,7 @@ func TestAC052_RealityGapsFlagPrintsAffectedCapability(t *testing.T) {
 	writeFile(t, root, "docs/analysis/README.md", "---\ntype: index\ntitle: Analysis\n---\n\n# Analysis\n\n<!-- clue:index:start -->\n- [AN-101](AN-101-incident.md)\n<!-- clue:index:end -->\n")
 	writeFile(t, root, "docs/analysis/AN-101-incident.md", "---\nid: AN-101\ntype: analysis\nstatus: active\nlinks: [AC-101]\ntitle: Incident\nreality: contradicted\n---\n")
 	code, out := runValidateCapturingStdout(t, []string{"--reality-gaps", root})
-	if code != 0 || !strings.Contains(out, "CAP-101: contradicted by AN-101") {
+	if code != 0 || !strings.Contains(out, "X (CAP-101): contradicted by Incident (AN-101)") {
 		t.Fatalf("expected derived reality gap, code=%d output=%q", code, out)
 	}
 }

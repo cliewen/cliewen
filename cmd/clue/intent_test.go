@@ -47,7 +47,7 @@ func TestAC164_UnitPositive_IntentReportNamesTheVisionAndItsProvenance(t *testin
 		t.Fatalf("expected exit 0, got %d\n%s", code, out.String())
 	}
 	printed := out.String()
-	for _, want := range []string{"vision: VIS-001", "active", "inferred", "use case: UC-001", "crosses CAP-001"} {
+	for _, want := range []string{"vision: A product (VIS-001)", "active", "inferred", "use case: A journey (UC-001)", "crosses A capability (CAP-001)"} {
 		if !strings.Contains(printed, want) {
 			t.Fatalf("intent report does not state %q:\n%s", want, printed)
 		}
@@ -90,8 +90,8 @@ func TestAC202_UnitPositive_IntentReportNamesGoalCapabilitiesAndPlans(t *testing
 	}
 	printed := out.String()
 	for _, want := range []string{
-		"goal: G-001 First goal (accepted) capabilities: CAP-001 (active), CAP-002 (active), plans: none",
-		"goal: G-002 Second goal (accepted) capabilities: none, plans: P-002 (completed)",
+		"goal: First goal (G-001) (accepted) capabilities: A capability (CAP-001) (active), Another capability (CAP-002) (active), plans: none",
+		"goal: Second goal (G-002) (accepted) capabilities: none, plans: Delivered (P-002) (completed)",
 	} {
 		if !strings.Contains(printed, want) {
 			t.Fatalf("intent report does not state %q:\n%s", want, printed)
@@ -107,7 +107,7 @@ func TestAC202_UnitNegative_IntentReportComputesNoGoalCoverageFigure(t *testing.
 		t.Fatalf("expected exit 0, got %d\n%s", code, out.String())
 	}
 	printed := out.String()
-	if !strings.Contains(printed, "goal: G-001 First goal (accepted) capabilities:") {
+	if !strings.Contains(printed, "goal: First goal (G-001) (accepted) capabilities:") {
 		t.Fatalf("intent report does not name the goal:\n%s", printed)
 	}
 	for _, forbidden := range []string{"%", "coverage", "0 of ", "1 of ", "2 of "} {

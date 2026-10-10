@@ -510,26 +510,26 @@ func checkLedger(c *Corpus) []Issue {
 		switch e.State {
 		case ledger.StateReserved, ledger.StateLive, ledger.StateRetired:
 		default:
-			issues = append(issues, Issue{ledger.DefaultPath, "entry " + e.ID + " has invalid state " + string(e.State)})
+			issues = append(issues, localIssue(c, ledger.DefaultPath, "entry "+e.ID+" has invalid state "+string(e.State), e.ID))
 		}
 		switch e.Kind {
 		case ledger.KindNumeric:
 			if !ledger.ValidNumericEntry(e) {
-				issues = append(issues, Issue{ledger.DefaultPath, "entry " + e.ID + " is numeric-kind but its ID, prefix, and component do not agree"})
+				issues = append(issues, localIssue(c, ledger.DefaultPath, "entry "+e.ID+" is numeric-kind but its ID, prefix, and component do not agree", e.ID))
 			}
 		case ledger.KindOpaque:
 			if e.Component != nil || e.Prefix != "" {
-				issues = append(issues, Issue{ledger.DefaultPath, "entry " + e.ID + " is opaque-kind but carries numeric fields"})
+				issues = append(issues, localIssue(c, ledger.DefaultPath, "entry "+e.ID+" is opaque-kind but carries numeric fields", e.ID))
 			}
 		default:
-			issues = append(issues, Issue{ledger.DefaultPath, "entry " + e.ID + " has invalid kind " + string(e.Kind)})
+			issues = append(issues, localIssue(c, ledger.DefaultPath, "entry "+e.ID+" has invalid kind "+string(e.Kind), e.ID))
 		}
 	}
 	for id, as := range c.ByID {
 		entry, ok := l.Lookup(id)
 		if !ok {
 			for _, a := range as {
-				issues = append(issues, Issue{a.Path, "id " + id + " is missing from " + ledger.DefaultPath})
+				issues = append(issues, localIssue(c, a.Path, "id "+id+" is missing from "+ledger.DefaultPath, id))
 			}
 			continue
 		}
@@ -537,13 +537,13 @@ func checkLedger(c *Corpus) []Issue {
 			continue
 		}
 		for _, a := range as {
-			issues = append(issues, Issue{a.Path, "id " + id + " is marked " + string(entry.State) + " in " + ledger.DefaultPath + " and cannot be used by a live artifact"})
+			issues = append(issues, localIssue(c, a.Path, "id "+id+" is marked "+string(entry.State)+" in "+ledger.DefaultPath+" and cannot be used by a live artifact", id))
 		}
 	}
 	for _, criterion := range LedgerCriterionIdentities(c) {
 		entry, ok := l.Lookup(criterion.ID)
 		if !ok {
-			issues = append(issues, Issue{criterion.Path, "criterion " + criterion.ID + " is missing from " + ledger.DefaultPath})
+			issues = append(issues, localIssue(c, criterion.Path, "criterion "+criterion.ID+" is missing from "+ledger.DefaultPath, criterion.ID))
 			continue
 		}
 		want := ledger.StateLive
@@ -553,7 +553,7 @@ func checkLedger(c *Corpus) []Issue {
 			continue
 		}
 		if entry.State != want {
-			issues = append(issues, Issue{criterion.Path, "criterion " + criterion.ID + " is marked " + string(entry.State) + " in " + ledger.DefaultPath + " but its declaration is " + string(want)})
+			issues = append(issues, localIssue(c, criterion.Path, "criterion "+criterion.ID+" is marked "+string(entry.State)+" in "+ledger.DefaultPath+" but its declaration is "+string(want), criterion.ID))
 		}
 	}
 	return issues
@@ -600,7 +600,7 @@ func checkImportedChanges(c *Corpus) []Issue {
 			provable[id] = !d.Draft && !d.Retired
 		}
 		for _, id := range importedchange.UnprovenLinks(links, provable) {
-			issues = append(issues, Issue{a.Path, "imported-change is complete but proof-linked criterion " + id + " does not exist, is @draft, or is retired (ADR-050)"})
+			issues = append(issues, localIssue(c, a.Path, "imported-change is complete but proof-linked criterion "+id+" does not exist, is @draft, or is retired (ADR-050)", id))
 		}
 	}
 	return issues
@@ -648,7 +648,7 @@ func checkLinks(c *Corpus) []Issue {
 		for _, l := range a.Links {
 			if milestoneRe.MatchString(l) {
 				if !milestones[l] {
-					issues = append(issues, Issue{a.Path, "link " + l + " not found in any plan"})
+					issues = append(issues, localIssue(c, a.Path, "link "+l+" not found in any plan", l))
 				}
 				continue
 			}
@@ -666,9 +666,9 @@ func checkLinks(c *Corpus) []Issue {
 					if a.Type == "plan" && a.Status == "completed" {
 						continue
 					}
-					issues = append(issues, Issue{a.Path, "link " + l + " was retired — repoint to its successor " + successor + ", which names " + l + " in its supersedes field"})
+					issues = append(issues, localIssue(c, a.Path, "link "+l+" was retired — repoint to its successor "+successor+", which names "+l+" in its supersedes field", l, successor))
 				} else {
-					issues = append(issues, Issue{a.Path, "link " + l + " resolves to no artifact"})
+					issues = append(issues, localIssue(c, a.Path, "link "+l+" resolves to no artifact", l))
 				}
 			}
 		}

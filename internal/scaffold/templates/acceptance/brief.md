@@ -9,7 +9,7 @@ reviewed: <REQUIRED>
 
 ## Intent
 
-<REQUIRED> State the plan item or plan-less status, vision or absence, whether this outcome remains wanted, and consequential uncertainty.
+<REQUIRED> Explain the relevant meaning inline and use descriptive links for optional detail; keep any useful ID secondary. State the plan item or plan-less status, vision or absence, whether this outcome remains wanted, and consequential uncertainty.
 
 ## Criteria and evidence
 

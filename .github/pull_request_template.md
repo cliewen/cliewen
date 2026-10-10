@@ -2,7 +2,7 @@
 
 <!-- Delete this entire section and every Cliewen-specific section below for direct work. Direct means the accepted contract remains unchanged. -->
 
-<!-- REQUIRED: Replace this comment with a concise, human-facing brief before requesting merge. -->
+<!-- REQUIRED: Replace this comment with a concise, human-facing brief before requesting merge. Explain referenced meaning inline; use descriptive links and secondary IDs so reading needs no identity lookup. -->
 
 - Plan item and whether it remains wanted: <!-- REQUIRED -->
 - The vision this change proceeds under, or that the repository states none: <!-- REQUIRED, or none stated -->

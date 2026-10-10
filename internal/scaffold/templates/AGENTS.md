@@ -28,6 +28,8 @@ Every change assesses documentation impact before it closes. Keep `/docs/archite
 
 When the user asks what is next, run `clue next --all`, report the first actionable milestone and the alternatives, then read the selected plan with `clue context` before asking whether to start. For a tracked change, read [`docs/README.md`](docs/README.md) only when the request does not name or resolve to an artifact; use it to identify the closest artifact, then run `clue context <id>`. When an identity is already known, run `clue context` directly and read the bounded slice it prints. The `/docs` corpus remains the system-of-record and working memory.
 
+Explain referenced meaning in the text so a person can understand it without identity lookups. Before writing human prose, reports or handoffs, follow [Readable references](.agents/skills/clue-analysis/references/readable-references.md). Canonical IDs remain unchanged where they are literal or machine-facing data.
+
 ## Repository conventions
 
 **Markdown prose is never hard-wrapped.** One line per paragraph and per list item; wrapping is the reader's IDE concern. Line breaks are structural only (headings, lists, tables, code fences).

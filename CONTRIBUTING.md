@@ -15,6 +15,10 @@ Thank you for helping improve Cliewen. Participation is governed by the [Code of
 - Desired outcome or unmet need: open the proposed-goal form. A goal issue records demand for consideration; it does not add the goal to Cliewen's accepted plan.
 - Work that leaves the accepted contract unchanged: use the direct route below.
 
+## Writing for readers
+
+Explain the relevant purpose, effect and required action in the sentence itself. Use descriptive links for optional detail and show an ID secondarily when exact identification helps. Follow [Readable references](.agents/skills/clue-analysis/references/readable-references.md) for documents, release notes, human CLI messages and handoffs. Keep literal and machine-facing identities canonical; tests of formatting do not prove comprehension.
+
 ## Before Starting a Change
 
 Before editing, inspect the smallest relevant context and state `Recommended route: direct` or `Recommended route: tracked`, why, and what discovery would change that recommendation. Direct work leaves the accepted contract unchanged: observational analysis with a named consumer, a defect correction restoring an unchanged criterion, regression evidence for an unchanged criterion, in-contract configuration, refactoring, maintenance, and editorial work. Tracked work changes acceptance-criterion, capability, decision, policy, plan-promise, methodology, or uncovered-behavior meaning. Paths and diff size may warn but never decide meaning; uncertainty makes tracked the honest recommendation.

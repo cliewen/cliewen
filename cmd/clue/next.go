@@ -27,9 +27,10 @@ func runNext(args []string, out, errOut io.Writer) int {
 		root = fs.Arg(0)
 	}
 	c, scanIssues := corpus.Scan(root)
+	names := corpus.NewReferenceNames(c)
 	if len(scanIssues) > 0 {
 		for _, issue := range scanIssues {
-			fmt.Fprintln(errOut, issue)
+			fmt.Fprintln(errOut, names.Issue(issue))
 		}
 		fmt.Fprintf(errOut, "clue next: %d scan issue(s)\n", len(scanIssues))
 		return 1
@@ -66,7 +67,7 @@ func runNext(args []string, out, errOut io.Writer) int {
 }
 
 func printMilestone(out io.Writer, milestone corpus.Milestone) {
-	fmt.Fprintf(out, "%s/%s | %s | %s | %s\n", milestone.Plan.ID, milestone.ID, milestone.Status, milestone.Name, milestone.Plan.Path)
+	fmt.Fprintf(out, "%s | %s | plan: %s | %s\n", corpus.HumanReference(milestone.Name, milestone.ID), milestone.Status, corpus.HumanReference(milestone.Plan.Title, milestone.Plan.ID), milestone.Plan.Path)
 	if milestone.ExitCriterion != "" && milestone.ExitCriterion != milestone.Name {
 		fmt.Fprintf(out, "  Exit criterion: %s\n", milestone.ExitCriterion)
 	}

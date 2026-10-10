@@ -18,7 +18,7 @@ func TestAC133_UnitPositive_ContextCommandPrintsCompleteArtifacts(t *testing.T) 
 		t.Fatalf("context exit = %d, stderr = %s", code, errOut.String())
 	}
 	got := out.String()
-	if !strings.HasPrefix(got, "===== P-101 | docs/plans/P-101.md =====\n---\n") {
+	if !strings.HasPrefix(got, "===== Plan (P-101) | docs/plans/P-101.md =====\n---\n") {
 		t.Fatalf("root artifact was not emitted first with complete frontmatter:\n%s", got)
 	}
 	if !strings.Contains(got, "# Complete goal body") {
@@ -68,7 +68,7 @@ func TestAC133_UnitPositive_ContextCommandNamesTheFrontierAndWidens(t *testing.T
 	if strings.Contains(got, "# Distant goal body") {
 		t.Fatalf("an artifact two hops out was printed by the default slice:\n%s", got)
 	}
-	if !strings.Contains(got, "G-101 | Distant goal") {
+	if !strings.Contains(got, "Distant goal (G-101)") {
 		t.Fatalf("the frontier does not name the artifact the bound held back:\n%s", got)
 	}
 	if !strings.Contains(got, "--depth=all") || !strings.Contains(got, "content byte(s)") {
@@ -76,7 +76,7 @@ func TestAC133_UnitPositive_ContextCommandNamesTheFrontierAndWidens(t *testing.T
 	}
 	// AN-101 sits three hops out: the frontier names the next hop and counts
 	// everything past it, so the report cannot grow with the corpus.
-	if strings.Contains(got, "AN-101 | Furthest") {
+	if strings.Contains(got, "Furthest (AN-101)") {
 		t.Fatalf("the frontier named an artifact more than one hop past the bound:\n%s", got)
 	}
 	if !strings.Contains(got, "1 further artifact(s) more than 2 hop(s) out") {

@@ -9,6 +9,15 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 
 ## [Unreleased]
 
+### Changed
+
+- Human CLI reports identify goals, capabilities, criteria and milestones by readable names with secondary IDs. Diagnostics name explicitly local subjects without confusing them with Cliewen's internal rules; validation results and machine-facing identities are unchanged.
+- Agent instructions and acceptance templates explain referenced meaning in the current text and use descriptive links for optional detail. Release notes describe user-visible changes and upgrade actions without internal rule codes.
+
+### Migration
+
+- After upgrading, preview `clue migrate` and apply the reviewed managed-instruction update. Align custom repository instructions with the same writing method. No new corpus schema or identity migration is required.
+
 ## [0.30.0] - 2026-10-09
 
 ### Changed

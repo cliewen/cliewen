@@ -9,6 +9,8 @@ This repository dogfoods Cliewen and declares `role: source` in `.clue/role.yaml
 
 This source repository selects local acceptance on `main` in `.clue/acceptance.yaml`. For tracked work, agents prepare and preflight the exact candidate and brief; only the human runs accepting `clue accept`. Direct work and administrative releases use a human-controlled local merge after their applicable checks. A policy transition is accepted under the previously accepted policy; the switch to local cannot accept itself.
 
+Explain referenced meaning in the text so a person can understand it without identity lookups. Before writing human prose, reports or handoffs, follow [Readable references](.agents/skills/clue-analysis/references/readable-references.md). Canonical IDs remain unchanged where they are literal or machine-facing data.
+
 ## Always first
 
 Before your first tool call, including for a question or review, run `clue latest --quiet`. Route a non-empty result, or an unknown `latest` command, to [`clue-upgrade`](.agents/skills/clue-upgrade/skill.md); the human alone decides whether to upgrade. Run this network check unprompted only for that purpose, never as a validation verdict or required check. Ordinary `clue` workflow commands also report an available update.

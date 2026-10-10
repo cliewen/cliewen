@@ -17,5 +17,6 @@ Investigate an unclear risk or unknown before planning or implementation, and le
 
 Read each reference when its condition is reached, before taking action governed by it. The references are required instructions, not optional background.
 
+- Before writing reader-facing prose, a human report or a handoff, read [Readable references](references/readable-references.md).
 - Before starting the investigation, read [Analysis workflow](references/analysis-workflow.md).
 - If a finding chooses or rejects a consequential course, read [Decision records](references/decision-records.md).

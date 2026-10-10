@@ -17,6 +17,7 @@ Verify a chosen tracked Cliewen change and run its bounded adversarial review be
 
 Read each reference when its condition is reached, before taking action governed by it. The references are required instructions, not optional background.
 
+- Before writing reader-facing prose, a human report or a handoff, read [Readable references](references/readable-references.md).
 - Before writing, migrating, exporting or verifying executable acceptance evidence, read [Evidence workflow](references/evidence-workflow.md).
 - Before confirming that tracked-route verification applies, read [Change routing](references/change-scope-and-tiers.md).
 - Before inspecting or updating hosted pull-request state and before the readiness handoff, read [Review boundary](references/review-boundary.md).

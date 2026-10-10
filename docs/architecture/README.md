@@ -7,6 +7,8 @@ title: Architecture
 
 `clue accept` is the explicit local integration boundary for repositories whose effective policy is local ([CAP-012](../capabilities/CAP-012-local-acceptance/README.md)). It inspects Git history and committed snapshots, then lets a human create an exact-candidate acceptance merge. It does not change the state-only boundary of `clue validate`, execute tests, authenticate human presence, or alter identity coordination. `.clue/acceptance.yaml` records the accepted mode and integration branch; this source repository selects local on main under PDR-070.
 
+Human CLI presentation reads local corpus names and the checks' explicit local subjects without altering raw findings or loading external targets. The [readable-reference capability](../capabilities/CAP-013-readable-references/README.md) describes the same method in agent instructions and handoffs.
+
 This is Cliewen's system-structure overview: the actors, boundaries, and durable technology choices that shape every capability. The cross-cutting runtime view is [design/](../design/README.md); capability-local implementation detail remains in each capability's `design.md`. Keep this page concise and update it when the system's structure changes.
 
 ```mermaid
