@@ -665,7 +665,7 @@ producers:
       - path: docs/plans/P-024-repeatable-scenario-trials.md
         sha256: b0c65117cf90bce64a3eb7eebf9a30fe3bdd5d6e457998d03d515d4502b6d7b7
       - path: docs/plans/P-025-commands-are-safe-to-rerun.md
-        sha256: f9224e582d0f9a5c064f5d63f381abccdbbdb5c7019e62a279573e86107b1bcb
+        sha256: 8d8f9c1b810cd4843f0b9b1e2013982ac204a78876aabc510ef4f3d1be798b87
       - path: docs/plans/README.md
         sha256: e991739e9e5d9bbb511a1699261e45226503e3bc0bb92ab017df6c019dd76167
       - path: docs/use-cases/README.md
