@@ -106,6 +106,9 @@ Commands:
              is left untouched: nothing is written through it, and it is
              reported as linked.
 
+             To refresh only the README indexes, run "clue scaffold": init
+             also recreates a policy or scaffold file you deliberately removed.
+
              The architecture and design overview templates and the vision
              are marked bootstrap placeholders. Replace them with concise,
              repository-specific truth before clue validate can pass. The
