@@ -73,7 +73,7 @@ Usage:
   clue next [--all] [path]
   clue accept <candidate-sha> --base <base-sha> --brief <file> [--approval <file>] [--check]
   clue id coordinate [--remote=<name>] [--force] [--timeout=<duration>] [path]
-  clue id next [--count=<n>] [--remote=<name>] [--timeout=<duration>] <prefix> [path]
+  clue id next [--count=<n>] [--dry-run] [--remote=<name>] [--timeout=<duration>] <prefix> [path]
   clue id sync [--remote=<name>] [--timeout=<duration>] [path]
   clue id live <id> [path]
   clue id repair [path]
@@ -159,6 +159,8 @@ Commands:
              retries races until --timeout; local mode preserves the earlier
              checkout-local behavior and warns that parallel use is unsafe.
              Every successful claim is reserved in the ledger.
+             --dry-run prints the next IDs without reserving anything; it
+             reads the local ledger only. Flags go before the prefix.
 
   id sync    Import the coordinated remote's permanent reservations without
              pushing, for assigned IDs, fork contributors, recovery after a
@@ -646,12 +648,22 @@ func runIDNext(args []string, out, errOut io.Writer) int {
 	count := fs.Int("count", 1, "number of consecutive IDs to reserve")
 	remote := fs.String("remote", "", "override the configured Git remote")
 	timeout := fs.Duration("timeout", 30*time.Second, "overall allocation timeout")
+	dryRun := fs.Bool("dry-run", false, "print the next IDs without reserving them; the ledger is left unchanged")
 	if err := fs.Parse(args); err != nil {
 		return 2
 	}
 	if fs.NArg() < 1 {
 		fmt.Fprintln(errOut, "clue id next: expected a prefix")
 		return 2
+	}
+	// The flag package stops at the first positional argument, so a flag
+	// written after the prefix would be read as the repository path and
+	// silently ignored, which for --dry-run would reserve an ID.
+	for _, a := range fs.Args() {
+		if strings.HasPrefix(a, "-") {
+			fmt.Fprintf(errOut, "clue id next: flag %s must come before the prefix\n", a)
+			return 2
+		}
 	}
 	prefix := fs.Arg(0)
 	root := "."
@@ -681,7 +693,18 @@ func runIDNext(args []string, out, errOut io.Writer) int {
 		return 2
 	}
 	var ids []string
-	if l.Coordination().Mode == "git" {
+	if *dryRun {
+		// Computed on the loaded copy and never saved, so the ledger and the
+		// remote allocator are untouched.
+		ids, err = l.NextNumericN(prefix, *count)
+		if err != nil {
+			fmt.Fprintf(errOut, "clue id next: %v\n", err)
+			return 2
+		}
+		if l.Coordination().Mode == "git" {
+			fmt.Fprintln(errOut, "clue id next: dry run reads the local ledger only; run `clue id sync` first to include claims on the remote")
+		}
+	} else if l.Coordination().Mode == "git" {
 		ids, err = idalloc.Allocate(root, prefix, *remote, *count, *timeout)
 		if err != nil {
 			if len(ids) > 0 {

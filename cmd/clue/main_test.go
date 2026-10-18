@@ -743,6 +743,69 @@ func TestAC174_UnitNegative_IDNextRejectsNonPositiveBatch(t *testing.T) {
 	}
 }
 
+// Sanity: id next --dry-run previews the identity without reserving it, for
+// a milestone prefix as for any other, and the ordinary form still reserves.
+func TestSanity_IDNextDryRunLeavesTheLedgerUnchanged(t *testing.T) {
+	root := t.TempDir()
+	l, err := ledger.Load(root)
+	if err != nil {
+		t.Fatalf("Load: %v", err)
+	}
+	if err := l.Save(); err != nil {
+		t.Fatalf("Save: %v", err)
+	}
+	ledgerPath := filepath.Join(root, ".clue", "id-ledger.yaml")
+	before, err := os.ReadFile(ledgerPath)
+	if err != nil {
+		t.Fatalf("read ledger: %v", err)
+	}
+	for _, prefix := range []string{"CH", "M"} {
+		var out, errOut strings.Builder
+		if code := runID([]string{"next", "--dry-run", prefix, root}, &out, &errOut); code != 0 {
+			t.Fatalf("dry run %s exit code = %d, stderr=%q", prefix, code, errOut.String())
+		}
+		if want := prefix + "-001\n"; out.String() != want {
+			t.Fatalf("dry run %s printed %q, want %q", prefix, out.String(), want)
+		}
+		after, _ := os.ReadFile(ledgerPath)
+		if string(after) != string(before) {
+			t.Fatalf("dry run %s changed the ledger:\n%s", prefix, after)
+		}
+	}
+	var out, errOut strings.Builder
+	if code := runID([]string{"next", "M", root}, &out, &errOut); code != 0 || out.String() != "M-001\n" {
+		t.Fatalf("ordinary next = %d %q, stderr=%q", code, out.String(), errOut.String())
+	}
+	if after, _ := os.ReadFile(ledgerPath); string(after) == string(before) {
+		t.Fatal("the ordinary form did not reserve the identity")
+	}
+}
+
+// Sanity: a flag written after the prefix is rejected rather than read as the
+// repository path, which would have reserved an identity during a dry run.
+func TestSanity_IDNextRejectsAFlagAfterThePrefix(t *testing.T) {
+	root := t.TempDir()
+	l, err := ledger.Load(root)
+	if err != nil {
+		t.Fatalf("Load: %v", err)
+	}
+	if err := l.Save(); err != nil {
+		t.Fatalf("Save: %v", err)
+	}
+	ledgerPath := filepath.Join(root, ".clue", "id-ledger.yaml")
+	before, _ := os.ReadFile(ledgerPath)
+	var out, errOut strings.Builder
+	if code := runID([]string{"next", "CH", "--dry-run", root}, &out, &errOut); code != 2 {
+		t.Fatalf("misplaced flag exit code = %d, want 2", code)
+	}
+	if !strings.Contains(errOut.String(), "must come before the prefix") {
+		t.Fatalf("error = %q", errOut.String())
+	}
+	if after, _ := os.ReadFile(ledgerPath); string(after) != string(before) {
+		t.Fatal("a rejected command changed the ledger")
+	}
+}
+
 func TestAC108_UnitPositive_IDLivePromotesReservedID(t *testing.T) {
 	root := t.TempDir()
 	l, err := ledger.Load(root)

@@ -41,7 +41,7 @@ producers:
       - path: cmd/clue/latest_test.go
         sha256: 8777c8f6d34bd33a6d07b3229263718493f0471c6b49686d73e3e87511bb15a4
       - path: cmd/clue/main_test.go
-        sha256: 78a8ac1944306051bf93db1444dcaa4e6705db3540553bfdeb1c823d11e84909
+        sha256: 656df939c3686d741fae1724658be77e69dceb0e96a9a2575e0d325b76908367
       - path: cmd/clue/merge_gate_test.go
         sha256: 5ffe7ac6d1bca448808d79a252900b8114aac38e44f3520823626b457816c9c4
       - path: cmd/clue/next_test.go
@@ -665,7 +665,7 @@ producers:
       - path: docs/plans/P-024-repeatable-scenario-trials.md
         sha256: b0c65117cf90bce64a3eb7eebf9a30fe3bdd5d6e457998d03d515d4502b6d7b7
       - path: docs/plans/P-025-commands-are-safe-to-rerun.md
-        sha256: 98b24154c1d36b5e78f166f38c0a18f8cc166e3e7c57c2f1cb852ab19e74d621
+        sha256: f9224e582d0f9a5c064f5d63f381abccdbbdb5c7019e62a279573e86107b1bcb
       - path: docs/plans/README.md
         sha256: e991739e9e5d9bbb511a1699261e45226503e3bc0bb92ab017df6c019dd76167
       - path: docs/use-cases/README.md

@@ -11,6 +11,7 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 
 ### Changed
 
+- `clue id next --dry-run <prefix>` prints the next identity without reserving it, and leaves the ledger unchanged. A flag written after the prefix is now rejected instead of being read as the repository path.
 - To refresh only a repository's README indexes, the change-loop skill and `clue help` now point to `clue scaffold`. `clue init` also recreates any acceptance policy, vision bootstrap or evidence template you deliberately removed, so it is the wrong command for an index refresh.
 
 ## [0.31.0] - 2026-10-10
