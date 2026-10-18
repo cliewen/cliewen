@@ -664,8 +664,10 @@ producers:
         sha256: 57bf9a35e727b52dad20e918f9867f359bfbdd14aa884acb9ef858b62296d4a1
       - path: docs/plans/P-024-repeatable-scenario-trials.md
         sha256: b0c65117cf90bce64a3eb7eebf9a30fe3bdd5d6e457998d03d515d4502b6d7b7
+      - path: docs/plans/P-025-commands-are-safe-to-rerun.md
+        sha256: 337cc06d7aec98d2b383ff38364474310dc3dce2ae03aa1dcbb037f4ae9dbdcc
       - path: docs/plans/README.md
-        sha256: 791f58143428dcdfef1799ea3975e587826595775e4eddfd7e6d00d6ec8044c8
+        sha256: e991739e9e5d9bbb511a1699261e45226503e3bc0bb92ab017df6c019dd76167
       - path: docs/use-cases/README.md
         sha256: cd3895091a18d9b3c4bde031378fa16c8463fff19c2fecc94c7c6503a175f4c0
       - path: docs/use-cases/UC-001-adopt-cliewen-in-an-existing-repository.md
