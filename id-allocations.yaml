@@ -3085,6 +3085,21 @@ claims:
       state: reserved
       prefix: M
       component: "109"
+    - id: M-110
+      kind: numeric
+      state: reserved
+      prefix: M
+      component: "110"
+    - id: M-111
+      kind: numeric
+      state: reserved
+      prefix: M
+      component: "111"
+    - id: M-112
+      kind: numeric
+      state: reserved
+      prefix: M
+      component: "112"
     - id: P-001
       kind: numeric
       state: reserved
@@ -3646,11 +3661,11 @@ high-water:
       state: reserved
       prefix: M
       component: "109"
-    - id: P-024
+    - id: P-025
       kind: numeric
       state: reserved
       prefix: P
-      component: "24"
+      component: "25"
     - id: PDR-072
       kind: numeric
       state: reserved
