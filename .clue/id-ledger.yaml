@@ -1104,6 +1104,7 @@ events:
     - {id: M-114, kind: numeric, state: live, prefix: M, component: "114"}
     - {id: M-110, kind: numeric, state: retired, prefix: M, component: "110"}
     - {id: M-111, kind: numeric, state: retired, prefix: M, component: "111"}
+    - {id: M-112, kind: numeric, state: retired, prefix: M, component: "112"}
     - {id: M-115, kind: numeric, state: reserved, prefix: M, component: "115"}
     - {id: M-115, kind: numeric, state: live, prefix: M, component: "115"}
 high-water:

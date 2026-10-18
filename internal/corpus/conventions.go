@@ -320,7 +320,7 @@ func checkProposalPlanItem(c *Corpus) []Issue {
 			}
 		}
 		if !planned {
-			issues = append(issues, Issue{a.Path, "proposal names no plan item: link a P-xxx or M-xxx, or declare the change plan-less (C-005)"})
+			issues = append(issues, Issue{a.Path, "proposal names no plan item: link a P-xxx or M-xxx, or declare the change plan-less by writing the word plan-less in the proposal body"})
 		}
 	}
 	return issues

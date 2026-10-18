@@ -665,7 +665,7 @@ producers:
       - path: docs/plans/P-024-repeatable-scenario-trials.md
         sha256: b0c65117cf90bce64a3eb7eebf9a30fe3bdd5d6e457998d03d515d4502b6d7b7
       - path: docs/plans/P-025-commands-are-safe-to-rerun.md
-        sha256: 8d8f9c1b810cd4843f0b9b1e2013982ac204a78876aabc510ef4f3d1be798b87
+        sha256: dabcea604b4de7386c35ff66005677b9a89f6800d895d1457a24adf168105f0d
       - path: docs/plans/README.md
         sha256: e991739e9e5d9bbb511a1699261e45226503e3bc0bb92ab017df6c019dd76167
       - path: docs/use-cases/README.md
@@ -705,7 +705,7 @@ producers:
       - path: internal/corpus/context_test.go
         sha256: 37ef4c346d3d4266267199bb46e096635e05c189c99c6be3e0cd20127faa3c63
       - path: internal/corpus/conventions_test.go
-        sha256: 2bcd7b8f7dfa4cacbd1ccc072e7b0acdb09e4870d9eadb8d1f074348fb6165ea
+        sha256: 7eef59d5d512f221c2bc4fe531adb28c8480634b26af690e5e56ad6f3e1edd91
       - path: internal/corpus/corpus_test.go
         sha256: 87533c63b5fb6c1dcc3214f42042a1df1fc3fadbddc5407095dc2a0b56ca6630
       - path: internal/corpus/coverage_test.go

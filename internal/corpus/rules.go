@@ -397,6 +397,30 @@ func checkConstraintSource(c *Corpus, a *Artifact, source string) []Issue {
 	return issues
 }
 
+// workspaceIDHint says what a change workspace's tasks or open-questions file
+// must carry as its id, so a new workspace passes on the first run: the
+// change's own identity followed by the file's name, with the one status the
+// type allows.
+func workspaceIDHint(path string, missing []string) string {
+	if !strings.HasPrefix(path, "changes/") {
+		return ""
+	}
+	hasID := false
+	for _, f := range missing {
+		hasID = hasID || f == "id"
+	}
+	if !hasID {
+		return ""
+	}
+	switch {
+	case strings.HasSuffix(path, "/tasks.md"):
+		return "tasks.md takes id CH-xxx-tasks, type tasks, status open"
+	case strings.HasSuffix(path, "/open-questions.md"):
+		return "open-questions.md takes id CH-xxx-open-questions, type open-questions, status open or resolved"
+	}
+	return ""
+}
+
 func checkCoreFields(c *Corpus) []Issue {
 	var issues []Issue
 	for _, a := range c.Artifacts {
@@ -416,7 +440,11 @@ func checkCoreFields(c *Corpus) []Issue {
 			}
 		}
 		if len(missing) > 0 {
-			issues = append(issues, Issue{a.Path, "missing or empty core field(s): " + strings.Join(missing, ", ")})
+			msg := "missing or empty core field(s): " + strings.Join(missing, ", ")
+			if hint := workspaceIDHint(a.Path, missing); hint != "" {
+				msg += " (" + hint + ")"
+			}
+			issues = append(issues, Issue{a.Path, msg})
 		}
 	}
 	return issues

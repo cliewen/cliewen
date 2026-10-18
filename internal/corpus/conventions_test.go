@@ -309,6 +309,41 @@ func TestAC092_UnitNegative_ProposalWithoutADeclarationRejected(t *testing.T) {
 	}), false), "proposal names no plan item")
 }
 
+// Sanity: the messages a new workspace meets say what to write, without citing
+// a rule an adopter cannot read.
+func TestSanity_WorkspaceMessagesSayWhatToWrite(t *testing.T) {
+	silent := `---
+id: CH-001-proposal
+type: change
+status: open
+links: [G-001]
+title: A change
+---
+
+# CH-001
+`
+	issues := run(t, changeCorpus(map[string]string{"changes/CH-001-a/proposal.md": silent}), false)
+	assertIssue(t, issues, "the word plan-less in the proposal body")
+	for _, i := range issues {
+		if strings.Contains(i.Msg, "C-005") {
+			t.Fatalf("the plan-less message cites an internal rule: %v", i)
+		}
+	}
+	noID := `---
+type: tasks
+status: open
+links: []
+title: Tasks
+---
+
+- [ ] a
+`
+	assertIssue(t, run(t, changeCorpus(map[string]string{
+		"changes/CH-001-a/proposal.md": validProposal,
+		"changes/CH-001-a/tasks.md":    noID,
+	}), false), "tasks.md takes id CH-xxx-tasks")
+}
+
 // AC-100: image links and assets are valid corpus content. The deterministic
 // judge must not choose a diagram representation or reach an external target.
 func TestAC100_UnitPositive_LocalImageLinksAndSVGAssetsAccepted(t *testing.T) {
