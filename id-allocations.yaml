@@ -3110,6 +3110,11 @@ claims:
       state: reserved
       prefix: M
       component: "114"
+    - id: M-115
+      kind: numeric
+      state: reserved
+      prefix: M
+      component: "115"
     - id: P-001
       kind: numeric
       state: reserved
@@ -3666,11 +3671,11 @@ high-water:
       state: reserved
       prefix: LOG
       component: "1"
-    - id: M-113
+    - id: M-114
       kind: numeric
       state: reserved
       prefix: M
-      component: "113"
+      component: "114"
     - id: P-025
       kind: numeric
       state: reserved
