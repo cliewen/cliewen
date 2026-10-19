@@ -90,7 +90,7 @@ changes/CH-001-greet-by-name/
 └── open-questions.md   blocking questions; when one appears, work stops
 ```
 
-This is a transient workspace, not documentation. It is committed and pushed as a draft pull request immediately, so the work is visible instead of sitting in one person's local checkout.
+This is a transient workspace, not documentation. Under pull-request acceptance it is committed and pushed as a draft pull request immediately, so the work is visible instead of sitting in one person's local checkout. Under local acceptance, the default for a new repository, it stays on a local branch until you ask the agent to push it or open a pull request.
 
 ```markdown
 ---

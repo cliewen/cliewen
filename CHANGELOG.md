@@ -11,6 +11,7 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 
 ### Changed
 
+- The change-loop skill now says, before it branches, whether it will push the work or open a pull request, and under local acceptance it does neither unless you ask. It keeps the work on a local branch. Under pull-request acceptance the loop pushes and opens the draft pull request as before. Asking for a push is not asking for a pull request.
 - The default pull request template `clue init` installs is now a short description for contributors (what changes, why, how it was checked) instead of the maintainer checklist. The full tracked-change form, with the acceptance brief and review checklist, moves to `.github/PULL_REQUEST_TEMPLATE/tracked.md`, and the change-loop skill opens a tracked pull request from it. A repository that already has a template keeps it; `clue init` does not replace it.
 - Validator messages for a new change workspace now say what to write: how a proposal declares itself plan-less, and the id each tasks and open-questions file takes. The change-loop skill states the same.
 - `clue id next --dry-run <prefix>` prints the next identity without reserving it, and leaves the ledger unchanged. A flag written after the prefix is now rejected instead of being read as the repository path.

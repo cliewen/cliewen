@@ -112,4 +112,14 @@ Scenario: Preflight, refusal and fresh-state checks protect both approval paths
   And dirty checkout, advanced base, changed brief, invalid corpus, undigested workspace or missing proposal history is refused
   And noninteractive execution without an approval record is refused
   And changed approval bytes cannot be executed as the previously checked record
+
+@AC-240
+Scenario: The change loop states its publication intent and publishes only as asked
+  Test-type: Unit
+  Given a tracked change about to start under an accepted acceptance policy
+  When the loop reaches its first branching step
+  Then it has already said whether the change will be pushed and whether a hosted pull request will be opened, and which rule decided it
+  And under local acceptance it keeps the work on a local branch and neither pushes nor opens a pull request without an instruction in the conversation
+  And under pull-request acceptance the policy is the standing instruction and the loop pushes and opens the draft pull request as before
+  But an instruction to push is not taken as an instruction to open a pull request, and an instruction names only the change it was given for
 ```

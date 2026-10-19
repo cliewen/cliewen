@@ -472,7 +472,7 @@ func TestSanity_SpecFirstPauseReportsProposalAndImplementationStatus(t *testing.
 	delta := mustRenderSkill(t, "clue-delta/skill.md")
 	for _, want := range []string{
 		"report briefly what the proposal says and what implementation involves",
-		"ask whether implementation should begin — the proposal is already committed, pushed, and visible on the draft PR",
+		"ask whether implementation should begin — the proposal is already committed, and pushed and visible on the draft PR where the change is published",
 	} {
 		if !strings.Contains(delta, want) {
 			t.Errorf("clue-delta/skill.md does not carry complete spec-first pause instruction %q", want)
@@ -874,7 +874,7 @@ func TestUnit_ReviewBoundaryRequiresExactHostedHandoff(t *testing.T) {
 	verify := rendered["clue-verify/skill.md"]
 	for _, want := range []string{
 		"Every intended edit, including each review fix, is committed and `git status --porcelain` is empty",
-		"Every working turn on this change that changed anything ended by pushing the change branch",
+		"Where the change is published, every working turn on this change that changed anything ended by pushing the change branch",
 		"the PR existed as a draft from first publication rather than appearing only at readiness",
 		"When the PR is marked ready, the current branch is its head branch",
 		"reported verification ran against that commit",
@@ -1305,6 +1305,78 @@ func TestAC217_UnitNegative_DescriptionsAreDistinctAndNeverTheGeneratedComment(t
 		seen[description] = name
 		if strings.TrimSpace(skillDefinitions[name].whenToUse) == "" {
 			t.Errorf("%s: definition has no when-to-use clause", name)
+		}
+	}
+}
+
+func TestAC240_UnitPositive_PublicationIntentIsStatedBeforeBranchingAndFollowsPolicyOrInstruction(t *testing.T) {
+	loop := mustRenderFile(t, "clue-delta/references/change-loop.md")
+	statesIntent := strings.Index(loop, "State the publication intent first")
+	allocates := strings.Index(loop, "clue id next CH")
+	if statesIntent < 0 || allocates < 0 || statesIntent > allocates {
+		t.Error("change loop must state the publication intent before it allocates an identity or branches")
+	}
+	boundary := mustRenderFile(t, "clue-delta/references/review-boundary.md")
+	for _, want := range []string{
+		"### Publication",
+		"whether this change will be pushed and whether a hosted pull request will be opened",
+		"Under pull-request acceptance the policy is the standing instruction",
+		"Under local acceptance neither happens unless the maintainer has asked for it in this conversation",
+		"Asking to push is not asking for a pull request, nor the reverse",
+	} {
+		if !strings.Contains(boundary, want) {
+			t.Errorf("review boundary is missing %q", want)
+		}
+	}
+}
+
+func TestAC240_UnitNegative_NoStepPublishesUnconditionallyAndTheChecklistIsScopedToPublishedChanges(t *testing.T) {
+	loop := mustRenderFile(t, "clue-delta/references/change-loop.md")
+	if strings.Contains(loop, "commit and push it before implementation") {
+		t.Error("the propose step still pushes unconditionally")
+	}
+	if !strings.Contains(loop, "only where the publication intent says so, push it and open the draft PR") {
+		t.Error("the propose step does not condition publication on the stated intent")
+	}
+	checklist := mustRenderFile(t, "clue-verify/references/verification-checklist.md")
+	if strings.Contains(checklist, "- [ ] Every working turn on this change that changed anything ended by pushing") {
+		t.Error("the push-every-turn item is not scoped to published changes")
+	}
+	if !strings.Contains(checklist, "Where the change is published, every working turn") {
+		t.Error("the verification checklist does not scope its push item to published changes")
+	}
+}
+
+func TestAC240_UnitNegative_NoLifecycleStepPushesWithoutTheChangeBeingPublished(t *testing.T) {
+	loop := mustRenderFile(t, "clue-delta/references/change-loop.md")
+	if strings.Contains(loop, "commit and push the ledger with the proposal") {
+		t.Error("the branch step still pushes the ledger unconditionally")
+	}
+	for _, want := range []string{
+		"where the change is published, push it with the proposal",
+		"leave pushing it, or `clue id coordinate`, to the maintainer",
+	} {
+		if !strings.Contains(loop, want) {
+			t.Errorf("change loop is missing %q", want)
+		}
+	}
+	verify := mustRenderFile(t, "clue-verify/references/agentic-review-loop.md")
+	if strings.Contains(verify, "commits and pushes the repairs") {
+		t.Error("the review loop still pushes repairs unconditionally")
+	}
+	if !strings.Contains(verify, "commits the repairs with the turn that made them and, where the change is published, pushes them") {
+		t.Error("the review loop does not condition its repair push on publication")
+	}
+}
+
+func TestAC240_UnitPositive_PullRequestPathStillPublishesAsBefore(t *testing.T) {
+	boundary := mustRenderFile(t, "clue-delta/references/review-boundary.md")
+	for _, want := range []string{
+		"Every working turn that changed anything ends by committing and pushing the change branch",
+		"The PR exists from first publication and starts as a draft",
+	} {
+		if !strings.Contains(boundary, want) {
+			t.Errorf("the pull-request path lost %q", want)
 		}
 	}
 }
