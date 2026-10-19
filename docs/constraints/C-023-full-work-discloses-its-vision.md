@@ -15,6 +15,6 @@ A tracked change's acceptance brief names the active vision it serves, or states
 
 The point is not the sentence. It is that a repository which has decided it does not need a stated direction says so where a human reads it, once per meaning-changing change, instead of being asked repeatedly by tooling that cannot tell a deliberate absence from an oversight.
 
-**Checked by:** the acceptance-brief line in `internal/scaffold/templates/github/pull_request_template.md`, whose `<!-- REQUIRED` placeholder the shipped validation workflow rejects on a pull request that is no longer a draft, and `clue validate --intent`, which states the corpus's vision and its provenance without being asked to interpret them.
+**Checked by:** the acceptance-brief line in `internal/scaffold/templates/github/PULL_REQUEST_TEMPLATE/tracked.md`, whose `<!-- REQUIRED` placeholder the shipped validation workflow rejects on a pull request that is no longer a draft, and `clue validate --intent`, which states the corpus's vision and its provenance without being asked to interpret them.
 
 **Residual:** whether the line is true — whether the named vision is the one the change actually serves, and whether "proceeding without one" was a decision rather than a habit. A brief can name an active vision the change contradicts and pass every check. The merge review is where that is caught.

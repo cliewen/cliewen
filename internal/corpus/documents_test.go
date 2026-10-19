@@ -139,6 +139,8 @@ func TestAC214_UnitNegative_SymlinkedSkillMirrorIsNotReportedTwice(t *testing.T)
 var c024Exceptions = []string{
 	".github/pull_request_template.md",
 	"internal/scaffold/templates/github/pull_request_template.md",
+	".github/PULL_REQUEST_TEMPLATE/tracked.md",
+	"internal/scaffold/templates/github/PULL_REQUEST_TEMPLATE/tracked.md",
 	"internal/migrate/testdata/pre-contract/",
 }
 

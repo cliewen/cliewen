@@ -61,6 +61,15 @@ Feature: Collaborative pull-request handoffs
     Then the acceptance brief's criteria line names that criterion and states that the brief is its proof
     But a change touching no Human-class criterion leaves the brief's existing criteria line unchanged
 
+  @AC-239
+  Scenario: The default pull request template speaks to an outside contributor and the tracked form is a named template
+    Test-type: Unit
+    Given a repository that ran `clue init`
+    When someone who is not running a tracked change opens a pull request from the default template
+    Then the template asks only what changes, why, and how it was checked, in words a first-time contributor can answer
+    And the full tracked-change form, with its acceptance brief and review checklist, is the named template `.github/PULL_REQUEST_TEMPLATE/tracked.md`, identical in this repository and in what `clue init` writes
+    But the default template carries no acceptance brief, proposal block or review checklist, and the tracked form keeps its acceptance brief and checklist unchanged
+
   @AC-063
   Scenario: An upstream workflow update leaves adopter choices in the caller
     Test-type: Unit

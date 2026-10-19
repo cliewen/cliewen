@@ -176,7 +176,7 @@ func TestSanity_ScaffoldedEvidenceModelCarriersAgree(t *testing.T) {
 		"docs/README.md":                   {"acceptance evidence", "classified exported executable reference", "Human acceptance brief"},
 		"docs/capabilities/README.md":      {"positive/negative direction", "Test-type: Human", "@draft", "one supported reference", "does not execute tests"},
 		"docs/decisions/README.md":         {"inventories every live carrier", "same change", "general obligation remains agent-enforced"},
-		".github/pull_request_template.md": {"classified positive/negative exported executable evidence", "identity/type/direction attached to the same executable", "Human proof named in the acceptance brief", "per-criterion `@draft`", "legacy one-supported-reference rule"},
+		".github/PULL_REQUEST_TEMPLATE/tracked.md": {"classified positive/negative exported executable evidence", "identity/type/direction attached to the same executable", "Human proof named in the acceptance brief", "per-criterion `@draft`", "legacy one-supported-reference rule"},
 	}
 	for rel, required := range requiredByFile {
 		content, err := os.ReadFile(filepath.Join(root, filepath.FromSlash(rel)))
@@ -503,7 +503,7 @@ func TestAC209_UnitNegative_ScaffoldedCarriersNeverNameRetiredRoutes(t *testing.
 			return err
 		}
 		rel := filepath.ToSlash(strings.TrimPrefix(p, root+string(filepath.Separator)))
-		if rel != "AGENTS.md" && rel != ".github/pull_request_template.md" && !strings.HasPrefix(rel, ".agents/skills/") {
+		if rel != "AGENTS.md" && rel != ".github/pull_request_template.md" && rel != ".github/PULL_REQUEST_TEMPLATE/tracked.md" && !strings.HasPrefix(rel, ".agents/skills/") {
 			return nil
 		}
 		data, err := os.ReadFile(p)
@@ -905,5 +905,62 @@ func TestAC180_UnitNegative_InitDoesNotDuplicateAnExistingUnionRule(t *testing.T
 	}
 	if !slices.Contains(rep.Skipped, ".gitattributes") {
 		t.Fatalf("skipped = %v, want it to name .gitattributes", rep.Skipped)
+	}
+}
+
+// AC-239 positive: the tracked-change form is a named template, identical in
+// this repository and in what init writes, and the default is the short
+// contributor-facing description.
+func TestAC239_UnitPositive_TrackedFormIsANamedTemplateAndDefaultIsShort(t *testing.T) {
+	root, _ := runInto(t)
+	for _, rel := range []string{".github/PULL_REQUEST_TEMPLATE/tracked.md", ".github/pull_request_template.md"} {
+		want, err := os.ReadFile(filepath.Join("..", "..", filepath.FromSlash(rel)))
+		if err != nil {
+			t.Fatal(err)
+		}
+		got, err := os.ReadFile(filepath.Join(root, filepath.FromSlash(rel)))
+		if err != nil {
+			t.Fatal(err)
+		}
+		if string(got) != string(want) {
+			t.Errorf("scaffolded %s differs from the repository copy", rel)
+		}
+	}
+	def, err := os.ReadFile(filepath.Join(root, ".github", "pull_request_template.md"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, want := range []string{"## Summary", "## How you checked it"} {
+		if !strings.Contains(string(def), want) {
+			t.Errorf("default template is missing %q", want)
+		}
+	}
+	tracked, err := os.ReadFile(filepath.Join(root, ".github", "PULL_REQUEST_TEMPLATE", "tracked.md"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, want := range []string{"## Acceptance brief", "## Cliewen checklist", "## Review boundary"} {
+		if !strings.Contains(string(tracked), want) {
+			t.Errorf("tracked template is missing %q", want)
+		}
+	}
+}
+
+// AC-239 negative: the default template hands an outside contributor no
+// maintainer-only section, checklist or placeholder the gate would read.
+func TestAC239_UnitNegative_DefaultTemplateCarriesNoMaintainerForm(t *testing.T) {
+	root, _ := runInto(t)
+	def, err := os.ReadFile(filepath.Join(root, ".github", "pull_request_template.md"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	text := string(def)
+	for _, banned := range []string{"## Acceptance brief", "## Cliewen", "## Review boundary", "- [ ]", "<!-- REQUIRED", "Change ID"} {
+		if strings.Contains(text, banned) {
+			t.Errorf("default template carries maintainer-only text %q", banned)
+		}
+	}
+	if n := strings.Count(text, "\n"); n > 15 {
+		t.Errorf("default template is %d lines; it should stay a short description", n)
 	}
 }

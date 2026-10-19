@@ -8,7 +8,7 @@ import (
 )
 
 func TestAC042_AcceptanceBriefCarriesHumanMergeQuestions(t *testing.T) {
-	data, err := os.ReadFile(filepath.Join("..", "..", ".github", "pull_request_template.md"))
+	data, err := os.ReadFile(filepath.Join("..", "..", ".github", "PULL_REQUEST_TEMPLATE", "tracked.md"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -43,7 +43,7 @@ func TestAC042_CIRejectsUnfilledAcceptanceBrief(t *testing.T) {
 }
 
 func TestAC048_UnitPositive_BriefNamesHumanClassCriteriaAsTheirProof(t *testing.T) {
-	data, err := os.ReadFile(filepath.Join("..", "..", ".github", "pull_request_template.md"))
+	data, err := os.ReadFile(filepath.Join("..", "..", ".github", "PULL_REQUEST_TEMPLATE", "tracked.md"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -58,7 +58,7 @@ func TestAC048_UnitPositive_BriefNamesHumanClassCriteriaAsTheirProof(t *testing.
 }
 
 func TestAC048_UnitNegative_HumanProofRidesTheExistingCriteriaLine(t *testing.T) {
-	data, err := os.ReadFile(filepath.Join("..", "..", ".github", "pull_request_template.md"))
+	data, err := os.ReadFile(filepath.Join("..", "..", ".github", "PULL_REQUEST_TEMPLATE", "tracked.md"))
 	if err != nil {
 		t.Fatal(err)
 	}
