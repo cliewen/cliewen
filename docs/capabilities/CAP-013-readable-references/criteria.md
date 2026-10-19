@@ -43,4 +43,13 @@ Scenario: A reader understands a handoff without opening identity references
   Given the self-contained acceptance summary and representative repaired text
   When the owner reads it without following the links or looking up identities
   Then the owner can explain the purpose, relevant reference meaning and required action
+
+@AC-241
+Scenario: Reports and handoffs to a person are written in everyday words
+  Test-type: Unit
+  Given any independently distributed Cliewen lifecycle skill
+  When its readable-reference instruction is generated
+  Then it tells the agent to write a status report, a summary of what was done and a handoff in everyday words, saying what happened, what the reader must do and what comes next
+  And it allows an identifier, a file path or a command only when the reader asks for it or needs it to act, explained in a few words
+  But it keeps identifiers unchanged where they are data, and an identifier beside a name stays allowed in a document
 ```

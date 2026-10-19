@@ -1380,3 +1380,30 @@ func TestAC240_UnitPositive_PullRequestPathStillPublishesAsBefore(t *testing.T) 
 		}
 	}
 }
+
+func TestAC241_UnitPositive_EveryLifecycleSkillAsksForEverydayWordsInReportsAndHandoffs(t *testing.T) {
+	for _, skill := range []string{"clue-analysis", "clue-delta", "clue-extract", "clue-plan", "clue-upgrade", "clue-verify"} {
+		text := mustRenderFile(t, skill+"/references/readable-references.md")
+		for _, want := range []string{
+			"in everyday words: say what happened, what is needed from the reader and what comes next",
+			"only when the reader asks for it or needs it to act, and then say in a few words what it is",
+			"without saying what it means",
+		} {
+			if !strings.Contains(text, want) {
+				t.Errorf("%s does not carry %q", skill, want)
+			}
+		}
+	}
+}
+
+func TestAC241_UnitNegative_IdentifiersStayWhereTheyAreDataAndNextToNamesInDocuments(t *testing.T) {
+	text := mustRenderFile(t, "clue-delta/references/readable-references.md")
+	for _, want := range []string{
+		"Keep IDs unchanged when they are the data",
+		"in a document an identifier beside a name stays allowed",
+	} {
+		if !strings.Contains(text, want) {
+			t.Errorf("the readable-reference instruction lost %q", want)
+		}
+	}
+}
