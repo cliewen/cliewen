@@ -209,7 +209,7 @@ producers:
       - path: docs/constraints/C-001-no-hard-wrapped-markdown.md
         sha256: 53230e8e85ba1da725a5b862162b4fa33a3f3ff801966d9fc0350395aa87de93
       - path: docs/constraints/C-002-changelog-per-user-visible-change.md
-        sha256: 5e84704a93d7bdf7860354a2e4007211df464fd7556843c65ecfb11169d2b88c
+        sha256: f0cda693bbae4fbf84e8efd73c608e4bb3e402d97e41a23e5dd26350f299dec7
       - path: docs/constraints/C-003-skipped-tasks-carry-reasons.md
         sha256: a7f1a4395f780ee035e78b896bab4f76394f9b4328d25f839bef12bb961c97cd
       - path: docs/constraints/C-004-never-weaken-checks.md
@@ -251,7 +251,7 @@ producers:
       - path: docs/constraints/C-022-one-primary-consumer-per-file.md
         sha256: c56ce327038ddf4e3d6c35f66c493a9ff7321542ca2f5cfdf9c8184197bf456e
       - path: docs/constraints/C-023-full-work-discloses-its-vision.md
-        sha256: 72f01cf8604b60007dba330d1ea621b13c806a3fb5460a86c80d2a12179354bf
+        sha256: a0c7014c8d147514c28ad8f64e07fda01430d85a20cde194962abb39dde2ff19
       - path: docs/constraints/C-024-every-markdown-file-carries-frontmatter.md
         sha256: 0f6753e92a0b1cb7187d6a504a3a9f1f362275837d25eb5f086755d9635082ef
       - path: docs/constraints/C-025-human-references-explain-relevant-meaning.md
