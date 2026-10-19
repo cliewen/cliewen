@@ -2360,6 +2360,11 @@ claims:
       state: reserved
       prefix: CH
       component: "209"
+    - id: CH-210
+      kind: numeric
+      state: reserved
+      prefix: CH
+      component: "210"
     - id: G-001
       kind: numeric
       state: reserved
@@ -3636,11 +3641,11 @@ claims:
       prefix: VIS
       component: "1"
 high-water:
-    - id: AC-239
+    - id: AC-240
       kind: numeric
       state: reserved
       prefix: AC
-      component: "239"
+      component: "240"
     - id: ADR-071
       kind: numeric
       state: reserved
