@@ -26,7 +26,7 @@ Run this verification and review workflow before marking a tracked Cliewen PR re
 - [ ] The tracked-change workspace is absent after digest; `main` never contains `/changes/`.
 - [ ] Every decision satisfies [Decision records](decision-records.md), including routing, timeless content, provenance, objections, and pending approval signatures.
 - [ ] The current commit received a pass with no blocking findings under the [Agentic review loop](agentic-review-loop.md); every blocking repair after an earlier clean pass triggered a new pass, and any advisory findings left open are named in the verification evidence.
-- [ ] The final handoff identifies the review mode (`context-isolated` or `in-context fallback`), reviewed commit, and number of review passes run.
+- [ ] The final handoff says, in plain words, which review mode was used (`context-isolated` or `in-context fallback`), reviewed commit, and number of review passes run.
 - [ ] Every review of an existing PR names its hosted head; actionable findings are unresolved hosted conversations where supported, or the enforcement gap is disclosed and the PR is reported not merge-ready.
 - [ ] Every intended edit, including each review fix, is committed and `git status --porcelain` is empty.
 - [ ] Where the change is published, every working turn on this change that changed anything ended by pushing the change branch, and the PR existed as a draft from first publication rather than appearing only at readiness.
