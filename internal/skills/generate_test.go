@@ -1346,3 +1346,37 @@ func TestAC240_UnitNegative_NoStepPublishesUnconditionallyAndTheChecklistIsScope
 		t.Error("the verification checklist does not scope its push item to published changes")
 	}
 }
+
+func TestAC240_UnitNegative_NoLifecycleStepPushesWithoutTheChangeBeingPublished(t *testing.T) {
+	loop := mustRenderFile(t, "clue-delta/references/change-loop.md")
+	if strings.Contains(loop, "commit and push the ledger with the proposal") {
+		t.Error("the branch step still pushes the ledger unconditionally")
+	}
+	for _, want := range []string{
+		"where the change is published, push it with the proposal",
+		"leave pushing it, or `clue id coordinate`, to the maintainer",
+	} {
+		if !strings.Contains(loop, want) {
+			t.Errorf("change loop is missing %q", want)
+		}
+	}
+	verify := mustRenderFile(t, "clue-verify/references/agentic-review-loop.md")
+	if strings.Contains(verify, "commits and pushes the repairs") {
+		t.Error("the review loop still pushes repairs unconditionally")
+	}
+	if !strings.Contains(verify, "commits the repairs with the turn that made them and, where the change is published, pushes them") {
+		t.Error("the review loop does not condition its repair push on publication")
+	}
+}
+
+func TestAC240_UnitPositive_PullRequestPathStillPublishesAsBefore(t *testing.T) {
+	boundary := mustRenderFile(t, "clue-delta/references/review-boundary.md")
+	for _, want := range []string{
+		"Every working turn that changed anything ends by committing and pushing the change branch",
+		"The PR exists from first publication and starts as a draft",
+	} {
+		if !strings.Contains(boundary, want) {
+			t.Errorf("the pull-request path lost %q", want)
+		}
+	}
+}

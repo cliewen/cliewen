@@ -815,7 +815,7 @@ producers:
       - path: internal/scaffold/wallchecklist_test.go
         sha256: 6c1c2f1bfe990ff5bc7bf25647495a413f97af3d2b0e3c875bac35b19cec8a8a
       - path: internal/skills/generate_test.go
-        sha256: 5d7998dbff983283bbdbf38cc4e3516451e22966bd65fb3eebb70adfa3367c8d
+        sha256: 6f7a7852b2f73b3752bf6575cce9fd25307535c17f625d37c6c8577a84d7390e
       - path: internal/skills/readable_references_test.go
         sha256: a28b025e7652e172e344f5593996c320a49268642e09a60ada6c830a6ba82179
       - path: tools/export-evidence/main.go
@@ -4137,12 +4137,22 @@ producers:
         direction: positive
       - id: AC-240
         path: internal/skills/generate_test.go
+        subject: test TestAC240_UnitNegative_NoLifecycleStepPushesWithoutTheChangeBeingPublished
+        type: Unit
+        direction: negative
+      - id: AC-240
+        path: internal/skills/generate_test.go
         subject: test TestAC240_UnitNegative_NoStepPublishesUnconditionallyAndTheChecklistIsScopedToPublishedChanges
         type: Unit
         direction: negative
       - id: AC-240
         path: internal/skills/generate_test.go
         subject: test TestAC240_UnitPositive_PublicationIntentIsStatedBeforeBranchingAndFollowsPolicyOrInstruction
+        type: Unit
+        direction: positive
+      - id: AC-240
+        path: internal/skills/generate_test.go
+        subject: test TestAC240_UnitPositive_PullRequestPathStillPublishesAsBefore
         type: Unit
         direction: positive
       - id: AC-232
