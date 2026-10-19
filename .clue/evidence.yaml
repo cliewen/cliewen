@@ -195,9 +195,9 @@ producers:
       - path: docs/capabilities/CAP-012-local-acceptance/README.md
         sha256: 41dba9e28574fd22258e75f93c178247bbc7de77d163e0782d113a909cd724a3
       - path: docs/capabilities/CAP-012-local-acceptance/criteria.md
-        sha256: 2da962a40d02664db7fd043f90273b330176669cf627ef8f5d0e8a4afe5d7548
+        sha256: b7a6f6f7008cb2ef2925775f5033caf37223255754c5e9d17bb33545a5d87904
       - path: docs/capabilities/CAP-012-local-acceptance/design.md
-        sha256: 66524ff331611775a5077cf89b55241f32cac7c8b4eafa1e1866d76f3890ce43
+        sha256: 29e9492b5d663f7bb7f9513647f67d261c919acc7166e003b29c485585fbb47e
       - path: docs/capabilities/CAP-013-readable-references/README.md
         sha256: e72bd81b1dda2a9cae06bdb8f2a03c9ce54ce995805272cf8f94a56d750a0dd0
       - path: docs/capabilities/CAP-013-readable-references/criteria.md
@@ -815,7 +815,7 @@ producers:
       - path: internal/scaffold/wallchecklist_test.go
         sha256: 6c1c2f1bfe990ff5bc7bf25647495a413f97af3d2b0e3c875bac35b19cec8a8a
       - path: internal/skills/generate_test.go
-        sha256: 435281d27426f9a12abf8b2cef912f3ba870d464a55717205bebd81f5dc2eab8
+        sha256: 5d7998dbff983283bbdbf38cc4e3516451e22966bd65fb3eebb70adfa3367c8d
       - path: internal/skills/readable_references_test.go
         sha256: a28b025e7652e172e344f5593996c320a49268642e09a60ada6c830a6ba82179
       - path: tools/export-evidence/main.go
@@ -4133,6 +4133,16 @@ producers:
       - id: AC-218
         path: internal/skills/generate_test.go
         subject: test TestAC218_UnitPositive_LocalAllocationProceedsOnAReadRemoteAndSaysSo
+        type: Unit
+        direction: positive
+      - id: AC-240
+        path: internal/skills/generate_test.go
+        subject: test TestAC240_UnitNegative_NoStepPublishesUnconditionallyAndTheChecklistIsScopedToPublishedChanges
+        type: Unit
+        direction: negative
+      - id: AC-240
+        path: internal/skills/generate_test.go
+        subject: test TestAC240_UnitPositive_PublicationIntentIsStatedBeforeBranchingAndFollowsPolicyOrInstruction
         type: Unit
         direction: positive
       - id: AC-232

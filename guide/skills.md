@@ -53,7 +53,7 @@ Say `Before we build this, find out whether <risk>.` The agent runs a time-boxed
 This is the skill behind most real work. After you accept a tracked route, the agent:
 
 1. branches from `main`;
-2. writes `proposal.md` in a temporary `/changes/CH-xxx-slug/` folder, pushes it, and opens a draft pull request;
+2. writes `proposal.md` in a temporary `/changes/CH-xxx-slug/` folder and commits it, then pushes it and opens a draft pull request when the repository uses pull-request acceptance or you ask for that;
 3. changes the code, the tests, and `docs/` together;
 4. folds what the change means into `docs/` and deletes the temporary folder (the *digest*);
 5. hands the result to `clue-verify`.
