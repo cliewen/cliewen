@@ -2510,6 +2510,11 @@ claims:
       state: reserved
       prefix: G
       component: "28"
+    - id: G-029
+      kind: numeric
+      state: reserved
+      prefix: G
+      component: "29"
     - id: IC-001
       kind: numeric
       state: reserved
@@ -3646,11 +3651,11 @@ claims:
       prefix: VIS
       component: "1"
 high-water:
-    - id: AC-240
+    - id: AC-241
       kind: numeric
       state: reserved
       prefix: AC
-      component: "240"
+      component: "241"
     - id: ADR-071
       kind: numeric
       state: reserved
