@@ -2340,6 +2340,11 @@ claims:
       state: reserved
       prefix: CH
       component: "207"
+    - id: CH-208
+      kind: numeric
+      state: reserved
+      prefix: CH
+      component: "208"
     - id: G-001
       kind: numeric
       state: reserved
@@ -3671,11 +3676,11 @@ high-water:
       state: reserved
       prefix: LOG
       component: "1"
-    - id: M-114
+    - id: M-115
       kind: numeric
       state: reserved
       prefix: M
-      component: "114"
+      component: "115"
     - id: P-025
       kind: numeric
       state: reserved
