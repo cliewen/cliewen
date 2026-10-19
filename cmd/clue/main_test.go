@@ -1009,7 +1009,7 @@ func TestSanity_CommunityFrontDoorIsWellFormed(t *testing.T) {
 			"14 calendar days",
 			"Do not open a public issue",
 		},
-		".github/pull_request_template.md": {
+		".github/PULL_REQUEST_TEMPLATE/tracked.md": {
 			"direct work",
 			"Change ID",
 			"Plan item served",
@@ -1024,12 +1024,12 @@ func TestSanity_CommunityFrontDoorIsWellFormed(t *testing.T) {
 			}
 		}
 	}
-	prTemplate := read(".github/pull_request_template.md")
+	prTemplate := read(".github/PULL_REQUEST_TEMPLATE/tracked.md")
 	cliewenSection := strings.Index(prTemplate, "## Cliewen proposal")
 	reviewEvidence := strings.Index(prTemplate, "Agentic review mode, reviewed commit, and pass count")
 	advisoryEvidence := strings.Index(prTemplate, "Outstanding advisory findings")
 	if cliewenSection < 0 || reviewEvidence < cliewenSection || advisoryEvidence < reviewEvidence {
-		t.Error(".github/pull_request_template.md must keep agentic-review evidence inside the removable Cliewen-only section")
+		t.Error(".github/PULL_REQUEST_TEMPLATE/tracked.md must keep agentic-review evidence inside the removable Cliewen-only section")
 	}
 	plainEmail := regexp.MustCompile(`[[:alnum:]._%+-]+@[[:alnum:].-]+\.[[:alpha:]]{2,}`)
 	for _, rel := range []string{"CONTRIBUTING.md", "CODE_OF_CONDUCT.md", "SECURITY.md", "docs/decisions/PDR-010-community-participation.md"} {
@@ -1119,7 +1119,7 @@ func TestSanity_ReviewFixConstraintOrdersFinalCandidateBeforeReview(t *testing.T
 func TestAC132_UnitPositive_PublicCarriersKeepCrossAgentHelpOutsideTheInitiatedSlot(t *testing.T) {
 	root := filepath.Join("..", "..")
 	for rel, wants := range map[string][]string{
-		".github/pull_request_template.md": {
+		".github/PULL_REQUEST_TEMPLATE/tracked.md": {
 			"initiating author's only initiated Cliewen change",
 			"review or update help on an existing PR does not consume another slot",
 		},

@@ -45,6 +45,7 @@ test("Sanity: adopter output contains no release-process policy", () => {
     "internal/skills/source/shared/change-tiers.md.tmpl",
     "internal/scaffold/templates/AGENTS.md",
     "internal/scaffold/templates/github/pull_request_template.md",
+    "internal/scaffold/templates/github/PULL_REQUEST_TEMPLATE/tracked.md",
     "guide/operations.md",
   ]) {
     const content = read(relativePath);

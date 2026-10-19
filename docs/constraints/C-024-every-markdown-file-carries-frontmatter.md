@@ -14,7 +14,7 @@ Every tracked Markdown file opens with frontmatter that carries a non-empty `typ
 
 The named exceptions:
 
-- The pull-request templates (`.github/pull_request_template.md` and its scaffold source), because the forge pastes them verbatim into every new pull request body.
+- The pull-request templates (`.github/pull_request_template.md`, `.github/PULL_REQUEST_TEMPLATE/tracked.md` and their scaffold sources), because the forge pastes them verbatim into every new pull request body.
 - The fixtures under `internal/migrate/testdata/pre-contract/`, which model an adopter repository from before document headers existed and must stay header-less to test the migration that adds them.
 
 **Checked by:** `TestSanity_EveryTrackedMarkdownFileCarriesFrontmatter` in `internal/corpus/documents_test.go`, over `git ls-files '*.md'`, with the same exception list.

@@ -12,6 +12,7 @@ import (
 )
 
 const prTemplate = ".github/pull_request_template.md"
+const trackedTemplate = ".github/PULL_REQUEST_TEMPLATE/tracked.md"
 
 // headerOf returns a file's frontmatter fields, or nil when it has none.
 func headerOf(t *testing.T, text string) map[string]any {
@@ -66,7 +67,7 @@ func TestAC215_UnitPositive_InitWritesEveryMarkdownFileWithFrontmatter(t *testin
 	}
 	sawSkill, sawMirror := false, false
 	for _, rel := range files {
-		if rel == prTemplate {
+		if rel == prTemplate || rel == trackedTemplate {
 			continue
 		}
 		data, err := os.ReadFile(filepath.Join(root, filepath.FromSlash(rel)))

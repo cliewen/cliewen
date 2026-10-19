@@ -41,9 +41,9 @@ producers:
       - path: cmd/clue/latest_test.go
         sha256: 8777c8f6d34bd33a6d07b3229263718493f0471c6b49686d73e3e87511bb15a4
       - path: cmd/clue/main_test.go
-        sha256: 656df939c3686d741fae1724658be77e69dceb0e96a9a2575e0d325b76908367
+        sha256: f5500c32a467793e858f2cdf42bbce42c49fa90f11539b980c1257baa0d7a395
       - path: cmd/clue/merge_gate_test.go
-        sha256: 5ffe7ac6d1bca448808d79a252900b8114aac38e44f3520823626b457816c9c4
+        sha256: 0152e23f80840a6e8222f967ddbe8482b129d258caf3ac845bac3e6a32681b2a
       - path: cmd/clue/next_test.go
         sha256: 8e4a8d6ceffdf357ad3e8e77fc1905ad8113e3a0a45e43de7fa1a1f3633042b1
       - path: cmd/clue/notifier_test.go
@@ -165,9 +165,9 @@ producers:
       - path: docs/capabilities/CAP-006-collaborative-handoffs/README.md
         sha256: 7b6c41fc958896202d223a4c5717c6f560ea7f12b16cf9dbb8b3daeb05168c3f
       - path: docs/capabilities/CAP-006-collaborative-handoffs/criteria.md
-        sha256: 5d6a13ada8236d496f240ec2a070d63598fa618cc9c9e3bbb0aa9275034b0624
+        sha256: 722ec681b0f90bc509165f834c64f9af7f23d8dac29edf52887936f368533868
       - path: docs/capabilities/CAP-006-collaborative-handoffs/design.md
-        sha256: 17a13206d4d6d572daffb938b81eacf0ff9dd566948febd26f439b7cf47df7cb
+        sha256: eabb0bd58eb8f093eed5330704bdf3420206e9e2d317db7bdca59e3cfd86bce3
       - path: docs/capabilities/CAP-007-focused-context/README.md
         sha256: 7580a43131197197076bfcbf6101ec04bdb88deae6ac11664fb0ce1048bed638
       - path: docs/capabilities/CAP-007-focused-context/criteria.md
@@ -253,7 +253,7 @@ producers:
       - path: docs/constraints/C-023-full-work-discloses-its-vision.md
         sha256: 72f01cf8604b60007dba330d1ea621b13c806a3fb5460a86c80d2a12179354bf
       - path: docs/constraints/C-024-every-markdown-file-carries-frontmatter.md
-        sha256: 89e5d6db1969dc52deb1b02597e32581bb82ad94e493e0330127dc202b5b21c3
+        sha256: 0f6753e92a0b1cb7187d6a504a3a9f1f362275837d25eb5f086755d9635082ef
       - path: docs/constraints/C-025-human-references-explain-relevant-meaning.md
         sha256: 086f4a6580b7cd56045a11697c72ea192e2decafb12c324913744c1d1bdf1a0c
       - path: docs/constraints/README.md
@@ -665,7 +665,7 @@ producers:
       - path: docs/plans/P-024-repeatable-scenario-trials.md
         sha256: b0c65117cf90bce64a3eb7eebf9a30fe3bdd5d6e457998d03d515d4502b6d7b7
       - path: docs/plans/P-025-commands-are-safe-to-rerun.md
-        sha256: dabcea604b4de7386c35ff66005677b9a89f6800d895d1457a24adf168105f0d
+        sha256: ac8d55d86a73895dbc06cd7caeae3208e0b3d1ed58bc5fb694b9b0e69fd4e29f
       - path: docs/plans/README.md
         sha256: e991739e9e5d9bbb511a1699261e45226503e3bc0bb92ab017df6c019dd76167
       - path: docs/use-cases/README.md
@@ -713,7 +713,7 @@ producers:
       - path: internal/corpus/description_test.go
         sha256: 5ac03c292926b3ff63931c297e600da14440d41d0874dfa412fd7d94044b79ee
       - path: internal/corpus/documents_test.go
-        sha256: 7391576faffbd5258bcab793fe70aeb07e69523464b5223ef6b0368cb9b0f214
+        sha256: a1318d930af5f234b4a28149be52adc72ea7591c2407556b24914f29b5057f9a
       - path: internal/corpus/evidence_test.go
         sha256: 256a0025eee49154fd745bf518fd1365b6a2bc8fd9f90edc2f75c412a4c8fe7b
       - path: internal/corpus/expiry_test.go
@@ -797,7 +797,7 @@ producers:
       - path: internal/scaffold/ciwall_test.go
         sha256: ff14924c696837182ce9ba9beecfc1dba7082b99e7f6c01cb90ebe12aa1e1114
       - path: internal/scaffold/frontmatter_test.go
-        sha256: 545b875ebc200c53ba8b4f0e2c6662970e29778f7ea6c06f2e8484ddde79465c
+        sha256: 73148ac29447e1ef01c030baea00a0a5878f0730d618830b91094fcf0e6395ce
       - path: internal/scaffold/intent_test.go
         sha256: 062dc5de8093df1d42cb95721bc132c326a7f2a0e1f86bbc15bd3f8554ffdb3f
       - path: internal/scaffold/regen_test.go
@@ -811,7 +811,7 @@ producers:
       - path: internal/scaffold/scaffold_symlink_test.go
         sha256: 0576bc2bf8a98364317974bf774c6cefe47ca38dcab55643d1aceb64cac3845c
       - path: internal/scaffold/scaffold_test.go
-        sha256: 16ca61e4eb8e9ea9dd8a928af76aee344ba9943aa9b55621a3b2719ac96ff103
+        sha256: 7c96164470a309c9d4f8db8e15786fc7eadff63637b05e5589ac22b611f214d3
       - path: internal/scaffold/wallchecklist_test.go
         sha256: 6c1c2f1bfe990ff5bc7bf25647495a413f97af3d2b0e3c875bac35b19cec8a8a
       - path: internal/skills/generate_test.go
@@ -3867,6 +3867,16 @@ producers:
       - id: AC-209
         path: internal/scaffold/scaffold_test.go
         subject: test TestAC209_UnitPositive_ScaffoldedRoutingRecommendsByAcceptedContractBeforeCorpus
+        type: Unit
+        direction: positive
+      - id: AC-239
+        path: internal/scaffold/scaffold_test.go
+        subject: test TestAC239_UnitNegative_DefaultTemplateCarriesNoMaintainerForm
+        type: Unit
+        direction: negative
+      - id: AC-239
+        path: internal/scaffold/scaffold_test.go
+        subject: test TestAC239_UnitPositive_TrackedFormIsANamedTemplateAndDefaultIsShort
         type: Unit
         direction: positive
       - id: AC-199
