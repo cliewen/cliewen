@@ -9,6 +9,8 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 
 ## [Unreleased]
 
+## [0.32.0] - 2026-10-20
+
 ### Changed
 
 - The skills now ask the agent to write status reports, summaries of what was done and handoffs in everyday words: what happened, what you need to do and what comes next. A file path, a command or an internal identifier appears only when you ask for it or need it to act, and is explained in a few words. Identifiers beside names in documents are unchanged.
@@ -17,6 +19,10 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 - Validator messages for a new change workspace now say what to write: how a proposal declares itself plan-less, and the id each tasks and open-questions file takes. The change-loop skill states the same.
 - `clue id next --dry-run <prefix>` prints the next identity without reserving it, and leaves the ledger unchanged. A flag written after the prefix is now rejected instead of being read as the repository path.
 - To refresh only a repository's README indexes, the change-loop skill and `clue help` now point to `clue scaffold`. `clue init` also recreates any acceptance policy, vision bootstrap or evidence template you deliberately removed, so it is the wrong command for an index refresh.
+
+### Migration
+
+- After upgrading, preview `clue migrate` and apply the reviewed managed-instruction update. Align custom repository instructions with the same everyday-words writing method for reports and handoffs.
 
 ## [0.31.0] - 2026-10-10
 
