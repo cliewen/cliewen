@@ -201,9 +201,9 @@ producers:
       - path: docs/capabilities/CAP-013-readable-references/README.md
         sha256: e72bd81b1dda2a9cae06bdb8f2a03c9ce54ce995805272cf8f94a56d750a0dd0
       - path: docs/capabilities/CAP-013-readable-references/criteria.md
-        sha256: c3725674778e07cb25f2063a7f5e62184c1d917f42808ad5b110e5d064ce37c3
+        sha256: 46aa13f7c0c93e133e9d19b8ace907631f85c8b9c8af397f6b56191085dfb6c4
       - path: docs/capabilities/CAP-013-readable-references/design.md
-        sha256: b6ce33d8ec78f7570b3c27a6631db707d24a595851ed3b4aaf01506a2331e3c3
+        sha256: b19ae3e914605166f4a3069a54ee913efd4c9ff63ff94a2cab3474a7bdbf40cd
       - path: docs/capabilities/README.md
         sha256: 25925ba402c8bf96b3fcb2aa8035ab59fcf4991e56b64a8ab57584df42f1b0be
       - path: docs/constraints/C-001-no-hard-wrapped-markdown.md
@@ -610,8 +610,10 @@ producers:
         sha256: 875054611eecc8dfe6472d2686939ad1b124d861a5d165a1b0c78a1ea144b5f5
       - path: docs/goals/G-028-human-approval-needs-no-manual-git-steps.md
         sha256: eba86d0e412ae219be9a4e1c7d34e0bee6a4b074b4131dbb64f027f6921f06d6
+      - path: docs/goals/G-029-the-accept-check-and-the-skill-agree-on-the-proposals-identity.md
+        sha256: 7e378718c1da1036742b4b2b94df2b7fb9d502bf16258ae99572f115a7bdb9a9
       - path: docs/goals/README.md
-        sha256: c5e7f051d8f2a5081c7cc9f9eeb3a6b7ea28ec40c58b5f229e58bf3b104caa0a
+        sha256: 097d9f552b928656c19acc816ac43fffb0b98e880ac0f26736a087579272cab6
       - path: docs/imported-changes/IC-001-fixture-inspectable-in-flight-work.md
         sha256: 7c9c89b3c846fce9e0884fa93cb7e4a729cef461325140db244ace028038f060
       - path: docs/imported-changes/IC-002-fixture-in-progress-dependent.md
@@ -665,9 +667,9 @@ producers:
       - path: docs/plans/P-024-repeatable-scenario-trials.md
         sha256: b0c65117cf90bce64a3eb7eebf9a30fe3bdd5d6e457998d03d515d4502b6d7b7
       - path: docs/plans/P-025-commands-are-safe-to-rerun.md
-        sha256: 09df848b4e9af298a3990eaf6e31ad14d5fac530e066d47093d7b74638d784a9
+        sha256: 6522f4f28e4bd378f764709284548935e6c81cdb33daa8028e54af07293b1300
       - path: docs/plans/README.md
-        sha256: e991739e9e5d9bbb511a1699261e45226503e3bc0bb92ab017df6c019dd76167
+        sha256: d0b8b667f5a316daf131d823a0bc637a27f500022b57c3f23261e0ffdd31c79d
       - path: docs/use-cases/README.md
         sha256: cd3895091a18d9b3c4bde031378fa16c8463fff19c2fecc94c7c6503a175f4c0
       - path: docs/use-cases/UC-001-adopt-cliewen-in-an-existing-repository.md
@@ -815,7 +817,7 @@ producers:
       - path: internal/scaffold/wallchecklist_test.go
         sha256: 6c1c2f1bfe990ff5bc7bf25647495a413f97af3d2b0e3c875bac35b19cec8a8a
       - path: internal/skills/generate_test.go
-        sha256: 6f7a7852b2f73b3752bf6575cce9fd25307535c17f625d37c6c8577a84d7390e
+        sha256: b08c4cd63e660ae136732f4eab607b88f726bd7e7dba4d6e7a271656f4f63343
       - path: internal/skills/readable_references_test.go
         sha256: a28b025e7652e172e344f5593996c320a49268642e09a60ada6c830a6ba82179
       - path: tools/export-evidence/main.go
@@ -4153,6 +4155,16 @@ producers:
       - id: AC-240
         path: internal/skills/generate_test.go
         subject: test TestAC240_UnitPositive_PullRequestPathStillPublishesAsBefore
+        type: Unit
+        direction: positive
+      - id: AC-241
+        path: internal/skills/generate_test.go
+        subject: test TestAC241_UnitNegative_IdentifiersStayWhereTheyAreDataAndNextToNamesInDocuments
+        type: Unit
+        direction: negative
+      - id: AC-241
+        path: internal/skills/generate_test.go
+        subject: test TestAC241_UnitPositive_EveryLifecycleSkillAsksForEverydayWordsInReportsAndHandoffs
         type: Unit
         direction: positive
       - id: AC-232

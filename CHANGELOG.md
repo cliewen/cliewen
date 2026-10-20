@@ -11,6 +11,7 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 
 ### Changed
 
+- The skills now ask the agent to write status reports, summaries of what was done and handoffs in everyday words: what happened, what you need to do and what comes next. A file path, a command or an internal identifier appears only when you ask for it or need it to act, and is explained in a few words. Identifiers beside names in documents are unchanged.
 - The change-loop skill now says, before it branches, whether it will push the work or open a pull request, and under local acceptance it does neither unless you ask. It keeps the work on a local branch. Under pull-request acceptance the loop pushes and opens the draft pull request as before. Asking for a push is not asking for a pull request.
 - The default pull request template `clue init` installs is now a short description for contributors (what changes, why, how it was checked) instead of the maintainer checklist. The full tracked-change form, with the acceptance brief and review checklist, moves to `.github/PULL_REQUEST_TEMPLATE/tracked.md`, and the change-loop skill opens a tracked pull request from it. A repository that already has a template keeps it; `clue init` does not replace it.
 - Validator messages for a new change workspace now say what to write: how a proposal declares itself plan-less, and the id each tasks and open-questions file takes. The change-loop skill states the same.
