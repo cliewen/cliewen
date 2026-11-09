@@ -47,9 +47,6 @@ The core is touched. The verifiable thread keeps Human proof, with a new carrier
 
 Not in this change: the adopting repository where this was asked for follows by an ordinary upgrade after a release, and changes its own rules that repeat the brief there.
 
-## Questions for the maintainer
+## Answers from the maintainer
 
-1. **PR mode too?** Recommended yes, so the method has one rule and no brief anywhere; otherwise PR mode keeps its body check and its own Human-proof carrier.
-2. **Human evidence in the proposal?** Recommended yes, as described above; the alternative is a separate small file per change, which is the brief again in miniature.
-3. **An old `--brief` is refused rather than accepted and ignored?** Recommended refused with a plain message, so nothing differs in silence.
-4. **The approval record stays, written by the agent from the human's words?** Recommended yes: it costs the human nothing and keeps the decision in history. The alternative is no record at all, only the interactive prompt.
+On 2026-11-09 the maintainer answered yes to all four questions: PR mode loses the brief too; human evidence lives in the proposal; an old `--brief` is refused with a plain message; the approval record stays, written by the agent from the human's words.
