@@ -8,7 +8,7 @@ title: Acceptance needs the human's decision, not an acceptance brief
 
 # CH-211 — Acceptance needs the human's decision, not an acceptance brief
 
-Plan-less: the maintainer asked for it directly. It proceeds under draft, inferred VIS-001 without confirming it.
+This change is plan-less: the maintainer asked for it directly. It proceeds under draft, inferred VIS-001 without confirming it.
 
 ## What and why
 
