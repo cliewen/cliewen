@@ -53,4 +53,4 @@ On 2026-11-09 the maintainer answered yes to all four questions: PR mode loses t
 
 ## Human evidence
 
-No human observation was made in this change. AC-249, the successor of the Human-class criterion about authorized dependent changes, is tagged `@draft` because no dependent change exists to observe; its first real use will prove it. Allocation was local on a sole contributor's clone, as in every change since the ledger moved to local mode.
+No human observation was made in this change. AC-249, the successor of the Human-class criterion about authorized dependent changes, is tagged `@draft` because no dependent change exists to observe; its first real use will prove it.
