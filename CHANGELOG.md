@@ -9,6 +9,8 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 
 ## [Unreleased]
 
+## [0.33.0] - 2026-11-09
+
 ### Changed
 
 - Tracked changes no longer have an acceptance brief. You accept a change by deciding on the exact candidate, and the agent tells you in a few plain sentences what changed, what was checked and what is still uncertain.
