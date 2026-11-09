@@ -165,7 +165,7 @@ producers:
       - path: docs/capabilities/CAP-006-collaborative-handoffs/README.md
         sha256: f5f61ddd9ea52658e4e0a10638e582b0271b551b45bdc721e2c65f228f3fbc70
       - path: docs/capabilities/CAP-006-collaborative-handoffs/criteria.md
-        sha256: 3ee7235b95cd9f277d0e6245c10cd1522fa5f48898f804ff53e62ffc8634e061
+        sha256: e8ac05ba96bea105bce01713224a889945dbbb81018bc76f4aedec98a01aedda
       - path: docs/capabilities/CAP-006-collaborative-handoffs/design.md
         sha256: 4da7e9892d07c874c3987059d382349f0cf635e843b70d77885c9b3bd107356e
       - path: docs/capabilities/CAP-007-focused-context/README.md
