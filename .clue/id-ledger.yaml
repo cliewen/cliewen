@@ -1141,6 +1141,17 @@ events:
     - {id: M-115, kind: numeric, state: retired, prefix: M, component: "115"}
     - {id: CH-211, kind: numeric, state: reserved, prefix: CH, component: "211"}
     - {id: CH-211, kind: numeric, state: live, prefix: CH, component: "211"}
+    - {id: AC-242, kind: numeric, state: reserved, prefix: AC, component: "242"}
+    - {id: AC-243, kind: numeric, state: reserved, prefix: AC, component: "243"}
+    - {id: AC-244, kind: numeric, state: reserved, prefix: AC, component: "244"}
+    - {id: AC-245, kind: numeric, state: reserved, prefix: AC, component: "245"}
+    - {id: AC-246, kind: numeric, state: reserved, prefix: AC, component: "246"}
+    - {id: AC-247, kind: numeric, state: reserved, prefix: AC, component: "247"}
+    - {id: AC-248, kind: numeric, state: reserved, prefix: AC, component: "248"}
+    - {id: AC-249, kind: numeric, state: reserved, prefix: AC, component: "249"}
+    - {id: AC-250, kind: numeric, state: reserved, prefix: AC, component: "250"}
+    - {id: AC-251, kind: numeric, state: reserved, prefix: AC, component: "251"}
+    - {id: PDR-073, kind: numeric, state: reserved, prefix: PDR, component: "73"}
 high-water:
     - {id: CH-183, kind: numeric, state: reserved, prefix: CH, component: "183"}
     - {id: AN-038, kind: numeric, state: reserved, prefix: AN, component: "38"}
