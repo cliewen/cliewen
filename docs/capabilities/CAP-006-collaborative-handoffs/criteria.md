@@ -56,6 +56,7 @@ Feature: Collaborative pull-request handoffs
     When the agent prepares its ready pull request
     Then the tracked pull-request form asks for a summary, verification, the proposal and traceability, and carries no acceptance brief
     And neither the shipped validation workflow nor this repository's CI reads the pull-request body
+    And verification still records an advisory scenario-resolution verdict for each changed criterion in its handoff, which does not make `clue validate` fail
     But merging remains the human's acceptance decision
 
   @AC-048 @retired

@@ -10,6 +10,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"slices"
 	"strings"
 
 	"github.com/cliewen/cliewen/internal/acceptpolicy"
@@ -217,7 +218,11 @@ func (p *Candidate) proposal() error {
 		if !ok || !strings.HasPrefix(path, "changes/"+id+"-") {
 			continue
 		}
-		ids = append(ids, id)
+		// A workspace deleted and re-created in the range is listed twice;
+		// it is still one change.
+		if !slices.Contains(ids, id) {
+			ids = append(ids, id)
+		}
 		p.change, p.title, p.evidence = id, title, evidence
 	}
 	switch len(ids) {

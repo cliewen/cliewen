@@ -148,7 +148,7 @@ func assertReusableWorkflow(t *testing.T, raw string, workflow ciWorkflow) error
 		return fmt.Errorf("validation unit hardcodes a root-only install path")
 	}
 	// AC-248: the pull-request body is free; no step may require a brief.
-	for _, banned := range []string{"Acceptance brief", "acceptance brief", "PR_BODY"} {
+	for _, banned := range []string{"Acceptance brief", "acceptance brief", "PR_BODY", "pull_request.body"} {
 		if strings.Contains(raw, banned) {
 			return fmt.Errorf("validation unit still reads the pull-request body for %q", banned)
 		}

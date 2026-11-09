@@ -131,17 +131,20 @@ func TestAC242_IntegrationPositive_MessageOmitsAbsentHumanEvidence(t *testing.T)
 }
 
 func TestAC242_IntegrationNegative_NoneOrSeveralProposals(t *testing.T) {
-	for _, name := range []string{"none", "two", "wrong-folder", "not-a-change"} {
+	for _, name := range []string{"none", "two", "wrong-folder", "not-a-change", "recreated"} {
 		t.Run(name, func(t *testing.T) {
 			r := fixture(t, nil)
 			mustGit(t, r.Root, "switch", "change")
 			switch name {
 			case "none":
 				r.Candidate = mustGit(t, r.Root, "commit-tree", r.Candidate+"^{tree}", "-p", r.Base, "-m", "No proposal")
-			case "two", "wrong-folder", "not-a-change":
+			case "two", "wrong-folder", "not-a-change", "recreated":
 				path, body := "changes/CH-002-other/proposal.md", "---\nid: CH-002\ntype: change\ntitle: Other\n---\n"
 				if name == "wrong-folder" {
 					path = "changes/CH-003-other/proposal.md"
+				}
+				if name == "recreated" {
+					path, body = "changes/CH-001-example/proposal.md", "---\nid: CH-001\ntype: change\ntitle: Example\n---\n"
 				}
 				if name == "not-a-change" {
 					body = "---\nid: CH-002\ntype: tasks\ntitle: Other\n---\n"
@@ -156,7 +159,7 @@ func TestAC242_IntegrationNegative_NoneOrSeveralProposals(t *testing.T) {
 			mustGit(t, r.Root, "switch", "-f", "main")
 			_, err := Check(r)
 			switch name {
-			case "wrong-folder", "not-a-change":
+			case "wrong-folder", "not-a-change", "recreated":
 				if err != nil {
 					t.Fatalf("an unrelated file under changes/ blocked acceptance: %v", err)
 				}

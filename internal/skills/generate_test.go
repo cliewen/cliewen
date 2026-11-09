@@ -1433,10 +1433,35 @@ func TestAC246_UnitPositive_SkillsRecordHumanProofInTheProposal(t *testing.T) {
 func TestAC246_UnitNegative_NoSkillAsksForAnAcceptanceBrief(t *testing.T) {
 	for _, file := range mustRender(t) {
 		text := string(file.content)
-		for _, stale := range []string{"--brief", "brief-sha256", "acceptance/brief.md", "fill the acceptance brief", "named in the acceptance brief", "in the ready acceptance brief", "acceptance brief's"} {
+		for _, stale := range []string{"--brief", "brief-sha256", "acceptance/brief.md", "fill the acceptance brief", "named in the acceptance brief", "in the ready acceptance brief", "naming it in the acceptance brief", "acceptance brief's"} {
 			if strings.Contains(text, stale) {
 				t.Errorf("%s still carries %q", file.relativePath, stale)
 			}
+		}
+	}
+}
+
+// AC-245 positive: without a brief, verification still records an advisory
+// scenario-resolution verdict for each changed criterion, in its handoff.
+func TestAC245_UnitPositive_ScenarioVerdictMovesToTheVerificationHandoff(t *testing.T) {
+	verify := mustRenderSkill(t, "clue-verify/skill.md")
+	for _, want := range []string{"Record an advisory verdict in the verification handoff", "`verifies`, `verifies-something-adjacent`, or `undetermined`", "does not gate `clue validate`"} {
+		if !strings.Contains(verify, want) {
+			t.Errorf("clue-verify does not say %q", want)
+		}
+	}
+}
+
+// AC-245 negative: the verdict stays advisory and never becomes a finding
+// that blocks readiness or a validator failure.
+func TestAC245_UnitNegative_ScenarioVerdictIsNotAGate(t *testing.T) {
+	verify := mustRenderSkill(t, "clue-verify/skill.md")
+	if !strings.Contains(verify, "This scenario-resolution result is not an actionable finding") {
+		t.Error("clue-verify no longer says the scenario-resolution verdict is not an actionable finding")
+	}
+	for _, stale := range []string{"verdict for the acceptance brief", "scenario-resolution verdict is blocking"} {
+		if strings.Contains(verify, stale) {
+			t.Errorf("clue-verify still says %q", stale)
 		}
 	}
 }

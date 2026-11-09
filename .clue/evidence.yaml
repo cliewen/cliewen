@@ -165,7 +165,7 @@ producers:
       - path: docs/capabilities/CAP-006-collaborative-handoffs/README.md
         sha256: f5f61ddd9ea52658e4e0a10638e582b0271b551b45bdc721e2c65f228f3fbc70
       - path: docs/capabilities/CAP-006-collaborative-handoffs/criteria.md
-        sha256: e8ac05ba96bea105bce01713224a889945dbbb81018bc76f4aedec98a01aedda
+        sha256: 931ca2fd1ebf38ec8cc41553aa2880c249b681b2cf92ae178060065562b3e2d9
       - path: docs/capabilities/CAP-006-collaborative-handoffs/design.md
         sha256: 4da7e9892d07c874c3987059d382349f0cf635e843b70d77885c9b3bd107356e
       - path: docs/capabilities/CAP-007-focused-context/README.md
@@ -257,7 +257,7 @@ producers:
       - path: docs/constraints/C-025-human-references-explain-relevant-meaning.md
         sha256: 086f4a6580b7cd56045a11697c72ea192e2decafb12c324913744c1d1bdf1a0c
       - path: docs/constraints/README.md
-        sha256: 19c78cf19afe6925517e7d02e3c50388c044d43c1972e1e48476ab4b8ae5a811
+        sha256: 86a42e1f00bf62bf1778540b48818c706d982922be830b02439eb1f8615a47e5
       - path: docs/decisions/ADR-001-implementation-language.md
         sha256: c9c3b73e6fa06a6a805b405b7c8cf2c3bbd23bbdee8ac3a5ba8825a4c6afaefa
       - path: docs/decisions/ADR-002-inbox-is-proposed-goals.md
@@ -553,7 +553,7 @@ producers:
       - path: docs/decisions/PDR-073-acceptance-needs-the-decision-not-a-brief.md
         sha256: 01e4ca33794349e2df4d4062b8a9036929222086f3363d6f77fc17aae09a49fe
       - path: docs/decisions/README.md
-        sha256: d1ebae752b35c3ef1fd32417dfe71fd2505ca7644f235f90f19a0e86998510ac
+        sha256: 14d1ee1a64839d09ce42f51c65c13311452a4c6bba48d62fc21e3074d9b33a5b
       - path: docs/design/README.md
         sha256: f3afe48f467b6b9e1a8eb88ece3088ae6839a893c3efa03061c5f811fda76e69
       - path: docs/goals/G-001-verifiable-thread.md
@@ -615,7 +615,7 @@ producers:
       - path: docs/goals/G-029-the-accept-check-and-the-skill-agree-on-the-proposals-identity.md
         sha256: 7e378718c1da1036742b4b2b94df2b7fb9d502bf16258ae99572f115a7bdb9a9
       - path: docs/goals/README.md
-        sha256: 097d9f552b928656c19acc816ac43fffb0b98e880ac0f26736a087579272cab6
+        sha256: cadce59fdff92ab867b354466917373c73199ceb162c22bb8dc38fb315968aca
       - path: docs/imported-changes/IC-001-fixture-inspectable-in-flight-work.md
         sha256: b8603ea831b9078636740b203eb9ad1bf9cb9229fbd26c22e975c7a41f3efecd
       - path: docs/imported-changes/IC-002-fixture-in-progress-dependent.md
@@ -685,7 +685,7 @@ producers:
       - path: guide/operations_test.go
         sha256: 1f213f4bd551d9cce0468ba250272107108121cc6ae6b19c72d3dea838bb2002
       - path: internal/accept/accept_test.go
-        sha256: d9ede6f2e9078bcaef8ec86988d49bdcf2e4842a888f6387420f06634fe2b6c6
+        sha256: 20c2ab8c94a1ddf119aaaed672fd1b6d6980b6ab94893f4801abffe87f83340f
       - path: internal/accept/approval_test.go
         sha256: 8b0d12e6259ff635ebf2ba8ebcb00239603ad4a7a8c700a1ba6a1e6112007130
       - path: internal/accept/snapshot_test.go
@@ -799,7 +799,7 @@ producers:
       - path: internal/scaffold/badge_test.go
         sha256: 4ac11ca9f7af8bd46ff06b5bff934b79ef825d91782bd0d2589c7d3180714f99
       - path: internal/scaffold/ciwall_test.go
-        sha256: 081eaa89784c20504588c71dae406b8c41cf4b91c0063907852ec74320f4b918
+        sha256: f6c082a0a2a95a43fddd5a3d41332363ebbb0b2171cb2718a96884e0ebe9b7bf
       - path: internal/scaffold/frontmatter_test.go
         sha256: 73148ac29447e1ef01c030baea00a0a5878f0730d618830b91094fcf0e6395ce
       - path: internal/scaffold/intent_test.go
@@ -819,7 +819,7 @@ producers:
       - path: internal/scaffold/wallchecklist_test.go
         sha256: 6c1c2f1bfe990ff5bc7bf25647495a413f97af3d2b0e3c875bac35b19cec8a8a
       - path: internal/skills/generate_test.go
-        sha256: 2735c6d06c3ae02d5a00a3acd5630cc542db06ab067a50bf95eb75f5ac6d9607
+        sha256: a44602b8a1d1d5a37ad77d402d996c994bf6a48adb148aa24316bf71c64066b4
       - path: internal/skills/readable_references_test.go
         sha256: a28b025e7652e172e344f5593996c320a49268642e09a60ada6c830a6ba82179
       - path: tools/export-evidence/main.go
@@ -4173,6 +4173,16 @@ producers:
       - id: AC-241
         path: internal/skills/generate_test.go
         subject: test TestAC241_UnitPositive_EveryLifecycleSkillAsksForEverydayWordsInReportsAndHandoffs
+        type: Unit
+        direction: positive
+      - id: AC-245
+        path: internal/skills/generate_test.go
+        subject: test TestAC245_UnitNegative_ScenarioVerdictIsNotAGate
+        type: Unit
+        direction: negative
+      - id: AC-245
+        path: internal/skills/generate_test.go
+        subject: test TestAC245_UnitPositive_ScenarioVerdictMovesToTheVerificationHandoff
         type: Unit
         direction: positive
       - id: AC-246
