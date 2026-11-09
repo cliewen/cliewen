@@ -7,7 +7,7 @@ title: What is Cliewen?
 
 Cliewen is a methodology and command-line tool for teams that build software with coding agents. It keeps intent, implementation, and evidence connected. Its name comes from the Old English word for a ball of thread, which became *clue*.
 
-The central idea is that the documentation describes the system as it exists now, rather than piling up past change requests. The vision says what the product is for. A goal says who needs an outcome and why, a capability says what the system can do, and each active acceptance criterion names the evidence that proves it. Machine-proven criteria use supported, classified test references. Criteria that only a person can judge use the acceptance brief. The `clue` command checks that this thread is intact.
+The central idea is that the documentation describes the system as it exists now, rather than piling up past change requests. The vision says what the product is for. A goal says who needs an outcome and why, a capability says what the system can do, and each active acceptance criterion names the evidence that proves it. Machine-proven criteria use supported, classified test references. Criteria that only a person can judge use the human evidence recorded in the change proposal. The `clue` command checks that this thread is intact.
 
 ```mermaid
 graph TD
@@ -15,7 +15,7 @@ graph TD
   G["Goal: why anyone wants it"] --> C["Capability: what the system can do"]
   C --> A["Acceptance criterion: the observable example"]
   A --> T["Classified test evidence"]
-  A --> H["Human proof in the acceptance brief"]
+  A --> H["Human proof in the change proposal"]
   T --> V["clue validate"]
   H --> V
 ```
@@ -60,7 +60,7 @@ graph TD
   subgraph "An agent may do all of this"
     B["Branch from accepted main"] --> W["Corpus, code, evidence"]
     W --> V["clue validate and the tests"]
-    V --> P["Pull request with its brief"]
+    V --> P["Ready pull request"]
   end
   subgraph "Only a human does this"
     M["Merge commit accepts the change"]
@@ -84,7 +84,7 @@ Cliewen is not an issue tracker, a project-management service, or a way to remov
 
 ::: details The exact evidence rules — the reference your agent needs, not your first read
 
-Canonical criterion IDs use `<PREFIX>-<digits>[lowercase-suffix]`, preserving brownfield identities such as `SNAP-SQS-001` and `ADP-045b`. A new or revised machine-proven criterion declares `Test-type: Unit`, `Integration`, `E2E`, or `Performance` and requires classified positive and negative executable references in `.clue/evidence.yaml`, unless it explicitly records `(single-direction)`. Each executable carries one canonical AC identity, type and direction in native metadata, executable-bound custom metadata, or a stable naming fallback. Repository-owned exporters attribute and aggregate those references across every framework. The judge checks their identities and input fingerprints without running exporters or tests. A genuine `Test-type: Human` uses the acceptance brief; `@draft` exempts one not-yet-proven criterion; an unannotated legacy criterion retains one reference.
+Canonical criterion IDs use `<PREFIX>-<digits>[lowercase-suffix]`, preserving brownfield identities such as `SNAP-SQS-001` and `ADP-045b`. A new or revised machine-proven criterion declares `Test-type: Unit`, `Integration`, `E2E`, or `Performance` and requires classified positive and negative executable references in `.clue/evidence.yaml`, unless it explicitly records `(single-direction)`. Each executable carries one canonical AC identity, type and direction in native metadata, executable-bound custom metadata, or a stable naming fallback. Repository-owned exporters attribute and aggregate those references across every framework. The judge checks their identities and input fingerprints without running exporters or tests. A genuine `Test-type: Human` uses the human evidence recorded in the change proposal; `@draft` exempts one not-yet-proven criterion; an unannotated legacy criterion retains one reference.
 
 :::
 

@@ -5,7 +5,7 @@ title: Greenfield and brownfield
 
 # Greenfield and brownfield
 
-This page describes the PR workflow, selected with `clue init --acceptance=pr`. New adoption defaults to [local acceptance](./acceptance) and uses the same proposal, evidence, digest and review obligations, with a human-run command and a Git-retained brief replacing the PR handoff. ID allocation and coordination stay the same.
+This page describes the PR workflow, selected with `clue init --acceptance=pr`. New adoption defaults to [local acceptance](./acceptance) and uses the same proposal, evidence, digest and review obligations, with the human's decision recorded in a local merge commit in place of the PR handoff. ID allocation and coordination stay the same.
 
 Cliewen works for new systems and systems with years of history. The first step differs: a greenfield project can state its intended outcomes directly, while a brownfield project must find and reconcile the intent that already exists.
 
@@ -35,15 +35,15 @@ Do not fill every corpus folder because the scaffold created it. A useful first 
 | Goal | Who needs an outcome, and why? |
 | Capability | What must the system be able to do? |
 | Acceptance criterion | What observable example makes the behavior specific enough to accept? |
-| Acceptance evidence | Does the behavior work, and does it reject or survive the important counter-case — or, for a genuinely human judgment, does the acceptance brief put that proof in front of the person who merges? |
+| Acceptance evidence | Does the behavior work, and does it reject or survive the important counter-case — or, for a genuinely human judgment, does the change proposal record who observed what, so the person who accepts can see it? |
 
 Your agent writes those four records; you state the outcome. The rules below let you check its work. You do not need to memorize them before starting.
 
 ::: details The exact evidence rules for a criterion
 
-Canonical IDs such as `AC-001`, `SNAP-SQS-001` and `ADP-045b` remain exact in the corpus. A new or revised machine-proven criterion declares `Test-type: Unit`, `Integration`, `E2E`, or `Performance` and requires classified positive and negative executable references in `.clue/evidence.yaml`, unless it explicitly records `(single-direction)`. Each executable carries one canonical AC identity, type and direction in native metadata, executable-bound custom metadata, or a stable naming fallback. Repository-owned exporters attribute and aggregate those references across every framework. The judge checks their identities and input fingerprints without running exporters or tests. A genuine `Test-type: Human` uses the acceptance brief; `@draft` exempts one not-yet-proven criterion; an unannotated legacy criterion retains one reference.
+Canonical IDs such as `AC-001`, `SNAP-SQS-001` and `ADP-045b` remain exact in the corpus. A new or revised machine-proven criterion declares `Test-type: Unit`, `Integration`, `E2E`, or `Performance` and requires classified positive and negative executable references in `.clue/evidence.yaml`, unless it explicitly records `(single-direction)`. Each executable carries one canonical AC identity, type and direction in native metadata, executable-bound custom metadata, or a stable naming fallback. Repository-owned exporters attribute and aggregate those references across every framework. The judge checks their identities and input fingerprints without running exporters or tests. A genuine `Test-type: Human` uses the human evidence recorded in the change proposal; `@draft` exempts one not-yet-proven criterion; an unannotated legacy criterion retains one reference.
 
-`clue validate` classifies and counts the pair for a declared machine proof type, recognizes explicit single-direction and per-criterion `@draft` cases, treats a Human declaration as requiring no code evidence, and preserves the older one-supported-reference rule for unannotated legacy criteria. It cannot check that the acceptance brief supplies Human proof; the selected acceptance workflow and human merge gate do that. It validates executable evidence references but does not run the tests; the repository's normal test runner remains responsible for execution.
+`clue validate` classifies and counts the pair for a declared machine proof type, recognizes explicit single-direction and per-criterion `@draft` cases, treats a Human declaration as requiring no code evidence, and preserves the older one-supported-reference rule for unannotated legacy criteria. It cannot check that the proposal's human evidence supplies Human proof; the person who accepts the change judges that. It validates executable evidence references but does not run the tests; the repository's normal test runner remains responsible for execution.
 
 :::
 

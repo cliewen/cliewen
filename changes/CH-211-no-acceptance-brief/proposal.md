@@ -50,3 +50,7 @@ Not in this change: the adopting repository where this was asked for follows by 
 ## Answers from the maintainer
 
 On 2026-11-09 the maintainer answered yes to all four questions: PR mode loses the brief too; human evidence lives in the proposal; an old `--brief` is refused with a plain message; the approval record stays, written by the agent from the human's words.
+
+## Human evidence
+
+No human observation was made in this change. AC-249, the successor of the Human-class criterion about authorized dependent changes, is tagged `@draft` because no dependent change exists to observe; its first real use will prove it. Allocation was local on a sole contributor's clone, as in every change since the ledger moved to local mode.

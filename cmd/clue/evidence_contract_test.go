@@ -9,12 +9,12 @@ import (
 func TestSanity_LiveEvidenceModelCarriersAgree(t *testing.T) {
 	requiredByFile := map[string][]string{
 		"README.md":                                      {"acceptance criterion → acceptance evidence", "Human proof"},
-		"AGENTS.md":                                      {"criterion → acceptance evidence", "Human proof in the acceptance brief"},
-		"docs/README.md":                                 {"acceptance evidence", "classified exported executable reference", "Human acceptance brief"},
+		"AGENTS.md":                                      {"criterion → acceptance evidence", "Human proof in the change proposal"},
+		"docs/README.md":                                 {"acceptance evidence", "classified exported executable reference", "Human evidence in the change proposal"},
 		"docs/goals/G-001-verifiable-thread.md":          {"goal → capability → acceptance criterion → acceptance evidence", "Human-class criteria"},
-		"docs/architecture/architecture.md":              {"acceptance evidence", "Human acceptance brief"},
+		"docs/architecture/architecture.md":              {"acceptance evidence", "Human evidence in the change proposal"},
 		"docs/architecture/core.md":                      {"acceptance criterion → acceptance evidence", "classified executable evidence", "does not execute tests"},
-		"docs/capabilities/CAP-001-onboarding/design.md": {"Human", ".clue/evidence.yaml", "acceptance brief"},
+		"docs/capabilities/CAP-001-onboarding/design.md": {"Human", ".clue/evidence.yaml", "human evidence section of its change proposal"},
 		"docs/capabilities/CAP-002-validate/README.md":   {"AC-009", "positive and negative unit tests", "Human-class criteria", "@draft", "does not execute tests"},
 		"docs/constraints/README.md":                     {"C-006 — Decision records are timeless prose; a method contract moves every live carrier together"},
 		"internal/corpus/actests.go":                     {"classified/legacy/Human/draft contract", "repository-owned export", "complete input freshness", "framework syntax"},

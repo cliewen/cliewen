@@ -46,8 +46,8 @@ func init() {
 	})
 	registerScenario(Scenario{
 		Name:       "tracked-brief",
-		Obligation: "Propose a change that alters a capability before implementing it, carry it through the digest, and hand it over with an acceptance brief that has no template text left (clue-delta).",
-		Failure:    "Implementing before the proposal is committed, leaving the change workspace behind, a brief with placeholders, or a red repository described as ready.",
+		Obligation: "Propose a change that alters a capability before implementing it, carry it through the digest, and hand it over with a pull request whose form has no template text left (clue-delta). The scenario keeps its historical name; there is no acceptance brief any more.",
+		Failure:    "Implementing before the proposal is committed, leaving the change workspace behind, a pull request with placeholders, or a red repository described as ready.",
 		Keys:       []string{"order", "pushed", "workspace", "validate", "pr", "placeholders"},
 		Observe:    observeTrackedBrief,
 		MaxTurns:   120,

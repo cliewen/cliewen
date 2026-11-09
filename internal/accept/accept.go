@@ -222,7 +222,7 @@ func (p *Candidate) proposal() error {
 	}
 	switch len(ids) {
 	case 0:
-		return fmt.Errorf("candidate history introduces no tracked change proposal after its base")
+		return fmt.Errorf("candidate history introduces no tracked change proposal after its base (looked for changes/CH-xxx-*/proposal.md with type: change and id: CH-xxx)")
 	case 1:
 		return nil
 	default:

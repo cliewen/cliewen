@@ -172,11 +172,11 @@ func TestAC247_UnitPositive_InitWritesTheRepositoryDefaultTemplate(t *testing.T)
 func TestSanity_ScaffoldedEvidenceModelCarriersAgree(t *testing.T) {
 	root, _ := runInto(t)
 	requiredByFile := map[string][]string{
-		"AGENTS.md":                        {"criterion → acceptance evidence", "Human proof in the acceptance brief"},
-		"docs/README.md":                   {"acceptance evidence", "classified exported executable reference", "Human acceptance brief"},
+		"AGENTS.md":                        {"criterion → acceptance evidence", "Human proof in the change proposal"},
+		"docs/README.md":                   {"acceptance evidence", "classified exported executable reference", "Human evidence in the change proposal"},
 		"docs/capabilities/README.md":      {"positive/negative direction", "Test-type: Human", "@draft", "one supported reference", "does not execute tests"},
 		"docs/decisions/README.md":         {"inventories every live carrier", "same change", "general obligation remains agent-enforced"},
-		".github/PULL_REQUEST_TEMPLATE/tracked.md": {"classified positive/negative exported executable evidence", "identity/type/direction attached to the same executable", "Human proof named in the acceptance brief", "per-criterion `@draft`", "legacy one-supported-reference rule"},
+		".github/PULL_REQUEST_TEMPLATE/tracked.md": {"classified positive/negative exported executable evidence", "identity/type/direction attached to the same executable", "Human proof recorded in the proposal's `## Human evidence` section", "per-criterion `@draft`", "legacy one-supported-reference rule"},
 	}
 	for rel, required := range requiredByFile {
 		content, err := os.ReadFile(filepath.Join(root, filepath.FromSlash(rel)))

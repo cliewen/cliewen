@@ -118,7 +118,7 @@ Feature: Collaborative pull-request handoffs
   Scenario: An authorized dependent change remains visible at the merge boundary
     # Retired by CH-211: PDR-073 removes the acceptance brief that repeated the dependency. Superseded by AC-249.
 
-  @AC-249
+  @AC-249 @draft
   Scenario: An authorized dependent change remains visible at the acceptance boundary
     Test-type: Human
     Given a change genuinely depends on an unmerged change

@@ -5,7 +5,7 @@ title: The verifiable thread
 
 # The verifiable thread
 
-This page describes the PR workflow, selected with `clue init --acceptance=pr`. New adoption defaults to [local acceptance](./acceptance) and uses the same proposal, evidence, digest and review obligations, with a human-run command and a Git-retained brief replacing the PR handoff. ID allocation and coordination stay the same.
+This page describes the PR workflow, selected with `clue init --acceptance=pr`. New adoption defaults to [local acceptance](./acceptance) and uses the same proposal, evidence, digest and review obligations, with the human's decision recorded in a local merge commit in place of the PR handoff. ID allocation and coordination stay the same.
 
 Cliewen organizes system knowledge as a graph with one verifiable thread from motivation to acceptance evidence, and a separate delivery thread that acts on capability content without leaving a durable link once the work lands.
 
@@ -17,7 +17,7 @@ flowchart TD
     CAP --> AC[Acceptance criterion<br/>one verifiable behavior]
     AC --> E{Acceptance evidence}
     E --> T[Test reference<br/>type + direction]
-    E --> H[Human acceptance brief]
+    E --> H[Human evidence in the change proposal]
     C[Constraints<br/>including verifiable quality bars] -. laws checked throughout tracked changes .-> CH
     CH -. edits capability content; no durable link .-> CAP
 ```
@@ -42,7 +42,7 @@ Every corpus has two concise system views. `docs/architecture/README.md` explain
 
 ## Capability and acceptance criterion
 
-A capability owns a plain-language explanation, Gherkin criteria and implementer-facing design. A new or revised machine-proven criterion declares `Test-type: Unit`, `Integration`, `E2E`, or `Performance` and requires classified positive and negative executable references in `.clue/evidence.yaml`, unless it explicitly records `(single-direction)`. Each executable carries one canonical AC identity, type and direction in native metadata, executable-bound custom metadata, or a stable naming fallback. Repository-owned exporters attribute and aggregate those references across every framework. The judge checks their identities and input fingerprints without running exporters or tests. A genuine `Test-type: Human` uses the acceptance brief; `@draft` exempts one not-yet-proven criterion; an unannotated legacy criterion retains one reference. When a criterion changes meaning, retire its ID and mint another.
+A capability owns a plain-language explanation, Gherkin criteria and implementer-facing design. A new or revised machine-proven criterion declares `Test-type: Unit`, `Integration`, `E2E`, or `Performance` and requires classified positive and negative executable references in `.clue/evidence.yaml`, unless it explicitly records `(single-direction)`. Each executable carries one canonical AC identity, type and direction in native metadata, executable-bound custom metadata, or a stable naming fallback. Repository-owned exporters attribute and aggregate those references across every framework. The judge checks their identities and input fingerprints without running exporters or tests. A genuine `Test-type: Human` uses the human evidence recorded in the change proposal; `@draft` exempts one not-yet-proven criterion; an unannotated legacy criterion retains one reference. When a criterion changes meaning, retire its ID and mint another.
 
 That immutability matters. A test tagged `AC-042` should always mean the same promise, even years later.
 
@@ -52,7 +52,7 @@ Constraints are rules a Cliewen change must not break: a law, license, policy, p
 
 ## Four actors, one boundary
 
-Skills carry process knowledge, `clue` is the deterministic judge, protected CI is the wall, and the human controls acceptance. A tracked-change PR begins with an acceptance brief that puts the remaining semantic questions — whether the plan item is still wanted, whether changed criteria fit reality, and what merge binds — in front of the human. The machine does not pretend to answer them; the human does not have to repeat a locally completed code review, but the agent can never perform the merge that accepts its own work. CI becomes a wall only when its PR check is required and branch protection blocks integration without it. The wall enforces admission to merge; it is not acceptance evidence — that remains the criterion's classified executable reference or its Human-class acceptance-brief entry.
+Skills carry process knowledge, `clue` is the deterministic judge, protected CI is the wall, and the human controls acceptance. When a tracked change is ready, the agent tells the human in plain words what changed and what is still uncertain, and the human decides whether the outcome is wanted and the criteria fit reality. The machine does not pretend to answer those questions; the human does not have to repeat a locally completed code review, but the agent can never perform the merge that accepts its own work. CI becomes a wall only when its PR check is required and branch protection blocks integration without it. The wall enforces admission to merge; it is not acceptance evidence — that remains the criterion's classified executable reference or its Human-class evidence in the change proposal.
 
 ## Next
 

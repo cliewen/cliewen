@@ -32,5 +32,5 @@ The source's `design.md` chose a token-bucket allocator over a fixed retry count
 
 | Task | Criterion |
 |---|---|
-| implement the token-bucket allocator | AC-054 |
+| implement the token-bucket allocator | AC-250 |
 | record the allocator's verification environment and population claims | AC-055 |

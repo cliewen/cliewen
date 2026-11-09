@@ -5,7 +5,7 @@ title: What one change produces
 
 # What one change produces
 
-This page describes the PR workflow, selected with `clue init --acceptance=pr`. New adoption defaults to [local acceptance](./acceptance) and uses the same proposal, evidence, digest and review obligations, with a human-run command and a Git-retained brief replacing the PR handoff. ID allocation and coordination stay the same.
+This page describes the PR workflow, selected with `clue init --acceptance=pr`. New adoption defaults to [local acceptance](./acceptance) and uses the same proposal, evidence, digest and review obligations, with the human's decision recorded in a local merge commit in place of the PR handoff. ID allocation and coordination stay the same.
 
 This page traces one small change from your request to a merge commit. It illustrates the artifacts and commands used with `clue 0.27.0`. Output excerpts show the relevant verdicts; artifact counts depend on the repository.
 
@@ -25,7 +25,7 @@ sequenceDiagram
   Agent->>Clue: clue validate
   Clue-->>Agent: OK, or the exact broken edge
   Agent->>Repo: Digest into docs and delete the workspace
-  Agent->>CI: Pull request with the acceptance brief
+  Agent->>CI: Ready pull request
   CI-->>You: Validation and tests, as required checks
   You->>Repo: A merge commit accepts the change
 ```
@@ -79,7 +79,7 @@ commit .clue/id-ledger.yaml and .clue/id-coordination.yaml together, then merge 
 protect the allocator branch from force-push and deletion while allowing ordinary fast-forward pushes
 ```
 
-After that, `clue id next CH` claims its number through the remote allocator branch. Clones and worktrees can allocate at the same time without receiving the same number. Until coordination is enabled, the command warns that allocation is local. When you work alone, the agent checks the remote for anyone else's change branch (merged or not) and for the allocator branch, goes on if there is none, and says in the acceptance brief that allocation was local and what it checked. If it finds another change branch or the allocator branch, or cannot read the remote, it stops and asks you to enable coordination with `clue id coordinate`. Run that command before a second person starts, because a clone that has not pushed is invisible to the check.
+After that, `clue id next CH` claims its number through the remote allocator branch. Clones and worktrees can allocate at the same time without receiving the same number. Until coordination is enabled, the command warns that allocation is local. When you work alone, the agent checks the remote for anyone else's change branch (merged or not) and for the allocator branch, goes on if there is none, and says in the change proposal that allocation was local and what it checked. If it finds another change branch or the allocator branch, or cannot read the remote, it stops and asks you to enable coordination with `clue id coordinate`. Run that command before a second person starts, because a clone that has not pushed is invisible to the check.
 
 ## 4. It writes the proposal before it writes any code
 
@@ -198,7 +198,7 @@ clue validate: OK (...)
 
 ## 8. The pull request states what merging would accept
 
-The agent marks the draft ready with an acceptance brief at the top of the body. It names the plan item and whether it is still wanted, every added or changed criterion with its verdict, any `Test-type: Human` criterion whose proof is that brief line, and what the merge binds. Keep it to one screen with no placeholders. If it cannot fit, split the change.
+The agent marks the draft ready and tells you in a few plain sentences what changed, what was checked, and what is still uncertain. If the change has a `Test-type: Human` criterion, the agent has already written what you observed into the proposal's `## Human evidence` section. Merging is your decision.
 
 Then it stops. The last act is yours: a human-controlled merge commit accepts the change, and the reachable history keeps the proposal, the implementation, the digest, and the corpus together.
 

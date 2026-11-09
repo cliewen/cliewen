@@ -10,7 +10,7 @@ accepted-by: Flemming N. Larsen (2026-07-21, implementation conversation; findin
 
 # PDR-012 — Agentic review before publication
 
-> **Local acceptance refinement:** [PDR-067](PDR-067-local-human-acceptance.md) adds an explicitly opted-in local mechanism for adopters. The PR-specific mechanics below govern the default workflow and this source repository; local preparation retains proposal, digest, evidence, exact-commit review, and a human-controlled merge with the complete brief in Git history.
+> **Local acceptance refinement:** [PDR-067](PDR-067-local-human-acceptance.md) adds an explicitly opted-in local mechanism for adopters. The PR-specific mechanics below govern the default workflow and this source repository; local preparation retains proposal, digest, evidence, exact-commit review, and a human-controlled merge with the change's proposal in Git history ([PDR-073](PDR-073-acceptance-needs-the-decision-not-a-brief.md)).
 
 > **Amended by [PDR-040](PDR-040-push-is-durability-ready-is-explicit.md):** the review gate is before the ready mark; pushing is durability and claims no readiness.
 

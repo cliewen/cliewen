@@ -29,4 +29,4 @@ Below the goal there was a matching gap: a capability is a unit of what the syst
 
 The judge checks form and claims nothing about meaning. Whether a vision is the right direction, whether a use case represents real users, and whether every actor has been found are human judgements, and a check that appeared to make them would be worse than no check.
 
-`active`: AC-162 through AC-167 and AC-202 carry focused positive and negative unit evidence. AC-168 is `Human` — whether an interview is proportionate and whether inferred content is honestly labelled is a judgement, and the acceptance brief is its proof.
+`active`: AC-162 through AC-167 and AC-202 carry focused positive and negative unit evidence. AC-168 is `Human` — whether an interview is proportionate and whether inferred content is honestly labelled is a judgement, and the human evidence in its change proposal is its proof.

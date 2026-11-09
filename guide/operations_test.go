@@ -12,11 +12,11 @@ var nextAction = regexp.MustCompile(`(?s)## Next\n\n\[[^\]]+\]\([^\)]+\)\n\z`)
 
 func TestAC036_UnitPositive_OperationsGuideStatesSupportedBoundary(t *testing.T) {
 	requiredByPage := map[string][]string{
-		"adoption.md":        {"classifies and counts the pair", ".clue/evidence.yaml", "Test-type: Human", "@draft", "cannot check that the acceptance brief supplies Human proof", "does not run the tests"},
-		"getting-started.md": {"classified positive and negative executable references", ".clue/evidence.yaml", "Test-type: Human", "@draft", "cannot check that the brief supplies the proof", "does not run tests"},
+		"adoption.md":        {"classifies and counts the pair", ".clue/evidence.yaml", "Test-type: Human", "@draft", "cannot check that the proposal's human evidence supplies Human proof", "does not run the tests"},
+		"getting-started.md": {"classified positive and negative executable references", ".clue/evidence.yaml", "Test-type: Human", "@draft", "cannot check that the proposal supplies the proof", "does not run tests"},
 		"operations.md":      {"native executable metadata", "complete", ".clue/evidence.yaml", "Ordinary comments", "(single-direction)", "Test-type: Human", "@draft", "never invokes an exporter or test runner", "Keep the binary, generated skills, and CI caller on the same release", "Recover without bypassing the evidence", "`clue init` reports a skipped file", "`clue validate` fails", "CI rejects a transient workspace", "Do not delete a rule", "foreign-soil trials, not adoptions"},
 		"what-is-cliewen.md": {"classified positive and negative executable references", ".clue/evidence.yaml", "Test-type: Human", "@draft", "without running exporters or tests"},
-		"design.md":          {"acceptance criterion → acceptance evidence", ".clue/evidence.yaml", "Human-class", "@draft", "inspect whether the acceptance brief supplies Human proof", "Ordinary proximity comments and container AC metadata provide no credit"},
+		"design.md":          {"acceptance criterion → acceptance evidence", ".clue/evidence.yaml", "Human-class", "@draft", "inspect whether the proposal's human evidence supplies Human proof", "Ordinary proximity comments and container AC metadata provide no credit"},
 		"methodology.md":     {"Acceptance evidence", ".clue/evidence.yaml", "Test-type: Human", "@draft", "without running exporters or tests"},
 		"change-loop.md":     {"classified positive and negative executable references", ".clue/evidence.yaml", "Test-type: Human", "@draft", "an unannotated legacy criterion retains one reference"},
 	}

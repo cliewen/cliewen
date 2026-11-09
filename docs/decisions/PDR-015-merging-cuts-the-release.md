@@ -18,7 +18,7 @@ This repository's release preparation needed only a chosen version and user-faci
 
 ## Decision outcome
 
-**Only `cliewen/cliewen` uses a short ordinary release PR without CH identity, workspace, digest, acceptance brief, or agentic review; human merge authorizes publication.** The canonical skill stamp supplies the version and the merged `CHANGELOG.md` section supplies the release body.
+**Only `cliewen/cliewen` uses a short ordinary release PR without CH identity, workspace, digest, or agentic review; human merge authorizes publication.** The canonical skill stamp supplies the version and the merged `CHANGELOG.md` section supplies the release body.
 
 A tag without a GitHub Release object may be retargeted to the repaired `main` commit and retried under the same version. Once any release object exists, including draft or prerelease, its tag is immutable. Tagging and publication are serialized, and the runner verifies that the tag names its own commit before publishing.
 

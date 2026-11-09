@@ -2,13 +2,13 @@
 id: CAP-012
 type: capability
 status: active
-links: [G-016, PDR-067, PDR-069, PDR-070]
+links: [G-016, PDR-067, PDR-069, PDR-070, PDR-073]
 title: Human-controlled local acceptance
 goal: G-016
 ---
 
 # Local acceptance
 
-A repository whose accepted policy selects local acceptance can accept a verified tracked branch without a pull request. A human reviews the acceptance brief and decides whether to accept, either confirming `clue accept` interactively or delegating execution through an exact approval record; the resulting merge preserves the candidate tree, proposal history, and complete brief. Acceptance defaults to local on main when policy is absent; PR is actively selected under PDR-069, and identity allocation remains independent of acceptance.
+A repository whose accepted policy selects local acceptance can accept a verified tracked branch without a pull request. A human decides whether to accept the exact candidate, either confirming `clue accept` interactively or delegating execution through an exact approval record; no acceptance brief is written. The resulting merge preserves the candidate tree and proposal history, and its message carries the change's title and any human evidence from its proposal. Acceptance defaults to local on main when policy is absent; PR is actively selected under PDR-069, and identity allocation remains independent of acceptance.
 
 The local boundary is procedural: a prompt and a Git committer identity do not authenticate human presence. See [design](design.md) for policy selection, record, and recovery contract and [criteria](criteria.md) for executable evidence.

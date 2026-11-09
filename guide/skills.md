@@ -5,7 +5,7 @@ title: The skills
 
 # The skills
 
-This page describes the PR workflow, selected with `clue init --acceptance=pr`. New adoption defaults to [local acceptance](./acceptance) and uses the same proposal, evidence, digest and review obligations, with a human-run command and a Git-retained brief replacing the PR handoff. ID allocation and coordination stay the same.
+This page describes the PR workflow, selected with `clue init --acceptance=pr`. New adoption defaults to [local acceptance](./acceptance) and uses the same proposal, evidence, digest and review obligations, with the human's decision recorded in a local merge commit in place of the PR handoff. ID allocation and coordination stay the same.
 
 A skill is a folder of Markdown instructions that a coding agent loads when a task matches it. Cliewen puts its process knowledge in six skills. The `clue` binary stays a small judge that only checks the repository, and your prompts can stay in ordinary words. You rarely name a skill yourself. You describe the work, and the agent picks the skill.
 
@@ -62,7 +62,7 @@ It stops and asks you when a question blocks the work, when a plan no longer hol
 
 ### `clue-verify`: check before ready
 
-Before a tracked pull request is marked ready, the agent runs the repository's tests and `clue validate --forbid-changes` on the exact commit. Where the agent host supports it, it starts a fresh reviewer that sees the declared intent but not the implementation conversation. Blocking findings are fixed and reviewed again. The pull request opens with an *acceptance brief*: one screen saying what merging would accept, with a verdict on whether each changed criterion's tests really check its scenario.
+Before a tracked pull request is marked ready, the agent runs the repository's tests and `clue validate --forbid-changes` on the exact commit. Where the agent host supports it, it starts a fresh reviewer that sees the declared intent but not the implementation conversation. Blocking findings are fixed and reviewed again. The agent then tells you in a few plain sentences what changed, what was checked, and what is still uncertain, including whether each changed criterion's tests really check its scenario.
 
 ### `clue-extract`: adopt an existing repository
 
