@@ -2,7 +2,6 @@ package accept
 
 import (
 	"bytes"
-	"fmt"
 	"io"
 	"os"
 	"os/exec"
@@ -35,6 +34,13 @@ func mustGit(t *testing.T, root string, args ...string) string {
 
 func fixture(t *testing.T, modify func(string)) Request {
 	t.Helper()
+	return fixtureWithEvidence(t, "", modify)
+}
+
+// fixtureWithEvidence records a human evidence section in a later commit, so
+// acceptance must read the proposal's last text, not the one first added.
+func fixtureWithEvidence(t *testing.T, evidence string, modify func(string)) Request {
+	t.Helper()
 	root := t.TempDir()
 	mustGit(t, root, "init", "-b", "main")
 	mustGit(t, root, "config", "user.name", "Acceptance tester")
@@ -54,6 +60,10 @@ func fixture(t *testing.T, modify func(string)) Request {
 	write(t, root, "changes/CH-001-example/proposal.md", "---\nid: CH-001\ntype: change\nstatus: open\nlinks: []\ntitle: Example\n---\n\nA plan-less change.\n")
 	mustGit(t, root, "add", ".")
 	mustGit(t, root, "commit", "-m", "Propose CH-001")
+	if evidence != "" {
+		write(t, root, "changes/CH-001-example/proposal.md", "---\nid: CH-001\ntype: change\nstatus: open\nlinks: []\ntitle: Example\n---\n\nA plan-less change.\n\n## Human evidence\n\n"+evidence+"\n\n## Later section\n\nNot evidence.\n")
+		mustGit(t, root, "commit", "-am", "Record human evidence")
+	}
 	mustGit(t, root, "rm", "-r", "changes")
 	write(t, root, "app.txt", "after\n")
 	if modify != nil {
@@ -63,29 +73,18 @@ func fixture(t *testing.T, modify func(string)) Request {
 	mustGit(t, root, "commit", "-m", "Implement and digest")
 	candidate := mustGit(t, root, "rev-parse", "HEAD")
 	mustGit(t, root, "switch", "main")
-	path := filepath.Join(root, ".git", "clue", "acceptance", "CH-001.md")
-	r := Request{Root: root, Candidate: candidate, Base: base, BriefPath: path, Version: "dev"}
-	writeBrief(t, r)
-	return r
+	return Request{Root: root, Candidate: candidate, Base: base, Version: "dev"}
 }
 
-func writeBrief(t *testing.T, r Request) {
-	t.Helper()
-	body := fmt.Sprintf("---\ntype: acceptance-brief\ntitle: Accept example\nchange: CH-001\ncandidate: %s\nbase: %s\nreviewed: %s\n---\n", r.Candidate, r.Base, r.Candidate)
-	for _, section := range sections {
-		body += "\n## " + section + "\n\nRecorded result for " + section + ".\n"
-	}
-	write(t, filepath.Dir(r.BriefPath), filepath.Base(r.BriefPath), body)
-}
-
-func TestAC219_IntegrationPositive_ExactTreeAndRecoverableHistory(t *testing.T) {
-	r := fixture(t, nil)
+func TestAC242_IntegrationPositive_ExactTreeAndRecoverableHistory(t *testing.T) {
+	evidence := "Observer: Fixture human. Conditions: this test. Observation: it looked right. Not observed: nothing else."
+	r := fixtureWithEvidence(t, evidence, nil)
 	p, err := Check(r)
 	if err != nil {
 		t.Fatal(err)
 	}
-	brief, _ := os.ReadFile(r.BriefPath)
-	commit, err := p.Confirm(strings.NewReader("accept CH-001\n"), io.Discard, true)
+	var shown bytes.Buffer
+	commit, err := p.Confirm(strings.NewReader("accept CH-001\n"), &shown, true)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -99,8 +98,14 @@ func TestAC219_IntegrationPositive_ExactTreeAndRecoverableHistory(t *testing.T) 
 		t.Fatalf("dirty after acceptance: %s", got)
 	}
 	mustGit(t, r.Root, "branch", "-D", "change")
-	if got := mustGit(t, r.Root, "show", "-s", "--format=%B", "HEAD"); !strings.Contains(got, strings.TrimSpace(string(brief))) {
-		t.Fatal("brief not retained")
+	message := mustGit(t, r.Root, "show", "-s", "--format=%B", "HEAD")
+	for _, want := range []string{"Accept CH-001 locally", "Change: CH-001 — Example", "Candidate: " + r.Candidate, "Base: " + r.Base, "## Human evidence\n\n" + evidence} {
+		if !strings.Contains(message, want) || !strings.Contains(shown.String(), strings.TrimPrefix(want, "Accept CH-001 locally")) {
+			t.Fatalf("merge message or confirmation lacks %q:\n%s", want, message)
+		}
+	}
+	if strings.Contains(message, "Not evidence") {
+		t.Fatal("human evidence ran past its section")
 	}
 	proposal := mustGit(t, r.Root, "show", r.Candidate+"^:changes/CH-001-example/proposal.md")
 	if !strings.Contains(proposal, "id: CH-001") {
@@ -111,25 +116,64 @@ func TestAC219_IntegrationPositive_ExactTreeAndRecoverableHistory(t *testing.T) 
 	}
 }
 
-func TestAC219_IntegrationNegative_IncompleteOrMismatchedBrief(t *testing.T) {
+func TestAC242_IntegrationPositive_MessageOmitsAbsentHumanEvidence(t *testing.T) {
 	r := fixture(t, nil)
-	original, _ := os.ReadFile(r.BriefPath)
-	for _, mutation := range []func(string) string{
-		func(s string) string { return strings.Replace(s, "reviewed: "+r.Candidate, "reviewed: "+r.Base, 1) },
-		func(s string) string { return strings.Replace(s, "candidate: "+r.Candidate, "candidate: "+r.Base, 1) },
-		func(s string) string { return strings.Replace(s, "base: "+r.Base, "base: "+r.Candidate, 1) },
-		func(s string) string { return strings.Replace(s, "Recorded result for Verification.", "", 1) },
-		func(s string) string { return s + "\n<!-- REQUIRED -->\n" },
-		func(s string) string { return strings.Replace(s, "change: CH-001", "change: CH-002", 1) },
-		func(s string) string { return "no header" },
-	} {
-		write(t, filepath.Dir(r.BriefPath), filepath.Base(r.BriefPath), mutation(string(original)))
-		if _, err := Check(r); err == nil {
-			t.Fatal("invalid brief accepted")
-		}
-		if got := mustGit(t, r.Root, "rev-parse", "HEAD"); got != r.Base {
-			t.Fatal("ref changed")
-		}
+	p, err := Check(r)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err = p.Confirm(strings.NewReader("accept CH-001\n"), io.Discard, true); err != nil {
+		t.Fatal(err)
+	}
+	if message := mustGit(t, r.Root, "show", "-s", "--format=%B", "HEAD"); strings.Contains(message, "Human evidence") {
+		t.Fatalf("empty human evidence section invented:\n%s", message)
+	}
+}
+
+func TestAC242_IntegrationNegative_NoneOrSeveralProposals(t *testing.T) {
+	for _, name := range []string{"none", "two", "wrong-folder", "not-a-change"} {
+		t.Run(name, func(t *testing.T) {
+			r := fixture(t, nil)
+			mustGit(t, r.Root, "switch", "change")
+			switch name {
+			case "none":
+				r.Candidate = mustGit(t, r.Root, "commit-tree", r.Candidate+"^{tree}", "-p", r.Base, "-m", "No proposal")
+			case "two", "wrong-folder", "not-a-change":
+				path, body := "changes/CH-002-other/proposal.md", "---\nid: CH-002\ntype: change\ntitle: Other\n---\n"
+				if name == "wrong-folder" {
+					path = "changes/CH-003-other/proposal.md"
+				}
+				if name == "not-a-change" {
+					body = "---\nid: CH-002\ntype: tasks\ntitle: Other\n---\n"
+				}
+				write(t, r.Root, path, body)
+				mustGit(t, r.Root, "add", ".")
+				mustGit(t, r.Root, "commit", "-m", "Second proposal")
+				mustGit(t, r.Root, "rm", "-r", "changes")
+				mustGit(t, r.Root, "commit", "-m", "Digest second")
+				r.Candidate = mustGit(t, r.Root, "rev-parse", "HEAD")
+			}
+			mustGit(t, r.Root, "switch", "-f", "main")
+			_, err := Check(r)
+			switch name {
+			case "wrong-folder", "not-a-change":
+				if err != nil {
+					t.Fatalf("an unrelated file under changes/ blocked acceptance: %v", err)
+				}
+				return
+			case "two":
+				if err == nil || !strings.Contains(err.Error(), "more than one") {
+					t.Fatalf("two proposals accepted: %v", err)
+				}
+			default:
+				if err == nil || !strings.Contains(err.Error(), "no tracked change proposal") {
+					t.Fatalf("missing proposal accepted: %v", err)
+				}
+			}
+			if got := mustGit(t, r.Root, "rev-parse", "HEAD"); got != r.Base {
+				t.Fatal("ref changed")
+			}
+		})
 	}
 }
 
@@ -139,12 +183,6 @@ func TestSanity_LinkedWorktreeAcceptance(t *testing.T) {
 	other := filepath.Join(t.TempDir(), "integration")
 	mustGit(t, r.Root, "worktree", "add", other, "main")
 	r.Root = other
-	path := mustGit(t, other, "rev-parse", "--git-path", "clue/acceptance/CH-001.md")
-	if !filepath.IsAbs(path) {
-		path = filepath.Join(other, path)
-	}
-	r.BriefPath = path
-	writeBrief(t, r)
 	p, err := Check(r)
 	if err != nil {
 		t.Fatal(err)
@@ -157,7 +195,7 @@ func TestSanity_LinkedWorktreeAcceptance(t *testing.T) {
 	}
 }
 
-func TestAC238_IntegrationNegative_BaseAdvanceDuringConfirmation(t *testing.T) {
+func TestAC244_IntegrationNegative_BaseAdvanceDuringConfirmation(t *testing.T) {
 	r := fixture(t, nil)
 	p, err := Check(r)
 	if err != nil {
@@ -176,7 +214,7 @@ func TestAC238_IntegrationNegative_BaseAdvanceDuringConfirmation(t *testing.T) {
 	}
 }
 
-func TestAC238_IntegrationPositive_GitCallbacksNeverExecute(t *testing.T) {
+func TestAC244_IntegrationPositive_GitCallbacksNeverExecute(t *testing.T) {
 	r := fixture(t, nil)
 	callbacks := filepath.Join(r.Root, ".git", "configured-hooks")
 	marker := filepath.Join(r.Root, ".git", "callback-ran")
@@ -214,7 +252,7 @@ func TestAC238_IntegrationPositive_GitCallbacksNeverExecute(t *testing.T) {
 	}
 }
 
-func TestAC238_IntegrationPositive_CheckAndCancellationAreReadOnly(t *testing.T) {
+func TestAC244_IntegrationPositive_CheckAndCancellationAreReadOnly(t *testing.T) {
 	r := fixture(t, nil)
 	refs := mustGit(t, r.Root, "show-ref")
 	index := mustGit(t, r.Root, "write-tree")
@@ -248,8 +286,8 @@ func (d *duringConfirmation) Read(b []byte) (int, error) {
 	return d.reader.Read(b)
 }
 
-func TestAC238_IntegrationNegative_UnsafeOrChangedState(t *testing.T) {
-	for _, name := range []string{"dirty", "untracked", "stale", "workspace", "invalid", "missing-history", "changed-brief", "changed-during-confirmation", "ref-lock", "unsupported-link", "export-ignore"} {
+func TestAC244_IntegrationNegative_UnsafeOrChangedState(t *testing.T) {
+	for _, name := range []string{"dirty", "untracked", "stale", "workspace", "invalid", "missing-history", "changed-during-confirmation", "ref-lock", "unsupported-link", "export-ignore"} {
 		t.Run(name, func(t *testing.T) {
 			r := fixture(t, func(root string) {
 				switch name {
@@ -271,7 +309,6 @@ func TestAC238_IntegrationNegative_UnsafeOrChangedState(t *testing.T) {
 				mustGit(t, r.Root, "commit", "--allow-empty", "-m", "Advance base")
 			case "missing-history":
 				r.Candidate = mustGit(t, r.Root, "commit-tree", r.Candidate+"^{tree}", "-p", r.Base, "-m", "No proposal")
-				writeBrief(t, r)
 			case "unsupported-link":
 				mustGit(t, r.Root, "switch", "change")
 				blob := mustGit(t, r.Root, "rev-parse", r.Candidate+":app.txt")
@@ -279,19 +316,15 @@ func TestAC238_IntegrationNegative_UnsafeOrChangedState(t *testing.T) {
 				mustGit(t, r.Root, "commit", "-m", "Add symlink")
 				r.Candidate = mustGit(t, r.Root, "rev-parse", "HEAD")
 				mustGit(t, r.Root, "switch", "-f", "main")
-				writeBrief(t, r)
 			}
 			before := mustGit(t, r.Root, "rev-parse", "HEAD")
 			p, err := Check(r)
-			if name == "changed-brief" || name == "changed-during-confirmation" || name == "ref-lock" {
+			if name == "changed-during-confirmation" || name == "ref-lock" {
 				if err != nil {
 					t.Fatal(err)
 				}
 				reader := &duringConfirmation{reader: strings.NewReader("accept CH-001\n"), action: func() {
 					switch name {
-					case "changed-brief":
-						b, _ := os.ReadFile(r.BriefPath)
-						write(t, filepath.Dir(r.BriefPath), filepath.Base(r.BriefPath), string(b)+"\nChanged meaning.\n")
 					case "changed-during-confirmation":
 						write(t, r.Root, "app.txt", "concurrent edit")
 					case "ref-lock":
@@ -359,7 +392,6 @@ func TestAC230_IntegrationNegative_ChangedPolicyCannotAcceptLocally(t *testing.T
 				mustGit(t, r.Root, "commit", "-m", "Unaccepted local policy")
 				r.Candidate = mustGit(t, r.Root, "rev-parse", "HEAD")
 				mustGit(t, r.Root, "switch", "main")
-				writeBrief(t, r)
 			}
 			if _, err := Check(r); err == nil {
 				t.Fatal("unsupported local acceptance passed")
@@ -383,7 +415,6 @@ func TestAC230_IntegrationPositive_MissingPolicyAcceptsLocally(t *testing.T) {
 		}
 		r.Candidate = mustGit(t, r.Root, "rev-parse", "HEAD")
 		mustGit(t, r.Root, "switch", "main")
-		writeBrief(t, r)
 		p, err := Check(r)
 		if err != nil {
 			t.Fatal(err)
@@ -404,7 +435,6 @@ func TestAC230_IntegrationPositive_SourceUsesLocalAcceptance(t *testing.T) {
 	mustGit(t, r.Root, "merge", "--no-edit", "main")
 	r.Candidate = mustGit(t, r.Root, "rev-parse", "HEAD")
 	mustGit(t, r.Root, "switch", "main")
-	writeBrief(t, r)
 	p, err := Check(r)
 	if err != nil {
 		t.Fatal(err)

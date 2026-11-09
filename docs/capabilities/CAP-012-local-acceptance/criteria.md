@@ -9,14 +9,9 @@ title: Local acceptance criteria
 # Criteria
 
 ```gherkin
-@AC-219
+@AC-219 @retired
 Scenario: A human accepts an exact candidate with recoverable provenance
-  Test-type: Integration
-  Given an explicitly opted-in adopter with a digested verified candidate containing its tracked proposal history
-  When a human confirms local acceptance of that candidate and its current base
-  Then the acceptance commit has the base and candidate as its ordered parents and exactly the candidate tree
-  And the complete brief and proposal remain recoverable after deleting the candidate branch
-  And an incomplete or revision-mismatched brief cannot accept a candidate
+  # Retired by CH-211: PDR-073 removes the acceptance brief; superseded by AC-242.
 
 @AC-220 @retired
 Scenario: Preflight and refusal never integrate a candidate
@@ -93,25 +88,13 @@ Scenario: Committed internal links are materialized safely and completely
   And the original candidate link modes remain unchanged
   And external, missing, metadata, cyclic, excessive or submodule targets are refused
 
-@AC-237
+@AC-237 @retired
 Scenario: An exact recorded human decision can be executed without a terminal prompt
-  Test-type: Integration
-  Given a reviewed candidate, complete brief and human approval record bound to candidate, base and brief hash
-  When delegated local execution consumes the record
-  Then it creates the exact-candidate-tree merge with ordered parents and retains the full brief and approval provenance
-  And preflight alone does not integrate
-  And missing, malformed, rejected or mismatched records cannot integrate
-  And recorded provenance does not claim to authenticate human presence
+  # Retired by CH-211: PDR-073 removes the brief hash from the approval record; superseded by AC-243.
 
-@AC-238
+@AC-238 @retired
 Scenario: Preflight, refusal and fresh-state checks protect both approval paths
-  Test-type: Integration
-  Given interactive confirmation or an exact recorded human decision
-  When preflight runs, confirmation is cancelled or inputs become stale
-  Then preflight and refusal do not integrate
-  And dirty checkout, advanced base, changed brief, invalid corpus, undigested workspace or missing proposal history is refused
-  And noninteractive execution without an approval record is refused
-  And changed approval bytes cannot be executed as the previously checked record
+  # Retired by CH-211: PDR-073 removes the acceptance brief; superseded by AC-244.
 
 @AC-240
 Scenario: The change loop states its publication intent and publishes only as asked
@@ -122,4 +105,34 @@ Scenario: The change loop states its publication intent and publishes only as as
   And under local acceptance it keeps the work on a local branch and neither pushes nor opens a pull request without an instruction in the conversation
   And under pull-request acceptance the policy is the standing instruction and the loop pushes and opens the draft pull request as before
   But an instruction to push is not taken as an instruction to open a pull request, and an instruction names only the change it was given for
+
+@AC-242
+Scenario: A human accepts an exact candidate without an acceptance brief
+  Test-type: Integration
+  Given an explicitly opted-in adopter with a digested verified candidate whose history introduces exactly one tracked proposal after the base
+  When a human confirms local acceptance of that candidate and its current base
+  Then the acceptance commit has the base and candidate as its ordered parents and exactly the candidate tree
+  And its message names the change and the proposal's title and carries the proposal's human evidence section when it has one
+  And the proposal remains recoverable after deleting the candidate branch
+  But a candidate introducing no proposal or more than one cannot be accepted, and an old brief option is refused with a message saying the brief is no longer used
+
+@AC-243
+Scenario: An exact recorded human decision can be executed without a terminal prompt
+  Test-type: Integration
+  Given a reviewed candidate and a human approval record bound to candidate, base and decision
+  When delegated local execution consumes the record
+  Then it creates the exact-candidate-tree merge with ordered parents and retains the approval provenance in its message
+  And preflight alone does not integrate
+  And missing, malformed, rejected or mismatched records cannot integrate, and a record still carrying a brief hash is refused with a message saying the brief is no longer used
+  And recorded provenance does not claim to authenticate human presence
+
+@AC-244
+Scenario: Preflight, refusal and fresh-state checks protect both approval paths
+  Test-type: Integration
+  Given interactive confirmation or an exact recorded human decision
+  When preflight runs, confirmation is cancelled or inputs become stale
+  Then preflight and refusal do not integrate
+  And dirty checkout, advanced base, invalid corpus, undigested workspace or missing proposal history is refused
+  And noninteractive execution without an approval record is refused
+  And changed approval bytes cannot be executed as the previously checked record
 ```

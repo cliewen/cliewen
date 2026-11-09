@@ -196,9 +196,10 @@ func checkACTests(c *Corpus) []Issue {
 	declared, classified, tested, issues, _ := harvestACs(c)
 
 	for ac, d := range declared {
-		// A Human-class criterion is satisfied by the acceptance brief, never
-		// a code test; @draft exempts a not-yet-proven criterion from the
-		// active-file test requirement without retiring it (ADR-033).
+		// A Human-class criterion is satisfied by a person's observation,
+		// recorded in its change proposal's human evidence section, never a
+		// code test; @draft exempts a not-yet-proven criterion from the
+		// active-file test requirement without retiring it (ADR-033, PDR-073).
 		exempt := d.draft || d.testType == "Human" || d.humanSingle
 		live := d.status == "active" && !d.retired
 		if live && d.humanSingle {

@@ -392,7 +392,7 @@ func TestAC044_CucumberAmbiguousDirectionTagsFail(t *testing.T) {
 
 func TestAC045_UnitPositive_HumanClassNeedsNoCodeTest(t *testing.T) {
 	files := capFiles("active")
-	files["docs/capabilities/CAP-101-x/criteria.md"] = "---\nid: CAP-101-criteria\ntype: criteria\nstatus: active\nlinks: [CAP-101]\ntitle: X criteria\n---\n\n```gherkin\nFeature: X\n\n  @AC-101\n  Scenario: a human confirms it\n    Test-type: Human\n    Given a thing only a person can judge\n    Then a human confirms it in the acceptance brief\n```\n"
+	files["docs/capabilities/CAP-101-x/criteria.md"] = "---\nid: CAP-101-criteria\ntype: criteria\nstatus: active\nlinks: [CAP-101]\ntitle: X criteria\n---\n\n```gherkin\nFeature: X\n\n  @AC-101\n  Scenario: a human confirms it\n    Test-type: Human\n    Given a thing only a person can judge\n    Then a human confirms it in the proposal's human evidence\n```\n"
 	if issues := run(t, files, false); len(issues) != 0 {
 		t.Fatalf("Human class needs no code test, got %v", issues)
 	}
@@ -400,7 +400,7 @@ func TestAC045_UnitPositive_HumanClassNeedsNoCodeTest(t *testing.T) {
 
 func TestAC045_UnitNegative_HumanWithSingleDirectionIsMalformed(t *testing.T) {
 	files := capFiles("active")
-	files["docs/capabilities/CAP-101-x/criteria.md"] = "---\nid: CAP-101-criteria\ntype: criteria\nstatus: active\nlinks: [CAP-101]\ntitle: X criteria\n---\n\n```gherkin\nFeature: X\n\n  @AC-101\n  Scenario: a human confirms it\n    Test-type: Human (single-direction)\n    Given a thing only a person can judge\n    Then a human confirms it in the acceptance brief\n```\n"
+	files["docs/capabilities/CAP-101-x/criteria.md"] = "---\nid: CAP-101-criteria\ntype: criteria\nstatus: active\nlinks: [CAP-101]\ntitle: X criteria\n---\n\n```gherkin\nFeature: X\n\n  @AC-101\n  Scenario: a human confirms it\n    Test-type: Human (single-direction)\n    Given a thing only a person can judge\n    Then a human confirms it in the proposal's human evidence\n```\n"
 	issues := run(t, files, false)
 	assertIssue(t, issues, "AC-101 declares Test-type: Human (single-direction), which the Human class does not use")
 	if len(issues) != 1 {
