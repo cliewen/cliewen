@@ -23,7 +23,7 @@ Cliewen produces the code and its durable record together. A change that leaves 
 
 "Code" is the wrong word for what a change is made of, and this repository is the example, because Cliewen runs on itself. The same loop produced the `clue` binary in Go, this guide in Markdown, the six generated agent skills under `.agents/skills/`, the reusable CI workflow other repositories call, the release-gate script, and the `AGENTS.md` routing hub that tells an agent where to start. Cliewen does not care which of those a change touches. It cares that the change leaves the documentation true and its acceptance criteria evidenced.
 
-Executable evidence from any framework uses the common `.clue/evidence.yaml` contract. The agent establishes a repeatable exporter for the repository's actual frameworks; the judge checks references and freshness. A genuinely human proof uses `Test-type: Human` and its acceptance-brief line. A shell test remains executable evidence when the repository exports it with its AC identity and classification. [Operate safely](./operations) explains the boundary.
+Executable evidence from any framework uses the common `.clue/evidence.yaml` contract. The agent establishes a repeatable exporter for the repository's actual frameworks; the judge checks references and freshness. A genuinely human proof uses `Test-type: Human` and the human evidence recorded in the change proposal. A shell test remains executable evidence when the repository exports it with its AC identity and classification. [Operate safely](./operations) explains the boundary.
 
 ## The loop that pays you back
 
@@ -51,7 +51,7 @@ A corpus describes the system as it exists, rather than an archive of past chang
 
 ## At the merge boundary
 
-`clue validate` gives the same verdict locally and in CI. Branch protection makes that check a wall an agent cannot skip. The acceptance brief puts the remaining semantic decision on one screen: what changed, what it binds, and what only a human can judge. The merge stays yours; it accepts the change as true.
+`clue validate` gives the same verdict locally and in CI. Branch protection makes that check a wall an agent cannot skip. The agent tells you what changed and what only a human can judge, and the decision to accept stays yours.
 
 ## Bring in existing work
 

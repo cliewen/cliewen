@@ -27,7 +27,7 @@ Prefer an install directory outside the checkout. An empty value uses the runner
 
 The checksum and the binary come from the same release, so verification catches a truncated or corrupted download rather than establishing independent trust in the release itself. That is the same guarantee the published install scripts give.
 
-The reusable workflow owns its action references and all validation steps. Do not copy its checkout, scope, warning, acceptance-brief, or `clue validate` steps into the caller. Updating the one upstream reference is the reviewed upgrade that imports those fixes while retaining the caller's local choices.
+The reusable workflow owns its action references and all validation steps. Do not copy its checkout, scope, warning, or `clue validate` steps into the caller. Updating the one upstream reference is the reviewed upgrade that imports those fixes while retaining the caller's local choices.
 
 Release binaries emit the reusable workflow's source commit as the reference. A binary built without usable VCS metadata — installed with `go install`, or built from a modified tree — emits the corresponding `vX.Y.Z` release tag instead, because a commit it cannot vouch for would leave your CI unable to resolve the workflow at all. Both forms are immutable; protect release tags from force updates, and replace a tag with the exact source SHA when your hosting policy requires SHA-only references.
 
@@ -73,7 +73,7 @@ Do not edit `clue-version` without replacing both vendored files from the matchi
 | State | What the `validate` job does | Can it protect the corpus? |
 |---|---|---|
 | Unarmed | Reports a warning and skips `clue validate` | No |
-| Armed | Verifies the vendored checksum, stages `clue`, and validates corpus-relevant changes; only tracked-change proposal history enables the acceptance-brief gate | Yes, once the check is required |
+| Armed | Verifies the vendored checksum, stages `clue`, and validates corpus-relevant changes and changes whose history carries a tracked-change proposal | Yes, once the check is required |
 | Release source | Downloads and verifies the matching binary, then applies the same corpus and direct-or-tracked distinction | Yes, once the check is required |
 | Direct-route non-corpus Markdown change | Keeps the stable `validate` job green without running the corpus validator | Yes; the same required check still exists |
 
@@ -187,7 +187,7 @@ Forge menus differ, so copy the contract rather than GitHub's labels:
 
 - Run the generated workflow's equivalent on every proposed change to the protected branch.
 - Keep one stable check name, `validate`.
-- Verify and execute the pinned `clue` release for corpus-relevant changes, while requiring an acceptance brief only when branch history contains a tracked-change proposal without a complete direct-route override.
+- Verify and execute the pinned `clue` release for corpus-relevant changes and for branches whose history contains a tracked-change proposal without a complete direct-route override. The workflow never reads the pull request body.
 - Require a merge request or pull request and the successful `validate` check before integration.
 - Require resolvable review conversations to be closed before integration; an agent finding remains open until its reviewed fix is hosted.
 - Give normal users and automation no bypass for direct pushes, failed checks, force pushes, or branch deletion.

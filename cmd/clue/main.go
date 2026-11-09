@@ -71,7 +71,7 @@ Usage:
   clue scaffold [path]
   clue context [--depth=<n>|all] [--stats] <id> [path]
   clue next [--all] [path]
-  clue accept <candidate-sha> --base <base-sha> --brief <file> [--approval <file>] [--check]
+  clue accept <candidate-sha> --base <base-sha> [--approval <file>] [--check]
   clue id coordinate [--remote=<name>] [--force] [--timeout=<duration>] [path]
   clue id next [--count=<n>] [--dry-run] [--remote=<name>] [--timeout=<duration>] <prefix> [path]
   clue id sync [--remote=<name>] [--timeout=<duration>] [path]
@@ -87,9 +87,11 @@ Commands:
   accept     Preflight a repository's exact candidate under local policy with
              --check, or let a human confirm a local acceptance merge. Requires
              matching effective local policy on the base and candidate, a clean
-             integration checkout and a complete brief. Never pushes. Human
-             presence and verification claims remain procedural. See the
-             local acceptance reference in clue-delta for setup and recovery.
+             integration checkout and exactly one change proposal introduced
+             after the base, whose title and human evidence section form the
+             merge message. Never pushes. Human presence and verification
+             claims remain procedural. See the local acceptance reference in
+             clue-delta for setup and recovery.
              --approval records an exact human decision for delegated execution;
              it authenticates neither human presence nor recorded provenance.
 

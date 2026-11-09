@@ -16,7 +16,7 @@ Required CI and branch protection can enforce admission to a merge boundary, but
 
 ## Decision outcome
 
-**Branch protection enforces admission to the human merge boundary; it is never Cliewen acceptance evidence.** A supported executable reference or the Human-class acceptance-brief entry remains the evidence endpoint, while the protected PR and required checks enforce the conditions for human merge.
+**Branch protection enforces admission to the human merge boundary; it is never Cliewen acceptance evidence.** A supported executable reference or the Human-class evidence in the change proposal remains the evidence endpoint, while the protected PR and required checks enforce the conditions for human merge.
 
 ## Rejected: treat a green required check as proof
 

@@ -45,38 +45,58 @@ Feature: Collaborative pull-request handoffs
     And when accepted main advances, current main is merged into the pull request branch without rewriting hosted history before verification and review repeat
     And a merged or closed pull request stops without a push, reporting where the work stands
 
-  @AC-042
+  @AC-042 @retired
   Scenario: The human merge gate receives its remaining semantic decisions
-    Given a tracked Cliewen change adds or changes acceptance criteria
-    When the agent prepares its ready pull request
-    Then the pull request starts with an acceptance brief naming the plan item, the criteria and scenarios, advisory scenario-resolution verdicts, and merge-binding decision effects
-    And CI rejects a tracked pull request that leaves the brief's required placeholders unfilled
-    But a scenario-resolution verdict is advisory and does not make `clue validate` fail
+    # Retired by CH-211: PDR-073 removes the acceptance brief from pull requests. Superseded by AC-245.
 
-  @AC-048
+  @AC-245
+  Scenario: A tracked pull request needs no acceptance brief
+    Test-type: Unit
+    Given a tracked Cliewen change using PR acceptance
+    When the agent prepares its ready pull request
+    Then the tracked pull-request form asks for a summary, verification, the proposal and traceability, and carries no acceptance brief
+    And neither the shipped validation workflow nor this repository's CI reads the pull-request body
+    And verification still records an advisory scenario-resolution verdict for each changed criterion in its handoff, which does not make `clue validate` fail
+    But merging remains the human's acceptance decision
+
+  @AC-048 @retired
   Scenario: The acceptance brief names newly declared Human-class criteria as their proof
+    # Retired by CH-211: PDR-073 moves Human-class proof from the brief to the change proposal. Superseded by AC-246.
+
+  @AC-246
+  Scenario: Human-class proof is recorded in the change proposal
     Test-type: Unit
     Given a tracked Cliewen change adds or materially revises a criterion declaring the Human test type
-    When the agent prepares its ready pull request
-    Then the acceptance brief's criteria line names that criterion and states that the brief is its proof
-    But a change touching no Human-class criterion leaves the brief's existing criteria line unchanged
+    When the human reports the observation that proves it
+    Then the agent records observer, conditions, observation, result and what was not observed in a "## Human evidence" section of the change proposal before the digest
+    And the tracked pull-request checklist and the skills name that section as the proof
+    But a change touching no Human-class criterion needs no such section, and the agent never records an observation the human did not report
 
-  @AC-239
+  @AC-239 @retired
+  Scenario: The default pull request template speaks to an outside contributor and the tracked form is a named template
+    # Retired by CH-211: PDR-073 removes the acceptance brief from the tracked form. Superseded by AC-247.
+
+  @AC-247
   Scenario: The default pull request template speaks to an outside contributor and the tracked form is a named template
     Test-type: Unit
     Given a repository that ran `clue init`
     When someone who is not running a tracked change opens a pull request from the default template
     Then the template asks only what changes, why, and how it was checked, in words a first-time contributor can answer
-    And the full tracked-change form, with its acceptance brief and review checklist, is the named template `.github/PULL_REQUEST_TEMPLATE/tracked.md`, identical in this repository and in what `clue init` writes
-    But the default template carries no acceptance brief, proposal block or review checklist, and the tracked form keeps its acceptance brief and checklist unchanged
+    And the full tracked-change form, with its proposal block and review checklist, is the named template `.github/PULL_REQUEST_TEMPLATE/tracked.md`, identical in this repository and in what `clue init` writes
+    But the default template carries no proposal block or review checklist, and neither form carries an acceptance brief
 
-  @AC-063
+  @AC-063 @retired
+  Scenario: An upstream workflow update leaves adopter choices in the caller
+    # Retired by CH-211: PDR-073 removes the acceptance-brief gate from the upstream workflow. Superseded by AC-248.
+
+  @AC-248
   Scenario: An upstream workflow update leaves adopter choices in the caller
     Test-type: Unit
     Given two versions of a thin caller that differ only in the reusable workflow commit reference
     When the adopter updates that reference
     Then the runner, clue source, install directory, and clue version choices remain unchanged
-    And the upstream workflow still owns scope detection, the armed warning, the acceptance-brief gate, and the "clue validate --forbid-changes" step
+    And the upstream workflow still owns scope detection, the armed warning, and the "clue validate --forbid-changes" step
+    And the upstream workflow reads no pull-request body, so no acceptance brief can be required
     And the branch-protection probe can identify the same stable "validate" check
 
   @AC-131 @retired
@@ -95,15 +115,19 @@ Feature: Collaborative pull-request handoffs
     And a substantive edit to a ready pull request returns it to draft until its new head earns the same binding
     But a turn that changed nothing pushes nothing, and a pull request found merged or closed stops the turn without a push
 
-  @AC-130
+  @AC-130 @retired
   Scenario: An authorized dependent change remains visible at the merge boundary
+    # Retired by CH-211: PDR-073 removes the acceptance brief that repeated the dependency. Superseded by AC-249.
+
+  @AC-249 @draft
+  Scenario: An authorized dependent change remains visible at the acceptance boundary
     Test-type: Human
     Given a change genuinely depends on an unmerged change
     And a human has authorized that dependency
-    When the dependent change is prepared for merge
-    Then its committed workspace names the unmerged base, the authorization, and the unaccepted meaning its merge would bind
-    And its acceptance brief repeats that information for the human merge decision
-    But neither record makes the base accepted or permits an agent to merge either change
+    When the dependent change is handed to the human for acceptance
+    Then its committed workspace names the unmerged base, the authorization, and the unaccepted meaning its acceptance would bind
+    And the agent's handoff repeats that information for the human's decision
+    But neither record makes the base accepted or permits an agent to accept either change
 
   @AC-139 @retired
   Scenario: The agent recommends proportionate process while the user controls integration

@@ -10,6 +10,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"slices"
 	"strings"
 
 	"github.com/cliewen/cliewen/internal/acceptpolicy"
@@ -22,32 +23,23 @@ const ConfigPath = acceptpolicy.Path
 
 type config = acceptpolicy.Policy
 
-// Brief metadata binds the human-readable claims to an exact candidate.
-// Neither this metadata nor its body proves that tests ran or a human observed it.
-type Brief struct {
-	Type      string `yaml:"type"`
-	Title     string `yaml:"title"`
-	Change    string `yaml:"change"`
-	Candidate string `yaml:"candidate"`
-	Base      string `yaml:"base"`
-	Reviewed  string `yaml:"reviewed"`
-}
-
+// Request names the exact candidate and base a human is asked to accept.
 type Request struct {
-	Root, Candidate, Base, BriefPath, Version string
+	Root, Candidate, Base, Version string
 }
 
 // Candidate is private preflight state. Call Confirm for a fresh state check
-// after showing it; callers cannot substitute a different tree or brief.
+// after showing it; callers cannot substitute a different tree or proposal.
 type Candidate struct {
-	request                Request
-	root, ref, tree, brief string
-	metadata               Brief
+	request   Request
+	root, ref string
+	tree      string
+	change    string
+	title     string
+	evidence  string
 }
 
 var oid = regexp.MustCompile(`^(?:[0-9a-f]{40}|[0-9a-f]{64})$`)
-var changeID = regexp.MustCompile(`^CH-[0-9]+$`)
-var sections = []string{"Intent", "Criteria and evidence", "Binding decisions", "Verification", "Review"}
 
 func git(root string, args ...string) (string, error) {
 	b, err := command(root, args...).CombinedOutput()
@@ -68,42 +60,6 @@ func decode(data []byte, dst any) error {
 		return fmt.Errorf("expected one YAML document")
 	}
 	return nil
-}
-
-func parseBrief(data []byte, r Request) (Brief, error) {
-	text := strings.ReplaceAll(string(data), "\r\n", "\n")
-	var b Brief
-	if !strings.HasPrefix(text, "---\n") {
-		return b, fmt.Errorf("brief needs YAML frontmatter")
-	}
-	header, body, ok := strings.Cut(text[4:], "\n---\n")
-	if !ok {
-		return b, fmt.Errorf("brief frontmatter is not closed")
-	}
-	if err := decode([]byte(header), &b); err != nil {
-		return b, fmt.Errorf("brief: %w", err)
-	}
-	if b.Type != "acceptance-brief" || strings.TrimSpace(b.Title) == "" || !changeID.MatchString(b.Change) {
-		return b, fmt.Errorf("brief requires type acceptance-brief, title and canonical CH identity")
-	}
-	if b.Candidate != r.Candidate || b.Base != r.Base || b.Reviewed != r.Candidate {
-		return b, fmt.Errorf("brief candidate, base and reviewed revisions must match the full supplied commit IDs")
-	}
-	if strings.Contains(text, "<!--") || strings.Contains(text, "<REQUIRED>") {
-		return b, fmt.Errorf("brief still contains template placeholders or comments")
-	}
-	for _, section := range sections {
-		marker := "## " + section + "\n"
-		if strings.Count(body, marker) != 1 {
-			return b, fmt.Errorf("brief requires one %s section", section)
-		}
-		_, content, _ := strings.Cut(body, marker)
-		content, _, _ = strings.Cut(content, "\n## ")
-		if strings.TrimSpace(content) == "" {
-			return b, fmt.Errorf("brief %s section is empty", section)
-		}
-	}
-	return b, nil
 }
 
 func loadConfig(root string) (config, error) {
@@ -162,15 +118,6 @@ func Check(r Request) (*Candidate, error) {
 	if _, err = git(root, "merge-base", "--is-ancestor", r.Base, r.Candidate); err != nil {
 		return nil, fmt.Errorf("candidate must incorporate the current accepted base: %w", err)
 	}
-	data, err := os.ReadFile(r.BriefPath)
-	if err != nil {
-		return nil, err
-	}
-	p.metadata, err = parseBrief(data, r)
-	if err != nil {
-		return nil, err
-	}
-	p.brief = string(data)
 	if err = p.proposal(); err != nil {
 		return nil, err
 	}
@@ -245,17 +192,21 @@ func (p *Candidate) cleanBase() error {
 	return nil
 }
 
+// proposal finds the one change whose proposal the candidate's history
+// introduces after the base, and reads that proposal's last committed text:
+// the digest deletes the workspace, so the candidate tree holds none.
 func (p *Candidate) proposal() error {
 	rangeSpec := p.request.Base + ".." + p.request.Candidate
 	paths, err := git(p.root, "-c", "core.quotePath=false", "log", "--format=", "--name-only", "--diff-filter=A", rangeSpec, "--", "changes/")
 	if err != nil {
 		return err
 	}
+	var ids []string
 	for _, path := range strings.Split(paths, "\n") {
-		if !strings.HasPrefix(path, "changes/"+p.metadata.Change+"-") || !strings.HasSuffix(path, "/proposal.md") {
+		if !strings.HasPrefix(path, "changes/") || !strings.HasSuffix(path, "/proposal.md") {
 			continue
 		}
-		commit, e := git(p.root, "log", "-1", "--format=%H", "--diff-filter=A", rangeSpec, "--", path)
+		commit, e := git(p.root, "log", "-1", "--format=%H", "--diff-filter=AM", rangeSpec, "--", path)
 		if e != nil {
 			return e
 		}
@@ -263,32 +214,71 @@ func (p *Candidate) proposal() error {
 		if e != nil {
 			return e
 		}
-		body = strings.ReplaceAll(body, "\r\n", "\n")
-		if !strings.HasPrefix(body, "---\n") {
+		id, title, evidence, ok := parseProposal(body)
+		if !ok || !strings.HasPrefix(path, "changes/"+id+"-") {
 			continue
 		}
-		header, _, ok := strings.Cut(body[4:], "\n---")
-		var meta struct {
-			ID   string `yaml:"id"`
-			Type string `yaml:"type"`
+		// A workspace deleted and re-created in the range is listed twice;
+		// it is still one change.
+		if !slices.Contains(ids, id) {
+			ids = append(ids, id)
 		}
-		if ok && yaml.Unmarshal([]byte(header), &meta) == nil && meta.ID == p.metadata.Change && meta.Type == "change" {
-			return nil
-		}
+		p.change, p.title, p.evidence = id, title, evidence
 	}
-	return fmt.Errorf("candidate history lacks the %s proposal introduced after its base", p.metadata.Change)
+	switch len(ids) {
+	case 0:
+		return fmt.Errorf("candidate history introduces no tracked change proposal after its base (looked for changes/CH-xxx-*/proposal.md with type: change and id: CH-xxx)")
+	case 1:
+		return nil
+	default:
+		return fmt.Errorf("candidate history introduces more than one tracked change proposal after its base (%s); accept one change at a time", strings.Join(ids, ", "))
+	}
 }
 
-// Confirm repeats all preflight after confirmation, including the brief bytes.
+var changeID = regexp.MustCompile(`^CH-[0-9]+$`)
+
+// parseProposal reads a change proposal's identity, title and optional
+// human evidence section, which carries Human-class proof (PDR-073).
+func parseProposal(body string) (id, title, evidence string, ok bool) {
+	body = strings.ReplaceAll(body, "\r\n", "\n")
+	if !strings.HasPrefix(body, "---\n") {
+		return "", "", "", false
+	}
+	header, text, found := strings.Cut(body[4:], "\n---")
+	var meta struct {
+		ID    string `yaml:"id"`
+		Type  string `yaml:"type"`
+		Title string `yaml:"title"`
+	}
+	if !found || yaml.Unmarshal([]byte(header), &meta) != nil || meta.Type != "change" || !changeID.MatchString(meta.ID) {
+		return "", "", "", false
+	}
+	if _, rest, has := strings.Cut(text, "\n## Human evidence\n"); has {
+		rest, _, _ = strings.Cut(rest, "\n## ")
+		evidence = strings.TrimSpace(rest)
+	}
+	return meta.ID, strings.TrimSpace(meta.Title), evidence, true
+}
+
+// summary is what the human is shown and what the merge message records.
+func (p *Candidate) summary() string {
+	text := fmt.Sprintf("Change: %s — %s\nCandidate: %s\nBase: %s\n", p.change, p.title, p.request.Candidate, p.request.Base)
+	if p.evidence != "" {
+		text += "\n## Human evidence\n\n" + p.evidence + "\n"
+	}
+	return text
+}
+
+// Confirm repeats all preflight after confirmation.
 // Interactive is supplied by the CLI's terminal check, never by a CLI flag.
 func (p *Candidate) Confirm(input io.Reader, output io.Writer, interactive bool) (string, error) {
-	fmt.Fprintf(output, "Candidate: %s\nBase: %s\nBranch: %s\n\n%s\n\nLocal acceptance is procedural: Git identity and this prompt do not prove human presence. Verification and review declarations are recorded claims. No push will be performed.\n", p.request.Candidate, p.request.Base, p.ref, p.brief)
+	fmt.Fprintf(output, "%sBranch: %s\n\nLocal acceptance is procedural: Git identity and this prompt do not prove human presence. Verification and review are recorded claims. No push will be performed.\n", p.summary(), p.ref)
 	if !interactive {
 		return "", fmt.Errorf("acceptance requires an interactive human terminal; use --check for preflight")
 	}
-	fmt.Fprintf(output, "Type accept %s to accept this exact candidate: ", p.metadata.Change)
+	fmt.Fprintf(output, "Type accept %s to accept this exact candidate: ", p.change)
 	line, err := bufio.NewReader(input).ReadString('\n')
-	if err != nil || strings.TrimSpace(line) != "accept "+p.metadata.Change {
+	if err != nil || strings.TrimSpace(line) != "accept "+p.change {
 		return "", fmt.Errorf("acceptance cancelled; no integration performed")
 	}
 	return p.complete("")
@@ -299,10 +289,10 @@ func (p *Candidate) complete(approvalRecord string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	if fresh.brief != p.brief || fresh.ref != p.ref || fresh.tree != p.tree {
+	if fresh.summary() != p.summary() || fresh.ref != p.ref || fresh.tree != p.tree {
 		return "", fmt.Errorf("acceptance inputs changed during confirmation; rerun and review them")
 	}
-	message := fmt.Sprintf("Accept %s locally\n\nCandidate: %s\nBase: %s\n\n%s\n", p.metadata.Change, p.request.Candidate, p.request.Base, p.brief)
+	message := fmt.Sprintf("Accept %s locally\n\n%s", p.change, p.summary())
 	if approvalRecord != "" {
 		message += "\n## Recorded human approval\n\n" + approvalRecord + "\n"
 	}

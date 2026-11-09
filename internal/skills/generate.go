@@ -91,7 +91,7 @@ var skillDefinitions = map[string]skillDefinition{
 			{heading: "Review boundary", file: "review-boundary.md", condition: "Before branching, publishing, updating a hosted PR, or handing work to a human"},
 			{heading: "Change loop", file: "change-loop.md", condition: "After the user chooses the recommended tracked route"},
 			{heading: "Challenge a consequential commitment", file: "challenge-commitments.md", condition: "Before writing the proposal for a consequential change"},
-			{heading: "Intent model", file: "intent-model.md", condition: "When the change touches what the product means, or the acceptance brief must state the vision it proceeds under"},
+			{heading: "Intent model", file: "intent-model.md", condition: "When the change touches what the product means, or the proposal must state the vision it proceeds under"},
 			{heading: "Decision records", file: "decision-records.md", condition: "When the change makes, rejects, or carries a decision"},
 			{heading: "Repository-local conventions", file: "repository-local-conventions.md", condition: "Before applying repository-specific implementation or digest rules"},
 			{heading: "Durable work state", file: "durable-work-state.md", condition: "When a change starts or resumes, a suggestion arrives, or a merge is reported"},

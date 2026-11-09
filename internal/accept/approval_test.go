@@ -2,8 +2,6 @@ package accept
 
 import (
 	"bytes"
-	"crypto/sha256"
-	"encoding/hex"
 	"gopkg.in/yaml.v3"
 	"io"
 	"os"
@@ -15,12 +13,7 @@ import (
 
 func approvalFixture(t *testing.T, r Request, change func(*Approval)) string {
 	t.Helper()
-	data, e := os.ReadFile(r.BriefPath)
-	if e != nil {
-		t.Fatal(e)
-	}
-	digest := sha256.Sum256(data)
-	a := Approval{Type: "acceptance-approval", Decision: "accept", Candidate: r.Candidate, Base: r.Base, BriefSHA256: hex.EncodeToString(digest[:]), ApprovedBy: "Fixture observer", Source: "Synthetic test conversation", Statement: "accept this fixture candidate", RecordedAt: time.Now().UTC().Format(time.RFC3339)}
+	a := Approval{Type: "acceptance-approval", Decision: "accept", Candidate: r.Candidate, Base: r.Base, ApprovedBy: "Fixture observer", Source: "Synthetic test conversation", Statement: "accept this fixture candidate", RecordedAt: time.Now().UTC().Format(time.RFC3339)}
 	if change != nil {
 		change(&a)
 	}
@@ -33,7 +26,7 @@ func approvalFixture(t *testing.T, r Request, change func(*Approval)) string {
 	return name
 }
 
-func TestAC237_IntegrationPositive_RecordedDecisionRetainsExactTreeParentsAndApproval(t *testing.T) {
+func TestAC243_IntegrationPositive_RecordedDecisionRetainsExactTreeParentsAndApproval(t *testing.T) {
 	r := fixture(t, nil)
 	name := approvalFixture(t, r, nil)
 	original, _ := os.ReadFile(name)
@@ -59,16 +52,16 @@ func TestAC237_IntegrationPositive_RecordedDecisionRetainsExactTreeParentsAndApp
 		t.Fatal("tree differs")
 	}
 	message := mustGit(t, r.Root, "show", "-s", "--format=%B", commit)
-	if !strings.Contains(message, strings.TrimSpace(string(original))) || !strings.Contains(message, p.brief) {
-		t.Fatal("approval or brief lost")
+	if !strings.Contains(message, strings.TrimSpace(string(original))) || !strings.Contains(message, "Change: CH-001 — Example") {
+		t.Fatal("approval or change lost")
 	}
 	if !strings.Contains(out.String(), "recorded claims") && !strings.Contains(out.String(), "not authenticated human presence") {
 		t.Fatal("trust boundary omitted")
 	}
 }
 
-func TestAC237_IntegrationNegative_MissingStaleMalformedOrRejectedRecordsNeverIntegrate(t *testing.T) {
-	cases := map[string]func(*Approval){"candidate": func(a *Approval) { a.Candidate = strings.Repeat("1", 40) }, "base": func(a *Approval) { a.Base = strings.Repeat("1", 40) }, "brief": func(a *Approval) { a.BriefSHA256 = strings.Repeat("0", 64) }, "decision": func(a *Approval) { a.Decision = "reject" }, "type": func(a *Approval) { a.Type = "other" }, "observer": func(a *Approval) { a.ApprovedBy = "" }, "source": func(a *Approval) { a.Source = "" }, "statement": func(a *Approval) { a.Statement = "" }, "time": func(a *Approval) { a.RecordedAt = "yesterday" }}
+func TestAC243_IntegrationNegative_MissingStaleMalformedOrRejectedRecordsNeverIntegrate(t *testing.T) {
+	cases := map[string]func(*Approval){"candidate": func(a *Approval) { a.Candidate = strings.Repeat("1", 40) }, "base": func(a *Approval) { a.Base = strings.Repeat("1", 40) }, "decision": func(a *Approval) { a.Decision = "reject" }, "type": func(a *Approval) { a.Type = "other" }, "observer": func(a *Approval) { a.ApprovedBy = "" }, "source": func(a *Approval) { a.Source = "" }, "statement": func(a *Approval) { a.Statement = "" }, "time": func(a *Approval) { a.RecordedAt = "yesterday" }}
 	for name, change := range cases {
 		t.Run(name, func(t *testing.T) {
 			r := fixture(t, nil)
@@ -103,7 +96,23 @@ func TestAC237_IntegrationNegative_MissingStaleMalformedOrRejectedRecordsNeverIn
 	}
 }
 
-func TestAC238_IntegrationPositive_ApprovalPreflightAndCancellationRemainNonIntegrating(t *testing.T) {
+func TestAC243_IntegrationNegative_RecordWithBriefHashIsRefusedPlainly(t *testing.T) {
+	r := fixture(t, nil)
+	record := approvalFixture(t, r, nil)
+	p, e := Check(r)
+	if e != nil {
+		t.Fatal(e)
+	}
+	write(t, filepath.Dir(record), filepath.Base(record), stringMustRead(t, record)+"brief-sha256: "+strings.Repeat("0", 64)+"\n")
+	if _, e = p.ConfirmRecorded(record, io.Discard); e == nil || !strings.Contains(e.Error(), "acceptance brief is no longer used") {
+		t.Fatalf("record with brief hash: %v", e)
+	}
+	if got := mustGit(t, r.Root, "rev-parse", "HEAD"); got != r.Base {
+		t.Fatal("ref moved")
+	}
+}
+
+func TestAC244_IntegrationPositive_ApprovalPreflightAndCancellationRemainNonIntegrating(t *testing.T) {
 	r := fixture(t, nil)
 	record := approvalFixture(t, r, nil)
 	p, e := Check(r)
@@ -121,8 +130,8 @@ func TestAC238_IntegrationPositive_ApprovalPreflightAndCancellationRemainNonInte
 	}
 }
 
-func TestAC238_IntegrationNegative_ChangedBriefOrDirtyBaseCannotReplayRecordedApproval(t *testing.T) {
-	for _, name := range []string{"brief", "dirty", "base"} {
+func TestAC244_IntegrationNegative_DirtyOrAdvancedBaseCannotReplayRecordedApproval(t *testing.T) {
+	for _, name := range []string{"dirty", "base"} {
 		t.Run(name, func(t *testing.T) {
 			r := fixture(t, nil)
 			record := approvalFixture(t, r, nil)
@@ -131,8 +140,6 @@ func TestAC238_IntegrationNegative_ChangedBriefOrDirtyBaseCannotReplayRecordedAp
 				t.Fatal(e)
 			}
 			switch name {
-			case "brief":
-				write(t, filepath.Dir(r.BriefPath), filepath.Base(r.BriefPath), stringMustRead(t, r.BriefPath)+"\nChanged verification claim.\n")
 			case "dirty":
 				write(t, r.Root, "app.txt", "new local edit")
 			case "base":
@@ -170,7 +177,7 @@ func (w *approvalOutputMutation) Write(p []byte) (int, error) {
 	}
 	return len(p), nil
 }
-func TestAC238_IntegrationNegative_ApprovalChangedAtExecutionIsRejected(t *testing.T) {
+func TestAC244_IntegrationNegative_ApprovalChangedAtExecutionIsRejected(t *testing.T) {
 	r := fixture(t, nil)
 	record := approvalFixture(t, r, nil)
 	p, e := Check(r)
@@ -189,7 +196,7 @@ func TestAC238_IntegrationNegative_ApprovalChangedAtExecutionIsRejected(t *testi
 	}
 }
 
-func TestAC237_IntegrationNegative_ApprovalTemplatePlaceholdersAreNotProvenance(t *testing.T) {
+func TestAC243_IntegrationNegative_ApprovalTemplatePlaceholdersAreNotProvenance(t *testing.T) {
 	r := fixture(t, nil)
 	record := approvalFixture(t, r, func(a *Approval) { a.Statement = "REPLACE_WITH_ACTUAL_HUMAN_APPROVAL" })
 	p, e := Check(r)

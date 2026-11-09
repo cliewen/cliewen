@@ -14,10 +14,10 @@ Engineers and organizations doing agent-driven development who must answer — t
 
 ## Why
 
-Agent-written code outpaces human ability to keep documentation, decisions and acceptance evidence honest by hand. Existing SDD frameworks document the *change* and let the system's durable truth rot. Cliewen makes the documentation corpus the system-of-record and mechanically enforces the chain goal → capability → acceptance criterion → acceptance evidence, so the thread from intention to verified merge never breaks and never falls behind. Machine-proven criteria end in supported, classified test references; genuine Human-class criteria end in the acceptance brief that the human merge judges.
+Agent-written code outpaces human ability to keep documentation, decisions and acceptance evidence honest by hand. Existing SDD frameworks document the *change* and let the system's durable truth rot. Cliewen makes the documentation corpus the system-of-record and mechanically enforces the chain goal → capability → acceptance criterion → acceptance evidence, so the thread from intention to verified merge never breaks and never falls behind. Machine-proven criteria end in supported, classified test references; genuine Human-class criteria end in the human evidence recorded in the change proposal, which the human acceptance decision judges.
 
 ## Success looks like
 
 - Reachable Git history in any Cliewen repo is a complete provenance archive for a tracked change, with `git log docs/` exposing the durable corpus history.
-- A build fails when an active machine-proven acceptance criterion lacks its required test reference or a test references no live criterion; Human-class proof remains explicit in the acceptance brief rather than being disguised as code.
+- A build fails when an active machine-proven acceptance criterion lacks its required test reference or a test references no live criterion; Human-class proof remains explicit in the human evidence of the change proposal rather than being disguised as code.
 - A new user reaches a green `clue validate` in under 30 minutes ([CAP-001](../capabilities/CAP-001-onboarding/README.md)).

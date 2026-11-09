@@ -136,7 +136,6 @@ func assertReusableWorkflow(t *testing.T, raw string, workflow ciWorkflow) error
 	for _, fragment := range []string{
 		"Detect Cliewen change",
 		"Check whether the wall is armed",
-		"Require a completed acceptance brief",
 		"clue validate --forbid-changes",
 		"grep -Eqv '\\.md$'",
 		"steps.scope.outputs.cliewen == 'true'",
@@ -147,6 +146,12 @@ func assertReusableWorkflow(t *testing.T, raw string, workflow ciWorkflow) error
 	}
 	if strings.Contains(raw, "/usr/local/bin") {
 		return fmt.Errorf("validation unit hardcodes a root-only install path")
+	}
+	// AC-248: the pull-request body is free; no step may require a brief.
+	for _, banned := range []string{"Acceptance brief", "acceptance brief", "PR_BODY", "pull_request.body"} {
+		if strings.Contains(raw, banned) {
+			return fmt.Errorf("validation unit still reads the pull-request body for %q", banned)
+		}
 	}
 	// `sha256sum -c --ignore-missing` checks the listed files that are
 	// present and is silent about a present file that is unlisted, so it
@@ -296,9 +301,9 @@ func TestAC062_UnitNegative_EmbeddedWallIsRejected(t *testing.T) {
 	}
 }
 
-// AC-063 positive: the fixture changes only the upstream reference, while
+// AC-248 positive: the fixture changes only the upstream reference, while
 // the enterprise fixture demonstrates the two caller-owned policy choices.
-func TestAC063_UnitPositive_UpstreamUpdatePreservesCallerChoices(t *testing.T) {
+func TestAC248_UnitPositive_UpstreamUpdatePreservesCallerChoices(t *testing.T) {
 	oldRaw, oldWorkflow := readCIWorkflow(t, filepath.Join("testdata", "ci-boundary", "default-old.yml"))
 	newRaw, newWorkflow := readCIWorkflow(t, filepath.Join("testdata", "ci-boundary", "default-new.yml"))
 	if err := assertThinCaller(t, oldRaw, oldWorkflow); err != nil {
@@ -331,9 +336,9 @@ func TestAC063_UnitPositive_UpstreamUpdatePreservesCallerChoices(t *testing.T) {
 	}
 }
 
-// AC-063 negative: changing a local policy input is not an upstream-only
+// AC-248 negative: changing a local policy input is not an upstream-only
 // update and must remain visible in the caller diff.
-func TestAC063_UnitNegative_LocalChoiceChangeIsDetected(t *testing.T) {
+func TestAC248_UnitNegative_LocalChoiceChangeIsDetected(t *testing.T) {
 	oldRaw, oldWorkflow := readCIWorkflow(t, filepath.Join("testdata", "ci-boundary", "default-old.yml"))
 	if err := assertThinCaller(t, oldRaw, oldWorkflow); err != nil {
 		t.Fatal(err)
@@ -345,6 +350,16 @@ func TestAC063_UnitNegative_LocalChoiceChangeIsDetected(t *testing.T) {
 	}
 	if equalChoices(callerChoices(oldWorkflow.Jobs["validate"]), callerChoices(changedWorkflow.Jobs["validate"])) {
 		t.Fatal("fixture failed to detect the changed local clue-source choice")
+	}
+}
+
+// AC-248 negative: a validation unit that still gates on an acceptance brief
+// in the pull-request body is refused.
+func TestAC248_UnitNegative_BriefGateIsRejected(t *testing.T) {
+	raw, workflow := readCIWorkflow(t, filepath.Join("..", "..", ".github", "workflows", "clue-validation.yml"))
+	gated := raw + "\n      - name: Require a completed acceptance brief\n        env:\n          PR_BODY: ${{ github.event.pull_request.body }}\n        run: printf '%s' \"$PR_BODY\" | grep -Fq '## Acceptance brief'\n"
+	if err := assertReusableWorkflow(t, gated, workflow); err == nil || !strings.Contains(err.Error(), "pull-request body") {
+		t.Fatalf("brief gate not rejected: %v", err)
 	}
 }
 

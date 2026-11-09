@@ -34,7 +34,7 @@ on:
       # is what declares support. An adopter that bumps only the workflow
       # reference keeps today's strict behaviour rather than a silent hole.
       draft-aware:
-        description: Caller triggers on ready_for_review, so drafts may skip the digest and acceptance-brief gates
+        description: Caller triggers on ready_for_review, so drafts may skip the digest gate
         required: false
         type: boolean
         default: false
@@ -177,17 +177,6 @@ jobs:
           else
             "$CLUE_PATH" validate --forbid-changes
           fi
-
-      # A draft is not a candidate and has no brief yet; the requirement binds
-      # when the pull request is marked ready (PDR-040). Skipped only for a
-      # draft-aware caller, for the reason given on that input.
-      - name: Require a completed acceptance brief
-        if: github.event_name == 'pull_request' && !(inputs.draft-aware && github.event.pull_request.draft) && steps.scope.outputs.tracked == 'true'
-        env:
-          PR_BODY: ${{ github.event.pull_request.body }}
-        run: |
-          printf '%s' "$PR_BODY" | grep -Fq '## Acceptance brief' || { echo 'FAIL: tracked-route PRs need an acceptance brief'; exit 1; }
-          ! printf '%s' "$PR_BODY" | grep -Fq '<!-- REQUIRED' || { echo 'FAIL: replace every acceptance-brief REQUIRED placeholder'; exit 1; }
 
       # Branch protection is a host setting no file records, so `clue validate`
       # cannot see it (ADR-044). This step asks GitHub instead and only ever

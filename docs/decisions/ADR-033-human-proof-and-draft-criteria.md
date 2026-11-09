@@ -10,6 +10,8 @@ accepted-by: Flemming N. Larsen (2026-08-02, conversation)
 
 # ADR-033 — Human proof class, a per-criterion draft exemption, and derived coverage
 
+> **Partially superseded by [PDR-073](PDR-073-acceptance-needs-the-decision-not-a-brief.md):** a Human criterion is proved by its change proposal's human evidence section, not an acceptance brief; `@draft` and derived coverage remain current.
+
 ## Context and problem statement
 
 Classified code evidence cannot represent a criterion that is permanently verified by human judgment, while using a capability-wide `draft` status for one not-yet-proven criterion confuses an unfinished proof with an unfinished capability. The corpus needs vocabulary for both cases without weakening retirement or review.

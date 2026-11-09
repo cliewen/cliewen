@@ -10,7 +10,7 @@ accepted-by: Flemming N. Larsen (2026-07-18, PR #20 review conversation)
 
 # PDR-007 — The PR is the authorization boundary
 
-> **Local acceptance refinement:** [PDR-067](PDR-067-local-human-acceptance.md) adds an explicitly opted-in local mechanism for adopters. The PR-specific mechanics below govern the default workflow and this source repository; local preparation retains proposal, digest, evidence, exact-commit review, and a human-controlled merge with the complete brief in Git history.
+> **Local acceptance refinement:** [PDR-067](PDR-067-local-human-acceptance.md) adds an explicitly opted-in local mechanism for adopters. The PR-specific mechanics below govern the default workflow and this source repository; local preparation retains proposal, digest, evidence, exact-commit review, and a human-controlled merge with the change's proposal in Git history ([PDR-073](PDR-073-acceptance-needs-the-decision-not-a-brief.md)).
 
 > **Scope amended by [PDR-042](PDR-042-routing-recommends-contract-aware-effort.md):** this boundary governs a chosen tracked route; direct integration follows explicit user authority and repository policy.
 

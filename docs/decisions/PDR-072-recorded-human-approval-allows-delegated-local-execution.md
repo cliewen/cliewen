@@ -11,6 +11,8 @@ binds: adopter
 
 # Human decision and delegated execution
 
+> **Partially superseded by [PDR-073](PDR-073-acceptance-needs-the-decision-not-a-brief.md):** the approval record binds candidate, base and decision, with no brief hash; delegated execution and safe snapshots remain current.
+
 ## Context
 
 Requiring the owner to execute a terminal command adds manual work after the owner has already approved an exact reviewed candidate. The source repository's internal skill mirrors also make a blanket tracked-link refusal incompatible with its local acceptance policy. Delegation must retain the human decision, exact approved inputs and complete history, rather than become unattended agent authorization.

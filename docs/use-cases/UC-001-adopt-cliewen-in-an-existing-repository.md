@@ -30,7 +30,7 @@ The repository is under Git with a branch the developer may push and a merge bou
 4. The developer reads the rehearsal and authorizes the mutation, or does not.
 5. On authorization, the agent transforms the source corpus into the target corpus, preserving source identities, and produces the parity report that accounts for every criterion.
 6. The agent runs the repository's checks and `clue validate`, and repairs what the judge rejects (CAP-002, CAP-008).
-7. The agent opens a pull request whose brief states what the adoption binds. The maintainer reads the parity report and the brief, and the merge commit accepts the adoption.
+7. The agent hands the adoption to the maintainer, saying in plain words what it binds. The maintainer reads the parity report and decides, and the acceptance merge accepts the adoption.
 
 ## Alternative and failure flows
 

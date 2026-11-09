@@ -9,6 +9,22 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 
 ## [Unreleased]
 
+### Changed
+
+- Tracked changes no longer have an acceptance brief. You accept a change by deciding on the exact candidate, and the agent tells you in a few plain sentences what changed, what was checked and what is still uncertain.
+- `clue accept <candidate-sha> --base <base-sha>` takes no `--brief`. It finds the change from the one proposal the candidate adds after the base and writes the merge message from the change's title and the proposal's human evidence. Passing `--brief` stops with a message saying the brief is no longer used.
+- A recorded approval names the candidate and base only. A record that still has a `brief-sha256` line is refused with the same message.
+- Proof for a `Test-type: Human` criterion now goes in a `## Human evidence` section of the change proposal: who observed it, under which conditions, what they saw, the result, and what was not observed. Local acceptance copies it into the merge message.
+- The shipped validation workflow no longer reads the pull request body, and the tracked pull request form has no acceptance brief section.
+
+### Migration
+
+- After upgrading, preview `clue migrate` and apply the reviewed managed-instruction update.
+- Delete `.clue/acceptance/brief.md`; `clue init` no longer creates it.
+- Remove the `brief-sha256` line from `.clue/acceptance/approval.yaml`, or delete the file and run `clue init` to recreate it.
+- If your repository copied the tracked pull request form into `.github/PULL_REQUEST_TEMPLATE/tracked.md` or `.github/pull_request_template.md`, remove its acceptance brief section.
+- Remove wording in your own repository instructions that asks for an acceptance brief.
+
 ## [0.32.0] - 2026-10-20
 
 ### Changed

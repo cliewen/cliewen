@@ -52,7 +52,7 @@ The supplied aggregator runs every declared producer and replaces the manifest o
 
 `clue validate` checks identities, classification, diagnostics and freshness within the declared scopes. A green verdict says the references satisfy the evidence contract. Your normal test runner checks that the tests pass; review checks whether their assertions prove the criterion.
 
-A new or revised machine-proven criterion declares `Unit`, `Integration`, `E2E` or `Performance` and needs positive and negative references, unless it records `(single-direction)`. Genuine `Test-type: Human` proof belongs in the acceptance brief. Neither `Human` nor `@draft` is a repair for missing automated evidence.
+A new or revised machine-proven criterion declares `Unit`, `Integration`, `E2E` or `Performance` and needs positive and negative references, unless it records `(single-direction)`. Genuine `Test-type: Human` proof belongs in the `## Human evidence` section of the change proposal. Neither `Human` nor `@draft` is a repair for missing automated evidence.
 
 Run tests and export locally before validation. CI may also regenerate the manifest and fail if it differs from the committed file, alongside the normal test gates. Cliewen's validation command never invokes that regeneration itself. See [operations](./operations#recover-without-bypassing-the-evidence) for missing exports, stale inputs and producer failures.
 

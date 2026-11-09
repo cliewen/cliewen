@@ -1228,7 +1228,6 @@ func TestSanity_CISeparatesSemanticRouteFromRelevantChecks(t *testing.T) {
 			"corpus=true",
 			"go=true",
 			"guide=true",
-			"steps.scope.outputs.tracked == 'true'",
 			"npm run guide:build",
 			"git diff --check",
 		},

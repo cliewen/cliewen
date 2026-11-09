@@ -10,6 +10,8 @@ accepted-by: Flemming N. Larsen (2026-08-02, conversation)
 
 # PDR-017 — The merge gate has content
 
+> **Partially superseded by [PDR-073](PDR-073-acceptance-needs-the-decision-not-a-brief.md):** there is no acceptance brief; Human-class proof is the proposal's human evidence section. The advisory scenario-resolution verdict and the opt-in pause remain current.
+
 > **Extended by [PDR-033](PDR-033-planning-and-implementation-are-separate-steps.md):** an optional pre-implementation pause records where work may split or change hands and asks whether implementation begins.
 
 > **Extended by [PDR-039](PDR-039-dependent-changes-carry-authorization.md):** a dependent change's acceptance brief names its unmerged base, authorization, and the meaning its merge would bind.

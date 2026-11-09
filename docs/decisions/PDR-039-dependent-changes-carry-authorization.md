@@ -10,6 +10,8 @@ accepted-by: Flemming N. Larsen (2026-09-02, conversation)
 
 # PDR-039 — An authorized dependent change records its base and what its merge would bind
 
+> **Amended by [PDR-073](PDR-073-acceptance-needs-the-decision-not-a-brief.md):** there is no acceptance brief; the handoff to the human repeats the dependency instead.
+
 ## Context and problem statement
 
 PDR-007 permits work based on an unmerged change only after human authorization, but a branch or green validation cannot show which unaccepted meaning it relied on or what its merge would bind.
