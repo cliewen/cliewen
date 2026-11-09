@@ -17,10 +17,16 @@ func TestUnit_InitShipsApprovalTemplateWithoutOverwritingActualRecords(t *testin
 	if e != nil {
 		t.Fatal(e)
 	}
-	for _, field := range []string{"type: acceptance-approval", "decision: accept", "candidate:", "base:", "brief-sha256:", "approved-by:", "approval-source:", "statement:", "recorded-at:"} {
+	for _, field := range []string{"type: acceptance-approval", "decision: accept", "candidate:", "base:", "approved-by:", "approval-source:", "statement:", "recorded-at:"} {
 		if !strings.Contains(string(data), field) {
 			t.Fatalf("missing %s", field)
 		}
+	}
+	if strings.Contains(string(data), "brief") {
+		t.Fatal("approval template still binds an acceptance brief")
+	}
+	if _, e = os.Stat(filepath.Join(root, ".clue/acceptance/brief.md")); !os.IsNotExist(e) {
+		t.Fatalf("init still writes an acceptance brief template: %v", e)
 	}
 	actual := []byte("repository-owned approval preparation\n")
 	if e = os.WriteFile(filename, actual, 0644); e != nil {

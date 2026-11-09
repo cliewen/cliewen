@@ -124,12 +124,16 @@ Feature: Team-safe identity allocation
     Then every declared M-xxx identity is added to the ledger at its own live or retired state without renumbering or duplicating any existing entry
     And the allocation returns a milestone ID above every one declared in the corpus
 
-  @AC-218
+  @AC-218 @retired
+  Scenario: A sole contributor's change proceeds on local allocation and says so, and anyone else's branch stops it
+    # Retired by CH-211: PDR-073 removes the acceptance brief that carried the ledger note. Superseded by AC-251.
+
+  @AC-251
   Scenario: A sole contributor's change proceeds on local allocation and says so, and anyone else's branch stops it
     Test-type: Unit
     Given a repository whose ledger allocates locally and an agent starting a tracked change
     When "clue id next" warns that allocation is local
     Then the change loop has the agent read the remote with plain Git for any other "ch-*" branch, merged or not, and for the allocator branch, whose existence is enough
-    And where there is none the agent continues on serialized allocation and states in the acceptance brief's ledger note that allocation was local, what it read, and that coordination comes before a second contributor
+    And where there is none the agent continues on serialized allocation and states in the change proposal that allocation was local, what it read, and that coordination comes before a second contributor
     But where another "ch-*" branch or the allocator branch exists, or the remote cannot be read, the agent stops and does not allocate on its own judgement
 ```

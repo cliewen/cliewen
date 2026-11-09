@@ -45,16 +45,6 @@ jobs:
         run: npm run test:ci-scope
       - name: Test this repository's release workflow
         run: npm run test:release-workflow
-      # A draft is not a candidate: it legitimately has no brief yet. GitHub
-      # cannot merge a draft, and ready_for_review reruns this job on the same
-      # head, so the merge gate is unchanged (PDR-040).
-      - name: Require a completed acceptance brief
-        if: github.event_name == 'pull_request' && github.event.pull_request.draft == false && steps.scope.outputs.tracked == 'true'
-        env:
-          PR_BODY: ${{ github.event.pull_request.body }}
-        run: |
-          printf '%s' "$PR_BODY" | grep -Fq '## Acceptance brief' || { echo 'FAIL: tracked Cliewen PRs need an acceptance brief'; exit 1; }
-          ! printf '%s' "$PR_BODY" | grep -Fq '<!-- REQUIRED' || { echo 'FAIL: replace every acceptance-brief REQUIRED placeholder'; exit 1; }
       - uses: actions/setup-go@v7
         if: steps.scope.outputs.go == 'true' || steps.scope.outputs.corpus == 'true' || steps.scope.outputs.guide == 'true'
         with:

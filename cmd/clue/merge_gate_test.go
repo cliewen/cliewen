@@ -7,65 +7,53 @@ import (
 	"testing"
 )
 
-func TestAC042_AcceptanceBriefCarriesHumanMergeQuestions(t *testing.T) {
-	data, err := os.ReadFile(filepath.Join("..", "..", ".github", "PULL_REQUEST_TEMPLATE", "tracked.md"))
+func readRepoFile(t *testing.T, parts ...string) string {
+	t.Helper()
+	data, err := os.ReadFile(filepath.Join(append([]string{"..", ".."}, parts...)...))
 	if err != nil {
 		t.Fatal(err)
 	}
-	for _, required := range []string{
-		"## Acceptance brief",
-		"Plan item and whether it remains wanted",
-		"verifies-something-adjacent",
-		"What becomes binding on merge",
-		"one screen",
-	} {
-		if !strings.Contains(string(data), required) {
-			t.Errorf("acceptance brief is missing %q", required)
+	return string(data)
+}
+
+func TestAC245_UnitPositive_TrackedFormAsksForTheChangeWithoutABrief(t *testing.T) {
+	form := readRepoFile(t, ".github", "PULL_REQUEST_TEMPLATE", "tracked.md")
+	for _, required := range []string{"## Summary", "## Verification", "## Cliewen proposal", "## Traceability and Decisions"} {
+		if !strings.Contains(form, required) {
+			t.Errorf("tracked form is missing %q", required)
 		}
+	}
+	if strings.Contains(form, "Acceptance brief") || strings.Contains(form, "acceptance brief") {
+		t.Error("tracked form still carries an acceptance brief")
 	}
 }
 
-func TestAC042_CIRejectsUnfilledAcceptanceBrief(t *testing.T) {
-	for _, rel := range []string{
-		filepath.Join("..", "..", ".github", "workflows", "ci.yml"),
-		filepath.Join("..", "..", ".github", "workflows", "clue-validation.yml"),
-	} {
-		data, err := os.ReadFile(rel)
-		if err != nil {
-			t.Fatal(err)
-		}
-		for _, required := range []string{"Require a completed acceptance brief", "## Acceptance brief", "<!-- REQUIRED"} {
-			if !strings.Contains(string(data), required) {
-				t.Errorf("%s does not enforce %q", rel, required)
+func TestAC245_UnitNegative_NoWorkflowReadsThePullRequestBody(t *testing.T) {
+	for _, rel := range []string{"ci.yml", "clue-validation.yml"} {
+		workflow := readRepoFile(t, ".github", "workflows", rel)
+		for _, banned := range []string{"PR_BODY", "pull_request.body", "Require a completed acceptance brief"} {
+			if strings.Contains(workflow, banned) {
+				t.Errorf("%s still gates on the pull-request body (%q)", rel, banned)
 			}
 		}
 	}
 }
 
-func TestAC048_UnitPositive_BriefNamesHumanClassCriteriaAsTheirProof(t *testing.T) {
-	data, err := os.ReadFile(filepath.Join("..", "..", ".github", "PULL_REQUEST_TEMPLATE", "tracked.md"))
-	if err != nil {
-		t.Fatal(err)
-	}
-	for _, required := range []string{
-		"Test-type: Human",
-		"this line is that criterion's proof, not a separate confirmation",
-	} {
-		if !strings.Contains(string(data), required) {
-			t.Errorf("acceptance brief is missing %q", required)
+func TestAC246_UnitPositive_TrackedChecklistNamesTheProposalsHumanEvidence(t *testing.T) {
+	form := readRepoFile(t, ".github", "PULL_REQUEST_TEMPLATE", "tracked.md")
+	for _, required := range []string{"Human proof recorded in the proposal's `## Human evidence` section", "what was not observed"} {
+		if !strings.Contains(form, required) {
+			t.Errorf("tracked checklist is missing %q", required)
 		}
 	}
 }
 
-func TestAC048_UnitNegative_HumanProofRidesTheExistingCriteriaLine(t *testing.T) {
-	data, err := os.ReadFile(filepath.Join("..", "..", ".github", "PULL_REQUEST_TEMPLATE", "tracked.md"))
-	if err != nil {
-		t.Fatal(err)
+func TestAC246_UnitNegative_HumanProofHasNoSeparateConfirmationSection(t *testing.T) {
+	form := readRepoFile(t, ".github", "PULL_REQUEST_TEMPLATE", "tracked.md")
+	if n := strings.Count(form, "## Human evidence"); n != 1 {
+		t.Fatalf("expected the proposal's human evidence section to be named once, got %d", n)
 	}
-	if n := strings.Count(string(data), "Added or changed criteria"); n != 1 {
-		t.Fatalf("expected exactly one criteria bullet in the acceptance brief, got %d", n)
-	}
-	if strings.Contains(string(data), "## Human-class confirmation") {
-		t.Fatalf("Human-class proof must ride the existing criteria bullet, not a separate section")
+	if strings.Contains(form, "\n## Human evidence") || strings.Contains(form, "## Human-class confirmation") {
+		t.Fatal("Human-class proof belongs in the proposal, not in a pull-request section")
 	}
 }

@@ -152,9 +152,9 @@ func TestAC145_UnitNegative_ScaffoldDoesNotOverwriteExistingDecision(t *testing.
 	}
 }
 
-// AC-042: every initialized repository receives the PR form required by the
-// scaffolded CI wall, rather than leaving authors to recreate it by hand.
-func TestAC042_InitOutputIncludesAcceptanceBriefTemplate(t *testing.T) {
+// AC-247: every initialized repository receives the same default PR form
+// as this repository, rather than leaving authors to recreate it by hand.
+func TestAC247_UnitPositive_InitWritesTheRepositoryDefaultTemplate(t *testing.T) {
 	root, _ := runInto(t)
 	want, err := os.ReadFile(filepath.Join("..", "..", ".github", "pull_request_template.md"))
 	if err != nil {
@@ -908,10 +908,10 @@ func TestAC180_UnitNegative_InitDoesNotDuplicateAnExistingUnionRule(t *testing.T
 	}
 }
 
-// AC-239 positive: the tracked-change form is a named template, identical in
+// AC-247 positive: the tracked-change form is a named template, identical in
 // this repository and in what init writes, and the default is the short
 // contributor-facing description.
-func TestAC239_UnitPositive_TrackedFormIsANamedTemplateAndDefaultIsShort(t *testing.T) {
+func TestAC247_UnitPositive_TrackedFormIsANamedTemplateAndDefaultIsShort(t *testing.T) {
 	root, _ := runInto(t)
 	for _, rel := range []string{".github/PULL_REQUEST_TEMPLATE/tracked.md", ".github/pull_request_template.md"} {
 		want, err := os.ReadFile(filepath.Join("..", "..", filepath.FromSlash(rel)))
@@ -939,16 +939,16 @@ func TestAC239_UnitPositive_TrackedFormIsANamedTemplateAndDefaultIsShort(t *test
 	if err != nil {
 		t.Fatal(err)
 	}
-	for _, want := range []string{"## Acceptance brief", "## Cliewen checklist", "## Review boundary"} {
+	for _, want := range []string{"## Cliewen proposal", "## Cliewen checklist", "## Review boundary"} {
 		if !strings.Contains(string(tracked), want) {
 			t.Errorf("tracked template is missing %q", want)
 		}
 	}
 }
 
-// AC-239 negative: the default template hands an outside contributor no
+// AC-247 negative: the default template hands an outside contributor no
 // maintainer-only section, checklist or placeholder the gate would read.
-func TestAC239_UnitNegative_DefaultTemplateCarriesNoMaintainerForm(t *testing.T) {
+func TestAC247_UnitNegative_DefaultTemplateCarriesNoMaintainerForm(t *testing.T) {
 	root, _ := runInto(t)
 	def, err := os.ReadFile(filepath.Join(root, ".github", "pull_request_template.md"))
 	if err != nil {
@@ -962,5 +962,12 @@ func TestAC239_UnitNegative_DefaultTemplateCarriesNoMaintainerForm(t *testing.T)
 	}
 	if n := strings.Count(text, "\n"); n > 15 {
 		t.Errorf("default template is %d lines; it should stay a short description", n)
+	}
+	tracked, err := os.ReadFile(filepath.Join(root, ".github", "PULL_REQUEST_TEMPLATE", "tracked.md"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if strings.Contains(strings.ToLower(string(tracked)), "acceptance brief") {
+		t.Error("tracked template still carries an acceptance brief")
 	}
 }

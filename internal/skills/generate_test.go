@@ -173,14 +173,14 @@ func TestAC184_UnitNegative_PlanHealthGuidanceDoesNotTurnPassingChecksOrAllRepla
 	}
 }
 
-func TestAC218_UnitPositive_LocalAllocationProceedsOnAReadRemoteAndSaysSo(t *testing.T) {
+func TestAC251_UnitPositive_LocalAllocationProceedsOnAReadRemoteAndSaysSo(t *testing.T) {
 	delta := mustRenderFile(t, "clue-delta/references/change-loop.md")
 	for _, want := range []string{
 		"git ls-remote --heads origin",
 		"any `ch-*` branch other than your own, merged or not",
 		"a `clue/id-allocator` branch, whose existence is enough because the listing shows no claims",
 		"serialize allocation on the integration branch",
-		"state in the acceptance brief's ledger note that allocation was local, what you read",
+		"state in the change proposal that allocation was local, what you read",
 		"`clue id coordinate` comes before a second contributor starts",
 		"never present it as proof that you are alone",
 	} {
@@ -190,7 +190,7 @@ func TestAC218_UnitPositive_LocalAllocationProceedsOnAReadRemoteAndSaysSo(t *tes
 	}
 }
 
-func TestAC218_UnitNegative_LocalAllocationStillStopsForAnotherContributorOrAnUnreadableRemote(t *testing.T) {
+func TestAC251_UnitNegative_LocalAllocationStillStopsForAnotherContributorOrAnUnreadableRemote(t *testing.T) {
 	delta := mustRenderFile(t, "clue-delta/references/change-loop.md")
 	for _, want := range []string{
 		"Where another contributor's branch or the allocator branch exists, or the remote cannot be read, stop",
@@ -480,17 +480,17 @@ func TestSanity_SpecFirstPauseReportsProposalAndImplementationStatus(t *testing.
 	}
 }
 
-// AC-054 is an extraction-guidance criterion: what it promises is that the
+// AC-250 is an extraction-guidance criterion: what it promises is that the
 // canonical clue-extract skill instructs criterion-level phasing, so the
 // rendered skill text is its evidence. The mechanism that guidance relies on
 // is proven separately against the validator — AC-045 for the Human class and
 // AC-046 for per-criterion @draft, both in internal/corpus.
-func TestAC054_UnitPositive_ExtractionSupportsCriterionLevelPhasing(t *testing.T) {
+func TestAC250_UnitPositive_ExtractionSupportsCriterionLevelPhasing(t *testing.T) {
 	extract := mustRenderSkill(t, "clue-extract/skill.md")
 	for _, want := range []string{
 		"Whole-file draft phasing remains available",
 		"tag each genuinely not-yet-proven criterion `@draft`",
-		"`Test-type: Human` criterion is already proven by naming it in the acceptance brief",
+		"`Test-type: Human` criterion is proven by the human's observation recorded in the change proposal's `## Human evidence` section",
 		"exported executable evidence",
 		"A capability is therefore not the smallest activation unit",
 	} {
@@ -509,7 +509,7 @@ func TestAC210_UnitPositive_GeneratedUpgradeSkillRoutesAHumanAuthorizedCoordinat
 		"Do nothing to the repository until they explicitly choose now",
 		"**An upgrade is direct work.**",
 		"Recommend `Recommended route: direct`",
-		"needs no CH identity, workspace, plan declaration, digest, acceptance brief, or mandatory agentic review",
+		"needs no CH identity, workspace, plan declaration, digest, or mandatory agentic review",
 		"How many files the migration rewrites, and whether corpus or skill paths are among them, never makes the route tracked",
 		"Escalate only on a semantic discovery",
 		"recommend the tracked route for that decision on its own terms",
@@ -632,7 +632,7 @@ func TestAC149_UnitNegative_GeneratedUpgradeSkillDoesNotTreatAnUnavailableReleas
 	}
 }
 
-func TestAC054_UnitNegative_ExtractionRejectsCapabilityOnlyPhasing(t *testing.T) {
+func TestAC250_UnitNegative_ExtractionRejectsCapabilityOnlyPhasing(t *testing.T) {
 	extract := mustRenderSkill(t, "clue-extract/skill.md")
 	for _, stale := range []string{
 		"Activation is per criteria file, not per criterion",
@@ -776,7 +776,7 @@ func TestSanity_VerifyRecognizesTheCompleteEvidenceContract(t *testing.T) {
 		"exported executable evidence",
 		"positive/negative direction",
 		"`(single-direction)`",
-		"a genuine `Human` criterion is named in the acceptance brief as its proof",
+		"a genuine `Human` criterion is proven by its change proposal's `## Human evidence` section",
 		"an individual not-yet-proven criterion carries `@draft`",
 		"an unannotated legacy criterion has its one supported reference",
 	} {
@@ -1404,6 +1404,39 @@ func TestAC241_UnitNegative_IdentifiersStayWhereTheyAreDataAndNextToNamesInDocum
 	} {
 		if !strings.Contains(text, want) {
 			t.Errorf("the readable-reference instruction lost %q", want)
+		}
+	}
+}
+
+// AC-246 positive: every skill that hands a tracked change to a human names
+// the proposal's human evidence section as the carrier of Human-class proof.
+func TestAC246_UnitPositive_SkillsRecordHumanProofInTheProposal(t *testing.T) {
+	for _, skill := range []string{"clue-delta/skill.md", "clue-verify/skill.md", "clue-extract/skill.md"} {
+		text := mustRenderSkill(t, skill)
+		if !strings.Contains(text, "## Human evidence") {
+			t.Errorf("%s does not name the proposal's human evidence section", skill)
+		}
+	}
+	delta := mustRenderSkill(t, "clue-delta/skill.md")
+	for _, want := range []string{
+		"naming the observer, conditions, observation, result and what was not observed, taken only from what the human actually reported",
+		"There is no acceptance brief",
+	} {
+		if !strings.Contains(delta, want) {
+			t.Errorf("clue-delta does not say %q", want)
+		}
+	}
+}
+
+// AC-246 negative: no generated skill still asks for a brief to be written,
+// shown, hashed or passed to clue accept.
+func TestAC246_UnitNegative_NoSkillAsksForAnAcceptanceBrief(t *testing.T) {
+	for _, file := range mustRender(t) {
+		text := string(file.content)
+		for _, stale := range []string{"--brief", "brief-sha256", "acceptance/brief.md", "fill the acceptance brief", "named in the acceptance brief", "in the ready acceptance brief", "acceptance brief's"} {
+			if strings.Contains(text, stale) {
+				t.Errorf("%s still carries %q", file.relativePath, stale)
+			}
 		}
 	}
 }

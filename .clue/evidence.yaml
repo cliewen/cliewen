@@ -23,7 +23,7 @@ producers:
       - vendor/**
     inputs:
       - path: cmd/clue/accept_test.go
-        sha256: 0512b72848a59563c8bdba57b10d93341f190bd7027d0e4715ca0932ae70126d
+        sha256: 06c2b860ff88cc545f4dfba5a1339674e014d3a33a9ba0f8468c2dac12b6acb9
       - path: cmd/clue/changelog_test.go
         sha256: a0c4be31756a4380b1024c919a4e7ec6264f1f8400aedd2fc7b00d8af0693fb6
       - path: cmd/clue/context_test.go
@@ -41,9 +41,9 @@ producers:
       - path: cmd/clue/latest_test.go
         sha256: 8777c8f6d34bd33a6d07b3229263718493f0471c6b49686d73e3e87511bb15a4
       - path: cmd/clue/main_test.go
-        sha256: f5500c32a467793e858f2cdf42bbce42c49fa90f11539b980c1257baa0d7a395
+        sha256: f69e70ce7eda0d3e9f6dd61e6a62a23e2a30a2fd566f1848252b0cb205f9197c
       - path: cmd/clue/merge_gate_test.go
-        sha256: 0152e23f80840a6e8222f967ddbe8482b129d258caf3ac845bac3e6a32681b2a
+        sha256: 1135a903256d15a1bc95f507ed3b7204ef4e281beea10a0e0baef324ff23faa9
       - path: cmd/clue/next_test.go
         sha256: 8e4a8d6ceffdf357ad3e8e77fc1905ad8113e3a0a45e43de7fa1a1f3633042b1
       - path: cmd/clue/notifier_test.go
@@ -147,7 +147,7 @@ producers:
       - path: docs/capabilities/CAP-003-extract/README.md
         sha256: 12588a6ab8725ed63389bc19bf5deaa096ed42c9867f2fe30ca81789f75549ea
       - path: docs/capabilities/CAP-003-extract/criteria.md
-        sha256: eb4264235e7ed00773c7d6a41098394145a20b65d183d7f9534fbbf64ccbd824
+        sha256: a1b66e9b01972d1b2bcd54885c7dfd1c36c771ad11cfc0beb07e37418ff43995
       - path: docs/capabilities/CAP-003-extract/design.md
         sha256: 198aae391da98224542d4f569e8495e05ccb004010f235dee7937d5082b866d5
       - path: docs/capabilities/CAP-004-ship/README.md
@@ -165,7 +165,7 @@ producers:
       - path: docs/capabilities/CAP-006-collaborative-handoffs/README.md
         sha256: 7b6c41fc958896202d223a4c5717c6f560ea7f12b16cf9dbb8b3daeb05168c3f
       - path: docs/capabilities/CAP-006-collaborative-handoffs/criteria.md
-        sha256: 722ec681b0f90bc509165f834c64f9af7f23d8dac29edf52887936f368533868
+        sha256: 9149ffeb9ed54f26d6fd7e18632bf43571c4ffd40e2ac914a99a8e4c072cc322
       - path: docs/capabilities/CAP-006-collaborative-handoffs/design.md
         sha256: eabb0bd58eb8f093eed5330704bdf3420206e9e2d317db7bdca59e3cfd86bce3
       - path: docs/capabilities/CAP-007-focused-context/README.md
@@ -189,13 +189,13 @@ producers:
       - path: docs/capabilities/CAP-010-team-safe-identity-allocation/README.md
         sha256: e9cf6cafd867da2c4056891dc952a157ecec1684d7cd79fa01ff67b4f50e9903
       - path: docs/capabilities/CAP-010-team-safe-identity-allocation/criteria.md
-        sha256: 4d8595d7f9c0dbb3ec02a405afdfc9eae5616d4b9ac150fcce73df8b3c4cdb1e
+        sha256: ff0c3eb03f3f6cf779375ab31fc33d74e7b353990ae7256241d29118d9a01efc
       - path: docs/capabilities/CAP-010-team-safe-identity-allocation/design.md
         sha256: 6044a5556f8b74619651a6b85998a9e8d26fd036a021774b3aa3a442a55f2afa
       - path: docs/capabilities/CAP-012-local-acceptance/README.md
         sha256: 41dba9e28574fd22258e75f93c178247bbc7de77d163e0782d113a909cd724a3
       - path: docs/capabilities/CAP-012-local-acceptance/criteria.md
-        sha256: b7a6f6f7008cb2ef2925775f5033caf37223255754c5e9d17bb33545a5d87904
+        sha256: 6e886facc0f1f42dbf6e66b325020a9e330f6f660ec82483f1aa563421bb3fb0
       - path: docs/capabilities/CAP-012-local-acceptance/design.md
         sha256: 29e9492b5d663f7bb7f9513647f67d261c919acc7166e003b29c485585fbb47e
       - path: docs/capabilities/CAP-013-readable-references/README.md
@@ -683,9 +683,9 @@ producers:
       - path: guide/operations_test.go
         sha256: 21244d1e6e82560a431219fb2499095faed56845509bf3fb149586b1b163bddd
       - path: internal/accept/accept_test.go
-        sha256: bbce74363651de589b50dcf4112eeeb9c7448b88fb757359d7f285c21955b003
+        sha256: d9ede6f2e9078bcaef8ec86988d49bdcf2e4842a888f6387420f06634fe2b6c6
       - path: internal/accept/approval_test.go
-        sha256: 088579bf0672affb71a0e5878919dbdc5740167bd92dae9af0bb62f25876f07b
+        sha256: 8b0d12e6259ff635ebf2ba8ebcb00239603ad4a7a8c700a1ba6a1e6112007130
       - path: internal/accept/snapshot_test.go
         sha256: a6b39b7bfc0f67c145224365a7f43bbca637cb366d9a7731c9cba99f9fc06f88
       - path: internal/acceptpolicy/policy_test.go
@@ -699,7 +699,7 @@ producers:
       - path: internal/ciguards/routeoverride_test.go
         sha256: b13b8735e3d057536eb4224410f366bd5438706128956ad7c551c655ad0cf67c
       - path: internal/corpus/actests_test.go
-        sha256: 73843c9951dcf551147bc24dd58bd7e9ec924a3ca0c97623e145bc5ad4c1ddcd
+        sha256: f85962f5b475fdf157ac8851b97844a3d576abeddf103920df87c7331aa07937
       - path: internal/corpus/boundary_test.go
         sha256: aa95e3f064ff217b541ef7663016da3739ad4e7cc74f877fe4935294b9b7ad01
       - path: internal/corpus/brownfield_test.go
@@ -793,11 +793,11 @@ producers:
       - path: internal/scaffold/acceptance_test.go
         sha256: da65e5450f166171a87c9457790e14096a3d045adf0fc946560fdaaa4e083916
       - path: internal/scaffold/approval_template_test.go
-        sha256: 105712b5fd142a190853f9bdaa6f167f0ffc9a8fa40d20ebbb46d30aa91f01c7
+        sha256: e533faaa8892ebbb50087a3a3cbb70274c8038bf0b68bbd6ca10c8ccf611fde3
       - path: internal/scaffold/badge_test.go
         sha256: 4ac11ca9f7af8bd46ff06b5bff934b79ef825d91782bd0d2589c7d3180714f99
       - path: internal/scaffold/ciwall_test.go
-        sha256: ff14924c696837182ce9ba9beecfc1dba7082b99e7f6c01cb90ebe12aa1e1114
+        sha256: 081eaa89784c20504588c71dae406b8c41cf4b91c0063907852ec74320f4b918
       - path: internal/scaffold/frontmatter_test.go
         sha256: 73148ac29447e1ef01c030baea00a0a5878f0730d618830b91094fcf0e6395ce
       - path: internal/scaffold/intent_test.go
@@ -813,7 +813,7 @@ producers:
       - path: internal/scaffold/scaffold_symlink_test.go
         sha256: 0576bc2bf8a98364317974bf774c6cefe47ca38dcab55643d1aceb64cac3845c
       - path: internal/scaffold/scaffold_test.go
-        sha256: 7c96164470a309c9d4f8db8e15786fc7eadff63637b05e5589ac22b611f214d3
+        sha256: 71f0fc0f1dbfdbf45c6f33571e16595e79c7c1cc061642a72d6006646bf8dcf3
       - path: internal/scaffold/wallchecklist_test.go
         sha256: 6c1c2f1bfe990ff5bc7bf25647495a413f97af3d2b0e3c875bac35b19cec8a8a
       - path: internal/skills/generate_test.go
@@ -829,9 +829,14 @@ producers:
       - path: tools/scenario-trials/transcript_test.go
         sha256: c35e17ae37dd02fc315538ca46a91264e7ba52ab7cbf1a2a5aeab2502e8615eb
     references:
-      - id: AC-237
+      - id: AC-242
         path: cmd/clue/accept_test.go
-        subject: test TestAC237_IntegrationPositive_AcceptCLIExecutesRecordedHumanDecision
+        subject: test TestAC242_IntegrationNegative_OldBriefOptionIsRefusedPlainly
+        type: Integration
+        direction: negative
+      - id: AC-243
+        path: cmd/clue/accept_test.go
+        subject: test TestAC243_IntegrationPositive_AcceptCLIExecutesRecordedHumanDecision
         type: Integration
         direction: positive
       - id: AC-133
@@ -1167,20 +1172,24 @@ producers:
         subject: test TestAC183_IntegrationNegative_CommandsStopOnSettingsNamingNoMode
         type: Integration
         direction: negative
-      - id: AC-042
+      - id: AC-245
         path: cmd/clue/merge_gate_test.go
-        subject: test TestAC042_AcceptanceBriefCarriesHumanMergeQuestions
-      - id: AC-042
-        path: cmd/clue/merge_gate_test.go
-        subject: test TestAC042_CIRejectsUnfilledAcceptanceBrief
-      - id: AC-048
-        path: cmd/clue/merge_gate_test.go
-        subject: test TestAC048_UnitNegative_HumanProofRidesTheExistingCriteriaLine
+        subject: test TestAC245_UnitNegative_NoWorkflowReadsThePullRequestBody
         type: Unit
         direction: negative
-      - id: AC-048
+      - id: AC-245
         path: cmd/clue/merge_gate_test.go
-        subject: test TestAC048_UnitPositive_BriefNamesHumanClassCriteriaAsTheirProof
+        subject: test TestAC245_UnitPositive_TrackedFormAsksForTheChangeWithoutABrief
+        type: Unit
+        direction: positive
+      - id: AC-246
+        path: cmd/clue/merge_gate_test.go
+        subject: test TestAC246_UnitNegative_HumanProofHasNoSeparateConfirmationSection
+        type: Unit
+        direction: negative
+      - id: AC-246
+        path: cmd/clue/merge_gate_test.go
+        subject: test TestAC246_UnitPositive_TrackedChecklistNamesTheProposalsHumanEvidence
         type: Unit
         direction: positive
       - id: AC-186
@@ -1343,16 +1352,6 @@ producers:
         subject: test TestAC132_UnitPositive_ChangeLoopCoordinatesOnlyTheSharedPR
         type: Unit
         direction: positive
-      - id: AC-219
-        path: internal/accept/accept_test.go
-        subject: test TestAC219_IntegrationNegative_IncompleteOrMismatchedBrief
-        type: Integration
-        direction: negative
-      - id: AC-219
-        path: internal/accept/accept_test.go
-        subject: test TestAC219_IntegrationPositive_ExactTreeAndRecoverableHistory
-        type: Integration
-        direction: positive
       - id: AC-230
         path: internal/accept/accept_test.go
         subject: test TestAC230_IntegrationNegative_ChangedPolicyCannotAcceptLocally
@@ -1373,54 +1372,74 @@ producers:
         subject: test TestAC230_IntegrationPositive_SourceUsesLocalAcceptance
         type: Integration
         direction: positive
-      - id: AC-238
+      - id: AC-242
         path: internal/accept/accept_test.go
-        subject: test TestAC238_IntegrationNegative_BaseAdvanceDuringConfirmation
+        subject: test TestAC242_IntegrationNegative_NoneOrSeveralProposals
         type: Integration
         direction: negative
-      - id: AC-238
+      - id: AC-242
         path: internal/accept/accept_test.go
-        subject: test TestAC238_IntegrationNegative_UnsafeOrChangedState
-        type: Integration
-        direction: negative
-      - id: AC-238
-        path: internal/accept/accept_test.go
-        subject: test TestAC238_IntegrationPositive_CheckAndCancellationAreReadOnly
+        subject: test TestAC242_IntegrationPositive_ExactTreeAndRecoverableHistory
         type: Integration
         direction: positive
-      - id: AC-238
+      - id: AC-242
         path: internal/accept/accept_test.go
-        subject: test TestAC238_IntegrationPositive_GitCallbacksNeverExecute
+        subject: test TestAC242_IntegrationPositive_MessageOmitsAbsentHumanEvidence
         type: Integration
         direction: positive
-      - id: AC-237
-        path: internal/accept/approval_test.go
-        subject: test TestAC237_IntegrationNegative_ApprovalTemplatePlaceholdersAreNotProvenance
+      - id: AC-244
+        path: internal/accept/accept_test.go
+        subject: test TestAC244_IntegrationNegative_BaseAdvanceDuringConfirmation
         type: Integration
         direction: negative
-      - id: AC-237
-        path: internal/accept/approval_test.go
-        subject: test TestAC237_IntegrationNegative_MissingStaleMalformedOrRejectedRecordsNeverIntegrate
+      - id: AC-244
+        path: internal/accept/accept_test.go
+        subject: test TestAC244_IntegrationNegative_UnsafeOrChangedState
         type: Integration
         direction: negative
-      - id: AC-237
-        path: internal/accept/approval_test.go
-        subject: test TestAC237_IntegrationPositive_RecordedDecisionRetainsExactTreeParentsAndApproval
+      - id: AC-244
+        path: internal/accept/accept_test.go
+        subject: test TestAC244_IntegrationPositive_CheckAndCancellationAreReadOnly
         type: Integration
         direction: positive
-      - id: AC-238
+      - id: AC-244
+        path: internal/accept/accept_test.go
+        subject: test TestAC244_IntegrationPositive_GitCallbacksNeverExecute
+        type: Integration
+        direction: positive
+      - id: AC-243
         path: internal/accept/approval_test.go
-        subject: test TestAC238_IntegrationNegative_ApprovalChangedAtExecutionIsRejected
+        subject: test TestAC243_IntegrationNegative_ApprovalTemplatePlaceholdersAreNotProvenance
         type: Integration
         direction: negative
-      - id: AC-238
+      - id: AC-243
         path: internal/accept/approval_test.go
-        subject: test TestAC238_IntegrationNegative_ChangedBriefOrDirtyBaseCannotReplayRecordedApproval
+        subject: test TestAC243_IntegrationNegative_MissingStaleMalformedOrRejectedRecordsNeverIntegrate
         type: Integration
         direction: negative
-      - id: AC-238
+      - id: AC-243
         path: internal/accept/approval_test.go
-        subject: test TestAC238_IntegrationPositive_ApprovalPreflightAndCancellationRemainNonIntegrating
+        subject: test TestAC243_IntegrationNegative_RecordWithBriefHashIsRefusedPlainly
+        type: Integration
+        direction: negative
+      - id: AC-243
+        path: internal/accept/approval_test.go
+        subject: test TestAC243_IntegrationPositive_RecordedDecisionRetainsExactTreeParentsAndApproval
+        type: Integration
+        direction: positive
+      - id: AC-244
+        path: internal/accept/approval_test.go
+        subject: test TestAC244_IntegrationNegative_ApprovalChangedAtExecutionIsRejected
+        type: Integration
+        direction: negative
+      - id: AC-244
+        path: internal/accept/approval_test.go
+        subject: test TestAC244_IntegrationNegative_DirtyOrAdvancedBaseCannotReplayRecordedApproval
+        type: Integration
+        direction: negative
+      - id: AC-244
+        path: internal/accept/approval_test.go
+        subject: test TestAC244_IntegrationPositive_ApprovalPreflightAndCancellationRemainNonIntegrating
         type: Integration
         direction: positive
       - id: AC-236
@@ -3646,14 +3665,19 @@ producers:
         subject: test TestAC062_UnitPositive_InitEmitsThinImmutableCaller
         type: Unit
         direction: positive
-      - id: AC-063
+      - id: AC-248
         path: internal/scaffold/ciwall_test.go
-        subject: test TestAC063_UnitNegative_LocalChoiceChangeIsDetected
+        subject: test TestAC248_UnitNegative_BriefGateIsRejected
         type: Unit
         direction: negative
-      - id: AC-063
+      - id: AC-248
         path: internal/scaffold/ciwall_test.go
-        subject: test TestAC063_UnitPositive_UpstreamUpdatePreservesCallerChoices
+        subject: test TestAC248_UnitNegative_LocalChoiceChangeIsDetected
+        type: Unit
+        direction: negative
+      - id: AC-248
+        path: internal/scaffold/ciwall_test.go
+        subject: test TestAC248_UnitPositive_UpstreamUpdatePreservesCallerChoices
         type: Unit
         direction: positive
       - id: AC-215
@@ -3813,9 +3837,6 @@ producers:
       - id: AC-038
         path: internal/scaffold/scaffold_test.go
         subject: test TestAC038_OrdinaryMirrorDirectoryIsStillWritten
-      - id: AC-042
-        path: internal/scaffold/scaffold_test.go
-        subject: test TestAC042_InitOutputIncludesAcceptanceBriefTemplate
       - id: AC-145
         path: internal/scaffold/scaffold_test.go
         subject: test TestAC145_UnitNegative_ScaffoldDoesNotOverwriteExistingDecision
@@ -3871,14 +3892,19 @@ producers:
         subject: test TestAC209_UnitPositive_ScaffoldedRoutingRecommendsByAcceptedContractBeforeCorpus
         type: Unit
         direction: positive
-      - id: AC-239
+      - id: AC-247
         path: internal/scaffold/scaffold_test.go
-        subject: test TestAC239_UnitNegative_DefaultTemplateCarriesNoMaintainerForm
+        subject: test TestAC247_UnitNegative_DefaultTemplateCarriesNoMaintainerForm
         type: Unit
         direction: negative
-      - id: AC-239
+      - id: AC-247
         path: internal/scaffold/scaffold_test.go
-        subject: test TestAC239_UnitPositive_TrackedFormIsANamedTemplateAndDefaultIsShort
+        subject: test TestAC247_UnitPositive_InitWritesTheRepositoryDefaultTemplate
+        type: Unit
+        direction: positive
+      - id: AC-247
+        path: internal/scaffold/scaffold_test.go
+        subject: test TestAC247_UnitPositive_TrackedFormIsANamedTemplateAndDefaultIsShort
         type: Unit
         direction: positive
       - id: AC-199

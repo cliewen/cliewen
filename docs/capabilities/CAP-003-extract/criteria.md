@@ -51,13 +51,17 @@ Feature: Brownfield analysis and extraction — evidence, namespaced ACs, execut
     But a valid corpus with inferred artifacts passes
     And the OK line reports how many artifacts are born inferred
 
-  @AC-054
+  @AC-054 @retired
+  Scenario: Extraction phases evidence at criterion granularity
+    # Retired by CH-211: PDR-073 moves Human-class proof from the pull-request brief to the change proposal. Superseded by AC-250.
+
+  @AC-250
   Scenario: Extraction phases evidence at criterion granularity
     Test-type: Unit
     Given a brownfield extraction contains proven and not-yet-proven criteria
     When the agent records their evidence state
     Then a genuinely not-yet-proven individual criterion may carry @draft while proven siblings and the capability remain active
-    And a genuine Human-class criterion uses the pull request acceptance brief as proof without a code reference
+    And a genuine Human-class criterion uses the change proposal's human evidence section as proof without a code reference
     But whole-file draft phasing remains available when the capability's extracted criteria are not ready for active use
 
   @AC-055

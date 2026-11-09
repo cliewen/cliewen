@@ -1,5 +1,5 @@
 # A human merge authorizes release publication (PDR-015). A release is short
-# administrative work: no CH workspace, digest, or acceptance brief is needed.
+# administrative work: no CH workspace or digest is needed.
 # An unpublished tag may be retargeted to a repaired main commit; any GitHub
 # Release object makes its version immutable.
 name: Tag on merge
