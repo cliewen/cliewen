@@ -1183,6 +1183,8 @@ events:
     - {id: CH-212-tasks, kind: opaque, state: live}
     - {id: AC-252, kind: numeric, state: live, prefix: AC, component: "252"}
     - {id: AC-253, kind: numeric, state: live, prefix: AC, component: "253"}
+    - {id: CH-212, kind: numeric, state: retired, prefix: CH, component: "212"}
+    - {id: CH-212-tasks, kind: opaque, state: retired}
 high-water:
     - {id: CH-183, kind: numeric, state: reserved, prefix: CH, component: "183"}
     - {id: AN-038, kind: numeric, state: reserved, prefix: AN, component: "38"}
