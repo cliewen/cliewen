@@ -12,6 +12,8 @@ title: Design for team-safe identity allocation
 
 `.clue/id-ledger.yaml` is the checked-in lifecycle truth. Version two is an append-only event set: commands add one flow-style YAML line per state transition, loading folds duplicate events idempotently, and state only advances `reserved → live → retired`. The `.gitattributes` union driver combines concurrent additions; contradictory identity metadata remains a validation error.
 
+The ledger must know every identity in use, because allocation increments its counter and never reads the corpus. Criterion identities come from the same reading of criteria declarations as the evidence contract: every criterion in an active or a draft criteria file and every tombstone. A criterion in a draft file may stand reserved or live, never missing, and `clue validate` reports one the ledger does not carry. A ledger made before a population was covered is brought up to date by `clue migrate`, which adds each missing milestone or criterion at its own state and so raises the counters above every declared number; a reservation the allocator handed out for a number already declared becomes live, since the corpus declares it.
+
 `refs/heads/clue/id-allocator` is the remote allocation journal. Its orphan history contains numeric claims only, so a feature branch's speculative lifecycle cannot make accepted `main` claim that an unmerged artifact is live. The branch is permanent because an abandoned claim still prevents reuse.
 
 ## Allocation transaction

@@ -189,9 +189,9 @@ producers:
       - path: docs/capabilities/CAP-010-team-safe-identity-allocation/README.md
         sha256: 31f8ff048f525c44210aa74a1e7e1ab6922ce264f6eb4c28f1b5bfc19989f354
       - path: docs/capabilities/CAP-010-team-safe-identity-allocation/criteria.md
-        sha256: ff0c3eb03f3f6cf779375ab31fc33d74e7b353990ae7256241d29118d9a01efc
+        sha256: 554c487915bf31260fc2dfa6604e813307c433aed5d0083089efc6c48c724c0d
       - path: docs/capabilities/CAP-010-team-safe-identity-allocation/design.md
-        sha256: f32bf97d63ea8e51a4891e39d322e5f9c82e53058e3cf5c4af1b8854bf226550
+        sha256: d31020064abee657fe6ac218cf2faf00d3ac9e5809d6afdf73d87a84fc4f749b
       - path: docs/capabilities/CAP-012-local-acceptance/README.md
         sha256: bac7e91d25d490038407381848e100bd76a4d03d79e9ebc8e728886e1e02a89c
       - path: docs/capabilities/CAP-012-local-acceptance/criteria.md
@@ -729,7 +729,7 @@ producers:
       - path: internal/corpus/intent_test.go
         sha256: ad62ea102fd61b6b5db9334bc4b021a923c5ccb462faa83674c45ce50b5dc6f5
       - path: internal/corpus/ledger_rule_test.go
-        sha256: c0fe7a2ff8b2033553db4c5091ecce310e835b11f1f678f39931f058a549e4bb
+        sha256: c5378aafac5f4eb9d72c0649fe262e01358d9a6c2cc85726ab0dddeaaee99198
       - path: internal/corpus/plans_test.go
         sha256: 08e420f648df4650736ad24433d48918c4712331e1d1ae46c00165ef7f5b6c35
       - path: internal/corpus/presentation_test.go
@@ -775,7 +775,7 @@ producers:
       - path: internal/migrate/legacy_log_test.go
         sha256: 126d199e5bace0c125e22b308a095ff529900903897e9e4a858495c290f11c09
       - path: internal/migrate/migrate_test.go
-        sha256: 2e2ab0d5f0a47915b3f24c9a1a02e89d2ee1c7a4da963859c530e8e6ceadd22c
+        sha256: d6be9e5fdf2cadefeb4c6e5abc4ed2ba5134ad742af1146b557045bec7f22695
       - path: internal/migrate/promoted_test.go
         sha256: bd3aeddf47f58b452fda007530035be7ae03e01588a25ea229d0887d31a1f088
       - path: internal/migrate/role_expiry_test.go
@@ -2332,6 +2332,16 @@ producers:
         subject: test TestAC189_UnitPositive_MilestoneLedgerStateMismatchRejected
         type: Unit
         direction: positive
+      - id: AC-253
+        path: internal/corpus/ledger_rule_test.go
+        subject: test TestAC253_UnitNegative_DraftCriterionReservedOrLiveInTheLedgerPasses
+        type: Unit
+        direction: negative
+      - id: AC-253
+        path: internal/corpus/ledger_rule_test.go
+        subject: test TestAC253_UnitPositive_DraftCriterionMissingFromTheLedgerIsReported
+        type: Unit
+        direction: positive
       - id: AC-186
         path: internal/corpus/plans_test.go
         subject: test TestAC186_UnitNegative_PlanMilestonesIgnoreExamplesAndFinishedRows
@@ -3151,6 +3161,16 @@ producers:
         path: internal/migrate/migrate_test.go
         subject: test TestAC188_IntegrationPositive_ExistingLedgerBackfillsMilestonesAndAllocatesSafelyUnderCoordination
         type: Integration
+        direction: positive
+      - id: AC-252
+        path: internal/migrate/migrate_test.go
+        subject: test TestAC252_UnitNegative_LedgerThatCarriesEveryCriterionIsLeftAsItIs
+        type: Unit
+        direction: negative
+      - id: AC-252
+        path: internal/migrate/migrate_test.go
+        subject: test TestAC252_UnitPositive_ExistingLedgerBackfillsDraftCriteriaAndAllocatesAboveThem
+        type: Unit
         direction: positive
       - id: AC-064
         path: internal/migrate/promoted_test.go
