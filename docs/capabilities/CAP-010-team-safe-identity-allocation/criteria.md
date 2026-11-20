@@ -136,4 +136,20 @@ Feature: Team-safe identity allocation
     Then the change loop has the agent read the remote with plain Git for any other "ch-*" branch, merged or not, and for the allocator branch, whose existence is enough
     And where there is none the agent continues on serialized allocation and states in the change proposal that allocation was local, what it read, and that coordination comes before a second contributor
     But where another "ch-*" branch or the allocator branch exists, or the remote cannot be read, the agent stops and does not allocate on its own judgement
+
+  @AC-252
+  Scenario: An already-existing ledger backfills every declared criterion identity it never covered, also in a criteria file still at draft
+    Test-type: Unit
+    Given a repository whose ledger already exists and carries none of the criteria declared in a criteria file at draft, but a reservation the allocator handed out for one of their numbers
+    When the user runs "clue migrate --apply"
+    Then each declared criterion is added at its own state, live or retired for a tombstone, the reservation for a declared number becomes live, and the next allocation for that prefix returns a number above every declared one
+    But a ledger that already carries every declared criterion is left as it is
+
+  @AC-253
+  Scenario: Validation reports a criterion declared in a draft criteria file that the ledger does not carry
+    Test-type: Unit
+    Given a criterion declared in a criteria file still at draft
+    When the ledger does not carry it, or carries it as retired while it is not a tombstone
+    Then "clue validate" reports it, as it does for a criterion in an active file
+    But a draft criterion the ledger carries as reserved or live passes
 ```

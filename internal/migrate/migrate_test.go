@@ -563,7 +563,7 @@ func TestAC064_UnitNegative_MigrationRejectsChangedSourceAfterPreview(t *testing
 
 func TestAC064_UnitPositive_MigrationRegistryIsOrdered(t *testing.T) {
 	registry := Registry()
-	want := []string{MigrationReversalCost, MigrationStatusLifecycle, MigrationManagedCarriers, MigrationQualifiedReferences, MigrationClaudeEntryPoint, MigrationHubReleaseCheck, MigrationPromotedConstraints, MigrationLedgerBackfill, MigrationCompetingWall, MigrationLegacyDecisionLog, MigrationSystemOverviews, MigrationRoleMarker, MigrationSpentAnalysis, MigrationProductIntent, MigrationLedgerEvents, MigrationMilestoneLedgerBackfill, MigrationEvidenceExport, MigrationHubRouteNames, MigrationIndexHeaders, MigrationDeliveredHeaders}
+	want := []string{MigrationReversalCost, MigrationStatusLifecycle, MigrationManagedCarriers, MigrationQualifiedReferences, MigrationClaudeEntryPoint, MigrationHubReleaseCheck, MigrationPromotedConstraints, MigrationLedgerBackfill, MigrationCompetingWall, MigrationLegacyDecisionLog, MigrationSystemOverviews, MigrationRoleMarker, MigrationSpentAnalysis, MigrationProductIntent, MigrationLedgerEvents, MigrationMilestoneLedgerBackfill, MigrationEvidenceExport, MigrationHubRouteNames, MigrationIndexHeaders, MigrationDeliveredHeaders, MigrationCriterionLedgerBackfill}
 	if len(registry) != len(want) {
 		t.Fatalf("registry has %d entries, want %d", len(registry), len(want))
 	}
@@ -1946,5 +1946,103 @@ func TestAC188_IntegrationPositive_ExistingLedgerBackfillsMilestonesAndAllocates
 	}
 	if len(ids) != 1 || ids[0] != "M-091" {
 		t.Fatalf("allocated %v, want [M-091]", ids)
+	}
+}
+
+// criterionBackfillFixture is a repository whose ledger already exists and
+// carries a reservation the allocator handed out for a number a draft
+// criteria file already declares, the state an adopter found its ledger in.
+func criterionBackfillFixture(t *testing.T) string {
+	t.Helper()
+	root := migrationFixture(t, "")
+	draft := "---\nid: CAP-001-criteria\ntype: criteria\nstatus: draft\nlinks: []\ntitle: Extracted criteria\n---\n\n```gherkin\n\n  @AC-001\n  Scenario: first\n    Test-type: Unit\n\n  @AC-005 @retired\n  Scenario: retired\n\n  @AC-007\n  Scenario: last\n    Test-type: Unit\n```\n"
+	if err := os.WriteFile(filepath.Join(root, "docs", "analysis", "criteria.md"), []byte(draft), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	l, err := ledger.Load(root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	l.ConvertV2()
+	l.MarkLive("AN-001")
+	if _, err := l.NextNumeric("AC"); err != nil {
+		t.Fatal(err)
+	}
+	if err := l.Save(); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(root, ".gitattributes"), []byte(ledger.UnionAttribute+"\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	return root
+}
+
+func TestAC252_UnitPositive_ExistingLedgerBackfillsDraftCriteriaAndAllocatesAboveThem(t *testing.T) {
+	root := criterionBackfillFixture(t)
+
+	plan, err := Plan(root, Options{ReversalCost: "low"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	var backfill *Change
+	for i := range plan.Changes {
+		if plan.Changes[i].Migration == MigrationCriterionLedgerBackfill {
+			backfill = &plan.Changes[i]
+		}
+	}
+	if backfill == nil {
+		t.Fatalf("no %s change planned; changes: %+v", MigrationCriterionLedgerBackfill, plan.Changes)
+	}
+	got := string(backfill.After)
+	for _, want := range []string{"{id: AC-001, kind: numeric, state: live", "{id: AC-005, kind: numeric, state: retired", "{id: AC-007, kind: numeric, state: live"} {
+		if !strings.Contains(got, want) {
+			t.Fatalf("ledger lacks %q after the backfill: %s", want, got)
+		}
+	}
+	if err := Apply(root, plan); err != nil {
+		t.Fatalf("apply: %v", err)
+	}
+	l, err := ledger.Load(root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	next, err := l.NextNumeric("AC")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if next != "AC-008" {
+		t.Fatalf("next AC identity is %s, want AC-008 above every declared one", next)
+	}
+}
+
+func TestAC252_UnitNegative_LedgerThatCarriesEveryCriterionIsLeftAsItIs(t *testing.T) {
+	root := criterionBackfillFixture(t)
+	plan, err := Plan(root, Options{ReversalCost: "low"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := Apply(root, plan); err != nil {
+		t.Fatalf("apply: %v", err)
+	}
+	before, err := os.ReadFile(filepath.Join(root, filepath.FromSlash(ledger.DefaultPath)))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	again, err := Plan(root, Options{ReversalCost: "low"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, change := range again.Changes {
+		if change.Migration == MigrationCriterionLedgerBackfill {
+			t.Fatalf("a ledger that carries every criterion was backfilled again: %s", change.Description)
+		}
+	}
+	after, err := os.ReadFile(filepath.Join(root, filepath.FromSlash(ledger.DefaultPath)))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !bytes.Equal(before, after) {
+		t.Fatal("planning changed the ledger")
 	}
 }

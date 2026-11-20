@@ -579,6 +579,10 @@ func checkLedger(c *Corpus) []Issue {
 			want = ledger.StateRetired
 		} else if !criterion.Live {
 			continue
+		} else if criterion.DraftFile && entry.State == ledger.StateReserved {
+			// A criterion in a draft file may still stand reserved: it is in
+			// use, which is what the ledger must know, but not yet live.
+			continue
 		}
 		if entry.State != want {
 			issues = append(issues, localIssue(c, criterion.Path, "criterion "+criterion.ID+" is marked "+string(entry.State)+" in "+ledger.DefaultPath+" but its declaration is "+string(want), criterion.ID))

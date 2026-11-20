@@ -426,3 +426,48 @@ func TestUnit_ValidateAcceptsACoordinatedLedgerThatDeclaresTheUnionRule(t *testi
 		}
 	}
 }
+
+// draftCriterionIssues validates the fixture whose AC-101 is declared in a
+// criteria file still at draft, against a ledger with the given AC-101 entry
+// (none when entry is empty), and returns the issues about AC-101.
+func draftCriterionIssues(t *testing.T, entry string) []string {
+	t.Helper()
+	root := writeCorpus(t, capFiles("draft"))
+	writeLedger(t, root, "counters: {G: 1, AC: 101}\nentries:\n"+entry)
+	c, scanIssues := Scan(root)
+	if len(scanIssues) != 0 {
+		t.Fatalf("scan issues: %v", scanIssues)
+	}
+	var about []string
+	for _, is := range Validate(c, Options{}) {
+		if strings.Contains(is.Msg, "AC-101") {
+			about = append(about, is.Msg)
+		}
+	}
+	return about
+}
+
+func TestAC253_UnitPositive_DraftCriterionMissingFromTheLedgerIsReported(t *testing.T) {
+	issues := draftCriterionIssues(t, "  - id: G-001\n    kind: numeric\n    state: live\n    prefix: G\n    component: 1\n")
+	want := "criterion AC-101 is missing from .clue/id-ledger.yaml"
+	for _, msg := range issues {
+		if msg == want {
+			return
+		}
+	}
+	t.Fatalf("expected %q, got: %v", want, issues)
+}
+
+func TestAC253_UnitNegative_DraftCriterionReservedOrLiveInTheLedgerPasses(t *testing.T) {
+	for _, state := range []string{"reserved", "live"} {
+		if issues := draftCriterionIssues(t, "  - id: AC-101\n    kind: numeric\n    state: "+state+"\n    prefix: AC\n    component: 101\n"); len(issues) != 0 {
+			t.Fatalf("a draft criterion %s in the ledger was reported: %v", state, issues)
+		}
+	}
+	// A draft criterion is still in use, so a ledger that retired it is wrong.
+	issues := draftCriterionIssues(t, "  - id: AC-101\n    kind: numeric\n    state: retired\n    prefix: AC\n    component: 101\n")
+	want := "criterion AC-101 is marked retired in .clue/id-ledger.yaml but its declaration is live"
+	if len(issues) != 1 || issues[0] != want {
+		t.Fatalf("expected only %q, got: %v", want, issues)
+	}
+}

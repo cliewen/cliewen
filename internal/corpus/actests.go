@@ -40,6 +40,11 @@ type CriterionIdentity struct {
 	Path    string
 	Live    bool
 	Retired bool
+	// DraftFile is true for a criterion declared in a criteria file still at
+	// status draft. Its identity is in use like any other, so the ledger must
+	// carry it, but it may still stand reserved there: a draft criterion is
+	// not yet the live contract.
+	DraftFile bool
 }
 
 // Declaration is one criterion's evidence-contract classification, exported
@@ -80,8 +85,10 @@ func AcceptanceEvidence(c *Corpus) (map[string]Declaration, map[string][]Evidenc
 	return decls, locations, issues
 }
 
-// LedgerCriterionIdentities returns each live canonical declaration and every
-// retained tombstone, ordered by ID. It shares harvestACs' namespace and
+// LedgerCriterionIdentities returns each canonical declaration in an active or
+// a draft criteria file and every retained tombstone, ordered by ID. A
+// criteria file at draft holds identities in use as much as an active one;
+// leaving it out let allocation hand out numbers already declared there. It shares harvestACs' namespace and
 // tombstone reading with the evidence contract, so the ledger does not invent
 // a second interpretation of an acceptance-criterion identity. A tombstone
 // remains a retired identity even if its criteria artifact is no longer active.
@@ -89,7 +96,7 @@ func LedgerCriterionIdentities(c *Corpus) []CriterionIdentity {
 	declared, _, _, _, _ := harvestACs(c)
 	ids := make([]string, 0, len(declared))
 	for id, d := range declared {
-		if d.status == "active" || d.retired {
+		if d.status == "active" || d.status == "draft" || d.retired {
 			ids = append(ids, id)
 		}
 	}
@@ -97,7 +104,8 @@ func LedgerCriterionIdentities(c *Corpus) []CriterionIdentity {
 	out := make([]CriterionIdentity, 0, len(ids))
 	for _, id := range ids {
 		d := declared[id]
-		out = append(out, CriterionIdentity{ID: id, Path: d.path, Live: d.status == "active" && !d.retired, Retired: d.retired})
+		inUse := (d.status == "active" || d.status == "draft") && !d.retired
+		out = append(out, CriterionIdentity{ID: id, Path: d.path, Live: inUse, Retired: d.retired, DraftFile: d.status == "draft" && !d.retired})
 	}
 	return out
 }

@@ -123,6 +123,14 @@ const (
 	// as the hub or the wall checklist, that carries no document header. It
 	// never repairs one: those files are the adopter's prose (PDR-023).
 	MigrationDeliveredHeaders = "MIG-020"
+	// MigrationCriterionLedgerBackfill seeds criterion identities into a
+	// ledger that does not carry them: those declared in a criteria file
+	// still at draft, which the ledger left out until CH-212, and any other
+	// declared criterion it never covered. Allocation increments the stored
+	// counter and never reads the corpus (ADR-048), so a declared number the
+	// ledger does not know is handed out again; this closes that gap and
+	// raises each prefix's counter above every declared number.
+	MigrationCriterionLedgerBackfill = "MIG-021"
 )
 
 // Options controls planning. Preview is the default; applying a plan is a
@@ -160,6 +168,7 @@ var orderedMigrations = []MigrationDefinition{
 	{ID: MigrationHubRouteNames, Description: "report a routing hub that still names the retired simple and full routes"},
 	{ID: MigrationIndexHeaders, Description: "give each README under docs/ or changes/ without frontmatter its type: index header"},
 	{ID: MigrationDeliveredHeaders, Description: "report a delivered file the adopter owns that carries no document header"},
+	{ID: MigrationCriterionLedgerBackfill, Description: "seed criterion identities missing from an already-existing ledger"},
 }
 
 // Registry returns the migration order without exposing mutable package state.
@@ -1090,6 +1099,7 @@ func Plan(root string, opts Options) (MigrationPlan, error) {
 	planLedgerBackfill(root, &result)
 	planLedgerEvents(root, &result)
 	planMilestoneLedgerBackfill(root, &result)
+	planCriterionLedgerBackfill(root, &result)
 	planEvidenceExport(root, &result)
 	planHubRouteNames(root, &result)
 	planCompetingWall(root, &result)
@@ -2558,6 +2568,80 @@ func planMilestoneLedgerBackfill(root string, result *MigrationPlan) {
 		Path:        ledger.DefaultPath,
 		Migration:   MigrationMilestoneLedgerBackfill,
 		Description: fmt.Sprintf("seed %d milestone id(s) missing from the identity ledger", seeded),
+		Existed:     true,
+		Before:      before,
+		After:       after,
+	})
+}
+
+// planCriterionLedgerBackfill seeds each declared criterion identity that an
+// already-existing ledger does not carry, at its own state: retired for a
+// tombstone, live otherwise, also for a criterion in a criteria file still at
+// draft. Seeding raises the prefix's counter above the number, so the next
+// allocation can no longer hand it out. A declared criterion the ledger holds
+// only as reserved is promoted to live: the corpus declares it, so it is in
+// use, which is also what repairs a reservation the allocator handed out for
+// a number that was already declared. Every other identity is left as it is.
+//
+// Like planMilestoneLedgerBackfill it skips a ledger this same plan already
+// creates or rewrites, since two changes to one path would let the later
+// write discard the earlier; the next migration run then backfills.
+func planCriterionLedgerBackfill(root string, result *MigrationPlan) {
+	if !ledger.Exists(root) {
+		return // a brand-new ledger already covers criteria via planLedgerBackfill
+	}
+	for _, change := range result.Changes {
+		if change.Path == ledger.DefaultPath {
+			return
+		}
+	}
+	c, issues := scanForPlanning(root)
+	if len(issues) > 0 {
+		return // parse-level problems are corpus.Validate's judgment, not migration's
+	}
+	l, err := ledger.Load(root)
+	if err != nil {
+		result.Notices = append(result.Notices, Notice{
+			Path:      ledger.DefaultPath,
+			Migration: MigrationCriterionLedgerBackfill,
+			Message:   "could not be read, so no criterion identities were backfilled: " + err.Error(),
+		})
+		return
+	}
+	before, err := os.ReadFile(filepath.Join(root, filepath.FromSlash(ledger.DefaultPath)))
+	if err != nil {
+		return
+	}
+	seeded, promoted := 0, 0
+	for _, criterion := range corpus.LedgerCriterionIdentities(c) {
+		entry, known := l.Lookup(criterion.ID)
+		switch {
+		case criterion.Retired:
+			if !known {
+				l.MarkRetired(criterion.ID)
+				seeded++
+			}
+		case !criterion.Live:
+			continue
+		case !known:
+			l.MarkLive(criterion.ID)
+			seeded++
+		case entry.State == ledger.StateReserved:
+			l.MarkLive(criterion.ID)
+			promoted++
+		}
+	}
+	if seeded == 0 && promoted == 0 {
+		return
+	}
+	after, err := l.Bytes()
+	if err != nil {
+		return
+	}
+	result.Changes = append(result.Changes, Change{
+		Path:        ledger.DefaultPath,
+		Migration:   MigrationCriterionLedgerBackfill,
+		Description: fmt.Sprintf("seed %d criterion id(s) missing from the identity ledger and mark %d reserved one(s) the corpus declares as live", seeded, promoted),
 		Existed:     true,
 		Before:      before,
 		After:       after,
