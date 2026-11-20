@@ -9,13 +9,15 @@ All notable, user-visible changes to `clue` and the Cliewen skills. The format f
 
 ## [Unreleased]
 
+## [0.33.1] - 2026-11-20
+
 ### Fixed
 
 - `clue id next` no longer hands out a criterion number that is already declared in a criteria file still at `status: draft`. The identity ledger now covers criteria in draft criteria files too, and `clue validate` reports such a criterion when the ledger does not carry it.
 
 ### Migration
 
-- After upgrading, preview `clue migrate` and apply it: it adds every declared criterion the ledger does not carry yet, raises each prefix's counter above the numbers in use, and marks as live a reservation the allocator handed out for a number that was already declared.
+- After upgrading, preview `clue migrate` and apply it: it adds every declared criterion the ledger does not carry yet, raises each prefix's counter above the numbers in use, and marks as live a reservation the allocator handed out for a number that was already declared. If the same run also has to rewrite the ledger for another reason, the criteria are added on the next run, so run `clue migrate` again until it plans no change. Until then `clue validate` reports each criterion missing from the ledger.
 
 ## [0.33.0] - 2026-11-09
 
