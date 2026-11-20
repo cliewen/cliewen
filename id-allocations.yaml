@@ -2425,6 +2425,11 @@ claims:
       state: reserved
       prefix: CH
       component: "211"
+    - id: CH-212
+      kind: numeric
+      state: reserved
+      prefix: CH
+      component: "212"
     - id: G-001
       kind: numeric
       state: reserved
@@ -3776,11 +3781,11 @@ high-water:
       state: reserved
       prefix: P
       component: "25"
-    - id: PDR-072
+    - id: PDR-073
       kind: numeric
       state: reserved
       prefix: PDR
-      component: "72"
+      component: "73"
     - id: UC-002
       kind: numeric
       state: reserved
