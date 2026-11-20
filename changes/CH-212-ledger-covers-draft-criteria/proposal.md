@@ -38,4 +38,4 @@ New criteria in the team-safe identity allocation capability: AC-252, that an al
 
 ## Human evidence
 
-The maintainer runs the released `clue migrate --apply` in tank-royale and sees `clue validate` report no missing criterion and `clue id next BR` return a number above every declared `BR` criterion.
+No criterion of this change is Human-class; both are proven by Unit tests. On 2026-11-20 the agent ran the change's own `clue` against a fresh clone of tank-royale carrying that repository's ledger with the four colliding reservations: before the backfill `clue validate` reported 272 declared criteria missing from the ledger; `clue migrate --apply` seeded them and marked the eight reserved identities the corpus declares as live; afterwards `clue validate` passed and a dry-run `clue id next` returned `BR-050`, `BFD-008`, `GBP-010` and `RCL-141`, each above every declared number. Not observed: the maintainer running the released `clue` in tank-royale itself, which follows the release.
